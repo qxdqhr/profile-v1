@@ -1,0 +1,195 @@
+/* 表单容器样式 */
+.live-activity-container {
+  min-height: 100vh;
+  background-color: #fff9e6;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.live-activity-wrapper {
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.live-activity-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgb(212 180 131 / 10%);
+  padding: 1.5rem;
+  border: 1px solid rgb(212 180 131 / 30%);
+}
+
+@media (min-width: 768px) {
+  .live-activity-card {
+    padding: 2rem;
+  }
+}
+
+.live-activity-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.live-activity-back-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  color: #8b7355;
+  text-decoration: none;
+  background-color: #f5e6d3;
+  border-radius: 0.375rem;
+  transition: all 0.3s ease;
+}
+
+.live-activity-back-button:hover {
+  background-color: #d4b483;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.live-activity-title {
+  flex: 1;
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #8b7355;
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.live-activity-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.live-activity-submit-button {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  border: 1px solid transparent;
+  background-color: #d4b483;
+  color: white;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.live-activity-submit-button:hover:not(:disabled) {
+  background-color: #c19a6b;
+  transform: translateY(-2px);
+}
+
+.live-activity-submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.live-activity-loading-icon {
+  animation: spin 1s linear infinite;
+  margin-right: 0.75rem;
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+.live-activity-response {
+  margin-top: 2rem;
+  border-top: 1px solid rgb(212 180 131 / 30%);
+  padding-top: 1.5rem;
+}
+
+.live-activity-response-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #8b7355;
+  margin-bottom: 1rem;
+}
+
+.live-activity-response-content {
+  background-color: #f5e6d3;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.live-activity-response-text {
+  font-size: 0.875rem;
+  color: #8b7355;
+  white-space: pre-wrap;
+}
+
+.live-activity-editor-section {
+  margin-top: 1.5rem;
+}
+
+.live-activity-editor-container {
+  border: 1px solid rgb(212 180 131 / 30%);
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+
+.live-activity-error-message {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.live-activity-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.live-activity-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #8b7355;
+}
+
+.live-activity-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  color: #8b7355;
+  background-color: white;
+  border: 1px solid rgb(212 180 131 / 30%);
+  border-radius: 0.375rem;
+  transition: all 0.3s ease;
+}
+
+.live-activity-input:focus {
+  outline: none;
+  border-color: #d4b483;
+  box-shadow: 0 0 0 2px rgb(212 180 131 / 20%);
+}
+
+.live-activity-token-section {
+  background-color: #f5e6d3;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(212 180 131 / 30%);
+}
+
+.live-activity-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .live-activity-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

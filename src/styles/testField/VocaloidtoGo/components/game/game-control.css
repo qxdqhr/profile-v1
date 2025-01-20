@@ -1,0 +1,36 @@
+.game-control {
+    @apply flex flex-col gap-4 p-4 bg-white rounded-lg shadow-md;
+}
+
+.game-control-info {
+    @apply grid grid-cols-3 gap-4;
+}
+
+.game-control-score,
+.game-control-combo,
+.game-control-accuracy {
+    @apply text-center p-2 bg-gray-50 rounded-md;
+}
+
+.game-control-buttons {
+    @apply flex justify-center gap-4;
+}
+
+.game-control-button {
+    @apply px-4 py-2 rounded-md bg-blue-500 text-white font-medium
+           hover:bg-blue-600 transition-colors duration-200
+           disabled:bg-gray-300 disabled:cursor-not-allowed;
+}
+
+.game-control-settings {
+    @apply flex flex-wrap justify-center gap-4 mt-2;
+}
+
+.game-control-setting {
+    @apply flex items-center gap-2 cursor-pointer;
+}
+
+.game-control-setting input[type="checkbox"] {
+    @apply w-4 h-4 rounded border-gray-300 text-blue-500 
+           focus:ring-blue-500 cursor-pointer;
+} 

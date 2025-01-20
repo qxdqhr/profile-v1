@@ -1,0 +1,68 @@
+.player {
+    @apply fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200;
+}
+
+.player-container {
+    @apply container mx-auto px-4 py-3;
+}
+
+.player-main {
+    @apply flex items-center justify-between gap-4;
+}
+
+.player-info {
+    @apply flex-shrink-0 min-w-[200px];
+}
+
+.player-song-title {
+    @apply text-lg font-medium text-gray-900 truncate;
+}
+
+.player-artist {
+    @apply text-sm text-gray-500;
+}
+
+.player-control-btn {
+    @apply px-4 py-2 rounded-md bg-blue-500 text-white font-medium
+           hover:bg-blue-600 transition-colors duration-200
+           disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.player-progress {
+    @apply flex-1 flex items-center gap-2;
+}
+
+.player-time {
+    @apply text-sm text-gray-500 min-w-[45px];
+}
+
+.player-progress-bar {
+    @apply flex-1 relative h-2 bg-gray-200 rounded-full cursor-pointer;
+}
+
+.player-progress-track {
+    @apply absolute inset-0 bg-gray-200 rounded-full;
+}
+
+.player-progress-current {
+    @apply absolute inset-y-0 left-0 bg-blue-500 rounded-full;
+}
+
+.player-volume {
+    @apply flex items-center gap-2 min-w-[100px];
+}
+
+.player-volume-slider {
+    @apply w-full h-2 bg-gray-200 rounded-full cursor-pointer
+           appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+.player-volume-slider::-webkit-slider-thumb {
+    @apply appearance-none w-4 h-4 bg-blue-500 rounded-full 
+           hover:bg-blue-600 transition-colors duration-200;
+}
+
+.player-settings-btn {
+    @apply px-3 py-1 rounded-md text-gray-700 hover:bg-gray-100 
+           transition-colors duration-200;
+} 

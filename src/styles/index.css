@@ -1,0 +1,20 @@
+@import "./vars.css";
+@import "tailwindcss/base";
+@import "./tailwind/base.css";
+@import "tailwindcss/components";
+@import "./tailwind/components.css";
+@import "tailwindcss/utilities";
+@import "./tailwind/utilities.css";
+@import "./app.css";
+@import "./components/Navbar.css";
+@import "./components/Home.css";
+@import "./components/Avatar.css";
+@import "./components/Timeline.css";
+@import "./components/CollisionBalls.css";
+@import "./components/ProjectCarousel.css";
+@import "./components/BackButton.css";
+@import "./testField/liveActivity.css";
+@import "./testField/TestField.css";
+@import "./testField/syncText.css";
+@import "./testField/VocaloidtoGo/index.css";
+/* @import "./testField/components/BackButton.css"; */

@@ -1,0 +1,95 @@
+html,
+body,
+#root,
+.ant-app {
+  /* @apply tw-w-full tw-flex tw-p-0 tw-m-0; */
+  height: auto;
+  min-height: 100vh;
+  overflow: hidden auto;
+}
+
+html {
+  font-family: var(--font-family-standard);
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+}
+
+body {
+  font-size: var(--font-size-base);
+}
+
+.main-container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #fff9e6;
+
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+  }
+
+  .content-wrapper {
+    width: 100%;
+    min-height: 100vh;
+    overflow: hidden auto;
+  }
+
+  &.open {
+    &.vertical {
+      .content-wrapper {
+        margin-left: 200px; /* 为打开的导航栏留出空间 */
+        width: calc(100% - 200px);
+      }
+    }
+
+    &.horizontal {
+      .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: auto;
+      }
+
+      .content-wrapper {
+        margin-left: 0;
+        margin-top: 64px; /* 根据你的导航栏高度调整 */
+        width: 100%;
+      }
+    }
+  }
+
+  &.closed {
+    &.vertical {
+      .content-wrapper {
+        margin-left: 0;
+        width: 100%;
+      }
+    }
+  }
+}
+
+.module-title.h2 {
+  position: relative;
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  color: #8b7355;
+
+  &::after {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 60px;
+    height: 3px;
+    content: "";
+    background: linear-gradient(to right, transparent, #d4b483, transparent);
+    transform: translateX(-50%);
+  }
+}

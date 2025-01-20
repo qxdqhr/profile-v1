@@ -1,0 +1,13 @@
+@layer base {
+  html {
+    font-family: var(--font-family-standard);
+  }
+
+  body {
+    font-size: var(--font-size-base);
+  }
+
+  .testbutton {
+    @apply tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white tw-px-4 tw-py-2 tw-rounded-full tw-transition-colors tw-duration-300 tw-ease-in-out tw-cursor-pointer tw-select-none active:tw-scale-95;
+  }
+}

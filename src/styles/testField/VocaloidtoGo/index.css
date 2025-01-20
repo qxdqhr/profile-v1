@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* VocaloidtoGO 模块样式 */
+.vocaloid-to-go {
+    @apply min-h-screen bg-gray-50;
+}
+
+/* 导入组件样式 */
+@import './components/player/player.css';
+@import './components/lyrics/lyrics.css';
+@import './components/game/game-control.css';
+@import './components/settings/settings-panel.css'; 

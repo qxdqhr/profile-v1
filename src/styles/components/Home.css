@@ -1,0 +1,146 @@
+/* 主页容器样式 */
+.home {
+  position: relative; /* 修改定位 */
+  box-sizing: border-box; /* 包括内边距和边框在内的宽度计算 */
+  display: flex; /* 使用flex布局实现垂直居中 */
+  align-items: center; /* 内容垂直居中 */
+  width: 100%; /* 修改宽度为100% */
+  min-height: 100vh; /* 至少占据整个视口高度 */
+  padding: 0; /* 移除内边距 */
+  margin: 0; /* 移除外边距 */
+  overflow-x: hidden; /* 隐藏水平溢出 */
+  background-color: #fff9e6; /* 设置背景色为淡黄色 */
+}
+
+/* 主要内容区域样式 */
+.home__content {
+  display: flex; /* 使用flex布局排列文字和图片 */
+  gap: 2rem; /* 文字和图片之间的间距 */
+  align-items: center; /* 内容垂直居中 */
+  justify-content: space-between; /* 两端对齐分布 */
+  width: 100%; /* 占据容器完整宽度 */
+
+  /* max-width: 1200px; 添加最大宽度限制 */
+  padding: 2rem; /* 四周添加内边距 */
+  margin: 0 auto; /* 水平居中 */
+}
+
+/* 文字内容区域样式 */
+.home__text {
+  display: flex; /* 使用flex布局垂直排列文字内容 */
+  flex: 1; /* 占据可用空间 */
+  flex-direction: column; /* 垂直排列子元素 */
+  justify-content: center; /* 垂直居中 */
+}
+
+/* 标题样式 */
+.home__title {
+  display: inline-flex; /* 使用inline-flex实现文字换行时光标跟随 */
+  flex-wrap: wrap; /* 允许文字换行 */
+  gap: 2px; /* 文字和光标之间的间距 */
+  align-items: center; /* 文字和光标垂直居中 */
+  margin-bottom: 1rem; /* 底部外边距 */
+  font-size: 3rem; /* 标题字体大小 */
+  font-weight: bold; /* 文字加粗 */
+}
+
+/* 光标样式 */
+.cursor {
+  position: relative; /* 相对定位 */
+  display: inline-block; /* 行内块级元素 */
+  height: 1em; /* 高度与文字行高一致 */
+  margin-left: 0; /* 移除左边距 */
+  font-weight: 100; /* 细体显示 */
+  line-height: 1; /* 行高与文字一致 */
+  animation: blink 1s infinite; /* 应用闪烁动画 */
+}
+
+/* 光标闪烁动画 */
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1; /* 完全不透明 */
+  }
+
+  50% {
+    opacity: 0; /* 完全透明 */
+  }
+}
+
+/* 副标题样式 */
+.home__subtitle {
+  margin-bottom: 2rem; /* 底部外边距 */
+  font-size: 1.5rem; /* 字体大小 */
+  color: #8b7355; /* 文字颜色为深棕色 */
+}
+
+/* 按钮容器样式 */
+.home__buttons {
+  display: flex; /* 使用flex布局水平排列按钮 */
+  gap: 1rem; /* 按钮之间的间距 */
+}
+
+/* 按钮样式 */
+.home__button {
+  padding: 0.75rem 1.5rem; /* 内边距 */
+  color: white; /* 文字颜色 */
+  text-decoration: none; /* 移除下划线 */
+  background-color: #d4b483; /* 背景色为淡金色 */
+  border-radius: 4px; /* 圆角 */
+  transition: all 0.3s ease; /* 添加过渡动画 */
+}
+
+/* 按钮悬停效果 */
+.home__button:hover {
+  background-color: #c19a6b; /* 加深背景色 */
+  transform: translateY(-2px); /* 向上浮动效果 */
+}
+
+/* 图片容器样式 */
+.home__image {
+  display: flex; /* 使用flex布局 */
+  flex: 1; /* 占据可用空间 */
+  align-items: center; /* 垂直居中 */
+  align-self: stretch; /* 拉伸至与文字区域等高 */
+  justify-content: center; /* 水平居中 */
+}
+
+/* 图片样式 */
+.home__image img {
+  max-width: 100%; /* 确保图片不超出容器 */
+  height: auto; /* 保持宽高比 */
+  object-fit: contain; /* 保持图片比例 */
+  border-radius: 8px; /* 圆角 */
+  box-shadow: 0 4px 6px rgb(212 180 131 / 20%); /* 添加阴影效果 */
+}
+
+/* 响应式设计 */
+@media (width <= 1000px) {
+  .home__content {
+    flex-direction: column-reverse; /* 移动端图片在上文字在下 */
+    gap: 3rem; /* 增加间距 */
+    text-align: center; /* 文字居中 */
+  }
+
+  .home__image {
+    display: flex; /* 使用flex布局 */
+    align-items: center; /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+    width: 100%; /* 占据完整宽度 */
+    margin: 0 auto; /* 水平居中 */
+  }
+
+  .home__image img {
+    width: 100%; /* 占据容器完整宽度 */
+    max-width: 400px; /* 限制最大宽度 */
+    margin: 0 auto; /* 水平居中 */
+  }
+
+  .home__buttons {
+    justify-content: center; /* 按钮居中 */
+  }
+
+  .home__title {
+    justify-content: center; /* 标题居中 */
+  }
+}

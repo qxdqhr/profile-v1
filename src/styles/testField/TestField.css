@@ -1,0 +1,80 @@
+.container {
+  min-height: 100vh;
+  background-color: #fff9e6;
+  padding: 2rem 1rem;
+}
+
+.wrapper {
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #8b7355;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+}
+
+.card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgb(212 180 131 / 10%);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  border: 1px solid rgb(212 180 131 / 30%);
+}
+
+.card:hover {
+  box-shadow: 0 6px 8px rgb(212 180 131 / 15%);
+  transform: translateY(-2px);
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #8b7355;
+  margin-bottom: 0.5rem;
+}
+
+.cardTitle:hover {
+  color: #c19a6b;
+}
+
+.description {
+  color: #a38d6d;
+  margin-bottom: 1rem;
+}
+
+.tagContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  background-color: #f5e6d3;
+  color: #8b7355;
+  border-radius: 0.25rem;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+} 
