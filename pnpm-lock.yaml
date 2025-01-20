@@ -14,6 +14,9 @@ importers:
       '@pixi/react':
         specifier: ^7.1.2
         version: 7.1.2(rbk2pa5kjfujbi7gk4qxenqa5a)
+      '@pixi/sound':
+        specifier: ^6.0.1
+        version: 6.0.1(pixi.js@8.6.6)
       '@prisma/client':
         specifier: ^6.2.1
         version: 6.2.1(prisma@6.2.1)
@@ -372,6 +375,11 @@ packages:
 
   '@pixi/settings@7.4.2':
     resolution: {integrity: sha512-pMN+L6aWgvUbwhFIL/BTHKe2ShYGPZ8h9wlVBnFHMtUcJcFLMF1B3lzuvCayZRepOphs6RY0TqvnDvVb585JhQ==}
+
+  '@pixi/sound@6.0.1':
+    resolution: {integrity: sha512-hpFlQSScAR2L/CsEoIvDi7s1oGsu8y9Zd742Vd3982N+q3IF2vFuIfV9HN4ryjlGnhCT8yBlEgs1gp4G9Rt9TA==}
+    peerDependencies:
+      pixi.js: ^8.0.0
 
   '@pixi/sprite-animated@7.4.2':
     resolution: {integrity: sha512-QPT6yxCUGOBN+98H3pyIZ1ZO6Y7BN1o0Q2IMZEsD1rNfZJrTYS3Q8VlCG5t2YlFlcB8j5iBo24bZb6FUxLOmsQ==}
@@ -2027,6 +2035,10 @@ snapshots:
       '@pixi/constants': 7.4.2
       '@types/css-font-loading-module': 0.0.12
       ismobilejs: 1.1.1
+
+  '@pixi/sound@6.0.1(pixi.js@8.6.6)':
+    dependencies:
+      pixi.js: 8.6.6
 
   '@pixi/sprite-animated@7.4.2(@pixi/core@7.4.2)(@pixi/sprite@7.4.2(@pixi/core@7.4.2)(@pixi/display@7.4.2(@pixi/core@7.4.2)))':
     dependencies:
