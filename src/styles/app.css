@@ -25,7 +25,7 @@ body {
   position: relative;
   width: 100%;
   min-height: 100vh;
-  background-color: #fff9e6;
+  background-color: #fbfbfd;
 
   .navbar {
     position: fixed;
@@ -80,7 +80,7 @@ body {
   padding-bottom: 1rem;
   margin-bottom: 2rem;
   font-size: 2rem;
-  color: #8b7355;
+  color: #000000;
 
   &::after {
     position: absolute;
@@ -89,7 +89,5 @@ body {
     width: 60px;
     height: 3px;
     content: "";
-    background: linear-gradient(to right, transparent, #d4b483, transparent);
-    transform: translateX(-50%);
   }
 }

@@ -1,0 +1,217 @@
+/* src/styles/blog/blog.css */
+
+/* 全局变量 */
+:root {
+  --primary-blue: #0066cc;      /* Apple 主蓝色 */
+  --secondary-blue: #147ce5;    /* 次要蓝色 */
+  --light-blue: #e4f0ff;       /* 最浅蓝色背景 */
+  --primary-gray: #1d1d1f;     /* 主要文字色 */
+  --secondary-gray: #424245;    /* 次要文字色 */
+  --light-gray: #f5f5f7;       /* 浅灰背景 */
+  --white: #ffffff;            /* 纯白 */
+  --gradient-blue: linear-gradient(135deg, #0066cc, #147ce5); /* 渐变蓝 */
+  --blog-font: var(--font-family-standard);
+}
+
+/* 容器样式 */
+.blog-container {
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  font-family: var(--blog-font);
+  background-color: var(--light-gray);
+}
+
+/* 内容包装器 */
+.blog-wrapper {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background-color: var(--white);
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: none;
+}
+
+/* 标题样式 */
+.blog-title {
+  position: relative;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-gray);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.blog-title::after {
+  position: absolute;
+  bottom: -1rem;
+  left: 50%;
+  width: 60px;
+  height: 3px;
+  content: "";
+  background: linear-gradient(to right, transparent, var(--secondary-blue), transparent);
+  transform: translateX(-50%);
+}
+
+/* 博客卡片网格布局 */
+.blog-grid {
+  display: grid;
+  gap: 2rem;
+  padding: 0 1rem;
+}
+
+@media (min-width: 768px) {
+  .blog-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 博客卡片样式 */
+.blog-card {
+  display: block;
+  padding: 2rem;
+  background-color: var(--white);
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  text-decoration: none;
+  border: none;
+}
+
+.blog-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 102, 204, 0.15);
+}
+
+.blog-card-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-gray);
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.blog-card-description {
+  color: var(--secondary-gray);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.blog-card-date {
+  font-size: 0.875rem;
+  color: var(--primary-blue);
+  display: block;
+}
+
+/* 博客文章页样式 */
+.blog-post-container {
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  background-color: var(--light-gray);
+  font-family: var(--blog-font);
+}
+
+.blog-post-wrapper {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background-color: var(--white);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgb(212 180 131 / 10%);
+  border: 1px solid rgb(212 180 131 / 30%);
+}
+
+.blog-back-link {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  color: var(--primary-blue);
+  text-decoration: none;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.blog-back-link:hover {
+  color: var(--primary-gray);
+  transform: translateX(-4px);
+}
+
+.blog-back-link::before {
+  content: "←";
+  margin-right: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.blog-post-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-gray);
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+.blog-post-date {
+  color: var(--primary-blue);
+  font-size: 0.875rem;
+  display: block;
+  margin-bottom: 2rem;
+}
+
+.blog-post-content {
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: var(--primary-gray);
+}
+
+/* 响应式调整 */
+@media (max-width: 767px) {
+  .blog-container,
+  .blog-post-container {
+    padding: 2rem 1rem;
+  }
+
+  .blog-title {
+    font-size: 2rem;
+  }
+
+  .blog-post-title {
+    font-size: 2rem;
+  }
+
+  .blog-card {
+    padding: 1.5rem;
+  }
+}
+
+/* 导航按钮容器 */
+.blog-nav-buttons {
+  display: flex;
+  gap: 0.375rem;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+/* 暗色模式支持 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary-blue: #0a84ff;
+    --secondary-blue: #5e9eff;
+    --light-blue: #0a84ff1a;
+    --primary-gray: #f5f5f7;
+    --secondary-gray: #a1a1a6;
+    --light-gray: #000000;
+    --white: #1c1c1e;
+  }
+
+  .blog-card,
+  .blog-post-wrapper {
+    background-color: var(--white);
+    border: none;
+  }
+
+  .blog-card:hover {
+    background-color: #2c2c2e;
+    box-shadow: 0 8px 30px rgba(10, 132, 255, 0.15);
+  }
+}

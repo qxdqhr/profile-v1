@@ -7,8 +7,10 @@
   height: 100%;
   min-height: calc(100vh - 10rem);
   padding: 2rem;
-  border: 1px solid rgb(212 180 131 / 30%);
-  border-radius: 12px;
+  border: none;
+  border-radius: 1rem;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .canvas-container {
@@ -19,8 +21,8 @@
   height: 100%;
   min-height: 600px;
   background: transparent;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgb(0 0 0 / 10%);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .canvas-container canvas {
@@ -34,19 +36,19 @@
   font-size: 1rem;
   color: #fff;
   cursor: pointer;
-  background-color: #61c0bf;
+  background-color: #000000;
   border: none;
-  border-radius: 4px;
+  border-radius: 1.5rem;
   transition: all 0.2s ease;
 }
 
 .shake-button:hover {
-  background-color: #4fa8a7;
+  background-color: #313132;
   transform: scale(1.05);
 }
 
 .shake-button:active {
-  background-color: #3d8a89;
+  background-color: #1d1d1f;
   transform: scale(0.95);
 }
 

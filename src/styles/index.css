@@ -1,11 +1,13 @@
+/* 基础样式和工具类 */
 @import "./vars.css";
-@import "tailwindcss/base";
 @import "./tailwind/base.css";
-@import "tailwindcss/components";
 @import "./tailwind/components.css";
-@import "tailwindcss/utilities";
 @import "./tailwind/utilities.css";
+
+/* 全局样式 */
 @import "./app.css";
+
+/* 组件样式 */
 @import "./components/Navbar.css";
 @import "./components/Home.css";
 @import "./components/Avatar.css";
@@ -13,7 +15,14 @@
 @import "./components/CollisionBalls.css";
 @import "./components/ProjectCarousel.css";
 @import "./components/BackButton.css";
+
+/* 测试页面样式 */
 @import "./testField/liveActivity.css";
 @import "./testField/TestField.css";
 @import "./testField/syncText.css";
-@import "./testField/VocaloidtoGo.css";
+
+/* 博客样式 */
+@import "./blog/blog.css";
+
+/* 暂时禁用的样式 */
+/* @import "./testField/components/BackButton.css"; */

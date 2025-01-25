@@ -1,6 +1,6 @@
 .container {
   min-height: 100vh;
-  background-color: #fff9e6;
+  background-color: #fbfbfd;
   padding: 2rem 1rem;
 }
 
@@ -12,7 +12,7 @@
 .title {
   font-size: 1.875rem;
   font-weight: 700;
-  color: #8b7355;
+  color: #1d1d1f;
   margin-bottom: 2rem;
   text-align: center;
 }
@@ -25,31 +25,31 @@
 
 .card {
   background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgb(212 180 131 / 10%);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 1.5rem;
   transition: all 0.3s ease;
-  border: 1px solid rgb(212 180 131 / 30%);
+  border: none;
 }
 
 .card:hover {
-  box-shadow: 0 6px 8px rgb(212 180 131 / 15%);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.12);
   transform: translateY(-2px);
 }
 
 .cardTitle {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #8b7355;
+  color: #000000;
   margin-bottom: 0.5rem;
 }
 
 .cardTitle:hover {
-  color: #c19a6b;
+  color: #313132;
 }
 
 .description {
-  color: #a38d6d;
+  color: #86868b;
   margin-bottom: 1rem;
 }
 
@@ -62,9 +62,9 @@
 .tag {
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
-  background-color: #f5e6d3;
-  color: #8b7355;
-  border-radius: 0.25rem;
+  background-color: #f5f5f7;
+  color: #1d1d1f;
+  border-radius: 0.75rem;
 }
 
 @media (min-width: 768px) {

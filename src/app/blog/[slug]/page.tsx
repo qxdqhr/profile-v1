@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import "@/styles/index.css";
 
 // 模拟博客数据
 const blogPosts = {
@@ -30,21 +31,25 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   return (
-    <div className="tw-container tw-mx-auto tw-px-4 tw-py-8">
-      <Link 
-        href="/blog" 
-        className="tw-inline-block tw-mb-8 tw-text-blue-600 hover:tw-text-blue-800"
-      >
-        ← 返回博客列表
-      </Link>
-      
-      <article className="tw-prose lg:tw-prose-xl tw-mx-auto">
-        <h1 className="tw-text-4xl tw-font-bold tw-mb-4">{post.title}</h1>
-        <time className="tw-text-gray-500 tw-block tw-mb-8">{post.date}</time>
-        <div className="tw-mt-8">
-          {post.content}
+    <div className="blog-post-container">
+      <div className="blog-post-wrapper">
+        <div className="blog-nav-buttons">
+          <Link href="/" className="back-button">
+            返回主页
+          </Link>
+          <Link href="/blog" className="back-button">
+            返回博客列表
+          </Link>
         </div>
-      </article>
+        
+        <article>
+          <h1 className="blog-post-title">{post.title}</h1>
+          <time className="blog-post-date">{post.date}</time>
+          <div className="blog-post-content">
+            {post.content}
+          </div>
+        </article>
+      </div>
     </div>
   );
 } 

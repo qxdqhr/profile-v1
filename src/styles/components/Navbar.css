@@ -8,7 +8,9 @@
   justify-content: space-between;
   padding: 1rem 5%;
   overflow-x: hidden;
-  background-color: #d4b483;
+  background-color: rgba(255, 255, 255, 0.8); /* Apple Design 半透明背景 */
+  backdrop-filter: blur(10px); /* Apple Design 毛玻璃效果 */
+  -webkit-backdrop-filter: blur(10px);
   transition: width 0.3s ease;
 
   &.open {
@@ -51,7 +53,9 @@
       padding: 0;
       margin-left: 0.5rem;
       overflow: hidden;
-      background-color: #d4b483;
+      background-color: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border-radius: 0 0 4px 4px;
       transition: all 0.3s ease;
 
@@ -108,12 +112,14 @@
         padding: 0.75rem 1rem;
         overflow: hidden;
         text-overflow: ellipsis;
+        color: #1d1d1f;
 
         &::after {
           right: 1rem;
           left: 1rem;
           width: calc(100%);
           max-width: calc(100%);
+          background-color: #000000;
         }
       }
     }
@@ -128,7 +134,7 @@
       padding: 0;
       margin-left: 0;
       overflow: hidden;
-      background-color: rgb(212 180 131 / 10%);
+      background-color: rgba(0, 0, 0, 0.05);
       border-radius: 0;
       box-shadow: none;
       transition: max-height 0.3s ease;
@@ -191,7 +197,7 @@
       width: 100%;
       padding: 0.5rem 1rem;
       font-weight: bold;
-      color: #fff;
+      color: #1d1d1f;
       text-decoration: none;
       white-space: nowrap;
       transition: color 0.3s ease;
@@ -203,7 +209,7 @@
         left: 1rem;
         height: 2px;
         content: "";
-        background-color: #fff;
+        background-color: #000000;
         transition: transform 0.3s ease;
         transform: scaleX(0);
       }
@@ -238,7 +244,9 @@
     max-height: 0;
     padding: 0;
     overflow: hidden;
-    background-color: #d4b483;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border-radius: 0 0 4px 4px;
     transition: all 0.3s ease;
 
@@ -258,7 +266,7 @@
 .submenu-toggle {
   padding: 0.25rem;
   font-size: 0.75rem;
-  color: #fff;
+  color: #1d1d1f;
   cursor: pointer;
   background: none;
   border: none;
@@ -273,16 +281,18 @@
   z-index: 60;
   display: block;
   padding: 0.5rem;
-  color: #fff;
+  color: #1d1d1f;
   cursor: pointer;
-  background-color: #d4b483;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: none;
   border-radius: 0 4px 4px 0;
   transition: all 0.3s ease;
   transform: translateY(-50%);
 
   &:hover {
-    background-color: #c19a6b;
+    background-color: rgba(0, 0, 0, 0.05);
   }
 }
 

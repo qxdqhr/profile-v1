@@ -2,10 +2,10 @@
   display: inline-flex;
   align-items: center;
   padding: 0.5rem 1rem;
-  color: #8b7355;
+  color: #1d1d1f;
   text-decoration: none;
-  background-color: #f5e6d3;
-  border-radius: 0.375rem;
+  background-color: #f5f5f7;
+  border-radius: 1.5rem;
   transition: all 0.3s ease;
   border: none;
   cursor: pointer;
@@ -13,8 +13,8 @@
 }
 
 .back-button:hover {
-  background-color: #d4b483;
-  color: white;
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #000000;
   transform: translateY(-2px);
 }
 
