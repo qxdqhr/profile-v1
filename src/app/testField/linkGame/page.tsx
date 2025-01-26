@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Stage, Container } from '@pixi/react'
 import { ImageTile } from './components/ImageTile'
+import { CubeTile } from './components/CubeTile'
 import { SelectionEffect, ConnectionLine } from './components/Effects'
 import { GameInfo, MusicControl } from './components/UI'
 import { initializeBoard, canConnect } from './gameLogic'
@@ -135,7 +136,12 @@ const LinkGame = () => {
       } else {
         const result = canConnect(selectedTile, tile, tiles);
         if (tile.type === selectedTile.type && result.canConnect) {
+          setTiles(tiles.map(t => ({
+            ...t,
+            isSelected: t.id === tile.id || t.id === selectedTile.id
+          })));
           setConnectionPath(result.path);
+          
           setTimeout(() => {
             setTiles(tiles.map(t => ({
               ...t,
@@ -197,8 +203,9 @@ const LinkGame = () => {
           {tiles.map((tile) => (
             <Container key={tile.id} x={tile.x} y={tile.y}>
               {tile.isSelected && <SelectionEffect gameMode={gameMode} />}
-              <ImageTile
-                tile={tile}
+              {/* <ImageTile */}
+              <CubeTile
+              tile={tile}
                 onTileClick={handleTileClick}
               />
             </Container>

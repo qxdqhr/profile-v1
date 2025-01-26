@@ -29,4 +29,4 @@ export const TILE_SIZE = 70
 export const TILE_GAP = 10
 export const TYPES_COUNT = 10
 export const OUTER_PADDING = 1
-export const GAME_DURATION = 10//300 // 游戏时长（秒） 
+export const GAME_DURATION = 300 // 游戏时长（秒） 
