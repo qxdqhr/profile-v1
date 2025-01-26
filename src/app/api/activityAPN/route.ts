@@ -1,11 +1,7 @@
 import { NextResponse } from 'next/server';
 
-var deviceToken = '';
 
-// 内部函数，不再导出
-function getDeviceToken() {
-    return deviceToken;
-}
+
 
 export async function POST(request: Request): Promise<NextResponse> {
     const body = await request.json();
@@ -17,6 +13,7 @@ export async function POST(request: Request): Promise<NextResponse> {
             status: 400 
         }, { status: 400 });
     }
+    var deviceToken = '';
     
     deviceToken = body.devicetoken;
     console.log('Updated deviceToken:', deviceToken);
