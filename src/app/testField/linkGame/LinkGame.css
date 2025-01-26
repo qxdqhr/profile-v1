@@ -86,4 +86,17 @@ canvas {
   background: rgba(76, 175, 80, 1);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.music-control button:disabled {
+  background: rgba(76, 175, 80, 0.5);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.music-control button:disabled:hover {
+  background: rgba(76, 175, 80, 0.5);
+  transform: none;
+  box-shadow: none;
 } 

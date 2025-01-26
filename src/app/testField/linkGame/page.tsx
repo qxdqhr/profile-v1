@@ -15,33 +15,55 @@ const LinkGame = () => {
   const [connectionPath, setConnectionPath] = useState<PathPoint[]>([])
   const [isMusicPlaying, setIsMusicPlaying] = useState(false)
   const [isFirstClick, setIsFirstClick] = useState(true)
+  const [isMusicLoaded, setIsMusicLoaded] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
     audioRef.current = new Audio('/linkGame/mp3/VivalaVida.mp3')
     audioRef.current.loop = true
     
+    // 监听音乐加载完成事件
+    audioRef.current.addEventListener('canplaythrough', () => {
+      setIsMusicLoaded(true)
+    })
+    
     return () => {
       if (audioRef.current) {
         audioRef.current.pause()
+        audioRef.current.removeEventListener('canplaythrough', () => {
+          setIsMusicLoaded(true)
+        })
         audioRef.current = null
       }
     }
   }, [])
 
   const startBackgroundMusic = () => {
-    if (audioRef.current && !isMusicPlaying) {
-      audioRef.current.play()
-      setIsMusicPlaying(true)
+    if (audioRef.current && !isMusicPlaying && isMusicLoaded) {
+      const playPromise = audioRef.current.play()
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsMusicPlaying(true)
+          })
+          .catch(error => {
+            console.log("音乐播放失败:", error)
+          })
+      }
     }
   }
 
   const toggleMusic = () => {
-    if (audioRef.current) {
+    if (audioRef.current && isMusicLoaded) {
       if (isMusicPlaying) {
         audioRef.current.pause()
       } else {
-        audioRef.current.play()
+        const playPromise = audioRef.current.play()
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.log("音乐播放失败:", error)
+          })
+        }
       }
       setIsMusicPlaying(!isMusicPlaying)
     }
@@ -104,7 +126,11 @@ const LinkGame = () => {
     <div className="linkGame-container">
       <div className="game-header">
         <GameInfo score={score} onRestart={() => setTiles(initializeBoard())} />
-        <MusicControl isPlaying={isMusicPlaying} onToggle={toggleMusic} />
+        <MusicControl 
+          isPlaying={isMusicPlaying} 
+          onToggle={toggleMusic} 
+          disabled={!isMusicLoaded}
+        />
       </div>
       
       <Stage
