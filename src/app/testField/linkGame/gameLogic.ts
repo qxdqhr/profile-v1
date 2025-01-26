@@ -1,140 +1,175 @@
-import { Tile, PathPoint, GRID_SIZE, TILE_SIZE, TYPES_COUNT, OUTER_PADDING } from './types'
+import { Tile, GRID_SIZE, TILE_SIZE, TILE_GAP, TYPES_COUNT } from './types'
 
 export const initializeBoard = (): Tile[] => {
-  const newTiles: Tile[] = []
-  const types = []
+  const tiles: Tile[] = []
+  const types: number[] = []
 
-  // 创建配对的图标类型
+  // 生成配对的类型
   for (let i = 0; i < (GRID_SIZE * GRID_SIZE) / 2; i++) {
-    const type = Math.floor(Math.random() * TYPES_COUNT)
+    const type = i % TYPES_COUNT
     types.push(type, type)
   }
 
-  // 随机打乱
+  // 随机打乱类型数组
   for (let i = types.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [types[i], types[j]] = [types[j], types[i]]
   }
 
-  // 创建瓦片
-  let typeIndex = 0
-  for (let y = 0; y < GRID_SIZE; y++) {
-    for (let x = 0; x < GRID_SIZE; x++) {
-      newTiles.push({
-        id: y * GRID_SIZE + x,
-        type: types[typeIndex++],
-        x: x * TILE_SIZE,
-        y: y * TILE_SIZE,
+  // 创建图块
+  let id = 0
+  for (let row = 0; row < GRID_SIZE; row++) {
+    for (let col = 0; col < GRID_SIZE; col++) {
+      tiles.push({
+        id: id++,
+        type: types[row * GRID_SIZE + col],
+        x: col * (TILE_SIZE + TILE_GAP),
+        y: row * (TILE_SIZE + TILE_GAP),
         isSelected: false,
         isMatched: false
       })
     }
   }
-  return newTiles
+
+  return tiles
 }
 
-export const canConnect = (tile1: Tile, tile2: Tile, tiles: Tile[]): { canConnect: boolean, path: PathPoint[] } => {
-  if (tile1.type !== tile2.type) return { canConnect: false, path: [] };
+export const canConnect = (tile1: Tile, tile2: Tile, tiles: Tile[]): { canConnect: boolean, path: { x: number, y: number }[] } => {
+  if (tile1.type !== tile2.type) {
+    return { canConnect: false, path: [] }
+  }
 
-  // 获取网格坐标
-  const x1 = Math.floor(tile1.x / TILE_SIZE);
-  const y1 = Math.floor(tile1.y / TILE_SIZE);
-  const x2 = Math.floor(tile2.x / TILE_SIZE);
-  const y2 = Math.floor(tile2.y / TILE_SIZE);
-
-  // 创建访问记录数组（包括外圈）
-  const totalSize = GRID_SIZE + 2 * OUTER_PADDING;
-  const visited = Array(totalSize).fill(0).map(() => Array(totalSize).fill(false));
+  // 创建网格表示图块占用情况
+  const grid: boolean[][] = Array(GRID_SIZE + 2).fill(false).map(() => Array(GRID_SIZE + 2).fill(false))
   
-  // 存储路径
-  let currentPath: PathPoint[] = [];
-  let bestPath: PathPoint[] = [];
-  let minTurns = Infinity;
-  let minLength = Infinity;
-
-  const checkPath = (x: number, y: number, targetX: number, targetY: number, turns: number, path: PathPoint[]): boolean => {
-    // 调整坐标到包含外圈的网格中
-    const adjustedX = x + OUTER_PADDING;
-    const adjustedY = y + OUTER_PADDING;
-
-    if (adjustedX < 0 || adjustedX >= totalSize || adjustedY < 0 || adjustedY >= totalSize || visited[adjustedY][adjustedX]) {
-      return false;
+  // 标记所有未匹配的图块位置
+  tiles.forEach(tile => {
+    if (!tile.isMatched) {
+      const gridX = Math.floor(tile.x / (TILE_SIZE + TILE_GAP)) + 1
+      const gridY = Math.floor(tile.y / (TILE_SIZE + TILE_GAP)) + 1
+      grid[gridY][gridX] = true
     }
+  })
 
-    if (x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE) {
-      const blockingTile = tiles.find(t => 
-        Math.floor(t.x / TILE_SIZE) === x && 
-        Math.floor(t.y / TILE_SIZE) === y && 
-        !t.isMatched &&
-        t.id !== tile1.id && 
-        t.id !== tile2.id
-      );
-      if (blockingTile) return false;
+  // 获取两个图块的网格坐标
+  const start = {
+    x: Math.floor(tile1.x / (TILE_SIZE + TILE_GAP)) + 1,
+    y: Math.floor(tile1.y / (TILE_SIZE + TILE_GAP)) + 1
+  }
+  const end = {
+    x: Math.floor(tile2.x / (TILE_SIZE + TILE_GAP)) + 1,
+    y: Math.floor(tile2.y / (TILE_SIZE + TILE_GAP)) + 1
+  }
+
+  // 临时取消起点和终点的占用标记
+  grid[start.y][start.x] = false
+  grid[end.y][end.x] = false
+
+  // 寻找路径
+  const path = findPath(start, end, grid)
+
+  // 恢复起点和终点的占用标记
+  grid[start.y][start.x] = true
+  grid[end.y][end.x] = true
+
+  if (!path) {
+    return { canConnect: false, path: [] }
+  }
+
+  // 转换路径坐标为实际坐标（考虑图块中心点）
+  const realPath = path.map(point => ({
+    x: (point.x - 1) * (TILE_SIZE + TILE_GAP) + TILE_SIZE / 2,
+    y: (point.y - 1) * (TILE_SIZE + TILE_GAP) + TILE_SIZE / 2
+  }))
+
+  return { canConnect: true, path: realPath }
+}
+
+// 辅助函数：检查是否可以直接连接
+const canConnectDirectly = (start: { x: number, y: number }, end: { x: number, y: number }, grid: boolean[][]): boolean => {
+  if (start.x === end.x) {
+    // 垂直连接
+    const minY = Math.min(start.y, end.y)
+    const maxY = Math.max(start.y, end.y)
+    for (let y = minY + 1; y < maxY; y++) {
+      if (grid[y][start.x]) return false
     }
+    return true
+  }
+  if (start.y === end.y) {
+    // 水平连接
+    const minX = Math.min(start.x, end.x)
+    const maxX = Math.max(start.x, end.x)
+    for (let x = minX + 1; x < maxX; x++) {
+      if (grid[start.y][x]) return false
+    }
+    return true
+  }
+  return false
+}
 
-    const currentPoint = {
-      x: (x + OUTER_PADDING) * TILE_SIZE + TILE_SIZE / 2,
-      y: (y + OUTER_PADDING) * TILE_SIZE + TILE_SIZE / 2
-    };
-    path.push(currentPoint);
+// 辅助函数：寻找一个转角的路径
+const findOneCornerPath = (start: { x: number, y: number }, end: { x: number, y: number }, grid: boolean[][]): { x: number, y: number }[] | null => {
+  // 尝试通过水平-垂直路径连接
+  const corner1 = { x: end.x, y: start.y }
+  if (!grid[corner1.y][corner1.x] && canConnectDirectly(start, corner1, grid) && canConnectDirectly(corner1, end, grid)) {
+    return [start, corner1, end]
+  }
 
-    if (x === targetX && y === targetY) {
-      let pathLength = 0;
-      for (let i = 1; i < path.length; i++) {
-        pathLength += Math.abs(path[i].x - path[i-1].x) + Math.abs(path[i].y - path[i-1].y);
+  // 尝试通过垂直-水平路径连接
+  const corner2 = { x: start.x, y: end.y }
+  if (!grid[corner2.y][corner2.x] && canConnectDirectly(start, corner2, grid) && canConnectDirectly(corner2, end, grid)) {
+    return [start, corner2, end]
+  }
+
+  return null
+}
+
+// 辅助函数：寻找两个转角的路径
+const findTwoCornerPath = (start: { x: number, y: number }, end: { x: number, y: number }, grid: boolean[][]): { x: number, y: number }[] | null => {
+  // 遍历所有可能的第一个转角点
+  for (let x = 0; x < grid[0].length; x++) {
+    const corner1 = { x, y: start.y }
+    if (x !== start.x && !grid[corner1.y][corner1.x] && canConnectDirectly(start, corner1, grid)) {
+      const corner2 = { x, y: end.y }
+      if (!grid[corner2.y][corner2.x] && canConnectDirectly(corner1, corner2, grid) && canConnectDirectly(corner2, end, grid)) {
+        return [start, corner1, corner2, end]
       }
-
-      if (turns < minTurns || (turns === minTurns && pathLength < minLength)) {
-        minTurns = turns;
-        minLength = pathLength;
-        bestPath = [...path];
-      }
-      path.pop();
-      return true;
     }
+  }
 
-    if (turns > 2) {
-      path.pop();
-      return false;
-    }
-
-    visited[adjustedY][adjustedX] = true;
-
-    const directions = [
-      { dx: 1, dy: 0 },
-      { dx: -1, dy: 0 },
-      { dx: 0, dy: 1 },
-      { dx: 0, dy: -1 }
-    ].map(dir => {
-      const newX = x + dir.dx;
-      const newY = y + dir.dy;
-      const newDistance = Math.abs(targetX - newX) + Math.abs(targetY - newY);
-      return { ...dir, distance: newDistance };
-    }).sort((a, b) => a.distance - b.distance);
-
-    let found = false;
-    for (const dir of directions) {
-      const newX = x + dir.dx;
-      const newY = y + dir.dy;
-      
-      const needTurn = path.length > 1 && (
-        (dir.dx !== 0 && Math.abs(path[path.length - 1].x - path[path.length - 2].x) < TILE_SIZE) ||
-        (dir.dy !== 0 && Math.abs(path[path.length - 1].y - path[path.length - 2].y) < TILE_SIZE)
-      );
-      
-      if (checkPath(newX, newY, targetX, targetY, needTurn ? turns + 1 : turns, path)) {
-        found = true;
+  // 遍历所有可能的第一个转角点（垂直方向）
+  for (let y = 0; y < grid.length; y++) {
+    const corner1 = { x: start.x, y }
+    if (y !== start.y && !grid[corner1.y][corner1.x] && canConnectDirectly(start, corner1, grid)) {
+      const corner2 = { x: end.x, y }
+      if (!grid[corner2.y][corner2.x] && canConnectDirectly(corner1, corner2, grid) && canConnectDirectly(corner2, end, grid)) {
+        return [start, corner1, corner2, end]
       }
     }
+  }
 
-    visited[adjustedY][adjustedX] = false;
-    path.pop();
-    return found;
-  };
+  return null
+}
 
-  const found = checkPath(x1, y1, x2, y2, 0, currentPath);
-  return {
-    canConnect: found && bestPath.length > 0,
-    path: bestPath
-  };
+// 主要路径查找函数
+const findPath = (start: { x: number, y: number }, end: { x: number, y: number }, grid: boolean[][]): { x: number, y: number }[] | null => {
+  // 检查直接连接
+  if (canConnectDirectly(start, end, grid)) {
+    return [start, end]
+  }
+
+  // 检查一个转角的路径
+  const oneCornerPath = findOneCornerPath(start, end, grid)
+  if (oneCornerPath) {
+    return oneCornerPath
+  }
+
+  // 检查两个转角的路径
+  const twoCornerPath = findTwoCornerPath(start, end, grid)
+  if (twoCornerPath) {
+    return twoCornerPath
+  }
+
+  return null
 } 

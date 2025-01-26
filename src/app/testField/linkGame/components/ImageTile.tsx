@@ -3,21 +3,20 @@ import { Tile, TILE_SIZE } from '../types'
 import '@pixi/events';
 
 
-interface TileSpriteProps {
+interface ImageTileProps {
   tile: Tile
   onTileClick: (tile: Tile) => void
 }
 
-export const TileSprite = ({ tile, onTileClick }: TileSpriteProps) => (
+export const ImageTile = ({ tile, onTileClick }: ImageTileProps) => (
   <Sprite
     image={`/linkGame/icon/icon_${tile.type}.png`}
     width={tile.isSelected ? TILE_SIZE : TILE_SIZE - 4}
     height={tile.isSelected ? TILE_SIZE : TILE_SIZE - 4}
-    alpha={tile.isMatched ? 0.3 : 1}
-    anchor={0.5}
     x={TILE_SIZE / 2}
     y={TILE_SIZE / 2}
-    tint={0xffffff}
+    anchor={0.5}
+    alpha={tile.isMatched ? 0.3 : 1}
     interactive={true}
     mousedown={() => onTileClick(tile)}
     touchstart={() => onTileClick(tile)}
