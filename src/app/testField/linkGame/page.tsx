@@ -110,63 +110,77 @@ const LinkGame = () => {
     }
   }
 
+  const clearHint = () => {
+    if (hintTimeoutRef.current) {
+      clearTimeout(hintTimeoutRef.current)
+      hintTimeoutRef.current = null
+    }
+    setHintTiles(null)
+  }
+
   const handleTileClick = (tile: Tile) => {
-    if (gameStatus !== 'playing') return;
+    if (gameStatus !== 'playing') return
+    
+    // 清除提示状态
+    clearHint()
     
     if (isFirstClick) {
       startBackgroundMusic()
       setIsFirstClick(false)
     }
 
-    if (tile.isMatched) return;
+    if (tile.isMatched) return
 
     if (!selectedTile) {
       setTiles(tiles.map(t => ({
         ...t,
         isSelected: t.id === tile.id
-      })));
-      setSelectedTile(tile);
-      setConnectionPath([]);
+      })))
+      setSelectedTile(tile)
+      setConnectionPath([])
     } else {
       if (selectedTile.id === tile.id) {
         setTiles(tiles.map(t => ({
           ...t,
           isSelected: false
-        })));
-        setSelectedTile(null);
-        setConnectionPath([]);
+        })))
+        setSelectedTile(null)
+        setConnectionPath([])
       } else {
-        const result = canConnect(selectedTile, tile, tiles);
+        const result = canConnect(selectedTile, tile, tiles)
         if (tile.type === selectedTile.type && result.canConnect) {
           setTiles(tiles.map(t => ({
             ...t,
             isSelected: t.id === tile.id || t.id === selectedTile.id
-          })));
-          setConnectionPath(result.path);
+          })))
+          setConnectionPath(result.path)
           
           setTimeout(() => {
             setTiles(tiles.map(t => ({
               ...t,
               isSelected: false,
               isMatched: t.id === tile.id || t.id === selectedTile.id ? true : t.isMatched
-            })));
-            setScore(score + 10);
-            setSelectedTile(null);
-            setConnectionPath([]);
-          }, 500);
+            })))
+            setScore(score + 10)
+            setSelectedTile(null)
+            setConnectionPath([])
+          }, 500)
         } else {
           setTiles(tiles.map(t => ({
             ...t,
             isSelected: t.id === tile.id
-          })));
-          setSelectedTile(tile);
-          setConnectionPath([]);
+          })))
+          setSelectedTile(tile)
+          setConnectionPath([])
         }
       }
     }
   }
 
   const handleRestart = () => {
+    // 清除提示状态
+    clearHint()
+    
     setTiles(initializeBoard())
     setSelectedTile(null)
     setScore(0)
@@ -202,10 +216,7 @@ const LinkGame = () => {
     if (gameStatus !== 'playing' || isFirstGame) return
     
     // 先清除之前的提示
-    if (hintTimeoutRef.current) {
-      clearTimeout(hintTimeoutRef.current)
-      setHintTiles(null)
-    }
+    clearHint()
     
     const hint = findHint()
     if (hint) {
