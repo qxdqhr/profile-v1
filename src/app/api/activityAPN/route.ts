@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server';
 
 var deviceToken = '';
 
+// 内部函数，不再导出
+function getDeviceToken() {
+    return deviceToken;
+}
+
 export async function POST(request: Request): Promise<NextResponse> {
     const body = await request.json();
     console.log('body:', body);
@@ -20,8 +25,4 @@ export async function POST(request: Request): Promise<NextResponse> {
         message: 'Activity APN API is working',
         deviceToken: deviceToken 
     });
-}
-
-export function getDeviceToken() {
-    return deviceToken;
 }
