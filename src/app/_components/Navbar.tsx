@@ -117,7 +117,10 @@ const Navbar: React.FC<NavbarProps> = ({
         ))}
       </ul>
       {isVertical && (
-        <NavbarToggle isOpen={isOpen} onToggle={onToggle} />
+        <NavbarToggle 
+          isOpen={isOpen || false} 
+          onClick={onToggle || (() => {})} 
+        />
       )}  
       <div>当前导航栏宽度: {navbarWidth}px</div>
     </nav>
