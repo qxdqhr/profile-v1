@@ -7,7 +7,7 @@ import * as path from 'path';
 import * as crypto from 'crypto';
 import * as https from 'https';
 import * as http2 from 'http2';
-import { getDeviceToken } from '../activityAPN/route';
+// import { getDeviceToken } from '../activityAPN/route';
 
 const TEAM_ID = "";
 const TOKEN_KEY_FILE_NAME = path.join(process.cwd(), "src", "P8", "test.p8");
@@ -64,7 +64,7 @@ export async function POST(request: Request): Promise<Response> {
         console.log('解析后的请求体:', body);
 
         // 2. 参数处理部分
-        const storedDeviceToken = getDeviceToken();
+        const storedDeviceToken = ''//getDeviceToken();
         const pushToken = body.pushToken || storedDeviceToken || FALLBACK_DEVICE_TOKEN;
         const apns_topic =  body.apns_topic || '';
         const apns_priority = body.apns_priority || '10';
