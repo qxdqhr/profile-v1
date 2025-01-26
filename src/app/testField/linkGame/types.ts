@@ -5,6 +5,7 @@ export interface Tile {
   y: number
   isSelected: boolean
   isMatched: boolean
+  targetY?: number
 }
 
 export interface PathPoint {
@@ -20,8 +21,8 @@ export interface MidiNote {
 }
 
 export type GameMode = 'text' | 'cube'
-
-export type GameStatus = 'playing' | 'paused' | 'failed' | 'success'
+export type GameStatus = 'playing' | 'success' | 'failed'
+export type GameType = 'disvariable' | 'downfalling'
 
 // 游戏常量
 export const GRID_SIZE = 8

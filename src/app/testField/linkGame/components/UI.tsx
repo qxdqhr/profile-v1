@@ -1,15 +1,26 @@
-import { GameStatus, GAME_DURATION } from '../types'
+import { GameStatus, GAME_DURATION, GameType } from '../types'
 
 interface GameInfoProps {
   score: number
   timeLeft: number
   gameStatus: GameStatus
   isFirstGame: boolean
+  gameType: GameType
   onRestart: () => void
   onHint: () => void
+  onGameTypeChange: (type: GameType) => void
 }
 
-export const GameInfo = ({ score, timeLeft, gameStatus, isFirstGame, onRestart, onHint }: GameInfoProps) => {
+export const GameInfo = ({ 
+  score, 
+  timeLeft, 
+  gameStatus, 
+  isFirstGame, 
+  gameType,
+  onRestart, 
+  onHint,
+  onGameTypeChange 
+}: GameInfoProps) => {
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
@@ -46,6 +57,22 @@ export const GameInfo = ({ score, timeLeft, gameStatus, isFirstGame, onRestart, 
           </button>
         )}
       </div>
+      {!isFirstGame && (
+        <div className="game-mode-selector">
+          <button 
+            className={`mode-button ${gameType === 'disvariable' ? 'active' : ''}`}
+            onClick={() => onGameTypeChange('disvariable')}
+          >
+            静态模式
+          </button>
+          <button 
+            className={`mode-button ${gameType === 'downfalling' ? 'active' : ''}`}
+            onClick={() => onGameTypeChange('downfalling')}
+          >
+            下落模式
+          </button>
+        </div>
+      )}
       {gameStatus !== 'playing' && (
         <div className={`game-result ${gameStatus}`}>
           <h2>{gameStatus === 'success' ? '恭喜过关！' : '游戏结束'}</h2>

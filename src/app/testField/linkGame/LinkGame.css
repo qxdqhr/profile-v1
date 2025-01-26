@@ -193,4 +193,33 @@ canvas {
 
 .hint-button:hover {
   background: linear-gradient(to right, #ffa500 0%, #ff8c00 100%) !important;
+}
+
+.game-mode-selector {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.mode-button {
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  color: white;
+  cursor: pointer;
+  background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+  border: none;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  opacity: 0.7;
+}
+
+.mode-button:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+.mode-button.active {
+  opacity: 1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 } 

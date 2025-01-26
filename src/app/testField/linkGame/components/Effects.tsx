@@ -1,7 +1,8 @@
 import { Graphics } from '@pixi/react'
-import { TILE_SIZE, TILE_GAP, OUTER_PADDING, PathPoint, GameMode } from '../types'
+import { TILE_SIZE, TILE_GAP, OUTER_PADDING, PathPoint, GameType ,GameMode} from '../types'
 
 interface SelectionEffectProps {
+    gameType: GameType
     gameMode: GameMode
     isHint?: boolean
 }
@@ -34,6 +35,7 @@ export const SelectionEffect = ({ gameMode, isHint = false }: SelectionEffectPro
 interface ConnectionLineProps {
     path: PathPoint[]
     gameMode: GameMode
+    gameType: GameType
 }
 
 export const ConnectionLine = ({ path, gameMode }: ConnectionLineProps) => (
