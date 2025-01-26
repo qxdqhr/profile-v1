@@ -283,3 +283,21 @@
     }
   }
 }
+
+.timeline-item {
+  border-left: 2px solid var(--neutral-300);
+}
+
+.timeline-dot {
+  background-color: var(--primary-500);
+  border: 2px solid var(--primary-100);
+}
+
+.timeline-content {
+  background-color: var(--neutral-50);
+  border: 1px solid var(--neutral-200);
+}
+
+.timeline-date {
+  color: var(--neutral-600);
+}

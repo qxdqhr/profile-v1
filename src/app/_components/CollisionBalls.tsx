@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { CollisionBallsConfig, BallConfig } from "./types";   
+import { CollisionBallsConfig, BallConfig } from "./types";
 
 interface Ball {
   x: number;
@@ -22,8 +22,6 @@ interface CollisionBallsProps {
 const CollisionBalls: React.FC<CollisionBallsProps> = ({
   collisionBallsConfig: {
     balls,
-    width = 800,
-    height = 600,
     minVelocity = 0,
     maxVelocity = 2
   },
@@ -34,71 +32,67 @@ const CollisionBalls: React.FC<CollisionBallsProps> = ({
   const [isShaking, setIsShaking] = useState(false);
   const [draggedBall, setDraggedBall] = useState<Ball | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [scale, setScale] = useState(1);
 
-  // 计算实际的canvas尺寸和缩放比例
-  const updateCanvasScale = () => {
+  // 更新canvas尺寸
+  const updateCanvasSize = () => {
     const container = containerRef.current;
     const canvas = canvasRef.current;
     if (!container || !canvas) return;
 
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
-    
-    // 计算缩放比例，保持宽高比
-    const scaleX = containerWidth / width;
-    const scaleY = containerHeight / height;
-    const newScale = Math.min(scaleX, scaleY);
-    
-    // 设置canvas的CSS尺寸
-    canvas.style.width = `${width * newScale}px`;
-    canvas.style.height = `${height * newScale}px`;
-    
-    // 保持canvas的实际分辨率
-    canvas.width = width;
-    canvas.height = height;
-    
-    setScale(newScale);
+
+    canvas.style.width = `${containerWidth}px`;
+    canvas.style.height = `${containerHeight}px`;
+    console.log(containerWidth, containerHeight);
+    canvas.width = containerWidth;
+    canvas.height = containerHeight;
   };
 
   // 添加resize监听
   useEffect(() => {
     const handleResize = () => {
-      updateCanvasScale();
+      updateCanvasSize();
     };
 
     window.addEventListener('resize', handleResize);
-    updateCanvasScale(); // 初始化时调用一次
+    updateCanvasSize(); // 初始化时调用一次
 
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [width, height]);
+  }, []);
 
-  // 修改鼠标事件处理，考虑缩放比例
+  // 修改鼠标事件处理
   const getMousePos = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
 
     const rect = canvas.getBoundingClientRect();
+    // 计算鼠标在canvas中的实际位置
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
     return {
-      x: (event.clientX - rect.left) / scale,
-      y: (event.clientY - rect.top) / scale
+      x: (event.clientX - rect.left) * scaleX,
+      y: (event.clientY - rect.top) * scaleY
     };
   };
 
   const initBalls = (minVelocity: number, maxVelocity: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return [];
+
     const maxWeight = Math.max(...balls.map((b) => b.weight));
     const minRadius = 50;
     const maxRadius = 80;
 
     return balls.map((ballConfig) => ({
-      x: Math.random() * (width - 100) + 50,
-      y: Math.random() * (height - 100) + 50,
+      x: Math.random() * (canvas.width - 100) + 50,
+      y: Math.random() * (canvas.height - 100) + 50,
       vx: (Math.random() - 0.5) * (maxVelocity - minVelocity) + minVelocity,
       vy: (Math.random() - 0.5) * (maxVelocity - minVelocity) + minVelocity,
-      radius:
-        minRadius + (ballConfig.weight / maxWeight) * (maxRadius - minRadius),
+      radius: minRadius + (ballConfig.weight / maxWeight) * (maxRadius - minRadius),
       weight: ballConfig.weight,
       color: ballConfig.color,
       text: ballConfig.text,
@@ -124,7 +118,7 @@ const CollisionBalls: React.FC<CollisionBallsProps> = ({
     });
     setTimeout(() => setIsShaking(false), 200); // 按钮动画效果
   };
-  
+
 
   const checkCollision = (ball1: Ball, ball2: Ball) => {
     const dx = ball2.x - ball1.x;
@@ -207,7 +201,7 @@ const CollisionBalls: React.FC<CollisionBallsProps> = ({
     }
   };
 
-  const updatePosition = (ball: Ball) => {
+  const updatePosition = (ball: Ball, width: number, height: number) => {
     if (ball.isDragging) return;
 
     ball.x += ball.vx;
@@ -274,7 +268,7 @@ const CollisionBalls: React.FC<CollisionBallsProps> = ({
     if (ball.text) {
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      
+
       // 计算合适的字体大小
       const measureText = (fontSize: number) => {
         ctx.font = `${fontSize}px Arial`;
@@ -286,26 +280,26 @@ const CollisionBalls: React.FC<CollisionBallsProps> = ({
           height: height
         };
       };
-      
+
       // 从初始大小开始，如果文本太大就逐步缩小
       let fontSize = ball.radius * 0.4;
       let textMetrics = measureText(fontSize);
       const maxWidth = ball.radius * 1.6; // 留出一些边距
-      
+
       // 如果文本太长，减小字体大小直到适合
       while (textMetrics.width > maxWidth && fontSize > 1) {
         fontSize *= 0.9;
         textMetrics = measureText(fontSize);
       }
-      
+
       ctx.font = `${fontSize}px Arial`;
       ctx.fillStyle = ball.textColor || '#fff';
-      
+
       // 添加文字描边效果
       ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
       ctx.lineWidth = fontSize * 0.08;
       ctx.strokeText(ball.text, ball.x, ball.y);
-      
+
       // 填充文字
       ctx.fillText(ball.text, ball.x, ball.y);
     }
@@ -329,6 +323,9 @@ const CollisionBalls: React.FC<CollisionBallsProps> = ({
     if (clickedBall) {
       clickedBall.isDragging = true;
       setDraggedBall(clickedBall);
+      // 记录初始点击位置
+      setMousePos(pos);
+      // 停止球的运动
       clickedBall.vx = 0;
       clickedBall.vy = 0;
     }
@@ -337,41 +334,53 @@ const CollisionBalls: React.FC<CollisionBallsProps> = ({
   const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
     if (!draggedBall) return;
 
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
     const pos = getMousePos(event);
+    const prevPos = mousePos;
+
+    // 更新球的位置
     draggedBall.x = Math.max(
       draggedBall.radius,
-      Math.min(width - draggedBall.radius, pos.x)
+      Math.min(canvas.width - draggedBall.radius, pos.x)
     );
     draggedBall.y = Math.max(
       draggedBall.radius,
-      Math.min(height - draggedBall.radius, pos.y)
+      Math.min(canvas.height - draggedBall.radius, pos.y)
     );
+
+    // 更新鼠标位置
     setMousePos(pos);
+
+    // 计算拖动速度
+    draggedBall.vx = (pos.x - prevPos.x) * 0.1;
+    draggedBall.vy = (pos.y - prevPos.y) * 0.1;
   };
 
   const handleMouseUp = () => {
     if (draggedBall) {
       draggedBall.isDragging = false;
+      
+      // 使用最后的拖动速度作为释放速度
+      const speedFactor = 2; // 增加释放时的速度
+      draggedBall.vx *= speedFactor;
+      draggedBall.vy *= speedFactor;
 
-      // 计算释放时的速度（基于鼠标移动）
-      const speedFactor = 0.2; // 调整这个值来改变释放后的速度
-      draggedBall.vx = (mousePos.x - draggedBall.x) * speedFactor;
-      draggedBall.vy = (mousePos.y - draggedBall.y) * speedFactor;
-
-      // 确保速度不会太小
+      // 确保最小速度
       const minSpeed = 0.5;
-      const speed = Math.sqrt(
-        draggedBall.vx * draggedBall.vx + draggedBall.vy * draggedBall.vy,
-      );
+      const speed = Math.sqrt(draggedBall.vx * draggedBall.vx + draggedBall.vy * draggedBall.vy);
       if (speed < minSpeed) {
         const angle = Math.atan2(draggedBall.vy, draggedBall.vx);
         draggedBall.vx = Math.cos(angle) * minSpeed;
         draggedBall.vy = Math.sin(angle) * minSpeed;
       }
+
+      setDraggedBall(null);
     }
-    setDraggedBall(null);
   };
 
+  // 动画循环
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -382,11 +391,13 @@ const CollisionBalls: React.FC<CollisionBallsProps> = ({
     ballsRef.current = initBalls(minVelocity, maxVelocity);
 
     const animate = () => {
-      ctx.clearRect(0, 0, width, height);
+      if (!canvas) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // 更新所有球的位置
       ballsRef.current.forEach((ball) => {
-        updatePosition(ball);
+        updatePosition(ball, canvas.width, canvas.height);
       });
 
       // 检查所有可能的碰撞
@@ -405,10 +416,24 @@ const CollisionBalls: React.FC<CollisionBallsProps> = ({
     };
 
     animate();
-  }, [width, height, balls]);
+  }, []);
 
   return (
     <div className="collision-balls-container" ref={containerRef}>
+
+
+      <div className="canvas-container">
+        <canvas
+          ref={canvasRef}
+          style={{
+            cursor: draggedBall ? "grabbing" : "grab",
+          }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+        />
+      </div>
       <button
         className={`shake-button ${isShaking ? "shaking" : ""}`}
         onClick={shake}
@@ -423,19 +448,6 @@ const CollisionBalls: React.FC<CollisionBallsProps> = ({
       >
         慢下来
       </button>
-
-      <div className="canvas-container">
-        <canvas
-          ref={canvasRef}
-          style={{
-            cursor: draggedBall ? "grabbing" : "grab",
-          }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-        />
-      </div>
     </div>
   );
 };

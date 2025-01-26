@@ -8,16 +8,22 @@
   justify-content: space-between;
   padding: 1rem 5%;
   overflow-x: hidden;
-  background-color: rgba(255, 255, 255, 0.8); /* Apple Design 半透明背景 */
+  background: linear-gradient(to right, var(--neutral-50), var(--primary-50));
   backdrop-filter: blur(10px); /* Apple Design 毛玻璃效果 */
   -webkit-backdrop-filter: blur(10px);
   transition: width 0.3s ease;
+  border-bottom: 1px solid var(--neutral-200);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: fixed;
+  top: 0;
+  left: -200px; /* 改为从左边隐藏 */
+  height: 100vh;
+  z-index: 998; /* 降低导航栏的 z-index */
 
   &.open {
     width: 200px;
+    left: 0; /* 改为从左边展开 */
   }
-
-
 
   /* Avatar容器样式 */
   & .avatar-container {
@@ -112,7 +118,7 @@
         padding: 0.75rem 1rem;
         overflow: hidden;
         text-overflow: ellipsis;
-        color: #1d1d1f;
+        color: var(--neutral-700);
 
         &::after {
           right: 1rem;
@@ -197,7 +203,7 @@
       width: 100%;
       padding: 0.5rem 1rem;
       font-weight: bold;
-      color: #1d1d1f;
+      color: var(--neutral-700);
       text-decoration: none;
       white-space: nowrap;
       transition: color 0.3s ease;
@@ -275,11 +281,15 @@
 
 /* 导航栏切换按钮 */
 .navbar-toggle {
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 0;
-  z-index: 60;
-  display: block;
+  z-index: 999; /* 确保按钮在导航栏之上 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   padding: 0.5rem;
   color: #1d1d1f;
   cursor: pointer;
@@ -290,10 +300,16 @@
   border-radius: 0 4px 4px 0;
   transition: all 0.3s ease;
   transform: translateY(-50%);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
 
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+  &.open {
+    left: 200px; /* 当导航栏展开时，按钮跟随移动 */
   }
+}
+
+.navbar-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
 }
 
 /* 滚动偏移调整 */
@@ -304,4 +320,42 @@ section {
 /* 确保子菜单不超出视口 */
 .navbar__submenu {
   overflow-x: hidden;
+}
+
+.nav-link {
+  color: var(--neutral-700);
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--primary-600);
+  background: linear-gradient(120deg, transparent 0%, var(--primary-50) 100%);
+}
+
+.nav-link.active {
+  color: var(--primary-500);
+  background: linear-gradient(120deg, transparent 0%, var(--primary-100) 100%);
+  border-bottom: 2px solid var(--primary-500);
+}
+
+/* 确保内容不会被导航栏遮挡 */
+.main-content {
+  margin-left: 0; /* 改为左边距 */
+  transition: margin-left 0.3s ease;
+}
+
+.main-content.navbar-open {
+  margin-left: 200px; /* 改为左边距 */
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .navbar-toggle {
+    width: 36px;
+    height: 36px;
+  }
+
+  .main-content.navbar-open {
+    margin-left: 0; /* 改为左边距 */
+  }
 }

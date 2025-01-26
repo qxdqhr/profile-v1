@@ -4,6 +4,7 @@ import Link from 'next/link';
 import "@/styles/index.css";
 import { BackButton } from '@/app/_components/BackButton';
 import { ExperimentCard } from '@/app/_components/ExperimentCard';
+import LinkGame from './linkGame/page'
 
 interface ExperimentItem {
     id: string;
@@ -61,6 +62,13 @@ const experiments: ExperimentItem[] = [
         title: " 博立格来冲",
         description: "博立格来冲",
         path: "/testField/VocaloidtoGO",
+        tags: ["小游戏", "赛博无料"]
+    },
+    {
+        id: "linkGame",
+        title: " 连连看",
+        description: "连连看",
+        path: "/testField/linkGame",
         tags: ["小游戏", "赛博无料"]
     },
 

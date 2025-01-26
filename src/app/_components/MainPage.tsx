@@ -8,6 +8,7 @@ import Navbar from "@/app/_components/Navbar";
 import NavbarToggle from "@/app/_components/NavbarToggle";
 import ProjectCarousel from "@/app/_components/ProjectCarousel";
 import { Config } from "./types";
+import Contact from "./Contact";
 
 interface SectionProps {
   id: string;
@@ -28,7 +29,7 @@ const Section: FC<SectionProps> = ({ id, title, children }) => (
 type NavDirection = "vertical" | "horizontal";
 
 const MainPage: FC = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isNavbarOpen, setIsNavbarOpen] = useState(false);
   const [config, setConfig] = useState<Config | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -65,21 +66,15 @@ const MainPage: FC = () => {
   const direction = config.navConfig.direction as NavDirection;
 
   return (
-    <div className={styles.app}>
-      {isVertical && (
-        <NavbarToggle isOpen={isOpen} onToggle={() => setIsOpen(!isOpen)} />
-      )}
-      <div
-        className={`main-container ${isOpen ? "open" : "closed"} ${
-          isVertical ? "vertical" : "horizontal"
-        }`}
-      >
-        <Navbar
-          direction={direction}
-          items={config.navConfig.items}
-          isOpen={isOpen}
-          avatarSrc={config.navConfig.avatar}
-        />
+    <div className="app-container">
+      <NavbarToggle isOpen={isNavbarOpen} onClick={() => setIsNavbarOpen(!isNavbarOpen)} />
+      <Navbar 
+        isOpen={isNavbarOpen} 
+        items={config.navConfig.items}
+        direction={config.navConfig.direction as "vertical" | "horizontal"}
+        avatarSrc={config.navConfig.avatar}
+      />
+      <main className={`main-content ${isNavbarOpen ? 'navbar-open' : ''}`}>
         <div className="content-wrapper">
           <Home homeConfig={config.homeConfig} />
           <About
@@ -87,11 +82,9 @@ const MainPage: FC = () => {
             collisionBallsConfig={config.collisionBallsConfig}
           />
           <ProjectCarousel projects={config.projectsConfig.projects} />
-          <Section id="contact" title="联系方式">
-            <p>这是我的联系方式...</p>
-          </Section>
+          <Contact />
         </div>
-      </div>
+      </main>
     </div>
   );
 };

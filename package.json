@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",
+    "@pixi/events": "^7.4.2",
     "@pixi/react": "^7.1.2",
     "@pixi/sound": "^6.0.1",
     "@prisma/client": "^6.2.1",
+    "@tonejs/midi": "^2.0.28",
     "@types/animejs": "^3.1.12",
     "@typescript-eslint/eslint-plugin": "^8.20.0",
     "@typescript-eslint/parser": "^8.20.0",
@@ -29,7 +31,9 @@
     "prisma": "^6.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "soundfont-player": "^0.12.0",
     "tailwind-merge": "^2.6.0",
+    "tone": "^15.0.4",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

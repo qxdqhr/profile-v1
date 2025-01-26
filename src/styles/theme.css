@@ -1,0 +1,68 @@
+:root {
+  /* 主色调 - 使用更现代的蓝色 */
+  --primary-50: #e3f2fd;
+  --primary-100: #bbdefb;
+  --primary-200: #90caf9;
+  --primary-300: #64b5f6;
+  --primary-400: #42a5f5;
+  --primary-500: #2196f3;
+  --primary-600: #1e88e5;
+  --primary-700: #1976d2;
+  --primary-800: #1565c0;
+  --primary-900: #0d47a1;
+
+  /* 辅助色 - 添加紫色作为点缀 */
+  --secondary-50: #f3e5f5;
+  --secondary-200: #ce93d8;
+  --secondary-400: #ab47bc;
+  --secondary-600: #8e24aa;
+  --secondary-800: #6a1b9a;
+
+  /* 强调色 - 添加珊瑚色 */
+  --accent-50: #fff3f0;
+  --accent-200: #ffccbc;
+  --accent-400: #ff8a65;
+  --accent-600: #f4511e;
+  --accent-800: #d84315;
+
+  /* 成功状态 - 使用更柔和的绿色 */
+  --success-50: #e8f5e9;
+  --success-200: #a5d6a7;
+  --success-400: #66bb6a;
+  --success-600: #43a047;
+  --success-800: #2e7d32;
+
+  /* 警告状态 - 温暖的橙色 */
+  --warning-50: #fff3e0;
+  --warning-200: #ffcc80;
+  --warning-400: #ffa726;
+  --warning-600: #fb8c00;
+  --warning-800: #ef6c00;
+
+  /* 错误状态 - 鲜艳的红色 */
+  --error-50: #ffebee;
+  --error-200: #ef9a9a;
+  --error-400: #ef5350;
+  --error-600: #e53935;
+  --error-800: #c62828;
+
+  /* 中性色 - 稍微暖色调的灰色 */
+  --neutral-50: #fafafa;
+  --neutral-100: #f5f5f5;
+  --neutral-200: #eeeeee;
+  --neutral-300: #e0e0e0;
+  --neutral-400: #bdbdbd;
+  --neutral-500: #9e9e9e;
+  --neutral-600: #757575;
+  --neutral-700: #616161;
+  --neutral-800: #424242;
+  --neutral-900: #212121;
+
+  /* 渐变色 */
+  --gradient-primary: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+  --gradient-secondary: linear-gradient(135deg, var(--secondary-400), var(--secondary-600));
+  --gradient-accent: linear-gradient(135deg, var(--accent-400), var(--accent-600));
+  --gradient-success: linear-gradient(135deg, var(--success-400), var(--success-600));
+  --gradient-warning: linear-gradient(135deg, var(--warning-400), var(--warning-600));
+  --gradient-error: linear-gradient(135deg, var(--error-400), var(--error-600));
+} 

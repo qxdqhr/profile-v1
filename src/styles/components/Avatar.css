@@ -87,3 +87,19 @@
 .avatar-wrapper:active {
   transform: scale(0.95); /* 点击时缩小效果 */
 }
+
+.avatar {
+  border: 2px solid var(--neutral-200);
+}
+
+.avatar:hover {
+  border-color: var(--primary-400);
+}
+
+.avatar-online {
+  background-color: var(--success-400);
+}
+
+.avatar-offline {
+  background-color: var(--neutral-400);
+}

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import Avatar from "./Avatar";
+import NavbarToggle from "./NavbarToggle";
 
 interface NavItem {
   id: string;
@@ -15,6 +16,9 @@ interface NavbarProps {
   items: NavItem[];
   isOpen?: boolean;
   avatarSrc?: string;
+  //导航栏按钮
+  isVertical?: boolean;
+  onToggle?: () => void;
 }
 
 const NavbarItem: React.FC<{
@@ -89,6 +93,8 @@ const Navbar: React.FC<NavbarProps> = ({
   items,
   isOpen,
   avatarSrc,
+  isVertical,
+  onToggle,
 }) => {
   const navbarRef = useRef<HTMLDivElement>(null);
   const [navbarWidth, setNavbarWidth] = useState<number>(0);
@@ -110,6 +116,9 @@ const Navbar: React.FC<NavbarProps> = ({
           <NavbarItem key={item.id} item={item} direction={direction} />
         ))}
       </ul>
+      {isVertical && (
+        <NavbarToggle isOpen={isOpen} onToggle={onToggle} />
+      )}  
       <div>当前导航栏宽度: {navbarWidth}px</div>
     </nav>
   );

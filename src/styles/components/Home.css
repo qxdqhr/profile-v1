@@ -9,7 +9,8 @@
   padding: 0; /* 移除内边距 */
   margin: 0; /* 移除外边距 */
   overflow-x: hidden; /* 隐藏水平溢出 */
-  background-color: #fbfbfd; /* Apple Design 背景色 */
+  background: transparent;
+
 }
 
 /* 主要内容区域样式 */
@@ -18,11 +19,16 @@
   gap: 2rem; /* 文字和图片之间的间距 */
   align-items: center; /* 内容垂直居中 */
   justify-content: space-between; /* 两端对齐分布 */
-  width: 100%; /* 占据容器完整宽度 */
-
-  /* max-width: 1200px; 添加最大宽度限制 */
+  width: 100%;
+  max-width: 1200px;
   padding: 2rem; /* 四周添加内边距 */
   margin: 0 auto; /* 水平居中 */
+  /* 添加玻璃拟态效果 */
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 /* 文字内容区域样式 */
@@ -42,16 +48,20 @@
   margin-bottom: 1rem; /* 底部外边距 */
   font-size: 3rem; /* 标题字体大小 */
   font-weight: bold; /* 文字加粗 */
+  /* 添加渐变文字效果 */
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* 光标样式 */
 .cursor {
   position: relative; /* 相对定位 */
   display: inline-block; /* 行内块级元素 */
-  height: 1em; /* 高度与文字行高一致 */
-  margin-left: 0; /* 移除左边距 */
-  font-weight: 100; /* 细体显示 */
-  line-height: 1; /* 行高与文字一致 */
+  width: 3px;
+  height: 1em;
+  margin-left: 4px;
+  background: var(--primary-500);
   animation: blink 1s infinite; /* 应用闪烁动画 */
 }
 
@@ -71,7 +81,8 @@
 .home__subtitle {
   margin-bottom: 2rem; /* 底部外边距 */
   font-size: 1.5rem; /* 字体大小 */
-  color: #1d1d1f; /* Apple Design 文字颜色 */
+  color: var(--neutral-700);
+  line-height: 1.5;
 }
 
 /* 按钮容器样式 */
@@ -85,15 +96,17 @@
   padding: 0.75rem 1.5rem; /* 内边距 */
   color: white; /* 文字颜色 */
   text-decoration: none; /* 移除下划线 */
-  background-color: #000000; /* Apple Design 主色 */
+  background: var(--gradient-primary);
   border-radius: 1.5rem; /* Apple 风格圆角 */
   transition: all 0.3s ease; /* 添加过渡动画 */
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
 }
 
 /* 按钮悬停效果 */
 .home__button:hover {
-  background-color: #313132; /* Apple Design 悬停色 */
+  background: var(--gradient-secondary);
   transform: translateY(-2px); /* 向上浮动效果 */
+  box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
 }
 
 /* 图片容器样式 */
@@ -110,9 +123,22 @@
   max-width: 100%; /* 确保图片不超出容器 */
   height: auto; /* 保持宽高比 */
   object-fit: contain; /* 保持图片比例 */
-  border-radius: 1rem; /* Apple 风格圆角 */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ant Design 阴影 */
+  border-radius: 2rem; /* Apple 风格圆角 */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
 }
+
+.home__image img:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* 添加鼠标悬停时的微妙动画 */
+.home__content:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+} 
 
 /* 响应式设计 */
 @media (width <= 1000px) {

@@ -1,0 +1,84 @@
+.about-container {
+  position: relative;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+.about-container::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  content: "";
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.module-title {
+  position: relative;
+  margin-bottom: 3rem;
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-align: center;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.module-title::after {
+  position: absolute;
+  bottom: -0.5rem;
+  left: 50%;
+  width: 60px;
+  height: 3px;
+  content: "";
+  background: var(--gradient-secondary);
+  border-radius: 3px;
+  transform: translateX(-50%);
+}
+
+.about-content {
+  position: relative;
+  display: grid;
+  gap: 2rem;
+  width: 90%;
+  margin: 0 auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* 响应式布局 */
+@media (min-width: 768px) {
+  .about-content {
+    grid-template-columns: 3fr 2fr;
+    align-items: start;
+  }
+}
+
+/* 动画效果优化 */
+.about-container {
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 添加鼠标悬停时的微妙动画 */
+.about-content:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+} 
