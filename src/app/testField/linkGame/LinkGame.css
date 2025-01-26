@@ -178,4 +178,19 @@ canvas {
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+}
+
+.game-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.hint-button {
+  background: linear-gradient(to right, #ffd700 0%, #ffa500 100%) !important;
+}
+
+.hint-button:hover {
+  background: linear-gradient(to right, #ffa500 0%, #ff8c00 100%) !important;
 } 

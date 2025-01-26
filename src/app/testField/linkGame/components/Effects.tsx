@@ -3,59 +3,27 @@ import { TILE_SIZE, TILE_GAP, OUTER_PADDING, PathPoint, GameMode } from '../type
 
 interface SelectionEffectProps {
   gameMode: GameMode
+  isHint?: boolean
 }
 
-export const SelectionEffect = ({ gameMode }: SelectionEffectProps) => {
-  const padding = 4;
-  
-  if (gameMode === 'cube') {
-    return (
-      <Graphics
-        draw={g => {
-          g.clear();
-          g.beginFill(0x00ff00, 0.2);
-          g.drawRoundedRect(
-            -TILE_SIZE/2 - padding, 
-            TILE_SIZE/2 - TILE_SIZE/2 - padding, 
-            TILE_SIZE + padding * 2, 
-            TILE_SIZE + padding * 2,
-            8
-          );
-          g.endFill();
-          g.lineStyle(2, 0x00ff00, 0.8);
-          g.drawRoundedRect(
-            -TILE_SIZE/2 - padding/2, 
-            TILE_SIZE/2 - TILE_SIZE/2 - padding/2, 
-            TILE_SIZE + padding, 
-            TILE_SIZE + padding,
-            6
-          );
-        }}
-      />
-    )
-  }
+export const SelectionEffect = ({ gameMode, isHint = false }: SelectionEffectProps) => {
+  const padding = 4
+  const color = isHint ? 0xffd700 : 0x4CAF50 // 提示时使用金色，选中时使用绿色
 
   return (
     <Graphics
       draw={g => {
-        g.clear();
-        g.beginFill(0x00ff00, 0.2);
+        g.clear()
+        g.lineStyle(2, color, 0.8)
+        g.beginFill(color, 0.2)
         g.drawRoundedRect(
           -padding,
-          -padding,
+          TILE_SIZE/2 - TILE_SIZE/2 - padding,
           TILE_SIZE + padding * 2,
           TILE_SIZE + padding * 2,
           8
-        );
-        g.endFill();
-        g.lineStyle(2, 0x00ff00, 0.8);
-        g.drawRoundedRect(
-          -padding/2,
-          -padding/2,
-          TILE_SIZE + padding,
-          TILE_SIZE + padding,
-          6
-        );
+        )
+        g.endFill()
       }}
     />
   )

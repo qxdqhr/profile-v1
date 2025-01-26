@@ -21,8 +21,10 @@ const LinkGame = () => {
   const [gameStatus, setGameStatus] = useState<GameStatus>('playing')
   const [gameMode, setGameMode] = useState<GameMode>('text')
   const [isFirstGame, setIsFirstGame] = useState(true)
+  const [hintTiles, setHintTiles] = useState<[Tile, Tile] | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const hintTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     audioRef.current = new Audio('/linkGame/mp3/VivalaVida.mp3')
@@ -175,6 +177,62 @@ const LinkGame = () => {
     setIsFirstGame(false)
   }
 
+  const findHint = () => {
+    // 获取所有未匹配的图块
+    const unmatched = tiles.filter(t => !t.isMatched)
+    
+    // 遍历所有可能的组合
+    for (let i = 0; i < unmatched.length; i++) {
+      for (let j = i + 1; j < unmatched.length; j++) {
+        const tile1 = unmatched[i]
+        const tile2 = unmatched[j]
+        
+        if (tile1.type === tile2.type) {
+          const result = canConnect(tile1, tile2, tiles)
+          if (result.canConnect) {
+            return [tile1, tile2] as [Tile, Tile]
+          }
+        }
+      }
+    }
+    return null
+  }
+
+  const handleHint = () => {
+    if (gameStatus !== 'playing' || isFirstGame) return
+    
+    // 先清除之前的提示
+    if (hintTimeoutRef.current) {
+      clearTimeout(hintTimeoutRef.current)
+      setHintTiles(null)
+    }
+    
+    const hint = findHint()
+    if (hint) {
+      // 强制更新所有图块的状态
+      setTiles(prevTiles => prevTiles.map(tile => ({
+        ...tile,
+        isSelected: false // 清除之前的选中状态
+      })))
+      
+      // 设置新的提示
+      setHintTiles(hint)
+      
+      // 3秒后清除提示
+      hintTimeoutRef.current = setTimeout(() => {
+        setHintTiles(null)
+      }, 3000)
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      if (hintTimeoutRef.current) {
+        clearTimeout(hintTimeoutRef.current)
+      }
+    }
+  }, [])
+
   return (
     <div className="linkGame-container">
       <div className="game-header">
@@ -184,6 +242,7 @@ const LinkGame = () => {
           gameStatus={gameStatus}
           isFirstGame={isFirstGame}
           onRestart={handleRestart} 
+          onHint={handleHint}
         />
         <MusicControl 
           isPlaying={isMusicPlaying} 
@@ -201,16 +260,24 @@ const LinkGame = () => {
         <Container x={OUTER_PADDING * (TILE_SIZE + TILE_GAP)} y={OUTER_PADDING * (TILE_SIZE + TILE_GAP)}>
           {connectionPath.length > 0 && <ConnectionLine path={connectionPath} gameMode={gameMode} />}
           
-          {tiles.map((tile) => (
-            <Container key={tile.id} x={tile.x} y={tile.y}>
-              {tile.isSelected && <SelectionEffect gameMode={gameMode} />}
-              {/* <ImageTile */}
-              <CubeTile
-              tile={tile}
-                onTileClick={handleTileClick}
-              />
-            </Container>
-          ))}
+          {tiles.map((tile) => {
+            const isHighlighted = tile.isSelected || (hintTiles && (hintTiles[0].id === tile.id || hintTiles[1].id === tile.id));
+            
+            return (
+              <Container key={tile.id} x={tile.x} y={tile.y}>
+                <CubeTile
+                  tile={tile}
+                  onTileClick={handleTileClick}
+                />
+                {isHighlighted && (
+                  <SelectionEffect 
+                    gameMode={gameMode} 
+                    isHint={hintTiles?.some(t => t.id === tile.id)}
+                  />
+                )}
+              </Container>
+            );
+          })}
         </Container>
       </Stage>
       )}

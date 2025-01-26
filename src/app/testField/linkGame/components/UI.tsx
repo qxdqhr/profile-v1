@@ -6,9 +6,10 @@ interface GameInfoProps {
   gameStatus: GameStatus
   isFirstGame: boolean
   onRestart: () => void
+  onHint: () => void
 }
 
-export const GameInfo = ({ score, timeLeft, gameStatus, isFirstGame, onRestart }: GameInfoProps) => {
+export const GameInfo = ({ score, timeLeft, gameStatus, isFirstGame, onRestart, onHint }: GameInfoProps) => {
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
@@ -16,6 +17,7 @@ export const GameInfo = ({ score, timeLeft, gameStatus, isFirstGame, onRestart }
   }
 
   const progressPercentage = (timeLeft / GAME_DURATION) * 100
+  const isTimeWarning = timeLeft <= 10
 
   return (
     <div className="game-info">
@@ -24,34 +26,31 @@ export const GameInfo = ({ score, timeLeft, gameStatus, isFirstGame, onRestart }
         <p>得分: {score}</p>
       </div>
       <div className="time-container">
-        <p className={timeLeft <= 30 ? 'time-warning' : ''}>
+        <p className={isTimeWarning ? 'time-warning' : ''}>
           剩余时间: {formatTime(timeLeft)}
         </p>
         <div className="progress-bar-container">
           <div 
-            className={`progress-bar ${timeLeft <= 30 ? 'warning' : ''}`}
+            className={`progress-bar ${isTimeWarning ? 'warning' : ''}`}
             style={{ width: `${progressPercentage}%` }}
           />
         </div>
       </div>
-      {gameStatus === 'failed' && (
-        <div className="game-result failed">
-          <h2>游戏失败</h2>
-          <p>时间到！请再接再厉</p>
-          <button onClick={onRestart}>重新开始</button>
-        </div>
-      )}
-      {gameStatus === 'success' && (
-        <div className="game-result success">
-          <h2>恭喜通关！</h2>
-          <p>得分: {score}</p>
-          <button onClick={onRestart}>再来一局</button>
-        </div>
-      )}
-      {gameStatus === 'playing' && (
+      <div className="game-controls">
         <button onClick={onRestart}>
           {isFirstGame ? '开始游戏' : '重新开始'}
         </button>
+        {!isFirstGame && gameStatus === 'playing' && (
+          <button onClick={onHint} className="hint-button">
+            提示
+          </button>
+        )}
+      </div>
+      {gameStatus !== 'playing' && (
+        <div className={`game-result ${gameStatus}`}>
+          <h2>{gameStatus === 'success' ? '恭喜过关！' : '游戏结束'}</h2>
+          <p>最终得分: {score}</p>
+        </div>
       )}
     </div>
   )
