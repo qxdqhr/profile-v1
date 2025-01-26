@@ -192,6 +192,7 @@ const LinkGame = () => {
         />
       </div>
       
+      {!isFirstGame && (
       <Stage
         width={(GRID_SIZE + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
         height={(GRID_SIZE + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
@@ -212,6 +213,7 @@ const LinkGame = () => {
           ))}
         </Container>
       </Stage>
+      )}
     </div>
   )
 }

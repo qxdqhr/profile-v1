@@ -1,4 +1,4 @@
-import { GameStatus } from '../types'
+import { GameStatus, GAME_DURATION } from '../types'
 
 interface GameInfoProps {
   score: number
@@ -15,14 +15,24 @@ export const GameInfo = ({ score, timeLeft, gameStatus, isFirstGame, onRestart }
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
   }
 
+  const progressPercentage = (timeLeft / GAME_DURATION) * 100
+
   return (
     <div className="game-info">
       <h1>连连看</h1>
       <div className="game-stats">
         <p>得分: {score}</p>
+      </div>
+      <div className="time-container">
         <p className={timeLeft <= 30 ? 'time-warning' : ''}>
           剩余时间: {formatTime(timeLeft)}
         </p>
+        <div className="progress-bar-container">
+          <div 
+            className={`progress-bar ${timeLeft <= 30 ? 'warning' : ''}`}
+            style={{ width: `${progressPercentage}%` }}
+          />
+        </div>
       </div>
       {gameStatus === 'failed' && (
         <div className="game-result failed">

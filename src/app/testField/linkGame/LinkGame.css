@@ -16,6 +16,8 @@
   text-align: center;
   padding: 0 20px;
   position: relative;
+  width: 100%;
+
 }
 
 .game-stats {
@@ -23,6 +25,43 @@
   justify-content: center;
   gap: 2rem;
   margin-bottom: 1rem;
+}
+
+.time-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 10px;
+  background-color: rgba(224, 224, 224, 0.6);
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+  transition: width 1s linear;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar.warning {
+  background: linear-gradient(to right, #ff416c 0%, #ff4b2b 100%);
+  animation: pulse-bg 1s infinite;
+  box-shadow: 0 1px 3px rgba(255, 0, 0, 0.2);
+}
+
+@keyframes pulse-bg {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0.8; }
 }
 
 .game-info h1 {
@@ -137,12 +176,6 @@ canvas {
 .music-control button:disabled {
   background: rgba(76, 175, 80, 0.5);
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.music-control button:disabled:hover {
-  background: rgba(76, 175, 80, 0.5);
   transform: none;
   box-shadow: none;
 } 
