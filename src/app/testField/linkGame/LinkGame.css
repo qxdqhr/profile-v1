@@ -5,12 +5,27 @@
   padding: 20px;
   min-height: 100vh;
   background-color: #f0f0f0;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 .game-header {
   width: 100%;
   max-width: 800px;
   margin-bottom: 20px;
+}
+
+.game-stage-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.game-stage-container canvas {
+  max-width: 100%;
+  height: auto !important;
 }
 
 .game-info {
@@ -163,54 +178,93 @@
 /* 移动端适配 */
 @media screen and (max-width: 768px) {
   .linkGame-container {
-    padding: 10px;
+    padding: 5px;
+  }
+
+  .game-header {
+    margin-bottom: 10px;
   }
 
   .game-info {
-    padding: 15px;
+    padding: 10px;
+    margin-bottom: 10px;
   }
 
   .game-info h1 {
-    font-size: 24px;
-    margin-bottom: 15px;
+    font-size: 20px;
+    margin-bottom: 10px;
   }
 
   .game-controls {
     flex-direction: column;
+    gap: 5px;
   }
 
   .game-controls button {
     width: 100%;
-    padding: 12px;
-    font-size: 16px;
+    padding: 10px;
+    font-size: 14px;
   }
 
   .game-mode-selector {
     flex-direction: column;
+    gap: 5px;
   }
 
   .mode-button {
     width: 100%;
-    padding: 12px;
-    font-size: 14px;
+    padding: 10px;
+    font-size: 12px;
+    white-space: nowrap;
   }
 
   .progress-bar-container {
-    height: 8px;
+    height: 6px;
+  }
+
+  .music-control {
+    margin-top: 5px;
   }
 
   .music-control button {
     width: 100%;
-    padding: 12px;
-    font-size: 16px;
+    padding: 10px;
+    font-size: 14px;
   }
 
-  /* 调整游戏结果显示 */
   .game-result {
-    padding: 15px;
+    padding: 10px;
+    margin-top: 10px;
   }
 
   .game-result h2 {
-    font-size: 20px;
+    font-size: 18px;
+  }
+}
+
+/* 超小屏幕适配（如iPhone SE） */
+@media screen and (max-width: 375px) {
+  .linkGame-container {
+    padding: 3px;
+  }
+
+  .game-info {
+    padding: 8px;
+  }
+
+  .game-info h1 {
+    font-size: 18px;
+  }
+
+  .game-controls button,
+  .mode-button,
+  .music-control button {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .game-stage-container {
+    transform: scale(0.95);
+    transform-origin: top center;
   }
 } 

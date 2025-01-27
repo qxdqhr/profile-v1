@@ -129,35 +129,37 @@ const LinkGame = () => {
       </div>
       
       {!isFirstGame && (
-        <Stage
-          width={(GRID_WIDTH + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
-          height={(GRID_HEIGHT + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
-          options={{ backgroundColor: 0xf0f0f0 }}
-        >
-          <Container x={OUTER_PADDING * (TILE_SIZE + TILE_GAP)} y={OUTER_PADDING * (TILE_SIZE + TILE_GAP)}>
-            {connectionPath.length > 0 && <ConnectionLine path={connectionPath} gameMode="cube" gameType='downfalling' />}
-            
-            {tiles.map((tile) => {
-              const isHighlighted = tile.isSelected || (hintTiles && (hintTiles[0].id === tile.id || hintTiles[1].id === tile.id));
+        <div className="game-stage-container">
+          <Stage
+            width={(GRID_WIDTH + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
+            height={(GRID_HEIGHT + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
+            options={{ backgroundColor: 0xf0f0f0 }}
+          >
+            <Container x={OUTER_PADDING * (TILE_SIZE + TILE_GAP)} y={OUTER_PADDING * (TILE_SIZE + TILE_GAP)}>
+              {connectionPath.length > 0 && <ConnectionLine path={connectionPath} gameMode="cube" gameType='downfalling' />}
               
-              return (
-                <Container key={tile.id} x={tile.x} y={tile.y}>
-                  <CubeTile
-                    tile={tile}
-                    onTileClick={handleTileClick}
-                  />
-                  {isHighlighted && (
-                    <SelectionEffect 
-                      gameMode="cube" 
-                      gameType='downfalling'
-                      isHint={hintTiles?.some(t => t.id === tile.id)}
+              {tiles.map((tile) => {
+                const isHighlighted = tile.isSelected || (hintTiles && (hintTiles[0].id === tile.id || hintTiles[1].id === tile.id));
+                
+                return (
+                  <Container key={tile.id} x={tile.x} y={tile.y}>
+                    <CubeTile
+                      tile={tile}
+                      onTileClick={handleTileClick}
                     />
-                  )}
-                </Container>
-              );
-            })}
-          </Container>
-        </Stage>
+                    {isHighlighted && (
+                      <SelectionEffect 
+                        gameMode="cube" 
+                        gameType='downfalling'
+                        isHint={hintTiles?.some(t => t.id === tile.id)}
+                      />
+                    )}
+                  </Container>
+                );
+              })}
+            </Container>
+          </Stage>
+        </div>
       )}
     </div>
   )

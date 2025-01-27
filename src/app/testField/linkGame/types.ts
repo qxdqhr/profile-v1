@@ -26,12 +26,39 @@ export type GameType = 'disvariable' | 'downfalling' | 'upfalling' | 'leftfallin
 
 // 游戏常量
 // export const GRID_SIZE = 10
-export const TILE_SIZE = typeof window !== 'undefined' && window.innerWidth < 768 ? 40 : 70  // 移动端40px，桌面端70px
-export const TILE_GAP = typeof window !== 'undefined' && window.innerWidth < 768 ? 5 : 10    // 移动端5px，桌面端10px
+export const TILE_SIZE = typeof window !== 'undefined' 
+  ? window.innerWidth <= 375 
+    ? 35  // 超小屏幕（如iPhone SE）
+    : window.innerWidth < 768 
+      ? 40  // 普通移动端
+      : 70  // 桌面端
+  : 70
+
+export const TILE_GAP = typeof window !== 'undefined'
+  ? window.innerWidth <= 375
+    ? 3   // 超小屏幕
+    : window.innerWidth < 768
+      ? 5   // 普通移动端
+      : 10  // 桌面端
+  : 10
+
 export const TYPES_COUNT = 30
-export const OUTER_PADDING = 1
+export const OUTER_PADDING = typeof window !== 'undefined' && window.innerWidth < 768 ? 0 : 1
 export const GAME_DURATION = 300 // 游戏时长（秒）
 
 // 游戏面板尺寸
-export const GRID_WIDTH = typeof window !== 'undefined' && window.innerWidth < 768 ? 8 : 10  // 移动端8列，桌面端10列
-export const GRID_HEIGHT = typeof window !== 'undefined' && window.innerWidth < 768 ? 7 : 8   // 移动端7行，桌面端8行 
+export const GRID_WIDTH = typeof window !== 'undefined'
+  ? window.innerWidth <= 375
+    ? 6   // 超小屏幕
+    : window.innerWidth < 768
+      ? 8   // 普通移动端
+      : 10  // 桌面端
+  : 10
+
+export const GRID_HEIGHT = typeof window !== 'undefined'
+  ? window.innerWidth <= 375
+    ? 8   // 超小屏幕
+    : window.innerWidth < 768
+      ? 7   // 普通移动端
+      : 8   // 桌面端
+  : 8 
