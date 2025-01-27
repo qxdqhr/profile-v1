@@ -6,7 +6,7 @@ export const useMusic = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
-    audioRef.current = new Audio('/linkGame/mp3/VivalaVida.mp3')
+    audioRef.current = new Audio('/linkGame/mp3/ShakeIt!-Miku.mp3')
     audioRef.current.loop = true
     
     audioRef.current.addEventListener('canplaythrough', () => {
