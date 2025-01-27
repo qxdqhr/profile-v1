@@ -5,7 +5,7 @@ import { CubeTile } from './components/CubeTile'
 import { SelectionEffect, ConnectionLine } from './components/Effects'
 import { GameInfo, MusicControl } from './components/UI'
 import { canConnect } from './gameLogic'
-import { GRID_SIZE, TILE_SIZE, TILE_GAP, OUTER_PADDING, Tile } from './types'
+import { GRID_WIDTH, GRID_HEIGHT, TILE_SIZE, TILE_GAP, OUTER_PADDING, Tile } from './types'
 import { useGameState } from './hooks/useGameState'
 import { useMusic } from './hooks/useMusic'
 import { useHint } from './hooks/useHint'
@@ -46,7 +46,8 @@ const LinkGame = () => {
   } = useHint(tiles, gameStatus, isFirstGame, setTiles)
 
   const {
-    clearAnimation
+    clearAnimation,
+    isAnimating
   } = useFallingAnimation(gameType, gameStatus, tiles, setTiles)
 
   const handleTileClick = (tile: Tile) => {
@@ -118,6 +119,7 @@ const LinkGame = () => {
           onRestart={handleRestart} 
           onHint={handleHint}
           onGameTypeChange={handleGameTypeChange}
+          isAnimating={isAnimating}
         />
         <MusicControl 
           isPlaying={isMusicPlaying} 
@@ -128,8 +130,8 @@ const LinkGame = () => {
       
       {!isFirstGame && (
         <Stage
-          width={(GRID_SIZE + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
-          height={(GRID_SIZE + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
+          width={(GRID_WIDTH + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
+          height={(GRID_HEIGHT + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
           options={{ backgroundColor: 0xf0f0f0 }}
         >
           <Container x={OUTER_PADDING * (TILE_SIZE + TILE_GAP)} y={OUTER_PADDING * (TILE_SIZE + TILE_GAP)}>

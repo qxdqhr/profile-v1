@@ -197,29 +197,36 @@ canvas {
 
 .game-mode-selector {
   display: flex;
-  gap: 1rem;
   justify-content: center;
+  gap: 0.5rem;
   margin-top: 1rem;
+  flex-wrap: wrap;
 }
 
 .mode-button {
-  padding: 0.5rem 1.5rem;
-  font-size: 1rem;
-  color: white;
-  cursor: pointer;
-  background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+  padding: 0.5rem 1rem;
+  margin: 0 0.5rem;
   border: none;
   border-radius: 4px;
+  background: linear-gradient(to right, #4CAF50, #45a049);
+  color: white;
+  cursor: pointer;
   transition: all 0.3s ease;
-  opacity: 0.7;
 }
 
-.mode-button:hover {
+.mode-button:hover:not(.disabled) {
   transform: translateY(-2px);
-  opacity: 0.9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .mode-button.active {
-  opacity: 1;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(to right, #2196F3, #1976D2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.mode-button.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 } 

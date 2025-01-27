@@ -1,11 +1,17 @@
-import { Tile, GRID_SIZE, TILE_SIZE, TILE_GAP, TYPES_COUNT } from './types'
+import { Tile, GRID_WIDTH, GRID_HEIGHT, TILE_SIZE, TILE_GAP, TYPES_COUNT } from './types'
 
 export const initializeBoard = (): Tile[] => {
     const tiles: Tile[] = []
     const types: number[] = []
 
+    // 确保总格子数是偶数
+    const totalTiles = GRID_WIDTH * GRID_HEIGHT
+    if (totalTiles % 2 !== 0) {
+        console.warn('Grid dimensions result in odd number of tiles')
+    }
+
     // 生成配对的类型
-    for (let i = 0; i < (GRID_SIZE * GRID_SIZE) / 2; i++) {
+    for (let i = 0; i < (GRID_WIDTH * GRID_HEIGHT) / 2; i++) {
         const type = i % TYPES_COUNT
         types.push(type, type)
     }
@@ -18,11 +24,11 @@ export const initializeBoard = (): Tile[] => {
 
     // 创建图块
     let id = 0
-    for (let row = 0; row < GRID_SIZE; row++) {
-        for (let col = 0; col < GRID_SIZE; col++) {
+    for (let row = 0; row < GRID_HEIGHT; row++) {
+        for (let col = 0; col < GRID_WIDTH; col++) {
             tiles.push({
                 id: id++,
-                type: types[row * GRID_SIZE + col],
+                type: types[row * GRID_WIDTH + col],
                 x: col * (TILE_SIZE + TILE_GAP),
                 y: row * (TILE_SIZE + TILE_GAP),
                 isSelected: false,
@@ -40,7 +46,7 @@ export const canConnect = (tile1: Tile, tile2: Tile, tiles: Tile[]): { canConnec
     }
 
     // 创建网格表示图块占用情况
-    const grid: boolean[][] = Array(GRID_SIZE + 2).fill(false).map(() => Array(GRID_SIZE + 2).fill(false))
+    const grid: boolean[][] = Array(GRID_HEIGHT + 2).fill(false).map(() => Array(GRID_WIDTH + 2).fill(false))
 
     // 标记所有未匹配的图块位置
     tiles.forEach(tile => {
