@@ -45,26 +45,26 @@ export const canConnect = (tile1: Tile, tile2: Tile, tiles: Tile[]): { canConnec
         return { canConnect: false, path: [] }
     }
 
-    // 创建网格表示图块占用情况
-    const grid: boolean[][] = Array(GRID_HEIGHT + 2).fill(false).map(() => Array(GRID_WIDTH + 2).fill(false))
+    // 创建网格表示图块占用情况，增加边界检查空间
+    const grid: boolean[][] = Array(GRID_HEIGHT + 4).fill(false).map(() => Array(GRID_WIDTH + 4).fill(false))
 
-    // 标记所有未匹配的图块位置
+    // 标记所有未匹配的图块位置，保留边界空间
     tiles.forEach(tile => {
         if (!tile.isMatched) {
-            const gridX = Math.floor(tile.x / (TILE_SIZE + TILE_GAP)) + 1
-            const gridY = Math.floor(tile.y / (TILE_SIZE + TILE_GAP)) + 1
+            const gridX = Math.floor(tile.x / (TILE_SIZE + TILE_GAP)) + 2
+            const gridY = Math.floor(tile.y / (TILE_SIZE + TILE_GAP)) + 2
             grid[gridY][gridX] = true
         }
     })
 
-    // 获取两个图块的网格坐标
+    // 获取两个图块的网格坐标，考虑边界空间
     const start = {
-        x: Math.floor(tile1.x / (TILE_SIZE + TILE_GAP)) + 1,
-        y: Math.floor(tile1.y / (TILE_SIZE + TILE_GAP)) + 1
+        x: Math.floor(tile1.x / (TILE_SIZE + TILE_GAP)) + 2,
+        y: Math.floor(tile1.y / (TILE_SIZE + TILE_GAP)) + 2
     }
     const end = {
-        x: Math.floor(tile2.x / (TILE_SIZE + TILE_GAP)) + 1,
-        y: Math.floor(tile2.y / (TILE_SIZE + TILE_GAP)) + 1
+        x: Math.floor(tile2.x / (TILE_SIZE + TILE_GAP)) + 2,
+        y: Math.floor(tile2.y / (TILE_SIZE + TILE_GAP)) + 2
     }
 
     // 临时取消起点和终点的占用标记
@@ -82,10 +82,10 @@ export const canConnect = (tile1: Tile, tile2: Tile, tiles: Tile[]): { canConnec
         return { canConnect: false, path: [] }
     }
 
-    // 转换路径坐标为实际坐标（考虑图块中心点）
+    // 转换路径坐标为实际坐标（考虑图块中心点），减去边界空间偏移
     const realPath = path.map(point => ({
-        x: (point.x - 1) * (TILE_SIZE + TILE_GAP) + TILE_SIZE / 2,
-        y: (point.y - 1) * (TILE_SIZE + TILE_GAP) + TILE_SIZE / 2
+        x: (point.x - 2) * (TILE_SIZE + TILE_GAP) + TILE_SIZE / 2,
+        y: (point.y - 2) * (TILE_SIZE + TILE_GAP) + TILE_SIZE / 2
     }))
 
     return { canConnect: true, path: realPath }
@@ -133,7 +133,7 @@ const findOneCornerPath = (start: { x: number, y: number }, end: { x: number, y:
 
 // 辅助函数：寻找两个转角的路径
 const findTwoCornerPath = (start: { x: number, y: number }, end: { x: number, y: number }, grid: boolean[][]): { x: number, y: number }[] | null => {
-    // 遍历所有可能的第一个转角点
+    // 遍历所有可能的第一个转角点，包括边界空间
     for (let x = 0; x < grid[0].length; x++) {
         const corner1 = { x, y: start.y }
         if (x !== start.x && !grid[corner1.y][corner1.x] && canConnectDirectly(start, corner1, grid)) {
@@ -144,7 +144,7 @@ const findTwoCornerPath = (start: { x: number, y: number }, end: { x: number, y:
         }
     }
 
-    // 遍历所有可能的第一个转角点（垂直方向）
+    // 遍历所有可能的第一个转角点（垂直方向），包括边界空间
     for (let y = 0; y < grid.length; y++) {
         const corner1 = { x: start.x, y }
         if (y !== start.y && !grid[corner1.y][corner1.x] && canConnectDirectly(start, corner1, grid)) {
