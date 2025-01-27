@@ -118,6 +118,13 @@ export const GameInfo = ({
           >
             左右分散模式
           </button>
+          <button 
+            className={`mode-button ${gameType === 'updownsplit' ? 'active' : ''} ${(isChanging || isAnimating) ? 'disabled' : ''}`}
+            onClick={() => handleModeChange('updownsplit')}
+            disabled={isChanging || isAnimating}
+          >
+            上下分散模式
+          </button>
         </div>
       )}
       {gameStatus !== 'playing' && (

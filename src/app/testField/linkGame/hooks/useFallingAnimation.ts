@@ -74,14 +74,33 @@ export const useFallingAnimation = (
                                     t.x > tile.x
                                 ).length * (TILE_SIZE + TILE_GAP)
                         }
+                    } else if (gameType === 'updownsplit') {
+                        // 计算中心点
+                        const centerY = ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2
+                        // 根据方块位置决定向上还是向下移动
+                        if (tile.y < centerY) {
+                            targetY = prevTiles.filter(t =>
+                                !t.isMatched &&
+                                t.x === tile.x &&
+                                t.y < tile.y
+                            ).length * (TILE_SIZE + TILE_GAP)
+                        } else {
+                            targetY = ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) -
+                                prevTiles.filter(t =>
+                                    !t.isMatched &&
+                                    t.x === tile.x &&
+                                    t.y > tile.y
+                                ).length * (TILE_SIZE + TILE_GAP)
+                        }
                     } else {
                         return tile
                     }
 
-                    const movingUp = gameType === 'upfalling'
+                    const movingUp = gameType === 'upfalling' || (gameType === 'updownsplit' && tile.y < ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2)
+                    const movingDown = gameType === 'downfalling' || (gameType === 'updownsplit' && tile.y >= ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2)
                     const movingLeft = gameType === 'leftfalling' || (gameType === 'leftrightsplit' && tile.x < ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2)
                     const movingRight = gameType === 'rightfalling' || (gameType === 'leftrightsplit' && tile.x >= ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2)
-                    const shouldMoveVertical = movingUp ? tile.y > targetY : tile.y < targetY
+                    const shouldMoveVertical = movingUp ? tile.y > targetY : movingDown ? tile.y < targetY : false
                     const shouldMoveHorizontal = movingLeft ? tile.x > targetX : movingRight ? tile.x < targetX : false
                     
                     if (shouldMoveVertical || shouldMoveHorizontal) {
@@ -90,7 +109,7 @@ export const useFallingAnimation = (
                             ...tile,
                             y: movingUp 
                                 ? Math.max(tile.y - 2, targetY)  // 向上移动
-                                : gameType === 'downfalling' 
+                                : movingDown
                                     ? Math.min(tile.y + 2, targetY)  // 向下移动
                                     : tile.y,  // 保持不变
                             x: movingLeft
@@ -120,7 +139,7 @@ export const useFallingAnimation = (
 
     // 开始移动动画
     const startFalling = () => {
-        if ((gameType === 'downfalling' || gameType === 'upfalling' || gameType === 'leftfalling' || gameType === 'rightfalling' || gameType === 'leftrightsplit') && !animationFrameRef.current) {
+        if ((gameType === 'downfalling' || gameType === 'upfalling' || gameType === 'leftfalling' || gameType === 'rightfalling' || gameType === 'leftrightsplit' || gameType === 'updownsplit') && !animationFrameRef.current) {
             setIsAnimating(true)  // 动画开始
             animationFrameRef.current = requestAnimationFrame(updateFallingTiles)
         }
@@ -137,7 +156,7 @@ export const useFallingAnimation = (
 
     // 在游戏状态改变时处理移动
     useEffect(() => {
-        if (gameStatus === 'playing' && (gameType === 'downfalling' || gameType === 'upfalling' || gameType === 'leftfalling' || gameType === 'rightfalling' || gameType === 'leftrightsplit')) {
+        if (gameStatus === 'playing' && (gameType === 'downfalling' || gameType === 'upfalling' || gameType === 'leftfalling' || gameType === 'rightfalling' || gameType === 'leftrightsplit' || gameType === 'updownsplit')) {
             startFalling()
         }
         return clearAnimation
@@ -145,7 +164,7 @@ export const useFallingAnimation = (
 
     // 在方块匹配后触发移动
     useEffect(() => {
-        if ((gameType === 'downfalling' || gameType === 'upfalling' || gameType === 'leftfalling' || gameType === 'rightfalling' || gameType === 'leftrightsplit') && gameStatus === 'playing') {
+        if ((gameType === 'downfalling' || gameType === 'upfalling' || gameType === 'leftfalling' || gameType === 'rightfalling' || gameType === 'leftrightsplit' || gameType === 'updownsplit') && gameStatus === 'playing') {
             startFalling()
         }
     }, [tiles.filter(t => t.isMatched).length])
