@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Stage, Container } from '@pixi/react'
 import { CubeTile } from './components/CubeTile'
 import { SelectionEffect, ConnectionLine } from './components/Effects'
@@ -20,6 +20,14 @@ const LinkGame = () => {
   const [gridHeight, setGridHeight] = useState(8)
   const [typesCount, setTypesCount] = useState(TYPES_COUNT)
   const [gameMode, setGameMode] = useState<GameMode>('cube')
+  
+  // 跟踪设置变化
+  const settingsRef = useRef({
+    gameType: 'disvariable' as GameType,
+    gridWidth: 10,
+    gridHeight: 8,
+    typesCount: TYPES_COUNT
+  })
 
   const {
     tiles,
@@ -64,15 +72,11 @@ const LinkGame = () => {
   }, [clearHint])
 
   const handleSettingsChange = (settings: {
-    gameMode?: GameMode
     gameType?: GameType
     gridWidth?: number
     gridHeight?: number
     typesCount?: number
   }) => {
-    if (settings.gameMode !== undefined) {
-      setGameMode(settings.gameMode)
-    }
     if (settings.gameType !== undefined) {
       handleGameTypeChange(settings.gameType)
     }
@@ -85,6 +89,41 @@ const LinkGame = () => {
     if (settings.typesCount !== undefined) {
       setTypesCount(settings.typesCount)
     }
+  }
+
+  const handleSettingsClose = () => {
+    // 检查设置是否有变化
+    const hasChanges = 
+      settingsRef.current.gameType !== gameType ||
+      settingsRef.current.gridWidth !== gridWidth ||
+      settingsRef.current.gridHeight !== gridHeight ||
+      settingsRef.current.typesCount !== typesCount
+
+    // 更新设置参考值
+    settingsRef.current = {
+      gameType,
+      gridWidth,
+      gridHeight,
+      typesCount
+    }
+
+    // 如果有变化且游戏已经开始过，则重新开始游戏
+    if (hasChanges && !isFirstGame) {
+      handleRestart()
+    }
+
+    setShowSettings(false)
+  }
+
+  // 打开设置时保存当前值
+  const handleSettingsOpen = () => {
+    settingsRef.current = {
+      gameType,
+      gridWidth,
+      gridHeight,
+      typesCount
+    }
+    setShowSettings(true)
   }
 
   const handleTileClick = (tile: Tile) => {
@@ -118,7 +157,6 @@ const LinkGame = () => {
       } else {
         const result = canConnect(selectedTile, tile, tiles)
         if (tile.type === selectedTile.type && result.canConnect) {
-          // 立即标记为匹配并更新分数
           setTiles(tiles.map(t => ({
             ...t,
             isSelected: false,
@@ -128,7 +166,6 @@ const LinkGame = () => {
           setSelectedTile(null)
           setConnectionPath(result.path)
           
-          // 显示连线0.3秒后清除
           setTimeout(() => {
             setConnectionPath([])
           }, 300)
@@ -157,7 +194,7 @@ const LinkGame = () => {
           onHint={handleHint}
           onGameTypeChange={handleGameTypeChange}
           isAnimating={isAnimating}
-          onSettingsClick={() => setShowSettings(!showSettings)}
+          onSettingsClick={handleSettingsOpen}
         />
         <MusicControl 
           isPlaying={isMusicPlaying} 
@@ -169,12 +206,12 @@ const LinkGame = () => {
       {showSettings && (
         <div className="settings-overlay">
           <Settings
-            gameMode={gameMode}
             gameType={gameType}
             gridWidth={gridWidth}
             gridHeight={gridHeight}
             typesCount={typesCount}
             onSettingsChange={handleSettingsChange}
+            onClose={handleSettingsClose}
           />
         </div>
       )}

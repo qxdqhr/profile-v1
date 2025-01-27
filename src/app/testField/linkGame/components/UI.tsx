@@ -80,66 +80,6 @@ export const GameInfo: React.FC<GameInfoProps> = ({
           设置
         </button>
       </div>
-      {!isFirstGame && (
-        <div className="game-mode-selector">
-          <button 
-            className={`mode-button ${gameType === 'disvariable' ? 'active' : ''} ${(isChanging || isAnimating) ? 'disabled' : ''}`}
-            onClick={() => handleModeChange('disvariable')}
-            disabled={isChanging || isAnimating}
-          >
-            静态模式
-          </button>
-          <button 
-            className={`mode-button ${gameType === 'downfalling' ? 'active' : ''} ${(isChanging || isAnimating) ? 'disabled' : ''}`}
-            onClick={() => handleModeChange('downfalling')}
-            disabled={isChanging || isAnimating}
-          >
-            下落模式
-          </button>
-          <button 
-            className={`mode-button ${gameType === 'upfalling' ? 'active' : ''} ${(isChanging || isAnimating) ? 'disabled' : ''}`}
-            onClick={() => handleModeChange('upfalling')}
-            disabled={isChanging || isAnimating}
-          >
-            上升模式
-          </button>
-          <button 
-            className={`mode-button ${gameType === 'leftfalling' ? 'active' : ''} ${(isChanging || isAnimating) ? 'disabled' : ''}`}
-            onClick={() => handleModeChange('leftfalling')}
-            disabled={isChanging || isAnimating}
-          >
-            左移模式
-          </button>
-          <button 
-            className={`mode-button ${gameType === 'rightfalling' ? 'active' : ''} ${(isChanging || isAnimating) ? 'disabled' : ''}`}
-            onClick={() => handleModeChange('rightfalling')}
-            disabled={isChanging || isAnimating}
-          >
-            右移模式
-          </button>
-          <button 
-            className={`mode-button ${gameType === 'leftrightsplit' ? 'active' : ''} ${(isChanging || isAnimating) ? 'disabled' : ''}`}
-            onClick={() => handleModeChange('leftrightsplit')}
-            disabled={isChanging || isAnimating}
-          >
-            左右分散模式
-          </button>
-          <button 
-            className={`mode-button ${gameType === 'updownsplit' ? 'active' : ''} ${(isChanging || isAnimating) ? 'disabled' : ''}`}
-            onClick={() => handleModeChange('updownsplit')}
-            disabled={isChanging || isAnimating}
-          >
-            上下分散模式
-          </button>
-          <button 
-            className={`mode-button ${gameType === 'clockwise' ? 'active' : ''} ${(isChanging || isAnimating) ? 'disabled' : ''}`}
-            onClick={() => handleModeChange('clockwise')}
-            disabled={isChanging || isAnimating}
-          >
-            顺时针旋转模式
-          </button>
-        </div>
-      )}
       {gameStatus !== 'playing' && (
         <div className={`game-result ${gameStatus}`}>
           <h2>{gameStatus === 'success' ? '恭喜过关！' : '游戏结束'}</h2>
