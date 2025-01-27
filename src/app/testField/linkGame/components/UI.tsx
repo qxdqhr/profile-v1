@@ -1,3 +1,4 @@
+import React from 'react'
 import { GameStatus, GAME_DURATION, GameType } from '../types'
 import { useState, useCallback } from 'react'
 
@@ -11,19 +12,21 @@ interface GameInfoProps {
   onHint: () => void
   onGameTypeChange: (type: GameType) => void
   isAnimating: boolean
+  onSettingsClick: () => void
 }
 
-export const GameInfo = ({ 
-  score, 
-  timeLeft, 
-  gameStatus, 
-  isFirstGame, 
+export const GameInfo: React.FC<GameInfoProps> = ({
+  score,
+  timeLeft,
+  gameStatus,
+  isFirstGame,
   gameType,
-  onRestart, 
+  onRestart,
   onHint,
   onGameTypeChange,
-  isAnimating
-}: GameInfoProps) => {
+  isAnimating,
+  onSettingsClick
+}) => {
   const [isChanging, setIsChanging] = useState(false)
 
   const handleModeChange = useCallback((type: GameType) => {
@@ -73,6 +76,9 @@ export const GameInfo = ({
             提示
           </button>
         )}
+        <button onClick={onSettingsClick}>
+          设置
+        </button>
       </div>
       {!isFirstGame && (
         <div className="game-mode-selector">

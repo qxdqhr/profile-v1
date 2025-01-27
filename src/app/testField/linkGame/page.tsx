@@ -4,8 +4,9 @@ import { Stage, Container } from '@pixi/react'
 import { CubeTile } from './components/CubeTile'
 import { SelectionEffect, ConnectionLine } from './components/Effects'
 import { GameInfo, MusicControl } from './components/UI'
+import { Settings } from './components/Settings'
 import { canConnect } from './gameLogic'
-import { GRID_WIDTH, GRID_HEIGHT, TILE_SIZE, TILE_GAP, OUTER_PADDING, Tile } from './types'
+import { TYPES_COUNT, TILE_SIZE, TILE_GAP, OUTER_PADDING, Tile, GameMode, GameType } from './types'
 import { useGameState } from './hooks/useGameState'
 import { useMusic } from './hooks/useMusic'
 import { useHint } from './hooks/useHint'
@@ -14,6 +15,11 @@ import './LinkGame.css'
 
 const LinkGame = () => {
   const [hintClearer, setHintClearer] = useState<() => void>(() => () => {})
+  const [showSettings, setShowSettings] = useState(false)
+  const [gridWidth, setGridWidth] = useState(10)
+  const [gridHeight, setGridHeight] = useState(8)
+  const [typesCount, setTypesCount] = useState(TYPES_COUNT)
+  const [gameMode, setGameMode] = useState<GameMode>('cube')
 
   const {
     tiles,
@@ -32,7 +38,7 @@ const LinkGame = () => {
     setIsFirstClick,
     handleGameTypeChange,
     handleRestart
-  } = useGameState(() => hintClearer())
+  } = useGameState(() => hintClearer(), gridWidth, gridHeight, typesCount)
 
   const {
     isMusicPlaying,
@@ -56,6 +62,30 @@ const LinkGame = () => {
   useEffect(() => {
     setHintClearer(() => clearHint)
   }, [clearHint])
+
+  const handleSettingsChange = (settings: {
+    gameMode?: GameMode
+    gameType?: GameType
+    gridWidth?: number
+    gridHeight?: number
+    typesCount?: number
+  }) => {
+    if (settings.gameMode !== undefined) {
+      setGameMode(settings.gameMode)
+    }
+    if (settings.gameType !== undefined) {
+      handleGameTypeChange(settings.gameType)
+    }
+    if (settings.gridWidth !== undefined) {
+      setGridWidth(settings.gridWidth)
+    }
+    if (settings.gridHeight !== undefined) {
+      setGridHeight(settings.gridHeight)
+    }
+    if (settings.typesCount !== undefined) {
+      setTypesCount(settings.typesCount)
+    }
+  }
 
   const handleTileClick = (tile: Tile) => {
     if (gameStatus !== 'playing') return
@@ -127,6 +157,7 @@ const LinkGame = () => {
           onHint={handleHint}
           onGameTypeChange={handleGameTypeChange}
           isAnimating={isAnimating}
+          onSettingsClick={() => setShowSettings(!showSettings)}
         />
         <MusicControl 
           isPlaying={isMusicPlaying} 
@@ -135,15 +166,28 @@ const LinkGame = () => {
         />
       </div>
       
+      {showSettings && (
+        <div className="settings-overlay">
+          <Settings
+            gameMode={gameMode}
+            gameType={gameType}
+            gridWidth={gridWidth}
+            gridHeight={gridHeight}
+            typesCount={typesCount}
+            onSettingsChange={handleSettingsChange}
+          />
+        </div>
+      )}
+      
       {!isFirstGame && (
         <div className="game-stage-container">
           <Stage
-            width={(GRID_WIDTH + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
-            height={(GRID_HEIGHT + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
+            width={(gridWidth + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
+            height={(gridHeight + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
             options={{ backgroundColor: 0xf0f0f0 }}
           >
             <Container x={OUTER_PADDING * (TILE_SIZE + TILE_GAP)} y={OUTER_PADDING * (TILE_SIZE + TILE_GAP)}>
-              {connectionPath.length > 0 && <ConnectionLine path={connectionPath} gameMode="cube" gameType='downfalling' />}
+              {connectionPath.length > 0 && <ConnectionLine path={connectionPath} gameMode={gameMode} gameType={gameType} />}
               
               {tiles.map((tile) => {
                 const isHighlighted = tile.isSelected || (hintTiles && (hintTiles[0].id === tile.id || hintTiles[1].id === tile.id));
@@ -156,8 +200,8 @@ const LinkGame = () => {
                     />
                     {isHighlighted && (
                       <SelectionEffect 
-                        gameMode="cube" 
-                        gameType='downfalling'
+                        gameMode={gameMode}
+                        gameType={gameType}
                         isHint={hintTiles?.some(t => t.id === tile.id)}
                       />
                     )}
