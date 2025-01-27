@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Tile, GameType, GameStatus } from '../types'
 import { TILE_SIZE, TILE_GAP } from '../types'
+import { hasMatchablePairs, shuffleTiles } from '../gameLogic'
 
 export const useGameState = (
     onGameEnd: () => void,
@@ -17,6 +18,8 @@ export const useGameState = (
     const [gameType, setGameType] = useState<GameType>('disvariable')
     const [isFirstGame, setIsFirstGame] = useState(true)
     const [isFirstClick, setIsFirstClick] = useState(true)
+    const [noMatchesFound, setNoMatchesFound] = useState(false)
+    const [shuffleCount, setShuffleCount] = useState(0) // 已使用的洗牌次数，初始为0
 
     // 初始化游戏
     const initializeGame = useCallback(() => {
@@ -54,6 +57,8 @@ export const useGameState = (
         setTimeLeft(300)
         setGameStatus('playing')
         setIsFirstClick(true)
+        setNoMatchesFound(false)
+        setShuffleCount(0) // 重置已使用的洗牌次数为0
     }, [gridWidth, gridHeight, typesCount])
 
     // 重新开始游戏
@@ -67,15 +72,36 @@ export const useGameState = (
         setGameType(type)
     }, [])
 
+    // 洗牌功能
+    const handleShuffle = useCallback(() => {
+        if (shuffleCount < 3 && gameStatus === 'playing' && !isFirstGame) {
+            const shuffledTiles = shuffleTiles(tiles)
+            setTiles(shuffledTiles)
+            setShuffleCount(prev => prev + 1)
+            setNoMatchesFound(false)
+            setSelectedTile(null)
+            setConnectionPath([])
+        }
+    }, [tiles, shuffleCount, gameStatus, isFirstGame])
+
     // 检查游戏状态
     useEffect(() => {
         if (!isFirstGame && gameStatus === 'playing' && tiles.length > 0) {
+            // 检查是否全部匹配完成
             if (tiles.every(tile => tile.isMatched)) {
                 setGameStatus('success')
                 onGameEnd()
+            } 
+            // 检查是否还有可配对的方块
+            else if (!hasMatchablePairs(tiles)) {
+                setNoMatchesFound(true)
+                // 如果还有洗牌次数，自动洗牌
+                if (shuffleCount < 3) {
+                    handleShuffle()
+                }
             }
         }
-    }, [tiles, gameStatus, isFirstGame, onGameEnd])
+    }, [tiles, gameStatus, isFirstGame, onGameEnd, shuffleCount, handleShuffle])
 
     // 倒计时
     useEffect(() => {
@@ -111,6 +137,9 @@ export const useGameState = (
         isFirstClick,
         setIsFirstClick,
         handleGameTypeChange,
-        handleRestart
+        handleRestart,
+        handleShuffle,
+        shuffleCount,
+        noMatchesFound
     }
 } 

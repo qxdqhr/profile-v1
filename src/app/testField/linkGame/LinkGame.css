@@ -4,7 +4,10 @@
   align-items: center;
   padding: 20px;
   min-height: 100vh;
-  background-color: #f0f0f0;
+  background-image: url('/linkGame/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   overflow-x: hidden;
   width: 100%;
 }
@@ -44,6 +47,46 @@
 
 .game-stats {
   margin-bottom: 15px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.stat-widget {
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 120px;
+  text-align: center;
+}
+
+.stat-widget .label {
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.stat-widget .value {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #333;
+}
+
+.stat-widget.score .value {
+  color: #4CAF50;
+}
+
+.stat-widget.shuffle .value {
+  color: #FF9800;
+}
+
+.stat-widget.time .value {
+  color: #2196F3;
+}
+
+.stat-widget.time.warning .value {
+  color: #ff4444;
 }
 
 .time-container {
@@ -60,6 +103,7 @@
   background-color: #eee;
   border-radius: 5px;
   overflow: hidden;
+  margin-bottom: 20px;
 }
 
 .progress-bar {
@@ -76,9 +120,31 @@
   display: flex;
   gap: 10px;
   margin-bottom: 15px;
+  align-items: center;
 }
 
-.game-controls button {
+.game-type-select {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: white;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 120px;
+}
+
+.game-type-select:hover:not(:disabled) {
+  border-color: #4CAF50;
+}
+
+.game-type-select:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.game-controls button,
+.music-control button {
   padding: 8px 16px;
   border: none;
   border-radius: 5px;
@@ -86,10 +152,21 @@
   color: white;
   cursor: pointer;
   transition: background-color 0.3s;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.game-controls button:hover {
+.game-controls button:hover,
+.music-control button:hover:not(:disabled) {
   background-color: #45a049;
+}
+
+.game-controls button:disabled,
+.music-control button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .hint-button {
@@ -145,18 +222,15 @@
 }
 
 .music-control {
+  display: inline-flex;
+  align-items: center;
   margin-top: 10px;
   text-align: center;
 }
 
 .music-control button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 5px;
   background-color: #673AB7;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s;
+  white-space: nowrap;
 }
 
 .music-control button:hover:not(:disabled) {
@@ -398,4 +472,48 @@
     .grid-settings {
         gap: 12px;
     }
+}
+
+.shuffle-button {
+    background-color: #FF9800 !important;
+}
+
+.shuffle-button:hover:not(:disabled) {
+    background-color: #F57C00 !important;
+}
+
+.shuffle-button:disabled {
+    background-color: #ccc !important;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.no-matches-warning {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+    border-radius: 4px;
+    text-align: center;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.music-button {
+  background-color: #673AB7 !important;
+}
+
+.music-button:hover:not(:disabled) {
+  background-color: #5E35B1 !important;
 } 

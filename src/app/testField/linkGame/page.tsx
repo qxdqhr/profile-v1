@@ -45,7 +45,10 @@ const LinkGame = () => {
     isFirstClick,
     setIsFirstClick,
     handleGameTypeChange,
-    handleRestart
+    handleRestart,
+    handleShuffle,
+    shuffleCount,
+    noMatchesFound
   } = useGameState(() => hintClearer(), gridWidth, gridHeight, typesCount)
 
   const {
@@ -195,9 +198,10 @@ const LinkGame = () => {
           onGameTypeChange={handleGameTypeChange}
           isAnimating={isAnimating}
           onSettingsClick={handleSettingsOpen}
-        />
-        <MusicControl 
-          isPlaying={isMusicPlaying} 
+          onShuffle={handleShuffle}
+          shuffleCount={shuffleCount}
+          noMatchesFound={noMatchesFound}
+          isMusicPlaying={isMusicPlaying} 
           onToggle={toggleMusic} 
           disabled={!isMusicLoaded}
         />
@@ -221,7 +225,7 @@ const LinkGame = () => {
           <Stage
             width={(gridWidth + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
             height={(gridHeight + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
-            options={{ backgroundColor: 0xf0f0f0 }}
+            options={{ backgroundColor: 0x000000, backgroundAlpha: 0 }}
           >
             <Container x={OUTER_PADDING * (TILE_SIZE + TILE_GAP)} y={OUTER_PADDING * (TILE_SIZE + TILE_GAP)}>
               {connectionPath.length > 0 && <ConnectionLine path={connectionPath} gameMode={gameMode} gameType={gameType} />}

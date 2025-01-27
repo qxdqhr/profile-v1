@@ -178,4 +178,45 @@ const findPath = (start: { x: number, y: number }, end: { x: number, y: number }
     }
 
     return null
+}
+
+// 检查是否存在可配对的方块
+export const hasMatchablePairs = (tiles: Tile[]): boolean => {
+    const unmatched = tiles.filter(tile => !tile.isMatched)
+    
+    for (let i = 0; i < unmatched.length; i++) {
+        for (let j = i + 1; j < unmatched.length; j++) {
+            const tile1 = unmatched[i]
+            const tile2 = unmatched[j]
+            
+            if (tile1.type === tile2.type && canConnect(tile1, tile2, tiles).canConnect) {
+                return true
+            }
+        }
+    }
+    
+    return false
+}
+
+// 洗牌函数
+export const shuffleTiles = (tiles: Tile[]): Tile[] => {
+    // 获取未匹配的方块
+    const matched = tiles.filter(tile => tile.isMatched)
+    const unmatched = tiles.filter(tile => !tile.isMatched)
+    
+    // 只打乱未匹配方块的类型
+    const types = unmatched.map(tile => tile.type)
+    for (let i = types.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [types[i], types[j]] = [types[j], types[i]]
+    }
+    
+    // 重新分配类型
+    const shuffled = unmatched.map((tile, index) => ({
+        ...tile,
+        type: types[index]
+    }))
+    
+    // 合并已匹配和未匹配的方块
+    return [...matched, ...shuffled].sort((a, b) => a.id - b.id)
 } 
