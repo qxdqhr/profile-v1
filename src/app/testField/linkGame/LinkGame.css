@@ -273,17 +273,28 @@
   }
 
   .game-controls {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, auto);
     gap: 8px;
+    padding: 8px;
   }
 
-  .game-controls button,
   .game-type-select {
+    grid-column: auto;
     width: 100%;
     padding: 8px;
     font-size: 14px;
     height: 36px;
     min-width: unset;
+  }
+
+  .game-controls button {
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    height: 36px;
+    white-space: nowrap;
   }
 
   .progress-bar-container {
@@ -347,11 +358,11 @@
 
   .game-controls {
     gap: 6px;
+    padding: 6px;
   }
 
   .game-controls button,
-  .game-type-select,
-  .music-control button {
+  .game-type-select {
     padding: 6px;
     font-size: 12px;
     height: 32px;
