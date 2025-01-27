@@ -22,7 +22,7 @@ export interface MidiNote {
 
 export type GameMode = 'text' | 'cube'
 export type GameStatus = 'playing' | 'success' | 'failed'
-export type GameType = 'disvariable' | 'downfalling' | 'upfalling' | 'leftfalling' | 'rightfalling'
+export type GameType = 'disvariable' | 'downfalling' | 'upfalling' | 'leftfalling' | 'rightfalling' | 'leftrightsplit'
 
 // 游戏常量
 // export const GRID_SIZE = 10
