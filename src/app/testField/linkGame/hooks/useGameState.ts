@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Tile, GameType, GameStatus } from '../types'
 import { TILE_SIZE, TILE_GAP } from '../types'
 import { hasMatchablePairs, shuffleTiles } from '../gameLogic'
@@ -20,7 +20,8 @@ export const useGameState = (
     const [isFirstClick, setIsFirstClick] = useState(true)
     const [noMatchesFound, setNoMatchesFound] = useState(false)
     const [shuffleCount, setShuffleCount] = useState(0) // 已使用的洗牌次数，初始为0
-    const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+    const [timer, setTimer] = useState<NodeJS.Timeout | null>(null)
+    const lastUpdateTimeRef = useRef<number>(0)
 
     // 初始化游戏
     const initializeGame = useCallback(() => {
@@ -64,22 +65,31 @@ export const useGameState = (
 
     // 启动计时器
     const startTimer = useCallback(() => {
-        if (timer) return; // 如果已有计时器在运行，则不创建新的
+        if (timer) {
+            clearInterval(timer)
+        }
+        lastUpdateTimeRef.current = Date.now()
 
         const newTimer = setInterval(() => {
-            setTimeLeft(time => {
-                if (time <= 1) {
-                    setGameStatus('failed');
-                    onGameEnd();
-                    clearInterval(newTimer);
-                    return 0;
-                }
-                return time - 1;
-            });
-        }, 1000);
+            const now = Date.now()
+            const deltaTime = now - lastUpdateTimeRef.current
+            
+            if (deltaTime >= 1000) {
+                lastUpdateTimeRef.current = now
+                setTimeLeft(time => {
+                    if (time <= 1) {
+                        setGameStatus('failed')
+                        onGameEnd()
+                        clearInterval(newTimer)
+                        return 0
+                    }
+                    return time - 1
+                })
+            }
+        }, 100)
 
-        setTimer(newTimer);
-    }, [onGameEnd]);
+        setTimer(newTimer)
+    }, [onGameEnd, timer])
 
     // 停止计时器
     const stopTimer = useCallback(() => {

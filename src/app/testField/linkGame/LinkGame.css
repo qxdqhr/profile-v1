@@ -263,13 +263,24 @@
   }
 
   .game-stats {
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-wrap: nowrap;
+    gap: 6px;
+    justify-content: space-between;
   }
 
   .stat-widget {
-    min-width: calc(33.33% - 8px);
-    padding: 8px;
+    flex: 1;
+    min-width: 0;
+    padding: 6px;
+  }
+
+  .stat-widget .label {
+    font-size: 0.9em;
+    margin-bottom: 4px;
+  }
+
+  .stat-widget .value {
+    font-size: 1.1em;
   }
 
   .game-controls {
@@ -343,17 +354,16 @@
   }
 
   .stat-widget {
-    min-width: calc(33.33% - 4px);
-    padding: 6px;
+    padding: 4px;
   }
 
   .stat-widget .label {
-    font-size: 0.8em;
-    margin-bottom: 3px;
+    font-size: 0.75em;
+    margin-bottom: 2px;
   }
 
   .stat-widget .value {
-    font-size: 1em;
+    font-size: 0.9em;
   }
 
   .game-controls {
