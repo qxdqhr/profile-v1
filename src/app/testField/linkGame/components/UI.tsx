@@ -125,6 +125,13 @@ export const GameInfo = ({
           >
             上下分散模式
           </button>
+          <button 
+            className={`mode-button ${gameType === 'clockwise' ? 'active' : ''} ${(isChanging || isAnimating) ? 'disabled' : ''}`}
+            onClick={() => handleModeChange('clockwise')}
+            disabled={isChanging || isAnimating}
+          >
+            顺时针旋转模式
+          </button>
         </div>
       )}
       {gameStatus !== 'playing' && (
