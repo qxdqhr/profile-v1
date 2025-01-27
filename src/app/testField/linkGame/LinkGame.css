@@ -123,24 +123,16 @@
   align-items: center;
 }
 
+/* 头部按钮颜色 */
 .game-type-select {
   padding: 8px 16px;
-  border: 1px solid #ddd;
+  border: none;
   border-radius: 5px;
-  background-color: white;
-  color: #333;
+  background-color: #00CED1;
+  color: white;
   cursor: pointer;
   transition: all 0.2s;
   min-width: 120px;
-}
-
-.game-type-select:hover:not(:disabled) {
-  border-color: #4CAF50;
-}
-
-.game-type-select:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
 }
 
 .game-controls button,
@@ -148,7 +140,6 @@
   padding: 8px 16px;
   border: none;
   border-radius: 5px;
-  background-color: #4CAF50;
   color: white;
   cursor: pointer;
   transition: background-color 0.3s;
@@ -158,23 +149,51 @@
   justify-content: center;
 }
 
-.game-controls button:hover,
-.music-control button:hover:not(:disabled) {
-  background-color: #45a049;
+.game-controls button:nth-child(2) {
+  background-color: #FFD700;
+}
+
+.game-controls button:nth-child(2):hover:not(:disabled) {
+  background-color: #F4C430;
+}
+
+.game-controls .hint-button {
+  background-color: #FF6347;
+}
+
+.game-controls .hint-button:hover:not(:disabled) {
+  background-color: #E65339;
+}
+
+.game-controls .shuffle-button {
+  background-color: #FF69B4;
+}
+
+.game-controls .shuffle-button:hover:not(:disabled) {
+  background-color: #FF1493;
+}
+
+.game-controls button:nth-child(5) {
+  background-color: #8B0000;
+}
+
+.game-controls button:nth-child(5):hover:not(:disabled) {
+  background-color: #660000;
+}
+
+.game-controls button:last-child {
+  background-color: #0000FF;
+}
+
+.game-controls button:last-child:hover:not(:disabled) {
+  background-color: #0000CC;
 }
 
 .game-controls button:disabled,
+.game-type-select:disabled,
 .music-control button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
-}
-
-.hint-button {
-  background-color: #2196F3 !important;
-}
-
-.hint-button:hover {
-  background-color: #1976D2 !important;
 }
 
 .mode-button {
@@ -229,12 +248,12 @@
 }
 
 .music-control button {
-  background-color: #673AB7;
+  background-color: #4169E1;
   white-space: nowrap;
 }
 
 .music-control button:hover:not(:disabled) {
-  background-color: #5E35B1;
+  background-color: #1E90FF;
 }
 
 .music-control button:disabled {
@@ -582,11 +601,3 @@
         transform: translateY(0);
     }
 }
-
-.music-button {
-  background-color: #673AB7 !important;
-}
-
-.music-button:hover:not(:disabled) {
-  background-color: #5E35B1 !important;
-} 

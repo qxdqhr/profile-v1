@@ -111,11 +111,11 @@ export const useGameState = (
 
     // 处理第一次点击
     const handleFirstClick = useCallback(() => {
-        if (isFirstClick) {
-            setIsFirstClick(false);
-            startTimer();
+        if (isFirstClick && gameStatus === 'playing') {
+            setIsFirstClick(false)
+            startTimer()
         }
-    }, [isFirstClick, startTimer]);
+    }, [isFirstClick, startTimer, gameStatus])
 
     // 改变游戏类型
     const handleGameTypeChange = useCallback((type: GameType) => {
@@ -124,7 +124,7 @@ export const useGameState = (
 
     // 洗牌功能
     const handleShuffle = useCallback(() => {
-        if (shuffleCount < 3 && gameStatus === 'playing' && !isFirstGame) {
+        if (shuffleCount < 3 && gameStatus === 'playing' && !isFirstGame && !tiles.every(tile => tile.isMatched)) {
             const shuffledTiles = shuffleTiles(tiles)
             setTiles(shuffledTiles)
             setShuffleCount(prev => prev + 1)
@@ -140,9 +140,11 @@ export const useGameState = (
             // 检查是否全部匹配完成
             if (tiles.every(tile => tile.isMatched)) {
                 setGameStatus('success')
+                stopTimer() // 停止计时器
                 onGameEnd()
+                return // 提前返回，不再检查其他状态
             } 
-            // 检查是否还有可配对的方块
+            // 只有在游戏未完成时才检查是否还有可配对的方块
             else if (!hasMatchablePairs(tiles)) {
                 setNoMatchesFound(true)
                 // 如果还有洗牌次数，自动洗牌
@@ -151,7 +153,7 @@ export const useGameState = (
                 }
             }
         }
-    }, [tiles, gameStatus, isFirstGame, onGameEnd, shuffleCount, handleShuffle])
+    }, [tiles, gameStatus, isFirstGame, onGameEnd, shuffleCount, handleShuffle, stopTimer])
 
     // 在组件卸载时清理计时器
     useEffect(() => {

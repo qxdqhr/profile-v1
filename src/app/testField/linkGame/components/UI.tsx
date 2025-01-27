@@ -133,30 +133,30 @@ export const GameInfo: React.FC<GameInfoProps> = ({
         {!isFirstGame && gameStatus === 'playing' && (
           <>
             <button 
-              className="hint-button"
-              onClick={onHint}
-              disabled={gameStatus !== 'playing' || isAnimating}
-            >
-              提示
-            </button>
-            <button 
               className="shuffle-button"
               onClick={onShuffle} 
               disabled={gameStatus !== 'playing' || isAnimating || shuffleCount >= 3}
             >
               洗牌 ({3 - shuffleCount})
             </button>
+            <button 
+              className="hint-button"
+              onClick={onHint}
+              disabled={gameStatus !== 'playing' || isAnimating}
+            >
+              提示
+            </button>
           </>
         )}
-        <button onClick={onSettingsClick}>
-          设置
-        </button>
         <button 
           className="music-button"
           onClick={onToggle} 
           disabled={disabled}
         >
           {isMusicPlaying ? '🔊 暂停' : '🔈 播放'}
+        </button>
+        <button onClick={onSettingsClick}>
+          设置
         </button>
       </div>
       {noMatchesFound && shuffleCount >= 3 && (
