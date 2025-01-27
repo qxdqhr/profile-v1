@@ -19,6 +19,7 @@ interface GameInfoProps {
   isMusicPlaying: boolean
   onToggle: () => void
   disabled: boolean
+  startBackgroundMusic: () => void
 }
 
 export const GameInfo: React.FC<GameInfoProps> = ({
@@ -37,7 +38,8 @@ export const GameInfo: React.FC<GameInfoProps> = ({
   noMatchesFound,
   isMusicPlaying,
   onToggle,
-  disabled
+  disabled,
+  startBackgroundMusic
 }) => {
   const [isChanging, setIsChanging] = useState(false)
 
@@ -127,7 +129,10 @@ export const GameInfo: React.FC<GameInfoProps> = ({
             </option>
           ))}
         </select>
-        <button onClick={onRestart}>
+        <button onClick={() => {
+          onRestart();
+          startBackgroundMusic();
+        }}>
           {isFirstGame ? '开始游戏' : '重新开始'}
         </button>
         {!isFirstGame && gameStatus === 'playing' && (

@@ -201,6 +201,7 @@ const LinkGame = () => {
           isMusicPlaying={isMusicPlaying} 
           onToggle={toggleMusic} 
           disabled={!isMusicLoaded}
+          startBackgroundMusic={startBackgroundMusic}
         />
       </div>
       

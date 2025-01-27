@@ -8,50 +8,52 @@ export const useMusic = () => {
   useEffect(() => {
     audioRef.current = new Audio('/linkGame/mp3/ShakeIt!-Miku.mp3')
     audioRef.current.loop = true
+    audioRef.current.setAttribute('playsinline', 'true')
+    audioRef.current.setAttribute('webkit-playsinline', 'true')
     
-    audioRef.current.addEventListener('canplaythrough', () => {
+    audioRef.current.load()
+    
+    const handleCanPlayThrough = () => {
       setIsMusicLoaded(true)
-    })
+    }
+    
+    audioRef.current.addEventListener('canplaythrough', handleCanPlayThrough)
     
     return () => {
       if (audioRef.current) {
         audioRef.current.pause()
-        audioRef.current.removeEventListener('canplaythrough', () => {
-          setIsMusicLoaded(true)
-        })
+        audioRef.current.removeEventListener('canplaythrough', handleCanPlayThrough)
         audioRef.current = null
       }
     }
   }, [])
 
-  const startBackgroundMusic = () => {
+  const startBackgroundMusic = async () => {
     if (audioRef.current && !isMusicPlaying && isMusicLoaded) {
-      const playPromise = audioRef.current.play()
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsMusicPlaying(true)
-          })
-          .catch(error => {
-            console.log("音乐播放失败:", error)
-          })
+      try {
+        audioRef.current.volume = 0.001
+        await audioRef.current.play()
+        audioRef.current.volume = 1
+        setIsMusicPlaying(true)
+      } catch (error) {
+        console.log("音乐播放失败:", error)
+        alert("请点击屏幕任意位置开始播放音乐")
       }
     }
   }
 
-  const toggleMusic = () => {
+  const toggleMusic = async () => {
     if (audioRef.current && isMusicLoaded) {
-      if (isMusicPlaying) {
-        audioRef.current.pause()
-      } else {
-        const playPromise = audioRef.current.play()
-        if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.log("音乐播放失败:", error)
-          })
+      try {
+        if (isMusicPlaying) {
+          audioRef.current.pause()
+        } else {
+          await audioRef.current.play()
         }
+        setIsMusicPlaying(!isMusicPlaying)
+      } catch (error) {
+        console.log("音乐播放失败:", error)
       }
-      setIsMusicPlaying(!isMusicPlaying)
     }
   }
 
