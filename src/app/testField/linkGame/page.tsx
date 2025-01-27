@@ -48,7 +48,8 @@ const LinkGame = () => {
     handleRestart,
     handleShuffle,
     shuffleCount,
-    noMatchesFound
+    noMatchesFound,
+    handleFirstClick
   } = useGameState(() => hintClearer(), gridWidth, gridHeight, typesCount)
 
   const {
@@ -132,23 +133,19 @@ const LinkGame = () => {
   const handleTileClick = (tile: Tile) => {
     if (gameStatus !== 'playing') return
     
+    // 处理第一次点击
+    handleFirstClick();
+
     // 清除提示状态
     clearHint()
     
-    if (isFirstClick) {
-      startBackgroundMusic()
-      setIsFirstClick(false)
-    }
-
-    if (tile.isMatched) return
-
-    if (!selectedTile) {
-      setTiles(tiles.map(t => ({
-        ...t,
-        isSelected: t.id === tile.id
-      })))
-      setSelectedTile(tile)
-      setConnectionPath([])
+    if (selectedTile === null) {
+      // 选中第一个方块
+      setSelectedTile(tile);
+      const newTiles = tiles.map(t => 
+        t.id === tile.id ? { ...t, isSelected: true } : t
+      );
+      setTiles(newTiles);
     } else {
       if (selectedTile.id === tile.id) {
         setTiles(tiles.map(t => ({

@@ -20,6 +20,7 @@ export const useGameState = (
     const [isFirstClick, setIsFirstClick] = useState(true)
     const [noMatchesFound, setNoMatchesFound] = useState(false)
     const [shuffleCount, setShuffleCount] = useState(0) // 已使用的洗牌次数，初始为0
+    const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
 
     // 初始化游戏
     const initializeGame = useCallback(() => {
@@ -61,11 +62,50 @@ export const useGameState = (
         setShuffleCount(0) // 重置已使用的洗牌次数为0
     }, [gridWidth, gridHeight, typesCount])
 
+    // 启动计时器
+    const startTimer = useCallback(() => {
+        if (timer) return; // 如果已有计时器在运行，则不创建新的
+
+        const newTimer = setInterval(() => {
+            setTimeLeft(time => {
+                if (time <= 1) {
+                    setGameStatus('failed');
+                    onGameEnd();
+                    clearInterval(newTimer);
+                    return 0;
+                }
+                return time - 1;
+            });
+        }, 1000);
+
+        setTimer(newTimer);
+    }, [onGameEnd]);
+
+    // 停止计时器
+    const stopTimer = useCallback(() => {
+        if (timer) {
+            clearInterval(timer);
+            setTimer(null);
+        }
+    }, [timer]);
+
     // 重新开始游戏
     const handleRestart = useCallback(() => {
-        initializeGame()
-        setIsFirstGame(false)
-    }, [initializeGame])
+        stopTimer();
+        setGameStatus('playing');
+        setTimeLeft(300);
+        setIsFirstGame(false);
+        setIsFirstClick(false);
+        initializeGame();
+    }, [initializeGame, stopTimer]);
+
+    // 处理第一次点击
+    const handleFirstClick = useCallback(() => {
+        if (isFirstClick) {
+            setIsFirstClick(false);
+            startTimer();
+        }
+    }, [isFirstClick, startTimer]);
 
     // 改变游戏类型
     const handleGameTypeChange = useCallback((type: GameType) => {
@@ -103,23 +143,14 @@ export const useGameState = (
         }
     }, [tiles, gameStatus, isFirstGame, onGameEnd, shuffleCount, handleShuffle])
 
-    // 倒计时
+    // 在组件卸载时清理计时器
     useEffect(() => {
-        let timer: NodeJS.Timeout
-        if (gameStatus === 'playing' && !isFirstGame) {
-            timer = setInterval(() => {
-                setTimeLeft(time => {
-                    if (time <= 1) {
-                        setGameStatus('failed')
-                        onGameEnd()
-                        return 0
-                    }
-                    return time - 1
-                })
-            }, 1000)
-        }
-        return () => clearInterval(timer)
-    }, [gameStatus, isFirstGame, onGameEnd])
+        return () => {
+            if (timer) {
+                clearInterval(timer);
+            }
+        };
+    }, [timer]);
 
     return {
         tiles,
@@ -140,6 +171,7 @@ export const useGameState = (
         handleRestart,
         handleShuffle,
         shuffleCount,
-        noMatchesFound
+        noMatchesFound,
+        handleFirstClick
     }
 } 
