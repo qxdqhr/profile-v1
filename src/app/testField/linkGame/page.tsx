@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Stage, Container } from '@pixi/react'
 import { CubeTile } from './components/CubeTile'
 import { SelectionEffect, ConnectionLine } from './components/Effects'
@@ -13,6 +13,8 @@ import { useFallingAnimation } from './hooks/useFallingAnimation'
 import './LinkGame.css'
 
 const LinkGame = () => {
+  const [hintClearer, setHintClearer] = useState<() => void>(() => () => {})
+
   const {
     tiles,
     setTiles,
@@ -30,7 +32,7 @@ const LinkGame = () => {
     setIsFirstClick,
     handleGameTypeChange,
     handleRestart
-  } = useGameState()
+  } = useGameState(() => hintClearer())
 
   const {
     isMusicPlaying,
@@ -49,6 +51,11 @@ const LinkGame = () => {
     clearAnimation,
     isAnimating
   } = useFallingAnimation(gameType, gameStatus, tiles, setTiles)
+
+  // 更新 hintClearer
+  useEffect(() => {
+    setHintClearer(() => clearHint)
+  }, [clearHint])
 
   const handleTileClick = (tile: Tile) => {
     if (gameStatus !== 'playing') return

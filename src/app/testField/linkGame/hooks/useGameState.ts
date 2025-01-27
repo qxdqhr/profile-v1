@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Tile, GameStatus, GameType, GAME_DURATION } from '../types'
 import { initializeBoard } from '../gameLogic'
 
-export const useGameState = () => {
+export const useGameState = (clearHint: () => void) => {
   const [tiles, setTiles] = useState<Tile[]>([])
   const [selectedTile, setSelectedTile] = useState<Tile | null>(null)
   const [score, setScore] = useState(0)
@@ -64,6 +64,7 @@ export const useGameState = () => {
     setGameStatus('playing')
     setIsFirstClick(true)
     setIsFirstGame(false)
+    clearHint()  // 清除提示状态
   }
 
   return {
