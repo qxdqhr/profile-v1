@@ -2,231 +2,215 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  padding: 20px;
   min-height: 100vh;
-  padding: 2rem;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background-color: #f0f0f0;
+}
+
+.game-header {
   width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
+  max-width: 800px;
+  margin-bottom: 20px;
 }
 
 .game-info {
-  margin-bottom: 2rem;
-  text-align: center;
-  padding: 0 20px;
-  position: relative;
-  width: 100%;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
 
+.game-info h1 {
+  margin: 0 0 20px 0;
+  text-align: center;
+  color: #333;
 }
 
 .game-stats {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin-bottom: 1rem;
+  margin-bottom: 15px;
 }
 
 .time-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  width: 100%;
+  margin-bottom: 15px;
+}
+
+.time-warning {
+  color: #ff4444;
 }
 
 .progress-bar-container {
   width: 100%;
   height: 10px;
-  background-color: rgba(224, 224, 224, 0.6);
+  background-color: #eee;
   border-radius: 5px;
   overflow: hidden;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
-  transition: width 1s linear;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: #4CAF50;
+  transition: width 0.3s ease;
 }
 
 .progress-bar.warning {
-  background: linear-gradient(to right, #ff416c 0%, #ff4b2b 100%);
-  animation: pulse-bg 1s infinite;
-  box-shadow: 0 1px 3px rgba(255, 0, 0, 0.2);
-}
-
-@keyframes pulse-bg {
-  0% { opacity: 0.8; }
-  50% { opacity: 1; }
-  100% { opacity: 0.8; }
-}
-
-.game-info h1 {
-  margin-bottom: 1rem;
-  font-size: 2.5rem;
-  color: #2c3e50;
-}
-
-.game-info p {
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-  color: #34495e;
-}
-
-.time-warning {
-  color: #e74c3c !important;
-  animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-.game-result {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(255, 255, 255, 0.95);
-  padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  z-index: 1000;
-  backdrop-filter: blur(5px);
-}
-
-.game-result.failed {
-  border: 2px solid #e74c3c;
-}
-
-.game-result.success {
-  border: 2px solid #2ecc71;
-}
-
-.game-result h2 {
-  margin-bottom: 1rem;
-  font-size: 2rem;
-}
-
-.game-info button {
-  padding: 0.5rem 1.5rem;
-  font-size: 1rem;
-  color: white;
-  cursor: pointer;
-  background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
-  border: none;
-  border-radius: 4px;
-  transition: transform 0.2s ease;
-}
-
-.game-info button:hover {
-  transform: translateY(-2px);
-}
-
-canvas {
-  border-radius: 8px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  max-width: 100%;
-  height: auto;
-}
-
-.game-header {
-  position: relative;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.music-control {
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.music-control button {
-  background: rgba(76, 175, 80, 0.9);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  backdrop-filter: blur(5px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.music-control button:hover {
-  background: rgba(76, 175, 80, 1);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.music-control button:disabled {
-  background: rgba(76, 175, 80, 0.5);
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+  background-color: #ff4444;
 }
 
 .game-controls {
   display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 1rem;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.game-controls button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.game-controls button:hover {
+  background-color: #45a049;
 }
 
 .hint-button {
-  background: linear-gradient(to right, #ffd700 0%, #ffa500 100%) !important;
+  background-color: #2196F3 !important;
 }
 
 .hint-button:hover {
-  background: linear-gradient(to right, #ffa500 0%, #ff8c00 100%) !important;
+  background-color: #1976D2 !important;
 }
 
 .game-mode-selector {
   display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
   flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
 .mode-button {
-  padding: 0.5rem 1rem;
-  margin: 0 0.5rem;
+  padding: 8px 16px;
   border: none;
-  border-radius: 4px;
-  background: linear-gradient(to right, #4CAF50, #45a049);
+  border-radius: 5px;
+  background-color: #9E9E9E;
   color: white;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s;
 }
 
 .mode-button:hover:not(.disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: #757575;
 }
 
 .mode-button.active {
-  background: linear-gradient(to right, #2196F3, #1976D2);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  background-color: #2196F3;
+}
+
+.mode-button.active:hover:not(.disabled) {
+  background-color: #1976D2;
 }
 
 .mode-button.disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+}
+
+.game-result {
+  text-align: center;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+.game-result.success {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.game-result.failed {
+  background-color: #ff4444;
+  color: white;
+}
+
+.music-control {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.music-control button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  background-color: #673AB7;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.music-control button:hover:not(:disabled) {
+  background-color: #5E35B1;
+}
+
+.music-control button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .linkGame-container {
+    padding: 10px;
+  }
+
+  .game-info {
+    padding: 15px;
+  }
+
+  .game-info h1 {
+    font-size: 24px;
+    margin-bottom: 15px;
+  }
+
+  .game-controls {
+    flex-direction: column;
+  }
+
+  .game-controls button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  .game-mode-selector {
+    flex-direction: column;
+  }
+
+  .mode-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .progress-bar-container {
+    height: 8px;
+  }
+
+  .music-control button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  /* 调整游戏结果显示 */
+  .game-result {
+    padding: 15px;
+  }
+
+  .game-result h2 {
+    font-size: 20px;
+  }
 } 
