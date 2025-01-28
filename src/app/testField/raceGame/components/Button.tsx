@@ -4,7 +4,7 @@ import { COLORS } from '../constants';
 import { TextStyle } from 'pixi.js';
 
 export const Button = ({ text, x, y, onClick }: ButtonProps) => {
-    const style = new TextStyle(TextStyle.defaultTextStyle);
+    const style = new TextStyle(TextStyle.defaultStyle);
     style.fill = COLORS.BUTTON_TEXT;
     style.fontSize = 24;
     style.fontFamily = "Arial";
