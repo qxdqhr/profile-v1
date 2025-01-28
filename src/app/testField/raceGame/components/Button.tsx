@@ -3,27 +3,12 @@ import * as PIXI from 'pixi.js';
 import { ButtonProps } from '../types';
 import { COLORS } from '../constants';
 
-// 创建文本样式
-const buttonTextStyle = new PIXI.TextStyle({
-    fontFamily: 'Arial',
-    fontSize: 24,
-    fill: COLORS.BUTTON_TEXT,
-    align: 'center',
-    fontWeight: 'bold',
-    // 添加必要的默认值
-    wordWrap: false,
-    letterSpacing: 0,
-    padding: 0,
-    lineHeight: 0,
-    leading: 0,
-    breakWords: false,
-    dropShadow: false,
-    whiteSpace: "pre",
-    textBaseline: "alphabetic",
-    trim: false
-});
-
 export const Button = ({ text, x, y, onClick }: ButtonProps) => {
+    const style = new PIXI.TextStyle();
+    style.fill = COLORS.BUTTON_TEXT;
+    style.fontSize = 24;
+    style.fontFamily = "Arial";
+
     return (
         <Container position={[x, y]}>
             <Graphics
@@ -41,7 +26,7 @@ export const Button = ({ text, x, y, onClick }: ButtonProps) => {
             <Text
                 text={text}
                 anchor={0.5}
-                style={buttonTextStyle}
+                style={style}
             />
         </Container>
     );

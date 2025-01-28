@@ -4,53 +4,28 @@ import { StartScreenProps } from '../types';
 import { Button } from './Button';
 import { GAME_WIDTH, GAME_HEIGHT, COLORS } from '../constants';
 
-// 创建标题文本样式
-const titleTextStyle = new PIXI.TextStyle({
-    fontFamily: 'Arial',
-    fontSize: 72,
-    fontWeight: 'bold',
-    fill: ['#FFA726', '#FF7043'],
-    stroke: '#33691E',
-    strokeThickness: 5,
-    dropShadow: true,
-    dropShadowColor: '#E0E0E0',
-    dropShadowBlur: 4,
-    dropShadowAngle: Math.PI / 6,
-    dropShadowDistance: 6,
-    fillGradientType: 1,
-    fillGradientStops: [0, 1],
-    // 添加必要的默认值
-    wordWrap: false,
-    letterSpacing: 0,
-    padding: 0,
-    lineHeight: 0,
-    leading: 0,
-    breakWords: false,
-    whiteSpace: "pre",
-    textBaseline: "alphabetic",
-    trim: false
-});
-
-// 创建副标题文本样式
-const subtitleTextStyle = new PIXI.TextStyle({
-    fontFamily: 'Arial',
-    fontSize: 28,
-    fill: '#81C784',
-    fontWeight: 'bold',
-    // 添加必要的默认值
-    wordWrap: false,
-    letterSpacing: 0,
-    padding: 0,
-    lineHeight: 0,
-    leading: 0,
-    breakWords: false,
-    dropShadow: false,
-    whiteSpace: "pre",
-    textBaseline: "alphabetic",
-    trim: false
-});
-
 export const StartScreen = ({ onStartGame }: StartScreenProps) => {
+    const titleStyle = new PIXI.TextStyle();
+    titleStyle.fontFamily = 'Arial';
+    titleStyle.fontSize = 72;
+    titleStyle.fontWeight = 'bold';
+    titleStyle.fill = ['#FFA726', '#FF7043'];
+    titleStyle.stroke = '#33691E';
+    titleStyle.strokeThickness = 5;
+    titleStyle.dropShadow = true;
+    titleStyle.dropShadowColor = '#E0E0E0';
+    titleStyle.dropShadowBlur = 4;
+    titleStyle.dropShadowAngle = Math.PI / 6;
+    titleStyle.dropShadowDistance = 6;
+    titleStyle.fillGradientType = 1;
+    titleStyle.fillGradientStops = [0, 1];
+
+    const subtitleStyle = new PIXI.TextStyle();
+    subtitleStyle.fontFamily = 'Arial';
+    subtitleStyle.fontSize = 28;
+    subtitleStyle.fill = '#81C784';
+    subtitleStyle.fontWeight = 'bold';
+
     return (
         <Container>
             {/* 背景动画 */}
@@ -75,7 +50,7 @@ export const StartScreen = ({ onStartGame }: StartScreenProps) => {
                 text="极速狂飙"
                 anchor={0.5}
                 position={[GAME_WIDTH / 2, 150]}
-                style={titleTextStyle}
+                style={titleStyle}
             />
 
             {/* 副标题 */}
@@ -83,7 +58,7 @@ export const StartScreen = ({ onStartGame }: StartScreenProps) => {
                 text="- 2D 竞速游戏 -"
                 anchor={0.5}
                 position={[GAME_WIDTH / 2, 250]}
-                style={subtitleTextStyle}
+                style={subtitleStyle}
             />
 
             {/* 按钮组 */}
