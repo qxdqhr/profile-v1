@@ -4,30 +4,32 @@ import { StartScreenProps } from '../types';
 import { Button } from './Button';
 import { GAME_WIDTH, GAME_HEIGHT, COLORS } from '../constants';
 
+const defaultStyle = new PIXI.TextStyle();
+
+const titleTextStyle = Object.assign(new PIXI.TextStyle(), {
+    fontFamily: 'Arial',
+    fontSize: 72,
+    fontWeight: 'bold',
+    fill: ['#FFA726', '#FF7043'],
+    stroke: '#33691E',
+    strokeThickness: 5,
+    dropShadow: true,
+    dropShadowColor: '#E0E0E0',
+    dropShadowBlur: 4,
+    dropShadowAngle: Math.PI / 6,
+    dropShadowDistance: 6,
+    fillGradientType: 1,
+    fillGradientStops: [0, 1]
+});
+
+const subtitleTextStyle = Object.assign(new PIXI.TextStyle(), {
+    fontFamily: 'Arial',
+    fontSize: 28,
+    fill: '#81C784',
+    fontWeight: 'bold'
+});
+
 export const StartScreen = ({ onStartGame }: StartScreenProps) => {
-    const titleStyle = new PIXI.TextStyle({
-        fontFamily: 'Arial',
-        fontSize: 72,
-        fontWeight: 'bold',
-        fill: ['#FFA726', '#FF7043'],
-        stroke: '#33691E',
-        strokeThickness: 5,
-        dropShadow: true,
-        dropShadowColor: '#E0E0E0',
-        dropShadowBlur: 4,
-        dropShadowAngle: Math.PI / 6,
-        dropShadowDistance: 6,
-        fillGradientType: 1,
-        fillGradientStops: [0, 1]
-    });
-
-    const subtitleStyle = new PIXI.TextStyle({
-        fontFamily: 'Arial',
-        fontSize: 28,
-        fill: '#81C784',
-        fontWeight: 'bold'
-    });
-
     return (
         <Container>
             {/* 背景动画 */}
@@ -52,7 +54,7 @@ export const StartScreen = ({ onStartGame }: StartScreenProps) => {
                 text="极速狂飙"
                 anchor={0.5}
                 position={[GAME_WIDTH / 2, 150]}
-                style={titleStyle}
+                style={titleTextStyle}
             />
 
             {/* 副标题 */}
@@ -60,7 +62,7 @@ export const StartScreen = ({ onStartGame }: StartScreenProps) => {
                 text="- 2D 竞速游戏 -"
                 anchor={0.5}
                 position={[GAME_WIDTH / 2, 250]}
-                style={subtitleStyle}
+                style={subtitleTextStyle}
             />
 
             {/* 按钮组 */}
