@@ -7,7 +7,6 @@ import './styles.css';
 import { StartScreen } from './components/StartScreen';
 import { GameScreen } from './components/GameScreen';
 import { GAME_WIDTH, GAME_HEIGHT, COLORS } from './constants';
-import { ControlPanel } from './components/ControlPanel';
 
 const RaceGame = () => {
     const [gameStarted, setGameStarted] = useState(false);
@@ -60,11 +59,6 @@ const RaceGame = () => {
                     />
                 )}
             </Stage>
-            {gameStarted && gameRef.handleDirection && (
-                <div className="control-wrapper">
-                    <ControlPanel onDirectionPress={gameRef.handleDirection} />
-                </div>
-            )}
         </div>
     );
 };

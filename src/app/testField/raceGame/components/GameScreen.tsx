@@ -334,6 +334,16 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                 }}
             />
 
+            {/* 控制面板背景 */}
+            <Graphics
+                draw={g => {
+                    g.clear();
+                    g.beginFill(0x000000, 0.3);
+                    g.drawRect(0, MAX_Y, GAME_WIDTH, GAME_HEIGHT - MAX_Y);
+                    g.endFill();
+                }}
+            />
+
             {/* 渲染所有障碍物 */}
             {obstacles.map(obstacle => (
                 <Obstacle key={obstacle.id} obstacle={obstacle} />
@@ -346,6 +356,89 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
 
             {/* 小车 */}
             <Car x={TRACKS[currentTrack]} y={carY} />
+
+            {/* 控制面板 */}
+            <Container position={[GAME_WIDTH / 2, GAME_HEIGHT - 60]}>
+                {/* 左按钮 */}
+                <Container
+                    position={[-120, 0]}
+                    interactive={true}
+                    cursor="pointer"
+                    eventMode='auto'
+                    onclick={() => handleDirection('left')}
+                    ontouchstart={() => handleDirection('left')}
+                >
+                    <Graphics
+                        draw={g => {
+                            g.clear();
+                            g.beginFill(COLORS.BUTTON_FILL, 0.8);
+                            g.drawCircle(0, 0, 35);
+                            g.endFill();
+                        }}
+                    />
+                    <Text text="←" anchor={0.5} style={buttonStyle} />
+                </Container>
+
+                {/* 上按钮 */}
+                <Container
+                    position={[-40, 0]}
+                    interactive={true}
+                    cursor="pointer"
+                    eventMode='static'
+                    onclick={() => handleDirection('up')}
+                    ontouchstart={() => handleDirection('up')}
+                >
+                    <Graphics
+                        draw={g => {
+                            g.clear();
+                            g.beginFill(COLORS.BUTTON_FILL, 0.8);
+                            g.drawCircle(0, 0, 35);
+                            g.endFill();
+                        }}
+                    />
+                    <Text text="↑" anchor={0.5} style={buttonStyle} />
+                </Container>
+
+                {/* 下按钮 */}
+                <Container
+                    position={[40, 0]}
+                    interactive={true}
+                    cursor="pointer"
+                    eventMode='static'
+                    onclick={() => handleDirection('down')}
+                    ontouchstart={() => handleDirection('down')}
+                >
+                    <Graphics
+                        draw={g => {
+                            g.clear();
+                            g.beginFill(COLORS.BUTTON_FILL, 0.8);
+                            g.drawCircle(0, 0, 35);
+                            g.endFill();
+                        }}
+                    />
+                    <Text text="↓" anchor={0.5} style={buttonStyle} />
+                </Container>
+
+                {/* 右按钮 */}
+                <Container
+                    position={[120, 0]}
+                    interactive={true}
+                    cursor="pointer"
+                    eventMode='static'
+                    onclick={() => handleDirection('right')}
+                    ontouchstart={() => handleDirection('right')}
+                >
+                    <Graphics
+                        draw={g => {
+                            g.clear();
+                            g.beginFill(COLORS.BUTTON_FILL, 0.8);
+                            g.drawCircle(0, 0, 35);
+                            g.endFill();
+                        }}
+                    />
+                    <Text text="→" anchor={0.5} style={buttonStyle} />
+                </Container>
+            </Container>
 
             {/* 得分显示 */}
             <Text
@@ -369,13 +462,14 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                 y={15}
                 interactive={true}
                 cursor="pointer"
+                eventMode='static'
                 onclick={togglePause}
                 ontouchstart={togglePause}
             >
                 <Graphics
                     draw={g => {
                         g.clear();
-                        g.beginFill(COLORS.BUTTON_FILL);
+                        g.beginFill(COLORS.BUTTON_FILL, 0.8);
                         g.drawRoundedRect(-30, -12, 60, 24, 4);
                         g.endFill();
                     }}

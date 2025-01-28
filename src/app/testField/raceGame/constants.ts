@@ -1,6 +1,6 @@
 // 根据设备宽度动态设置游戏尺寸
 export const GAME_WIDTH = 375;  // iPhone SE 宽度
-export const GAME_HEIGHT = 667; // iPhone SE 高度
+export const GAME_HEIGHT = 750; // 增加游戏高度
 
 export const COLORS = {
     BACKGROUND: 0x282c34,
@@ -13,10 +13,10 @@ export const COLORS = {
 export const TRACKS = [75, 165, 255, 345];  // 调整为更窄的赛道间距
 
 // 游戏基础设置
-export const INITIAL_Y = GAME_HEIGHT - 80;  // 调整初始位置
-export const MOVE_SPEED = 8;  // 稍微降低移动速度以适应小屏
-export const MIN_Y = 40;  // 调整上边界
-export const MAX_Y = GAME_HEIGHT - 80;  // 调整下边界
+export const INITIAL_Y = GAME_HEIGHT - 120;  // 调整初始位置
+export const MOVE_SPEED = 8;  // 移动速度
+export const MIN_Y = 40;  // 上边界
+export const MAX_Y = GAME_HEIGHT - 120;  // 下边界，为控制按钮留出空间
 
 // 障碍物相关
 export const BASE_SPEED = 2;  // 降低基础速度
