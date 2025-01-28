@@ -5,31 +5,28 @@ import { Button } from './Button';
 import { GAME_WIDTH, GAME_HEIGHT, COLORS } from '../constants';
 
 export const StartScreen = ({ onStartGame }: StartScreenProps) => {
-    const titleStyle = new TextStyle({
-        align: 'center',
-        fontFamily: '"Source Sans Pro", Helvetica, sans-serif',
-        fontSize: 50,
-        fontWeight: '400',
-        stroke: 0x01d27e,
-        strokeThickness: 5,
-        letterSpacing: 20,
-        dropShadow: true,
-        dropShadowColor: 0xccced2,
-        dropShadowBlur: 4,
-        dropShadowAngle: Math.PI / 6,
-        dropShadowDistance: 6,
-        wordWrap: true,
-        wordWrapWidth: 440,
-      })
+    const titleStyle = new TextStyle(TextStyle.defaultStyle);
+    titleStyle.align = 'center';
+    titleStyle.fontFamily = '"Source Sans Pro", Helvetica, sans-serif';
+    titleStyle.fontSize = 50;
+    titleStyle.fontWeight = '400';
+    titleStyle.stroke = 0x01d27e;
+    titleStyle.strokeThickness = 5;
+    titleStyle.letterSpacing = 20;
+    titleStyle.dropShadow = true;
+    titleStyle.dropShadowColor = 0xccced2;
+    titleStyle.dropShadowBlur = 4;
+    titleStyle.dropShadowAngle = Math.PI / 6;
+    titleStyle.dropShadowDistance = 6;
+    titleStyle.wordWrap = true;
+    titleStyle.wordWrapWidth = 440;
    
     
 
-    const subtitleStyle = new TextStyle({
-        fontFamily: 'Arial',
-        fontSize: 28,
-        fill: 0x81C784,
-        fontWeight: 'bold',
-    });
+    const subtitleStyle =  new TextStyle(TextStyle.defaultStyle);
+    subtitleStyle.fill = 0x81C784;
+    subtitleStyle.fontSize = 28;
+    subtitleStyle.fontWeight = 'bold';
 
 
     return (
