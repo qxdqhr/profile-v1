@@ -3,6 +3,7 @@ import { TextStyle } from 'pixi.js';
 import { StartScreenProps } from '../types';
 import { Button } from './Button';
 import { GAME_WIDTH, GAME_HEIGHT, COLORS } from '../constants';
+import '@pixi/events'
 
 export const StartScreen = ({ onStartGame }: StartScreenProps) => {
     const titleStyle = new TextStyle(TextStyle.defaultStyle);

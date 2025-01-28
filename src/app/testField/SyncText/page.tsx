@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { BackButton } from '@/app/_components/BackButton';
+import '@pixi/events'
 
 interface SyncBox {
     id: string;

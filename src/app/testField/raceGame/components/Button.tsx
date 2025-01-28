@@ -2,6 +2,7 @@ import { Container, Graphics, Text } from '@pixi/react';
 import { ButtonProps } from '../types';
 import { COLORS } from '../constants';
 import { TextStyle } from 'pixi.js';
+import '@pixi/events'
 
 export const Button = ({ text, x, y, onClick }: ButtonProps) => {
     const style = new TextStyle(TextStyle.defaultStyle);
