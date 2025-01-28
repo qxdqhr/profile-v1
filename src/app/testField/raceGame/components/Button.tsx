@@ -1,10 +1,10 @@
 import { Container, Graphics, Text } from '@pixi/react';
-import * as PIXI from 'pixi.js';
 import { ButtonProps } from '../types';
 import { COLORS } from '../constants';
+import { TextStyle } from 'pixi.js';
 
 export const Button = ({ text, x, y, onClick }: ButtonProps) => {
-    const style = new PIXI.TextStyle(PIXI.TextStyle.defaultStyle);
+    const style = new TextStyle(TextStyle.defaultTextStyle);
     style.fill = COLORS.BUTTON_TEXT;
     style.fontSize = 24;
     style.fontFamily = "Arial";

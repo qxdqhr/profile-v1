@@ -5,7 +5,7 @@ import { Button } from './Button';
 import { GAME_WIDTH, GAME_HEIGHT, COLORS } from '../constants';
 
 export const StartScreen = ({ onStartGame }: StartScreenProps) => {
-    const titleStyle = new TextStyle(TextStyle.defaultStyle);
+    const titleStyle = new TextStyle(TextStyle.defaultTextStyle);
     titleStyle.align = 'center';
     titleStyle.fontFamily = '"Source Sans Pro", Helvetica, sans-serif';
     titleStyle.fontSize = 50;
@@ -23,7 +23,7 @@ export const StartScreen = ({ onStartGame }: StartScreenProps) => {
    
     
 
-    const subtitleStyle =  new TextStyle(TextStyle.defaultStyle);
+    const subtitleStyle =  new TextStyle(TextStyle.defaultTextStyle);
     subtitleStyle.fill = 0x81C784;
     subtitleStyle.fontSize = 28;
     subtitleStyle.fontWeight = 'bold';
