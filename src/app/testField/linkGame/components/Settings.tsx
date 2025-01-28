@@ -6,6 +6,8 @@ interface SettingsProps {
     gridWidth: number
     gridHeight: number
     typesCount: number
+    currentMusic: { name: string; path: string } | null
+    loadNewMusic: () => void
     onSettingsChange: (settings: {
         gameType?: GameType
         gridWidth?: number
@@ -20,6 +22,8 @@ export const Settings: React.FC<SettingsProps> = ({
     gridWidth,
     gridHeight,
     typesCount,
+    currentMusic,
+    loadNewMusic,
     onSettingsChange,
     onClose
 }) => {
@@ -109,6 +113,22 @@ export const Settings: React.FC<SettingsProps> = ({
                             onChange={(e) => onSettingsChange({ typesCount: parseInt(e.target.value) })}
                         />
                         <p className="settings-hint">建议设置在3-50之间</p>
+                    </div>
+
+                    {/* 音乐控制 */}
+                    <div className="settings-item">
+                        <label>背景音乐</label>
+                        <div className="music-settings">
+                            <div className="current-music">
+                                {currentMusic?.name ? `当前音乐：${currentMusic.name}` : '点击右侧按钮选择音乐'}
+                            </div>
+                            <button 
+                                className="change-music-button"
+                                onClick={loadNewMusic}
+                            >
+                                {currentMusic?.name ? '切换音乐' : '选择音乐'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

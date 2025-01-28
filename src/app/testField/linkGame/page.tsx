@@ -204,7 +204,6 @@ const LinkGame = () => {
           onToggle={toggleMusic} 
           disabled={!isMusicLoaded}
           startBackgroundMusic={startBackgroundMusic}
-          loadNewMusic={loadNewMusic}
           currentMusic={currentMusic}
         />
       </div>
@@ -218,6 +217,8 @@ const LinkGame = () => {
             typesCount={typesCount}
             onSettingsChange={handleSettingsChange}
             onClose={handleSettingsClose}
+            loadNewMusic={loadNewMusic}
+            currentMusic={currentMusic}
           />
         </div>
       )}

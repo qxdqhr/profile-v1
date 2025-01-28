@@ -20,7 +20,7 @@ export const useMusic = () => {
   const [currentMusicIndex, setCurrentMusicIndex] = useState<number>(-1)
   const lastPlayedIndex = useRef<number>(-1)
 
-  const loadNewMusic = () => {
+  const loadNewMusic = async () => {
     // 获取一个不同于上次的随机索引
     let newIndex
     do {
@@ -34,6 +34,14 @@ export const useMusic = () => {
       audioRef.current.pause()
       audioRef.current.src = MUSIC_LIST[newIndex].path
       audioRef.current.load()
+      
+      // 等待音乐加载完成后自动播放
+      try {
+        await audioRef.current.play()
+        setIsMusicPlaying(true)
+      } catch (error) {
+        console.log("音乐播放失败:", error)
+      }
     }
   }
 
@@ -44,13 +52,21 @@ export const useMusic = () => {
     audioRef.current.setAttribute('playsinline', 'true')
     audioRef.current.setAttribute('webkit-playsinline', 'true')
     
-    loadNewMusic()
-    
     const handleCanPlayThrough = () => {
       setIsMusicLoaded(true)
     }
     
     audioRef.current.addEventListener('canplaythrough', handleCanPlayThrough)
+    
+    // 初始化加载音乐但不自动播放
+    let newIndex = Math.floor(Math.random() * MUSIC_LIST.length)
+    lastPlayedIndex.current = newIndex
+    setCurrentMusicIndex(newIndex)
+    
+    if (audioRef.current) {
+      audioRef.current.src = MUSIC_LIST[newIndex].path
+      audioRef.current.load()
+    }
     
     return () => {
       if (audioRef.current) {

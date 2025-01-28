@@ -12,6 +12,14 @@
   width: 100%;
 }
 
+.subtitle {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: normal;
+  margin-top: 5px;
+  color: #666;
+}
+
 .game-header {
   width: 100%;
   max-width: 800px;
@@ -600,4 +608,35 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+.music-settings {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.current-music {
+    flex: 1;
+    padding: 8px 12px;
+    background-color: #f5f5f5;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #333;
+}
+
+.change-music-button {
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.change-music-button:hover {
+    background-color: #45a049;
 }
