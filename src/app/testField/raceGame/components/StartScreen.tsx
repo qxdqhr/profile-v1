@@ -1,29 +1,36 @@
 import { Container, Graphics, Text } from '@pixi/react';
-import * as PIXI from 'pixi.js';
+import { TextStyle } from 'pixi.js';
 import { StartScreenProps } from '../types';
 import { Button } from './Button';
 import { GAME_WIDTH, GAME_HEIGHT, COLORS } from '../constants';
 
 export const StartScreen = ({ onStartGame }: StartScreenProps) => {
-    const titleStyle = new PIXI.TextStyle();
-    titleStyle.fontFamily = 'Arial';
-    titleStyle.fontSize = 72;
-    titleStyle.fontWeight = 'bold';
-    titleStyle.stroke = 0x33691E;
-    titleStyle.strokeThickness = 5;
-    titleStyle.dropShadow = true;
-    titleStyle.dropShadowColor = 0xE0E0E0;
-    titleStyle.dropShadowBlur = 4;
-    titleStyle.dropShadowAngle = Math.PI / 6;
-    titleStyle.dropShadowDistance = 6;
-    titleStyle.fillGradientType = 1;
-    titleStyle.fillGradientStops = [0, 1];
+    const titleStyle = new TextStyle({
+        align: 'center',
+        fontFamily: '"Source Sans Pro", Helvetica, sans-serif',
+        fontSize: 50,
+        fontWeight: '400',
+        stroke: 0x01d27e,
+        strokeThickness: 5,
+        letterSpacing: 20,
+        dropShadow: true,
+        dropShadowColor: 0xccced2,
+        dropShadowBlur: 4,
+        dropShadowAngle: Math.PI / 6,
+        dropShadowDistance: 6,
+        wordWrap: true,
+        wordWrapWidth: 440,
+      })
+   
+    
 
-    const subtitleStyle = new PIXI.TextStyle();
-    subtitleStyle.fontFamily = 'Arial';
-    subtitleStyle.fontSize = 28;
-    subtitleStyle.fill = 0x81C784;
-    subtitleStyle.fontWeight = 'bold';
+    const subtitleStyle = new TextStyle({
+        fontFamily: 'Arial',
+        fontSize: 28,
+        fill: 0x81C784,
+        fontWeight: 'bold',
+    });
+
 
     return (
         <Container>

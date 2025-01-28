@@ -2,14 +2,9 @@ import { Container, Graphics, Text } from '@pixi/react';
 import * as PIXI from 'pixi.js';
 import { ButtonProps } from '../types';
 import { COLORS } from '../constants';
+import { TextStyle } from 'pixi.js';
 
 export const Button = ({ text, x, y, onClick }: ButtonProps) => {
-    const style = new PIXI.TextStyle({
-        fill: COLORS.BUTTON_TEXT,
-        fontSize: 24,
-        fontFamily: "Arial"
-    });
-
     return (
         <Container position={[x, y]}>
             <Graphics
@@ -27,7 +22,24 @@ export const Button = ({ text, x, y, onClick }: ButtonProps) => {
             <Text
                 text={text}
                 anchor={0.5}
-                style={style as any}
+                style={
+                    new TextStyle({
+                        align: 'center',
+                        fontFamily: '"Source Sans Pro", Helvetica, sans-serif',
+                        fontSize: 50,
+                        fontWeight: '400',
+                        stroke: 0x01d27e,
+                        strokeThickness: 5,
+                        letterSpacing: 20,
+                        dropShadow: true,
+                        dropShadowColor: 0xccced2,
+                        dropShadowBlur: 4,
+                        dropShadowAngle: Math.PI / 6,
+                        dropShadowDistance: 6,
+                        wordWrap: true,
+                        wordWrapWidth: 440,
+                      })
+                }
             />
         </Container>
     );
