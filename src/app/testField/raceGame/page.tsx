@@ -42,6 +42,13 @@ const RaceGame = () => {
                 options={{
                     backgroundColor: COLORS.BACKGROUND,
                     antialias: true,
+                    eventMode: 'static',
+                    eventFeatures: {
+                        move: true,
+                        globalMove: true,
+                        click: true,
+                        wheel: false
+                    }
                 }}
             >
                 {!gameStarted ? (

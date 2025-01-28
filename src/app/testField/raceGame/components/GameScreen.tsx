@@ -14,6 +14,7 @@ import { ScrollingBackground } from './ScrollingBackground';
 import { Obstacle } from './Obstacle';
 import { Coin } from './Coin';
 import { Obstacle as ObstacleType, Coin as CoinType } from '../types';
+import '@pixi/events'
 
 export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
     const [currentTrack, setCurrentTrack] = useState(1);
@@ -369,6 +370,7 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                 interactive={true}
                 cursor="pointer"
                 onclick={togglePause}
+                ontouchstart={togglePause}
             >
                 <Graphics
                     draw={g => {
@@ -410,7 +412,9 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                         y={GAME_HEIGHT / 2}
                         interactive={true}
                         cursor="pointer"
+                        eventMode='static'
                         onclick={togglePause}
+                        ontouchstart={togglePause}
                     >
                         <Graphics
                             draw={g => {
@@ -433,7 +437,12 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                         y={GAME_HEIGHT / 2 + 60}
                         interactive={true}
                         cursor="pointer"
+                        eventMode='static'
                         onclick={() => {
+                            setIsPaused(false);
+                            resetGame();
+                        }}
+                        ontouchstart={() => {
                             setIsPaused(false);
                             resetGame();
                         }}
@@ -459,7 +468,9 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                         y={GAME_HEIGHT / 2 + 120}
                         interactive={true}
                         cursor="pointer"
+                        eventMode='static'
                         onclick={onBackToMenu}
+                        ontouchstart={onBackToMenu}
                     >
                         <Graphics
                             draw={g => {
@@ -503,7 +514,9 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                         y={GAME_HEIGHT / 2 + 20}
                         interactive={true}
                         cursor="pointer"
+                        eventMode='static'
                         onclick={resetGame}
+                        ontouchstart={resetGame}
                     >
                         <Graphics
                             draw={g => {
@@ -526,7 +539,9 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                         y={GAME_HEIGHT / 2 + 80}
                         interactive={true}
                         cursor="pointer"
+                        eventMode='static'
                         onclick={onBackToMenu}
+                        ontouchstart={onBackToMenu}
                     >
                         <Graphics
                             draw={g => {

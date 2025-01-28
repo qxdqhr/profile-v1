@@ -10,7 +10,14 @@ export const Button = ({ text, x, y, onClick }: ButtonProps) => {
     style.fontFamily = "Arial";
 
     return (
-        <Container position={[x, y]}>
+        <Container 
+            position={[x, y]}
+            interactive={true}
+            cursor="pointer"
+            eventMode='static'
+            onclick={onClick}
+            ontouchstart={onClick}
+        >
             <Graphics
                 draw={g => {
                     g.clear();
@@ -19,9 +26,6 @@ export const Button = ({ text, x, y, onClick }: ButtonProps) => {
                     g.drawRoundedRect(-100, -25, 200, 50, 10);
                     g.endFill();
                 }}
-                interactive={true}
-                cursor="pointer"
-                onclick={onClick}
             />
             <Text
                 text={text}
