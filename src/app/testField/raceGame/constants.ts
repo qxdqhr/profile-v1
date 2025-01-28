@@ -3,7 +3,7 @@ export const GAME_HEIGHT = 600;
 
 export const COLORS = {
     BUTTON_FILL: 0x2E7D32,
-    BUTTON_TEXT: '#FFEB3B',
+    BUTTON_TEXT: 0xFFEB3B,
     TRACK_LINE: 0x4CAF50,
     BACKGROUND: 0xFFFFFF,
 } as const; 

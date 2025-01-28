@@ -9,11 +9,10 @@ export const StartScreen = ({ onStartGame }: StartScreenProps) => {
     titleStyle.fontFamily = 'Arial';
     titleStyle.fontSize = 72;
     titleStyle.fontWeight = 'bold';
-    titleStyle.fill = ['#FFA726', '#FF7043'];
-    titleStyle.stroke = '#33691E';
+    titleStyle.stroke = 0x33691E;
     titleStyle.strokeThickness = 5;
     titleStyle.dropShadow = true;
-    titleStyle.dropShadowColor = '#E0E0E0';
+    titleStyle.dropShadowColor = 0xE0E0E0;
     titleStyle.dropShadowBlur = 4;
     titleStyle.dropShadowAngle = Math.PI / 6;
     titleStyle.dropShadowDistance = 6;
@@ -23,7 +22,7 @@ export const StartScreen = ({ onStartGame }: StartScreenProps) => {
     const subtitleStyle = new PIXI.TextStyle();
     subtitleStyle.fontFamily = 'Arial';
     subtitleStyle.fontSize = 28;
-    subtitleStyle.fill = '#81C784';
+    subtitleStyle.fill = 0x81C784;
     subtitleStyle.fontWeight = 'bold';
 
     return (
