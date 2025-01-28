@@ -158,11 +158,11 @@
 }
 
 .game-controls .hint-button {
-  background-color: #FF6347;
+  background-color: #FF69B4;
 }
 
 .game-controls .hint-button:hover:not(:disabled) {
-  background-color: #E65339;
+  background-color: #FF1493;
 }
 
 .game-controls .shuffle-button {

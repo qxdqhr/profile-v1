@@ -1,17 +1,50 @@
 import { useState, useEffect, useRef } from 'react'
 
+// 音乐列表
+const MUSIC_LIST = [
+  {
+    path: '/linkGame/mp3/ShakeIt!-Miku.mp3',
+    name: 'Shake It!'
+  },
+  {
+    path: '/linkGame/mp3/VivalaVida.mp3',
+    name: 'VivalaVida'
+  },
+  // 在这里添加更多音乐...
+]
+
 export const useMusic = () => {
   const [isMusicPlaying, setIsMusicPlaying] = useState(false)
   const [isMusicLoaded, setIsMusicLoaded] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [currentMusicIndex, setCurrentMusicIndex] = useState<number>(-1)
+  const lastPlayedIndex = useRef<number>(-1)
+
+  const loadNewMusic = () => {
+    // 获取一个不同于上次的随机索引
+    let newIndex
+    do {
+      newIndex = Math.floor(Math.random() * MUSIC_LIST.length)
+    } while (newIndex === lastPlayedIndex.current && MUSIC_LIST.length > 1)
+    
+    lastPlayedIndex.current = newIndex
+    setCurrentMusicIndex(newIndex)
+    
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.src = MUSIC_LIST[newIndex].path
+      audioRef.current.load()
+    }
+  }
 
   useEffect(() => {
-    audioRef.current = new Audio('/linkGame/mp3/ShakeIt!-Miku.mp3')
+    // 初始化时加载第一首音乐
+    audioRef.current = new Audio()
     audioRef.current.loop = true
     audioRef.current.setAttribute('playsinline', 'true')
     audioRef.current.setAttribute('webkit-playsinline', 'true')
     
-    audioRef.current.load()
+    loadNewMusic()
     
     const handleCanPlayThrough = () => {
       setIsMusicLoaded(true)
@@ -61,6 +94,8 @@ export const useMusic = () => {
     isMusicPlaying,
     isMusicLoaded,
     startBackgroundMusic,
-    toggleMusic
+    toggleMusic,
+    loadNewMusic,
+    currentMusic: currentMusicIndex >= 0 ? MUSIC_LIST[currentMusicIndex] : null
   }
 } 

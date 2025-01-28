@@ -56,7 +56,9 @@ const LinkGame = () => {
     isMusicPlaying,
     isMusicLoaded,
     startBackgroundMusic,
-    toggleMusic
+    toggleMusic,
+    loadNewMusic,
+    currentMusic
   } = useMusic()
 
   const {
@@ -202,6 +204,8 @@ const LinkGame = () => {
           onToggle={toggleMusic} 
           disabled={!isMusicLoaded}
           startBackgroundMusic={startBackgroundMusic}
+          loadNewMusic={loadNewMusic}
+          currentMusic={currentMusic}
         />
       </div>
       

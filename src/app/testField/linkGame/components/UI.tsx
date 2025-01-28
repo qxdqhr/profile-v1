@@ -20,6 +20,8 @@ interface GameInfoProps {
   onToggle: () => void
   disabled: boolean
   startBackgroundMusic: () => void
+  loadNewMusic: () => void
+  currentMusic: { name: string; path: string } | null
 }
 
 export const GameInfo: React.FC<GameInfoProps> = ({
@@ -39,7 +41,9 @@ export const GameInfo: React.FC<GameInfoProps> = ({
   isMusicPlaying,
   onToggle,
   disabled,
-  startBackgroundMusic
+  startBackgroundMusic,
+  loadNewMusic,
+  currentMusic
 }) => {
   const [isChanging, setIsChanging] = useState(false)
 
@@ -93,7 +97,7 @@ export const GameInfo: React.FC<GameInfoProps> = ({
 
   return (
     <div className="game-info">
-      <h1>连连看</h1>
+      <h1>葱韵环京连连看</h1>
       <div className="game-stats">
         <div className="stat-widget score">
           <div className="label">得分</div>
@@ -130,6 +134,7 @@ export const GameInfo: React.FC<GameInfoProps> = ({
           ))}
         </select>
         <button onClick={() => {
+          loadNewMusic();
           onRestart();
           startBackgroundMusic();
         }}>
@@ -158,7 +163,7 @@ export const GameInfo: React.FC<GameInfoProps> = ({
           onClick={onToggle} 
           disabled={disabled}
         >
-          {isMusicPlaying ? '🔊 暂停' : '🔈 播放'}
+          {isMusicPlaying ? `🔊 ${currentMusic?.name || '暂停'}` : '🔈 播放'}
         </button>
         <button onClick={onSettingsClick}>
           设置
