@@ -4,9 +4,8 @@ import { StartScreenProps } from '../types';
 import { Button } from './Button';
 import { GAME_WIDTH, GAME_HEIGHT, COLORS } from '../constants';
 
-const defaultStyle = new PIXI.TextStyle();
-
-const titleTextStyle = Object.assign(new PIXI.TextStyle(), {
+// 创建标题文本样式
+const titleTextStyle = new PIXI.TextStyle({
     fontFamily: 'Arial',
     fontSize: 72,
     fontWeight: 'bold',
@@ -19,14 +18,36 @@ const titleTextStyle = Object.assign(new PIXI.TextStyle(), {
     dropShadowAngle: Math.PI / 6,
     dropShadowDistance: 6,
     fillGradientType: 1,
-    fillGradientStops: [0, 1]
+    fillGradientStops: [0, 1],
+    // 添加必要的默认值
+    wordWrap: false,
+    letterSpacing: 0,
+    padding: 0,
+    lineHeight: 0,
+    leading: 0,
+    breakWords: false,
+    whiteSpace: "pre",
+    textBaseline: "alphabetic",
+    trim: false
 });
 
-const subtitleTextStyle = Object.assign(new PIXI.TextStyle(), {
+// 创建副标题文本样式
+const subtitleTextStyle = new PIXI.TextStyle({
     fontFamily: 'Arial',
     fontSize: 28,
     fill: '#81C784',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    // 添加必要的默认值
+    wordWrap: false,
+    letterSpacing: 0,
+    padding: 0,
+    lineHeight: 0,
+    leading: 0,
+    breakWords: false,
+    dropShadow: false,
+    whiteSpace: "pre",
+    textBaseline: "alphabetic",
+    trim: false
 });
 
 export const StartScreen = ({ onStartGame }: StartScreenProps) => {

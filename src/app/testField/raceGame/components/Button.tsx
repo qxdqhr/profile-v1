@@ -3,13 +3,24 @@ import * as PIXI from 'pixi.js';
 import { ButtonProps } from '../types';
 import { COLORS } from '../constants';
 
-const defaultStyle = new PIXI.TextStyle();
-const buttonTextStyle = Object.assign(defaultStyle, {
+// 创建文本样式
+const buttonTextStyle = new PIXI.TextStyle({
     fontFamily: 'Arial',
     fontSize: 24,
     fill: COLORS.BUTTON_TEXT,
     align: 'center',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    // 添加必要的默认值
+    wordWrap: false,
+    letterSpacing: 0,
+    padding: 0,
+    lineHeight: 0,
+    leading: 0,
+    breakWords: false,
+    dropShadow: false,
+    whiteSpace: "pre",
+    textBaseline: "alphabetic",
+    trim: false
 });
 
 export const Button = ({ text, x, y, onClick }: ButtonProps) => {
