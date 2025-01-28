@@ -4,10 +4,11 @@ import { ButtonProps } from '../types';
 import { COLORS } from '../constants';
 
 export const Button = ({ text, x, y, onClick }: ButtonProps) => {
-    const style: PIXI.TextStyle = new PIXI.TextStyle();
-    style.fill = COLORS.BUTTON_TEXT;
-    style.fontSize = 24;
-    style.fontFamily = "Arial";
+    const style = new PIXI.TextStyle({
+        fill: COLORS.BUTTON_TEXT,
+        fontSize: 24,
+        fontFamily: "Arial"
+    });
 
     return (
         <Container position={[x, y]}>
@@ -26,7 +27,7 @@ export const Button = ({ text, x, y, onClick }: ButtonProps) => {
             <Text
                 text={text}
                 anchor={0.5}
-                style={style}
+                style={style as any}
             />
         </Container>
     );
