@@ -11,6 +11,7 @@ import { useGameState } from './hooks/useGameState'
 import { useMusic } from './hooks/useMusic'
 import { useHint } from './hooks/useHint'
 import { useFallingAnimation } from './hooks/useFallingAnimation'
+import { useSoundEffects } from './hooks/useSoundEffects'
 import './LinkGame.css'
 
 const LinkGame = () => {
@@ -71,6 +72,11 @@ const LinkGame = () => {
     clearAnimation,
     isAnimating
   } = useFallingAnimation(gameType, gameStatus, tiles, setTiles)
+
+  const {
+    playClickSound,
+    playMatchSound
+  } = useSoundEffects()
 
   // 更新 hintClearer
   useEffect(() => {
@@ -135,6 +141,9 @@ const LinkGame = () => {
   const handleTileClick = (tile: Tile) => {
     if (gameStatus !== 'playing') return
     
+    // 播放点击音效
+    playClickSound()
+    
     // 处理第一次点击
     handleFirstClick();
 
@@ -159,6 +168,9 @@ const LinkGame = () => {
       } else {
         const result = canConnect(selectedTile, tile, tiles)
         if (tile.type === selectedTile.type && result.canConnect) {
+          // 播放匹配成功音效
+          playMatchSound()
+          
           setTiles(tiles.map(t => ({
             ...t,
             isSelected: false,
