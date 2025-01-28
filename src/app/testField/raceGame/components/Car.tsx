@@ -1,6 +1,9 @@
-import { Container, Graphics } from '@pixi/react';
+import { Container, Sprite } from '@pixi/react';
 import { CarProps } from '../types';
 import { useState, useEffect } from 'react';
+
+const CAR_WIDTH = 50;  // 车的宽度
+const CAR_HEIGHT = 80; // 车的高度
 
 export const Car = ({ x, y }: CarProps) => {
     const [isClient, setIsClient] = useState(false);
@@ -15,27 +18,11 @@ export const Car = ({ x, y }: CarProps) => {
 
     return (
         <Container position={[x, y]}>
-            <Graphics
-                draw={g => {
-                    // 绘制小车主体
-                    g.clear();
-                    g.beginFill(0xFF4081);
-                    g.drawRoundedRect(-25, -15, 50, 30, 8);
-                    g.endFill();
-
-                    // 绘制车轮
-                    g.beginFill(0x333333);
-                    g.drawCircle(-15, -12, 6); // 左前轮
-                    g.drawCircle(15, -12, 6);  // 右前轮
-                    g.drawCircle(-15, 12, 6);  // 左后轮
-                    g.drawCircle(15, 12, 6);   // 右后轮
-                    g.endFill();
-
-                    // 绘制车窗
-                    g.beginFill(0x81D4FA);
-                    g.drawRoundedRect(-15, -10, 30, 15, 4);
-                    g.endFill();
-                }}
+            <Sprite
+                image="/raceGame/images/car.png"
+                width={CAR_WIDTH}
+                height={CAR_HEIGHT}
+                anchor={0.5}
             />
         </Container>
     );

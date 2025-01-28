@@ -18,6 +18,10 @@ const RaceGame = () => {
         setGameStarted(true);
     }, []);
 
+    const handleBackToMenu = useCallback(() => {
+        setGameStarted(false);
+    }, []);
+
     useEffect(() => {
         setIsClient(true);
     }, []);
@@ -43,7 +47,10 @@ const RaceGame = () => {
                 {!gameStarted ? (
                     <StartScreen onStartGame={handleStartGame} />
                 ) : (
-                    <GameScreen onRef={setGameRef} />
+                    <GameScreen 
+                        onRef={setGameRef} 
+                        onBackToMenu={handleBackToMenu}
+                    />
                 )}
             </Stage>
             {gameStarted && gameRef.handleDirection && (
