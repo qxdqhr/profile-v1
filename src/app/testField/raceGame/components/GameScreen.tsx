@@ -38,20 +38,20 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
 
     const scoreStyle = new TextStyle({
         fill: 0xffffff,
-        fontSize: 24,
+        fontSize: 18,
         fontFamily: 'Arial',
         fontWeight: 'bold'
     });
 
     const speedStyle = new TextStyle({
         fill: 0xffffff,
-        fontSize: 20,
+        fontSize: 16,
         fontFamily: 'Arial'
     });
 
     const gameOverStyle = new TextStyle({
         fill: 0xffffff,
-        fontSize: 48,
+        fontSize: 32,
         fontFamily: 'Arial',
         fontWeight: 'bold',
         align: 'center'
@@ -59,7 +59,7 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
 
     const buttonStyle = new TextStyle({
         fill: COLORS.BUTTON_TEXT,
-        fontSize: 24,
+        fontSize: 18,
         fontFamily: 'Arial',
         fontWeight: 'bold'
     });
@@ -308,7 +308,7 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
     // 暂停按钮样式
     const pauseButtonStyle = new TextStyle({
         fill: COLORS.BUTTON_TEXT,
-        fontSize: 20,
+        fontSize: 16,
         fontFamily: 'Arial',
         fontWeight: 'bold'
     });
@@ -364,8 +364,8 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
 
             {/* 暂停按钮 */}
             <Container
-                x={GAME_WIDTH - 100}
-                y={20}
+                x={GAME_WIDTH - 70}
+                y={15}
                 interactive={true}
                 cursor="pointer"
                 onclick={togglePause}
@@ -374,12 +374,12 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                     draw={g => {
                         g.clear();
                         g.beginFill(COLORS.BUTTON_FILL);
-                        g.drawRoundedRect(-40, -15, 80, 30, 6);
+                        g.drawRoundedRect(-30, -12, 60, 24, 4);
                         g.endFill();
                     }}
                 />
                 <Text
-                    text={isPaused ? "继续 (P)" : "暂停 (P)"}
+                    text={isPaused ? "继续" : "暂停"}
                     anchor={0.5}
                     style={pauseButtonStyle}
                 />
@@ -416,12 +416,12 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                             draw={g => {
                                 g.clear();
                                 g.beginFill(COLORS.BUTTON_FILL);
-                                g.drawRoundedRect(-100, -20, 200, 40, 8);
+                                g.drawRoundedRect(-80, -15, 160, 30, 6);
                                 g.endFill();
                             }}
                         />
                         <Text
-                            text="继续游戏 (P)"
+                            text="继续游戏"
                             anchor={0.5}
                             style={buttonStyle}
                         />
@@ -442,12 +442,12 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                             draw={g => {
                                 g.clear();
                                 g.beginFill(COLORS.BUTTON_FILL);
-                                g.drawRoundedRect(-100, -20, 200, 40, 8);
+                                g.drawRoundedRect(-80, -15, 160, 30, 6);
                                 g.endFill();
                             }}
                         />
                         <Text
-                            text="重新开始 (R)"
+                            text="重新开始"
                             anchor={0.5}
                             style={buttonStyle}
                         />
@@ -465,12 +465,12 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                             draw={g => {
                                 g.clear();
                                 g.beginFill(COLORS.BUTTON_FILL);
-                                g.drawRoundedRect(-100, -20, 200, 40, 8);
+                                g.drawRoundedRect(-80, -15, 160, 30, 6);
                                 g.endFill();
                             }}
                         />
                         <Text
-                            text="返回主菜单 (ESC)"
+                            text="返回主菜单"
                             anchor={0.5}
                             style={buttonStyle}
                         />
@@ -509,12 +509,12 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                             draw={g => {
                                 g.clear();
                                 g.beginFill(COLORS.BUTTON_FILL);
-                                g.drawRoundedRect(-100, -20, 200, 40, 8);
+                                g.drawRoundedRect(-80, -15, 160, 30, 6);
                                 g.endFill();
                             }}
                         />
                         <Text
-                            text="重新开始 (R)"
+                            text="重新开始"
                             anchor={0.5}
                             style={buttonStyle}
                         />
@@ -532,12 +532,12 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                             draw={g => {
                                 g.clear();
                                 g.beginFill(COLORS.BUTTON_FILL);
-                                g.drawRoundedRect(-100, -20, 200, 40, 8);
+                                g.drawRoundedRect(-80, -15, 160, 30, 6);
                                 g.endFill();
                             }}
                         />
                         <Text
-                            text="返回主界面 (ESC)"
+                            text="返回主界面"
                             anchor={0.5}
                             style={buttonStyle}
                         />

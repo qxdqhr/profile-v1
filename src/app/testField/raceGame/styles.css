@@ -1,14 +1,14 @@
 .game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   width: 100%;
   height: 100vh;
-  background-color: #111827;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  padding: 20px;
-  min-height: 100vh;
-  background-color: #f0f0f0;
+  background-color: #282c34;
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 180px; /* 为控制面板留出空间 */
 }
 
 .loading-screen {
@@ -80,20 +80,49 @@
 }
 
 .control-wrapper {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: 100%;
+  max-width: 300px;
+  padding: 0 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 15px;
+  padding: 10px;
 }
 
-@media (max-width: 768px) {
-    .control-wrapper {
-        position: relative;
-        right: auto;
-        top: auto;
-        transform: none;
-        margin-top: 20px;
-        display: flex;
-        justify-content: center;
-    }
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .game-container {
+    height: 100vh;
+    width: 100vw;
+    padding: 0;
+    padding-bottom: 160px; /* 移动端控制面板空间 */
+  }
+
+  .control-wrapper {
+    bottom: 10px;
+    padding: 10px 5px;
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* 防止iOS Safari的橡皮筋效果 */
+html, body {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: none;
+}
+
+/* 隐藏移动端长按菜单 */
+canvas {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
 }

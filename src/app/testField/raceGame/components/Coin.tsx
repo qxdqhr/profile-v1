@@ -6,7 +6,7 @@ interface CoinProps {
     coin: CoinType;
 }
 
-const COIN_SIZE = 30;  // 金币大小
+const COIN_SIZE = 25;  // 减小金币尺寸
 
 export const Coin = ({ coin }: CoinProps) => {
     if (coin.collected) return null;  // 如果已被收集则不渲染

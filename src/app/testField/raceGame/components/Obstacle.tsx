@@ -6,7 +6,7 @@ interface ObstacleProps {
     obstacle: ObstacleType;
 }
 
-const OBSTACLE_SIZE = 40;
+const OBSTACLE_SIZE = 30;
 
 const getObstacleImage = (type: ObstacleType['type']) => {
     switch (type) {
