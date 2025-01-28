@@ -9,6 +9,9 @@
   position: relative;
   overflow: hidden;
   padding-bottom: 180px; /* 为控制面板留出空间 */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
 }
 
 .loading-screen {
@@ -54,6 +57,13 @@
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   padding: 0;
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .control-btn svg {
@@ -61,7 +71,8 @@
   height: 32px;
 }
 
-.control-btn:active {
+.control-btn:active,
+.control-btn:hover {
   transform: scale(0.95);
   background-color: #388E3C;
 }
@@ -87,10 +98,12 @@
   z-index: 1000;
   width: 100%;
   max-width: 300px;
-  padding: 0 10px;
+  padding: 10px 5px;
   background: rgba(0, 0, 0, 0.5);
   border-radius: 15px;
-  padding: 10px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
 }
 
 /* 移动端适配 */
@@ -124,5 +137,19 @@ canvas {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
-  touch-action: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 移动端特定样式 */
+@media (hover: none) and (pointer: coarse) {
+  .control-btn {
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+  }
+  
+  .control-btn:focus {
+    outline: none;
+  }
 }
