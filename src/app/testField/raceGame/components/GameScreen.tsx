@@ -37,7 +37,8 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
     const lastSpeedIncrease = useRef(Date.now());
     const lastCoinSpawn = useRef(0);
     const COIN_SPAWN_INTERVAL = 3000; // 每3秒生成一个金币
-    const lastHorizontalMove = useRef(0);  // 添加横向移动时间记录
+    const MIN_SPAWN_DISTANCE = 150; // 最小生成距离
+    const lastHorizontalMove = useRef(0);
 
     const scoreStyle = new TextStyle({
         fill: 0x4CAF50,
@@ -83,35 +84,78 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
         }
     }, []);
 
+    // 检查新生成位置是否合适
+    const isValidSpawnPosition = useCallback((track: number, y: number, isObstacle: boolean) => {
+        // 检查与障碍物的距离
+        for (const obstacle of obstacles) {
+            const sameTrack = obstacle.track === track;
+            const distance = Math.abs(obstacle.y - y);
+            if (sameTrack && distance < MIN_SPAWN_DISTANCE) {
+                return false;
+            }
+        }
+
+        // 检查与金币的距离
+        for (const coin of coins) {
+            if (!coin.collected) {
+                const sameTrack = coin.track === track;
+                const distance = Math.abs(coin.y - y);
+                if (sameTrack && distance < MIN_SPAWN_DISTANCE) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }, [obstacles, coins]);
+
     // 生成新障碍物
     const spawnObstacle = useCallback(() => {
         const now = Date.now();
         if (now - lastSpawnTime.current >= spawnInterval) {
-            const newObstacle: ObstacleType = {
-                id: Math.random().toString(),
-                track: Math.floor(Math.random() * TRACKS.length),
-                y: -50,
-                type: ['rock', 'cone', 'barrier'][Math.floor(Math.random() * 3)] as ObstacleType['type']
-            };
-            setObstacles(prev => [...prev, newObstacle]);
-            lastSpawnTime.current = now;
+            // 尝试最多10次找到合适的位置
+            for (let i = 0; i < 10; i++) {
+                const track = Math.floor(Math.random() * TRACKS.length);
+                const y = -50;
+                
+                if (isValidSpawnPosition(track, y, true)) {
+                    const newObstacle: ObstacleType = {
+                        id: Math.random().toString(),
+                        track,
+                        y,
+                        type: ['rock', 'cone', 'barrier'][Math.floor(Math.random() * 3)] as ObstacleType['type']
+                    };
+                    setObstacles(prev => [...prev, newObstacle]);
+                    lastSpawnTime.current = now;
+                    break;
+                }
+            }
         }
-    }, [spawnInterval]);
+    }, [spawnInterval, isValidSpawnPosition]);
 
     // 生成新金币
     const spawnCoin = useCallback(() => {
         const now = Date.now();
         if (now - lastCoinSpawn.current >= COIN_SPAWN_INTERVAL) {
-            const newCoin: CoinType = {
-                id: Math.random().toString(),
-                track: Math.floor(Math.random() * TRACKS.length),
-                y: -50,
-                collected: false
-            };
-            setCoins(prev => [...prev, newCoin]);
-            lastCoinSpawn.current = now;
+            // 尝试最多10次找到合适的位置
+            for (let i = 0; i < 10; i++) {
+                const track = Math.floor(Math.random() * TRACKS.length);
+                const y = -50;
+
+                if (isValidSpawnPosition(track, y, false)) {
+                    const newCoin: CoinType = {
+                        id: Math.random().toString(),
+                        track,
+                        y,
+                        collected: false
+                    };
+                    setCoins(prev => [...prev, newCoin]);
+                    lastCoinSpawn.current = now;
+                    break;
+                }
+            }
         }
-    }, []);
+    }, [COIN_SPAWN_INTERVAL, isValidSpawnPosition]);
 
     // 更新障碍物位置
     const updateObstacles = useCallback(() => {

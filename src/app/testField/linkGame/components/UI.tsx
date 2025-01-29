@@ -47,10 +47,10 @@ export const GameInfo: React.FC<GameInfoProps> = ({
 
   const handleModeChange = useCallback((type: GameType) => {
     if (isChanging || type === gameType || isAnimating) return
-    
+
     setIsChanging(true)
     onGameTypeChange(type)
-    
+
     // 1秒冷却时间
     setTimeout(() => {
       setIsChanging(false)
@@ -117,24 +117,12 @@ export const GameInfo: React.FC<GameInfoProps> = ({
         </div>
       </div>
       <div className="progress-bar-container">
-        <div 
+        <div
           className={`progress-bar ${isTimeWarning ? 'warning' : ''}`}
           style={{ width: `${progressPercentage}%` }}
         />
       </div>
       <div className="game-controls">
-        <select
-          className="game-type-select"
-          value={gameType}
-          onChange={(e) => onGameTypeChange(e.target.value as GameType)}
-          disabled={isAnimating}
-        >
-          {gameTypes.map((type) => (
-            <option key={type} value={type}>
-              {getGameTypeName(type)}
-            </option>
-          ))}
-        </select>
         <button onClick={() => {
           onRestart();
           startBackgroundMusic();
@@ -143,32 +131,44 @@ export const GameInfo: React.FC<GameInfoProps> = ({
         </button>
         {!isFirstGame && gameStatus === 'playing' && (
           <>
-            <button 
+            <select
+              className="game-type-select"
+              value={gameType}
+              onChange={(e) => onGameTypeChange(e.target.value as GameType)}
+              disabled={isAnimating}
+            >
+              {gameTypes.map((type) => (
+                <option key={type} value={type}>
+                  {getGameTypeName(type)}
+                </option>
+              ))}
+            </select>
+            <button
               className="shuffle-button"
-              onClick={onShuffle} 
+              onClick={onShuffle}
               disabled={gameStatus !== 'playing' || isAnimating || shuffleCount >= 3}
             >
               洗牌 ({3 - shuffleCount})
             </button>
-            <button 
+            <button
               className="hint-button"
               onClick={onHint}
               disabled={gameStatus !== 'playing' || isAnimating}
             >
               提示
             </button>
+            <button
+              className="music-button"
+              onClick={onToggle}
+              disabled={disabled}
+            >
+              {isMusicPlaying ? '🔊 暂停' : '🔈 播放'}
+            </button>
+            <button onClick={onSettingsClick}>
+              设置
+            </button>
           </>
         )}
-        <button 
-          className="music-button"
-          onClick={onToggle} 
-          disabled={disabled}
-        >
-          {isMusicPlaying ? '🔊 暂停' : '🔈 播放'}
-        </button>
-        <button onClick={onSettingsClick}>
-          设置
-        </button>
       </div>
       {noMatchesFound && shuffleCount >= 3 && (
         <div className="no-matches-warning">

@@ -126,25 +126,17 @@
 
 .game-controls {
   display: flex;
-  gap: 10px;
+  justify-content: space-between;
   margin-bottom: 15px;
   align-items: center;
-}
-
-/* 头部按钮颜色 */
-.game-type-select {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 5px;
-  background-color: #00CED1;
-  color: white;
-  cursor: pointer;
-  transition: all 0.2s;
-  min-width: 120px;
+  width: 100%;
+  gap: 10px;
 }
 
 .game-controls button,
+.game-type-select,
 .music-control button {
+  flex: 1;
   padding: 8px 16px;
   border: none;
   border-radius: 5px;
@@ -155,6 +147,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 0;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.game-type-select {
+  background-color: #00CED1;
+  min-width: 0;
 }
 
 .game-controls button:nth-child(2) {
@@ -318,21 +318,12 @@
     padding: 8px;
   }
 
-  .game-type-select {
-    grid-column: auto;
-    width: 100%;
-    padding: 8px;
-    font-size: 14px;
-    height: 36px;
-    min-width: unset;
-  }
-
+  .game-type-select,
   .game-controls button {
     width: 100%;
     padding: 8px;
-    font-size: 14px;
+    font-size: 12px;
     height: 36px;
-    white-space: nowrap;
   }
 
   .progress-bar-container {
@@ -639,4 +630,13 @@
 
 .change-music-button:hover {
     background-color: #45a049;
+}
+
+.game-controls button:first-child {
+  background-color: #4CAF50;
+  font-weight: bold;
+}
+
+.game-controls button:first-child:hover:not(:disabled) {
+  background-color: #45a049;
 }
