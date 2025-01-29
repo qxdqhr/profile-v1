@@ -1,6 +1,10 @@
-// 根据设备宽度动态设置游戏尺寸
-export const GAME_WIDTH = 375;  // iPhone SE 宽度
-export const GAME_HEIGHT = 750; // 增加游戏高度
+// 检测是否为移动设备
+const isMobile = typeof window !== 'undefined' && 
+    (window.innerWidth <= 768 || ('ontouchstart' in window) || navigator.maxTouchPoints > 0);
+
+// 根据设备类型设置游戏尺寸
+export const GAME_WIDTH = isMobile ? 375 : 600;  // 移动端375px，PC端600px
+export const GAME_HEIGHT = isMobile ? 667 : 800; // 移动端适配iPhone SE，PC端更大
 
 export const COLORS = {
     BACKGROUND: 0x282c34,
@@ -9,24 +13,30 @@ export const COLORS = {
     BUTTON_FILL: 0x4CAF50,
 };
 
-// 轨道位置 - 调整为适合移动端的间距
-export const TRACKS = [75, 165, 255, 345];  // 调整为更窄的赛道间距
+// 根据游戏宽度计算轨道位置
+const trackSpacing = GAME_WIDTH / 5;  // 将游戏宽度分成5份
+export const TRACKS = [
+    trackSpacing,
+    trackSpacing * 2,
+    trackSpacing * 3,
+    trackSpacing * 4
+];
 
 // 游戏基础设置
 export const INITIAL_Y = GAME_HEIGHT - 120;  // 调整初始位置
-export const MOVE_SPEED = 8;  // 移动速度
+export const MOVE_SPEED = GAME_WIDTH * 0.02;  // 移动速度根据屏幕宽度调整
 export const MIN_Y = 40;  // 上边界
 export const MAX_Y = GAME_HEIGHT - 120;  // 下边界，为控制按钮留出空间
 
 // 障碍物相关
-export const BASE_SPEED = 2;  // 降低基础速度
+export const BASE_SPEED = isMobile ? 2 : 3;  // PC端基础速度更快
 export const INITIAL_OBSTACLE_SPEED = BASE_SPEED;
-export const MAX_OBSTACLE_SPEED = 6;  // 降低最大速度
+export const MAX_OBSTACLE_SPEED = isMobile ? 6 : 8;  // PC端最大速度更快
 export const INITIAL_SPAWN_INTERVAL = 2000;
-export const MIN_SPAWN_INTERVAL = 1000;  // 增加最小生成间隔
-export const COLLISION_THRESHOLD = 25;  // 调整碰撞检测范围
+export const MIN_SPAWN_INTERVAL = 1000;
+export const COLLISION_THRESHOLD = GAME_WIDTH * 0.05;  // 碰撞检测范围根据屏幕宽度调整
 
 // 得分系统
 export const BASE_SCORE_PER_SECOND = 1;
-export const SPEED_INCREASE_INTERVAL = 12000;  // 增加速度提升间隔
-export const SPEED_INCREASE_RATE = 0.15;  // 降低速度增加率
+export const SPEED_INCREASE_INTERVAL = 12000;
+export const SPEED_INCREASE_RATE = 0.15;
