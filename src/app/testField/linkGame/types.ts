@@ -62,3 +62,11 @@ export const GRID_HEIGHT = typeof window !== 'undefined'
       ? 7   // 普通移动端
       : 8   // 桌面端
   : 8 
+
+export interface ScoreRecord {
+    score: number;
+    date: string;
+    gameType: GameType;
+    gridSize: string;
+    duration: number;
+} 

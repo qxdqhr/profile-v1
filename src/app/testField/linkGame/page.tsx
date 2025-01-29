@@ -1,22 +1,25 @@
 'use client'
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Stage, Container } from '@pixi/react'
 import { CubeTile } from './components/CubeTile'
 import { SelectionEffect, ConnectionLine } from './components/Effects'
 import { GameInfo, MusicControl } from './components/UI'
 import { Settings } from './components/Settings'
-import { canConnect } from './gameLogic'
+import { canConnect, hasMatchablePairs } from './gameLogic'
 import { TYPES_COUNT, TILE_SIZE, TILE_GAP, OUTER_PADDING, Tile, GameMode, GameType } from './types'
 import { useGameState } from './hooks/useGameState'
 import { useMusic } from './hooks/useMusic'
 import { useHint } from './hooks/useHint'
 import { useFallingAnimation } from './hooks/useFallingAnimation'
 import { useSoundEffects } from './hooks/useSoundEffects'
+import { useScoreRecord } from './hooks/useScoreRecord'
+import { ScoreBoard } from './components/ScoreBoard'
+import { SettingsAndScores } from './components/SettingsAndScores'
 import './LinkGame.css'
 
 const LinkGame = () => {
   const [hintClearer, setHintClearer] = useState<() => void>(() => () => {})
-  const [showSettings, setShowSettings] = useState(false)
+  const [showSettingsAndScores, setShowSettingsAndScores] = useState(false)
   const [gridWidth, setGridWidth] = useState(10)
   const [gridHeight, setGridHeight] = useState(8)
   const [typesCount, setTypesCount] = useState(TYPES_COUNT)
@@ -41,6 +44,7 @@ const LinkGame = () => {
     setConnectionPath,
     timeLeft,
     gameStatus,
+    setGameStatus,
     gameType,
     isFirstGame,
     isFirstClick,
@@ -50,7 +54,9 @@ const LinkGame = () => {
     handleShuffle,
     shuffleCount,
     noMatchesFound,
-    handleFirstClick
+    setNoMatchesFound,
+    handleFirstClick,
+    stopTimer
   } = useGameState(() => hintClearer(), gridWidth, gridHeight, typesCount)
 
   const {
@@ -77,6 +83,12 @@ const LinkGame = () => {
     playClickSound,
     playMatchSound
   } = useSoundEffects()
+
+  const {
+    scoreRecords,
+    addScoreRecord,
+    clearRecords
+  } = useScoreRecord()
 
   // 更新 hintClearer
   useEffect(() => {
@@ -124,7 +136,7 @@ const LinkGame = () => {
       handleRestart()
     }
 
-    setShowSettings(false)
+    setShowSettingsAndScores(false)
   }
 
   // 打开设置时保存当前值
@@ -135,7 +147,7 @@ const LinkGame = () => {
       gridHeight,
       typesCount
     }
-    setShowSettings(true)
+    setShowSettingsAndScores(true)
   }
 
   const handleTileClick = (tile: Tile) => {
@@ -195,6 +207,32 @@ const LinkGame = () => {
     }
   }
 
+  // 检查游戏状态
+  useEffect(() => {
+    if (!isFirstGame && gameStatus === 'playing' && tiles.length > 0) {
+      // 检查是否全部匹配完成
+      if (tiles.every(tile => tile.isMatched)) {
+        // 计算最终得分：基础分数 + 剩余时间加分（每秒2分）
+        const timeBonus = timeLeft * 2;
+        const finalScore = score + timeBonus;
+        // 添加得分记录
+        addScoreRecord(finalScore, gameType, gridWidth, gridHeight, timeLeft)
+        setGameStatus('success')
+        stopTimer() // 停止计时器
+        setScore(finalScore) // 更新显示的分数
+        return // 提前返回，不再检查其他状态
+      } 
+      // 只有在游戏未完成时才检查是否还有可配对的方块
+      else if (!hasMatchablePairs(tiles)) {
+        setNoMatchesFound(true)
+        // 如果还有洗牌次数，自动洗牌
+        if (shuffleCount < 3) {
+          handleShuffle()
+        }
+      }
+    }
+  }, [tiles, gameStatus, isFirstGame, score, gameType, gridWidth, gridHeight, timeLeft, addScoreRecord, shuffleCount, handleShuffle, stopTimer, setGameStatus, setNoMatchesFound])
+
   return (
     <div className="linkGame-container">
       <div className="game-header">
@@ -208,7 +246,7 @@ const LinkGame = () => {
           onHint={handleHint}
           onGameTypeChange={handleGameTypeChange}
           isAnimating={isAnimating}
-          onSettingsClick={handleSettingsOpen}
+          onSettingsClick={() => setShowSettingsAndScores(true)}
           onShuffle={handleShuffle}
           shuffleCount={shuffleCount}
           noMatchesFound={noMatchesFound}
@@ -220,19 +258,19 @@ const LinkGame = () => {
         />
       </div>
       
-      {showSettings && (
-        <div className="settings-overlay">
-          <Settings
-            gameType={gameType}
-            gridWidth={gridWidth}
-            gridHeight={gridHeight}
-            typesCount={typesCount}
-            onSettingsChange={handleSettingsChange}
-            onClose={handleSettingsClose}
-            loadNewMusic={loadNewMusic}
-            currentMusic={currentMusic}
-          />
-        </div>
+      {showSettingsAndScores && (
+        <SettingsAndScores
+          gameType={gameType}
+          gridWidth={gridWidth}
+          gridHeight={gridHeight}
+          typesCount={typesCount}
+          currentMusic={currentMusic}
+          records={scoreRecords}
+          onSettingsChange={handleSettingsChange}
+          onClose={() => setShowSettingsAndScores(false)}
+          onClearRecords={clearRecords}
+          loadNewMusic={loadNewMusic}
+        />
       )}
       
       {!isFirstGame && (

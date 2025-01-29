@@ -165,7 +165,7 @@ export const GameInfo: React.FC<GameInfoProps> = ({
               {isMusicPlaying ? '🔊 暂停' : '🔈 播放'}
             </button>
             <button onClick={onSettingsClick}>
-              设置
+              记录&设置
             </button>
           </>
         )}

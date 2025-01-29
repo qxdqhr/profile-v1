@@ -175,6 +175,7 @@ export const useGameState = (
         setConnectionPath,
         timeLeft,
         gameStatus,
+        setGameStatus,
         gameType,
         isFirstGame,
         isFirstClick,
@@ -184,6 +185,8 @@ export const useGameState = (
         handleShuffle,
         shuffleCount,
         noMatchesFound,
-        handleFirstClick
+        setNoMatchesFound,
+        handleFirstClick,
+        stopTimer
     }
 } 
