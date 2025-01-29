@@ -65,11 +65,6 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
         fontFamily: 'Arial',
         fontWeight: 'bold'
     });
-
-    const onClick = () => {
-        setIsPaused(false);
-        resetGame();
-    };
     // 更新得分
     const updateScore = useCallback(() => {
         const now = Date.now();
@@ -453,7 +448,10 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                         y={GAME_HEIGHT / 2 + 120}
                         width={150}
                         height={50}
-                        onClick={onClick}
+                        onClick={() => {
+                            setIsPaused(false);
+                            resetGame();
+                        }}
                     />
 
                     <Button
@@ -462,9 +460,11 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                         y={GAME_HEIGHT / 2 + 180}
                         width={150}
                         height={50}
-                        onClick={onClick}
+                        onClick={() => {
+                            setIsPaused(false);
+                            onBackToMenu();
+                        }}
                     />
-
                 </Container>
             )}
 
@@ -494,7 +494,10 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                         y={GAME_HEIGHT / 2 + 100}
                         width={150}
                         height={50}
-                        onClick={onClick}
+                        onClick={() => {
+                            setIsPaused(false);
+                            resetGame();
+                        }}
                     />
 
                     <Button
@@ -503,7 +506,10 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                         y={GAME_HEIGHT / 2 + 160}
                         width={150}
                         height={50}
-                        onClick={onClick}
+                        onClick={() => {
+                            setIsPaused(false);
+                            onBackToMenu();
+                        }}
                     />
                 </Container>
             )}
