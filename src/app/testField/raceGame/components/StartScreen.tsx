@@ -49,13 +49,6 @@ export const StartScreen = ({ onStartGame }: StartScreenProps) => {
                     g.beginFill(COLORS.BACKGROUND);
                     g.drawRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
                     g.endFill();
-                    
-                    // 绘制赛道装饰
-                    g.lineStyle(5, COLORS.TRACK_LINE, 0.2);
-                    for (let i = 0; i < 4; i++) {
-                        g.moveTo(200 + i * 150, 0);
-                        g.lineTo(200 + i * 150, GAME_HEIGHT);
-                    }
                 }}
             />
 
