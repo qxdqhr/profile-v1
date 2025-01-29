@@ -1,8 +1,8 @@
 import { Container, Graphics, Text } from '@pixi/react';
 import { TextStyle } from 'pixi.js';
 import { useCallback, useEffect, useState, useRef } from 'react';
-import { 
-    GAME_WIDTH, GAME_HEIGHT, COLORS, TRACKS, INITIAL_Y, 
+import {
+    GAME_WIDTH, GAME_HEIGHT, COLORS, TRACKS, INITIAL_Y,
     INITIAL_SPAWN_INTERVAL, INITIAL_OBSTACLE_SPEED, COLLISION_THRESHOLD,
     MIN_Y, MOVE_SPEED, MAX_Y, BASE_SCORE_PER_SECOND,
     SPEED_INCREASE_INTERVAL, SPEED_INCREASE_RATE,
@@ -13,6 +13,7 @@ import { GameScreenProps } from '../types';
 import { ScrollingBackground } from './ScrollingBackground';
 import { Obstacle } from './Obstacle';
 import { Coin } from './Coin';
+import { Button, CircleButton } from './Button';
 import { Obstacle as ObstacleType, Coin as CoinType } from '../types';
 import '@pixi/events'
 
@@ -28,7 +29,7 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
     const [shouldResetBackground, setShouldResetBackground] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
     const [coins, setCoins] = useState<CoinType[]>([]);
-    
+
     const gameLoopId = useRef<number>();
     const lastSpawnTime = useRef(0);
     const gameStartTime = useRef(Date.now());
@@ -65,6 +66,10 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
         fontWeight: 'bold'
     });
 
+    const onClick = () => {
+        setIsPaused(false);
+        resetGame();
+    };
     // 更新得分
     const updateScore = useCallback(() => {
         const now = Date.now();
@@ -81,7 +86,7 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
     const updateSpeed = useCallback(() => {
         const now = Date.now();
         const timeDiff = now - lastSpeedIncrease.current;
-        
+
         if (timeDiff >= SPEED_INCREASE_INTERVAL) {
             setCurrentSpeed(prev => Math.min(MAX_OBSTACLE_SPEED, prev + SPEED_INCREASE_RATE));
             setSpawnInterval(prev => Math.max(MIN_SPAWN_INTERVAL, prev - 100));
@@ -134,7 +139,7 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
     // 更新金币位置和检查收集
     const updateCoins = useCallback(() => {
         const carTrack = TRACKS[currentTrack];
-        
+
         setCoins(prev => {
             return prev
                 .map(coin => {
@@ -142,14 +147,14 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                     if (!coin.collected) {
                         const dx = Math.abs(carTrack - TRACKS[coin.track]);
                         const dy = Math.abs(carY - coin.y);
-                        
+
                         if (dx < COLLISION_THRESHOLD && dy < COLLISION_THRESHOLD) {
                             // 收集金币并增加分数
                             setScore(prevScore => prevScore + 1);
                             return { ...coin, collected: true };
                         }
                     }
-                    
+
                     // 更新位置，使用实际速度
                     return {
                         ...coin,
@@ -163,12 +168,12 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
     // 碰撞检测
     const checkCollisions = useCallback(() => {
         const carTrack = TRACKS[currentTrack];
-        
+
         for (const obstacle of obstacles) {
             const obstacleX = TRACKS[obstacle.track];
             const dx = Math.abs(carTrack - obstacleX);
             const dy = Math.abs(carY - obstacle.y);
-            
+
             if (dx < COLLISION_THRESHOLD && dy < COLLISION_THRESHOLD) {
                 setIsGameOver(true);
                 setIsBackgroundPaused(true);  // 游戏结束时暂停背景
@@ -218,7 +223,7 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
     // 处理方向控制
     const handleDirection = useCallback((direction: 'up' | 'down' | 'left' | 'right') => {
         if (isGameOver) return;
-        
+
         switch (direction) {
             case 'up':
                 setCarY(prevY => Math.max(MIN_Y, prevY - MOVE_SPEED));
@@ -239,7 +244,7 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
     const resetGame = useCallback(() => {
         // 先重置背景
         setShouldResetBackground(true);
-        
+
         setCurrentTrack(1);
         setCarY(INITIAL_Y);
         setObstacles([]);
@@ -249,14 +254,14 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
         setSpawnInterval(INITIAL_SPAWN_INTERVAL);
         setIsBackgroundPaused(false);
         setCoins([]);  // 重置金币
-        
+
         // 重置时间相关的 refs
         lastSpawnTime.current = Date.now();
         gameStartTime.current = Date.now();
         lastScoreUpdate.current = Date.now();
         lastSpeedIncrease.current = Date.now();
         lastCoinSpawn.current = Date.now();
-        
+
         // 重新启动游戏循环
         if (gameLoopId.current) {
             cancelAnimationFrame(gameLoopId.current);
@@ -316,12 +321,12 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
 
     return (
         <Container>
-            <ScrollingBackground 
-                speed={currentSpeed} 
+            <ScrollingBackground
+                speed={currentSpeed}
                 isPaused={isBackgroundPaused}
                 shouldReset={shouldResetBackground}
             />
-            
+
             {/* 上下边界线 */}
             <Graphics
                 draw={g => {
@@ -359,85 +364,30 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
 
             {/* 控制面板 */}
             <Container position={[GAME_WIDTH / 2, GAME_HEIGHT - 60]}>
-                {/* 左按钮 */}
-                <Container
-                    position={[-120, 0]}
-                    interactive={true}
-                    cursor="pointer"
-                    eventMode='auto'
-                    onclick={() => handleDirection('left')}
-                    ontouchstart={() => handleDirection('left')}
-                >
-                    <Graphics
-                        draw={g => {
-                            g.clear();
-                            g.beginFill(COLORS.BUTTON_FILL, 0.8);
-                            g.drawCircle(0, 0, 35);
-                            g.endFill();
-                        }}
-                    />
-                    <Text text="←" anchor={0.5} style={buttonStyle} />
-                </Container>
-
-                {/* 上按钮 */}
-                <Container
-                    position={[-40, 0]}
-                    interactive={true}
-                    cursor="pointer"
-                    eventMode='static'
-                    onclick={() => handleDirection('up')}
-                    ontouchstart={() => handleDirection('up')}
-                >
-                    <Graphics
-                        draw={g => {
-                            g.clear();
-                            g.beginFill(COLORS.BUTTON_FILL, 0.8);
-                            g.drawCircle(0, 0, 35);
-                            g.endFill();
-                        }}
-                    />
-                    <Text text="↑" anchor={0.5} style={buttonStyle} />
-                </Container>
-
-                {/* 下按钮 */}
-                <Container
-                    position={[40, 0]}
-                    interactive={true}
-                    cursor="pointer"
-                    eventMode='static'
-                    onclick={() => handleDirection('down')}
-                    ontouchstart={() => handleDirection('down')}
-                >
-                    <Graphics
-                        draw={g => {
-                            g.clear();
-                            g.beginFill(COLORS.BUTTON_FILL, 0.8);
-                            g.drawCircle(0, 0, 35);
-                            g.endFill();
-                        }}
-                    />
-                    <Text text="↓" anchor={0.5} style={buttonStyle} />
-                </Container>
-
-                {/* 右按钮 */}
-                <Container
-                    position={[120, 0]}
-                    interactive={true}
-                    cursor="pointer"
-                    eventMode='static'
-                    onclick={() => handleDirection('right')}
-                    ontouchstart={() => handleDirection('right')}
-                >
-                    <Graphics
-                        draw={g => {
-                            g.clear();
-                            g.beginFill(COLORS.BUTTON_FILL, 0.8);
-                            g.drawCircle(0, 0, 35);
-                            g.endFill();
-                        }}
-                    />
-                    <Text text="→" anchor={0.5} style={buttonStyle} />
-                </Container>
+                <CircleButton
+                    x={-120}
+                    y={0}
+                    text="←"
+                    onClick={() => handleDirection('left')}
+                />
+                <CircleButton
+                    x={-40}
+                    y={0}
+                    text="↑"
+                    onClick={() => handleDirection('up')}
+                />
+                <CircleButton
+                    x={40}
+                    y={0}
+                    text="↓"
+                    onClick={() => handleDirection('down')}
+                />
+                <CircleButton
+                    x={120}
+                    y={0}
+                    text="→"
+                    onClick={() => handleDirection('right')}
+                />
             </Container>
 
             {/* 得分显示 */}
@@ -457,29 +407,15 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
             />
 
             {/* 暂停按钮 */}
-            <Container
-                x={GAME_WIDTH - 70}
-                y={15}
-                interactive={true}
-                cursor="pointer"
-                eventMode='static'
-                onclick={togglePause}
-                ontouchstart={togglePause}
-            >
-                <Graphics
-                    draw={g => {
-                        g.clear();
-                        g.beginFill(COLORS.BUTTON_FILL, 0.8);
-                        g.drawRoundedRect(-30, -12, 60, 24, 4);
-                        g.endFill();
-                    }}
-                />
-                <Text
-                    text={isPaused ? "继续" : "暂停"}
-                    anchor={0.5}
-                    style={pauseButtonStyle}
-                />
-            </Container>
+            <Button
+                text={isPaused ? "继续" : "暂停"}
+                x={GAME_WIDTH - 60}
+                y={20}
+                width={100}
+                height={30}
+                onClick={togglePause}
+                style={pauseButtonStyle}
+            />
 
             {/* 暂停遮罩 */}
             {isPaused && !isGameOver && (
@@ -499,87 +435,36 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                         anchor={0.5}
                         style={gameOverStyle}
                     />
-                    
-                    {/* 继续游戏按钮 */}
-                    <Container
-                        x={GAME_WIDTH / 2}
-                        y={GAME_HEIGHT / 2}
-                        interactive={true}
-                        cursor="pointer"
-                        eventMode='static'
-                        onclick={togglePause}
-                        ontouchstart={togglePause}
-                    >
-                        <Graphics
-                            draw={g => {
-                                g.clear();
-                                g.beginFill(COLORS.BUTTON_FILL);
-                                g.drawRoundedRect(-80, -15, 160, 30, 6);
-                                g.endFill();
-                            }}
-                        />
-                        <Text
-                            text="继续游戏"
-                            anchor={0.5}
-                            style={buttonStyle}
-                        />
-                    </Container>
 
-                    {/* 重新开始按钮 */}
-                    <Container
+                    {/* 继续游戏按钮 */}
+                    <Button
+                        text="继续游戏"
                         x={GAME_WIDTH / 2}
                         y={GAME_HEIGHT / 2 + 60}
-                        interactive={true}
-                        cursor="pointer"
-                        eventMode='static'
-                        onclick={() => {
-                            setIsPaused(false);
-                            resetGame();
-                        }}
-                        ontouchstart={() => {
-                            setIsPaused(false);
-                            resetGame();
-                        }}
-                    >
-                        <Graphics
-                            draw={g => {
-                                g.clear();
-                                g.beginFill(COLORS.BUTTON_FILL);
-                                g.drawRoundedRect(-80, -15, 160, 30, 6);
-                                g.endFill();
-                            }}
-                        />
-                        <Text
-                            text="重新开始"
-                            anchor={0.5}
-                            style={buttonStyle}
-                        />
-                    </Container>
+                        width={150}
+                        height={50}
+                        onClick={togglePause}
+                    />
 
-                    {/* 返回主菜单按钮 */}
-                    <Container
+                    {/* 重新开始按钮 */}
+                    <Button
+                        text="重新开始"
                         x={GAME_WIDTH / 2}
                         y={GAME_HEIGHT / 2 + 120}
-                        interactive={true}
-                        cursor="pointer"
-                        eventMode='static'
-                        onclick={onBackToMenu}
-                        ontouchstart={onBackToMenu}
-                    >
-                        <Graphics
-                            draw={g => {
-                                g.clear();
-                                g.beginFill(COLORS.BUTTON_FILL);
-                                g.drawRoundedRect(-80, -15, 160, 30, 6);
-                                g.endFill();
-                            }}
-                        />
-                        <Text
-                            text="返回主菜单"
-                            anchor={0.5}
-                            style={buttonStyle}
-                        />
-                    </Container>
+                        width={150}
+                        height={50}
+                        onClick={onClick}
+                    />
+
+                    <Button
+                        text="返回主菜单"
+                        x={GAME_WIDTH / 2}
+                        y={GAME_HEIGHT / 2 + 180}
+                        width={150}
+                        height={50}
+                        onClick={onClick}
+                    />
+
                 </Container>
             )}
 
@@ -601,56 +486,25 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
                         anchor={0.5}
                         style={gameOverStyle}
                     />
-                    
-                    {/* 重新开始按钮 */}
-                    <Container
-                        x={GAME_WIDTH / 2}
-                        y={GAME_HEIGHT / 2 + 20}
-                        interactive={true}
-                        cursor="pointer"
-                        eventMode='static'
-                        onclick={resetGame}
-                        ontouchstart={resetGame}
-                    >
-                        <Graphics
-                            draw={g => {
-                                g.clear();
-                                g.beginFill(COLORS.BUTTON_FILL);
-                                g.drawRoundedRect(-80, -15, 160, 30, 6);
-                                g.endFill();
-                            }}
-                        />
-                        <Text
-                            text="重新开始"
-                            anchor={0.5}
-                            style={buttonStyle}
-                        />
-                    </Container>
 
-                    {/* 返回主界面按钮 */}
-                    <Container
+                    {/* 重新开始按钮 */}
+                    <Button
+                        text="重新开始"
                         x={GAME_WIDTH / 2}
-                        y={GAME_HEIGHT / 2 + 80}
-                        interactive={true}
-                        cursor="pointer"
-                        eventMode='static'
-                        onclick={onBackToMenu}
-                        ontouchstart={onBackToMenu}
-                    >
-                        <Graphics
-                            draw={g => {
-                                g.clear();
-                                g.beginFill(COLORS.BUTTON_FILL);
-                                g.drawRoundedRect(-80, -15, 160, 30, 6);
-                                g.endFill();
-                            }}
-                        />
-                        <Text
-                            text="返回主界面"
-                            anchor={0.5}
-                            style={buttonStyle}
-                        />
-                    </Container>
+                        y={GAME_HEIGHT / 2 + 100}
+                        width={150}
+                        height={50}
+                        onClick={onClick}
+                    />
+
+                    <Button
+                        text="返回主菜单"
+                        x={GAME_WIDTH / 2}
+                        y={GAME_HEIGHT / 2 + 160}
+                        width={150}
+                        height={50}
+                        onClick={onClick}
+                    />
                 </Container>
             )}
         </Container>
