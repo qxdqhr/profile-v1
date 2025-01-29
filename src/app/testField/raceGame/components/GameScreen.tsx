@@ -4,9 +4,9 @@ import { useCallback, useEffect, useState, useRef } from 'react';
 import {
     GAME_WIDTH, GAME_HEIGHT, COLORS, TRACKS, INITIAL_Y,
     INITIAL_SPAWN_INTERVAL, INITIAL_OBSTACLE_SPEED, COLLISION_THRESHOLD,
-    MIN_Y, MOVE_SPEED, MAX_Y, BASE_SCORE_PER_SECOND,
+    MIN_Y, VERTICAL_MOVE_SPEED, MAX_Y, BASE_SCORE_PER_SECOND,
     SPEED_INCREASE_INTERVAL, SPEED_INCREASE_RATE,
-    MAX_OBSTACLE_SPEED, MIN_SPAWN_INTERVAL
+    MAX_OBSTACLE_SPEED, MIN_SPAWN_INTERVAL, HORIZONTAL_MOVE_COOLDOWN
 } from '../constants';
 import { Car } from './Car';
 import { GameScreenProps } from '../types';
@@ -37,6 +37,7 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
     const lastSpeedIncrease = useRef(Date.now());
     const lastCoinSpawn = useRef(0);
     const COIN_SPAWN_INTERVAL = 3000; // 每3秒生成一个金币
+    const lastHorizontalMove = useRef(0);  // 添加横向移动时间记录
 
     const scoreStyle = new TextStyle({
         fill: 0xffffff,
@@ -219,18 +220,26 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
     const handleDirection = useCallback((direction: 'up' | 'down' | 'left' | 'right') => {
         if (isGameOver) return;
 
+        const now = Date.now();
+
         switch (direction) {
             case 'up':
-                setCarY(prevY => Math.max(MIN_Y, prevY - MOVE_SPEED));
+                setCarY(prevY => Math.max(MIN_Y, prevY - VERTICAL_MOVE_SPEED));
                 break;
             case 'down':
-                setCarY(prevY => Math.min(MAX_Y, prevY + MOVE_SPEED));
+                setCarY(prevY => Math.min(MAX_Y, prevY + VERTICAL_MOVE_SPEED));
                 break;
             case 'left':
-                setCurrentTrack(prev => Math.max(0, prev - 1));
+                if (now - lastHorizontalMove.current >= HORIZONTAL_MOVE_COOLDOWN) {
+                    setCurrentTrack(prev => Math.max(0, prev - 1));
+                    lastHorizontalMove.current = now;
+                }
                 break;
             case 'right':
-                setCurrentTrack(prev => Math.min(TRACKS.length - 1, prev + 1));
+                if (now - lastHorizontalMove.current >= HORIZONTAL_MOVE_COOLDOWN) {
+                    setCurrentTrack(prev => Math.min(TRACKS.length - 1, prev + 1));
+                    lastHorizontalMove.current = now;
+                }
                 break;
         }
     }, [isGameOver]);

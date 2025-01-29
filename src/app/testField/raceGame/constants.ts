@@ -24,7 +24,8 @@ export const TRACKS = [
 
 // 游戏基础设置
 export const INITIAL_Y = GAME_HEIGHT - 120;  // 调整初始位置
-export const MOVE_SPEED = GAME_WIDTH * 0.02;  // 移动速度根据屏幕宽度调整
+export const VERTICAL_MOVE_SPEED = GAME_HEIGHT * 0.015;  // 垂直移动速度
+export const HORIZONTAL_MOVE_COOLDOWN = 200;  // 横向移动冷却时间（毫秒）
 export const MIN_Y = 40;  // 上边界
 export const MAX_Y = GAME_HEIGHT - 120;  // 下边界，为控制按钮留出空间
 
