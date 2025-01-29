@@ -31,6 +31,15 @@ export const StartScreen = ({ onStartGame }: StartScreenProps) => {
         fontFamily: 'Arial'
     });
 
+    const instructionStyle = new TextStyle({
+        fill: 0xFFFFFF,
+        fontSize: 16,
+        fontFamily: 'Arial',
+        align: 'center',
+        wordWrap: true,
+        wordWrapWidth: 300
+    });
+
     return (
         <Container>
             {/* 背景动画 */}
@@ -66,18 +75,49 @@ export const StartScreen = ({ onStartGame }: StartScreenProps) => {
                 style={subtitleStyle}
             />
 
-            {/* 按钮组 */}
+            {/* 开始游戏按钮 */}
             <Button 
                 text="开始游戏" 
                 x={GAME_WIDTH / 2} 
                 y={350} 
                 onClick={onStartGame} 
             />
-            <Button 
-                text="游戏说明" 
-                x={GAME_WIDTH / 2} 
-                y={430} 
-                onClick={() => alert('游戏说明：\n使用方向键控制赛车\n收集金币并躲避障碍物\n尽可能获得高分！')} 
+
+            {/* 游戏说明背景 */}
+            <Graphics
+                draw={g => {
+                    g.clear();
+                    g.beginFill(0x000000, 0.3);
+                    g.lineStyle(2, COLORS.TRACK_LINE, 0.6);
+                    g.drawRoundedRect(GAME_WIDTH / 2 - 160, 430, 320, 160, 10);
+                    g.endFill();
+                }}
+            />
+
+            {/* 游戏说明标题 */}
+            <Text
+                text="游戏说明"
+                anchor={0.5}
+                position={[GAME_WIDTH / 2, 450]}
+                style={new TextStyle({
+                    ...instructionStyle,
+                    fontSize: 20,
+                    fontWeight: 'bold'
+                })}
+            />
+
+            {/* 游戏说明内容 */}
+            <Text
+                text={[
+                    "• 使用方向键或屏幕按钮控制赛车",
+                    "• 躲避路上的障碍物",
+                    "• 收集金币获得额外分数",
+                    "• 游戏速度会随时间逐渐加快",
+                    "• 尽可能获得高分！"
+                ].join('\n')}
+                anchor={[0.5, 0]}
+                position={[GAME_WIDTH / 2, 480]}
+                style={instructionStyle}
             />
         </Container>
     );

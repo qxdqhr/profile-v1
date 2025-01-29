@@ -40,31 +40,24 @@ export const GameScreen = ({ onRef, onBackToMenu }: GameScreenProps) => {
     const lastHorizontalMove = useRef(0);  // 添加横向移动时间记录
 
     const scoreStyle = new TextStyle({
-        fill: 0xffffff,
+        fill: 0x4CAF50,
         fontSize: 18,
         fontFamily: 'Arial',
         fontWeight: 'bold'
     });
 
     const speedStyle = new TextStyle({
-        fill: 0xffffff,
+        fill: 0x4CAF50,
         fontSize: 16,
         fontFamily: 'Arial'
     });
 
     const gameOverStyle = new TextStyle({
-        fill: 0xffffff,
+        fill: 0x4CAF50,
         fontSize: 32,
         fontFamily: 'Arial',
         fontWeight: 'bold',
         align: 'center'
-    });
-
-    const buttonStyle = new TextStyle({
-        fill: COLORS.BUTTON_TEXT,
-        fontSize: 18,
-        fontFamily: 'Arial',
-        fontWeight: 'bold'
     });
     // 更新得分
     const updateScore = useCallback(() => {
