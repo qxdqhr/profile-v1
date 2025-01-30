@@ -1,7 +1,7 @@
-import { DIRECTIONS, LEVELS, Level, Position, TileType } from '../types'
+import { DIRECTIONS, LEVELS, Level, Position, TileType, STYLES } from '../types'
 
 export class GameScene extends Phaser.Scene {
-  private tileSize: number = 64
+  private tileSize: number
   private currentLevel!: Level
   private currentLevelIndex: number = 0
   private player!: Phaser.GameObjects.Sprite
@@ -10,9 +10,12 @@ export class GameScene extends Phaser.Scene {
   private isMoving: boolean = false
   private levelText!: Phaser.GameObjects.Text
   private gameObjects: Phaser.GameObjects.GameObject[] = []
+  private isMobile: boolean
 
   constructor() {
     super({ key: 'GameScene' })
+    this.isMobile = window.innerWidth < 768
+    this.tileSize = this.isMobile ? STYLES.responsive.mobile.tileSize : STYLES.responsive.desktop.tileSize
   }
 
   init(data: { level?: number }) {
@@ -34,27 +37,47 @@ export class GameScene extends Phaser.Scene {
         !this.input.keyboard
     ) return;
     
+    // 设置背景颜色
+    this.cameras.main.setBackgroundColor(STYLES.background.game)
+
     // 初始化关卡
     this.currentLevel = JSON.parse(JSON.stringify(LEVELS[this.currentLevelIndex]))
 
+    const fontSize = this.isMobile ? STYLES.responsive.mobile.fontSize : STYLES.responsive.desktop.fontSize
+    const padding = this.isMobile ? STYLES.responsive.mobile.padding : STYLES.responsive.desktop.padding
+
     // 添加关卡文本
-    this.levelText = this.add.text(this.cameras.main.width - 150, 30, `第 ${this.currentLevelIndex + 1} 关`, {
-      fontSize: '24px',
-      color: '#ffffff',
-      backgroundColor: '#444444',
-      padding: { x: 10, y: 5 }
-    })
+    this.levelText = this.add.text(
+      this.isMobile ? this.cameras.main.width - 100 : this.cameras.main.width - 150,
+      this.isMobile ? 20 : 30,
+      `第 ${this.currentLevelIndex + 1} 关`,
+      { ...STYLES.gameStatus, fontSize: fontSize.text }
+    )
     this.gameObjects.push(this.levelText)
 
     // 添加重开按钮
-    const restartButton = this.add.text(this.cameras.main.width - 150, 80, '重新开始', {
-      fontSize: '24px',
-      color: '#ffffff',
-      backgroundColor: '#444444',
-      padding: { x: 10, y: 5 }
-    })
-    .setInteractive()
-    .on('pointerdown', () => this.restartLevel())
+    const restartButton = this.add.text(
+      this.isMobile ? this.cameras.main.width - 100 : this.cameras.main.width - 150,
+      this.isMobile ? 60 : 80,
+      '重新开始',
+      { 
+        ...STYLES.button, 
+        fontSize: fontSize.button,
+        padding: { x: padding.button.x, y: padding.button.y }
+      }
+    )
+      .setInteractive()
+      .on('pointerover', () => {
+        restartButton.setStyle({ backgroundColor: STYLES.button.hover.backgroundColor })
+        restartButton.setTint(STYLES.button.hover.tint)
+        restartButton.setScale(this.isMobile ? STYLES.responsive.mobile.scale.button : STYLES.responsive.desktop.scale.button)
+      })
+      .on('pointerout', () => {
+        restartButton.setStyle({ backgroundColor: STYLES.button.backgroundColor })
+        restartButton.clearTint()
+        restartButton.setScale(1)
+      })
+      .on('pointerdown', () => this.restartLevel())
     this.gameObjects.push(restartButton)
 
     this.cursors = this.input.keyboard.createCursorKeys()
@@ -67,18 +90,46 @@ export class GameScene extends Phaser.Scene {
     this.createGameMap(offsetX, offsetY)
 
     // 添加返回按钮
-    const backButton = this.add.text(50, 30, '返回', {
-      fontSize: '24px',
-      color: '#ffffff',
-      backgroundColor: '#444444',
-      padding: { x: 10, y: 5 }
-    })
-    .setInteractive()
-    .on('pointerdown', () => this.scene.start('StartScene'))
+    const backButton = this.add.text(
+      this.isMobile ? 30 : 50,
+      this.isMobile ? 20 : 30,
+      '返回',
+      { 
+        ...STYLES.backButton, 
+        fontSize: fontSize.button,
+        padding: { x: padding.button.x, y: padding.button.y }
+      }
+    )
+      .setInteractive()
+      .on('pointerover', () => {
+        backButton.setStyle({ backgroundColor: STYLES.backButton.hover.backgroundColor })
+        backButton.setTint(STYLES.backButton.hover.tint)
+        backButton.setScale(this.isMobile ? STYLES.responsive.mobile.scale.button : STYLES.responsive.desktop.scale.button)
+      })
+      .on('pointerout', () => {
+        backButton.setStyle({ backgroundColor: STYLES.backButton.backgroundColor })
+        backButton.clearTint()
+        backButton.setScale(1)
+      })
+      .on('pointerdown', () => this.scene.start('StartScene'))
     this.gameObjects.push(backButton)
+
+    // 添加操作提示
+    const hint = this.add.text(
+      this.cameras.main.width / 2,
+      this.cameras.main.height - (this.isMobile ? 30 : 40),
+      this.isMobile ? '点击屏幕移动，双击重新开始' : '使用方向键移动，R键重新开始',
+      { ...STYLES.hint, fontSize: fontSize.text }
+    ).setOrigin(0.5)
+    this.gameObjects.push(hint)
 
     // 监听键盘事件
     this.input.keyboard.on('keydown', this.handleKeyDown, this)
+
+    // 如果是移动设备，添加触摸控制
+    if (this.isMobile) {
+      this.input.on('pointerdown', this.handleTouchInput, this)
+    }
   }
 
   private handleKeyDown(event: KeyboardEvent) {
@@ -109,6 +160,34 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.movePlayer(direction)
+  }
+
+  private handleTouchInput(pointer: Phaser.Input.Pointer) {
+    if (!this.isMoving) {
+      const centerX = this.cameras.main.width / 2
+      const centerY = this.cameras.main.height / 2
+      
+      // 计算触摸点相对于屏幕中心的位置
+      const deltaX = pointer.x - centerX
+      const deltaY = pointer.y - centerY
+      
+      // 根据触摸位置判断移动方向
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // 水平移动
+        if (deltaX > 0) {
+          this.movePlayer(DIRECTIONS.RIGHT)
+        } else {
+          this.movePlayer(DIRECTIONS.LEFT)
+        }
+      } else {
+        // 垂直移动
+        if (deltaY > 0) {
+          this.movePlayer(DIRECTIONS.DOWN)
+        } else {
+          this.movePlayer(DIRECTIONS.UP)
+        }
+      }
+    }
   }
 
   private restartLevel() {
@@ -276,13 +355,9 @@ export class GameScene extends Phaser.Scene {
         const width = this.cameras.main!.width
         const height = this.cameras.main!.height
         
-        const winText = this.add.text(width/2, height/2, '恭喜过关！\n准备进入下一关...', {
-          fontSize: '48px',
-          color: '#ffffff',
-          backgroundColor: '#000000',
-          padding: { x: 20, y: 10 },
-          align: 'center'
-        }).setOrigin(0.5)
+        const winText = this.add.text(width/2, height/2, '恭喜过关！\n准备进入下一关...', STYLES.winMessage)
+          .setOrigin(0.5)
+          .setShadow(2, 2, '#2d2d2d', 8, true)
 
         // 2秒后进入下一关
         this.time.delayedCall(2000, () => {
@@ -293,12 +368,9 @@ export class GameScene extends Phaser.Scene {
         const width = this.cameras.main!.width
         const height = this.cameras.main!.height
         
-        const winText = this.add.text(width/2, height/2, '恭喜通关！', {
-          fontSize: '48px',
-          color: '#ffffff',
-          backgroundColor: '#000000',
-          padding: { x: 20, y: 10 }
-        }).setOrigin(0.5)
+        const winText = this.add.text(width/2, height/2, '恭喜通关！', STYLES.winMessage)
+          .setOrigin(0.5)
+          .setShadow(2, 2, '#2d2d2d', 8, true)
 
         // 3秒后返回主菜单
         this.time.delayedCall(3000, () => {

@@ -985,3 +985,152 @@ export const DIRECTIONS = {
   LEFT: { x: -1, y: 0 },
   RIGHT: { x: 1, y: 0 }
 } 
+
+// 添加样式配置
+export const STYLES = {
+  // 响应式布局配置
+  responsive: {
+    mobile: {
+      width: 800,
+      height: 600,
+      tileSize: 48, // 移动端格子大小
+      fontSize: {
+        title: '36px',
+        button: '24px',
+        text: '16px'
+      },
+      padding: {
+        button: { x: 15, y: 8 },
+        container: 10
+      },
+      scale: {
+        button: 1.05,
+        levelButton: 1.05
+      }
+    },
+    desktop: {
+      width: 1800,
+      height: 1600,
+      tileSize: 80, // PC端格子大小增大到80
+      fontSize: {
+        title: '64px', // 增大标题字体
+        button: '36px', // 增大按钮字体
+        text: '24px'  // 增大文本字体
+      },
+      padding: {
+        button: { x: 25, y: 12 },
+        container: 30
+      },
+      scale: {
+        button: 1.1,
+        levelButton: 1.1
+      }
+    }
+  },
+  // 背景颜色配置
+  background: {
+    main: '#0A192F', // 深蓝色主背景
+    game: '#0F172A', // 游戏场景背景
+    menu: '#1A1A2E', // 菜单场景背景
+    settings: '#162447'  // 设置场景背景
+  },
+  // 标题样式
+  title: {
+    fontSize: '56px',
+    color: '#FFD700', // 金色
+    backgroundColor: '#1a1a2e', // 深蓝色背景
+    padding: { x: 30, y: 15 },
+    shadow: {
+      offsetX: 2,
+      offsetY: 2,
+      color: '#4a4a8a',
+      blur: 8,
+      fill: true
+    }
+  },
+  // 按钮基础样式
+  button: {
+    fontSize: '32px',
+    color: '#E0E0E0', // 浅灰色
+    backgroundColor: '#16213E', // 深蓝色
+    padding: { x: 20, y: 10 },
+    hover: {
+      backgroundColor: '#0F3460', // 更深的蓝色
+      tint: 0x7FE7FF, // 天蓝色
+      scale: 1.05
+    }
+  },
+  // 关卡按钮样式
+  levelButton: {
+    width: 150, // 增大关卡按钮宽度
+    height: 150, // 增大关卡按钮高度
+    fontSize: '28px', // 增大按钮字体
+    color: '#E0E0E0',
+    backgroundColor: '#533483',
+    hover: {
+      backgroundColor: '#E94560',
+      tint: 0xFFFFFF,
+      scale: 1.1
+    }
+  },
+  // 返回按钮样式
+  backButton: {
+    fontSize: '28px',
+    color: '#E0E0E0',
+    backgroundColor: '#1B2430', // 深灰蓝色
+    padding: { x: 20, y: 10 },
+    hover: {
+      backgroundColor: '#51557E', // 灰紫色
+      tint: 0x7FE7FF,
+      scale: 1.05
+    }
+  },
+  // 提示文本样式
+  hint: {
+    fontSize: '20px',
+    color: '#A5C9CA', // 浅青色
+    backgroundColor: '#2C3333', // 深灰色
+    padding: { x: 15, y: 8 }
+  },
+  // 页码文本样式
+  pageNumber: {
+    fontSize: '24px',
+    color: '#DFF6FF', // 浅蓝色
+    backgroundColor: '#06283D', // 深蓝色
+    padding: { x: 15, y: 8 }
+  },
+  // 导航箭头按钮样式
+  arrowButton: {
+    width: 40,
+    height: 80,
+    fontSize: '32px',
+    color: '#E0E0E0',
+    backgroundColor: '#2B4865', // 蓝灰色
+    hover: {
+      backgroundColor: '#256D85', // 青蓝色
+      tint: 0x7FE7FF,
+      scale: 1.1
+    }
+  },
+  // 游戏中的状态文本样式
+  gameStatus: {
+    fontSize: '28px', // 增大状态文本
+    color: '#DFF6FF',
+    backgroundColor: '#144272',
+    padding: { x: 15, y: 8 }
+  },
+  // 胜利消息样式
+  winMessage: {
+    fontSize: '64px', // 增大胜利消息
+    color: '#FFD700',
+    backgroundColor: '#1B2430',
+    padding: { x: 40, y: 20 },
+    shadow: {
+      offsetX: 3,
+      offsetY: 3,
+      color: '#4a4a8a',
+      blur: 10,
+      fill: true
+    }
+  }
+} as const 
