@@ -56,6 +56,7 @@ export const SettingsAndScores: React.FC<SettingsAndScoresProps> = ({
     loadNewMusic
 }) => {
     const [activeTab, setActiveTab] = useState<'settings' | 'scores'>('settings');
+    const [hintClickCount, setHintClickCount] = useState(0);
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
@@ -86,7 +87,6 @@ export const SettingsAndScores: React.FC<SettingsAndScoresProps> = ({
                 <div className="settings-content">
                     {activeTab === 'settings' ? (
                         <>
-                            {/* 添加全能模式开关 */}
                             <div className="settings-item">
                                 <label className="settings-label">
                                     全能模式
@@ -95,14 +95,28 @@ export const SettingsAndScores: React.FC<SettingsAndScoresProps> = ({
                                             type="checkbox"
                                             checked={godMode}
                                             onChange={(e) => onSettingsChange({ godMode: e.target.checked })}
+                                            disabled={hintClickCount < 3}
                                         />
-                                        <span className="toggle-slider"></span>
+                                        <span className={`toggle-slider ${hintClickCount < 3 ? 'disabled' : ''}`}></span>
                                     </div>
                                 </label>
-                                <p className="settings-hint">开启后可以随时切换游戏模式</p>
+                                <p 
+                                    className="settings-hint clickable"
+                                    onClick={() => {
+                                        if (hintClickCount < 3) {
+                                            setHintClickCount(prev => prev + 1);
+                                        }
+                                    }}
+                                >
+                                    {/* {hintClickCount < 3 
+                                        ? `点击解锁全能模式 (${3 - hintClickCount})`
+                                        : '开启后可以随时切换游戏模式'
+                                    } */}
+                                    开启后可以随时切换游戏模式
+                                </p>
+
                             </div>
 
-                            {/* 游戏类型选择 - 只在全能模式开启时显示 */}
                             {godMode && (
                                 <div className="settings-item">
                                     <label>游戏类型</label>
@@ -127,7 +141,6 @@ export const SettingsAndScores: React.FC<SettingsAndScoresProps> = ({
                                 </div>
                             )}
 
-                            {/* 网格尺寸设置 */}
                             <div className="settings-item grid-settings">
                                 <div>
                                     <label>面板宽度</label>
@@ -151,7 +164,6 @@ export const SettingsAndScores: React.FC<SettingsAndScoresProps> = ({
                                 </div>
                             </div>
 
-                            {/* 方块种类数量设置 */}
                             <div className="settings-item">
                                 <label>方块种类数量</label>
                                 <input
@@ -165,7 +177,6 @@ export const SettingsAndScores: React.FC<SettingsAndScoresProps> = ({
                                 <p className="settings-hint">建议设置在3-50之间</p>
                             </div>
 
-                            {/* 音乐控制 */}
                             <div className="settings-item">
                                 <label>背景音乐</label>
                                 <div className="music-settings">

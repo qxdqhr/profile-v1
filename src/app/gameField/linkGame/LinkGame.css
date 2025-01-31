@@ -996,3 +996,43 @@ input:checked + .toggle-slider:before {
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+/* 返回选关按钮样式 */
+.game-controls .back-button {
+  background-color: #FFD700 !important;  /* 金黄色 */
+}
+
+.game-controls .back-button:hover:not(:disabled) {
+  background-color: #F4C430 !important;  /* 鼠标悬停时的深黄色 */
+}
+
+.game-controls .back-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* 禁用状态的开关样式 */
+.toggle-switch input:disabled + .toggle-slider {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+.toggle-switch input:disabled + .toggle-slider:before {
+  background-color: #cccccc;
+}
+
+/* 可点击的提示文本样式 */
+.settings-hint.clickable {
+  /* cursor: pointer; */
+  /* color: #4a90e2; */
+  transition: color 0.3s;
+}
+
+.settings-hint.clickable:hover {
+  /* color: #357abd; */
+}
+
+/* 添加点击反馈动画 */
+.settings-hint.clickable:active {
+  /* transform: scale(0.98); */
+}

@@ -264,15 +264,6 @@ const LinkGame = () => {
         // 显示游戏界面
         <>
           <div className="game-header">
-            <div className="level-nav">
-              <button 
-                onClick={handleBackToLevels}
-                className="back-button"
-              >
-                返回选关
-              </button>
-              <h3 className="level-title">{selectedLevel.name}</h3>
-            </div>
             <GameInfo 
               score={score} 
               timeLeft={timeLeft}
@@ -293,6 +284,8 @@ const LinkGame = () => {
               startBackgroundMusic={startBackgroundMusic}
               currentMusic={currentMusic}
               godMode={godMode}
+              onBackToLevels={handleBackToLevels}
+              selectedLevel={selectedLevel}
             />
           </div>
           

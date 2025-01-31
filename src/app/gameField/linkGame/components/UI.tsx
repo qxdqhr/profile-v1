@@ -1,5 +1,5 @@
 import React from 'react'
-import { GameStatus, GAME_DURATION, GameType } from '../types'
+import { GameStatus, GAME_DURATION, GameType, Level } from '../types'
 import { useState, useCallback } from 'react'
 
 interface GameInfoProps {
@@ -22,6 +22,8 @@ interface GameInfoProps {
   startBackgroundMusic: () => void
   currentMusic: { name: string; path: string } | null
   godMode: boolean
+  onBackToLevels: () => void
+  selectedLevel: Level
 }
 
 export const GameInfo: React.FC<GameInfoProps> = ({
@@ -43,7 +45,9 @@ export const GameInfo: React.FC<GameInfoProps> = ({
   disabled,
   startBackgroundMusic,
   currentMusic,
-  godMode
+  godMode,
+  onBackToLevels,
+  selectedLevel
 }) => {
   const [isChanging, setIsChanging] = useState(false)
 
@@ -97,9 +101,9 @@ export const GameInfo: React.FC<GameInfoProps> = ({
 
   return (
     <div className="game-info">
-      <h1>葱韵环京连连看
+      <h1>葱韵环京连连看 - {selectedLevel.name}
         <span className="subtitle">
-          created by 皋月朔星
+          Created by 焦糖布丁忆梦梦 皋月朔星
         </span>
       </h1>
       <div className="game-stats">
@@ -169,6 +173,12 @@ export const GameInfo: React.FC<GameInfoProps> = ({
               disabled={disabled}
             >
               {isMusicPlaying ? '🔊 暂停' : '🔈 播放'}
+            </button>
+            <button
+              className="back-button"
+              onClick={onBackToLevels}
+            >
+              返回选关
             </button>
             <button onClick={onSettingsClick}>
               记录&设置
