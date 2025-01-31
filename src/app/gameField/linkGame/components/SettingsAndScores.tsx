@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScoreRecord, GameType, GameSettings } from '../types';
+import { ScoreRecord, GameType, GameSettings, TYPES_COUNT } from '../types';
 
 interface SettingsAndScoresProps {
     gameType: GameType;
@@ -169,11 +169,11 @@ export const SettingsAndScores: React.FC<SettingsAndScoresProps> = ({
                                 <input
                                     type="number"
                                     min="3"
-                                    max="22"
+                                    max={TYPES_COUNT}
                                     value={typesCount}
                                     onChange={(e) => onSettingsChange({ typesCount: parseInt(e.target.value) })}
                                 />
-                                <p className="settings-hint">建议设置在3-22之间</p>
+                                <p className="settings-hint">建议设置在3-{TYPES_COUNT}之间</p>
                             </div>
 
                             <div className="settings-item">

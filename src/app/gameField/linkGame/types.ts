@@ -42,7 +42,7 @@ export const TILE_GAP = typeof window !== 'undefined'
       : 10  // 桌面端
   : 10
 
-export const TYPES_COUNT = 22
+export const TYPES_COUNT = 21
 export const OUTER_PADDING = typeof window !== 'undefined' && window.innerWidth < 768 ? 0 : 1
 export const GAME_DURATION = 300 // 游戏时长（秒）
 
