@@ -169,10 +169,9 @@ export const SettingsAndScores: React.FC<SettingsAndScoresProps> = ({
                                 <input
                                     type="number"
                                     min="3"
-                                    max="50"
+                                    max="21"
                                     value={typesCount}
                                     onChange={(e) => onSettingsChange({ typesCount: parseInt(e.target.value) })}
-                                    disabled={true}
                                 />
                                 <p className="settings-hint">建议设置在3-50之间</p>
                             </div>
