@@ -171,15 +171,18 @@ export class GameScene extends Phaser.Scene {
       const deltaX = pointer.x - centerX
       const deltaY = pointer.y - centerY
       
-      // 根据触摸位置判断移动方向
-      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      // 设置最小移动阈值，避免误触
+      const minSwipeDistance = 20
+      
+      // 根据触摸位置判断移动方向，增加最小移动距离判断
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
         // 水平移动
         if (deltaX > 0) {
           this.movePlayer(DIRECTIONS.RIGHT)
         } else {
           this.movePlayer(DIRECTIONS.LEFT)
         }
-      } else {
+      } else if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > minSwipeDistance) {
         // 垂直移动
         if (deltaY > 0) {
           this.movePlayer(DIRECTIONS.DOWN)

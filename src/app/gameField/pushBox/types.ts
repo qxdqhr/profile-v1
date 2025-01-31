@@ -991,17 +991,15 @@ export const STYLES = {
   // 响应式布局配置
   responsive: {
     mobile: {
-      width: 800,
-      height: 600,
-      tileSize: 48, // 移动端格子大小
+      tileSize: 36, // 减小移动端格子大小
       fontSize: {
-        title: '36px',
-        button: '24px',
-        text: '16px'
+        title: '32px',
+        button: '20px',
+        text: '14px'
       },
       padding: {
-        button: { x: 15, y: 8 },
-        container: 10
+        button: { x: 12, y: 6 },
+        container: 8
       },
       scale: {
         button: 1.05,

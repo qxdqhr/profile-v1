@@ -4,7 +4,6 @@ import Link from 'next/link';
 import "@/styles/index.css";
 import { BackButton } from '@/app/_components/BackButton';
 import { ExperimentCard } from '@/app/_components/ExperimentCard';
-import LinkGame from './linkGame/page'
 
 interface ExperimentItem {
     id: string;
@@ -14,7 +13,7 @@ interface ExperimentItem {
     tags: string[];
 }
 
-const experiments: ExperimentItem[] = [
+const games: ExperimentItem[] = [
     {
         id: "live-activity",
         title: "Live Activity API",
@@ -30,20 +29,6 @@ const experiments: ExperimentItem[] = [
         tags: ["同步", "剪贴板"]
     },
     {
-        id: "miku-click",
-        title: "米库点击",
-        description: "测试 点击奏鸣初音未来功能 功能",
-        path: "/testField/MikuClick",
-        tags: ["小游戏", "赛博无料"]
-    },
-    {
-        id: "kannot",
-        title: " 坎诺特",
-        description: "已有坎诺特功能",
-        path: "/testField/Kannot",
-        tags: ["小游戏", "赛博无料"]
-    },
-    {
         id: "home-page-config",
         title: " 首页配置",
         description: "首页配置",
@@ -57,24 +42,9 @@ const experiments: ExperimentItem[] = [
         path: "/testField/Vocaloider",
         tags: ["小游戏", "赛博无料"]
     },
-    {
-        id: "VocaloidtoGO",//diolacov
-        title: " 博立格来冲",
-        description: "博立格来冲",
-        path: "/testField/VocaloidtoGO",
-        tags: ["小游戏", "赛博无料"]
-    },
-    {
-        id: "linkGame",
-        title: " 连连看",
-        description: "连连看",
-        path: "/testField/linkGame",
-        tags: ["小游戏", "赛博无料"]
-    },
-
 ];
 
-export default function TestField() {
+export default function GameField() {
     return (
         <div className="container">
             <BackButton href="/" />
@@ -84,13 +54,13 @@ export default function TestField() {
                 </h1>
 
                 <div className="grid">
-                    {experiments.map((experiment) => (
+                    {games.map((games) => (
                         <ExperimentCard
-                            key={experiment.id}
-                            href={experiment.path}
-                            title={experiment.title}
-                            description={experiment.description}
-                            tags={experiment.tags}
+                            key={games.id}
+                            href={games.path}
+                            title={games.title}
+                            description={games.description}
+                            tags={games.tags}
                         />
                     ))}
                 </div>

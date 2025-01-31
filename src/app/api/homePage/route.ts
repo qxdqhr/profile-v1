@@ -36,7 +36,12 @@ const config = {
             id: "testField",
             label: "实验田",
             href: "/testField",
-          },
+        },
+        {
+          id: "gameField",
+          label: "休闲区",
+          href: "/gameField",
+        },
         { id: "contact",
           label: "联系方式",
            href: "#contact"
