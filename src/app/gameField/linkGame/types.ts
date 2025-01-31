@@ -116,12 +116,12 @@ export const GAME_LEVELS: Level[] = [
     gameType: "clockwise",
     description: "消除后方块会顺时针旋转"
   },
-  {
-    id: 7,
-    name: "逆时针旋转",
-    gameType: "counterclockwise",
-    description: "消除后方块会逆时针旋转"
-  }
+  // {
+  //   id: 7,
+  //   name: "逆时针旋转",
+  //   gameType: "counterclockwise",
+  //   description: "消除后方块会逆时针旋转"
+  // }
 ]
 
 // 添加设置接口

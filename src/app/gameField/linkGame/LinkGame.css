@@ -41,6 +41,11 @@
 
 .game-info {
   background-color: white;
+  background-image: url('/linkGame/background2.png');
+  background-size: contain;
+  background-position-y: 10%;
+  background-position-x: center;
+  background-repeat: no-repeat;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
