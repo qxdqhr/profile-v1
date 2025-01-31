@@ -4,7 +4,6 @@ export const GAME_CONFIG = {
   GEM_SIZE: 60,
   MIN_MATCH: 3,
   SCORE_PER_GEM: 10,
-  SPECIAL_GEM_CHANCE: 0.1, // 特殊宝石出现概率
   GAME_TIME: 120 // 游戏时间（秒）
 } as const
 
@@ -20,65 +19,44 @@ export const GEMS = {
 
 export type GemType = typeof GEMS[keyof typeof GEMS];
 
-
-export const GEMS_SPECIAL = {
-  HORIZONTAL_CLEAR: {
-    id: 6,
-    color: 0x00ffff,
-    name: '横向消除',
-    frame: 6,
-    glow: true
-  },
-  VERTICAL_CLEAR: {
-    id: 7,
-    color: 0xff00ff,
-    name: '纵向消除',
-    frame: 7,
-    glow: true
-  },
-  BOMB: {
-    id: 8,
-    color: 0xff4500,
-    name: '爆炸宝石',
-    frame: 8,
-    glow: true
-  },
-  RAINBOW: {
-    id: 9,
-    color: 0xffffff,
-    name: '彩虹宝石',
-    frame: 9,
-    glow: true,
-    rainbow: true
-  }
-} as const
-
+// 得分配置
 export const GEMS_SCORES = {
-  NORMAL: 10,
-  SPECIAL: 30,
-  COMBO: 50
-} as const
+  NORMAL: 10,    // 普通消除得分
+  SPECIAL: 30,   // 特殊消除得分
+  COMBO: 50      // 连击奖励分数
+} as const;
 
-export const GEMS_EFFECTS = {
-  HORIZONTAL_CLEAR: { range: 'row', score: 50 },
-  VERTICAL_CLEAR: { range: 'column', score: 50 },
-  BOMB: { range: 'area', radius: 2, score: 80 },
-  RAINBOW: { range: 'color', score: 100 }
-} as const
+// 动画配置
+export const ANIMATION = {
+  SWAP_DURATION: 200,     // 交换动画时长
+  DROP_DURATION: 500,     // 下落动画时长
+  FILL_DELAY: 300,       // 填充延迟
+  CHECK_DELAY: 600       // 检查延迟
+} as const;
 
-export const GEMS_ANIMATIONS = {
-  GLOW: {
-    duration: 1000,
-    alpha: { start: 0.6, end: 1 },
-    yoyo: true,
-    repeat: -1
+// 样式配置
+export const STYLES = {
+  SCORE: {
+    fontSize: '32px',
+    color: '#000000'
   },
-  RAINBOW: {
-    duration: 2000,
-    tints: [0xff0000, 0xffa500, 0xffff00, 0x00ff00, 0x0000ff, 0x800080],
-    repeat: -1
+  BUTTON: {
+    fontSize: '24px',
+    color: '#ffffff',
+    backgroundColor: '#4CAF50',
+    padding: { x: 15, y: 8 }
+  },
+  SETTINGS: {
+    ON_COLOR: '#4CAF50',
+    OFF_COLOR: '#f44336',
+    BG_COLOR: '#333333'
+  },
+  TITLE: {
+    fontSize: '64px',
+    color: '#ffffff',
+    fontStyle: 'bold'
   }
-} as const
+} as const;
 
 // 资源路径配置
 export const ASSETS = {
@@ -137,37 +115,56 @@ export const ASSETS = {
 // 颜色配置
 export const COLORS = ['red', 'blue', 'green', 'yellow', 'purple'] as const
 
-// 动画配置
-export const ANIMATION = {
-  SWAP_DURATION: 200,
-  DROP_DURATION: 500,
-  FILL_DELAY: 300,
-  CHECK_DELAY: 600,
-  SPECIAL_EFFECT_DURATION: 800,
-  COMBO_DELAY: 200
+export const GEMS_SPECIAL = {
+  HORIZONTAL_CLEAR: {
+    id: 6,
+    color: 0x00ffff,
+    name: '横向消除',
+    frame: 6,
+    glow: true
+  },
+  VERTICAL_CLEAR: {
+    id: 7,
+    color: 0xff00ff,
+    name: '纵向消除',
+    frame: 7,
+    glow: true
+  },
+  BOMB: {
+    id: 8,
+    color: 0xff4500,
+    name: '爆炸宝石',
+    frame: 8,
+    glow: true
+  },
+  RAINBOW: {
+    id: 9,
+    color: 0xffffff,
+    name: '彩虹宝石',
+    frame: 9,
+    glow: true,
+    rainbow: true
+  }
 } as const
 
-// 样式配置
-export const STYLES = {
-  TITLE: {
-    fontSize: '64px',
-    color: '#ffffff',
-    fontStyle: 'bold'
+export const GEMS_EFFECTS = {
+  HORIZONTAL_CLEAR: { range: 'row', score: 50 },
+  VERTICAL_CLEAR: { range: 'column', score: 50 },
+  BOMB: { range: 'area', radius: 2, score: 80 },
+  RAINBOW: { range: 'color', score: 100 }
+} as const
+
+export const GEMS_ANIMATIONS = {
+  GLOW: {
+    duration: 1000,
+    alpha: { start: 0.6, end: 1 },
+    yoyo: true,
+    repeat: -1
   },
-  SCORE: {
-    fontSize: '32px',
-    color: '#ffffff'
-  },
-  BUTTON: {
-    fontSize: '24px',
-    color: '#ffffff',
-    backgroundColor: '#f44336',
-    padding: { x: 15, y: 8 }
-  },
-  SETTINGS: {
-    ON_COLOR: '#4CAF50',
-    OFF_COLOR: '#f44336',
-    BG_COLOR: '#333333'
+  RAINBOW: {
+    duration: 2000,
+    tints: [0xff0000, 0xffa500, 0xffff00, 0x00ff00, 0x0000ff, 0x800080],
+    repeat: -1
   }
 } as const
 

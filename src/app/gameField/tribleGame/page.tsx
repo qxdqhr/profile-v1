@@ -1,8 +1,7 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
-import { GameScene } from './scenes/GameScene'
-import { GameOverScene } from './scenes/GameOverScene'
+import './tribleGame.css'
 
 // 动态导入Phaser和场景组件
 const Game = dynamic(
@@ -11,6 +10,8 @@ const Game = dynamic(
     const { StartScene } = await import('./scenes/StartScene')
     const { SettingsScene } = await import('./scenes/SettingsScene')
     const { LevelSelectScene } = await import('./scenes/LevelSelectScene')
+    const { GameScene } = await import('./scenes/GameScene')
+    const { GameOverScene } = await import('./scenes/GameOverScene')
 
     const PhaserGame = () => {
       const gameContainer = useRef<HTMLDivElement>(null)
