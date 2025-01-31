@@ -173,7 +173,7 @@ export const SettingsAndScores: React.FC<SettingsAndScoresProps> = ({
                                     value={typesCount}
                                     onChange={(e) => onSettingsChange({ typesCount: parseInt(e.target.value) })}
                                 />
-                                <p className="settings-hint">建议设置在3-{typesCount}之间</p>
+                                <p className="settings-hint">建议设置在3-21之间</p>
                             </div>
 
                             <div className="settings-item">
