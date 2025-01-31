@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
-import './tribleGame.css'
 
 // 动态导入Phaser和场景组件
 const Game = dynamic(
