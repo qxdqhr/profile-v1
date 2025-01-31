@@ -10,7 +10,7 @@ const LevelSelect: React.FC<LevelSelectProps> = ({ onSelectLevel }) => {
     <div className="game-info">
       <h1>葱韵环京连连看
         <span className="subtitle">
-          created by 皋月朔星
+          Created by 焦糖布丁忆梦梦 皋月朔星
         </span>
       </h1>
       <div className="level-select-grid">
