@@ -57,6 +57,20 @@ const games: ExperimentItem[] = [
         path: "/gameField/raceGame",
         tags: ["小游戏", "赛博无料","初版完成"]
     },
+    {
+        id: "tribleGame",
+        title: " 三消游戏",
+        description: "三消游戏",
+        path: "/gameField/tribleGame",
+        tags: ["小游戏", "赛博无料","初版完成"]
+    },
+    {
+        id: "goldMiner",
+        title: "黄金矿工",
+        description: "金矿工",
+        path: "/gameField/goldMiner",
+        tags: ["小游戏", "赛博无料","新建文件夹"]
+    },
 
 ];
 
