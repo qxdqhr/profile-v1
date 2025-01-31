@@ -7,8 +7,8 @@ const MUSIC_LIST = [
     name: 'Shake It!'
   },
   {
-    path: '/linkGame/mp3/VivalaVida.mp3',
-    name: 'VivalaVida'
+    path: '/linkGame/mp3/歌に形はないけれど.mp3',
+    name: '歌に形はないけれど'
   },
   // 在这里添加更多音乐...
 ]
