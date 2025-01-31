@@ -1,13 +1,14 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
+import { GameScene } from './scenes/GameScene'
+import { GameOverScene } from './scenes/GameOverScene'
 
 // 动态导入Phaser和场景组件
 const Game = dynamic(
   async () => {
     const { default: Phaser } = await import('phaser')
     const { StartScene } = await import('./scenes/StartScene')
-    const { GameScene } = await import('./scenes/GameScene')
     const { SettingsScene } = await import('./scenes/SettingsScene')
     const { LevelSelectScene } = await import('./scenes/LevelSelectScene')
 
@@ -22,7 +23,7 @@ const Game = dynamic(
             width: window.innerWidth,
             height: window.innerHeight,
             parent: gameContainer.current,
-            scene: [StartScene, GameScene, SettingsScene, LevelSelectScene],
+            scene: [StartScene, GameScene, SettingsScene, LevelSelectScene, GameOverScene],
             physics: {
               default: 'arcade',
               arcade: { gravity: { x: 0, y: 0 } }

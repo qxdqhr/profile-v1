@@ -4,7 +4,8 @@ export const GAME_CONFIG = {
   GEM_SIZE: 60,
   MIN_MATCH: 3,
   SCORE_PER_GEM: 10,
-  SPECIAL_GEM_CHANCE: 0.1 // 特殊宝石出现概率
+  SPECIAL_GEM_CHANCE: 0.1, // 特殊宝石出现概率
+  GAME_TIME: 120 // 游戏时间（秒）
 } as const
 
 // 宝石类型配置
