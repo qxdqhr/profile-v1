@@ -1,4 +1,4 @@
-import { Container, Graphics, Sprite } from '@pixi/react'
+import { Container, Graphics, Sprite, Text } from '@pixi/react'
 import { Tile, TILE_SIZE } from '../types'
 import '@pixi/events'
 
@@ -82,12 +82,14 @@ export const CubeTile = ({ tile, onTileClick }: CubeTileProps) => {
 
             {/* 图标 */}
             <Sprite
-                image={`/linkGame/icon/icon_${tile.type}.png`}
+                image={
+                    `/linkGame/icon/icon_${tile.type}.png`
+                }
                 width={tileSize * 0.8}
                 height={tileSize * 0.8}
                 anchor={0.5}
             />
-
+            {/* <Text text={`${tile.type}`} /> */}
             {/* 选中效果 */}
             {tile.isSelected && (
                 <Graphics

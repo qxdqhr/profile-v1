@@ -21,6 +21,7 @@ interface GameInfoProps {
   disabled: boolean
   startBackgroundMusic: () => void
   currentMusic: { name: string; path: string } | null
+  godMode: boolean
 }
 
 export const GameInfo: React.FC<GameInfoProps> = ({
@@ -41,7 +42,8 @@ export const GameInfo: React.FC<GameInfoProps> = ({
   onToggle,
   disabled,
   startBackgroundMusic,
-  currentMusic
+  currentMusic,
+  godMode
 }) => {
   const [isChanging, setIsChanging] = useState(false)
 
@@ -131,18 +133,22 @@ export const GameInfo: React.FC<GameInfoProps> = ({
         </button>
         {!isFirstGame && gameStatus === 'playing' && (
           <>
-            <select
-              className="game-type-select"
-              value={gameType}
-              onChange={(e) => onGameTypeChange(e.target.value as GameType)}
-              disabled={isAnimating}
-            >
-              {gameTypes.map((type) => (
-                <option key={type} value={type}>
-                  {getGameTypeName(type)}
-                </option>
-              ))}
-            </select>
+            {godMode && (
+              <select
+                className="game-type-select"
+                value={gameType}
+                onChange={(e) => onGameTypeChange(e.target.value as GameType)}
+                disabled={isAnimating}
+              >
+                <option value="disvariable">经典模式</option>
+                <option value="downfalling">向下掉落</option>
+                <option value="upfalling">向上浮动</option>
+                <option value="leftrightsplit">左右分裂</option>
+                <option value="updownsplit">上下分裂</option>
+                <option value="clockwise">顺时针旋转</option>
+                <option value="counterclockwise">逆时针旋转</option>
+              </select>
+            )}
             <button
               className="shuffle-button"
               onClick={onShuffle}

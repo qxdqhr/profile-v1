@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScoreRecord, GameType } from '../types';
+import { ScoreRecord, GameType, GameSettings } from '../types';
 
 interface SettingsAndScoresProps {
     gameType: GameType;
@@ -8,15 +8,11 @@ interface SettingsAndScoresProps {
     typesCount: number;
     currentMusic: { name: string; path: string } | null;
     records: ScoreRecord[];
-    onSettingsChange: (settings: {
-        gameType?: GameType;
-        gridWidth?: number;
-        gridHeight?: number;
-        typesCount?: number;
-    }) => void;
+    godMode: boolean;
+    onSettingsChange: (settings: Partial<GameSettings>) => void;
     onClose: () => void;
     onClearRecords: () => void;
-    loadNewMusic: () => void;
+    loadNewMusic: () => Promise<void>;
 }
 
 const getGameTypeName = (type: string): string => {
@@ -53,6 +49,7 @@ export const SettingsAndScores: React.FC<SettingsAndScoresProps> = ({
     typesCount,
     currentMusic,
     records,
+    godMode,
     onSettingsChange,
     onClose,
     onClearRecords,
@@ -60,8 +57,14 @@ export const SettingsAndScores: React.FC<SettingsAndScoresProps> = ({
 }) => {
     const [activeTab, setActiveTab] = useState<'settings' | 'scores'>('settings');
 
+    const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.target === e.currentTarget) {
+            onClose();
+        }
+    };
+
     return (
-        <div className="settings-overlay">
+        <div className="settings-overlay" onClick={handleOverlayClick}>
             <div className="settings-panel">
                 <div className="settings-header">
                     <div className="tab-buttons">
@@ -83,20 +86,46 @@ export const SettingsAndScores: React.FC<SettingsAndScoresProps> = ({
                 <div className="settings-content">
                     {activeTab === 'settings' ? (
                         <>
-                            {/* 游戏类型选择 */}
+                            {/* 添加全能模式开关 */}
                             <div className="settings-item">
-                                <label>游戏类型</label>
-                                <select
-                                    value={gameType}
-                                    onChange={(e) => onSettingsChange({ gameType: e.target.value as GameType })}
-                                >
-                                    {gameTypes.map((type) => (
-                                        <option key={type} value={type}>
-                                            {getGameTypeName(type)}
-                                        </option>
-                                    ))}
-                                </select>
+                                <label className="settings-label">
+                                    全能模式
+                                    <div className="toggle-switch">
+                                        <input
+                                            type="checkbox"
+                                            checked={godMode}
+                                            onChange={(e) => onSettingsChange({ godMode: e.target.checked })}
+                                        />
+                                        <span className="toggle-slider"></span>
+                                    </div>
+                                </label>
+                                <p className="settings-hint">开启后可以随时切换游戏模式</p>
                             </div>
+
+                            {/* 游戏类型选择 - 只在全能模式开启时显示 */}
+                            {godMode && (
+                                <div className="settings-item">
+                                    <label>游戏类型</label>
+                                    <select
+                                        value={gameType}
+                                        onChange={(e) => onSettingsChange({ gameType: e.target.value as GameType })}
+                                    >
+                                        {gameTypes.map((type) => (
+                                            <option key={type} value={type}>
+                                                {type === 'disvariable' ? '普通模式' :
+                                                 type === 'downfalling' ? '向下掉落' :
+                                                 type === 'upfalling' ? '向上移动' :
+                                                 type === 'leftfalling' ? '向左移动' :
+                                                 type === 'rightfalling' ? '向右移动' :
+                                                 type === 'leftrightsplit' ? '左右分离' :
+                                                 type === 'updownsplit' ? '上下分离' :
+                                                 type === 'clockwise' ? '顺时针' :
+                                                 '逆时针'}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
 
                             {/* 网格尺寸设置 */}
                             <div className="settings-item grid-settings">
@@ -131,6 +160,7 @@ export const SettingsAndScores: React.FC<SettingsAndScoresProps> = ({
                                     max="50"
                                     value={typesCount}
                                     onChange={(e) => onSettingsChange({ typesCount: parseInt(e.target.value) })}
+                                    disabled={true}
                                 />
                                 <p className="settings-hint">建议设置在3-50之间</p>
                             </div>
@@ -144,7 +174,7 @@ export const SettingsAndScores: React.FC<SettingsAndScoresProps> = ({
                                     </div>
                                     <button 
                                         className="change-music-button"
-                                        onClick={loadNewMusic}
+                                        onClick={() => loadNewMusic()}
                                     >
                                         {currentMusic?.name ? '切换音乐' : '选择音乐'}
                                     </button>

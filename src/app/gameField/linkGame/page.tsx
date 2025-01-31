@@ -6,7 +6,7 @@ import { SelectionEffect, ConnectionLine } from './components/Effects'
 import { GameInfo, MusicControl } from './components/UI'
 import { Settings } from './components/Settings'
 import { canConnect, hasMatchablePairs } from './gameLogic'
-import { TYPES_COUNT, TILE_SIZE, TILE_GAP, OUTER_PADDING, Tile, GameMode, GameType } from './types'
+import { TYPES_COUNT, TILE_SIZE, TILE_GAP, OUTER_PADDING, Tile, GameMode, GameType, Level, GameSettings } from './types'
 import { useGameState } from './hooks/useGameState'
 import { useMusic } from './hooks/useMusic'
 import { useHint } from './hooks/useHint'
@@ -15,6 +15,7 @@ import { useSoundEffects } from './hooks/useSoundEffects'
 import { useScoreRecord } from './hooks/useScoreRecord'
 import { ScoreBoard } from './components/ScoreBoard'
 import { SettingsAndScores } from './components/SettingsAndScores'
+import LevelSelect from './components/LevelSelect'
 import './LinkGame.css'
 
 const LinkGame = () => {
@@ -24,6 +25,8 @@ const LinkGame = () => {
   const [gridHeight, setGridHeight] = useState(8)
   const [typesCount, setTypesCount] = useState(TYPES_COUNT)
   const [gameMode, setGameMode] = useState<GameMode>('cube')
+  const [selectedLevel, setSelectedLevel] = useState<Level | null>(null)
+  const [godMode, setGodMode] = useState(false)
   
   // 跟踪设置变化
   const settingsRef = useRef({
@@ -90,17 +93,34 @@ const LinkGame = () => {
     clearRecords
   } = useScoreRecord()
 
+  // 计算最高分
+  const highestScore = scoreRecords.reduce((max, record) => 
+    record.score > max ? record.score : max, 0)
+
+  // 处理关卡选择
+  const handleLevelSelect = (level: Level) => {
+    setSelectedLevel(level)
+    handleGameTypeChange(level.gameType)
+  }
+
+  // 返回选关界面
+  const handleBackToLevels = () => {
+    setSelectedLevel(null)
+    // 如果游戏正在进行，需要重置游戏状态
+    if (gameStatus === 'playing') {
+      handleRestart()
+    }
+  }
+
   // 更新 hintClearer
   useEffect(() => {
     setHintClearer(() => clearHint)
   }, [clearHint])
 
-  const handleSettingsChange = (settings: {
-    gameType?: GameType
-    gridWidth?: number
-    gridHeight?: number
-    typesCount?: number
-  }) => {
+  const handleSettingsChange = (settings: Partial<GameSettings>) => {
+    if (settings.godMode !== undefined) {
+      setGodMode(settings.godMode)
+    }
     if (settings.gameType !== undefined) {
       handleGameTypeChange(settings.gameType)
     }
@@ -235,76 +255,99 @@ const LinkGame = () => {
 
   return (
     <div className="linkGame-container">
-      <div className="game-header">
-        <GameInfo 
-          score={score} 
-          timeLeft={timeLeft}
-          gameStatus={gameStatus}
-          isFirstGame={isFirstGame}
-          gameType={gameType}
-          onRestart={handleRestart} 
-          onHint={handleHint}
-          onGameTypeChange={handleGameTypeChange}
-          isAnimating={isAnimating}
-          onSettingsClick={() => setShowSettingsAndScores(true)}
-          onShuffle={handleShuffle}
-          shuffleCount={shuffleCount}
-          noMatchesFound={noMatchesFound}
-          isMusicPlaying={isMusicPlaying} 
-          onToggle={toggleMusic} 
-          disabled={!isMusicLoaded}
-          startBackgroundMusic={startBackgroundMusic}
-          currentMusic={currentMusic}
-        />
-      </div>
-      
-      {showSettingsAndScores && (
-        <SettingsAndScores
-          gameType={gameType}
-          gridWidth={gridWidth}
-          gridHeight={gridHeight}
-          typesCount={typesCount}
-          currentMusic={currentMusic}
-          records={scoreRecords}
-          onSettingsChange={handleSettingsChange}
-          onClose={() => setShowSettingsAndScores(false)}
-          onClearRecords={clearRecords}
-          loadNewMusic={loadNewMusic}
-        />
-      )}
-      
-      {!isFirstGame && (
-        <div className="game-stage-container">
-          <Stage
-            width={(gridWidth + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
-            height={(gridHeight + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
-            options={{ backgroundColor: 0x000000, backgroundAlpha: 0 }}
-          >
-            <Container x={OUTER_PADDING * (TILE_SIZE + TILE_GAP)} y={OUTER_PADDING * (TILE_SIZE + TILE_GAP)}>
-              {connectionPath.length > 0 && <ConnectionLine path={connectionPath} gameMode={gameMode} gameType={gameType} />}
-              
-              {tiles.map((tile) => {
-                const isHighlighted = tile.isSelected || (hintTiles && (hintTiles[0].id === tile.id || hintTiles[1].id === tile.id));
-                
-                return (
-                  <Container key={tile.id} x={tile.x} y={tile.y}>
-                    <CubeTile
-                      tile={tile}
-                      onTileClick={handleTileClick}
-                    />
-                    {isHighlighted && (
-                      <SelectionEffect 
-                        gameMode={gameMode}
-                        gameType={gameType}
-                        isHint={hintTiles?.some(t => t.id === tile.id)}
-                      />
-                    )}
-                  </Container>
-                );
-              })}
-            </Container>
-          </Stage>
+      {!selectedLevel ? (
+        // 显示关卡选择界面
+        <div className="game-header">
+          <LevelSelect 
+            onSelectLevel={handleLevelSelect}
+          />
         </div>
+      ) : (
+        // 显示游戏界面
+        <>
+          <div className="game-header">
+            <div className="level-nav">
+              <button 
+                onClick={handleBackToLevels}
+                className="back-button"
+              >
+                返回选关
+              </button>
+              <h3 className="level-title">{selectedLevel.name}</h3>
+            </div>
+            <GameInfo 
+              score={score} 
+              timeLeft={timeLeft}
+              gameStatus={gameStatus}
+              isFirstGame={isFirstGame}
+              gameType={gameType}
+              onRestart={handleRestart} 
+              onHint={handleHint}
+              onGameTypeChange={handleGameTypeChange}
+              isAnimating={isAnimating}
+              onSettingsClick={() => setShowSettingsAndScores(true)}
+              onShuffle={handleShuffle}
+              shuffleCount={shuffleCount}
+              noMatchesFound={noMatchesFound}
+              isMusicPlaying={isMusicPlaying} 
+              onToggle={toggleMusic} 
+              disabled={!isMusicLoaded}
+              startBackgroundMusic={startBackgroundMusic}
+              currentMusic={currentMusic}
+              godMode={godMode}
+            />
+          </div>
+          
+          {showSettingsAndScores && (
+            <SettingsAndScores
+              gameType={gameType}
+              gridWidth={gridWidth}
+              gridHeight={gridHeight}
+              typesCount={typesCount}
+              currentMusic={currentMusic}
+              records={scoreRecords}
+              onSettingsChange={handleSettingsChange}
+              onClose={() => setShowSettingsAndScores(false)}
+              onClearRecords={clearRecords}
+              loadNewMusic={loadNewMusic}
+              godMode={godMode}
+            />
+          )}
+          
+          {!isFirstGame && (
+            <div className="game-stage-container">
+              <Stage
+                width={(gridWidth + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
+                height={(gridHeight + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
+                options={{ backgroundColor: 0x000000, backgroundAlpha: 0 }}
+              >
+                <Container x={OUTER_PADDING * (TILE_SIZE + TILE_GAP)} y={OUTER_PADDING * (TILE_SIZE + TILE_GAP)}>
+                  {connectionPath.length > 0 && <ConnectionLine path={connectionPath} gameMode={gameMode} gameType={gameType} />}
+                  
+                  {tiles.map((tile) => {
+                    const isHighlighted = tile.isSelected || (hintTiles && (hintTiles[0].id === tile.id || hintTiles[1].id === tile.id));
+                    
+                    return (
+                      <Container key={tile.id} x={tile.x} y={tile.y}>
+                        <CubeTile
+                          tile={tile}
+                          onTileClick={handleTileClick}
+                        />
+                        {isHighlighted && (
+                          <SelectionEffect 
+                            gameMode={gameMode}
+                            gameType={gameType}
+                            isHint={hintTiles?.some(t => t.id === tile.id)}
+                          />
+                        )}
+                      </Container>
+                    );
+                  })}
+                </Container>
+              </Stage>
+            </div>
+          )}
+        </>
       )}
     </div>
   )

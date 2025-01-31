@@ -42,7 +42,7 @@ export const TILE_GAP = typeof window !== 'undefined'
       : 10  // 桌面端
   : 10
 
-export const TYPES_COUNT = 30
+export const TYPES_COUNT = 15
 export const OUTER_PADDING = typeof window !== 'undefined' && window.innerWidth < 768 ? 0 : 1
 export const GAME_DURATION = 300 // 游戏时长（秒）
 
@@ -69,4 +69,66 @@ export interface ScoreRecord {
     gameType: GameType;
     gridSize: string;
     duration: number;
+}
+
+export interface Level {
+  id: number
+  name: string
+  gameType: GameType
+  description: string
+}
+
+// 修改关卡配置，移除锁定相关属性
+export const GAME_LEVELS: Level[] = [
+  {
+    id: 1,
+    name: "经典模式",
+    gameType: "disvariable",
+    description: "经典连连看玩法，方块保持不动"
+  },
+  {
+    id: 2,
+    name: "向下掉落",
+    gameType: "downfalling",
+    description: "消除后方块会向下掉落"
+  },
+  {
+    id: 3,
+    name: "向上浮动",
+    gameType: "upfalling",
+    description: "消除后方块会向上浮动"
+  },
+  {
+    id: 4,
+    name: "左右分裂",
+    gameType: "leftrightsplit",
+    description: "消除后方块会向两侧分裂"
+  },
+  {
+    id: 5,
+    name: "上下分裂",
+    gameType: "updownsplit",
+    description: "消除后方块会向上下分裂"
+  },
+  {
+    id: 6,
+    name: "顺时针旋转",
+    gameType: "clockwise",
+    description: "消除后方块会顺时针旋转"
+  },
+  {
+    id: 7,
+    name: "逆时针旋转",
+    gameType: "counterclockwise",
+    description: "消除后方块会逆时针旋转"
+  }
+]
+
+// 添加设置接口
+export interface GameSettings {
+  gameType: GameType
+  gridWidth: number
+  gridHeight: number
+  typesCount: number
+  godMode: boolean  // 添加全能模式设置
 } 

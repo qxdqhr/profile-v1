@@ -851,3 +851,148 @@
     padding: 16px 20px;
     border-bottom: 1px solid #eee;
 }
+
+/* 关卡选择界面样式 */
+.level-select-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .level-select-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.level-card {
+  position: relative;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 2px solid #3B82F6;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.level-card:hover {
+  border-color: #2563EB;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.level-card-title {
+  font-size: 1.125rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.level-card-description {
+  font-size: 0.875rem;
+  color: #4B5563;
+}
+
+/* 选关界面标题 */
+.level-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+/* 返回按钮和关卡标题容器 */
+.level-nav {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+/* 返回按钮样式 */
+.back-button {
+  padding: 0.5rem 1rem;
+  background-color: #3B82F6;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.back-button:hover {
+  background-color: #2563EB;
+}
+
+/* 关卡标题 */
+.level-title {
+  margin-left: 1rem;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+/* 开关按钮样式 */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+  margin-left: 10px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 24px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: #4CAF50;
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(26px);
+}
+
+.settings-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+/* 音乐按钮样式 */
+.game-controls .music-button {
+  background-color: #8B0000 !important;  /* 深酒红色 */
+}
+
+.game-controls .music-button:hover:not(:disabled) {
+  background-color: #660000 !important;  /* 鼠标悬停时的深红色 */
+}
+
+.game-controls .music-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
