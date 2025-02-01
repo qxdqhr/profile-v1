@@ -164,7 +164,7 @@ const LinkGame = () => {
       gameType,
       gridWidth,
       gridHeight,
-      typesCount
+      typesCount,
     }
     setShowSettingsAndScores(true)
   }
