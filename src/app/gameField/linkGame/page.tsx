@@ -172,7 +172,8 @@ const LinkGame = () => {
   const handleTileClick = (tile: Tile) => {
     if (gameStatus !== 'playing') return
     
-    
+    // 播放点击音效 - 移到最前面，确保最快响应
+    playClickSound()
     
     // 处理第一次点击
     handleFirstClick();
@@ -183,8 +184,6 @@ const LinkGame = () => {
     if (selectedTile === null) {
       // 选中第一个方块
       setSelectedTile(tile);
-      // 播放点击音效
-      playClickSound()
       const newTiles = tiles.map(t => 
         t.id === tile.id ? { ...t, isSelected: true } : t
       );
