@@ -16,8 +16,8 @@ const MUSIC_LIST = [
 
 // 预定义音效列表
 const SOUND_EFFECTS = {
-  click: '/linkGame/sound/click.mp3',
-  match: '/linkGame/sound/match.mp3'
+  click: '/linkGame/sounds/click.mp3',
+  match: '/linkGame/sounds/match.mp3'
 }
 
 export const useResourcePreload = () => {
