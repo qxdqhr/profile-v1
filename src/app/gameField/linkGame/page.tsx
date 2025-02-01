@@ -172,6 +172,9 @@ const LinkGame = () => {
   const handleTileClick = (tile: Tile) => {
     if (gameStatus !== 'playing') return
     
+    // 播放点击音效 - 移到最前面，确保最快响应
+    playClickSound()
+    
     // 处理第一次点击
     handleFirstClick();
 
@@ -179,9 +182,6 @@ const LinkGame = () => {
     clearHint()
     
     if (selectedTile === null) {
-      // 选中第一个方块时播放点击音效
-      playClickSound()
-      
       // 选中第一个方块
       setSelectedTile(tile);
       const newTiles = tiles.map(t => 
@@ -190,9 +190,6 @@ const LinkGame = () => {
       setTiles(newTiles);
     } else {
       if (selectedTile.id === tile.id) {
-        // 点击同一个方块时播放点击音效
-        playClickSound()
-        
         setTiles(tiles.map(t => ({
           ...t,
           isSelected: false
@@ -202,7 +199,7 @@ const LinkGame = () => {
       } else {
         const result = canConnect(selectedTile, tile, tiles)
         if (tile.type === selectedTile.type && result.canConnect) {
-          // 匹配成功时只播放匹配音效
+          // 播放匹配成功音效
           playMatchSound()
           
           setTiles(tiles.map(t => ({
@@ -218,9 +215,6 @@ const LinkGame = () => {
             setConnectionPath([])
           }, 300)
         } else {
-          // 选择不同方块但未匹配时播放点击音效
-          playClickSound()
-          
           setTiles(tiles.map(t => ({
             ...t,
             isSelected: t.id === tile.id
