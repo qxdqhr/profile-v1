@@ -230,22 +230,33 @@ const LinkGame = () => {
     if (!isFirstGame && gameStatus === 'playing' && tiles.length > 0) {
       // 检查是否全部匹配完成
       if (tiles.every(tile => tile.isMatched)) {
+        // 先停止计时器
+        stopTimer()
         // 计算最终得分：基础分数 + 剩余时间加分（每秒2分）
-        const timeBonus = timeLeft * 2;
-        const finalScore = score + timeBonus;
+        const timeBonus = timeLeft * 2
+        const finalScore = score + timeBonus
         // 添加得分记录
         addScoreRecord(finalScore, gameType, gridWidth, gridHeight, timeLeft)
         setGameStatus('success')
-        stopTimer() // 停止计时器
         setScore(finalScore) // 更新显示的分数
         return // 提前返回，不再检查其他状态
       } 
+      // 检查是否时间耗尽
+      else if (timeLeft <= 0) {
+        stopTimer()
+        setGameStatus('failed')
+        return
+      }
       // 只有在游戏未完成时才检查是否还有可配对的方块
       else if (!hasMatchablePairs(tiles)) {
         setNoMatchesFound(true)
         // 如果还有洗牌次数，自动洗牌
         if (shuffleCount < 3) {
           handleShuffle()
+        } else {
+          // 如果没有洗牌次数且无法配对，游戏结束
+          stopTimer()
+          setGameStatus('failed')
         }
       }
     }
