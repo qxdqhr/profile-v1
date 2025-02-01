@@ -1036,3 +1036,61 @@ input:checked + .toggle-slider:before {
 .settings-hint.clickable:active {
   /* transform: scale(0.98); */
 }
+
+/* 加载界面样式 */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 1000;
+}
+
+.loading-progress {
+  text-align: center;
+}
+
+.loading-bar {
+  width: 200px;
+  height: 6px;
+  background-color: #eee;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.loading-bar-fill {
+  height: 100%;
+  background-color: #4CAF50;
+  transition: width 0.3s ease;
+}
+
+.loading-text {
+  color: #333;
+  font-size: 14px;
+}
+
+.loading-error {
+  color: #ff4444;
+  text-align: center;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .loading-bar {
+    width: 150px;
+  }
+
+  .loading-text {
+    font-size: 12px;
+  }
+}

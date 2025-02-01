@@ -15,6 +15,7 @@ import { useScoreRecord } from './hooks/useScoreRecord'
 import { SettingsAndScores } from './components/SettingsAndScores'
 import LevelSelect from './components/LevelSelect'
 import './LinkGame.css'
+import { useResourcePreload } from './hooks/useResourcePreload'
 
 const LinkGame = () => {
   const [hintClearer, setHintClearer] = useState<() => void>(() => () => {})
@@ -261,6 +262,35 @@ const LinkGame = () => {
       }
     }
   }, [tiles, gameStatus, isFirstGame, score, gameType, gridWidth, gridHeight, timeLeft, addScoreRecord, shuffleCount, handleShuffle, stopTimer, setGameStatus, setNoMatchesFound])
+
+  const { isLoading, progress, error } = useResourcePreload()
+
+  // 如果正在加载或出错，显示加载界面
+  if (isLoading || error) {
+    return (
+      <div className="linkGame-container">
+        <div className="loading-screen">
+          {error ? (
+            <div className="loading-error">{error}</div>
+          ) : (
+            <>
+              <div className="loading-progress">
+                <div className="loading-bar">
+                  <div 
+                    className="loading-bar-fill" 
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+                <div className="loading-text">
+                  资源加载中 {Math.round(progress)}%
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="linkGame-container">
