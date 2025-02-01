@@ -14,6 +14,12 @@ const MUSIC_LIST = [
   // ... 其他音乐
 ]
 
+// 预定义音效列表
+const SOUND_EFFECTS = {
+  click: '/linkGame/sound/click.mp3',
+  match: '/linkGame/sound/match.mp3'
+}
+
 export const useResourcePreload = () => {
   const [status, setStatus] = useState<PreloadStatus>({
     isLoading: true,
@@ -24,8 +30,8 @@ export const useResourcePreload = () => {
   useEffect(() => {
     const preloadResources = async () => {
       try {
-        // 计算需要加载的总资源数
-        const totalResources = TYPES_COUNT + 1 // 暂时只加载图片资源
+        // 计算需要加载的总资源数（图片 + 背景图 + 音效）
+        const totalResources = TYPES_COUNT + 1 + Object.keys(SOUND_EFFECTS).length
         let loadedResources = 0
 
         const updateProgress = () => {
@@ -66,6 +72,30 @@ export const useResourcePreload = () => {
           await Promise.all(imageLoadPromises)
         } catch (error) {
           throw new Error('方块图片加载失败: ' + error)
+        }
+
+        // 预加载音效（必须加载完成）
+        try {
+          const soundEffectPromises = Object.values(SOUND_EFFECTS).map(path => {
+            return new Promise((resolve, reject) => {
+              const audio = new Audio()
+              audio.preload = 'auto'
+              
+              audio.addEventListener('canplaythrough', () => {
+                updateProgress()
+                resolve(null)
+              }, { once: true })
+              
+              audio.addEventListener('error', () => reject(`音效 ${path} 加载失败`))
+              
+              audio.src = path
+              audio.load()
+            })
+          })
+
+          await Promise.all(soundEffectPromises)
+        } catch (error) {
+          throw new Error('音效加载失败: ' + error)
         }
 
         // 音乐预加载（可选，不影响游戏开始）

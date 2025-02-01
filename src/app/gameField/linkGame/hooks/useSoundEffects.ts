@@ -1,38 +1,35 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 
 export const useSoundEffects = () => {
     const clickSoundRef = useRef<HTMLAudioElement | null>(null);
     const matchSoundRef = useRef<HTMLAudioElement | null>(null);
 
     useEffect(() => {
-        clickSoundRef.current = new Audio('/linkGame/sounds/click.mp3');
-        matchSoundRef.current = new Audio('/linkGame/sounds/match.mp3');
-
-        return () => {
-            if (clickSoundRef.current) {
-                clickSoundRef.current = null;
+        if (typeof window !== 'undefined') {
+            if (!clickSoundRef.current) {
+                clickSoundRef.current = new window.Audio('/linkGame/sound/click.mp3');
+                clickSoundRef.current.preload = 'auto';
             }
-            if (matchSoundRef.current) {
-                matchSoundRef.current = null;
+            if (!matchSoundRef.current) {
+                matchSoundRef.current = new window.Audio('/linkGame/sound/match.mp3');
+                matchSoundRef.current.preload = 'auto';
             }
-        };
+        }
     }, []);
 
     const playClickSound = useCallback(() => {
         if (clickSoundRef.current) {
-            clickSoundRef.current.currentTime = 0;
-            clickSoundRef.current.play().catch(() => {
-                // 忽略用户未进行交互时的自动播放错误
-            });
+            const sound = clickSoundRef.current.cloneNode() as HTMLAudioElement;
+            sound.volume = 0.6;
+            sound.play().catch(console.error);
         }
     }, []);
 
     const playMatchSound = useCallback(() => {
         if (matchSoundRef.current) {
-            matchSoundRef.current.currentTime = 0;
-            matchSoundRef.current.play().catch(() => {
-                // 忽略用户未进行交互时的自动播放错误
-            });
+            const sound = matchSoundRef.current.cloneNode() as HTMLAudioElement;
+            sound.volume = 0.6;
+            sound.play().catch(console.error);
         }
     }, []);
 
