@@ -7,11 +7,11 @@ export const useSoundEffects = () => {
     useEffect(() => {
         if (typeof window !== 'undefined') {
             if (!clickSoundRef.current) {
-                clickSoundRef.current = new window.Audio('/linkGame/sound/click.mp3');
+                clickSoundRef.current = new window.Audio('/linkGame/sounds/click.mp3');
                 clickSoundRef.current.preload = 'auto';
             }
             if (!matchSoundRef.current) {
-                matchSoundRef.current = new window.Audio('/linkGame/sound/match.mp3');
+                matchSoundRef.current = new window.Audio('/linkGame/sounds/match.mp3');
                 matchSoundRef.current.preload = 'auto';
             }
         }
