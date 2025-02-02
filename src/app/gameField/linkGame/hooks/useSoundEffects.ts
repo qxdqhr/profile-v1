@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 
 const SOUND_EFFECTS = {
     click: '/linkGame/sounds/click.mp3',
@@ -8,16 +8,31 @@ const SOUND_EFFECTS = {
 export const useSoundEffects = () => {
     const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
 
-    // 初始化音效
-    if (Object.keys(audioRefs.current).length === 0) {
-        Object.entries(SOUND_EFFECTS).forEach(([key, path]) => {
-            const audio = new Audio(path);
-            audio.preload = 'auto';
-            audioRefs.current[key] = audio;
-        });
-    }
+    // 将初始化移到 useEffect 中，确保在浏览器环境下执行
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        // 初始化音效
+        if (Object.keys(audioRefs.current).length === 0) {
+            Object.entries(SOUND_EFFECTS).forEach(([key, path]) => {
+                const audio = new Audio(path);
+                audio.preload = 'auto';
+                audioRefs.current[key] = audio;
+            });
+        }
+
+        // 清理函数
+        return () => {
+            Object.values(audioRefs.current).forEach(audio => {
+                audio.pause();
+                audio.src = '';
+            });
+        };
+    }, []);
 
     const playSound = useCallback(async (soundKey: keyof typeof SOUND_EFFECTS) => {
+        if (typeof window === 'undefined') return;
+        
         try {
             const audio = audioRefs.current[soundKey];
             if (!audio) return;
