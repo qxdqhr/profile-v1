@@ -31,7 +31,7 @@ export const useResourcePreload = () => {
     const preloadResources = async () => {
       try {
         // 计算需要加载的总资源数（图片 + 背景图 + 音效）
-        const totalResources = TYPES_COUNT + 1 + Object.keys(SOUND_EFFECTS).length
+        const totalResources = TYPES_COUNT + 1 + Object.keys(SOUND_EFFECTS).length + MUSIC_LIST.length
         let loadedResources = 0
 
         const updateProgress = () => {
@@ -98,16 +98,28 @@ export const useResourcePreload = () => {
           throw new Error('音效加载失败: ' + error)
         }
 
-        // 音乐预加载（可选，不影响游戏开始）
+        // 音乐预加载（必须加载完成）
         try {
-          MUSIC_LIST.forEach(music => {
-            const audio = new Audio()
-            audio.preload = 'auto'
-            audio.src = music.path
-            audio.load()
+          const musicLoadPromises = MUSIC_LIST.map(music => {
+            return new Promise((resolve, reject) => {
+              const audio = new Audio()
+              audio.preload = 'auto'
+              
+              audio.addEventListener('canplaythrough', () => {
+                updateProgress()
+                resolve(null)
+              }, { once: true })
+              
+              audio.addEventListener('error', () => reject(`音乐 ${music.name} 加载失败`))
+              
+              audio.src = music.path
+              audio.load()
+            })
           })
+
+          await Promise.all(musicLoadPromises)
         } catch (error) {
-          console.warn('音乐预加载失败，但不影响游戏进行:', error)
+          throw new Error('音乐加载失败: ' + error)
         }
 
         setStatus({
