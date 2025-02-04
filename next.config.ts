@@ -5,6 +5,7 @@ const nextConfig = {
   },
   // 如果需要支持 CSS 模块
   cssModules: true,
+  output: "standalone",
 };
 
 export default nextConfig;

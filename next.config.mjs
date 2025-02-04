@@ -4,6 +4,7 @@ const nextConfig = {
     domains: [],
   },
   reactStrictMode: true,
+  output: "standalone",
 };
 
 export default nextConfig; 
