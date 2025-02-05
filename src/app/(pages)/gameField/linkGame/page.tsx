@@ -282,7 +282,7 @@ const LinkGame = () => {
                   />
                 </div>
                 <div className="loading-text">
-                  资源加载中 {current} {Math.round(progress)}%
+                  资源加载中 {current} 111 {Math.round(progress)}%
                 </div>
               </div>
             </>
