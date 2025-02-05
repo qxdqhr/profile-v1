@@ -121,24 +121,24 @@ export const useResourcePreload = () => {
         }
 
         // 预加载音效（必须加载完成）
-        // try {
-        //   const soundEffectPromises = Object.values(SOUND_EFFECTS).map(path => loadAudio(path));
-        //   await Promise.all(soundEffectPromises);
-        //   updateProgress();
-        // } catch (error) {
-        //   console.warn('音效加载异常:', error);
-        //   // 继续执行，不抛出错误
-        // }
+        try {
+          const soundEffectPromises = Object.values(SOUND_EFFECTS).map(path => loadAudio(path));
+          await Promise.all(soundEffectPromises);
+          updateProgress();
+        } catch (error) {
+          console.warn('音效加载异常:', error);
+          // 继续执行，不抛出错误
+        }
 
-        // // 音乐预加载（必须加载完成）
-        // try {
-        //   const musicLoadPromises = MUSIC_LIST.map(music => loadAudio(music.path));
-        //   await Promise.all(musicLoadPromises);
-        //   updateProgress();
-        // } catch (error) {
-        //   console.warn('音乐加载异常:', error);
-        //   // 继续执行，不抛出错误
-        // }
+        // 音乐预加载（必须加载完成）
+        try {
+          const musicLoadPromises = MUSIC_LIST.map(music => loadAudio(music.path));
+          await Promise.all(musicLoadPromises);
+          updateProgress();
+        } catch (error) {
+          console.warn('音乐加载异常:', error);
+          // 继续执行，不抛出错误
+        }
 
         setStatus({
           isLoading: false,

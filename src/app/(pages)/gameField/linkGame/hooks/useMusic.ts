@@ -5,12 +5,7 @@ const MUSIC_LIST = [
   {
     path: '/linkGame/mp3/ShakeIt!-Miku.mp3',
     name: 'Shake It!'
-  },
-  {
-    path: '/linkGame/mp3/歌に形はないけれど.mp3',
-    name: '歌に形はないけれど'
-  },
-  // 在这里添加更多音乐...
+  }
 ]
 
 export const useMusic = () => {
