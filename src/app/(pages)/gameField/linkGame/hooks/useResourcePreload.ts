@@ -9,7 +9,6 @@ interface PreloadStatus {
 
 // 预定义音乐列表
 const MUSIC_LIST = [
-  { name: 'utanikatachinaikedo', path: '/linkGame/mp3/utanikatachinaikedo.mp3' },
   { name: 'ShakeIt!-Miku', path: '/linkGame/mp3/ShakeIt!-Miku.mp3' },
   // ... 其他音乐
 ]
