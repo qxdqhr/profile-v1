@@ -263,8 +263,7 @@ const LinkGame = () => {
     }
   }, [tiles, gameStatus, isFirstGame, score, gameType, gridWidth, gridHeight, timeLeft, addScoreRecord, shuffleCount, handleShuffle, stopTimer, setGameStatus, setNoMatchesFound])
 
-  const { isLoading, progress, error, current } = useResourcePreload()
-  console.log('current', current)
+  const { isLoading, progress, error } = useResourcePreload()
   // 如果正在加载或出错，显示加载界面
   if (isLoading || error) {
     return (
@@ -282,7 +281,7 @@ const LinkGame = () => {
                   />
                 </div>
                 <div className="loading-text">
-                  资源加载中 {current} 资源加载中 {Math.round(progress)}% 资源加载中
+                  资源加载中 {Math.round(progress)}% 
                 </div>
               </div>
             </>
