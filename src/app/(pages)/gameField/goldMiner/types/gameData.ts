@@ -1,3 +1,4 @@
+
 export interface LevelConfig {
   id: number
   targetScore: number
