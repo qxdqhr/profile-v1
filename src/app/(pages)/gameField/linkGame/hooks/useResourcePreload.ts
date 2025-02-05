@@ -87,7 +87,7 @@ export const useResourcePreload = () => {
           setStatus(prev => ({
             ...prev,
             progress: (loadedResources / totalResources) * 100,
-            current: `${loadedResources}/${totalResources}`
+            current: `aaa${loadedResources}/${totalResources}`
           }))
         }
 
@@ -146,8 +146,8 @@ export const useResourcePreload = () => {
         setStatus({
           isLoading: false,
           progress: 100,
-          current: `${totalResources}/${totalResources}`,
-          error: "null"
+          error: null,
+          current: `bbb${totalResources}/${totalResources}`,
         })
       } catch (error) {
         console.error('资源加载错误:', error)
