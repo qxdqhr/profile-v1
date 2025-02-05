@@ -21,7 +21,15 @@ COPY . .
 
 # 确保在这里重新生成 Prisma Client
 RUN npx prisma generate
-RUN npm install -g pnpm && pnpm install && pnpm run build
+
+# 安装 pnpm
+RUN npm install -g pnpm
+
+# 安装依赖
+RUN pnpm install --frozen-lockfile
+
+# 构建应用
+RUN pnpm run build || (cat /app/.next/error.log && exit 1)
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
