@@ -5,6 +5,7 @@ interface PreloadStatus {
   isLoading: boolean
   progress: number
   error: string | null
+  current: string | null
 }
 
 // 预定义音乐列表
@@ -70,7 +71,8 @@ export const useResourcePreload = () => {
   const [status, setStatus] = useState<PreloadStatus>({
     isLoading: true,
     progress: 0,
-    error: null
+    error: null,
+    current: null
   })
 
   useEffect(() => {
@@ -84,7 +86,8 @@ export const useResourcePreload = () => {
           loadedResources++
           setStatus(prev => ({
             ...prev,
-            progress: (loadedResources / totalResources) * 100
+            progress: (loadedResources / totalResources) * 100,
+            current: `${loadedResources}/${totalResources}`
           }))
         }
 
@@ -143,6 +146,7 @@ export const useResourcePreload = () => {
         setStatus({
           isLoading: false,
           progress: 100,
+          current: `${totalResources}/${totalResources}`,
           error: null
         })
       } catch (error) {
@@ -150,7 +154,8 @@ export const useResourcePreload = () => {
         setStatus({
           isLoading: false,
           progress: 0,
-          error: error instanceof Error ? error.message : '资源加载失败，请刷新页面重试'
+          error: error instanceof Error ? error.message : '资源加载失败，请刷新页面重试',
+          current: null
         })
       }
     }
