@@ -19,6 +19,53 @@ const SOUND_EFFECTS = {
   match: '/linkGame/sounds/match.mp3'
 }
 
+// 修改音频加载逻辑
+const loadAudio = (src: string) => {
+  
+  console.log('当前环境:', {
+    isWechat: /MicroMessenger/i.test(navigator.userAgent),
+    userAgent: navigator.userAgent
+  });
+
+  return new Promise((resolve, reject) => {
+    const audio = new Audio();
+    audio.preload = 'auto';
+    
+    // 添加超时处理
+    const timeout = setTimeout(() => {
+      console.log(`音频加载超时: ${src}`);
+      resolve(null); // 超时后也继续进行，不阻塞整体加载
+    }, 5000);
+    
+    // 微信环境特殊处理
+    const isWechat = /MicroMessenger/i.test(navigator.userAgent);
+    if (isWechat) {
+      // 微信环境下直接跳过等待 canplaythrough
+      audio.src = src;
+      audio.load();
+      setTimeout(() => {
+        clearTimeout(timeout);
+        resolve(null);
+      }, 100);
+      return;
+    }
+    
+    audio.addEventListener('canplaythrough', () => {
+      clearTimeout(timeout);
+      resolve(null);
+    }, { once: true });
+    
+    audio.addEventListener('error', () => {
+      clearTimeout(timeout);
+      console.error(`音频加载失败: ${src}`);
+      resolve(null); // 失败后也继续进行
+    });
+    
+    audio.src = src;
+    audio.load();
+  });
+};
+
 export const useResourcePreload = () => {
   const [status, setStatus] = useState<PreloadStatus>({
     isLoading: true,
@@ -75,50 +122,22 @@ export const useResourcePreload = () => {
 
         // 预加载音效（必须加载完成）
         try {
-          const soundEffectPromises = Object.values(SOUND_EFFECTS).map(path => {
-            return new Promise((resolve, reject) => {
-              const audio = new Audio()
-              audio.preload = 'auto'
-              
-              audio.addEventListener('canplaythrough', () => {
-                updateProgress()
-                resolve(null)
-              }, { once: true })
-              
-              audio.addEventListener('error', () => reject(`音效 ${path} 加载失败`))
-              
-              audio.src = path
-              audio.load()
-            })
-          })
-
-          await Promise.all(soundEffectPromises)
+          const soundEffectPromises = Object.values(SOUND_EFFECTS).map(path => loadAudio(path));
+          await Promise.all(soundEffectPromises);
+          updateProgress();
         } catch (error) {
-          throw new Error('音效加载失败: ' + error)
+          console.warn('音效加载异常:', error);
+          // 继续执行，不抛出错误
         }
 
         // 音乐预加载（必须加载完成）
         try {
-          const musicLoadPromises = MUSIC_LIST.map(music => {
-            return new Promise((resolve, reject) => {
-              const audio = new Audio()
-              audio.preload = 'auto'
-              
-              audio.addEventListener('canplaythrough', () => {
-                updateProgress()
-                resolve(null)
-              }, { once: true })
-              
-              audio.addEventListener('error', () => reject(`音乐 ${music.name} 加载失败`))
-              
-              audio.src = music.path
-              audio.load()
-            })
-          })
-
-          await Promise.all(musicLoadPromises)
+          const musicLoadPromises = MUSIC_LIST.map(music => loadAudio(music.path));
+          await Promise.all(musicLoadPromises);
+          updateProgress();
         } catch (error) {
-          throw new Error('音乐加载失败: ' + error)
+          console.warn('音乐加载异常:', error);
+          // 继续执行，不抛出错误
         }
 
         setStatus({
