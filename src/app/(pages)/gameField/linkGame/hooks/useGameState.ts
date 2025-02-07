@@ -20,7 +20,7 @@ export const useGameState = (
     const [isFirstClick, setIsFirstClick] = useState(true)
     const [noMatchesFound, setNoMatchesFound] = useState(false)
     const [shuffleCount, setShuffleCount] = useState(0) // 已使用的洗牌次数，初始为0
-    const [timer, setTimer] = useState<NodeJS.Timeout | null>(null)
+    const timerRef = useRef<NodeJS.Timeout | null>(null)
     const lastUpdateTimeRef = useRef<number>(0)
 
     // 初始化游戏
@@ -65,8 +65,8 @@ export const useGameState = (
 
     // 启动计时器
     const startTimer = useCallback(() => {
-        if (timer) {
-            clearInterval(timer)
+        if (timerRef.current) {
+            clearInterval(timerRef.current)
         }
         lastUpdateTimeRef.current = Date.now()
 
@@ -80,7 +80,10 @@ export const useGameState = (
                     if (time <= 1) {
                         setGameStatus('failed')
                         onGameEnd()
-                        clearInterval(newTimer)
+                        if (timerRef.current) {
+                            clearInterval(timerRef.current)
+                            timerRef.current = null
+                        }
                         return 0
                     }
                     return time - 1
@@ -88,16 +91,16 @@ export const useGameState = (
             }
         }, 100)
 
-        setTimer(newTimer)
-    }, [onGameEnd, timer])
+        timerRef.current = newTimer
+    }, [onGameEnd])
 
     // 停止计时器
     const stopTimer = useCallback(() => {
-        if (timer) {
-            clearInterval(timer);
-            setTimer(null);
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
         }
-    }, [timer]);
+    }, []);
 
     // 重新开始游戏
     const handleRestart = useCallback(() => {
@@ -160,11 +163,12 @@ export const useGameState = (
     // 在组件卸载时清理计时器
     useEffect(() => {
         return () => {
-            if (timer) {
-                clearInterval(timer);
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+                timerRef.current = null;
             }
         };
-    }, [timer]);
+    }, []);
 
     return {
         tiles,
