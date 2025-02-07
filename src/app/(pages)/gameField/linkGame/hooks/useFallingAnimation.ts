@@ -31,12 +31,16 @@ export const useFallingAnimation = (
                     let targetX = tile.x
 
                     if (gameType === 'downfalling') {
+                        // Count all blocks below that aren't matched yet
+                        const blocksBelow = prevTiles.filter(t =>
+                            t.x === tile.x &&
+                            t.y > tile.y &&
+                            !t.isMatched
+                        ).length
+                        
+                        // Calculate target Y position from the bottom
                         targetY = ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) -
-                            prevTiles.filter(t =>
-                                !t.isMatched &&
-                                t.x === tile.x &&
-                                t.y > tile.y
-                            ).length * (TILE_SIZE + TILE_GAP)
+                            blocksBelow * (TILE_SIZE + TILE_GAP)
                     } else if (gameType === 'upfalling') {
                         targetY = prevTiles.filter(t =>
                             !t.isMatched &&
@@ -197,15 +201,15 @@ export const useFallingAnimation = (
                         needsUpdate = true
                         return {
                             ...tile,
-                            y: movingUp 
-                                ? Math.max(tile.y - 2, targetY)  // 向上移动
+                            y: movingUp
+                                ? Math.max(tile.y - Math.max(4, Math.abs(tile.y - targetY) / 8), targetY)  // 向上移动，速度与距离相关
                                 : movingDown
-                                    ? Math.min(tile.y + 2, targetY)  // 向下移动
+                                    ? Math.min(tile.y + Math.max(4, Math.abs(targetY - tile.y) / 8), targetY)  // 向下移动，速度与距离相关
                                     : tile.y,  // 保持不变
                             x: movingLeft
-                                ? Math.max(tile.x - 2, targetX)  // 向左移动
+                                ? Math.max(tile.x - Math.max(4, Math.abs(tile.x - targetX) / 8), targetX)  // 向左移动，速度与距离相关
                                 : movingRight
-                                    ? Math.min(tile.x + 2, targetX)  // 向右移动
+                                    ? Math.min(tile.x + Math.max(4, Math.abs(targetX - tile.x) / 8), targetX)  // 向右移动，速度与距离相关
                                     : tile.x  // 保持不变
                         }
                     }
@@ -256,14 +260,20 @@ export const useFallingAnimation = (
         return clearAnimation
     }, [gameStatus, gameType])
 
-    // 在方块匹配后触发移动
+    // 检测方块匹配状态变化并触发移动
     useEffect(() => {
-        if ((gameType === 'downfalling' || gameType === 'upfalling' || gameType === 'leftfalling' || 
-            gameType === 'rightfalling' || gameType === 'leftrightsplit' || gameType === 'updownsplit' || 
-            gameType === 'clockwise' || gameType === 'counterclockwise') && gameStatus === 'playing') {
-            startFalling()
+        if (gameStatus === 'playing') {
+            const matchedTiles = tiles.filter(t => t.isMatched).length;
+            const hasUnmatchedTiles = tiles.some(t => !t.isMatched);
+            
+            if (matchedTiles > 0 && hasUnmatchedTiles) {
+                // 延迟一帧启动动画，确保DOM更新完成
+                requestAnimationFrame(() => {
+                    startFalling();
+                });
+            }
         }
-    }, [tiles.filter(t => t.isMatched).length])
+    }, [tiles, gameStatus]);
 
     return {
         startFalling,
