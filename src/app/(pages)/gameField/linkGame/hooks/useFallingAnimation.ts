@@ -17,10 +17,9 @@ export const useFallingAnimation = (
             lastUpdateTimeRef.current = timestamp
         }
 
-        const deltaTime = timestamp - lastUpdateTimeRef.current;
-        // 限制最小和最大帧率，确保动画平滑性
-        if (deltaTime >= 16 && deltaTime <= 32) { // 在30-60fps之间
-            lastUpdateTimeRef.current = timestamp;
+        const deltaTime = timestamp - lastUpdateTimeRef.current
+        if (deltaTime >= 16) { // 约60fps
+            lastUpdateTimeRef.current = timestamp
 
             onTilesUpdate((prevTiles: Tile[]) => {
                 let needsUpdate = false
@@ -102,44 +101,37 @@ export const useFallingAnimation = (
                         const centerX = ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2
                         const centerY = ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2
                         
-                        // 重新定义象限判断和移动方向
-                        const isInFirstQuadrant = tile.x >= centerX && tile.y <= centerY;
-                        const isInSecondQuadrant = tile.x < centerX && tile.y <= centerY;
-                        const isInThirdQuadrant = tile.x < centerX && tile.y > centerY;
-                        const isInFourthQuadrant = tile.x >= centerX && tile.y > centerY;
-
-                        if (isInFirstQuadrant) {
+                        // 判断方块在哪个象限，决定移动方向
+                        if (tile.x >= centerX && tile.y < centerY) {
                             // 第一象限：向右移动
-                            const blocksToRight = prevTiles.filter(t =>
-                                !t.isMatched &&
-                                t.y === tile.y &&
-                                t.x > tile.x
-                            ).length;
-                            targetX = ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) - blocksToRight * (TILE_SIZE + TILE_GAP);
-                        } else if (isInFourthQuadrant) {
+                            targetX = ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) -
+                                prevTiles.filter(t =>
+                                    !t.isMatched &&
+                                    t.y === tile.y &&
+                                    t.x > tile.x
+                                ).length * (TILE_SIZE + TILE_GAP)
+                        } else if (tile.x > centerX && tile.y >= centerY) {
                             // 第四象限：向下移动
-                            const blocksBelow = prevTiles.filter(t =>
-                                !t.isMatched &&
-                                t.x === tile.x &&
-                                t.y > tile.y
-                            ).length;
-                            targetY = ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) - blocksBelow * (TILE_SIZE + TILE_GAP);
-                        } else if (isInThirdQuadrant) {
+                            targetY = ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) -
+                                prevTiles.filter(t =>
+                                    !t.isMatched &&
+                                    t.x === tile.x &&
+                                    t.y > tile.y
+                                ).length * (TILE_SIZE + TILE_GAP)
+                        } else if (tile.x <= centerX && tile.y > centerY) {
                             // 第三象限：向左移动
-                            const blocksToLeft = prevTiles.filter(t =>
+                            targetX = prevTiles.filter(t =>
                                 !t.isMatched &&
                                 t.y === tile.y &&
                                 t.x < tile.x
-                            ).length;
-                            targetX = blocksToLeft * (TILE_SIZE + TILE_GAP);
-                        } else if (isInSecondQuadrant) {
+                            ).length * (TILE_SIZE + TILE_GAP)
+                        } else {
                             // 第二象限：向上移动
-                            const blocksAbove = prevTiles.filter(t =>
+                            targetY = prevTiles.filter(t =>
                                 !t.isMatched &&
                                 t.x === tile.x &&
                                 t.y < tile.y
-                            ).length;
-                            targetY = blocksAbove * (TILE_SIZE + TILE_GAP);
+                            ).length * (TILE_SIZE + TILE_GAP)
                         }
                     } else if (gameType === 'counterclockwise') {
                         // 计算中心点
@@ -182,34 +174,25 @@ export const useFallingAnimation = (
                         return tile
                     }
 
-                    const centerX = ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2;
-                    const centerY = ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2;
+                    const movingUp = gameType === 'upfalling' || 
+                        (gameType === 'updownsplit' && tile.y < ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2) ||
+                        (gameType === 'clockwise' && tile.x <= ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2 && tile.y <= ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2) ||
+                        (gameType === 'counterclockwise' && tile.x >= ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2 && tile.y < ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2)
                     
-                    // Define quadrants for both clockwise and counter-clockwise
-                    const isInFirstQuadrant = tile.x >= centerX && tile.y <= centerY;
-                    const isInSecondQuadrant = tile.x < centerX && tile.y <= centerY;
-                    const isInThirdQuadrant = tile.x < centerX && tile.y > centerY;
-                    const isInFourthQuadrant = tile.x >= centerX && tile.y > centerY;
-
-                    const movingUp = gameType === 'upfalling' ||
-                        (gameType === 'updownsplit' && tile.y < centerY) ||
-                        (gameType === 'clockwise' && isInSecondQuadrant) ||
-                        (gameType === 'counterclockwise' && isInFirstQuadrant)
+                    const movingDown = gameType === 'downfalling' || 
+                        (gameType === 'updownsplit' && tile.y >= ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2) ||
+                        (gameType === 'clockwise' && tile.x > ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2 && tile.y >= ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2) ||
+                        (gameType === 'counterclockwise' && tile.x <= ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2 && tile.y > ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2)
                     
-                    const movingDown = gameType === 'downfalling' ||
-                        (gameType === 'updownsplit' && tile.y >= centerY) ||
-                        (gameType === 'clockwise' && isInFourthQuadrant) ||
-                        (gameType === 'counterclockwise' && isInThirdQuadrant)
+                    const movingLeft = gameType === 'leftfalling' || 
+                        (gameType === 'leftrightsplit' && tile.x < ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2) ||
+                        (gameType === 'clockwise' && tile.x <= ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2 && tile.y > ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2) ||
+                        (gameType === 'counterclockwise' && tile.x <= ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2 && tile.y <= ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2)
                     
-                    const movingLeft = gameType === 'leftfalling' ||
-                        (gameType === 'leftrightsplit' && tile.x < centerX) ||
-                        (gameType === 'clockwise' && isInThirdQuadrant) ||
-                        (gameType === 'counterclockwise' && isInSecondQuadrant)
-                    
-                    const movingRight = gameType === 'rightfalling' ||
-                        (gameType === 'leftrightsplit' && tile.x >= centerX) ||
-                        (gameType === 'clockwise' && isInFirstQuadrant) ||
-                        (gameType === 'counterclockwise' && isInFourthQuadrant)
+                    const movingRight = gameType === 'rightfalling' || 
+                        (gameType === 'leftrightsplit' && tile.x >= ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2) ||
+                        (gameType === 'clockwise' && tile.x >= ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2 && tile.y <= ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2) ||
+                        (gameType === 'counterclockwise' && tile.x > ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2 && tile.y >= ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2)
                     
                     const shouldMoveVertical = movingUp ? tile.y > targetY : movingDown ? tile.y < targetY : false
                     const shouldMoveHorizontal = movingLeft ? tile.x > targetX : movingRight ? tile.x < targetX : false
@@ -219,14 +202,14 @@ export const useFallingAnimation = (
                         return {
                             ...tile,
                             y: movingUp
-                                ? Math.max(tile.y - Math.min(8, Math.max(2, Math.abs(tile.y - targetY) / 12)), targetY)  // 向上移动，限制最大和最小速度
+                                ? Math.max(tile.y - Math.max(4, Math.abs(tile.y - targetY) / 8), targetY)  // 向上移动，速度与距离相关
                                 : movingDown
-                                    ? Math.min(tile.y + Math.min(8, Math.max(2, Math.abs(targetY - tile.y) / 12)), targetY)  // 向下移动，限制最大和最小速度
+                                    ? Math.min(tile.y + Math.max(4, Math.abs(targetY - tile.y) / 8), targetY)  // 向下移动，速度与距离相关
                                     : tile.y,  // 保持不变
                             x: movingLeft
-                                ? Math.max(tile.x - Math.min(8, Math.max(2, Math.abs(tile.x - targetX) / 12)), targetX)  // 向左移动，限制最大和最小速度
+                                ? Math.max(tile.x - Math.max(4, Math.abs(tile.x - targetX) / 8), targetX)  // 向左移动，速度与距离相关
                                 : movingRight
-                                    ? Math.min(tile.x + Math.min(8, Math.max(2, Math.abs(targetX - tile.x) / 12)), targetX)  // 向右移动，限制最大和最小速度
+                                    ? Math.min(tile.x + Math.max(4, Math.abs(targetX - tile.x) / 8), targetX)  // 向右移动，速度与距离相关
                                     : tile.x  // 保持不变
                         }
                     }
@@ -280,36 +263,17 @@ export const useFallingAnimation = (
     // 检测方块匹配状态变化并触发移动
     useEffect(() => {
         if (gameStatus === 'playing') {
-            const matchedTiles = tiles.filter(t => t.isMatched);
-            const unmatchedTiles = tiles.filter(t => !t.isMatched);
+            const matchedTiles = tiles.filter(t => t.isMatched).length;
+            const hasUnmatchedTiles = tiles.some(t => !t.isMatched);
             
-            // 只有在有匹配的方块且还有未匹配方块时才触发动画
-            if (matchedTiles.length > 0 && unmatchedTiles.length > 0) {
-                // 先清除现有动画
-                if (animationFrameRef.current) {
-                    cancelAnimationFrame(animationFrameRef.current);
-                    animationFrameRef.current = null;
-                }
-                
-                // 确保所有DOM更新完成后再开始新的动画
-                setTimeout(() => {
-                    requestAnimationFrame(() => {
-                        setIsAnimating(true);
-                        startFalling();
-                    });
-                }, 16); // 等待一帧的时间
+            if (matchedTiles > 0 && hasUnmatchedTiles) {
+                // 延迟一帧启动动画，确保DOM更新完成
+                requestAnimationFrame(() => {
+                    startFalling();
+                });
             }
         }
     }, [tiles, gameStatus]);
-
-    // 在组件卸载时清理
-    useEffect(() => {
-        return () => {
-            if (animationFrameRef.current) {
-                cancelAnimationFrame(animationFrameRef.current);
-            }
-        };
-    }, []);
 
     return {
         startFalling,

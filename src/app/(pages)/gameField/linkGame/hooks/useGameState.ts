@@ -127,7 +127,7 @@ export const useGameState = (
 
     // 洗牌功能
     const handleShuffle = useCallback(() => {
-        if (gameStatus === 'playing' && !isFirstGame && !tiles.every(tile => tile.isMatched)) {
+        if (shuffleCount < 3 && gameStatus === 'playing' && !isFirstGame && !tiles.every(tile => tile.isMatched)) {
             const shuffledTiles = shuffleTiles(tiles)
             setTiles(shuffledTiles)
             setShuffleCount(prev => prev + 1)
@@ -135,7 +135,7 @@ export const useGameState = (
             setSelectedTile(null)
             setConnectionPath([])
         }
-    }, [tiles, gameStatus, isFirstGame])
+    }, [tiles, shuffleCount, gameStatus, isFirstGame])
 
     // 检查游戏状态
     useEffect(() => {
@@ -152,8 +152,10 @@ export const useGameState = (
             // 只有在游戏未完成时才检查是否还有可配对的方块
             else if (!hasMatchablePairs(tiles)) {
                 setNoMatchesFound(true)
-                // 自动洗牌
-                handleShuffle()
+                // 如果还有洗牌次数，自动洗牌
+                if (shuffleCount < 3) {
+                    handleShuffle()
+                }
             }
         }
     }, [tiles, gameStatus, isFirstGame, onGameEnd, shuffleCount, handleShuffle, stopTimer])
