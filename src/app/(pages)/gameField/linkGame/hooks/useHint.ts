@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Tile } from '../types'
 import { canConnect } from '../gameLogic'
 
@@ -11,13 +11,14 @@ export const useHint = (
   const [hintTiles, setHintTiles] = useState<[Tile, Tile] | null>(null)
   const hintTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  const clearHint = () => {
+  const clearHint =  useCallback(() => {
     if (hintTimeoutRef.current) {
       clearTimeout(hintTimeoutRef.current)
       hintTimeoutRef.current = null
     }
     setHintTiles(null)
-  }
+  },[])
+  
 
   const findHint = () => {
     // 获取所有未匹配的图块
