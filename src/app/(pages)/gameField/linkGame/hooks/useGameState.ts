@@ -139,8 +139,10 @@ export const useGameState = (
         if (!isFirstGame && gameStatus === 'playing' && tiles.length > 0) {
             // 检查是否全部匹配完成
             if (tiles.every(tile => tile.isMatched)) {
-                setGameStatus('success')
+                console.log("stopTimer2")
+
                 stopTimer() // 停止计时器
+                setGameStatus('success')
                 onGameEnd()
                 return // 提前返回，不再检查其他状态
             } 

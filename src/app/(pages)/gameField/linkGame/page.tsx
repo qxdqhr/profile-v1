@@ -231,6 +231,7 @@ const LinkGame = () => {
     if (!isFirstGame && gameStatus === 'playing' && tiles.length > 0) {
       // 检查是否全部匹配完成
       if (tiles.every(tile => tile.isMatched)) {
+        console.log("stopTimer1")
         // 先停止计时器
         stopTimer()
         // 计算最终得分：基础分数 + 剩余时间加分（每秒2分）
