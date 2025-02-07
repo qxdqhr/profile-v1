@@ -153,7 +153,7 @@ export const useGameState = (
             else if (!hasMatchablePairs(tiles)) {
                 setNoMatchesFound(true)
                 // 如果还有洗牌次数，自动洗牌
-                if (shuffleCount < 3) {
+                if (shuffleCount < 5) {
                     handleShuffle()
                 }
             }

@@ -156,9 +156,9 @@ export const GameInfo: React.FC<GameInfoProps> = ({
             <button
               className="shuffle-button"
               onClick={onShuffle}
-              disabled={gameStatus !== 'playing' || isAnimating || shuffleCount >= 3}
+              disabled={gameStatus !== 'playing' || isAnimating || shuffleCount >= 5}
             >
-              洗牌 ({3 - shuffleCount})
+              洗牌 ({5 - shuffleCount})
             </button>
             <button
               className="hint-button"
@@ -186,7 +186,7 @@ export const GameInfo: React.FC<GameInfoProps> = ({
           </>
         )}
       </div>
-      {noMatchesFound && shuffleCount >= 3 && (
+      {noMatchesFound && shuffleCount >= 5 && (
         <div className="no-matches-warning">
           没有可配对的方块了，且无洗牌次数
         </div>

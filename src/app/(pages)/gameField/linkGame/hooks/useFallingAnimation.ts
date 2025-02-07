@@ -39,7 +39,7 @@ export const useFallingAnimation = (
                         ).length
                         
                         // Calculate target Y position from the bottom
-                        targetY = ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) -
+                        targetY = ((GRID_HEIGHT) * (TILE_SIZE + TILE_GAP)) -
                             blocksBelow * (TILE_SIZE + TILE_GAP)
                     } else if (gameType === 'upfalling') {
                         targetY = prevTiles.filter(t =>
@@ -62,7 +62,7 @@ export const useFallingAnimation = (
                             ).length * (TILE_SIZE + TILE_GAP)
                     } else if (gameType === 'leftrightsplit') {
                         // 计算中心点
-                        const centerX = ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2
+                        const centerX = ((GRID_WIDTH + 1) * (TILE_SIZE + TILE_GAP)) / 2
                         // 根据方块位置决定向左还是向右移动
                         if (tile.x < centerX) {
                             targetX = prevTiles.filter(t =>
@@ -71,7 +71,7 @@ export const useFallingAnimation = (
                                 t.x < tile.x
                             ).length * (TILE_SIZE + TILE_GAP)
                         } else {
-                            targetX = ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) -
+                            targetX = ((GRID_WIDTH + 1) * (TILE_SIZE + TILE_GAP)) -
                                 prevTiles.filter(t =>
                                     !t.isMatched &&
                                     t.y === tile.y &&
@@ -80,7 +80,7 @@ export const useFallingAnimation = (
                         }
                     } else if (gameType === 'updownsplit') {
                         // 计算中心点
-                        const centerY = ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2
+                        const centerY = ((GRID_HEIGHT) * (TILE_SIZE + TILE_GAP)) / 2
                         // 根据方块位置决定向上还是向下移动
                         if (tile.y < centerY) {
                             targetY = prevTiles.filter(t =>
@@ -89,7 +89,7 @@ export const useFallingAnimation = (
                                 t.y < tile.y
                             ).length * (TILE_SIZE + TILE_GAP)
                         } else {
-                            targetY = ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) -
+                            targetY = ((GRID_HEIGHT) * (TILE_SIZE + TILE_GAP)) -
                                 prevTiles.filter(t =>
                                     !t.isMatched &&
                                     t.x === tile.x &&
@@ -104,7 +104,7 @@ export const useFallingAnimation = (
                         // 判断方块在哪个象限，决定移动方向
                         if (tile.x >= centerX && tile.y < centerY) {
                             // 第一象限：向右移动
-                            targetX = ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) -
+                            targetX = ((GRID_WIDTH + 1) * (TILE_SIZE + TILE_GAP)) -
                                 prevTiles.filter(t =>
                                     !t.isMatched &&
                                     t.y === tile.y &&
@@ -112,7 +112,7 @@ export const useFallingAnimation = (
                                 ).length * (TILE_SIZE + TILE_GAP)
                         } else if (tile.x > centerX && tile.y >= centerY) {
                             // 第四象限：向下移动
-                            targetY = ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) -
+                            targetY = ((GRID_HEIGHT) * (TILE_SIZE + TILE_GAP)) -
                                 prevTiles.filter(t =>
                                     !t.isMatched &&
                                     t.x === tile.x &&
