@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Tile, GameType, GameStatus } from '../types'
+import { Tile, GameType, GameStatus, SHUFFLE_COUNT } from '../types'
 import { TILE_SIZE, TILE_GAP } from '../types'
 import { hasMatchablePairs, shuffleTiles } from '../gameLogic'
 
@@ -127,7 +127,7 @@ export const useGameState = (
 
     // 洗牌功能
     const handleShuffle = useCallback(() => {
-        if (shuffleCount < 3 && gameStatus === 'playing' && !isFirstGame && !tiles.every(tile => tile.isMatched)) {
+        if (shuffleCount < SHUFFLE_COUNT && gameStatus === 'playing' && !isFirstGame && !tiles.every(tile => tile.isMatched)) {
             const shuffledTiles = shuffleTiles(tiles)
             setTiles(shuffledTiles)
             setShuffleCount(prev => prev + 1)
@@ -153,7 +153,7 @@ export const useGameState = (
             else if (!hasMatchablePairs(tiles)) {
                 setNoMatchesFound(true)
                 // 如果还有洗牌次数，自动洗牌
-                if (shuffleCount < 5) {
+                if (shuffleCount < SHUFFLE_COUNT) {
                     handleShuffle()
                 }
             }

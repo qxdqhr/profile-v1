@@ -1,5 +1,5 @@
 import React from 'react'
-import { GameStatus, GAME_DURATION, GameType, Level } from '../types'
+import { GameStatus, GAME_DURATION, GameType, Level, SHUFFLE_COUNT } from '../types'
 import { useState, useCallback } from 'react'
 
 interface GameInfoProps {
@@ -114,7 +114,7 @@ export const GameInfo: React.FC<GameInfoProps> = ({
         {!isFirstGame && gameStatus === 'playing' && (
           <div className="stat-widget shuffle">
             <div className="label">剩余洗牌</div>
-            <div className="value">{3 - shuffleCount}</div>
+            <div className="value">{SHUFFLE_COUNT - shuffleCount}</div>
           </div>
         )}
         <div className={`stat-widget time ${isTimeWarning ? 'warning' : ''}`}>
@@ -156,9 +156,9 @@ export const GameInfo: React.FC<GameInfoProps> = ({
             <button
               className="shuffle-button"
               onClick={onShuffle}
-              disabled={gameStatus !== 'playing' || isAnimating || shuffleCount >= 5}
+              disabled={gameStatus !== 'playing' || isAnimating || shuffleCount >= SHUFFLE_COUNT}
             >
-              洗牌 ({5 - shuffleCount})
+              洗牌 ({SHUFFLE_COUNT - shuffleCount})
             </button>
             <button
               className="hint-button"
@@ -186,7 +186,7 @@ export const GameInfo: React.FC<GameInfoProps> = ({
           </>
         )}
       </div>
-      {noMatchesFound && shuffleCount >= 5 && (
+      {noMatchesFound && shuffleCount >= SHUFFLE_COUNT && (
         <div className="no-matches-warning">
           没有可配对的方块了，且无洗牌次数
         </div>

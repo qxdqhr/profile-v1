@@ -16,6 +16,7 @@ import { SettingsAndScores } from './components/SettingsAndScores'
 import LevelSelect from './components/LevelSelect'
 import './LinkGame.css'
 import { useResourcePreload } from './hooks/useResourcePreload'
+import { SHUFFLE_COUNT } from './types'
 
 const LinkGame = () => {
   const [hintClearer, setHintClearer] = useState<() => void>(() => () => {})
@@ -253,7 +254,7 @@ const LinkGame = () => {
       else if (!hasMatchablePairs(tiles)) {
         setNoMatchesFound(true)
         // 如果还有洗牌次数，自动洗牌
-        if (shuffleCount < 3) {
+        if (shuffleCount < SHUFFLE_COUNT) {
           handleShuffle()
         } else {
           // 如果没有洗牌次数且无法配对，游戏结束
