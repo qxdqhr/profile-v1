@@ -187,51 +187,51 @@ export const STORAGE_KEY = 'tribleGameSettings' as const
 
 // 游戏模式配置
 export const GAME_MODES = {
-    CLASSIC: 'classic',    // 经典模式
-    TIME_RUSH: 'timeRush', // 限时模式
-    PUZZLE: 'puzzle'       // 解谜模式
+  CLASSIC: 'classic',    // 经典模式
+  TIME_RUSH: 'timeRush', // 限时模式
+  PUZZLE: 'puzzle'       // 解谜模式
 } as const;
 
 // 关卡配置
 export const LEVELS = [
-    {
-        id: 1,
-        name: '经典模式 - 简单',
-        mode: GAME_MODES.CLASSIC,
-        config: {
-            ...GAME_CONFIG,
-            GRID_SIZE: 6,
-            GAME_TIME: 180
-        }
-    },
-    {
-        id: 2,
-        name: '经典模式 - 中等',
-        mode: GAME_MODES.CLASSIC,
-        config: {
-            ...GAME_CONFIG,
-            GRID_SIZE: 8,
-            GAME_TIME: 120
-        }
-    },
-    {
-        id: 3,
-        name: '限时模式 - 快速',
-        mode: GAME_MODES.TIME_RUSH,
-        config: {
-            ...GAME_CONFIG,
-            GRID_SIZE: 7,
-            GAME_TIME: 60
-        }
-    },
-    {
-        id: 4,
-        name: '解谜模式',
-        mode: GAME_MODES.PUZZLE,
-        config: {
-            ...GAME_CONFIG,
-            GRID_SIZE: 6,
-            GAME_TIME: 300
-        }
+  {
+    id: 1,
+    name: '经典模式 - 简单',
+    mode: GAME_MODES.CLASSIC,
+    config: {
+      ...GAME_CONFIG,
+      GRID_SIZE: 6,
+      GAME_TIME: 180
     }
+  },
+  {
+    id: 2,
+    name: '经典模式 - 中等',
+    mode: GAME_MODES.CLASSIC,
+    config: {
+      ...GAME_CONFIG,
+      GRID_SIZE: 8,
+      GAME_TIME: 120
+    }
+  },
+  {
+    id: 3,
+    name: '限时模式 - 快速',
+    mode: GAME_MODES.TIME_RUSH,
+    config: {
+      ...GAME_CONFIG,
+      GRID_SIZE: 7,
+      GAME_TIME: 60
+    }
+  },
+  {
+    id: 4,
+    name: '解谜模式',
+    mode: GAME_MODES.PUZZLE,
+    config: {
+      ...GAME_CONFIG,
+      GRID_SIZE: 6,
+      GAME_TIME: 300
+    }
+  }
 ] as const; 

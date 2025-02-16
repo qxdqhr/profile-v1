@@ -7,19 +7,19 @@ export const GAME_WIDTH = isMobile ? 375 : 600;  // 移动端375px，PC端600px
 export const GAME_HEIGHT = isMobile ? 667 : 800; // 移动端适配iPhone SE，PC端更大
 
 export const COLORS = {
-    BACKGROUND: 0x282c34,
-    TRACK_LINE: 0xffffff,
-    BUTTON_TEXT: 0xFFFFFF,
-    BUTTON_FILL: 0x4CAF50,
+  BACKGROUND: 0x282c34,
+  TRACK_LINE: 0xffffff,
+  BUTTON_TEXT: 0xFFFFFF,
+  BUTTON_FILL: 0x4CAF50,
 };
 
 // 根据游戏宽度计算轨道位置
 const trackSpacing = GAME_WIDTH / 5;  // 将游戏宽度分成5份
 export const TRACKS = [
-    trackSpacing,
-    trackSpacing * 2,
-    trackSpacing * 3,
-    trackSpacing * 4
+  trackSpacing,
+  trackSpacing * 2,
+  trackSpacing * 3,
+  trackSpacing * 4
 ];
 
 // 游戏基础设置

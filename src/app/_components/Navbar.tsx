@@ -40,11 +40,11 @@ const NavbarItem: React.FC<{
       // 否则滚动到对应id的元素位置
       const element = document.getElementById(id);
       if (element) {
-      const navbarHeight = direction === "horizontal"  ?
-         (document.querySelector(".navbar") as HTMLElement)?.offsetHeight || 0 : 0;
-      const offsetTop = element.offsetTop - navbarHeight;
+        const navbarHeight = direction === "horizontal"  ?
+          (document.querySelector(".navbar") as HTMLElement)?.offsetHeight || 0 : 0;
+        const offsetTop = element.offsetTop - navbarHeight;
 
-      window.scrollTo({
+        window.scrollTo({
           top: offsetTop,
           behavior: "smooth",
         });
@@ -52,7 +52,7 @@ const NavbarItem: React.FC<{
     }
     //未配置的跳转
     else {
-     console.log("未配置的跳转");
+      console.log("未配置的跳转");
     }
   };
 

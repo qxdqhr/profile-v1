@@ -143,20 +143,20 @@ export class GameScene extends Phaser.Scene {
 
     let direction: Position | undefined
     switch (event.code) {
-      case 'ArrowUp':
-        direction = DIRECTIONS.UP
-        break
-      case 'ArrowDown':
-        direction = DIRECTIONS.DOWN
-        break
-      case 'ArrowLeft':
-        direction = DIRECTIONS.LEFT
-        break
-      case 'ArrowRight':
-        direction = DIRECTIONS.RIGHT
-        break
-      default:
-        return
+    case 'ArrowUp':
+      direction = DIRECTIONS.UP
+      break
+    case 'ArrowDown':
+      direction = DIRECTIONS.DOWN
+      break
+    case 'ArrowLeft':
+      direction = DIRECTIONS.LEFT
+      break
+    case 'ArrowRight':
+      direction = DIRECTIONS.RIGHT
+      break
+    default:
+      return
     }
 
     this.movePlayer(direction)

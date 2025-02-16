@@ -189,40 +189,38 @@ const LinkGame = () => {
         t.id === tile.id ? { ...t, isSelected: true } : t
       );
       setTiles(newTiles);
+    } else if (selectedTile.id === tile.id) {
+      setTiles(tiles.map(t => ({
+        ...t,
+        isSelected: false
+      })))
+      setSelectedTile(null)
+      setConnectionPath([])
     } else {
-      if (selectedTile.id === tile.id) {
+      const result = canConnect(selectedTile, tile, tiles)
+      if (tile.type === selectedTile.type && result.canConnect) {
+        // 播放匹配成功音效
+        playMatchSound()
+          
         setTiles(tiles.map(t => ({
           ...t,
-          isSelected: false
+          isSelected: false,
+          isMatched: t.id === tile.id || t.id === selectedTile.id ? true : t.isMatched
         })))
+        setScore(score + 10)
         setSelectedTile(null)
-        setConnectionPath([])
-      } else {
-        const result = canConnect(selectedTile, tile, tiles)
-        if (tile.type === selectedTile.type && result.canConnect) {
-          // 播放匹配成功音效
-          playMatchSound()
+        setConnectionPath(result.path)
           
-          setTiles(tiles.map(t => ({
-            ...t,
-            isSelected: false,
-            isMatched: t.id === tile.id || t.id === selectedTile.id ? true : t.isMatched
-          })))
-          setScore(score + 10)
-          setSelectedTile(null)
-          setConnectionPath(result.path)
-          
-          setTimeout(() => {
-            setConnectionPath([])
-          }, 300)
-        } else {
-          setTiles(tiles.map(t => ({
-            ...t,
-            isSelected: t.id === tile.id
-          })))
-          setSelectedTile(tile)
+        setTimeout(() => {
           setConnectionPath([])
-        }
+        }, 300)
+      } else {
+        setTiles(tiles.map(t => ({
+          ...t,
+          isSelected: t.id === tile.id
+        })))
+        setSelectedTile(tile)
+        setConnectionPath([])
       }
     }
   }

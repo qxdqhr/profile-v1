@@ -70,11 +70,11 @@ export class StartScene extends Phaser.Scene {
       backgroundColor: '#4CAF50',
       padding: { x: 20, y: 10 }
     })
-    .setOrigin(0.5)
-    .setInteractive()
-    .on('pointerover', () => startButton.setScale(1.1))
-    .on('pointerout', () => startButton.setScale(1))
-    .on('pointerdown', () => this.scene.start('LevelSelectScene'))
+      .setOrigin(0.5)
+      .setInteractive()
+      .on('pointerover', () => startButton.setScale(1.1))
+      .on('pointerout', () => startButton.setScale(1))
+      .on('pointerdown', () => this.scene.start('LevelSelectScene'))
 
     // 创建设置按钮
     const settingsButton = this.add.text(width / 2, height / 2 + 80, '设置', {
@@ -83,10 +83,10 @@ export class StartScene extends Phaser.Scene {
       backgroundColor: '#2196F3',
       padding: { x: 20, y: 10 }
     })
-    .setOrigin(0.5)
-    .setInteractive()
-    .on('pointerover', () => settingsButton.setScale(1.1))
-    .on('pointerout', () => settingsButton.setScale(1))
-    .on('pointerdown', () => this.scene.start('SettingsScene'))
+      .setOrigin(0.5)
+      .setInteractive()
+      .on('pointerover', () => settingsButton.setScale(1.1))
+      .on('pointerout', () => settingsButton.setScale(1))
+      .on('pointerdown', () => this.scene.start('SettingsScene'))
   }
 }

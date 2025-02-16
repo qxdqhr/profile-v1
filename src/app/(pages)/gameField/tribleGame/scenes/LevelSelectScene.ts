@@ -31,13 +31,13 @@ export class LevelSelectScene extends Phaser.Scene {
           padding: { x: 20, y: 10 }
         }
       )
-      .setOrigin(0.5)
-      .setInteractive()
-      .on('pointerover', () => levelButton.setScale(1.1))
-      .on('pointerout', () => levelButton.setScale(1))
-      .on('pointerdown', () => {
-        this.scene.start('GameScene', { level: i + 1 })
-      })
+        .setOrigin(0.5)
+        .setInteractive()
+        .on('pointerover', () => levelButton.setScale(1.1))
+        .on('pointerout', () => levelButton.setScale(1))
+        .on('pointerdown', () => {
+          this.scene.start('GameScene', { level: i + 1 })
+        })
     }
 
     // 返回按钮
@@ -47,7 +47,7 @@ export class LevelSelectScene extends Phaser.Scene {
       backgroundColor: '#f44336',
       padding: { x: 15, y: 8 }
     })
-    .setInteractive()
-    .on('pointerdown', () => this.scene.start('StartScene'))
+      .setInteractive()
+      .on('pointerdown', () => this.scene.start('StartScene'))
   }
 }
