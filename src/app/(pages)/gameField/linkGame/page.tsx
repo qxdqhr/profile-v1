@@ -190,6 +190,7 @@ const LinkGame = () => {
       );
       setTiles(newTiles);
     } else if (selectedTile.id === tile.id) {
+      // 选中了已选中的方块，取消选中
       setTiles(tiles.map(t => ({
         ...t,
         isSelected: false
@@ -197,6 +198,7 @@ const LinkGame = () => {
       setSelectedTile(null)
       setConnectionPath([])
     } else {
+      // 选中了两个方块，尝试连接
       const result = canConnect(selectedTile, tile, tiles)
       if (tile.type === selectedTile.type && result.canConnect) {
         // 播放匹配成功音效
@@ -210,16 +212,18 @@ const LinkGame = () => {
         setScore(score + 10)
         setSelectedTile(null)
         setConnectionPath(result.path)
-          
+
         setTimeout(() => {
           setConnectionPath([])
+          // TODO: 改成常量
         }, 300)
       } else {
+        // 匹配失败，选中新的方块
         setTiles(tiles.map(t => ({
           ...t,
           isSelected: t.id === tile.id
         })))
-        setSelectedTile(tile)
+        setSelectedTile(tile) // TODO: tile.isSelected 和 selectedTile 冗余
         setConnectionPath([])
       }
     }
@@ -241,15 +245,15 @@ const LinkGame = () => {
         setGameStatus('success')
         setScore(finalScore) // 更新显示的分数
         return // 提前返回，不再检查其他状态
-      } 
+      }
       // 检查是否时间耗尽
-      else if (timeLeft <= 0) {
+      if (timeLeft <= 0) {
         stopTimer()
         setGameStatus('failed')
         return
       }
       // 只有在游戏未完成时才检查是否还有可配对的方块
-      else if (!hasMatchablePairs(tiles)) {
+      if (!hasMatchablePairs(tiles)) {
         setNoMatchesFound(true)
         // 如果还有洗牌次数，自动洗牌
         if (shuffleCount < SHUFFLE_COUNT) {
