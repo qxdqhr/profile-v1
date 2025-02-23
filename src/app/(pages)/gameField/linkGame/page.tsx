@@ -39,8 +39,6 @@ const LinkGame = () => {
   const {
     tiles,
     setTiles,
-    selectedTile,
-    setSelectedTile,
     score,
     setScore,
     connectionPath,
@@ -94,7 +92,7 @@ const LinkGame = () => {
   } = useScoreRecord()
 
   // 计算最高分
-  const highestScore = scoreRecords.reduce((max, record) => 
+  const highestScore = scoreRecords.reduce((max, record) =>
     record.score > max ? record.score : max, 0)
 
   // 处理关卡选择
@@ -135,97 +133,63 @@ const LinkGame = () => {
     }
   }
 
-  const handleSettingsClose = () => {
-    // 检查设置是否有变化
-    const hasChanges = 
-      settingsRef.current.gameType !== gameType ||
-      settingsRef.current.gridWidth !== gridWidth ||
-      settingsRef.current.gridHeight !== gridHeight ||
-      settingsRef.current.typesCount !== typesCount
-
-    // 更新设置参考值
-    settingsRef.current = {
-      gameType,
-      gridWidth,
-      gridHeight,
-      typesCount
-    }
-
-    // 如果有变化且游戏已经开始过，则重新开始游戏
-    if (hasChanges && !isFirstGame) {
-      handleRestart()
-    }
-
-    setShowSettingsAndScores(false)
-  }
-
-  // 打开设置时保存当前值
-  const handleSettingsOpen = () => {
-    settingsRef.current = {
-      gameType,
-      gridWidth,
-      gridHeight,
-      typesCount,
-    }
-    setShowSettingsAndScores(true)
-  }
-
   const handleTileClick = (tile: Tile) => {
     if (gameStatus !== 'playing') return
-    
+
     // 播放点击音效 - 移到最前面，确保最快响应
     playClickSound()
-    
+
     // 处理第一次点击
     handleFirstClick();
 
     // 清除提示状态
     clearHint()
-    
+
+    // 获取选中的方块 
+    const selectedTile = tiles.find(t => t.isSelected)
+    // 检查是否可以连接
+    const result = selectedTile ? canConnect(selectedTile, tile, tiles) : { canConnect: false, path: [] }
+
+    // 选中第一个方块
     if (selectedTile === null) {
-      // 选中第一个方块
-      setSelectedTile(tile);
-      const newTiles = tiles.map(t => 
+      const newTiles = tiles.map(t =>
         t.id === tile.id ? { ...t, isSelected: true } : t
       );
       setTiles(newTiles);
-    } else if (selectedTile.id === tile.id) {
-      // 选中了已选中的方块，取消选中
+      return
+    }
+    // 选中了已选中的方块，取消选中
+    if (selectedTile && selectedTile.id === tile.id) {
       setTiles(tiles.map(t => ({
         ...t,
         isSelected: false
       })))
-      setSelectedTile(null)
       setConnectionPath([])
-    } else {
-      // 选中了两个方块，尝试连接
-      const result = canConnect(selectedTile, tile, tiles)
-      if (tile.type === selectedTile.type && result.canConnect) {
-        // 播放匹配成功音效
-        playMatchSound()
-          
-        setTiles(tiles.map(t => ({
-          ...t,
-          isSelected: false,
-          isMatched: t.id === tile.id || t.id === selectedTile.id ? true : t.isMatched
-        })))
-        setScore(score + 10)
-        setSelectedTile(null)
-        setConnectionPath(result.path)
+    }
+    // 选中了两个方块，尝试连接
+    else if (selectedTile && tile.type === selectedTile.type && result.canConnect) {
+      // 播放匹配成功音效
+      playMatchSound()
 
-        setTimeout(() => {
-          setConnectionPath([])
-          // TODO: 改成常量
-        }, 300)
-      } else {
-        // 匹配失败，选中新的方块
-        setTiles(tiles.map(t => ({
-          ...t,
-          isSelected: t.id === tile.id
-        })))
-        setSelectedTile(tile) // TODO: tile.isSelected 和 selectedTile 冗余
+      setTiles(tiles.map(t => ({
+        ...t,
+        isSelected: false,
+        isMatched: t.id === tile.id || t.id === selectedTile.id ? true : t.isMatched
+      })))
+      setScore(score + 10)
+      setConnectionPath(result.path)
+
+      setTimeout(() => {
         setConnectionPath([])
-      }
+        // TODO: 改成常量
+      }, 300)
+    } else {
+      // 匹配失败，选中新的方块
+      setTiles(tiles.map(t => ({
+        ...t,
+        isSelected: t.id === tile.id
+      })))
+      setConnectionPath([])
     }
   }
 
@@ -234,7 +198,6 @@ const LinkGame = () => {
     if (!isFirstGame && gameStatus === 'playing' && tiles.length > 0) {
       // 检查是否全部匹配完成
       if (tiles.every(tile => tile.isMatched)) {
-        console.log("stopTimer1")
         // 先停止计时器
         stopTimer()
         // 计算最终得分：基础分数 + 剩余时间加分（每秒2分）
@@ -265,128 +228,147 @@ const LinkGame = () => {
         }
       }
     }
-  }, [tiles, gameStatus, isFirstGame, score, gameType, gridWidth, gridHeight, timeLeft, addScoreRecord, shuffleCount, handleShuffle, stopTimer, setGameStatus, setNoMatchesFound])
+  }, [
+      tiles,
+      gameStatus,
+      isFirstGame,
+      score,
+      gameType,
+      gridWidth, 
+      gridHeight,
+      timeLeft,
+      addScoreRecord,
+      shuffleCount, 
+      handleShuffle, 
+      stopTimer,
+      setGameStatus, 
+      setNoMatchesFound
+  ])
 
   const { isLoading, progress, error } = useResourcePreload()
   // 如果正在加载或出错，显示加载界面
-  if (isLoading || error) {
-    return (
-      <div className="linkGame-container">
-        <div className="loading-screen">
-          {error ? (
-            <div className="loading-error">{error}</div>
-          ) : (
-            <>
-              <div className="loading-progress">
-                <div className="loading-bar">
-                  <div 
-                    className="loading-bar-fill" 
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-                <div className="loading-text">
-                  资源加载中 {Math.round(progress)}% 
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-    )
+  if (error !== null) {
+    return <ErrorPage error={error} />
   }
+  if (isLoading) {
+    return <LoadingPage progress={progress} />
+  }
+
+  if (selectedLevel === null) {
+    return <LevelSelect
+      onSelectLevel={handleLevelSelect}
+    />
+  }
+  
 
   return (
     <div className="linkGame-container">
-      {!selectedLevel ? (
-        // 显示关卡选择界面
-        <div className="game-header">
-          <LevelSelect 
-            onSelectLevel={handleLevelSelect}
-          />
+      <GameInfo
+        score={score}
+        timeLeft={timeLeft}
+        gameStatus={gameStatus}
+        isFirstGame={isFirstGame}
+        gameType={gameType}
+        onRestart={handleRestart}
+        onHint={handleHint}
+        onGameTypeChange={handleGameTypeChange}
+        isAnimating={isAnimating}
+        onSettingsClick={() => setShowSettingsAndScores(true)}
+        onShuffle={handleShuffle}
+        shuffleCount={shuffleCount}
+        noMatchesFound={noMatchesFound}
+        isMusicPlaying={isMusicPlaying}
+        onToggle={toggleMusic}
+        disabled={!isMusicLoaded}
+        startBackgroundMusic={startBackgroundMusic}
+        currentMusic={currentMusic}
+        godMode={godMode}
+        onBackToLevels={handleBackToLevels}
+        selectedLevel={selectedLevel}
+      />
+
+      {showSettingsAndScores && (
+        <SettingsAndScores
+          gameType={gameType}
+          gridWidth={gridWidth}
+          gridHeight={gridHeight}
+          typesCount={typesCount}
+          currentMusic={currentMusic}
+          records={scoreRecords}
+          onSettingsChange={handleSettingsChange}
+          onClose={() => setShowSettingsAndScores(false)}
+          onClearRecords={clearRecords}
+          loadNewMusic={loadNewMusic}
+          godMode={godMode}
+        />
+      )}
+
+      {!isFirstGame && (
+        <div className="game-stage-container">
+          <Stage
+            width={(gridWidth + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
+            height={(gridHeight + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
+            options={{ backgroundColor: 0x000000, backgroundAlpha: 0 }}
+          >
+            <Container x={OUTER_PADDING * (TILE_SIZE + TILE_GAP)} y={OUTER_PADDING * (TILE_SIZE + TILE_GAP)}>
+              {connectionPath.length > 0 && <ConnectionLine path={connectionPath} gameMode={gameMode} gameType={gameType} />}
+
+              {tiles.map((tile) => {
+                const isHighlighted = tile.isSelected || (hintTiles && (hintTiles[0].id === tile.id || hintTiles[1].id === tile.id));
+                return (
+                  <Container key={tile.id} x={tile.x} y={tile.y}>
+                    <CubeTile
+                      tile={tile}
+                      onTileClick={handleTileClick}
+                    />
+                    {isHighlighted && (
+                      <SelectionEffect
+                        gameMode={gameMode}
+                        gameType={gameType}
+                        isHint={hintTiles?.some(t => t.id === tile.id)}
+                      />
+                    )}
+                  </Container>
+                );
+              })}
+            </Container>
+          </Stage>
         </div>
-      ) : (
-        // 显示游戏界面
-        <>
-          <div className="game-header">
-            <GameInfo 
-              score={score} 
-              timeLeft={timeLeft}
-              gameStatus={gameStatus}
-              isFirstGame={isFirstGame}
-              gameType={gameType}
-              onRestart={handleRestart} 
-              onHint={handleHint}
-              onGameTypeChange={handleGameTypeChange}
-              isAnimating={isAnimating}
-              onSettingsClick={() => setShowSettingsAndScores(true)}
-              onShuffle={handleShuffle}
-              shuffleCount={shuffleCount}
-              noMatchesFound={noMatchesFound}
-              isMusicPlaying={isMusicPlaying} 
-              onToggle={toggleMusic} 
-              disabled={!isMusicLoaded}
-              startBackgroundMusic={startBackgroundMusic}
-              currentMusic={currentMusic}
-              godMode={godMode}
-              onBackToLevels={handleBackToLevels}
-              selectedLevel={selectedLevel}
-            />
-          </div>
-          
-          {showSettingsAndScores && (
-            <SettingsAndScores
-              gameType={gameType}
-              gridWidth={gridWidth}
-              gridHeight={gridHeight}
-              typesCount={typesCount}
-              currentMusic={currentMusic}
-              records={scoreRecords}
-              onSettingsChange={handleSettingsChange}
-              onClose={() => setShowSettingsAndScores(false)}
-              onClearRecords={clearRecords}
-              loadNewMusic={loadNewMusic}
-              godMode={godMode}
-            />
-          )}
-          
-          {!isFirstGame && (
-            <div className="game-stage-container">
-              <Stage
-                width={(gridWidth + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
-                height={(gridHeight + 2 * OUTER_PADDING) * (TILE_SIZE + TILE_GAP)}
-                options={{ backgroundColor: 0x000000, backgroundAlpha: 0 }}
-              >
-                <Container x={OUTER_PADDING * (TILE_SIZE + TILE_GAP)} y={OUTER_PADDING * (TILE_SIZE + TILE_GAP)}>
-                  {connectionPath.length > 0 && <ConnectionLine path={connectionPath} gameMode={gameMode} gameType={gameType} />}
-                  
-                  {tiles.map((tile) => {
-                    const isHighlighted = tile.isSelected || (hintTiles && (hintTiles[0].id === tile.id || hintTiles[1].id === tile.id));
-                    
-                    return (
-                      <Container key={tile.id} x={tile.x} y={tile.y}>
-                        <CubeTile
-                          tile={tile}
-                          onTileClick={handleTileClick}
-                        />
-                        {isHighlighted && (
-                          <SelectionEffect 
-                            gameMode={gameMode}
-                            gameType={gameType}
-                            isHint={hintTiles?.some(t => t.id === tile.id)}
-                          />
-                        )}
-                      </Container>
-                    );
-                  })}
-                </Container>
-              </Stage>
-            </div>
-          )}
-        </>
       )}
     </div>
   )
 }
+
+
+const LoadingPage = ({ progress }: { progress: number }) => {
+  return (
+    <div className="linkGame-container">
+      <div className="loading-screen">
+        <div className="loading-progress">
+          <div className="loading-bar">
+            <div
+              className="loading-bar-fill"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className="loading-text">
+            资源加载中 {Math.round(progress)}%
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+const ErrorPage = ({ error }: { error: string }) => {
+  return (
+    <div className="linkGame-container">
+      <div className="loading-screen">
+        <div className="loading-error">{error}</div>
+      </div>
+    </div>
+  )
+}
+
 
 export default LinkGame
 

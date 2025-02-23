@@ -219,7 +219,6 @@ export const useFallingAnimation = (
         if (!needsUpdate) {
           cancelAnimationFrame(animationFrameRef.current!)
           animationFrameRef.current = null
-          setIsAnimating(false)  // 动画结束
         }
 
         return newTiles
