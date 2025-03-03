@@ -44,6 +44,13 @@ const games: ExperimentItem[] = [
     tags: ["小游戏", "葱韵环京","初版完成"]
   },
   {
+    id: "linkGame_v1",
+    title: "葱韵环京连连看_v1",
+    description: "葱韵环京连连看_v1",
+    path: "/gameField/linkGame_v1",
+    tags: ["小游戏", "葱韵环京","改进代码"]
+  },
+  {
     id: "pushBox",
     title: "推箱子",
     description: "推箱子",
