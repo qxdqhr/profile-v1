@@ -34,9 +34,9 @@ const Game = dynamic(
             backgroundColor: '#000000',
           }
 
-          const game = new Phaser.Game(config)
+          const game = new Phaser.Game(config);
           // 直接设置 gameData 属性
-          ;(game as any).gameData = gameData
+          (game as any).gameData = gameData
           gameInstance.current = game
         }
 
