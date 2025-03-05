@@ -21,6 +21,7 @@
     "@typescript-eslint/parser": "^8.20.0",
     "@vercel/kv": "^3.0.0",
     "animejs": "^3.2.2",
+    "code-review-gpt": "^0.8.0",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-react": "^7.37.4",

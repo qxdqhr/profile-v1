@@ -1,0 +1,31 @@
+# 代码审查配置
+review_parameters:
+  language: typescript
+  review_level: thorough
+  inline_comments: true
+  summarize: true
+  check_security: true
+  check_performance: true
+  check_best_practices: true
+  check_documentation: true
+
+# 审查重点
+focus_areas:
+  - code_quality
+  - security
+  - performance
+  - maintainability
+
+# 评论设置
+comment_settings:
+  max_comments: 10
+  comment_threshold: medium
+  include_praise: true
+  include_suggestions: true
+
+# 忽略的文件或目录
+ignore_patterns:
+  - "*.test.ts"
+  - "*.spec.ts"
+  - "dist/*"
+  - "node_modules/*" 

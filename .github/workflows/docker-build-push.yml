@@ -47,3 +47,10 @@ jobs:
             docker stop my_container || true
             docker rm my_container || true
             docker run -d -p 3000:3000 --name my_container crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:${NEW_TAG}
+
+      - name: Code Review GPT
+        uses: mattzcarey/code-review-gpt@v0.8.0
+        with:
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          template_file: "templates/github-pr.yml"
