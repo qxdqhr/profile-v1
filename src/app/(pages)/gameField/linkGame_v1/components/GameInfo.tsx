@@ -86,7 +86,7 @@ export const GameInfo: React.FC<GameInfoProps> = ({
             <div className="label">得分</div>
             <div className="value">{score}</div>
           </div>
-          {!isFirstGame && gameStatus === 'playing' && (
+          {!isFirstGame && gameStatus === GameStatus.Playing && (
             <div className="stat-widget shuffle">
               <div className="label">剩余洗牌</div>
               <div className="value">{SHUFFLE_COUNT - shuffleCount}</div>
@@ -110,7 +110,7 @@ export const GameInfo: React.FC<GameInfoProps> = ({
           }}>
             {isFirstGame ? '开始游戏' : '重新开始'}
           </button>
-          {!isFirstGame && gameStatus === 'playing' && (
+          {!isFirstGame && gameStatus === GameStatus.Playing && (
             <>
               {godMode && (
                 <select
@@ -131,7 +131,7 @@ export const GameInfo: React.FC<GameInfoProps> = ({
               <button
                 className="shuffle-button"
                 onClick={onShuffle}
-                disabled={gameStatus !== 'playing' || isAnimating || shuffleCount >= SHUFFLE_COUNT}
+                disabled={gameStatus !== GameStatus.Playing || isAnimating || shuffleCount >= SHUFFLE_COUNT}
                 style={{ opacity: 1 }}
               >
                 洗牌 ({SHUFFLE_COUNT - shuffleCount})
@@ -139,7 +139,7 @@ export const GameInfo: React.FC<GameInfoProps> = ({
               <button
                 className="hint-button"
                 onClick={onHint}
-                disabled={gameStatus !== 'playing' || isAnimating}
+                disabled={gameStatus !== GameStatus.Playing || isAnimating}
                 style={{ opacity: 1 }}
               >
                 提示
@@ -168,9 +168,9 @@ export const GameInfo: React.FC<GameInfoProps> = ({
             没有可配对的方块了，且无洗牌次数
           </div>
         )}
-        {gameStatus !== 'playing' && (
+        {gameStatus !== GameStatus.Playing && (
           <div className={`game-result ${gameStatus}`}>
-            <h2>{gameStatus === 'success' ? '恭喜过关！' : '游戏结束'}</h2>
+            <h2>{gameStatus === GameStatus.Success ? '恭喜过关！' : '游戏结束'}</h2>
             <p>最终得分: {score}</p>
           </div>
         )}

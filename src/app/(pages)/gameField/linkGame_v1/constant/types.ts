@@ -49,6 +49,19 @@ export namespace GameType {
     // 添加静态属性
     export const defaultType: GameType = GameType.DisVariable;
     
+    export function isGaming(type: GameType): boolean {
+      return type !== GameType.DisVariable &&
+            (type === GameType.Clockwise ||
+            type === GameType.CounterClockwise ||
+            type === GameType.UpDownSplit ||
+            type === GameType.LeftRightSplit ||
+            type === GameType.DownFalling ||
+            type === GameType.UpFalling ||
+            type === GameType.LeftFalling ||
+            type === GameType.RightFalling
+          );
+    };
+
     // 添加方法
     export function getDescription(type: GameType): string {
         switch (type) {

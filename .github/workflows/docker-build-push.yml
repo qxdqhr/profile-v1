@@ -12,6 +12,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Code Review GPT
+        uses: mattzcarey/code-review-gpt@v0.8.0
+        with:
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # 可选配置
+          github_pr_token: ${{ secrets.GITHUB_TOKEN }}
+          review_comment_lgtm: true  # 如果代码没问题，添加 LGTM 评论
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 

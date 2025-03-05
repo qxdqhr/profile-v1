@@ -30,8 +30,38 @@ export const useFallingAnimation = (
           // 计算目标坐标
           let targetY = tile.y
           let targetX = tile.x
+            // 计算中心点
+          const centerX = ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2
+          const centerY = ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2
+          
+          // 简化位置判断
+          const isAboveCenter = tile.y < centerY
+          const isBelowCenter = tile.y >= centerY
+          const isLeftOfCenter = tile.x < centerX
+          const isRightOfCenter = tile.x >= centerX
 
-          if (gameType === 'downfalling') {
+          const movingUp = gameType === GameType.UpFalling || 
+                        (gameType === GameType.UpDownSplit && isAboveCenter) ||
+                        (gameType === GameType.Clockwise && isLeftOfCenter && isAboveCenter) ||
+                        (gameType === GameType.CounterClockwise && isRightOfCenter && isAboveCenter)
+                    
+          const movingDown = gameType === GameType.DownFalling || 
+                        (gameType === GameType.UpDownSplit && isBelowCenter) ||
+                        (gameType === GameType.Clockwise && isRightOfCenter && isBelowCenter) ||
+                        (gameType === GameType.CounterClockwise && isLeftOfCenter && isBelowCenter)
+                    
+          const movingLeft = gameType === GameType.LeftFalling || 
+                        (gameType === GameType.LeftRightSplit && isLeftOfCenter) ||
+                        (gameType === GameType.Clockwise && isLeftOfCenter && isBelowCenter) ||
+                        (gameType === GameType.CounterClockwise && isLeftOfCenter && isAboveCenter)
+                    
+          const movingRight = gameType === GameType.RightFalling || 
+                        (gameType === GameType.LeftRightSplit && isRightOfCenter) ||
+                        (gameType === GameType.Clockwise && isRightOfCenter && isAboveCenter) ||
+                        (gameType === GameType.CounterClockwise && isRightOfCenter && isBelowCenter)
+
+
+          if (gameType === GameType.DownFalling) {
             // Count all blocks below that aren't matched yet
             const blocksBelow = prevTiles.filter(t =>
               t.x === tile.x &&
@@ -42,26 +72,26 @@ export const useFallingAnimation = (
             // Calculate target Y position from the bottom
             targetY = ((GRID_HEIGHT) * (TILE_SIZE + TILE_GAP)) -
                             blocksBelow * (TILE_SIZE + TILE_GAP)
-          } else if (gameType === 'upfalling') {
+          } else if (gameType === GameType.UpFalling) {
             targetY = prevTiles.filter(t =>
               !t.isMatched &&
                             t.x === tile.x &&
                             t.y < tile.y
             ).length * (TILE_SIZE + TILE_GAP)
-          } else if (gameType === 'leftfalling') {
+          } else if (gameType === GameType.LeftFalling) {
             targetX = prevTiles.filter(t =>
               !t.isMatched &&
                             t.y === tile.y &&
                             t.x < tile.x
             ).length * (TILE_SIZE + TILE_GAP)
-          } else if (gameType === 'rightfalling') {
+          } else if (gameType === GameType.RightFalling) {
             targetX = ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) -
                             prevTiles.filter(t =>
                               !t.isMatched &&
                                 t.y === tile.y &&
                                 t.x > tile.x
                             ).length * (TILE_SIZE + TILE_GAP)
-          } else if (gameType === 'leftrightsplit') {
+          } else if (gameType === GameType.LeftRightSplit) {
             // 计算中心点
             const centerX = ((GRID_WIDTH + 1) * (TILE_SIZE + TILE_GAP)) / 2
             // 根据方块位置决定向左还是向右移动
@@ -79,7 +109,7 @@ export const useFallingAnimation = (
                                     t.x > tile.x
                                 ).length * (TILE_SIZE + TILE_GAP)
             }
-          } else if (gameType === 'updownsplit') {
+          } else if (gameType === GameType.UpDownSplit) {
             // 计算中心点
             const centerY = ((GRID_HEIGHT) * (TILE_SIZE + TILE_GAP)) / 2
             // 根据方块位置决定向上还是向下移动
@@ -97,7 +127,7 @@ export const useFallingAnimation = (
                                     t.y > tile.y
                                 ).length * (TILE_SIZE + TILE_GAP)
             }
-          } else if (gameType === 'clockwise') {
+          } else if (gameType === GameType.Clockwise) {
             // 计算中心点
             const centerX = ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2
             const centerY = ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2
@@ -134,7 +164,7 @@ export const useFallingAnimation = (
                                 t.y < tile.y
               ).length * (TILE_SIZE + TILE_GAP)
             }
-          } else if (gameType === 'counterclockwise') {
+          } else if (gameType === GameType.CounterClockwise) {
             // 计算中心点
             const centerX = ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2
             const centerY = ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2
@@ -174,44 +204,24 @@ export const useFallingAnimation = (
           } else {
             return tile
           }
-
-          const movingUp = gameType === 'upfalling' || 
-                        (gameType === 'updownsplit' && tile.y < ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2) ||
-                        (gameType === 'clockwise' && tile.x <= ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2 && tile.y <= ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2) ||
-                        (gameType === 'counterclockwise' && tile.x >= ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2 && tile.y < ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2)
-                    
-          const movingDown = gameType === 'downfalling' || 
-                        (gameType === 'updownsplit' && tile.y >= ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2) ||
-                        (gameType === 'clockwise' && tile.x > ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2 && tile.y >= ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2) ||
-                        (gameType === 'counterclockwise' && tile.x <= ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2 && tile.y > ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2)
-                    
-          const movingLeft = gameType === 'leftfalling' || 
-                        (gameType === 'leftrightsplit' && tile.x < ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2) ||
-                        (gameType === 'clockwise' && tile.x <= ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2 && tile.y > ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2) ||
-                        (gameType === 'counterclockwise' && tile.x <= ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2 && tile.y <= ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2)
-                    
-          const movingRight = gameType === 'rightfalling' || 
-                        (gameType === 'leftrightsplit' && tile.x >= ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2) ||
-                        (gameType === 'clockwise' && tile.x >= ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2 && tile.y <= ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2) ||
-                        (gameType === 'counterclockwise' && tile.x > ((GRID_WIDTH - 1) * (TILE_SIZE + TILE_GAP)) / 2 && tile.y >= ((GRID_HEIGHT - 1) * (TILE_SIZE + TILE_GAP)) / 2)
                     
           const shouldMoveVertical = movingUp ? tile.y > targetY : movingDown ? tile.y < targetY : false
           const shouldMoveHorizontal = movingLeft ? tile.x > targetX : movingRight ? tile.x < targetX : false
                     
+          const calculateNewPosition = (current: number, target: number) => {
+            const distance = Math.abs(target - current)
+            const speed = Math.max(4, distance / 8)
+            return current < target
+              ? Math.min(current + speed, target)
+              : Math.max(current - speed, target)
+          }
+
           if (shouldMoveVertical || shouldMoveHorizontal) {
             needsUpdate = true
             return {
               ...tile,
-              y: movingUp
-                ? Math.max(tile.y - Math.max(4, Math.abs(tile.y - targetY) / 8), targetY)  // 向上移动，速度与距离相关
-                : movingDown
-                  ? Math.min(tile.y + Math.max(4, Math.abs(targetY - tile.y) / 8), targetY)  // 向下移动，速度与距离相关
-                  : tile.y,  // 保持不变
-              x: movingLeft
-                ? Math.max(tile.x - Math.max(4, Math.abs(tile.x - targetX) / 8), targetX)  // 向左移动，速度与距离相关
-                : movingRight
-                  ? Math.min(tile.x + Math.max(4, Math.abs(targetX - tile.x) / 8), targetX)  // 向右移动，速度与距离相关
-                  : tile.x  // 保持不变
+              y: (movingUp || movingDown) ? calculateNewPosition(tile.y, targetY) : tile.y,
+              x: (movingLeft || movingRight) ? calculateNewPosition(tile.x, targetX) : tile.x
             }
           }
           return tile
@@ -233,9 +243,7 @@ export const useFallingAnimation = (
 
   // 开始移动动画
   const startFalling = () => {
-    if ((gameType === 'downfalling' || gameType === 'upfalling' || gameType === 'leftfalling' || 
-            gameType === 'rightfalling' || gameType === 'leftrightsplit' || gameType === 'updownsplit' || 
-            gameType === 'clockwise' || gameType === 'counterclockwise') && !animationFrameRef.current) {
+    if (GameType.isGaming(gameType) && !animationFrameRef.current) {
       setIsAnimating(true)  // 动画开始
       animationFrameRef.current = requestAnimationFrame(updateFallingTiles)
     }
@@ -252,9 +260,7 @@ export const useFallingAnimation = (
 
   // 在游戏状态改变时处理移动
   useEffect(() => {
-    if (gameStatus === GameStatus.Playing && (gameType === GameType.DownFalling || gameType === GameType.UpFalling || 
-            gameType === GameType.LeftFalling || gameType === GameType.RightFalling || gameType === GameType.LeftRightSplit || 
-            gameType === GameType.UpDownSplit || gameType === GameType.Clockwise || gameType === GameType.CounterClockwise)) {
+      if (gameStatus === GameStatus.Playing && GameType.isGaming(gameType)) {
       startFalling()
     }
     return clearAnimation
