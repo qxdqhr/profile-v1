@@ -128,14 +128,6 @@ const config = {
         tags: ["WebSocket", "React", "Express"],
         link: "https://github.com/yourusername/chat",
       },
-      {
-        id: "3",
-        title: "在线聊天应用",
-        description: "基于 WebSocket 的实时聊天应用，支持群聊和私聊功能",
-        image: "/images/chat-image.jpg",
-        tags: ["WebSocket", "React", "Express"],
-        link: "https://github.com/yourusername/chat",
-      },
       // 添加更多项目...
     ],
   },

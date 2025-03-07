@@ -49,6 +49,13 @@ const games: ExperimentItem[] = [
         path: "/testField/ShareMonitor",
         tags: ["小游戏", "赛博无料"]
     },
+    {
+        id: "work-calculate",//diolacov
+        title: " 工作计算器",
+        description: "工作计算器",
+        path: "/testField/WorkCalculate",
+        tags: ["小游戏", "赛博无料"]
+    },
 ];
 
 export default function TestField() {
