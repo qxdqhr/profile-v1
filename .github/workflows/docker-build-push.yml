@@ -61,13 +61,13 @@ jobs:
             docker rm my_container || true
             docker run -d -p 3000:3000 --name my_container crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:${NEW_TAG}
 
-      - name: Code Review GPT
-        uses: mattzcarey/code-review-gpt@v0.8.0
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-        with:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MODEL: 'gpt-4'
-          REVIEW_LANGUAGE: 'en'
+      # - name: Code Review GPT
+      #   uses: mattzcarey/code-review-gpt@v0.8.0
+      #   env:
+      #     BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+      #     HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      #   with:
+      #     OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     MODEL: 'gpt-4'
+      #     REVIEW_LANGUAGE: 'en'
