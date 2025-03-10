@@ -1,5 +1,6 @@
 import { Dayjs } from 'dayjs';
-import { Assignment, WorkItem, Person } from '../types';
+import { Assignment, WorkItem, Person, Holiday } from '../types';
+import { useHolidayColors } from '../hooks/useHolidayColors';
 
 interface TimelineProps {
   startDate: Dayjs;
@@ -8,7 +9,7 @@ interface TimelineProps {
   assignments: Assignment[];
   isHighLightWeekend: boolean;
   isShowHolidays: boolean;
-  onDragStart: (e: React.DragEvent<HTMLDivElement>, assignment: Assignment) => void;
+  onDragStart: (e: React.DragEvent<HTMLDivElement>, assignment?: Assignment) => void;
   onDrop: (e: React.DragEvent<HTMLDivElement>, personIndex: number, dayIndex: number) => void;
   onPersonNameChange: (personId: number, newName: string) => void;
 }
@@ -24,35 +25,43 @@ export function Timeline({
   onDrop,
   onPersonNameChange,
 }: TimelineProps) {
-  // 检查某个时间格是否已被分配工作
-  const getAssignmentForCell = (personIndex: number, dayIndex: number) => {
-    return assignments.find(a => 
-      a.personIndex === personIndex && 
-      dayIndex >= a.startDay && 
-      dayIndex < a.startDay + a.work.manDays
-    );
+  const { getHolidayStyles } = useHolidayColors();
+
+  const getHolidayForDate = (person: Person, date: string): Holiday | undefined => {
+    return person.holidays.find(h => h.date === date);
   };
 
-  // 获取星期几的显示文本
-  const getWeekDay = (date: Dayjs) => {
-    const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
-    return weekDays[date.day()];
+  const getDayCellClassName = (date: Dayjs, personIndex: number, isAssigned: boolean) => {
+    const classes = ['day-cell'];
+    const dateStr = date.format('YYYY-MM-DD');
+    const person = people[personIndex];
+    const holiday = person && getHolidayForDate(person, dateStr);
+
+    if (isHighLightWeekend && (date.day() === 0 || date.day() === 6)) {
+      classes.push('weekend');
+    }
+    
+    if (isAssigned) {
+      classes.push('assigned');
+    }
+
+    if (holiday) {
+      classes.push('holiday');
+      classes.push(`holiday-${holiday.type}`);
+    }
+
+    return classes.join(' ');
   };
 
-  // 检查是否为周末
-  const isWeekend = (date: Dayjs) => {
-    const day = date.day();
-    return day === 0 || day === 6;
-  };
-
-  // 检查是否为假期
-  const isHoliday = (person: Person, date: Dayjs) => {
-    return person.holidays.some(h => h.date === date.format('YYYY-MM-DD'));
+  const getCellStyle = (holiday?: Holiday, isAssigned?: boolean) => {
+    if (!holiday) return {};
+    const styles = getHolidayStyles(holiday.type);
+    return isAssigned ? styles.cellAssigned : styles.cell;
   };
 
   return (
     <div className="timeline">
-      {people.map((person) => (
+      {people.map((person, personIndex) => (
         <div key={person.id} className="timeline-row">
           <div className="person-name">
             <input
@@ -60,43 +69,48 @@ export function Timeline({
               value={person.name}
               onChange={(e) => onPersonNameChange(person.id, e.target.value)}
               className="person-name-input"
+              placeholder={`人员 ${person.id + 1}`}
             />
           </div>
           <div className="day-cells">
             {Array.from({ length: endDate.diff(startDate, 'day') + 1 }).map((_, dayIndex) => {
-              const assignment = getAssignmentForCell(person.id, dayIndex);
-              const isFirstDayOfAssignment = assignment?.startDay === dayIndex;
-              const date = startDate.add(dayIndex, 'day');
-              const weekend = isWeekend(date);
-              const holiday = isShowHolidays && isHoliday(person, date);
-              
+              const currentDate = startDate.add(dayIndex, 'day');
+              const dateStr = currentDate.format('YYYY-MM-DD');
+              const assignment = assignments.find(
+                a => a.personIndex === personIndex && a.startDay === dayIndex
+              );
+              const holiday = getHolidayForDate(person, dateStr);
+
               return (
                 <div
-                  key={`${person.id}-${dayIndex}`}
-                  className={`day-cell ${assignment ? 'assigned' : ''} ${isHighLightWeekend && weekend ? 'weekend' : ''} ${holiday ? 'holiday' : ''}`}
+                  key={dayIndex}
+                  className={getDayCellClassName(currentDate, personIndex, !!assignment)}
+                  style={getCellStyle(holiday, !!assignment)}
                   onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => onDrop(e, person.id, dayIndex)}
+                  onDrop={(e) => onDrop(e, personIndex, dayIndex)}
                 >
                   <div className="date-label">
-                    <div>{date.format('MM/DD')}</div>
-                    <div className="weekday">周{getWeekDay(date)}</div>
-                    {holiday && <div className="holiday-indicator">休</div>}
+                    <div>{currentDate.format('MM/DD')}</div>
+                    <div className="weekday">{currentDate.format('ddd')}</div>
                   </div>
-                  {isFirstDayOfAssignment && (
-                    <div 
+                  {assignment && (
+                    <div
                       className="assignment"
                       draggable
                       onDragStart={(e) => onDragStart(e, assignment)}
-                      style={{
-                        width: `calc(100% * ${assignment.work.manDays})`,
-                      }}
                     >
-                      <div className="assignment-title">
-                        {assignment.work.title}
-                      </div>
-                      <div className="assignment-days">
-                        人天: {assignment.work.manDays}
-                      </div>
+                      <div className="assignment-title">{assignment.work.title}</div>
+                      <div className="assignment-days">{assignment.work.manDays}天</div>
+                    </div>
+                  )}
+                  {isShowHolidays && holiday && !assignment && (
+                    <div 
+                      className="holiday-indicator"
+                      style={getHolidayStyles(holiday.type).indicator}
+                    >
+                      <span className="holiday-indicator-name" title={holiday.name}>
+                        {holiday.name}
+                      </span>
                     </div>
                   )}
                 </div>

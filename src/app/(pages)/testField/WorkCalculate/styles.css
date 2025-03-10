@@ -399,129 +399,156 @@ h2 {
   background-color: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  padding: 8px;
+  padding: 12px;
   transition: all 0.2s;
+  overflow: hidden;
 }
 
 .person-card:hover {
   border-color: #94a3b8;
   background-color: white;
-}
-
-.person-card .person-name-input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  background: transparent;
-  font-size: 14px;
-  color: #1e293b;
-  transition: all 0.2s;
-}
-
-.person-card:hover .person-name-input {
-  border-color: #e2e8f0;
-  background: white;
-}
-
-.person-card .person-name-input:focus {
-  border-color: #3b82f6;
-  background: white;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .person-info {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
+}
+
+.person-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
 }
 
 .holiday-picker {
   display: flex;
   flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  background: #fff;
+
+}
+
+.holiday-header {
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
 
 .holiday-date-input {
+  flex: 1;
   padding: 6px 10px;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
   font-size: 13px;
-  width: 100%;
+  box-sizing: border-box;
+}
+
+.add-holiday-btn {
+  padding: 6px 12px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.add-holiday-btn:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.add-holiday-btn:active {
+  transform: translateY(0);
 }
 
 .holiday-dates {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
+  width: 100%;
 }
 
 .holiday-tag {
-  background-color: #fee2e2;
-  border: 1px solid #fecaca;
-  border-radius: 4px;
-  padding: 2px 6px;
-  font-size: 12px;
-  color: #ef4444;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: space-between;
+  flex-direction: column;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.holiday-type-select {
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  outline: none;
 }
 
 .holiday-name-input {
   background: transparent;
-  border: none;
-  color: #ef4444;
-  font-size: 12px;
-  padding: 0;
-  width: 60px;
+  border: 1px solid transparent;
+  font-size: 13px;
+  padding: 2px 4px;
+  min-width: 60px;
+  max-width: 120px;
+  border-radius: 4px;
   outline: none;
 }
 
-.holiday-name-input:hover,
-.holiday-name-input:focus {
-  border-bottom: 1px dashed #ef4444;
-}
-
 .holiday-date {
-  color: #ef4444;
-  font-size: 12px;
+  font-size: 13px;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .remove-holiday {
   background: none;
   border: none;
-  color: #ef4444;
   cursor: pointer;
-  padding: 0;
+  padding: 4px;
   font-size: 14px;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.remove-holiday:hover {
-  color: #dc2626;
-}
-
-.day-cell.holiday {
-  background-color: #fef2f2;
-  border-color: #fecaca;
-}
-
-.day-cell.holiday.assigned {
-  background-color: #fee2e2;
+  border-radius: 4px;
+  transition: all 0.2s;
 }
 
 .holiday-indicator {
-  background-color: #ef4444;
-  color: white;
   font-size: 11px;
-  padding: 1px 4px;
+  padding: 2px 6px;
   border-radius: 3px;
   margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
+}
+
+.holiday-indicator-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
 }
 
 .tool-controls {

@@ -1,5 +1,6 @@
 import dayjs, { Dayjs } from 'dayjs';
-import { Person, Holiday } from '../types';
+import { Person, Holiday, HolidayType } from '../types';
+import { useHolidayColors } from '../hooks/useHolidayColors';
 
 interface DateControlsProps {
   startDate: Dayjs;
@@ -10,7 +11,15 @@ interface DateControlsProps {
   onEndDateChange: (date: Dayjs) => void;
   onNumberOfPeopleChange: (num: number) => void;
   onPersonNameChange: (personId: number, newName: string) => void;
-  onPersonHolidayChange: (personId: number, date: string, isHoliday: boolean, name?: string) => void;
+  onPersonHolidayChange: (
+    personId: number,
+    date: string,
+    isDelete: boolean,
+    isCreate: boolean,
+    isUpdate: boolean,
+    name?: string,
+    type?: HolidayType
+  ) => void;
 }
 
 export function DateControls({
@@ -24,6 +33,8 @@ export function DateControls({
   onPersonNameChange,
   onPersonHolidayChange,
 }: DateControlsProps) {
+  const { getHolidayStyles } = useHolidayColors();
+
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newDate = dayjs(e.target.value);
     if (newDate.isValid()) {
@@ -50,22 +61,69 @@ export function DateControls({
     }
   };
 
-  const handleHolidayToggle = (personId: number, date: string) => {
+  const handleHolidayAdd = (personId: number, date: string) => {
+    if (!date) return;
     const person = people.find(p => p.id === personId);
     const hasHoliday = person?.holidays.some(h => h.date === date);
     if (!hasHoliday) {
-      onPersonHolidayChange(personId, date, true, '其他占用');
+      onPersonHolidayChange(
+        personId,
+        date,
+        true,  // isDelete
+        true,  // isCreate
+        false, // isUpdate
+        HolidayType.showName(HolidayType.Work),
+        HolidayType.Work
+      );
     }
   };
 
-  const handleHolidayNameChange = (personId: number, date: string, newName: string) => {
+  const handleHolidayNameChange = (personId: number, date: string, newName: string, type?: HolidayType) => {
     const person = people.find(p => p.id === personId);
     if (person) {
       const holiday = person.holidays.find(h => h.date === date);
       if (holiday) {
-        onPersonHolidayChange(personId, date, true, newName);
+        onPersonHolidayChange(
+          personId,
+          date,
+          true,   // isDelete
+          false,  // isCreate
+          true,   // isUpdate
+          newName,
+          type || holiday.type
+        );
       }
     }
+  };
+
+  const handleHolidayTypeChange = (personId: number, date: string, type: HolidayType) => {
+    const person = people.find(p => p.id === personId);
+    if (person) {
+      const holiday = person.holidays.find(h => h.date === date);
+      if (holiday) {
+        onPersonHolidayChange(
+          personId,
+          date,
+          true,   // isDelete
+          false,  // isCreate
+          true,   // isUpdate
+          holiday.name,
+          type
+        );
+      }
+    }
+  };
+
+  const handleHolidayEnable = (person: Person) => {
+    onPersonHolidayChange(
+      person.id,
+      dayjs().format('YYYY-MM-DD'),
+      true,   // isDelete
+      true,   // isCreate
+      false,  // isUpdate
+      HolidayType.showName(HolidayType.Work),
+      HolidayType.Work
+    );
   };
 
   return (
@@ -94,49 +152,91 @@ export function DateControls({
           min="1"
         />
       </div>
-      
+
       <div className="people-list">
         <h3>当前人员列表</h3>
         <div className="people-grid">
           {people.map((person) => (
             <div key={person.id} className="person-card">
               <div className="person-info">
-                <input
-                  type="text"
-                  value={person.name}
-                  onChange={(e) => onPersonNameChange(person.id, e.target.value)}
-                  className="person-name-input"
-                  placeholder={`人员 ${person.id + 1}`}
-                />
-                <div className="holiday-picker">
+                <div className="person-header">
                   <input
-                    type="date"
-                    min={startDate.format('YYYY-MM-DD')}
-                    max={endDate.format('YYYY-MM-DD')}
-                    onChange={(e) => handleHolidayToggle(person.id, e.target.value)}
-                    className="holiday-date-input"
+                    type="text"
+                    value={person.name}
+                    onChange={(e) => onPersonNameChange(person.id, e.target.value)}
+                    className="person-name-input"
+                    placeholder={`人员 ${person.id + 1}`}
                   />
-                  <div className="holiday-dates">
-                    {person.holidays.map((holiday) => (
-                      <div key={holiday.date} className="holiday-tag">
-                        <input
-                          type="text"
-                          value={holiday.name}
-                          onChange={(e) => handleHolidayNameChange(person.id, holiday.date, e.target.value)}
-                          className="holiday-name-input"
-                          placeholder="其他占用"
-                        />
-                        <span className="holiday-date">{dayjs(holiday.date).format('MM/DD')}</span>
-                        <button
-                          className="remove-holiday"
-                          onClick={() => onPersonHolidayChange(person.id, holiday.date, false)}
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                  <button
+                    onClick={() => handleHolidayEnable(person)}
+                    className="add-holiday-btn"
+                    title="添加假期"
+                  >
+                    添加假期
+                  </button>
                 </div>
+
+                {person.holidays.length > 0 && (
+                  <div className="holiday-picker">
+                    <div className="holiday-dates">
+                      {person.holidays.map((holiday) => {
+                        const styles = getHolidayStyles(holiday.type);
+                        return (
+                          <div
+                            key={holiday.date}
+                            className="holiday-tag"
+                            style={styles.tag}
+                          >
+                            <select
+                              value={holiday.type}
+                              onChange={(e) => handleHolidayTypeChange(person.id, holiday.date, e.target.value as HolidayType)}
+                              className="holiday-type-select"
+                              style={styles.select}
+                            >
+                              <option value="work">{HolidayType.showName(HolidayType.Work)}</option>
+                              <option value="personal">{HolidayType.showName(HolidayType.Personal)}</option>
+                              <option value="other">{HolidayType.showName(HolidayType.Other)}</option>
+                            </select>
+                            <input
+                              type="text"
+                              value={holiday.name}
+                              onChange={(e) => handleHolidayNameChange(person.id, holiday.date, e.target.value)}
+                              className="holiday-name-input"
+                              style={styles.input}
+                              placeholder="请输入原因"
+                            />
+                            <input
+                              type="date"
+                              min={startDate.format('YYYY-MM-DD')}
+                              max={endDate.format('YYYY-MM-DD')}
+                              className="holiday-date-input"
+                              onChange={(e) => {
+                                if (e.target.value) {
+                                  handleHolidayAdd(person.id, e.target.value);
+                                  e.target.value = ''; // 清空输入
+                                }
+                              }}
+                            />
+                            <button
+                              className="remove-holiday"
+                              onClick={() => onPersonHolidayChange(
+                                person.id,
+                                holiday.date,
+                                false,  // isDelete
+                                false,  // isCreate
+                                false,  // isUpdate
+                              )}
+                              title="删除假期"
+                              style={styles.select}
+                            >
+                              删除假期
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}
