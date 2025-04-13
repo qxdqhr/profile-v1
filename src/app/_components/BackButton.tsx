@@ -4,37 +4,19 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 interface BackButtonProps {
-  href?: string;
-  className?: string;
+  href: string;
 }
 
-export const BackButton: React.FC<BackButtonProps> = ({ href, className = '' }) => {
+export const BackButton: React.FC<BackButtonProps> = ({ href }) => {
   const router = useRouter();
 
   const handleClick = () => {
-    if (href) {
-      return;
-    }
     router.back();
   };
 
-  const buttonContent = (
-    <div className={`back-button ${className}`}>
-      ← 返回
-    </div>
-  );
-
-  if (href) {
-    return (
-      <Link href={href}>
-        {buttonContent}
-      </Link>
-    );
-  }
-
   return (
-    <button onClick={handleClick}>
-      {buttonContent}
-    </button>
+    <Link href={href} className="back-button">
+      返回
+    </Link>
   );
 }; 
