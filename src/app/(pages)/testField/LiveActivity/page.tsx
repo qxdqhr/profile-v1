@@ -97,7 +97,7 @@ export default function LiveActivity() {
       <div className="live-activity-wrapper">
         <div className="live-activity-card">
           <div className="live-activity-header">
-            <BackButton/>
+            <BackButton href="/testField"/>
             <h1 className="live-activity-title">
                             Live Activity API 测试
             </h1>
