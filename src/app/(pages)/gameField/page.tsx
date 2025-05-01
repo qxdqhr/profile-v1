@@ -77,11 +77,19 @@ const games: ExperimentItem[] = [
     description: "金矿工",
     path: "/gameField/goldMiner",
     tags: ["小游戏", "赛博无料","新建文件夹"]
-  },  {
+  }, 
+  {
     id: "playMusic",
     title: "音乐无料",
     description: "音乐无料",
     path: "/gameField/playMusic",
+    tags: ["小游戏", "赛博无料","新建文件夹"]
+  },
+  {
+    id: "mikuPlanting",
+    title: "米库种植",
+    description: "米库种植",
+    path: "/gameField/mikuPlanting",
     tags: ["小游戏", "赛博无料","新建文件夹"]
   },
 
