@@ -14,9 +14,28 @@
 
 ## 项目结构
 
+### 核心文件
 - `types.ts` - 定义了题目类型和数据结构
 - `mockData.ts` - 包含示例题目数据
 - `page.tsx` - 主要的考试页面组件
+- `styles.css` - 样式文件
+
+### 组件化结构
+- `components/` - 包含所有UI组件
+  - `Question.tsx` - 根据题目类型渲染不同的题目组件
+  - `QuestionContent.tsx` - 显示题目内容和图片
+  - `OptionsList.tsx` - 显示选择题选项
+  - `QuestionHeader.tsx` - 显示题目标题和分数信息
+  - `QuestionTypeTag.tsx` - 显示题目类型标签
+  - `Navigation.tsx` - 导航控制组件
+  - `StatusBar.tsx` - 状态栏组件
+  - `QuestionList.tsx` - 题目列表弹窗组件
+  - `SubmitButton.tsx` - 提交答案按钮组件
+  - `index.ts` - 导出所有组件
+
+### 状态管理
+- `context/` - 包含状态管理逻辑
+  - `ExamContext.tsx` - 考试上下文提供者和钩子
 
 ## 数据模型
 
@@ -30,15 +49,15 @@
 
 每种题型都继承自基础的 `BaseQuestion` 接口，包含通用属性如题目内容、分值等。
 
-## 页面组件设计
+## 扩展新题型的步骤
 
-主要页面组件分为几个主要部分：
+要添加新的题型，请按照以下步骤操作：
 
-1. **状态栏** - 显示已答题数量和剩余时间
-2. **题目区域** - 显示题目内容和图片（如有）
-3. **答题区域** - 显示选项供用户选择
-4. **导航区域** - 包含上一题/下一题按钮和题目列表入口
-5. **题目列表** - 提供全局导航和题目答题状态概览
+1. 在 `types.ts` 中确保题型已在 `QuestionType` 枚举中定义
+2. 为新题型创建对应的接口，继承自 `BaseQuestion`
+3. 创建新的题型组件，如 `FillBlankAnswer.tsx`
+4. 在 `Question.tsx` 中添加对新题型的条件渲染
+5. 更新 `mockData.ts` 添加新题型的示例数据
 
 ## 移动端适配
 

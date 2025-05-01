@@ -1,10 +1,10 @@
 // 题目类型枚举
 export enum QuestionType {
-  SingleChoice = "SINGLE_CHOICE",
-  MultipleChoice = "MULTIPLE_CHOICE",
-  FillBlank = "FILL_BLANK",
-  ShortAnswer = "SHORT_ANSWER",
-  Essay = "ESSAY"
+  SingleChoice = 'single_choice',
+  MultipleChoice = 'multiple_choice',
+  FillBlank = 'fill_blank',
+  ShortAnswer = 'short_answer',
+  Essay = 'essay',
 }
 
 // 基础题目接口
@@ -70,7 +70,8 @@ export interface ExamData {
 }
 
 // 用户答案类型
-export type UserAnswer = {
+export interface UserAnswer {
   questionId: string;
-  answer: string | string[];
-}; 
+  selectedOptions: string[];
+  textAnswer?: string;
+} 
