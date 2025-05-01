@@ -12,8 +12,8 @@ export const mockQuestions: Question[] = [
       { id: '1c', content: '第四颗' },
       { id: '1d', content: '第五颗' },
     ],
-    correctAnswers: ['1c'],
-    points: 2,
+    answer: '1c',
+    score: 2,
   },
   {
     id: '2',
@@ -25,8 +25,8 @@ export const mockQuestions: Question[] = [
       { id: '2c', content: 'Excel' },
       { id: '2d', content: 'JavaScript' },
     ],
-    correctAnswers: ['2a', '2b', '2d'],
-    points: 3,
+    answers: ['2a', '2b', '2d'],
+    score: 3,
   },
   {
     id: '3',
@@ -39,8 +39,8 @@ export const mockQuestions: Question[] = [
       { id: '3c', content: '豹子' },
       { id: '3d', content: '狐狸' },
     ],
-    correctAnswers: ['3d'],
-    points: 2,
+    answer: '3d',
+    score: 2,
   },
   {
     id: '4',
@@ -52,8 +52,8 @@ export const mockQuestions: Question[] = [
       { id: '4c', content: '木星是太阳系中最大的行星' },
       { id: '4d', content: '月球是地球的卫星' },
     ],
-    correctAnswers: ['4a', '4c', '4d'],
-    points: 3,
+    answers: ['4a', '4c', '4d'],
+    score: 3,
   },
   {
     id: '5',
@@ -81,7 +81,7 @@ export const mockQuestions: Question[] = [
         imageUrl: 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1635&q=80'
       },
     ],
-    correctAnswers: ['5b'],
-    points: 2,
+    answer: '5b',
+    score: 2,
   }
 ]; 

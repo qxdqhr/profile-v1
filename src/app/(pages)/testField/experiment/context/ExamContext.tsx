@@ -277,7 +277,7 @@ export const ExamProvider: React.FC<ExamProviderProps> = ({
           
         case QuestionType.MultipleChoice:
           const multiQuestion = question as MultipleChoiceQuestion;
-          isCorrect = multiQuestion.answers.length === userAnswer.selectedOptions.length &&
+          isCorrect = (multiQuestion.answers.length === userAnswer.selectedOptions.length) &&
             multiQuestion.answers.every(answer => userAnswer.selectedOptions.includes(answer));
           break;
           
