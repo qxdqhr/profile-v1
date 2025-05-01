@@ -8,6 +8,7 @@ const ExamResults = () => {
     questions, 
     userAnswers, 
     resetExam,
+    resetToStart,
     calculateScore
   } = useExam();
   
@@ -48,12 +49,21 @@ const ExamResults = () => {
           </div>
         </div>
         
-        <button 
-          className={styles["review-button"]}
-          onClick={resetExam}
-        >
-          重新开始考试
-        </button>
+        <div className={styles["button-group"]}>
+          <button 
+            className={styles["review-button"]}
+            onClick={resetExam}
+          >
+            重新开始考试
+          </button>
+          
+          <button 
+            className={`${styles["review-button"]} ${styles["secondary-button"]}`}
+            onClick={resetToStart}
+          >
+            回到启动页
+          </button>
+        </div>
       </div>
     </div>
   );

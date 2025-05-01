@@ -9,14 +9,22 @@ import OptionsList from './OptionsList';
 import NavigationControls from './NavigationControls';
 import ProgressIndicator from './ProgressIndicator';
 import ExamResults from './ExamResults';
+import StartScreen from './StartScreen';
 
 const ExamLayout = () => {
-  const { examSubmitted } = useExam();
+  const { examSubmitted, examStarted } = useExam();
   
+  // 如果考试已提交，显示结果页面
   if (examSubmitted) {
     return <ExamResults />;
   }
   
+  // 如果考试未开始，显示启动页面
+  if (!examStarted) {
+    return <StartScreen />;
+  }
+  
+  // 否则显示考试内容
   return (
     <div className={styles["exam-container"]}>
       <div className={styles["exam-header"]}>

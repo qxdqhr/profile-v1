@@ -25,6 +25,7 @@ interface ExamContextType {
   totalQuestions: number;
   examSubmitted: boolean;
   isMobile: boolean;
+  examStarted: boolean;
   
   // 导航方法
   goToNextQuestion: () => void;
@@ -42,6 +43,7 @@ interface ExamContextType {
   // 提交和重置考试
   handleSubmitExam: () => void;
   resetExam: () => void;
+  resetToStart: () => void;
   
   // 计算得分
   calculateScore: () => {
@@ -51,6 +53,9 @@ interface ExamContextType {
     incorrectAnswers: number;
     unanswered: number;
   };
+  
+  // 开始考试
+  startExam: () => void;
 }
 
 // 创建上下文
@@ -71,6 +76,7 @@ export const ExamProvider: React.FC<ExamProviderProps> = ({
   const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);
   const [examSubmitted, setExamSubmitted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [examStarted, setExamStarted] = useState(false);
   
   // 检测是否为移动设备
   useEffect(() => {
@@ -228,6 +234,14 @@ export const ExamProvider: React.FC<ExamProviderProps> = ({
     setExamSubmitted(false);
   }, []);
   
+  // 重置到启动页方法（完全重置所有状态）
+  const resetToStart = useCallback(() => {
+    setCurrentQuestionIndex(0);
+    setUserAnswers([]);
+    setExamSubmitted(false);
+    setExamStarted(false);
+  }, []);
+  
   // 计算得分
   const calculateScore = useCallback(() => {
     let score = 0;
@@ -236,28 +250,6 @@ export const ExamProvider: React.FC<ExamProviderProps> = ({
     let incorrectCount = 0;
     let unansweredCount = 0;
     
-    // questions.forEach(question => {
-    //   totalPoints += question.points;
-      
-    //   const userAnswer = userAnswers.find(answer => answer.questionId === question.id);
-      
-    //   if (!userAnswer || userAnswer.selectedOptions.length === 0) {
-    //     unansweredCount++;
-    //     return;
-    //   }
-      
-    //   const isCorrect = question.type === QuestionType.SingleChoice
-    //     ? question.correctAnswers[0] === userAnswer.selectedOptions[0]
-    //     : question.correctAnswers.length === userAnswer.selectedOptions.length &&
-    //       question.correctAnswers.every(option => userAnswer.selectedOptions.includes(option));
-      
-    //   if (isCorrect) {
-    //     score += question.points;
-    //     correctCount++;
-    //   } else {
-    //     incorrectCount++;
-    //   }
-    // });
     questions.forEach(question => {
       totalPoints += question.score;
       
@@ -312,6 +304,11 @@ export const ExamProvider: React.FC<ExamProviderProps> = ({
     };
   }, [questions, userAnswers]);
   
+  // 开始考试方法
+  const startExam = useCallback(() => {
+    setExamStarted(true);
+  }, []);
+  
   const value: ExamContextType = {
     questions,
     currentQuestionIndex,
@@ -321,6 +318,7 @@ export const ExamProvider: React.FC<ExamProviderProps> = ({
     totalQuestions: questions.length,
     examSubmitted,
     isMobile,
+    examStarted,
     
     goToNextQuestion,
     goToPreviousQuestion,
@@ -335,7 +333,9 @@ export const ExamProvider: React.FC<ExamProviderProps> = ({
     
     handleSubmitExam,
     resetExam,
-    calculateScore
+    resetToStart,
+    calculateScore,
+    startExam
   };
   
   return (
