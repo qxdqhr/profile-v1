@@ -28,9 +28,8 @@ const ExamResults = () => {
   }, []);
 
   function assert(condition: boolean, message: string): asserts condition {
-    if (condition) {
-        throw new Error(`${message}`);
-    }
+    const err = new Error(`${message}`);
+    Promise.reject(err);
   }
   return (
     <div className={styles["exam-container"]}>
