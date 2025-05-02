@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import { useExam } from '../context/ExamContext';
 import styles from '../styles.module.css';
 
 const ExamResults = () => {
+  const [showModal, setShowModal] = useState(false);
   const { 
     questions, 
     userAnswers, 
@@ -17,8 +19,45 @@ const ExamResults = () => {
   // 计算百分比分数
   const percentageScore = Math.round((score / totalPoints) * 100);
   
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowModal(true);
+    }, 5000); // 10秒后显示弹窗
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  function assert(condition: boolean, message: string): asserts condition {
+    if (condition) {
+        throw new Error(`${message}`);
+    }
+  }
   return (
     <div className={styles["exam-container"]}>
+      {showModal && (
+        <div className={styles["modal"]}>
+          <div className={styles["modal-content"]}>
+            <h2>考试结果分析完成</h2>
+            {
+              percentageScore > 60 && (
+                <p>您已经查看了成绩报告 10 秒钟了，需要重新测试吗？</p>
+              )
+            }
+            {
+              percentageScore <= 60 && (
+                <p>你果然还记得我们的过去,即使是新生文明,也无法逃脱即将毁灭的未来</p>
+              )
+            }
+            <button onClick={() => {
+              setShowModal(false)
+              if (percentageScore <= 60) {
+                assert(true, '让我们继续我们之前的理想吧');
+              }
+            }}>关闭</button>
+          </div>
+        </div>
+      )}
+      
       <div className={styles["results-container"]}>
         <div className={styles["results-header"]}>
           <h1 className={styles["results-title"]}>考试完成</h1>
