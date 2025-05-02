@@ -15,8 +15,10 @@ import {
   FillBlankQuestion,
   SingleChoiceQuestion,
   SpecialEffectType,
-  ModalPopEffect
+  ModalPopEffect,
+  StartScreenData
 } from "../types";
+import { mockStartScreenData } from "../mockData";
 
 interface ExamContextType {
   questions: Question[];
@@ -32,6 +34,7 @@ interface ExamContextType {
   specialModalData: ModalPopEffect | null;
   textShakeEffect: boolean;
   textFlashEffect: boolean;
+  startScreenData: StartScreenData;
   
   // 导航方法
   goToNextQuestion: () => void;
@@ -383,6 +386,7 @@ export const ExamProvider: React.FC<ExamProviderProps> = ({
     specialModalData,
     textShakeEffect,
     textFlashEffect,
+    startScreenData: mockStartScreenData,
     
     goToNextQuestion,
     goToPreviousQuestion,

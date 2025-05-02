@@ -72,6 +72,17 @@ export interface ExamData {
   questions: Question[];
 }
 
+// 启动页数据结构
+export interface StartScreenData {
+  title: string;
+  description: string;
+  rules: {
+    title: string;
+    items: string[];
+  };
+  buttonText: string;
+}
+
 // 用户答案类型
 export interface UserAnswer {
   questionId: string;

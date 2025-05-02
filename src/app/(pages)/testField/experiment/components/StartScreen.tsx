@@ -3,6 +3,7 @@
 import { useExam } from '../context/ExamContext';
 import styles from '../styles.module.css';
 import { useEffect, useState } from 'react';
+import { mockStartScreenData } from '../mockData';
 
 const StartScreen = () => {
   const { startExam } = useExam();
@@ -34,27 +35,23 @@ const StartScreen = () => {
       </div>
       
       <div className={`${styles["start-content"]} ${showIntro ? styles.visible : ''}`}>
-        <h1 className={styles["start-title"]}>在线考试系统</h1>
+        <h1 className={styles["start-title"]}>{mockStartScreenData.title}</h1>
         <p className={styles["start-description"]}>
-          欢迎参加本次考试！本考试包含多种题型，满分为100分。
-          请仔细阅读题目，并在规定时间内完成作答。
+          {mockStartScreenData.description}
         </p>
         
         <div className={styles["start-rules"]}>
-          <h2>考试须知：</h2>
+          <h2>{mockStartScreenData.rules.title}</h2>
           <ul>
-            <li className={styles["fade-in-item"]} style={{ animationDelay: '0.3s' }}>
-              考试时间：30分钟
-            </li>
-            <li className={styles["fade-in-item"]} style={{ animationDelay: '0.6s' }}>
-              题目类型：单选题、多选题
-            </li>
-            <li className={styles["fade-in-item"]} style={{ animationDelay: '0.9s' }}>
-              题目数量：5题
-            </li>
-            <li className={styles["fade-in-item"]} style={{ animationDelay: '1.2s' }}>
-              请勿刷新页面，否则答题进度会丢失
-            </li>
+            {mockStartScreenData.rules.items.map((item, index) => (
+              <li 
+                key={index}
+                className={styles["fade-in-item"]} 
+                style={{ animationDelay: `${0.3 * (index + 1)}s` }}
+              >
+                {item}
+              </li>
+            ))}
           </ul>
         </div>
         
@@ -62,7 +59,7 @@ const StartScreen = () => {
           className={`${styles["start-button"]} ${styles["pulsing"]}`}
           onClick={startExam}
         >
-          开始答题
+          {mockStartScreenData.buttonText}
         </button>
       </div>
     </div>
