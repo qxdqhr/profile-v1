@@ -1,3 +1,5 @@
+import exp from "constants";
+
 // 题目类型枚举
 export enum QuestionType {
   SingleChoice = 'single_choice',
@@ -14,6 +16,7 @@ export interface BaseQuestion {
   content: string;
   imageUrl?: string;
   score: number;
+  specialEffect?: SpecialEffect; 
 }
 
 // 选择题选项
@@ -75,3 +78,42 @@ export interface UserAnswer {
   selectedOptions: string[];
   textAnswer?: string;
 } 
+
+// 特效类型
+export interface SpecialBaseEffect {
+  type?: SpecialEffectType;
+} 
+
+// 题目类型联合
+export type SpecialEffect = 
+  | ModalPopEffect 
+  | TextShakeEffect 
+  | TextFlashEffect;
+
+// 特效类型枚举
+export enum SpecialEffectType {
+  //弹窗弹出
+  ModalPop = 'modal_pop',
+  // 答题界面所有文字抖动
+  TextShake = 'text_shake',
+  // 答题界面所有文字闪烁
+  TextFlash = 'text_flash',
+}
+
+// 弹窗弹出特效
+export interface ModalPopEffect extends SpecialBaseEffect {
+  type: SpecialEffectType.ModalPop;
+  title?: string; 
+  content?: string;
+  imageUrl?: string;
+  buttonText?: string;
+}
+
+export interface TextShakeEffect extends SpecialBaseEffect {
+  type: SpecialEffectType.TextShake;
+}
+
+export interface TextFlashEffect extends SpecialBaseEffect {
+  type: SpecialEffectType.TextFlash;
+}
+

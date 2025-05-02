@@ -13,7 +13,9 @@ import {
   QuestionType, 
   MultipleChoiceQuestion,
   FillBlankQuestion,
-  SingleChoiceQuestion
+  SingleChoiceQuestion,
+  SpecialEffectType,
+  ModalPopEffect
 } from "../types";
 
 interface ExamContextType {
@@ -26,6 +28,10 @@ interface ExamContextType {
   examSubmitted: boolean;
   isMobile: boolean;
   examStarted: boolean;
+  specialModalOpen: boolean;
+  specialModalData: ModalPopEffect | null;
+  textShakeEffect: boolean;
+  textFlashEffect: boolean;
   
   // 导航方法
   goToNextQuestion: () => void;
@@ -56,6 +62,9 @@ interface ExamContextType {
   
   // 开始考试
   startExam: () => void;
+  
+  // 特殊弹窗相关方法
+  closeSpecialModal: () => void;
 }
 
 // 创建上下文
@@ -77,6 +86,10 @@ export const ExamProvider: React.FC<ExamProviderProps> = ({
   const [examSubmitted, setExamSubmitted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [examStarted, setExamStarted] = useState(false);
+  const [specialModalOpen, setSpecialModalOpen] = useState(false);
+  const [specialModalData, setSpecialModalData] = useState<ModalPopEffect | null>(null);
+  const [textShakeEffect, setTextShakeEffect] = useState(false);
+  const [textFlashEffect, setTextFlashEffect] = useState(false);
   
   // 检测是否为移动设备
   useEffect(() => {
@@ -98,27 +111,74 @@ export const ExamProvider: React.FC<ExamProviderProps> = ({
   // 已回答的问题ID列表
   const questionsAnswered = userAnswers.map(answer => answer.questionId);
   
+  // 检查当前问题的特效并应用
+  const checkQuestionEffect = useCallback((index: number) => {
+    const question = questions[index];
+    if (question && question.specialEffect) {
+      const effect = question.specialEffect;
+      
+      // 重置所有特效
+      setSpecialModalOpen(false);
+      setTextShakeEffect(false);
+      setTextFlashEffect(false);
+      
+      // 应用对应特效
+      switch (effect.type) {
+        case SpecialEffectType.ModalPop:
+          const modalData = effect as ModalPopEffect;
+          setSpecialModalData(modalData);
+          setSpecialModalOpen(true);
+          break;
+          
+        case SpecialEffectType.TextShake:
+          setTextShakeEffect(true);
+          break;
+          
+        case SpecialEffectType.TextFlash:
+          setTextFlashEffect(true);
+          break;
+      }
+    }
+  }, [questions]);
+  
+  // 关闭特殊弹窗
+  const closeSpecialModal = useCallback(() => {
+    setSpecialModalOpen(false);
+  }, []);
+  
   // 导航方法
   const goToNextQuestion = useCallback(() => {
     if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(prevIndex => prevIndex + 1);
+      const nextIndex = currentQuestionIndex + 1;
+      setCurrentQuestionIndex(nextIndex);
+      checkQuestionEffect(nextIndex);
     }
-  }, [currentQuestionIndex, questions.length]);
+  }, [currentQuestionIndex, questions.length, checkQuestionEffect]);
   
   const goToPreviousQuestion = useCallback(() => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prevIndex => prevIndex - 1);
+      const prevIndex = currentQuestionIndex - 1;
+      setCurrentQuestionIndex(prevIndex);
+      checkQuestionEffect(prevIndex);
     }
-  }, [currentQuestionIndex]);
+  }, [currentQuestionIndex, checkQuestionEffect]);
   
   const goToQuestion = useCallback((index: number) => {
     if (index >= 0 && index < questions.length) {
       setCurrentQuestionIndex(index);
+      checkQuestionEffect(index);
     }
-  }, [questions.length]);
+  }, [questions.length, checkQuestionEffect]);
   
   const isFirstQuestion = currentQuestionIndex === 0;
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
+  
+  // 初始检查第一题是否有特效
+  useEffect(() => {
+    if (examStarted && questions.length > 0) {
+      checkQuestionEffect(currentQuestionIndex);
+    }
+  }, [examStarted, questions, currentQuestionIndex, checkQuestionEffect]);
   
   // 回答问题的方法
   const handleSingleChoiceAnswer = useCallback((questionId: string, optionId: string) => {
@@ -319,6 +379,10 @@ export const ExamProvider: React.FC<ExamProviderProps> = ({
     examSubmitted,
     isMobile,
     examStarted,
+    specialModalOpen,
+    specialModalData,
+    textShakeEffect,
+    textFlashEffect,
     
     goToNextQuestion,
     goToPreviousQuestion,
@@ -335,7 +399,8 @@ export const ExamProvider: React.FC<ExamProviderProps> = ({
     resetExam,
     resetToStart,
     calculateScore,
-    startExam
+    startExam,
+    closeSpecialModal
   };
   
   return (

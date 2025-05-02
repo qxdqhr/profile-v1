@@ -1,4 +1,4 @@
-import { Question, QuestionType } from './types';
+import { Question, QuestionType, SpecialEffectType } from './types';
 
 // 创建模拟题目数据
 export const mockQuestions: Question[] = [
@@ -27,6 +27,12 @@ export const mockQuestions: Question[] = [
     ],
     answers: ['2a', '2b', '2d'],
     score: 3,
+    specialEffect: {
+      type: SpecialEffectType.ModalPop,
+      title: '多选题提示',
+      content: '注意：这是一道多选题，请选择所有正确的选项。Excel不是编程语言，它是一款电子表格软件。',
+      buttonText: '我明白了'
+    }
   },
   {
     id: '3',
@@ -41,6 +47,9 @@ export const mockQuestions: Question[] = [
     ],
     answer: '3d',
     score: 2,
+    specialEffect: {
+      type: SpecialEffectType.TextShake
+    }
   },
   {
     id: '4',
@@ -54,6 +63,12 @@ export const mockQuestions: Question[] = [
     ],
     answers: ['4a', '4c', '4d'],
     score: 3,
+    specialEffect: {
+      type: SpecialEffectType.ModalPop,
+      title: '多选题提示',
+      content: '提示：太阳系中最大的行星是木星，而不是地球。地球是太阳系中第五大行星。',
+      buttonText: '我明白了'
+    }
   },
   {
     id: '5',
@@ -83,5 +98,8 @@ export const mockQuestions: Question[] = [
     ],
     answer: '5b',
     score: 2,
+    specialEffect: {
+      type: SpecialEffectType.TextFlash
+    }
   }
 ]; 
