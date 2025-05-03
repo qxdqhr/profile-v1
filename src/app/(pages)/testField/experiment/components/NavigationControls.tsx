@@ -1,6 +1,6 @@
 "use client";
 
-import { useExam } from '../context/ExamContext';
+import { useExam } from '../context';
 import styles from '../styles.module.css';
 
 const NavigationControls = () => {

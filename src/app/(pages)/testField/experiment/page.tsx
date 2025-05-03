@@ -1,6 +1,6 @@
 "use client";
 
-import { ExamProvider } from './context/ExamContext';
+import { ExamProvider } from './context';
 import ExamLayout from './components/ExamLayout';
 import { mockQuestions } from './mockData';
 

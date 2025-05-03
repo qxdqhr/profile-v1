@@ -1,6 +1,6 @@
 "use client";
 
-import { useExam } from '../context/ExamContext';
+import { useExam } from '../context';
 import { QuestionType } from '../types';
 import QuestionContent from './QuestionContent';
 import OptionsList from './OptionsList';

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useExam } from '../context/ExamContext';
+import { useExam } from '../context';
 import styles from '../styles.module.css';
 import { assert } from '../utils/utils';
 

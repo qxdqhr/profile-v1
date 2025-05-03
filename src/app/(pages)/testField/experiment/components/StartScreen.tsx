@@ -1,12 +1,11 @@
 "use client";
 
-import { useExam } from '../context/ExamContext';
+import { useExam } from '../context';
 import styles from '../styles.module.css';
 import { useEffect, useState } from 'react';
-import { mockStartScreenData } from '../mockData';
 
 const StartScreen = () => {
-  const { startExam } = useExam();
+  const { startExam, startScreenData } = useExam();
   const [showIntro, setShowIntro] = useState(false);
   
   // 页面加载后显示介绍内容的动画效果
@@ -35,15 +34,15 @@ const StartScreen = () => {
       </div>
       
       <div className={`${styles["start-content"]} ${showIntro ? styles.visible : ''}`}>
-        <h1 className={styles["start-title"]}>{mockStartScreenData.title}</h1>
+        <h1 className={styles["start-title"]}>{startScreenData.title}</h1>
         <p className={styles["start-description"]}>
-          {mockStartScreenData.description}
+          {startScreenData.description}
         </p>
         
         <div className={styles["start-rules"]}>
-          <h2>{mockStartScreenData.rules.title}</h2>
+          <h2>{startScreenData.rules.title}</h2>
           <ul>
-            {mockStartScreenData.rules.items.map((item, index) => (
+            {startScreenData.rules.items.map((item, index) => (
               <li 
                 key={index}
                 className={styles["fade-in-item"]} 
@@ -59,7 +58,7 @@ const StartScreen = () => {
           className={`${styles["start-button"]} ${styles["pulsing"]}`}
           onClick={startExam}
         >
-          {mockStartScreenData.buttonText}
+          {startScreenData.buttonText}
         </button>
       </div>
     </div>
