@@ -1,10 +1,10 @@
-import { Question, QuestionType, SpecialEffectType, StartScreenData } from './types';
+import { Question, QuestionType, ResultModalData, SpecialEffectType, StartScreenData } from './types';
 
 // 创建模拟题目数据
 export const mockQuestions: Question[] = [
   {
     id: '1',
-    content: '一般情况下，干员维什戴尔最多可以在场上召唤多少“祖宗”召唤物同时在场?',
+    content: '一般情况下，干员维什戴尔最多可以在场上召唤多少"祖宗"召唤物同时在场?',
     type: QuestionType.SingleChoice,
     options: [
       { id: '1a', content: '1' },
@@ -17,7 +17,7 @@ export const mockQuestions: Question[] = [
   },
   {
     id: '2',
-    content: '在故事集“熔炉还魂记”中锡人最后离开卡兹戴尔的时候带走了几位同类?',
+    content: '在故事集"熔炉还魂记"中锡人最后离开卡兹戴尔的时候带走了几位同类?',
     type: QuestionType.MultipleChoice,
     options: [
       { id: '2a', content: '1' },
@@ -229,4 +229,16 @@ export const mockStartScreenData: StartScreenData = {
     ]
   },
   buttonText: "开始答题"
+}; 
+
+// 创建结果页弹窗数据
+export const mockResultModalData: ResultModalData = {
+  title: "考试结果分析完成",
+  showDelayTime: 5000, // 5秒后显示弹窗
+  messages: {
+    pass: "您已经查看了成绩报告，恭喜您完成考试！需要重新测试吗？",
+    fail: "你果然还记得我们的过去，即使是新生文明，也无法逃脱即将毁灭的未来"
+  },
+  buttonText: "关闭",
+  passingScore: 60 // 60%为及格线
 }; 

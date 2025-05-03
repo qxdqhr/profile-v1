@@ -1075,4 +1075,54 @@
   padding: 20px;
   border-radius: 8px;
   text-align: center;
+}
+
+/* 圆形进度条样式 */
+.loading-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.loading-results h2 {
+  font-size: 22px;
+  color: #0066cc;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.circular-progress {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  padding: 15px;
+  background: #f0f7ff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.circular-progress-inner {
+  height: 100%;
+  width: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.circular-progress-number {
+  font-size: 28px;
+  font-weight: 700;
+  color: grey;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 } 
