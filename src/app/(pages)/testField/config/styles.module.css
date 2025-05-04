@@ -159,6 +159,15 @@
 .questionTitle {
   font-weight: 600;
   font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.questionNumber {
+  color: #4b5563;
+  margin-right: 0.5rem;
+  font-weight: 700;
+  min-width: 1.5rem;
 }
 
 .optionList {
@@ -310,4 +319,27 @@
   border-radius: 0.5rem;
   background-color: #f9fafb;
   margin-bottom: 1rem;
+}
+
+.moveButton {
+  background-color: #4b5563;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  font-size: 0.875rem;
+  min-width: 2rem;
+  transition: background-color 0.2s;
+}
+
+.moveButton:hover {
+  background-color: #374151;
+}
+
+.moveButton:disabled {
+  background-color: #d1d5db;
+  color: #9ca3af;
+  cursor: not-allowed;
 } 

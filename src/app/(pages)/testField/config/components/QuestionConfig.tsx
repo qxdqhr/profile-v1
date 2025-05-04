@@ -265,6 +265,30 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
     updateQuestion(questionId, { specialEffect: undefined });
   };
 
+  // 上移题目
+  const moveQuestionUp = (questionId: string) => {
+    const index = questions.findIndex(q => q.id === questionId);
+    if (index <= 0) return; // 已经是第一个，不能上移
+    
+    const updatedQuestions = [...questions];
+    // 交换当前题目与前一个题目
+    [updatedQuestions[index], updatedQuestions[index - 1]] = [updatedQuestions[index - 1], updatedQuestions[index]];
+    
+    onQuestionsChange(updatedQuestions);
+  };
+  
+  // 下移题目
+  const moveQuestionDown = (questionId: string) => {
+    const index = questions.findIndex(q => q.id === questionId);
+    if (index === -1 || index >= questions.length - 1) return; // 已经是最后一个，不能下移
+    
+    const updatedQuestions = [...questions];
+    // 交换当前题目与后一个题目
+    [updatedQuestions[index], updatedQuestions[index + 1]] = [updatedQuestions[index + 1], updatedQuestions[index]];
+    
+    onQuestionsChange(updatedQuestions);
+  };
+
   return (
     <div>
       <h2 className={styles.sectionTitle}>试题管理</h2>
@@ -276,10 +300,27 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
         {questions.map(question => (
           <div key={question.id} className={styles.questionItem}>
             <div className={styles.questionHeader}>
-              <h3 className={styles.questionTitle}>
+              <div className={styles.questionTitle}>
+                <span className={styles.questionNumber}>{questions.indexOf(question) + 1}. </span>
                 {question.content || '新问题'}
-              </h3>
+              </div>
               <div>
+                <button
+                  className={styles.moveButton}
+                  onClick={() => moveQuestionUp(question.id)}
+                  disabled={questions.indexOf(question) === 0}
+                  title="上移题目"
+                >
+                  ↑
+                </button>
+                <button
+                  className={styles.moveButton}
+                  onClick={() => moveQuestionDown(question.id)}
+                  disabled={questions.indexOf(question) === questions.length - 1}
+                  title="下移题目"
+                >
+                  ↓
+                </button>
                 <button
                   className={styles.expandButton}
                   onClick={() => toggleQuestionExpanded(question.id)}
