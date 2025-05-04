@@ -1,7 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Question, QuestionType, SpecialEffectType } from '../types';
+import { 
+  Question, 
+  QuestionType, 
+  SpecialEffectType, 
+  SingleChoiceQuestion, 
+  MultipleChoiceQuestion,
+  Option,
+  SpecialEffect,
+  ModalPopEffect
+} from '../../experiment/types';
 import styles from '../styles.module.css';
 
 interface QuestionConfigProps {
@@ -133,10 +142,14 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
 
   // 更新选项
   const updateOption = (questionId: string, optionId: string, content: string) => {
-    const question = questions.find(q => q.id === questionId) as any;
-    if (!question || !question.options) return;
+    const question = questions.find(q => q.id === questionId);
+    if (
+      !question || 
+      (question.type !== QuestionType.SingleChoice && question.type !== QuestionType.MultipleChoice)
+    ) return;
     
-    const updatedOptions = question.options.map((option: Option) => 
+    const choiceQuestion = question as SingleChoiceQuestion | MultipleChoiceQuestion;
+    const updatedOptions = choiceQuestion.options.map((option) => 
       option.id === optionId ? { ...option, content } : option
     );
     
@@ -145,10 +158,14 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
 
   // 更新选项图片URL
   const updateOptionImageUrl = (questionId: string, optionId: string, imageUrl: string) => {
-    const question = questions.find(q => q.id === questionId) as any;
-    if (!question || !question.options) return;
+    const question = questions.find(q => q.id === questionId);
+    if (
+      !question || 
+      (question.type !== QuestionType.SingleChoice && question.type !== QuestionType.MultipleChoice)
+    ) return;
     
-    const updatedOptions = question.options.map((option: Option) => 
+    const choiceQuestion = question as SingleChoiceQuestion | MultipleChoiceQuestion;
+    const updatedOptions = choiceQuestion.options.map((option) => 
       option.id === optionId ? { ...option, imageUrl } : option
     );
     
@@ -157,11 +174,16 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
 
   // 删除选项
   const deleteOption = (questionId: string, optionId: string) => {
-    const question = questions.find(q => q.id === questionId) as any;
-    if (!question || !question.options) return;
+    const question = questions.find(q => q.id === questionId);
+    if (
+      !question || 
+      (question.type !== QuestionType.SingleChoice && question.type !== QuestionType.MultipleChoice)
+    ) return;
+    
+    const choiceQuestion = question as SingleChoiceQuestion | MultipleChoiceQuestion;
     
     // 移除选项
-    const updatedOptions = question.options.filter((option: Option) => option.id !== optionId);
+    const updatedOptions = choiceQuestion.options.filter((option) => option.id !== optionId);
     
     // 如果是单选题，并且删除的是当前选中的选项
     let updatedFields: any = { options: updatedOptions };
@@ -324,7 +346,10 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>选项</label>
                     <div className={styles.optionList}>
-                      {(question as any).options?.map((option) => (
+                      {(question.type === QuestionType.SingleChoice 
+                          ? (question as SingleChoiceQuestion).options 
+                          : (question as MultipleChoiceQuestion).options
+                        ).map((option) => (
                         <div key={option.id} className={styles.optionItem}>
                           <div className={styles.optionHeader}>
                             {question.type === QuestionType.SingleChoice && (
