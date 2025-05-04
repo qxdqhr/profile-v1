@@ -47,9 +47,25 @@
   cursor: not-allowed;
 }
 
+.saveButton.saving {
+  background-color: #7c7c7c;
+  cursor: wait;
+}
+
 .saveMessage {
   font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.successMessage {
   color: #047857;
+  background-color: #ecfdf5;
+}
+
+.errorMessage {
+  color: #b91c1c;
+  background-color: #fee2e2;
 }
 
 .tabs {

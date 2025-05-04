@@ -15,15 +15,25 @@ export default function ConfigPage() {
   const [config, setConfig] = useState<ConfigData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [saveMessage, setSaveMessage] = useState('');
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
 
   // 加载配置
   useEffect(() => {
     const loadConfig = async () => {
+      setIsLoading(true);
       try {
         const data = await loadConfigurations();
         setConfig(data);
+        setSaveMessage('配置已加载');
+        setSaveStatus('success');
+        setTimeout(() => {
+          setSaveMessage('');
+          setSaveStatus('idle');
+        }, 3000);
       } catch (error) {
         console.error('加载配置失败:', error);
+        setSaveMessage('加载失败');
+        setSaveStatus('error');
       } finally {
         setIsLoading(false);
       }
@@ -36,15 +46,25 @@ export default function ConfigPage() {
   const handleSave = async () => {
     if (!config) return;
 
+    setSaveStatus('saving');
+    setSaveMessage('正在保存...');
+
     try {
       await saveConfigurations(config);
-      setSaveMessage('配置已保存');
+      setSaveMessage('配置已保存到服务器');
+      setSaveStatus('success');
       setTimeout(() => {
         setSaveMessage('');
+        setSaveStatus('idle');
       }, 3000);
     } catch (error) {
       console.error('保存配置失败:', error);
-      setSaveMessage('保存失败');
+      setSaveMessage('保存失败，请重试');
+      setSaveStatus('error');
+      setTimeout(() => {
+        setSaveMessage('');
+        setSaveStatus('idle');
+      }, 5000);
     }
   };
 
@@ -121,10 +141,11 @@ export default function ConfigPage() {
         <h1 className={styles.title}>考试系统配置</h1>
         <div className={styles.actions}>
           <button
-            className={styles.saveButton}
+            className={`${styles.saveButton} ${saveStatus === 'saving' ? styles.saving : ''}`}
             onClick={handleSave}
+            disabled={saveStatus === 'saving'}
           >
-            保存配置
+            {saveStatus === 'saving' ? '保存中...' : '保存配置'}
           </button>
           <button
             className={styles.saveButton}
@@ -141,7 +162,12 @@ export default function ConfigPage() {
             导入配置
           </button>
           {saveMessage && (
-            <span className={styles.saveMessage}>{saveMessage}</span>
+            <span className={`${styles.saveMessage} ${
+              saveStatus === 'error' ? styles.errorMessage : 
+              saveStatus === 'success' ? styles.successMessage : ''
+            }`}>
+              {saveMessage}
+            </span>
           )}
         </div>
       </div>

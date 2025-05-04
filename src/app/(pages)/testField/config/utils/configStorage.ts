@@ -1,33 +1,83 @@
 import { ConfigData } from '../types';
 import { mockQuestions, mockStartScreenData, mockResultModalData } from '../../experiment/mockData';
 
-// 从本地存储加载配置
+// 从静态文件加载配置
 export const loadConfigurations = async (): Promise<ConfigData> => {
-  // 尝试从localStorage加载
   try {
-    const savedConfig = localStorage.getItem('examConfig');
-    if (savedConfig) {
-      return JSON.parse(savedConfig);
+    // 尝试从静态文件加载
+    const response = await fetch('/api/testField/config');
+    
+    if (response.ok) {
+      return await response.json();
     }
+    
+    // 如果静态文件不存在（404）
+    if (response.status === 404) {
+      // 尝试从localStorage加载作为备份
+      try {
+        const savedConfig = localStorage.getItem('examConfig');
+        if (savedConfig) {
+          const parsedConfig = JSON.parse(savedConfig);
+          // 尝试将本地存储的配置保存到服务器
+          await saveConfigurations(parsedConfig);
+          return parsedConfig;
+        }
+      } catch (error) {
+        console.error('从localStorage加载配置失败:', error);
+      }
+    }
+    
+    // 如果所有尝试都失败，返回默认配置
+    const defaultConfig = {
+      questions: mockQuestions,
+      startScreen: mockStartScreenData,
+      resultModal: mockResultModalData
+    };
+    
+    // 尝试保存默认配置到服务器
+    await saveConfigurations(defaultConfig);
+    
+    return defaultConfig;
   } catch (error) {
-    console.error('从localStorage加载配置失败:', error);
+    console.error('加载配置失败:', error);
+    
+    // 出错时返回默认配置
+    return {
+      questions: mockQuestions,
+      startScreen: mockStartScreenData,
+      resultModal: mockResultModalData
+    };
   }
-
-  // 返回默认配置
-  return {
-    questions: mockQuestions,
-    startScreen: mockStartScreenData,
-    resultModal: mockResultModalData
-  };
 };
 
-// 保存配置到本地存储
+// 保存配置到静态文件
 export const saveConfigurations = async (config: ConfigData): Promise<void> => {
   try {
+    // 首先保存到静态文件
+    const response = await fetch('/api/testField/config', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(config),
+    });
+    
+    if (!response.ok) {
+      throw new Error('保存到服务器失败');
+    }
+    
+    // 同时保存到 localStorage 作为备份
     localStorage.setItem('examConfig', JSON.stringify(config));
   } catch (error) {
-    console.error('保存配置到localStorage失败:', error);
-    throw error;
+    console.error('保存配置失败:', error);
+    
+    // 如果保存到服务器失败，尝试只保存到 localStorage
+    try {
+      localStorage.setItem('examConfig', JSON.stringify(config));
+    } catch (localError) {
+      console.error('保存到localStorage也失败:', localError);
+      throw error; // 抛出原始错误
+    }
   }
 };
 
@@ -49,9 +99,13 @@ export const importConfigurations = async (file: File): Promise<ConfigData> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       try {
         const config = JSON.parse(event.target?.result as string);
+        
+        // 导入的同时保存到静态文件
+        await saveConfigurations(config);
+        
         resolve(config);
       } catch (error) {
         reject(new Error('配置文件格式无效'));
