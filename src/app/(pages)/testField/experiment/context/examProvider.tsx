@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { Question } from "../types";
-import { mockStartScreenData, mockResultModalData } from "../mockData";
+import { Question, StartScreenData, ResultModalData } from "../types";
 import ExamContext from "./examContext";
 import { useDevice } from "./hooks/useDevice";
 import { useExamState } from "./hooks/useExamState";
@@ -15,11 +14,15 @@ import { useScoring } from "./hooks/useScoring";
 interface ExamProviderProps {
   children: React.ReactNode;
   initialQuestions: Question[];
+  startScreenData: StartScreenData;
+  resultModalData: ResultModalData;
 }
 
 export const ExamProvider: React.FC<ExamProviderProps> = ({ 
   children, 
-  initialQuestions 
+  initialQuestions,
+  startScreenData,
+  resultModalData
 }) => {
   // 获取各个钩子的状态和方法
   const { isMobile } = useDevice();
@@ -92,8 +95,8 @@ export const ExamProvider: React.FC<ExamProviderProps> = ({
     specialModalData,
     textShakeEffect,
     textFlashEffect,
-    startScreenData: mockStartScreenData,
-    resultModalData: mockResultModalData,
+    startScreenData,
+    resultModalData,
     
     goToNextQuestion,
     goToPreviousQuestion,
