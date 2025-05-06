@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ExamProvider } from './_context';
 import ExamLayout from './_components/ExamLayout';
@@ -10,9 +10,8 @@ import { Question, StartScreenData, ResultModalData } from './_types';
 import styles from './styles.module.css';
 import { EXAM_TYPE_MAP } from './config/types';
 
-// 使用客户端组件
-export default function ExperimentPage() {
-  // 获取URL查询参数
+// 创建一个内部组件来使用 useSearchParams
+function ExperimentContent() {
   const searchParams = useSearchParams();
   const examType = searchParams.get('type') || 'default';
   
@@ -85,5 +84,20 @@ export default function ExperimentPage() {
         <ExamLayout />
       </ExamProvider>
     </div>
+  );
+}
+
+// 主组件
+export default function ExperimentPage() {
+  return (
+    <Suspense fallback={
+      <div className={styles["start-container"]}>
+        <div className={styles["start-content"] + " " + styles.visible}>
+          <h1 className={styles["start-title"]}>加载中...</h1>
+        </div>
+      </div>
+    }>
+      <ExperimentContent />
+    </Suspense>
   );
 }

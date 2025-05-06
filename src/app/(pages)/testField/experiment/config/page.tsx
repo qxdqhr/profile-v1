@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import styles from './styles.module.css';
 import { ConfigData } from './types';
@@ -19,7 +19,7 @@ const EXAM_TYPE_OPTIONS = [
   // 可以继续添加更多选项
 ];
 
-export default function ConfigPage() {
+function ConfigContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const examType = searchParams.get('type') || 'default';
@@ -271,5 +271,13 @@ export default function ConfigPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ConfigPage() {
+  return (
+    <Suspense fallback={<div>加载中...</div>}>
+      <ConfigContent />
+    </Suspense>
   );
 }
