@@ -7,7 +7,7 @@ import {
   ModalPopEffect,
   TextShakeEffect,
   TextFlashEffect
-} from '../experiment/types';
+} from '../_types';
 
 // 配置数据接口
 export interface ConfigData {

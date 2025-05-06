@@ -1,7 +1,7 @@
 "use client";
 
-import { useExam } from '../context';
-import { Question } from '../types';
+import { useExam } from '../_context';
+import { Question } from '../_types';
 import styles from '../styles.module.css';
 
 interface QuestionContentProps {

@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useExam } from '../context';
+import { useExam } from '../_context';
 import styles from '../styles.module.css';
-import { assert } from '../utils/utils';
+import { assert } from '../_utils/utils';
 
 const ExamResults = () => {
   const [showModal, setShowModal] = useState(false);

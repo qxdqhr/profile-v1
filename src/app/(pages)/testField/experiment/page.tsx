@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { ExamProvider } from './context';
-import ExamLayout from './components/ExamLayout';
-import { mockQuestions, mockStartScreenData, mockResultModalData } from './mockData';
-import { loadConfigurations } from '../config/utils/configStorage';
-import { Question, StartScreenData, ResultModalData } from './types';
+import { ExamProvider } from './_context';
+import ExamLayout from './_components/ExamLayout';
+import { mockQuestions, mockStartScreenData, mockResultModalData } from './_utils/mockData';
+import { loadConfigurations } from './config/_utils/configStorage';
+import { Question, StartScreenData, ResultModalData } from './_types';
 import styles from './styles.module.css';
 
 // 使用客户端组件

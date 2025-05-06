@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { UserAnswer, Question } from '../../types';
+import { UserAnswer, Question } from '../../_types';
 
 export const useAnswers = (currentQuestion: Question) => {
   const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);

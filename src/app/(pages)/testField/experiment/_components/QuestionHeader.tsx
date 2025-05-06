@@ -1,6 +1,6 @@
 "use client";
 
-import { useExam } from '../context';
+import { useExam } from '../_context';
 import QuestionTypeTag from './QuestionTypeTag';
 
 const QuestionHeader = () => {

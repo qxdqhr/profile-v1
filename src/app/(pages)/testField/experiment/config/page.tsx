@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react';
 import styles from './styles.module.css';
 import { ConfigData } from './types';
-import QuestionConfig from './components/QuestionConfig';
-import StartScreenConfig from './components/StartScreenConfig';
-import ResultsConfig from './components/ResultsConfig';
-import { loadConfigurations, saveConfigurations, exportConfigurations, importConfigurations } from './utils/configStorage';
+import QuestionConfig from './_components/QuestionConfig';
+import StartScreenConfig from './_components/StartScreenConfig';
+import ResultsConfig from './_components/ResultsConfig';
+import { loadConfigurations, saveConfigurations, exportConfigurations, importConfigurations } from './_utils/configStorage';
 import { BackButton } from '@/app/_components/BackButton';
-import { Question, StartScreenData, ResultModalData } from '../experiment/types';
+import { Question, StartScreenData, ResultModalData } from '../_types';
 
 export default function ConfigPage() {
   const [activeTab, setActiveTab] = useState('questions');

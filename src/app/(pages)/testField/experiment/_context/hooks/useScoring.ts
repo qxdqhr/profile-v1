@@ -6,7 +6,7 @@ import {
   SingleChoiceQuestion, 
   MultipleChoiceQuestion, 
   FillBlankQuestion 
-} from '../../types';
+} from '../../_types';
 
 export const useScoring = (questions: Question[], userAnswers: UserAnswer[]) => {
   // 计算得分

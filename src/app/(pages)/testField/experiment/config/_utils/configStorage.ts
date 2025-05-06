@@ -1,5 +1,5 @@
 import { ConfigData } from '../types';
-import { mockQuestions, mockStartScreenData, mockResultModalData } from '../../experiment/mockData';
+import { mockQuestions, mockStartScreenData, mockResultModalData } from '../../_utils/mockData';
 
 // 从静态文件加载配置
 export const loadConfigurations = async (): Promise<ConfigData> => {
@@ -120,10 +120,22 @@ export const importConfigurations = async (file: File): Promise<ConfigData> => {
   });
 };
 
-// 保存配置为静态文件（在实际开发中，这可能需要与服务器通信）
+// 保存配置为静态文件
 export const saveAsStaticFile = async (config: ConfigData): Promise<void> => {
-  // 在实际应用中，这里应该发送配置到服务器端点
-  // 在本示例中，我们只是模拟了这个过程
-  console.log('保存为静态文件:', config);
-  alert('此功能需要服务器支持。在真实环境中，这将把配置保存为静态文件。');
+  try {
+    const response = await fetch('/api/testField/config', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(config),
+    });
+
+    if (!response.ok) {
+      throw new Error('保存配置文件失败');
+    }
+  } catch (error) {
+    console.error('保存静态文件失败:', error);
+    throw error;
+  }
 }; 

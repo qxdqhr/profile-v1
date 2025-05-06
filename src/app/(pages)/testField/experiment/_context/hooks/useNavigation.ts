@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Question } from '../../types';
+import { Question } from '../../_types';
 
 export const useNavigation = (
   questions: Question[], 

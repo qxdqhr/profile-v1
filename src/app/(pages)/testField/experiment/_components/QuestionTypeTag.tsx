@@ -1,7 +1,7 @@
 "use client";
 
-import { useExam } from '../context';
-import { QuestionType } from '../types';
+import { useExam } from '../_context';
+import { QuestionType } from '../_types';
 
 const QuestionTypeTag = () => {
   const { currentQuestion } = useExam();
