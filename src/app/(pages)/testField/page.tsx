@@ -15,6 +15,34 @@ interface ExperimentItem {
 
 const games: ExperimentItem[] = [
     {
+        id: "exam-default",
+        title: "考试系统",
+        description: "通用考试系统，支持各种类型题目",
+        path: "/testField/experiment",
+        tags: ["考试", "问卷"]
+    },
+    {
+        id: "exam-arknights",
+        title: "明日方舟测试",
+        description: "关于明日方舟游戏的知识测试",
+        path: "/testField/experiment?type=arknights",
+        tags: ["考试", "游戏"]
+    },
+    {
+        id: "config-default",
+        title: "通用考试配置",
+        description: "配置通用考试系统的题目和设置",
+        path: "/testField/experiment/config",
+        tags: ["配置", "考试"]
+    },
+    {
+        id: "config-arknights",
+        title: "明日方舟配置",
+        description: "配置明日方舟知识测试的题目和设置",
+        path: "/testField/experiment/config?type=arknights",
+        tags: ["配置", "游戏"]
+    },
+    {
         id: "live-activity",
         title: "Live Activity API",
         description: "测试 iOS 16+ Live Activity 功能",

@@ -2,10 +2,10 @@ import { ConfigData } from '../types';
 import { mockQuestions, mockStartScreenData, mockResultModalData } from '../../_utils/mockData';
 
 // 从静态文件加载配置
-export const loadConfigurations = async (): Promise<ConfigData> => {
+export const loadConfigurations = async (examId: string = 'default'): Promise<ConfigData> => {
   try {
-    // 尝试从静态文件加载
-    const response = await fetch('/api/testField/config');
+    // 构建API URL，带上试卷类型参数
+    const response = await fetch(`/api/testField/config?type=${encodeURIComponent(examId)}`);
     
     if (response.ok) {
       return await response.json();
@@ -15,11 +15,13 @@ export const loadConfigurations = async (): Promise<ConfigData> => {
     if (response.status === 404) {
       // 尝试从localStorage加载作为备份
       try {
-        const savedConfig = localStorage.getItem('examConfig');
+        // 使用examId作为键的一部分
+        const storageKey = `examConfig_${examId}`;
+        const savedConfig = localStorage.getItem(storageKey);
         if (savedConfig) {
           const parsedConfig = JSON.parse(savedConfig);
           // 尝试将本地存储的配置保存到服务器
-          await saveConfigurations(parsedConfig);
+          await saveConfigurations(parsedConfig, examId);
           return parsedConfig;
         }
       } catch (error) {
@@ -35,7 +37,7 @@ export const loadConfigurations = async (): Promise<ConfigData> => {
     };
     
     // 尝试保存默认配置到服务器
-    await saveConfigurations(defaultConfig);
+    await saveConfigurations(defaultConfig, examId);
     
     return defaultConfig;
   } catch (error) {
@@ -51,10 +53,10 @@ export const loadConfigurations = async (): Promise<ConfigData> => {
 };
 
 // 保存配置到静态文件
-export const saveConfigurations = async (config: ConfigData): Promise<void> => {
+export const saveConfigurations = async (config: ConfigData, examId: string = 'default'): Promise<void> => {
   try {
     // 首先保存到静态文件
-    const response = await fetch('/api/testField/config', {
+    const response = await fetch(`/api/testField/config?type=${encodeURIComponent(examId)}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -67,13 +69,15 @@ export const saveConfigurations = async (config: ConfigData): Promise<void> => {
     }
     
     // 同时保存到 localStorage 作为备份
-    localStorage.setItem('examConfig', JSON.stringify(config));
+    const storageKey = `examConfig_${examId}`;
+    localStorage.setItem(storageKey, JSON.stringify(config));
   } catch (error) {
     console.error('保存配置失败:', error);
     
     // 如果保存到服务器失败，尝试只保存到 localStorage
     try {
-      localStorage.setItem('examConfig', JSON.stringify(config));
+      const storageKey = `examConfig_${examId}`;
+      localStorage.setItem(storageKey, JSON.stringify(config));
     } catch (localError) {
       console.error('保存到localStorage也失败:', localError);
       throw error; // 抛出原始错误
@@ -82,11 +86,14 @@ export const saveConfigurations = async (config: ConfigData): Promise<void> => {
 };
 
 // 导出配置为JSON文件
-export const exportConfigurations = (config: ConfigData): void => {
+export const exportConfigurations = (config: ConfigData, examId: string = 'default'): void => {
   const dataStr = JSON.stringify(config, null, 2);
   const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
   
-  const exportFileName = `exam_config_${new Date().toISOString().slice(0, 10)}.json`;
+  const titlePart = config.startScreen?.title 
+    ? config.startScreen.title.replace(/\s+/g, '_').slice(0, 20) 
+    : '';
+  const exportFileName = `exam_${examId}_${titlePart}_${new Date().toISOString().slice(0, 10)}.json`;
   
   const linkElement = document.createElement('a');
   linkElement.setAttribute('href', dataUri);
@@ -95,7 +102,7 @@ export const exportConfigurations = (config: ConfigData): void => {
 };
 
 // 从文件导入配置
-export const importConfigurations = async (file: File): Promise<ConfigData> => {
+export const importConfigurations = async (file: File, examId: string = 'default'): Promise<ConfigData> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     
@@ -103,8 +110,8 @@ export const importConfigurations = async (file: File): Promise<ConfigData> => {
       try {
         const config = JSON.parse(event.target?.result as string);
         
-        // 导入的同时保存到静态文件
-        await saveConfigurations(config);
+        // 导入的同时保存到静态文件，指定试卷类型
+        await saveConfigurations(config, examId);
         
         resolve(config);
       } catch (error) {

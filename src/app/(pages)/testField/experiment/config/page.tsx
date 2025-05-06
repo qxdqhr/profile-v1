@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import styles from './styles.module.css';
 import { ConfigData } from './types';
 import QuestionConfig from './_components/QuestionConfig';
@@ -9,22 +10,45 @@ import ResultsConfig from './_components/ResultsConfig';
 import { loadConfigurations, saveConfigurations, exportConfigurations, importConfigurations } from './_utils/configStorage';
 import { BackButton } from '@/app/_components/BackButton';
 import { Question, StartScreenData, ResultModalData } from '../_types';
+import { EXAM_TYPE_MAP } from './types';
+
+// 试卷类型下拉选项
+const EXAM_TYPE_OPTIONS = [
+  { value: 'default', label: '通用考试' },
+  { value: 'arknights', label: '明日方舟测试' },
+  // 可以继续添加更多选项
+];
 
 export default function ConfigPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const examType = searchParams.get('type') || 'default';
+  
   const [activeTab, setActiveTab] = useState('questions');
   const [config, setConfig] = useState<ConfigData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [saveMessage, setSaveMessage] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
 
+  // 切换试卷类型
+  const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newType = event.target.value;
+    router.push(`/testField/experiment/config?type=${newType}`);
+  };
+
   // 加载配置
   useEffect(() => {
     const loadConfig = async () => {
       setIsLoading(true);
+      setSaveMessage('');
+      setSaveStatus('idle');
+      
       try {
-        const data = await loadConfigurations();
+        // 使用examType获取对应的试卷配置
+        const examId = EXAM_TYPE_MAP[examType] || 'default';
+        const data = await loadConfigurations(examId);
         setConfig(data);
-        setSaveMessage('配置已加载');
+        setSaveMessage(`已加载 ${EXAM_TYPE_OPTIONS.find(opt => opt.value === examType)?.label || examType} 配置`);
         setSaveStatus('success');
         setTimeout(() => {
           setSaveMessage('');
@@ -32,7 +56,7 @@ export default function ConfigPage() {
         }, 3000);
       } catch (error) {
         console.error('加载配置失败:', error);
-        setSaveMessage('加载失败');
+        setSaveMessage(`加载 ${examType} 配置失败`);
         setSaveStatus('error');
       } finally {
         setIsLoading(false);
@@ -40,7 +64,7 @@ export default function ConfigPage() {
     };
 
     loadConfig();
-  }, []);
+  }, [examType]);
 
   // 保存配置
   const handleSave = async () => {
@@ -50,8 +74,10 @@ export default function ConfigPage() {
     setSaveMessage('正在保存...');
 
     try {
-      await saveConfigurations(config);
-      setSaveMessage('配置已保存到服务器');
+      // 保存时传递examType参数
+      const examId = EXAM_TYPE_MAP[examType] || 'default';
+      await saveConfigurations(config, examId);
+      setSaveMessage(`${EXAM_TYPE_OPTIONS.find(opt => opt.value === examType)?.label || examType} 配置已保存`);
       setSaveStatus('success');
       setTimeout(() => {
         setSaveMessage('');
@@ -71,7 +97,9 @@ export default function ConfigPage() {
   // 导出配置
   const handleExport = () => {
     if (!config) return;
-    exportConfigurations(config);
+    // 导出时包含试卷类型
+    const examId = EXAM_TYPE_MAP[examType] || 'default';
+    exportConfigurations(config, examId);
   };
 
   // 导入配置
@@ -83,15 +111,20 @@ export default function ConfigPage() {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
         try {
-          const data = await importConfigurations(file);
+          // 导入时指定当前试卷类型
+          const examId = EXAM_TYPE_MAP[examType] || 'default';
+          const data = await importConfigurations(file, examId);
           setConfig(data);
-          setSaveMessage('配置已导入');
+          setSaveMessage(`配置已导入到 ${EXAM_TYPE_OPTIONS.find(opt => opt.value === examType)?.label || examType}`);
+          setSaveStatus('success');
           setTimeout(() => {
             setSaveMessage('');
+            setSaveStatus('idle');
           }, 3000);
         } catch (error) {
           console.error('导入配置失败:', error);
           setSaveMessage('导入失败');
+          setSaveStatus('error');
         }
       }
     };
@@ -138,7 +171,24 @@ export default function ConfigPage() {
       <BackButton href="/testField" />
       
       <div className={styles.header}>
-        <h1 className={styles.title}>考试系统配置</h1>
+        <div className={styles.titleContainer}>
+          <h1 className={styles.title}>考试系统配置</h1>
+          <div className={styles.typeSelector}>
+            <label htmlFor="examType" className={styles.typeLabel}>试卷类型:</label>
+            <select
+              id="examType"
+              className={styles.typeSelect}
+              value={examType}
+              onChange={handleTypeChange}
+            >
+              {EXAM_TYPE_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
         <div className={styles.actions}>
           <button
             className={`${styles.saveButton} ${saveStatus === 'saving' ? styles.saving : ''}`}
