@@ -299,12 +299,23 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
       <div className={styles.questionList}>
         {questions.map(question => (
           <div key={question.id} className={styles.questionItem}>
-            <div className={styles.questionHeader}>
+            <div 
+              className={`${styles.questionHeader} ${expandedQuestionId !== question.id ? styles.clickable : ''}`}
+              onClick={(e) => {
+                // 如果点击的是按钮区域，则不处理以避免冲突
+                if ((e.target as HTMLElement).tagName === 'BUTTON' || 
+                    (e.target as HTMLElement).closest('button')) {
+                  return;
+                }
+                toggleQuestionExpanded(question.id);
+              }}
+            >
               <div className={styles.questionTitle}>
                 <span className={styles.questionNumber}>{questions.indexOf(question) + 1}. </span>
                 {question.content || '新问题'}
+                {expandedQuestionId !== question.id && <span className={styles.editHint}>点击展开编辑</span>}
               </div>
-              <div>
+              <div onClick={(e) => e.stopPropagation()}>
                 <button
                   className={styles.moveButton}
                   onClick={() => moveQuestionUp(question.id)}

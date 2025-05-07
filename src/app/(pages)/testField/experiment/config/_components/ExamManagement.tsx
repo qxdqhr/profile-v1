@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import styles from '../styles.module.css';
 import { EXAM_TYPE_MAP } from '../types';
+import Link from 'next/link';
 import { 
   getAllExamTypes, 
   createExamType, 
@@ -245,6 +246,12 @@ export default function ExamManagement({ onExamCreated, examTypeOptions }: ExamM
                     >
                       编辑
                     </button>
+                    <Link 
+                      href={`/testField/experiment?type=${exam.id}`}
+                      className={styles.testButton}
+                    >
+                      进入测试
+                    </Link>
                     <button
                       className={styles.deleteButton}
                       onClick={() => handleDeleteExam(exam.id)}

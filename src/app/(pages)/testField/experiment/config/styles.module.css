@@ -230,11 +230,39 @@
   margin-bottom: 15px;
 }
 
+.questionHeader.clickable {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  padding: 10px;
+  margin: -10px -10px 5px -10px;
+  border-radius: 6px;
+}
+
+.questionHeader.clickable:hover {
+  background-color: rgba(0, 112, 243, 0.05);
+}
+
 .questionTitle {
   font-weight: 600;
   font-size: 16px;
   color: #333;
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editHint {
+  font-size: 12px;
+  color: #0070f3;
+  font-weight: normal;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.questionHeader.clickable:hover .editHint {
+  opacity: 1;
 }
 
 .questionActions {
@@ -242,27 +270,53 @@
   gap: 10px;
 }
 
-.expandButton, .deleteButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #666;
-  display: flex;
+/* 优化操作按钮样式 */
+.moveButton, .expandButton, .removeButton, .deleteButton {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
-  padding: 6px;
+  background: none;
+  border: 1px solid;
+  cursor: pointer;
+  padding: 4px 8px;
   border-radius: 4px;
-  transition: background-color 0.2s, color 0.2s;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  margin-left: 5px;
 }
 
-.expandButton:hover, .deleteButton:hover {
-  background-color: #eaeaea;
-  color: #333;
+.moveButton {
+  color: #6c757d;
+  border-color: #6c757d;
+  width: 28px;
+  height: 28px;
 }
 
-.deleteButton:hover {
+.moveButton:hover:not(:disabled) {
+  background-color: rgba(108, 117, 125, 0.1);
+}
+
+.moveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.expandButton {
+  color: #0070f3;
+  border-color: #0070f3;
+}
+
+.expandButton:hover {
+  background-color: rgba(0, 112, 243, 0.1);
+}
+
+.removeButton, .deleteButton {
   color: #dc3545;
+  border-color: #dc3545;
+}
+
+.removeButton:hover, .deleteButton:hover {
+  background-color: rgba(220, 53, 69, 0.1);
 }
 
 .formGroup {
@@ -306,9 +360,20 @@
 }
 
 .optionItem {
+  background-color: #ffffff;
+  border-radius: 4px;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  margin-bottom: 2px;
   display: flex;
-  gap: 10px;
-  align-items: center;
+  flex-direction: column;
+}
+
+.optionItem:hover {
+  border-color: #d0d0d0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
 }
 
 .optionInput {
@@ -432,12 +497,6 @@
   gap: 15px;
 }
 
-.formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
 .formLabel {
   font-weight: 500;
   font-size: 14px;
@@ -526,26 +585,46 @@
 }
 
 .editButton, .deleteButton {
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 13px;
+  background: none;
   border: none;
   cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 13px;
   transition: background-color 0.2s;
+  margin-right: 5px;
 }
 
 .editButton {
-  background-color: #0070f3;
-  color: white;
+  color: #0070f3;
+  border: 1px solid #0070f3;
 }
 
 .editButton:hover {
-  background-color: #0060df;
+  background-color: rgba(0, 112, 243, 0.1);
+}
+
+.testButton {
+  background: none;
+  border: 1px solid #28a745;
+  color: #28a745;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  transition: background-color 0.2s;
+  margin-right: 5px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.testButton:hover {
+  background-color: rgba(40, 167, 69, 0.1);
 }
 
 .deleteButton {
-  background-color: #dc3545;
-  color: white;
+  color: #dc3545;
+  border: 1px solid #dc3545;
 }
 
 .deleteButton:hover {
@@ -571,4 +650,112 @@
   background-color: #f9f9f9;
   border-radius: 8px;
   border: 1px dashed #ddd;
+}
+
+/* 问题详情展开样式 */
+.questionDetails {
+  background-color: #ffffff;
+  border-radius: 6px;
+  padding: 20px;
+  margin-top: 15px;
+  border: 1px solid #eeeeee;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.optionList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+}
+
+.optionHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding-bottom: 6px;
+  flex-wrap: nowrap;
+}
+
+.optionHeader input[type="text"] {
+  flex: 1;
+}
+
+.optionHeader input[type="radio"],
+.optionHeader input[type="checkbox"] {
+  margin-right: 6px;
+}
+
+/* 优化选项图片URL部分 */
+.optionImageUrl {
+  margin-top: 12px;
+  margin-bottom: 8px;
+  padding: 12px;
+  padding-left: 15px;
+  border-left: 3px solid #0070f3;
+  background-color: #f8f9ff;
+  border-radius: 0 4px 4px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.optionImageUrl .formLabel {
+  color: #0070f3;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.optionImageUrl .formInput {
+  border-color: #d1e0ff;
+}
+
+.effectHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.specialEffect {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+  margin-top: 10px;
+  border: 1px solid #e9ecef;
+}
+
+.modalEffectFields {
+  padding: 10px;
+  margin-top: 10px;
+  border-top: 1px solid #eaeaea;
+}
+
+/* 添加响应式布局 */
+@media (max-width: 768px) {
+  .optionHeader {
+    flex-wrap: wrap;
+  }
+  
+  .optionHeader .expandButton,
+  .optionHeader .removeButton {
+    margin-top: 8px;
+  }
+  
+  .questionDetails {
+    padding: 15px;
+  }
+  
+  .optionImageUrl {
+    padding: 10px;
+    padding-left: 12px;
+    margin-top: 10px;
+  }
+  
+  .optionItem {
+    padding: 10px;
+  }
 } 
