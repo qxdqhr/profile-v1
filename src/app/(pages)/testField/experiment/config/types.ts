@@ -26,11 +26,11 @@ export type {
   TextFlashEffect
 };
 
-// 试卷类型映射表
+// 试卷类型映射
 export const EXAM_TYPE_MAP: Record<string, string> = {
-  'arknights': 'arknights', // 明日方舟试卷
-  'default': 'default',     // 默认试卷
-  // 可以继续添加更多类型
+  'default': 'default',
+  'arknights': 'arknights'
+  // 动态创建的试卷会被添加到localStorage中
 };
 
 // 导出类型枚举

@@ -5,7 +5,7 @@ import { mockQuestions, mockStartScreenData, mockResultModalData } from '../../_
 export const loadConfigurations = async (examId: string = 'default'): Promise<ConfigData> => {
   try {
     // 构建API URL，带上试卷类型参数
-    const response = await fetch(`/api/testField/config?type=${encodeURIComponent(examId)}`);
+    const response = await fetch(`/api/testField/config/experiment/questions?type=${encodeURIComponent(examId)}`);
     
     if (response.ok) {
       return await response.json();
@@ -13,33 +13,22 @@ export const loadConfigurations = async (examId: string = 'default'): Promise<Co
     
     // 如果静态文件不存在（404）
     if (response.status === 404) {
-      // 尝试从localStorage加载作为备份
-      try {
-        // 使用examId作为键的一部分
-        const storageKey = `examConfig_${examId}`;
-        const savedConfig = localStorage.getItem(storageKey);
-        if (savedConfig) {
-          const parsedConfig = JSON.parse(savedConfig);
-          // 尝试将本地存储的配置保存到服务器
-          await saveConfigurations(parsedConfig, examId);
-          return parsedConfig;
-        }
-      } catch (error) {
-        console.error('从localStorage加载配置失败:', error);
-      }
+      console.log(`试卷类型 ${examId} 的配置文件不存在，使用默认配置`);
+      
+      // 使用默认配置
+      const defaultConfig = {
+        questions: mockQuestions,
+        startScreen: mockStartScreenData,
+        resultModal: mockResultModalData
+      };
+      
+      // 尝试保存默认配置到服务器
+      await saveConfigurations(defaultConfig, examId);
+      
+      return defaultConfig;
     }
     
-    // 如果所有尝试都失败，返回默认配置
-    const defaultConfig = {
-      questions: mockQuestions,
-      startScreen: mockStartScreenData,
-      resultModal: mockResultModalData
-    };
-    
-    // 尝试保存默认配置到服务器
-    await saveConfigurations(defaultConfig, examId);
-    
-    return defaultConfig;
+    throw new Error(`加载配置失败: ${response.statusText}`);
   } catch (error) {
     console.error('加载配置失败:', error);
     
@@ -55,8 +44,8 @@ export const loadConfigurations = async (examId: string = 'default'): Promise<Co
 // 保存配置到静态文件
 export const saveConfigurations = async (config: ConfigData, examId: string = 'default'): Promise<void> => {
   try {
-    // 首先保存到静态文件
-    const response = await fetch(`/api/testField/config?type=${encodeURIComponent(examId)}`, {
+    // 保存到服务器
+    const response = await fetch(`/api/testField/config/experiment/questions?type=${encodeURIComponent(examId)}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -67,21 +56,9 @@ export const saveConfigurations = async (config: ConfigData, examId: string = 'd
     if (!response.ok) {
       throw new Error('保存到服务器失败');
     }
-    
-    // 同时保存到 localStorage 作为备份
-    const storageKey = `examConfig_${examId}`;
-    localStorage.setItem(storageKey, JSON.stringify(config));
   } catch (error) {
     console.error('保存配置失败:', error);
-    
-    // 如果保存到服务器失败，尝试只保存到 localStorage
-    try {
-      const storageKey = `examConfig_${examId}`;
-      localStorage.setItem(storageKey, JSON.stringify(config));
-    } catch (localError) {
-      console.error('保存到localStorage也失败:', localError);
-      throw error; // 抛出原始错误
-    }
+    throw error; // 抛出错误让调用者处理
   }
 };
 
@@ -110,7 +87,7 @@ export const importConfigurations = async (file: File, examId: string = 'default
       try {
         const config = JSON.parse(event.target?.result as string);
         
-        // 导入的同时保存到静态文件，指定试卷类型
+        // 导入的同时保存到服务器，指定试卷类型
         await saveConfigurations(config, examId);
         
         resolve(config);
@@ -130,7 +107,7 @@ export const importConfigurations = async (file: File, examId: string = 'default
 // 保存配置为静态文件
 export const saveAsStaticFile = async (config: ConfigData): Promise<void> => {
   try {
-    const response = await fetch('/api/testField/config', {
+    const response = await fetch('/api/testField/config/experiment/questions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
