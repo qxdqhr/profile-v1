@@ -91,3 +91,28 @@ body {
     content: "";
   }
 }
+
+/* 使用示例 */
+.button {
+  background-color: var(--primary-500);
+  color: white;
+}
+
+.button:hover {
+  background-color: var(--primary-600);
+}
+
+.alert-success {
+  background-color: var(--success-50);
+  color: var(--success-800);
+}
+
+.alert-warning {
+  background-color: var(--warning-50);
+  color: var(--warning-800);
+}
+
+.alert-error {
+  background-color: var(--error-50);
+  color: var(--error-800);
+}

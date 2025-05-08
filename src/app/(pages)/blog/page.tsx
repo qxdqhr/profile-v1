@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import "@/styles/index.css";
+import "./_styles/index.css";
 
 // 模拟博客数据
 const blogPosts = [

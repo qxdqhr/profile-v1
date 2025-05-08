@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import "@/styles/components/ExperimentCard.css";
+import "../_styles/ExperimentCard.css";
 
 interface ExperimentCardProps {
     href: string;

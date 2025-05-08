@@ -1,0 +1,13 @@
+/* 组件样式 */
+@import "./_styles/Navbar.css";
+@import "./_styles/Home.css";
+@import "./_styles/Avatar.css";
+@import "./_styles/Timeline.css";
+@import "./_styles/CollisionBalls.css";
+@import "./_styles/ProjectCarousel.css";
+@import "./_styles/BackButton.css";
+@import "./_styles/About.css";
+@import "./_styles/Contact.css";
+@import "./_styles/MainPage.css";
+@import "./_styles/app.css";
+@import "./_styles/theme.css";

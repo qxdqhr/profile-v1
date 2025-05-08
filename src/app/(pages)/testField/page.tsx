@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import "@/styles/index.css";
+import "./index.css";
 import { BackButton } from '@/app/_components/BackButton';
 import { ExperimentCard } from '@/app/_components/ExperimentCard';
+import { ProfileButton } from '@/utils/popWindow';
 
 interface ExperimentItem {
     id: string;
@@ -95,6 +96,7 @@ export default function TestField() {
                     实验田
         </h1>
 
+        <ProfileButton />    
         <div className="grid">
           {games.map((games) => (
             <ExperimentCard
