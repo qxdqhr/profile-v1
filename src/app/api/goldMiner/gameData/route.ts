@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import type { GameData } from '@/app/(pages)/gameField/goldMiner/types/gameData'
+import type { GameData } from '@/app/(pages)/testField/(game)/goldMiner/types/gameData'
 
 export async function GET() {
   try {

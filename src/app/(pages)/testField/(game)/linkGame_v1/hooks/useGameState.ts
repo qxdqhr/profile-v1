@@ -3,11 +3,6 @@ import { Tile, GameType, GameStatus } from '../constant/types'
 import { TILE_SIZE, TILE_GAP, SHUFFLE_COUNT } from '../constant/const'
 import { useGameLogic } from './useGameLogic'
 
-const {
-  hasMatchablePairs,
-  shuffleTiles
-} = useGameLogic()
-
 export const useGameState = (
   onGameEnd: () => void,
   gridWidth: number,
@@ -27,6 +22,9 @@ export const useGameState = (
   const [shuffleCount, setShuffleCount] = useState(0) // 已使用的洗牌次数，初始为0
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const lastUpdateTimeRef = useRef<number>(0)
+  
+  // 正确使用useGameLogic hook
+  const { hasMatchablePairs, shuffleTiles } = useGameLogic()
 
   // 初始化游戏
   const initializeGame = useCallback(() => {
@@ -140,7 +138,7 @@ export const useGameState = (
       setSelectedTile(null)
       setConnectionPath([])
     }
-  }, [tiles, shuffleCount, gameStatus, isFirstGame])
+  }, [tiles, shuffleCount, gameStatus, isFirstGame, shuffleTiles])
 
   // 检查游戏状态
   useEffect(() => {
@@ -161,7 +159,7 @@ export const useGameState = (
         }
       }
     }
-  }, [tiles, gameStatus, isFirstGame, onGameEnd, shuffleCount, handleShuffle, stopTimer])
+  }, [tiles, gameStatus, isFirstGame, onGameEnd, shuffleCount, handleShuffle, stopTimer, hasMatchablePairs])
 
   // 在组件卸载时清理计时器
   useEffect(() => {
