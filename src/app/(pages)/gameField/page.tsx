@@ -1,10 +1,8 @@
 'use client';
 
-import Link from 'next/link';
-import "./index.css";
+import "./gameField.module.css";
 import { BackButton } from '@/app/_components/BackButton';
 import { ExperimentCard } from '@/app/_components/ExperimentCard';
-import LinkGame from './linkGame/page'
 
 interface ExperimentItem {
     id: string;

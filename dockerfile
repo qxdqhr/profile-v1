@@ -19,9 +19,6 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# 确保在这里重新生成 Prisma Client
-RUN npx prisma generate
-
 # 安装 pnpm
 RUN npm install -g pnpm
 

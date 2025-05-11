@@ -23,12 +23,12 @@
         }
       ],
       "answer": "1c",
-      "score": 2
+      "score": 1
     },
     {
       "id": "2",
       "content": "在故事集\"熔炉还魂记\"中锡人最后离开卡兹戴尔的时候带走了几位同类?",
-      "type": "multiple_choice",
+      "type": "single_choice",
       "options": [
         {
           "id": "2a",
@@ -48,50 +48,21 @@
         }
       ],
       "answers": [
-        "2a",
-        "2b",
-        "2d"
+        "2c"
       ],
-      "score": 3,
+      "score": 1,
       "specialEffect": {
         "type": "modal_pop",
         "title": "提示",
         "content": "检测到系统自动判题系统下线,请检测系统安全。",
         "buttonText": "我明白了"
-      }
-    },
-    {
-      "id": "3",
-      "content": "年的ep的名称是？",
-      "type": "single_choice",
-      "options": [
-        {
-          "id": "3a",
-          "content": "嚣"
-        },
-        {
-          "id": "3b",
-          "content": "器"
-        },
-        {
-          "id": "3c",
-          "content": "器"
-        },
-        {
-          "id": "3d",
-          "content": "嚣"
-        }
-      ],
-      "answer": "3d",
-      "score": 2,
-      "specialEffect": {
-        "type": "text_shake"
-      }
+      },
+      "answer": ""
     },
     {
       "id": "4",
       "content": "以下哪个词条可以在公开招募里招募到一星干员？",
-      "type": "multiple_choice",
+      "type": "single_choice",
       "options": [
         {
           "id": "4a",
@@ -111,17 +82,16 @@
         }
       ],
       "answers": [
-        "4a",
-        "4c",
-        "4d"
+        "4a"
       ],
-      "score": 3,
+      "score": 6,
       "specialEffect": {
         "type": "modal_pop",
         "title": "提示",
         "content": "提示示是是是试试：\\u81ea\\u52a8\\u5224\\u9898系统模块缺失,可能会影响您的考试。",
         "buttonText": "我明白了"
-      }
+      },
+      "answer": ""
     },
     {
       "id": "5",
@@ -145,41 +115,38 @@
           "content": "福灵号"
         }
       ],
-      "answer": "5b",
-      "score": 2,
+      "answer": "5c",
+      "score": 1,
       "specialEffect": {
         "type": "text_flash"
       }
     },
     {
-      "id": "6",
-      "content": "(出题人：上帝大哥)开斯特公爵的旗舰舰名是？",
+      "id": "3",
+      "content": "年的ep的名称是？",
       "type": "single_choice",
       "options": [
         {
-          "id": "6a",
-          "content": "精益号"
+          "id": "3a",
+          "content": "嚚"
         },
         {
-          "id": "6b",
-          "content": "勇敢者号"
+          "id": "3b",
+          "content": "噐"
         },
         {
-          "id": "6c",
-          "content": "荣光号"
+          "id": "3c",
+          "content": "器"
         },
         {
-          "id": "6d",
-          "content": "福灵号"
+          "id": "3d",
+          "content": "嚣"
         }
       ],
-      "answer": "5b",
-      "score": 2,
+      "answer": "3d",
+      "score": 1,
       "specialEffect": {
-        "type": "modal_pop",
-        "title": "提示",
-        "content": "系统异常解除,人工判卷已上线，请正常进行考试。",
-        "buttonText": "我明白了"
+        "type": "text_shake"
       }
     },
     {
@@ -204,7 +171,7 @@
           "content": "山"
         }
       ],
-      "answer": "7b",
+      "answer": "7d",
       "score": 2,
       "specialEffect": {
         "type": "modal_pop",
@@ -220,27 +187,26 @@
       "options": [
         {
           "id": "7a",
-          "content": "凛视"
+          "content": "伊芙利特"
         },
         {
           "id": "7b",
-          "content": "星熊"
+          "content": "阿米娅(术师)"
         },
         {
           "id": "7c",
-          "content": "哈洛德"
+          "content": "普罗旺斯"
         },
         {
           "id": "7d",
-          "content": "山"
+          "content": "霜叶"
         }
       ],
       "answers": [
         "7a",
-        "7b",
-        "7c"
+        "7b"
       ],
-      "score": 2,
+      "score": 1,
       "specialEffect": {
         "type": "modal_pop",
         "title": "提示",
@@ -249,138 +215,104 @@
       }
     },
     {
-      "id": "9",
-      "content": "以下罗德岛职员为术师的是？",
-      "type": "multiple_choice",
+      "id": "question_1746332356033",
+      "type": "single_choice",
+      "content": "在sidestory “相见欢”剧情结尾中，余在城外古寺为二哥准备了什么“筹码”?",
+      "score": 1,
       "options": [
         {
-          "id": "7a",
-          "content": "凛视"
+          "id": "question_1746332356033_option_1",
+          "content": "一碗粥"
         },
         {
-          "id": "7b",
-          "content": "星熊"
+          "id": "question_1746332356033_option_2",
+          "content": "一碗汤"
         },
         {
-          "id": "7c",
-          "content": "哈洛德"
+          "id": "question_1746332356033_option_3",
+          "content": "一碗饭 "
         },
         {
-          "id": "7d",
-          "content": "山"
+          "id": "question_1746332356033_option_4",
+          "content": "一张饼"
         }
       ],
-      "answers": [
-        "7a",
-        "7b",
-        "7c"
-      ],
-      "score": 2,
-      "specialEffect": {
-        "type": "modal_pop",
-        "title": "提示:但我不会责怪你,预言家从来如一",
-        "content": "本题为多选题，请选择所有正确选项。",
-        "buttonText": "我明白了"
-      }
+      "answer": "question_1746332356033_option_2"
     },
     {
-      "id": "9",
-      "content": "以下罗德岛职员为术师的是？但在考试时被打扰还是有些失礼",
-      "type": "multiple_choice",
+      "id": "question_1746332423535",
+      "type": "single_choice",
+      "content": "以下哪位干员的血液源石结晶密度最高(以个人档案记录为准)",
+      "score": 1,
       "options": [
         {
-          "id": "7a",
-          "content": "凛视"
+          "id": "question_1746332423535_option_1",
+          "content": "伊芙利特"
         },
         {
-          "id": "7b",
-          "content": "星熊"
+          "id": "question_1746332423535_option_2",
+          "content": "阿米娅(术师)"
         },
         {
-          "id": "7c",
-          "content": "哈洛德"
+          "id": "question_1746332423535_option_3",
+          "content": "普罗旺斯"
         },
         {
-          "id": "7d",
-          "content": "山"
+          "id": "question_1746332423535_option_4",
+          "content": "霜叶"
         }
       ],
-      "answers": [
-        "7a",
-        "7b",
-        "7c"
-      ],
-      "score": 2,
-      "specialEffect": {
-        "type": "modal_pop",
-        "title": "提示:",
-        "content": "本题为多选题，请选择所有正确选项。",
-        "buttonText": "我明白了"
-      }
+      "answer": "question_1746332423535_option_1"
     },
     {
-      "id": "9",
-      "content": "以下罗德岛职员为术师的是？",
-      "type": "multiple_choice",
+      "id": "question_1746332484966",
+      "type": "single_choice",
+      "content": "在B站“明日方舟”官方账号投稿视频中，以下哪位干员的ep播放量最高",
+      "score": 1,
       "options": [
         {
-          "id": "7a",
-          "content": "凛视但你"
+          "id": "question_1746332484966_option_1",
+          "content": "佩佩"
         },
         {
-          "id": "7b",
-          "content": "星熊总能"
+          "id": "question_1746332484966_option_2",
+          "content": "W"
         },
         {
-          "id": "7c",
-          "content": "哈洛德理解我的"
+          "id": "question_1746332484966_option_3",
+          "content": "黍"
         },
         {
-          "id": "7d",
-          "content": "山不是吗"
+          "id": "question_1746332484966_option_4",
+          "content": "耀骑士临光"
         }
       ],
-      "answers": [
-        "7a",
-        "7b",
-        "7c"
-      ],
-      "score": 2,
-      "specialEffect": {
-        "type": "text_shake"
-      }
+      "answer": "question_1746332484966_option_2"
     },
     {
-      "id": "9",
-      "content": "等考试结束希以下罗德岛望我们职员为术师的是？还能继续推进我",
-      "type": "multiple_choice",
+      "id": "question_1746332586025",
+      "type": "single_choice",
+      "content": "(出题人：冬灵血巫)在sidestory   “沃伦姆德的薄暮”故事中以下哪两个关卡中均出现过角色“冬灵血巫大师”",
+      "score": 1,
       "options": [
         {
-          "id": "7a",
-          "content": "凛视们之前"
+          "id": "question_1746332586025_option_1",
+          "content": "TW-EX-2 TW-EX-3 "
         },
         {
-          "id": "7b",
-          "content": "星熊的计划"
+          "id": "question_1746332586025_option_2",
+          "content": "TW-EX-3 TW-EX-5"
         },
         {
-          "id": "7c",
-          "content": "哈洛德"
+          "id": "question_1746332586025_option_3",
+          "content": "TW-EX-5 TW-EX-8"
         },
         {
-          "id": "7d",
-          "content": "山不是吗"
+          "id": "question_1746332586025_option_4",
+          "content": "TW-EX-6 TW-EX-8"
         }
       ],
-      "answers": [
-        "7a",
-        "7b",
-        "7c"
-      ],
-      "score": 2,
-      "specialEffect": {
-        "type": "text_flash"
-      }
+      "answer": "question_1746332586025_option_3"
     }
   ],
   "startScreen": {
