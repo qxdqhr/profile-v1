@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { ExamProvider } from './_context';
 import ExamLayout from './_components/ExamLayout';
 import { mockQuestions, mockStartScreenData, mockResultModalData } from './_utils/mockData';
-import { loadConfigurations } from './config/_utils/configStorage';
+import { loadConfigurations } from './config/_service/configManagement';
 import { Question, StartScreenData, ResultModalData } from './_types';
 import styles from './styles.module.css';
 import { EXAM_TYPE_MAP } from './config/types';

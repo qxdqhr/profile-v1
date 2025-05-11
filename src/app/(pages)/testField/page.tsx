@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import "./index.css";
+import styles from "./testField.module.css";
 import { BackButton } from '@/app/_components/BackButton';
 import { ExperimentCard } from '@/app/_components/ExperimentCard';
 import { ProfileButton } from '@/utils/popWindow';
@@ -89,15 +89,14 @@ const games: ExperimentItem[] = [
 
 export default function TestField() {
     return (
-        <div className="container">
+        <div className={styles.container}>
             <BackButton href="/" />
-            <div className="wrapper">
-                <h1 className="title">
+            <div className={styles.wrapper}>
+                <h1 className={styles.title}>
                     实验田
         </h1>
-
-        <ProfileButton />    
-        <div className="grid">
+        
+        <div className={styles.grid}>
           {games.map((games) => (
             <ExperimentCard
               key={games.id}

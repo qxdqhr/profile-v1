@@ -1,4 +1,4 @@
-import { loadConfigurations, saveConfigurations } from './configStorage';
+import { loadConfigurations, saveConfigurations } from './configManagement';
 import { ConfigData } from '../types';
 
 /**

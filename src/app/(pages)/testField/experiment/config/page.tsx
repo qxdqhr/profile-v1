@@ -8,7 +8,7 @@ import QuestionConfig from './_components/QuestionConfig';
 import StartScreenConfig from './_components/StartScreenConfig';
 import ResultsConfig from './_components/ResultsConfig';
 import ExamManagement from './_components/ExamManagement';
-import { loadConfigurations, saveConfigurations, exportConfigurations, importConfigurations } from './_utils/configStorage';
+import { loadConfigurations, saveConfigurations, exportConfigurations, importConfigurations } from './_service/configManagement';
 import { BackButton } from '@/app/_components/BackButton';
 import { Question, StartScreenData, ResultModalData } from '../_types';
 

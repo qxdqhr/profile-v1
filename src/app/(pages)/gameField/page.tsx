@@ -1,6 +1,6 @@
 'use client';
 
-import "./gameField.module.css";
+import styles from "./gameField.module.css";
 import { BackButton } from '@/app/_components/BackButton';
 import { ExperimentCard } from '@/app/_components/ExperimentCard';
 
@@ -95,14 +95,14 @@ const games: ExperimentItem[] = [
 
 export default function GameField() {
   return (
-    <div className="container">
+    <div className={styles.container}>
       <BackButton href="/" />
-      <div className="wrapper">
-        <h1 className="title">
+      <div className={styles.wrapper}>
+        <h1 className={styles.title}>
                     实验田
         </h1>
 
-        <div className="grid">
+        <div className={styles.grid}>
           {games.map((game) => (
             <ExperimentCard
               key={game.id}

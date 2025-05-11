@@ -30,7 +30,6 @@ export type {
 export const EXAM_TYPE_MAP: Record<string, string> = {
   'default': 'default',
   'arknights': 'arknights'
-  // 动态创建的试卷会被添加到localStorage中
 };
 
 // 导出类型枚举

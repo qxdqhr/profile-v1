@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '../../../../../../db';
-import { examTypes, examMetadata, examQuestions } from '../../../../../../db/schema';
+import { examTypes, examMetadata, examQuestions, examStartScreens, examResultModals } from '../../../../../../db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 
 // GET 请求 - 获取所有试卷类型
@@ -170,6 +170,12 @@ export async function DELETE(request: NextRequest) {
     await db.transaction(async (tx) => {
       // 删除问题
       await tx.delete(examQuestions).where(eq(examQuestions.examTypeId, id));
+      
+      // 删除启动页配置
+      await tx.delete(examStartScreens).where(eq(examStartScreens.id, id));
+      
+      // 删除结果页配置
+      await tx.delete(examResultModals).where(eq(examResultModals.id, id));
       
       // 删除元数据
       await tx.delete(examMetadata).where(eq(examMetadata.id, id));

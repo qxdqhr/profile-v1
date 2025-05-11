@@ -9,7 +9,7 @@ import {
   createExamType, 
   deleteExamType,
   getExamTypeDetails
-} from '../_utils/examManagement';
+} from '../_service/examManagement';
 
 interface ExamTypeOption {
   value: string;

@@ -4,12 +4,14 @@ import postgres from 'postgres';
 import * as schema from './schema';
 import 'dotenv/config';
 
-// 获取数据库连接URL（从环境变量中）
-const connectionString = process.env.DATABASE_URL;
+// 根据环境获取数据库连接URL
+const connectionString = process.env.NODE_ENV === 'production' 
+  ? process.env.DATABASE_URL 
+  : process.env.DEVELOPMENT_DATABASE_URL;
 
 // 检查 connectionString 是否存在
 if (!connectionString) {
-  throw new Error('数据库连接URL未在环境变量中设置');
+  throw new Error(`数据库连接URL未在${process.env.NODE_ENV}环境变量中设置`);
 }
 
 // 创建Postgres客户端
