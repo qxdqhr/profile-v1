@@ -4,7 +4,7 @@ import { GRID_HEIGHT, GRID_WIDTH, TILE_SIZE, TILE_GAP } from '../constant/const'
 
 export const useFallingAnimation = (
   gameType: GameType,
-  gameStatus: string,
+  gameStatus: GameStatus,
   tiles: Tile[],
   onTilesUpdate: (updater: (prevTiles: Tile[]) => Tile[]) => void
 ) => {
@@ -243,7 +243,7 @@ export const useFallingAnimation = (
 
   // 开始移动动画
   const startFalling = () => {
-    if (GameType.isGaming(gameType) && !animationFrameRef.current) {
+    if ((gameType !== GameType.DisVariable) && !animationFrameRef.current) {
       setIsAnimating(true)  // 动画开始
       animationFrameRef.current = requestAnimationFrame(updateFallingTiles)
     }
@@ -260,7 +260,7 @@ export const useFallingAnimation = (
 
   // 在游戏状态改变时处理移动
   useEffect(() => {
-      if (gameStatus === GameStatus.Playing && GameType.isGaming(gameType)) {
+      if (gameStatus === GameStatus.Playing && (gameType !== GameType.DisVariable)) {
       startFalling()
     }
     return clearAnimation

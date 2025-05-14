@@ -260,6 +260,24 @@ const LinkGame = () => {
     />
   }
 
+  // 处理洗牌按钮点击
+  const handleShuffleClick = () => {
+    // 先清除动画状态，然后执行洗牌
+    clearAnimation();
+    setTimeout(() => {
+      handleShuffle();
+    }, 10); // 短暂延迟，确保动画清除完成
+  }
+
+  // 处理提示按钮点击
+  const handleHintClick = () => {
+    // 先清除动画状态，然后显示提示
+    clearAnimation();
+    setTimeout(() => {
+      handleHint();
+    }, 10); // 短暂延迟，确保动画清除完成
+  }
+
   return (
     <div className="linkGame-container">
       <GameInfo
@@ -279,9 +297,9 @@ const LinkGame = () => {
         onBackToLevels={handleBackToLevels}
         onGameTypeChange={handleGameTypeChange}
         onRestart={handleRestart}
-        onHint={handleHint}
+        onHint={handleHintClick}
         onSettingsClick={() => setShowSettingsAndScores(true)}
-        onShuffle={handleShuffle}
+        onShuffle={handleShuffleClick}
         onToggle={toggleMusic}
         startBackgroundMusic={startBackgroundMusic}
       />

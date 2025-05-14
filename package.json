@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev:dev": "NODE_ENV=development next dev",
-    "dev:prod": "NODE_ENV=production next dev",
+    "dev:dev": "dotenv -e .env.develop -- next dev",
+    "dev:prod": "dotenv -e .env.prod -- next dev",
     "build:dev": "NODE_ENV=development next build",
     "build:prod": "NODE_ENV=production next build",
     "start:dev": "NODE_ENV=development next start",
@@ -89,6 +89,7 @@
     "@types/stats.js": "^0.17.3",
     "autoprefixer": "^10.4.20",
     "dotenv": "^16.4.7",
+    "dotenv-cli": "^8.0.0",
     "drizzle-kit": "^0.31.1",
     "eslint-config-next": "15.1.7",
     "gsap": "^3.12.7",

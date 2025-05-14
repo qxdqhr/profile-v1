@@ -125,12 +125,16 @@ export const useGameState = (
 
   // 改变游戏类型
   const handleGameTypeChange = useCallback((type: GameType) => {
+    // 切换游戏类型时，应该重置一些状态
+    setConnectionPath([])
+    setSelectedTile(null)
     setGameType(type)
   }, [])
 
   // 洗牌功能
   const handleShuffle = useCallback(() => {
     if (shuffleCount < SHUFFLE_COUNT && gameStatus === GameStatus.Playing && !isFirstGame && !tiles.every(tile => tile.isMatched)) {
+      // 停止任何正在进行的动画
       const shuffledTiles = shuffleTiles(tiles)
       setTiles(shuffledTiles)
       setShuffleCount(prev => prev + 1)

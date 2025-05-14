@@ -131,7 +131,7 @@ export const GameInfo: React.FC<GameInfoProps> = ({
               <button
                 className="shuffle-button"
                 onClick={onShuffle}
-                disabled={gameStatus !== GameStatus.Playing || isAnimating || shuffleCount >= SHUFFLE_COUNT}
+                disabled={gameStatus !== GameStatus.Playing || shuffleCount >= SHUFFLE_COUNT}
                 style={{ opacity: 1 }}
               >
                 洗牌 ({SHUFFLE_COUNT - shuffleCount})
@@ -139,7 +139,7 @@ export const GameInfo: React.FC<GameInfoProps> = ({
               <button
                 className="hint-button"
                 onClick={onHint}
-                disabled={gameStatus !== GameStatus.Playing || isAnimating}
+                disabled={gameStatus !== GameStatus.Playing}
                 style={{ opacity: 1 }}
               >
                 提示
