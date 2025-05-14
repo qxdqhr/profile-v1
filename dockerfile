@@ -10,7 +10,7 @@ WORKDIR /app
 
 # 首先只复制必要的文件来安装依赖
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
-COPY prisma ./prisma
+
 RUN npm install -g pnpm && pnpm install
 
 # Rebuild the source code only when needed
