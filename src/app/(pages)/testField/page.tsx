@@ -6,7 +6,7 @@ import styles from "./testField.module.css";
 import { BackButton } from '@/app/_components/BackButton';
 import { ExperimentCard } from '@/app/_components/ExperimentCard';
 import { classNames } from '@/utils/classNames';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 
 interface ExperimentItem {
     id: string;
@@ -190,10 +190,9 @@ const experiments: ExperimentItem[] = [
 
 type ViewMode = 'all' | 'utility' | 'leisure';
 
-export default function TestField() {
+function TestFieldContent() {
     const searchParams = useSearchParams();
     const [viewMode, setViewMode] = useState<ViewMode>('all');
-    
     // 根据 URL 参数设置视图模式
     useEffect(() => {
         const mode = searchParams.get('view') as ViewMode;
@@ -201,23 +200,19 @@ export default function TestField() {
             setViewMode(mode);
         }
     }, [searchParams]);
-    
     // 过滤实验项目
     const filteredExperiments = viewMode === 'all' 
         ? experiments 
         : experiments.filter(item => item.category === viewMode);
-    
     // 分类获取功能区和休闲区的项目
     const utilityExperiments = experiments.filter(item => item.category === 'utility');
     const leisureExperiments = experiments.filter(item => item.category === 'leisure');
-    
     return (
         <div className={styles.container}>
             <BackButton href="/" />
             <div className={styles.wrapper}>
                 <h1 className={styles.title}>实验田</h1>
                 <p className={styles.description}>探索各种实验功能与休闲小游戏</p>
-                
                 {/* 标签切换 */}
                 <div className={styles.tabs}>
                     <Link 
@@ -248,7 +243,6 @@ export default function TestField() {
                         休闲区
                     </Link>
                 </div>
-                
                 {/* 显示全部时，分别显示功能区和休闲区 */}
                 {viewMode === 'all' && (
                     <>
@@ -268,7 +262,6 @@ export default function TestField() {
                                 ))}
                             </div>
                         </div>
-                        
                         {/* 休闲区 */}
                         <div className={styles.section}>
                             <h2 className={classNames(styles.subtitle, styles.leisureTitle)}>休闲区</h2>
@@ -287,7 +280,6 @@ export default function TestField() {
                         </div>
                     </>
                 )}
-                
                 {/* 仅显示单个类别 */}
                 {viewMode !== 'all' && (
                     <div className={styles.grid}>
@@ -305,5 +297,13 @@ export default function TestField() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function TestField() {
+    return (
+        <Suspense>
+            <TestFieldContent />
+        </Suspense>
     );
 }
