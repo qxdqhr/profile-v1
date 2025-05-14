@@ -5,7 +5,7 @@ import * as schema from './schema';
 import 'dotenv/config';
 
 // 根据环境获取数据库连接URL
-const connectionString = process.env.DEVELOPMENT_DATABASE_URL;
+const connectionString = process.env.DATABASE_URL;
 
 // 检查 connectionString 是否存在
 if (!connectionString) {
