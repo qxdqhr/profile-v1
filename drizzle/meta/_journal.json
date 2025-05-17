@@ -15,6 +15,13 @@
       "when": 1746932374047,
       "tag": "0001_glossy_winter_soldier",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1747465488233,
+      "tag": "0002_bored_orphan",
+      "breakpoints": true
     }
   ]
 }

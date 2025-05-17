@@ -3,6 +3,7 @@
 import { useExam } from '../_context';
 import { Question } from '@/app/(pages)/testField/config/experiment/types';
 import styles from '../styles.module.css';
+import AudioPlayer from './AudioPlayer';
 
 interface QuestionContentProps {
   question: Question;
@@ -17,6 +18,15 @@ const QuestionContent = ({ question }: QuestionContentProps) => {
         {currentQuestionIndex + 1}. {question.content}
       </div>
       
+      {/* 显示题目音频播放器 */}
+      {question.audioUrl && (
+        <AudioPlayer 
+          audioUrl={question.audioUrl}
+          className={styles.questionAudioPlayer}
+        />
+      )}
+      
+      {/* 显示题目图片 */}
       {question.imageUrl && (
         <div>
           <img 

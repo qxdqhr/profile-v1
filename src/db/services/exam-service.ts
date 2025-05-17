@@ -240,6 +240,7 @@ export async function saveFullExamConfig(type: string, config: any) {
             answer: question.answer || null,
             answers: question.answers || null,
             score: question.score || 1,
+            audioUrl: question.audioUrl || null,
             specialEffect: question.specialEffect || null,
           });
         }

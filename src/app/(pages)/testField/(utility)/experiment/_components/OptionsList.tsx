@@ -3,6 +3,7 @@
 import { useExam } from '../_context';
 import { QuestionType } from '@/app/(pages)/testField/config/experiment/types';
 import styles from '../styles.module.css';
+import AudioPlayer from './AudioPlayer';
 
 const OptionsList = () => {
   const { 
@@ -71,6 +72,13 @@ const OptionsList = () => {
               
               <div className={styles["option-text"]}>
                 <div>{option.content}</div>
+                
+                {option.audioUrl && (
+                  <AudioPlayer 
+                    audioUrl={option.audioUrl}
+                    className={styles.optionAudioPlayer}
+                  />
+                )}
                 
                 {option.imageUrl && (
                   <div>
