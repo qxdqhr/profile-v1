@@ -63,7 +63,7 @@ const StartScreenConfig = ({ startScreenData, onStartScreenChange }: StartScreen
   
   // 删除规则项
   const deleteRuleItem = (index: number) => {
-    const updatedItems = startScreenData.rules.items.filter((_, i) => i !== index);
+    const updatedItems = startScreenData.rules.items.filter((_: string, i: number) => i !== index);
     
     onStartScreenChange({
       ...startScreenData,
@@ -123,7 +123,7 @@ const StartScreenConfig = ({ startScreenData, onStartScreenChange }: StartScreen
       
       <div className={styles.formGroup}>
         <label className={styles.formLabel}>规则项</label>
-        {startScreenData.rules.items.map((item, index) => (
+        {startScreenData.rules.items.map((item: string, index: number) => (
           <div key={index} className={styles.optionItem}>
             <div className={styles.optionHeader}>
               <input
@@ -171,7 +171,7 @@ const StartScreenConfig = ({ startScreenData, onStartScreenChange }: StartScreen
           <div className={styles.modalPreview}>
             <h3>{startScreenData.rules.title || '规则标题'}</h3>
             <ul>
-              {startScreenData.rules.items.map((item, index) => (
+              {startScreenData.rules.items.map((item: string, index: number) => (
                 <li key={index}>{item || `规则项 ${index + 1}`}</li>
               ))}
             </ul>

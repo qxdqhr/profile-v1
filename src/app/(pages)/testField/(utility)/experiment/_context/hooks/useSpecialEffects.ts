@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Question, SpecialEffectType, ModalPopEffect } from '../../_types';
+import { Question, SpecialEffectType, ModalPopEffect } from '@/app/(pages)/testField/config/experiment/types';
 
 export const useSpecialEffects = () => {
   const [specialModalOpen, setSpecialModalOpen] = useState(false);

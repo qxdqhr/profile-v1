@@ -4,7 +4,7 @@ import {
   ModalPopEffect,
   StartScreenData,
   ResultModalData
-} from "../_types";
+} from "@/app/(pages)/testField/config/experiment/types";
 
 // 导出上下文类型定义
 export interface ExamContextType {

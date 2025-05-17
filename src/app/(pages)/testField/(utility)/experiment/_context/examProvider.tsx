@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { Question, StartScreenData, ResultModalData } from "../_types";
+import { Question, StartScreenData, ResultModalData } from "@/app/(pages)/testField/config/experiment/types";
 import ExamContext from "./examContext";
 import { useDevice } from "./hooks/useDevice";
 import { useExamState } from "./hooks/useExamState";

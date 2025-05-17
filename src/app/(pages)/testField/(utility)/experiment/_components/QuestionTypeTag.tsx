@@ -1,7 +1,7 @@
 "use client";
 
 import { useExam } from '../_context';
-import { QuestionType } from '../_types';
+import { QuestionType } from '@/app/(pages)/testField/config/experiment/types';
 
 const QuestionTypeTag = () => {
   const { currentQuestion } = useExam();
