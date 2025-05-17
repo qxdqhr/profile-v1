@@ -1,5 +1,5 @@
 import { ConfigData } from '../types';
-import { mockQuestions, mockStartScreenData, mockResultModalData } from '../../_utils/mockData';
+import { mockQuestions, mockStartScreenData, mockResultModalData } from '@/app/(pages)/testField/(utility)/experiment/_utils/mockData';
 
 // 从静态文件加载配置
 export const loadConfigurations = async (examId: string = 'default'): Promise<ConfigData> => {

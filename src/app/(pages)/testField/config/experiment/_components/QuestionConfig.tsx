@@ -10,7 +10,7 @@ import {
   Option,
   SpecialEffect,
   ModalPopEffect
-} from '../../_types';
+} from '../types';
 import styles from '../styles.module.css';
 
 interface QuestionConfigProps {

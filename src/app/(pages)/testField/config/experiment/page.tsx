@@ -10,7 +10,7 @@ import ResultsConfig from './_components/ResultsConfig';
 import ExamManagement from './_components/ExamManagement';
 import { loadConfigurations, saveConfigurations, exportConfigurations, importConfigurations } from './_service/configManagement';
 import { BackButton } from '@/app/_components/BackButton';
-import { Question, StartScreenData, ResultModalData } from '../_types';
+import { Question, StartScreenData, ResultModalData } from './types';
 
 // 修改部分：用空数组初始化，然后动态加载
 const DEFAULT_EXAM_TYPE_OPTIONS = [
@@ -72,7 +72,7 @@ function ConfigContent() {
   // 切换试卷类型
   const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newType = event.target.value;
-    router.push(`/testField/experiment/config?type=${newType}`);
+    router.push(`/testField/config/experiment/?type=${newType}`);
   };
 
   // 加载配置
@@ -89,7 +89,7 @@ function ConfigContent() {
         // 如果试卷类型无效且不是默认试卷，则重定向到默认试卷
         if (!isExamTypeValid && examType !== 'default') {
           console.warn(`试卷类型 "${examType}" 不存在，重定向到默认试卷`);
-          router.push('/testField/experiment/config?type=default');
+          router.push('/testField/config/experiment/?type=default');
           return;
         }
         
@@ -228,12 +228,12 @@ function ConfigContent() {
         });
         setExamTypeMap(mapping);
         
-        router.push(`/testField/experiment/config?type=${type}`);
+        router.push(`/testField/config/experiment/?type=${type}`);
         setNavTab('config');
       })
       .catch(error => {
         console.error('刷新试卷类型选项失败:', error);
-        router.push(`/testField/experiment/config?type=${type}`);
+        router.push(`/testField/config/experiment/?type=${type}`);
         setNavTab('config');
       });
   };

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { UserAnswer, Question } from '../../_types';
+import { UserAnswer, Question } from '@/app/(pages)/testField/config/experiment/types';
 
 export const useAnswers = (currentQuestion: Question) => {
   const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);

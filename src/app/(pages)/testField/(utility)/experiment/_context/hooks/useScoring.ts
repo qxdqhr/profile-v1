@@ -6,7 +6,7 @@ import {
   SingleChoiceQuestion, 
   MultipleChoiceQuestion, 
   FillBlankQuestion 
-} from '../../_types';
+} from '@/app/(pages)/testField/config/experiment/types';
 
 export const useScoring = (questions: Question[], userAnswers: UserAnswer[]) => {
   // 计算得分

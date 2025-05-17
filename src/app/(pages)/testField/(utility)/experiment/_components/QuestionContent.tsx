@@ -1,7 +1,7 @@
 "use client";
 
 import { useExam } from '../_context';
-import { Question } from '../_types';
+import { Question } from '@/app/(pages)/testField/config/experiment/types';
 import styles from '../styles.module.css';
 
 interface QuestionContentProps {
