@@ -12,6 +12,7 @@ import {
   ModalPopEffect
 } from '../types';
 import styles from '../styles.module.css';
+import AudioUploader from './AudioUploader';
 
 interface QuestionConfigProps {
   questions: Question[];
@@ -101,6 +102,11 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
     updateQuestion(questionId, { imageUrl });
   };
 
+  // 更新问题音频URL
+  const updateQuestionAudioUrl = (questionId: string, audioUrl: string) => {
+    updateQuestion(questionId, { audioUrl });
+  };
+
   // 更新单选题答案
   const updateSingleAnswer = (questionId: string, optionId: string) => {
     updateQuestion(questionId, { answer: optionId } as any);
@@ -167,6 +173,23 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
     const choiceQuestion = question as SingleChoiceQuestion | MultipleChoiceQuestion;
     const updatedOptions = choiceQuestion.options.map((option) => 
       option.id === optionId ? { ...option, imageUrl } : option
+    );
+    
+    updateQuestion(questionId, { options: updatedOptions } as any);
+  };
+
+  // 更新选项音频URL
+  const updateOptionAudioUrl = (questionId: string, optionId: string, audioUrl: string) => {
+    const question = questions.find(q => q.id === questionId);
+    if (
+      !question || 
+      (question.type !== QuestionType.SingleChoice && 
+       question.type !== QuestionType.MultipleChoice)
+    ) return;
+    
+    const choiceQuestion = question as SingleChoiceQuestion | MultipleChoiceQuestion;
+    const updatedOptions = choiceQuestion.options.map((option) => 
+      option.id === optionId ? { ...option, audioUrl } : option
     );
     
     updateQuestion(questionId, { options: updatedOptions } as any);
@@ -394,6 +417,15 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
                   />
                 </div>
                 
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>问题音频 (可选)</label>
+                  <AudioUploader
+                    audioUrl={question.audioUrl}
+                    onAudioChange={(url) => updateQuestionAudioUrl(question.id, url || '')}
+                    placeholder="输入音频URL或上传音频文件"
+                  />
+                </div>
+                
                 {(question.type === QuestionType.SingleChoice || question.type === QuestionType.MultipleChoice) && (
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>选项</label>
@@ -445,15 +477,25 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
                           </div>
                           
                           {expandedOptionId === option.id && (
-                            <div className={styles.optionImageUrl}>
-                              <label className={styles.formLabel}>选项图片URL (可选)</label>
-                              <input
-                                type="text"
-                                className={styles.formInput}
-                                value={option.imageUrl || ''}
-                                onChange={(e) => updateOptionImageUrl(question.id, option.id, e.target.value)}
-                                placeholder="输入图片URL..."
-                              />
+                            <div className={styles.optionDetails}>
+                              <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>选项图片URL (可选)</label>
+                                <input
+                                  type="text"
+                                  className={styles.formInput}
+                                  value={option.imageUrl || ''}
+                                  onChange={(e) => updateOptionImageUrl(question.id, option.id, e.target.value)}
+                                  placeholder="输入图片URL..."
+                                />
+                              </div>
+                              <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>选项音频 (可选)</label>
+                                <AudioUploader
+                                  audioUrl={option.audioUrl}
+                                  onAudioChange={(url) => updateOptionAudioUrl(question.id, option.id, url || '')}
+                                  placeholder="输入音频URL或上传音频文件"
+                                />
+                              </div>
                             </div>
                           )}
                         </div>

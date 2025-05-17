@@ -7,6 +7,7 @@ export interface BaseQuestion {
   type: QuestionType;
   content: string;
   imageUrl?: string;
+  audioUrl?: string; // 音频URL
   score: number;
   specialEffect?: SpecialEffect; 
 }
@@ -16,6 +17,7 @@ export interface Option {
   id: string;
   content: string;
   imageUrl?: string;
+  audioUrl?: string; // 选项音频URL
 }
 
 // 单选题

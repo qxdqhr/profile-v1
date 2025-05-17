@@ -9,6 +9,152 @@
   background-color: #f9fafb;
 }
 
+/* 音频播放器样式 */
+.audioPlayer {
+  margin: 12px 0;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+}
+
+.audioLoading {
+  text-align: center;
+  color: #6b7280;
+  padding: 8px 0;
+  font-size: 0.875rem;
+}
+
+.audioError {
+  text-align: center;
+  color: #ef4444;
+  padding: 8px 0;
+  font-size: 0.875rem;
+}
+
+.audioControls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.playButton {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+}
+
+.playButton:hover {
+  background-color: #2563eb;
+}
+
+.playButton:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.progressContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progressBar {
+  width: 100%;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e5e7eb;
+  border-radius: 4px;
+  outline: none;
+}
+
+.progressBar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+}
+
+.progressBar::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+}
+
+.timeDisplay {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-align: right;
+}
+
+.volumeContainer {
+  width: 80px;
+}
+
+.volumeControl {
+  width: 100%;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e5e7eb;
+  border-radius: 4px;
+  outline: none;
+}
+
+.volumeControl::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+}
+
+.volumeControl::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+}
+
+.playCount {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* 移动端适配 */
+@media (max-width: 640px) {
+  .audioControls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .volumeContainer {
+    width: 100%;
+  }
+}
+
 .exam-title {
   font-size: 1.25rem;
   font-weight: 700;

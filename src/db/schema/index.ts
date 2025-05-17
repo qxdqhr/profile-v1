@@ -28,6 +28,7 @@ export const examQuestions = pgTable('exam_questions', {
   answer: text('answer'), // 单选题答案
   answers: json('answers'), // 多选题答案
   score: integer('score').notNull(),
+  audioUrl: text('audio_url'), // 题目音频URL
   specialEffect: json('special_effect'), // 存储特殊效果
 });
 
