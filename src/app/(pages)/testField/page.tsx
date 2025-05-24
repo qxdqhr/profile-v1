@@ -75,6 +75,14 @@ const experiments: ExperimentItem[] = [
         category: "utility"
     },
     {
+        id: "show-master-pieces",
+        title: "艺术画集展览",
+        description: "浏览各种艺术画集，支持逐页查看和画集管理",
+        path: "/testField/ShowMasterPieces",
+        tags: ["艺术", "画集", "展览"],
+        category: "utility"
+    },
+    {
         id: "vocaloider",
         title: "术力口音乐播放器",
         description: "术力口音乐播放器",

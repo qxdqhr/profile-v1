@@ -1,0 +1,447 @@
+/* 画集展览页面样式 */
+
+/* 基础容器和布局 */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.header {
+  background: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.headerContent {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.headerNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #64748b;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: color 0.2s ease;
+}
+
+.backButton:hover {
+  color: #1e293b;
+}
+
+.headerTitle {
+  text-align: center;
+}
+
+.headerTitle h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.headerTitle p {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.pageInfo {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+/* 主页面标题 */
+.mainHeader {
+  background: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.mainHeaderContent {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.mainTitle {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 1rem 0;
+}
+
+.mainDescription {
+  font-size: 1.125rem;
+  color: #64748b;
+  max-width: 32rem;
+  margin: 0 auto;
+}
+
+/* 主要内容区域 */
+.mainContent {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .contentGrid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+/* 作品展示区域 */
+.artworkSection {
+  grid-column: span 1;
+}
+
+@media (min-width: 1024px) {
+  .artworkSection {
+    grid-column: span 2;
+  }
+}
+
+.artworkCard {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 1.5rem;
+}
+
+.artworkImageContainer {
+  position: relative;
+}
+
+.artworkImage {
+  width: 100%;
+  height: 600px;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  background: #f8fafc;
+}
+
+.navButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  padding: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.navButton:hover {
+  background: white;
+}
+
+.navButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.prevButton {
+  left: 1rem;
+}
+
+.nextButton {
+  right: 1rem;
+}
+
+.artworkInfo {
+  margin-top: 1.5rem;
+}
+
+.artworkTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+}
+
+.artworkArtist {
+  font-size: 1.125rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* 侧边栏目录 */
+.sidebarSection {
+  grid-column: span 1;
+}
+
+.sidebarCard {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 1.5rem;
+}
+
+.sidebarTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 1rem 0;
+}
+
+.thumbnailList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.thumbnailItem {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.thumbnailItem:hover {
+  border-color: #cbd5e1;
+}
+
+.thumbnailItem.active {
+  border-color: #3b82f6;
+  background: #dbeafe;
+}
+
+.thumbnailContent {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.thumbnailImage {
+  width: 3rem;
+  height: 4rem;
+  object-fit: cover;
+  border-radius: 0.25rem;
+}
+
+.thumbnailInfo {
+  text-align: left;
+}
+
+.thumbnailTitle {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: #1e293b;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.thumbnailPage {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 画集展示网格 */
+.galleryContent {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+}
+
+.galleryGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .galleryGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .galleryGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* 画集卡片 */
+.collectionCard {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  transform: translateY(0);
+}
+
+.collectionCard:hover {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  transform: translateY(-0.5rem);
+}
+
+.collectionImageContainer {
+  position: relative;
+}
+
+.collectionCover {
+  width: 100%;
+  height: 16rem;
+  object-fit: cover;
+}
+
+.collectionOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent);
+}
+
+.collectionBadge {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  color: white;
+}
+
+.collectionBadgeContent {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.collectionBadgeText {
+  font-size: 0.875rem;
+}
+
+.collectionContent {
+  padding: 1.5rem;
+}
+
+.collectionTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+}
+
+.collectionArtist {
+  color: #64748b;
+  margin: 0 0 0.25rem 0;
+}
+
+.collectionDescription {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 1rem 0;
+}
+
+.collectionButton {
+  width: 100%;
+  background: linear-gradient(90deg, #2563eb, #9333ea);
+  color: white;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.collectionButton:hover {
+  background: linear-gradient(90deg, #1d4ed8, #7c3aed);
+}
+
+/* 响应式优化 */
+@media (max-width: 1024px) {
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .artworkSection {
+    grid-column: span 1;
+  }
+  
+  .artworkImage {
+    height: 400px;
+  }
+  
+  .mainTitle {
+    font-size: 1.875rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .headerNav {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .headerTitle {
+    order: -1;
+  }
+  
+  .mainHeaderContent {
+    padding: 1.5rem 1rem;
+  }
+  
+  .mainTitle {
+    font-size: 1.5rem;
+  }
+  
+  .mainDescription {
+    font-size: 1rem;
+  }
+  
+  .mainContent {
+    padding: 1rem;
+  }
+  
+  .artworkImage {
+    height: 300px;
+  }
+  
+  .navButton {
+    padding: 0.5rem;
+  }
+  
+  .prevButton {
+    left: 0.5rem;
+  }
+  
+  .nextButton {
+    right: 0.5rem;
+  }
+} 
