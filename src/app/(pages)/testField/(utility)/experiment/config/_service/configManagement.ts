@@ -5,7 +5,7 @@ import { mockQuestions, mockStartScreenData, mockResultModalData } from '@/app/(
 export const loadConfigurations = async (examId: string = 'default'): Promise<ConfigData> => {
   try {
     // 构建API URL，带上试卷类型参数
-    const response = await fetch(`/api/testField/config/experiment/questions?type=${encodeURIComponent(examId)}`);
+    const response = await fetch(`/api/testField/experiment/config/questions?type=${encodeURIComponent(examId)}`);
     
     if (response.ok) {
       return await response.json();
@@ -45,7 +45,7 @@ export const loadConfigurations = async (examId: string = 'default'): Promise<Co
 export const saveConfigurations = async (config: ConfigData, examId: string = 'default'): Promise<void> => {
   try {
     // 保存到服务器
-    const response = await fetch(`/api/testField/config/experiment/questions?type=${encodeURIComponent(examId)}`, {
+    const response = await fetch(`/api/testField/experiment/config/questions?type=${encodeURIComponent(examId)}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -107,7 +107,7 @@ export const importConfigurations = async (file: File, examId: string = 'default
 // 保存配置为静态文件
 export const saveAsStaticFile = async (config: ConfigData): Promise<void> => {
   try {
-    const response = await fetch('/api/testField/config/experiment/questions', {
+    const response = await fetch('/api/testField/experiment/config/questions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

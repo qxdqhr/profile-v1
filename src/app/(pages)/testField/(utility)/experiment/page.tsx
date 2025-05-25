@@ -5,10 +5,10 @@ import { useSearchParams } from 'next/navigation';
 import { ExamProvider } from './_context';
 import ExamLayout from './_components/ExamLayout';
 import { mockQuestions, mockStartScreenData, mockResultModalData } from './_utils/mockData';
-import { loadConfigurations } from '@/app/(pages)/testField/config/experiment/_service/configManagement';
-import { Question, StartScreenData, ResultModalData } from '@/app/(pages)/testField/config/experiment/types';
+import { loadConfigurations } from '@/app/(pages)/testField/(utility)/experiment/config/_service/configManagement';
+import { Question, StartScreenData, ResultModalData } from '@/app/(pages)/testField/(utility)/experiment/config/types';
 import styles from './styles.module.css';
-import { EXAM_TYPE_MAP } from '@/app/(pages)/testField/config/experiment/types';
+import { EXAM_TYPE_MAP } from '@/app/(pages)/testField/(utility)/experiment/config/types';
 
 // 创建一个内部组件来使用 useSearchParams
 function ExperimentContent() {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '../../../../../../db';
-import { examTypes, examMetadata, examQuestions, examStartScreens, examResultModals } from '../../../../../../db/schema';
+import { db } from '@/db';
+import { examTypes, examMetadata, examQuestions, examStartScreens, examResultModals } from '@/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 
 // GET 请求 - 获取所有试卷类型

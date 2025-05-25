@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '../../../../../../db';
-import { examTypes } from '../../../../../../db/schema';
+import { db } from '@/db';
+import { examTypes } from '@/db/schema';
 import { eq } from 'drizzle-orm';
-import { getFullExamConfig, saveFullExamConfig } from '../../../../../../db/services/exam-service';
+import { getFullExamConfig, saveFullExamConfig } from '@/db/services/exam-service';
 
 // GET 请求 - 获取配置数据
 export async function GET(request: NextRequest) {

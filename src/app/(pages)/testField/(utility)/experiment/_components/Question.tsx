@@ -1,7 +1,7 @@
 "use client";
 
 import { useExam } from '../_context';
-import { QuestionType } from '@/app/(pages)/testField/config/experiment/types';
+import { QuestionType } from '@/app/(pages)/testField/(utility)/experiment/config/types';
 import QuestionContent from './QuestionContent';
 import OptionsList from './OptionsList';
 import QuestionHeader from './QuestionHeader';

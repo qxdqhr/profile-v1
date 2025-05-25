@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Question } from '@/app/(pages)/testField/config/experiment/types';
+import { Question } from '@/app/(pages)/testField/(utility)/experiment/config/types';
 
 export const useNavigation = (
   questions: Question[], 

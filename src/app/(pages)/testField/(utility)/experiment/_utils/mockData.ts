@@ -1,4 +1,4 @@
-import { Question, QuestionType, ResultModalData, SpecialEffectType, StartScreenData } from '@/app/(pages)/testField/config/experiment/types';
+import { Question, QuestionType, ResultModalData, SpecialEffectType, StartScreenData } from '@/app/(pages)/testField/(utility)/experiment/config/types';
 
 // 创建模拟题目数据
 export const mockQuestions: Question[] = [
