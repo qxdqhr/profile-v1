@@ -38,7 +38,7 @@ const experiments: ExperimentItem[] = [
         id: "config-default",
         title: "通用考试配置",
         description: "配置通用考试系统的题目和设置",
-        path: "/testField/config/experiment",
+        path: "/testField/experiment/config",
         tags: ["配置", "考试"],
         category: "utility"
     },
@@ -46,7 +46,7 @@ const experiments: ExperimentItem[] = [
         id: "config-arknights",
         title: "明日方舟配置",
         description: "配置明日方舟知识测试的题目和设置",
-        path: "/testField/config/experiment?type=arknights",
+        path: "/testField/experiment/config?type=arknights",
         tags: ["配置", "游戏"],
         category: "utility"
     },

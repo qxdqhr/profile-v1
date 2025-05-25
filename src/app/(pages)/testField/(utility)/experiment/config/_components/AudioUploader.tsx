@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import styles from '../styles.module.css';
-import AudioPlayer from '../../../(utility)/experiment/_components/AudioPlayer';
+import AudioPlayer from '../../_components/AudioPlayer';
+
 interface AudioUploaderProps {
   audioUrl: string | undefined;
   onAudioChange: (url: string | undefined) => void;

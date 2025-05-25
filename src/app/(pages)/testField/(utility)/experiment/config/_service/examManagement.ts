@@ -7,7 +7,7 @@ import { ConfigData } from '../types';
 export const getAllExamTypes = async (): Promise<string[]> => {
   try {
     // 从API获取所有试卷类型
-    const response = await fetch('/api/testField/config/experiment/examTypes');
+    const response = await fetch('/api/testField/experiment/config/examTypes');
     
     if (!response.ok) {
       throw new Error(`获取试卷类型失败: ${response.statusText}`);
@@ -39,7 +39,7 @@ export const createExamType = async (
     }
 
     // 调用API创建新试卷
-    const response = await fetch('/api/testField/config/experiment/examTypes', {
+    const response = await fetch('/api/testField/experiment/config/examTypes', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ export const deleteExamType = async (id: string): Promise<void> => {
     }
 
     // 调用API删除试卷
-    const response = await fetch(`/api/testField/config/experiment/examTypes?id=${encodeURIComponent(id)}`, {
+    const response = await fetch(`/api/testField/experiment/config/examTypes?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
 
@@ -108,7 +108,7 @@ export const getExamTypeDetails = async (id: string): Promise<{
 }> => {
   try {
     // 从API获取详细信息
-    const response = await fetch('/api/testField/config/experiment/examTypes?details=true');
+    const response = await fetch('/api/testField/experiment/config/examTypes?details=true');
     
     if (!response.ok) {
       throw new Error(`获取试卷详情失败: ${response.statusText}`);

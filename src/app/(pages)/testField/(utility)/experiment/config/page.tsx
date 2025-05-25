@@ -42,7 +42,7 @@ function ConfigContent() {
   useEffect(() => {
     const loadExamTypeData = async () => {
       try {
-        const response = await fetch('/api/testField/config/experiment/examTypes?details=true');
+        const response = await fetch('/api/testField/experiment/config/examTypes?details=true');
         if (response.ok) {
           const examDetails = await response.json();
           // 处理选项
@@ -72,7 +72,7 @@ function ConfigContent() {
   // 切换试卷类型
   const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newType = event.target.value;
-    router.push(`/testField/config/experiment/?type=${newType}`);
+    router.push(`/testField/experiment/config/?type=${newType}`);
   };
 
   // 加载配置
@@ -89,7 +89,7 @@ function ConfigContent() {
         // 如果试卷类型无效且不是默认试卷，则重定向到默认试卷
         if (!isExamTypeValid && examType !== 'default') {
           console.warn(`试卷类型 "${examType}" 不存在，重定向到默认试卷`);
-          router.push('/testField/config/experiment/?type=default');
+          router.push('/testField/experiment/config/?type=default');
           return;
         }
         
@@ -212,7 +212,7 @@ function ConfigContent() {
   // 试卷创建成功后的回调
   const handleExamCreated = (type: string) => {
     // 重新加载试卷类型选项
-    fetch('/api/testField/config/experiment/examTypes?details=true')
+    fetch('/api/testField/experiment/config/examTypes?details=true')
       .then(response => response.json())
       .then(examDetails => {
         const options = examDetails.map((exam: any) => ({
@@ -228,12 +228,12 @@ function ConfigContent() {
         });
         setExamTypeMap(mapping);
         
-        router.push(`/testField/config/experiment/?type=${type}`);
+        router.push(`/testField/experiment/config/?type=${type}`);
         setNavTab('config');
       })
       .catch(error => {
         console.error('刷新试卷类型选项失败:', error);
-        router.push(`/testField/config/experiment/?type=${type}`);
+        router.push(`/testField/experiment/config/?type=${type}`);
         setNavTab('config');
       });
   };
