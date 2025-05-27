@@ -40,12 +40,12 @@ export default function Home() {
       <MainPage />
       
       {/* 自动弹窗组件 */}
-      <AutoOpenModal 
+      {/* <AutoOpenModal 
         data={profileData} 
         delay={1000} 
         themeName="blue"
         onClose={() => console.log('弹窗已关闭')}
-      />
+      /> */}
     </>
   );
 }

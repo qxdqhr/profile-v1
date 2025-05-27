@@ -83,6 +83,14 @@ const experiments: ExperimentItem[] = [
         category: "utility"
     },
     {
+        id: "image-downloader",
+        title: "图片下载器",
+        description: "通过图片URL快速下载图片到本地，支持预览和自定义文件名",
+        path: "/testField/ImageDownloader",
+        tags: ["下载", "图片", "工具"],
+        category: "utility"
+    },
+    {
         id: "vocaloider",
         title: "术力口音乐播放器",
         description: "术力口音乐播放器",
