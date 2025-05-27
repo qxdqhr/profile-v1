@@ -1,0 +1,161 @@
+/* 侧边栏目录 */
+.sidebarCard {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 1.5rem;
+}
+
+.sidebarTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 1rem 0;
+}
+
+.thumbnailList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.thumbnailItem {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.thumbnailItem:hover {
+  border-color: #cbd5e1;
+}
+
+.thumbnailItem.active {
+  border-color: #3b82f6;
+  background: #dbeafe;
+}
+
+.thumbnailContent {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.thumbnailImageContainer {
+  position: relative;
+  width: 3rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.thumbnailImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s ease;
+}
+
+.thumbnailImage.hidden {
+  opacity: 0;
+  position: absolute;
+}
+
+/* 图片加载状态 */
+.imageLoading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loadingSpinner {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #e5e7eb;
+  border-top: 1px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 图片错误状态 */
+.imageError {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+}
+
+.thumbnailInfo {
+  text-align: left;
+  flex: 1;
+  min-width: 0;
+}
+
+.thumbnailTitle {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: #1e293b;
+  margin: 0 0 0.25rem 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.thumbnailPage {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .sidebarCard {
+    padding: 1rem;
+  }
+  
+  .thumbnailList {
+    max-height: 400px;
+  }
+  
+  .thumbnailItem {
+    padding: 0.5rem;
+  }
+  
+  .thumbnailImageContainer {
+    width: 2.5rem;
+    height: 3rem;
+  }
+  
+  .thumbnailTitle {
+    font-size: 0.75rem;
+  }
+  
+  .thumbnailPage {
+    font-size: 0.625rem;
+  }
+} 
