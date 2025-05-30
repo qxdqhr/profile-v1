@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { masterpiecesConfigDbService } from '@/db/services/masterpiecesDbService';
+import { validateApiAuth, createUnauthorizedResponse } from '@/utils/authUtils';
 
 export async function GET() {
   try {
@@ -16,6 +17,13 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
+    // 验证用户权限
+    const user = await validateApiAuth(request);
+    if (!user) {
+      const { error, status } = createUnauthorizedResponse();
+      return NextResponse.json({ error }, { status });
+    }
+
     const configData = await request.json();
     const updatedConfig = await masterpiecesConfigDbService.updateConfig(configData);
     return NextResponse.json(updatedConfig);
@@ -28,8 +36,15 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
   try {
+    // 验证用户权限
+    const user = await validateApiAuth(request);
+    if (!user) {
+      const { error, status } = createUnauthorizedResponse();
+      return NextResponse.json({ error }, { status });
+    }
+
     const resetConfig = await masterpiecesConfigDbService.resetConfig();
     return NextResponse.json(resetConfig);
   } catch (error) {

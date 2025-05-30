@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { collectionsDbService } from '@/db/services/masterpiecesDbService';
+import { validateApiAuth, createUnauthorizedResponse } from '@/utils/authUtils';
 
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    // 验证用户权限
+    const user = await validateApiAuth(request);
+    if (!user) {
+      const { error, status } = createUnauthorizedResponse();
+      return NextResponse.json({ error }, { status });
+    }
+
     const id = parseInt(params.id);
     const collectionData = await request.json();
     const updatedCollection = await collectionsDbService.updateCollection(id, collectionData);
@@ -24,6 +32,13 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    // 验证用户权限
+    const user = await validateApiAuth(request);
+    if (!user) {
+      const { error, status } = createUnauthorizedResponse();
+      return NextResponse.json({ error }, { status });
+    }
+
     const id = parseInt(params.id);
     await collectionsDbService.deleteCollection(id);
     return NextResponse.json({ success: true });
