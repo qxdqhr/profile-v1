@@ -50,16 +50,20 @@ export default function UserMenu({ onConfigAccess }: UserMenuProps) {
     }
   };
 
-  // 处理配置页面访问
-  const handleConfigClick = () => {
-    setIsOpen(false);
-    onConfigAccess();
-  };
-
   // 登录成功后的处理
   const handleLoginSuccess = () => {
+    console.log('🎉 [UserMenu] 登录成功回调被调用');
+    console.log('🔄 [UserMenu] 调用 refreshUser...');
     refreshUser();
     setShowLoginModal(false);
+    console.log('✅ [UserMenu] 登录成功处理完成');
+  };
+
+  // 处理配置页面访问
+  const handleConfigClick = () => {
+    console.log('⚙️ [UserMenu] 尝试访问配置页面, isAuthenticated:', isAuthenticated);
+    setIsOpen(false);
+    onConfigAccess();
   };
 
   return (
