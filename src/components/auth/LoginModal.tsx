@@ -32,6 +32,8 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
 
   // 处理登录
   const handleLogin = async () => {
+    console.log('🔑 [LoginModal] 开始登录流程...', { phone, password: '***' });
+    
     if (!phone.trim()) {
       setError('请输入手机号');
       return;
@@ -51,6 +53,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
     setError('');
 
     try {
+      console.log('📤 [LoginModal] 发送登录请求...');
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -59,19 +62,28 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
         body: JSON.stringify({ phone, password }),
       });
 
+      console.log('📡 [LoginModal] 登录响应状态:', response.status);
+      console.log('🍪 [LoginModal] 响应头cookies:', response.headers.get('set-cookie'));
+
       const data = await response.json();
+      console.log('📄 [LoginModal] 登录响应数据:', data);
 
       if (data.success) {
+        console.log('✅ [LoginModal] 登录成功, 用户:', data.user);
+        console.log('🎯 [LoginModal] 调用 onSuccess 回调...');
         resetState();
         onSuccess();
         onClose();
       } else {
+        console.log('❌ [LoginModal] 登录失败:', data.message);
         setError(data.message || '登录失败');
       }
     } catch (err) {
+      console.error('💥 [LoginModal] 登录异常:', err);
       setError('网络错误，请稍后重试');
     } finally {
       setLoading(false);
+      console.log('🏁 [LoginModal] 登录流程结束');
     }
   };
 

@@ -26,7 +26,7 @@ export default function ShowMasterPieces() {
     backToGallery,
   } = useMasterpieces();
 
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [config, setConfig] = useState<MasterpiecesConfig | null>(null);
 
   // 加载配置
@@ -44,9 +44,14 @@ export default function ShowMasterPieces() {
 
   // 处理配置页面访问
   const handleConfigAccess = () => {
+    console.log('🎯 [ShowMasterPieces] handleConfigAccess 被调用');
+    console.log('🔐 [ShowMasterPieces] 当前认证状态:', { isAuthenticated, user });
+    
     if (isAuthenticated) {
+      console.log('✅ [ShowMasterPieces] 用户已认证，跳转到配置页面');
       window.location.href = '/testField/ShowMasterPieces/config';
     } else {
+      console.log('❌ [ShowMasterPieces] 用户未认证，需要先登录');
       // 如果未登录，显示提示信息
       console.log('用户未登录，需要先登录才能访问配置页面');
     }
