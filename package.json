@@ -14,7 +14,10 @@
     "prodb:generate": "dotenv -e .env.production -- npx drizzle-kit generate",
     "prodb:push": "dotenv -e .env.production -- npx drizzle-kit push",
     "prodb:migrate": "dotenv -e .env.production -- tsx src/db/migrate.ts",
-    "prodb:studio": "dotenv -e .env.production -- drizzle-kit studio --port 3500"
+    "prodb:studio": "dotenv -e .env.production -- drizzle-kit studio --port 3500",
+    "prodb:seed": "dotenv -e .env.production -- npx tsx scripts/create-prod-masterpieces-data.ts",
+    "prodb:users": "dotenv -e .env.production -- npx tsx scripts/create-prod-user-data.ts",
+    "prodb:verify": "dotenv -e .env.production -- npx tsx scripts/verify-prod-data.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -36,6 +39,7 @@
     "@radix-ui/react-slot": "^1.1.2",
     "@tonejs/midi": "^2.0.28",
     "@types/animejs": "^3.1.12",
+    "@types/bcryptjs": "^3.0.0",
     "@types/react-beautiful-dnd": "^13.1.8",
     "@typescript-eslint/eslint-plugin": "^8.20.0",
     "@typescript-eslint/parser": "^8.20.0",
@@ -43,6 +47,7 @@
     "@vercel/postgres": "^0.10.0",
     "animejs": "^3.2.2",
     "axios": "^1.8.1",
+    "bcryptjs": "^3.0.2",
     "cheerio": "^1.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

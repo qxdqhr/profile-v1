@@ -92,11 +92,11 @@ export const ArtworkViewer: React.FC<ArtworkViewerProps> = ({
       <div className={styles.artworkInfo}>
         <h2 className={styles.artworkTitle}>{artwork.title}</h2>
         <p className={styles.artworkArtist}>创作者：{artwork.artist}</p>
-        {artwork.year && (
-          <p className={styles.artworkYear}>创作年代：{artwork.year}</p>
+        {artwork.createdTime && (
+          <p className={styles.artworkYear}>创作时间：{artwork.createdTime}</p>
         )}
-        {artwork.medium && (
-          <p className={styles.artworkMedium}>材质技法：{artwork.medium}</p>
+        {artwork.theme && (
+          <p className={styles.artworkMedium}>主题：{artwork.theme}</p>
         )}
         {artwork.description && (
           <p className={styles.artworkDescription}>{artwork.description}</p>

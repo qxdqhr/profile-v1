@@ -4,6 +4,7 @@
 .container {
   min-height: 100vh;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  overflow-x: hidden; /* 防止横向滚动 */
 }
 
 /* 加载状态 */
@@ -14,6 +15,7 @@
   justify-content: center;
   min-height: 50vh;
   gap: 1rem;
+  padding: 1rem;
 }
 
 .loadingSpinner {
@@ -39,6 +41,7 @@
   min-height: 50vh;
   gap: 1rem;
   text-align: center;
+  padding: 1rem;
 }
 
 .errorContainer p {
@@ -54,6 +57,7 @@
   border-radius: 0.5rem;
   cursor: pointer;
   font-weight: 500;
+  min-height: 44px; /* 触控友好的最小高度 */
 }
 
 /* 顶部导航 */
@@ -61,6 +65,9 @@
   background: white;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .headerContent {
@@ -74,6 +81,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 2rem;
+  min-height: 44px; /* 触控友好的最小高度 */
 }
 
 .backButton {
@@ -86,15 +94,21 @@
   cursor: pointer;
   font-size: 1rem;
   transition: color 0.2s ease;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .backButton:hover {
   color: #1e293b;
+  background: #f1f5f9;
 }
 
 .headerTitle {
   flex: 1;
   text-align: center;
+  padding: 0 1rem;
 }
 
 .headerTitle h1 {
@@ -102,12 +116,14 @@
   font-weight: 700;
   color: #1e293b;
   margin: 0;
+  line-height: 1.2;
 }
 
 .headerTitle p {
   font-size: 0.875rem;
   color: #64748b;
   margin: 0;
+  line-height: 1.4;
 }
 
 .configButton {
@@ -122,6 +138,8 @@
   border-radius: 0.5rem;
   text-decoration: none;
   transition: all 0.2s ease;
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .configButton:hover {
@@ -140,6 +158,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 2rem;
+  justify-items: center;
 }
 
 /* 作品展示容器 */
@@ -169,6 +188,7 @@
   min-height: 50vh;
   text-align: center;
   gap: 1rem;
+  padding: 2rem 1rem;
 }
 
 .emptyState h3 {
@@ -181,6 +201,7 @@
 .emptyState p {
   color: #64748b;
   margin: 0;
+  max-width: 400px;
 }
 
 .configLink {
@@ -194,6 +215,9 @@
   text-decoration: none;
   font-weight: 500;
   transition: background-color 0.2s ease;
+  min-height: 44px;
+  border: none;
+  cursor: pointer;
 }
 
 .configLink:hover {
@@ -210,17 +234,32 @@
   .artworkSidebar {
     order: -1;
   }
+  
+  .collectionsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
 }
 
 @media (max-width: 768px) {
   .headerNav {
-    flex-direction: column;
-    align-items: flex-start;
     gap: 1rem;
   }
   
   .headerTitle {
-    text-align: left;
+    padding: 0 0.5rem;
+  }
+  
+  .headerTitle h1 {
+    font-size: 1.25rem;
+  }
+  
+  .headerTitle p {
+    font-size: 0.8rem;
+  }
+  
+  .collectionsContainer {
+    padding: 1.5rem 1rem;
   }
   
   .collectionsGrid {
@@ -230,6 +269,15 @@
   
   .artworkContainer {
     padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .emptyState {
+    padding: 1.5rem 1rem;
+  }
+  
+  .emptyState h3 {
+    font-size: 1.25rem;
   }
 }
 
@@ -238,15 +286,61 @@
     padding: 0.75rem;
   }
   
-  .collectionsContainer {
-    padding: 1rem;
+  .headerNav {
+    gap: 0.5rem;
+  }
+  
+  .headerTitle {
+    padding: 0;
   }
   
   .headerTitle h1 {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
   }
   
   .headerTitle p {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    display: none; /* 在小屏幕上隐藏副标题 */
+  }
+  
+  .collectionsContainer {
+    padding: 1rem 0.75rem;
+  }
+  
+  .artworkContainer {
+    padding: 0.75rem;
+  }
+  
+  .backButton span {
+    display: none; /* 在小屏幕上只显示图标 */
+  }
+  
+  .configLink {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* 触控优化 */
+@media (hover: none) and (pointer: coarse) {
+  .backButton:hover {
+    background: none;
+    color: #64748b;
+  }
+  
+  .configButton:hover {
+    background: #f8fafc;
+    color: #64748b;
+  }
+  
+  .configLink:hover {
+    background: #3b82f6;
+  }
+}
+
+/* 高DPI屏幕优化 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .loadingSpinner {
+    border-width: 2px;
   }
 } 

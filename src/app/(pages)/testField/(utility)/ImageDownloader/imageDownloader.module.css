@@ -44,6 +44,39 @@
   gap: 1.5rem;
 }
 
+/* 图片来源选择 */
+.sourceSection {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.sourceButtons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.uploadButton {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+}
+
+.uploadButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.sourceDivider {
+  color: #718096;
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding: 0 0.5rem;
+}
+
 .inputGroup {
   display: flex;
   flex-direction: column;
@@ -146,6 +179,60 @@
   box-shadow: 0 8px 25px rgba(252, 182, 159, 0.4);
 }
 
+/* 图像处理区域 */
+.imageProcessSection {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.processSectionTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 1rem;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.processButtonGroup {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.processButton {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.processButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.advancedProcessButton {
+  background: linear-gradient(135deg, #8360c3 0%, #2ebf91 100%);
+  color: white;
+}
+
+.advancedProcessButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(131, 96, 195, 0.4);
+}
+
+.downloadProcessedButton {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+  color: #2d3748;
+}
+
+.downloadProcessedButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(86, 171, 47, 0.4);
+}
+
 /* 预览区域 */
 .previewSection {
   margin-top: 2rem;
@@ -153,12 +240,51 @@
   border-top: 2px solid #e2e8f0;
 }
 
+.previewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
 .previewTitle {
   font-size: 1.25rem;
   font-weight: 600;
   color: #2d3748;
-  margin-bottom: 1rem;
-  text-align: center;
+  margin: 0;
+}
+
+.previewTabs {
+  display: flex;
+  gap: 0.5rem;
+  background: #f7fafc;
+  padding: 0.25rem;
+  border-radius: 8px;
+}
+
+.previewTab {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: transparent;
+  color: #718096;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.previewTab:hover {
+  color: #4a5568;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.activePreviewTab {
+  background: white;
+  color: #667eea;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .previewContainer {
@@ -183,6 +309,29 @@
 
 .previewImage:hover {
   transform: scale(1.02);
+}
+
+.processedImageContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.transparentBg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(45deg, #ccc 25%, transparent 25%),
+    linear-gradient(-45deg, #ccc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc 75%),
+    linear-gradient(-45deg, transparent 75%, #ccc 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  border-radius: 12px;
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* 帮助说明 */

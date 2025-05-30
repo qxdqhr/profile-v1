@@ -6,6 +6,9 @@
   overflow: hidden;
   transition: all 0.3s ease;
   transform: translateY(0);
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 .collectionCard:hover {
@@ -20,6 +23,7 @@
   align-items: center;
   justify-content: center;
   background: #f8fafc;
+  overflow: hidden;
 }
 
 .collectionCover {
@@ -72,6 +76,8 @@
   gap: 0.5rem;
   color: #6b7280;
   font-size: 0.875rem;
+  text-align: center;
+  padding: 1rem;
 }
 
 .collectionOverlay {
@@ -97,6 +103,7 @@
 
 .collectionBadgeText {
   font-size: 0.875rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .collectionContent {
@@ -108,18 +115,30 @@
   font-weight: 700;
   color: #1e293b;
   margin: 0 0 0.5rem 0;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .collectionArtist {
   color: #64748b;
   margin: 0 0 0.25rem 0;
   font-size: 0.875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .collectionCategory {
   color: #64748b;
   margin: 0 0 0.25rem 0;
   font-size: 0.875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .collectionDescription {
@@ -127,6 +146,11 @@
   color: #6b7280;
   margin: 0 0 1rem 0;
   line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
 
 .collectionButton {
@@ -143,13 +167,47 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-height: 44px;
+  font-size: 0.875rem;
 }
 
 .collectionButton:hover {
   background: linear-gradient(90deg, #1d4ed8, #7c3aed);
+  transform: translateY(-1px);
+}
+
+.collectionButton:active {
+  transform: translateY(0);
 }
 
 /* 响应式设计 */
+@media (max-width: 768px) {
+  .collectionImageContainer {
+    height: 14rem;
+  }
+  
+  .collectionCover {
+    height: 14rem;
+  }
+  
+  .collectionContent {
+    padding: 1.25rem;
+  }
+  
+  .collectionTitle {
+    font-size: 1.125rem;
+  }
+  
+  .collectionButton {
+    padding: 0.625rem 0.875rem;
+  }
+  
+  .collectionBadge {
+    bottom: 0.75rem;
+    left: 0.75rem;
+  }
+}
+
 @media (max-width: 640px) {
   .collectionImageContainer {
     height: 12rem;
@@ -164,10 +222,72 @@
   }
   
   .collectionTitle {
-    font-size: 1.125rem;
+    font-size: 1rem;
   }
   
   .collectionButton {
     padding: 0.625rem 0.875rem;
+    font-size: 0.8rem;
   }
+  
+  .collectionBadgeText {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .collectionImageContainer {
+    height: 10rem;
+  }
+  
+  .collectionCover {
+    height: 10rem;
+  }
+  
+  .collectionContent {
+    padding: 0.875rem;
+  }
+  
+  .collectionTitle {
+    font-size: 0.95rem;
+    -webkit-line-clamp: 1;
+  }
+  
+  .collectionDescription {
+    -webkit-line-clamp: 2;
+    font-size: 0.8rem;
+  }
+  
+  .collectionArtist,
+  .collectionCategory {
+    font-size: 0.8rem;
+  }
+}
+
+/* 触控设备优化 */
+@media (hover: none) and (pointer: coarse) {
+  .collectionCard:hover {
+    transform: translateY(0);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+  
+  .collectionButton:hover {
+    background: linear-gradient(90deg, #2563eb, #9333ea);
+    transform: translateY(0);
+  }
+  
+  .collectionCard {
+    cursor: pointer;
+  }
+}
+
+/* 提升可访问性 */
+.collectionCard:focus-within {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.collectionButton:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 } 

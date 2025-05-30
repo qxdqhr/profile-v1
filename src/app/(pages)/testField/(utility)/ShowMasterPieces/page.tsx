@@ -1,13 +1,12 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Settings } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useMasterpieces } from '@/hooks/useMasterpieces';
 import { getConfig } from '@/services/masterpiecesConfigService';
 import { MasterpiecesConfig } from '@/types/masterpieces';
-import { CollectionCard, ArtworkViewer, ThumbnailSidebar } from '@/components/masterpieces';
+import { CollectionCard, ArtworkViewer, ThumbnailSidebar, UserMenu } from '@/components/masterpieces';
 import { useAuth } from '@/hooks/useAuth';
-import LoginModal from '@/components/auth/LoginModal';
 import styles from './ShowMasterPieces.module.css';
 
 export default function ShowMasterPieces() {
@@ -27,9 +26,8 @@ export default function ShowMasterPieces() {
     backToGallery,
   } = useMasterpieces();
 
-  const { isAuthenticated, refreshUser } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [config, setConfig] = useState<MasterpiecesConfig | null>(null);
-  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // 加载配置
   useEffect(() => {
@@ -48,16 +46,8 @@ export default function ShowMasterPieces() {
   const handleConfigAccess = () => {
     if (isAuthenticated) {
       window.location.href = '/testField/ShowMasterPieces/config';
-    } else {
-      setShowLoginModal(true);
     }
-  };
-
-  // 登录成功后跳转到配置页面
-  const handleLoginSuccess = () => {
-    refreshUser();
-    setShowLoginModal(false);
-    window.location.href = '/testField/ShowMasterPieces/config';
+    // 如果未登录，UserMenu 组件会处理登录流程
   };
 
   // 加载状态
@@ -102,13 +92,7 @@ export default function ShowMasterPieces() {
                 <h1>{selectedCollection.title}</h1>
                 <p>作者：{selectedCollection.artist}</p>
               </div>
-              <button 
-                onClick={handleConfigAccess}
-                className={styles.configButton}
-                title="配置管理"
-              >
-                <Settings size={20} />
-              </button>
+              <UserMenu onConfigAccess={handleConfigAccess} />
             </div>
           </div>
         </div>
@@ -135,13 +119,6 @@ export default function ShowMasterPieces() {
             />
           </div>
         </div>
-
-        {/* 登录模态框 */}
-        <LoginModal
-          isOpen={showLoginModal}
-          onClose={() => setShowLoginModal(false)}
-          onSuccess={handleLoginSuccess}
-        />
       </div>
     );
   }
@@ -164,13 +141,7 @@ export default function ShowMasterPieces() {
               <h1>{config?.heroTitle || '艺术画集展览馆'}</h1>
               <p>{config?.heroSubtitle || '精选世界各地艺术大师的经典作品，每一页都是一次艺术的沉浸体验'}</p>
             </div>
-            <button 
-              onClick={handleConfigAccess}
-              className={styles.configButton}
-              title="配置管理"
-            >
-              <Settings size={20} />
-            </button>
+            <UserMenu onConfigAccess={handleConfigAccess} />
           </div>
         </div>
       </div>
@@ -201,13 +172,6 @@ export default function ShowMasterPieces() {
           </button>
         </div>
       )}
-
-      {/* 登录模态框 */}
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-        onSuccess={handleLoginSuccess}
-      />
     </div>
   );
 }

@@ -13,6 +13,7 @@ import {
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   phone: varchar('phone', { length: 20 }).notNull().unique(),
+  password: varchar('password', { length: 255 }).notNull(),
   name: varchar('name', { length: 100 }),
   email: varchar('email', { length: 255 }),
   isActive: boolean('is_active').notNull().default(true),
@@ -20,17 +21,6 @@ export const users = pgTable('users', {
   lastLoginAt: timestamp('last_login_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
-
-// 验证码表
-export const verificationCodes = pgTable('verification_codes', {
-  id: serial('id').primaryKey(),
-  phone: varchar('phone', { length: 20 }).notNull(),
-  code: varchar('code', { length: 6 }).notNull(),
-  type: varchar('type', { length: 20 }).notNull().default('login'), // login, register, reset
-  isUsed: boolean('is_used').notNull().default(false),
-  expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
 // 用户会话表
