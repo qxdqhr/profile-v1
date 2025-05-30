@@ -11,7 +11,7 @@ interface UserMenuProps {
 }
 
 export default function UserMenu({ onConfigAccess }: UserMenuProps) {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, refreshUser } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -58,6 +58,7 @@ export default function UserMenu({ onConfigAccess }: UserMenuProps) {
 
   // 登录成功后的处理
   const handleLoginSuccess = () => {
+    refreshUser();
     setShowLoginModal(false);
   };
 

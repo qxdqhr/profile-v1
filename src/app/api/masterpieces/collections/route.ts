@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { collectionsDbService } from '@/db/services/masterpiecesDbService';
+import { validateApiAuth, createUnauthorizedResponse } from '@/utils/authUtils';
 
 export async function GET() {
   try {
@@ -16,6 +17,13 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // 验证用户权限
+    const user = await validateApiAuth(request);
+    if (!user) {
+      const { error, status } = createUnauthorizedResponse();
+      return NextResponse.json({ error }, { status });
+    }
+
     const collectionData = await request.json();
     const newCollection = await collectionsDbService.createCollection(collectionData);
     return NextResponse.json(newCollection);

@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { artworksDbService } from '@/db/services/masterpiecesDbService';
+import { validateApiAuth, createUnauthorizedResponse } from '@/utils/authUtils';
 
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string; artworkId: string } }
 ) {
   try {
+    // 验证用户权限
+    const user = await validateApiAuth(request);
+    if (!user) {
+      const { error, status } = createUnauthorizedResponse();
+      return NextResponse.json({ error }, { status });
+    }
+
     const collectionId = parseInt(params.id);
     const artworkId = parseInt(params.artworkId);
     const artworkData = await request.json();
@@ -25,6 +33,13 @@ export async function DELETE(
   { params }: { params: { id: string; artworkId: string } }
 ) {
   try {
+    // 验证用户权限
+    const user = await validateApiAuth(request);
+    if (!user) {
+      const { error, status } = createUnauthorizedResponse();
+      return NextResponse.json({ error }, { status });
+    }
+
     const collectionId = parseInt(params.id);
     const artworkId = parseInt(params.artworkId);
     await artworksDbService.deleteArtwork(collectionId, artworkId);

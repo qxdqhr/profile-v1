@@ -46,8 +46,11 @@ export default function ShowMasterPieces() {
   const handleConfigAccess = () => {
     if (isAuthenticated) {
       window.location.href = '/testField/ShowMasterPieces/config';
+    } else {
+      // 如果未登录，显示提示信息
+      console.log('用户未登录，需要先登录才能访问配置页面');
     }
-    // 如果未登录，UserMenu 组件会处理登录流程
+    // UserMenu 组件会处理登录流程
   };
 
   // 加载状态
