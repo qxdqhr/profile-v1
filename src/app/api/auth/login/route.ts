@@ -59,9 +59,23 @@ export async function POST(request: NextRequest) {
       message: '登录成功',
     });
     
+    // 获取请求的协议
+    const requestUrl = new URL(request.url);
+    const isHttps = requestUrl.protocol === 'https:';
+    const isProduction = process.env.NODE_ENV === 'production';
+    
+    console.log('🔍 [API/login] URL分析:', {
+      url: request.url,
+      protocol: requestUrl.protocol,
+      host: requestUrl.host,
+      isHttps,
+      isProduction
+    });
+    
+    // 暂时禁用secure标志用于调试
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // 暂时禁用secure标志
       sameSite: 'lax' as const,
       maxAge: 30 * 24 * 60 * 60, // 30天
       path: '/',
@@ -69,6 +83,8 @@ export async function POST(request: NextRequest) {
     
     console.log('🍪 [API/login] 设置cookie选项:', cookieOptions);
     console.log('🌐 [API/login] 当前环境:', process.env.NODE_ENV);
+    console.log('🔒 [API/login] 请求协议:', isHttps ? 'HTTPS' : 'HTTP');
+    console.log('🔒 [API/login] 请求URL:', request.url);
     
     // 设置HttpOnly cookie
     response.cookies.set('session_token', session.sessionToken, cookieOptions);
