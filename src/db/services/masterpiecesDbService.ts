@@ -217,8 +217,8 @@ export class CollectionsDbService {
           artist: artwork.artist,
           image: artwork.image,
           description: artwork.description || undefined,
-          year: artwork.year || undefined,
-          medium: artwork.medium || undefined,
+          createdTime: artwork.createdTime || undefined,
+          theme: artwork.theme || undefined,
         }))
       });
     }
@@ -370,8 +370,8 @@ export class ArtworksDbService {
       artist: artworkData.artist,
       image: artworkData.image,
       description: artworkData.description,
-      year: artworkData.year,
-      medium: artworkData.medium,
+      createdTime: artworkData.createdTime,
+      theme: artworkData.theme,
       pageOrder: newOrder,
     }).returning();
 
@@ -381,21 +381,34 @@ export class ArtworksDbService {
       artist: newArtwork[0].artist,
       image: newArtwork[0].image,
       description: newArtwork[0].description || undefined,
-      year: newArtwork[0].year || undefined,
-      medium: newArtwork[0].medium || undefined,
+      createdTime: newArtwork[0].createdTime || undefined,
+      theme: newArtwork[0].theme || undefined,
     };
   }
 
   // 更新作品
   async updateArtwork(collectionId: number, artworkId: number, artworkData: ArtworkFormData): Promise<ArtworkPage> {
+    // 首先检查作品是否存在
+    const existingArtwork = await db.select()
+      .from(comicUniverseArtworks)
+      .where(and(
+        eq(comicUniverseArtworks.id, artworkId),
+        eq(comicUniverseArtworks.collectionId, collectionId)
+      ))
+      .limit(1);
+
+    if (existingArtwork.length === 0) {
+      throw new Error(`作品不存在或不属于指定画集 (作品ID: ${artworkId}, 画集ID: ${collectionId})`);
+    }
+
     const updatedArtwork = await db.update(comicUniverseArtworks)
       .set({
         title: artworkData.title,
         artist: artworkData.artist,
         image: artworkData.image,
         description: artworkData.description,
-        year: artworkData.year,
-        medium: artworkData.medium,
+        createdTime: artworkData.createdTime,
+        theme: artworkData.theme,
         updatedAt: new Date(),
       })
       .where(and(
@@ -404,14 +417,18 @@ export class ArtworksDbService {
       ))
       .returning();
 
+    if (updatedArtwork.length === 0) {
+      throw new Error('更新作品失败，未返回数据');
+    }
+
     return {
       id: updatedArtwork[0].id,
       title: updatedArtwork[0].title,
       artist: updatedArtwork[0].artist,
       image: updatedArtwork[0].image,
       description: updatedArtwork[0].description || undefined,
-      year: updatedArtwork[0].year || undefined,
-      medium: updatedArtwork[0].medium || undefined,
+      createdTime: updatedArtwork[0].createdTime || undefined,
+      theme: updatedArtwork[0].theme || undefined,
     };
   }
 

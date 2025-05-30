@@ -66,8 +66,8 @@ function ConfigPageContent() {
     artist: '',
     image: '',
     description: '',
-    year: '',
-    medium: '',
+    createdTime: '',
+    theme: '',
   });
 
   // 更新配置表单
@@ -152,12 +152,14 @@ function ConfigPageContent() {
         artist: '',
         image: '',
         description: '',
-        year: '',
-        medium: '',
+        createdTime: '',
+        theme: '',
       });
       alert('作品保存成功！');
     } catch (err) {
-      alert('作品保存失败！');
+      console.error('保存作品时发生错误:', err);
+      const errorMessage = err instanceof Error ? err.message : '作品保存失败';
+      alert(`作品保存失败：${errorMessage}`);
     }
   };
 
@@ -183,8 +185,8 @@ function ConfigPageContent() {
       artist: artwork.artist,
       image: artwork.image,
       description: artwork.description || '',
-      year: artwork.year || '',
-      medium: artwork.medium || '',
+      createdTime: artwork.createdTime || '',
+      theme: artwork.theme || '',
     });
     setEditingArtwork({ collectionId, artworkId: artwork.id });
     setShowArtworkForm(true);
@@ -457,8 +459,8 @@ function ConfigPageContent() {
                         artist: '',
                         image: '',
                         description: '',
-                        year: '',
-                        medium: '',
+                        createdTime: '',
+                        theme: '',
                       });
                       setEditingArtwork(null);
                       setShowArtworkForm(true);
@@ -484,8 +486,8 @@ function ConfigPageContent() {
                       <div className={styles.artworkInfo}>
                         <h4>{artwork.title}</h4>
                         <p>作者：{artwork.artist}</p>
-                        <p>年代：{artwork.year}</p>
-                        <p>材质：{artwork.medium}</p>
+                        <p>创作时间：{artwork.createdTime}</p>
+                        <p>主题：{artwork.theme}</p>
                       </div>
                       <div className={styles.artworkActions}>
                         <button
@@ -650,21 +652,21 @@ function ConfigPageContent() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>创作年代</label>
+                <label>创作时间</label>
                 <input
                   type="text"
-                  value={artworkForm.year}
-                  onChange={(e) => setArtworkForm(prev => ({ ...prev, year: e.target.value }))}
-                  placeholder="输入创作年代"
+                  value={artworkForm.createdTime}
+                  onChange={(e) => setArtworkForm(prev => ({ ...prev, createdTime: e.target.value }))}
+                  placeholder="输入创作时间"
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>材质技法</label>
+                <label>主题</label>
                 <input
                   type="text"
-                  value={artworkForm.medium}
-                  onChange={(e) => setArtworkForm(prev => ({ ...prev, medium: e.target.value }))}
-                  placeholder="输入材质技法"
+                  value={artworkForm.theme}
+                  onChange={(e) => setArtworkForm(prev => ({ ...prev, theme: e.target.value }))}
+                  placeholder="输入主题"
                 />
               </div>
             </div>

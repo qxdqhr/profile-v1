@@ -4,8 +4,8 @@ export interface ArtworkPage {
   image: string;
   artist: string;
   description?: string;
-  year?: string;
-  medium?: string;
+  createdTime?: string;
+  theme?: string;
 }
 
 export interface ArtCollection {
@@ -80,6 +80,6 @@ export interface ArtworkFormData {
   artist: string;
   image: string;
   description: string;
-  year: string;
-  medium: string;
+  createdTime: string;
+  theme: string;
 } 

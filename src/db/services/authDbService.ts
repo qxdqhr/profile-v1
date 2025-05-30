@@ -1,7 +1,8 @@
 import { db } from '../index';
-import { users, verificationCodes, userSessions } from '../schema/auth';
+import { users, userSessions } from '../schema/auth';
 import { eq, and, gt, lt } from 'drizzle-orm';
 import { randomBytes } from 'crypto';
+import bcrypt from 'bcryptjs';
 
 export interface User {
   id: number;
@@ -39,7 +40,7 @@ class AuthDbService {
         .where(eq(users.phone, phone))
         .limit(1);
       
-      return result[0] || null;
+      return result.length > 0 ? result[0] : null;
     } catch (error) {
       console.error('查找用户失败:', error);
       throw new Error('查找用户失败');
@@ -47,19 +48,58 @@ class AuthDbService {
   }
 
   /**
-   * 创建新用户
+   * 验证用户密码
    */
-  async createUser(phone: string, name?: string, email?: string): Promise<User> {
+  async verifyPassword(phone: string, password: string): Promise<User | null> {
     try {
+      const result = await db.select()
+        .from(users)
+        .where(and(
+          eq(users.phone, phone),
+          eq(users.isActive, true)
+        ))
+        .limit(1);
+
+      if (result.length === 0) {
+        return null;
+      }
+
+      const user = result[0];
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      
+      if (!isPasswordValid) {
+        return null;
+      }
+
+      // 返回用户信息时移除密码字段
+      const { password: _, ...userWithoutPassword } = user;
+      return userWithoutPassword as User;
+    } catch (error) {
+      console.error('密码验证失败:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 创建用户（用于注册新用户）
+   */
+  async createUser(phone: string, password: string, name?: string, email?: string): Promise<User> {
+    try {
+      // 密码哈希
+      const hashedPassword = await bcrypt.hash(password, 12);
+      
       const result = await db.insert(users)
         .values({
           phone,
+          password: hashedPassword,
           name,
           email,
         })
         .returning();
       
-      return result[0];
+      // 返回用户信息时移除密码字段
+      const { password: _, ...userWithoutPassword } = result[0];
+      return userWithoutPassword as User;
     } catch (error) {
       console.error('创建用户失败:', error);
       throw new Error('创建用户失败');
@@ -67,67 +107,19 @@ class AuthDbService {
   }
 
   /**
-   * 生成验证码
+   * 更新用户最后登录时间
    */
-  generateVerificationCode(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-  }
-
-  /**
-   * 保存验证码到数据库
-   */
-  async saveVerificationCode(phone: string, code: string, type: string = 'login'): Promise<void> {
+  async updateLastLogin(userId: number): Promise<void> {
     try {
-      // 设置验证码5分钟后过期
-      const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-      
-      await db.insert(verificationCodes)
-        .values({
-          phone,
-          code,
-          type,
-          expiresAt,
-        });
+      await db.update(users)
+        .set({ 
+          lastLoginAt: new Date(),
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, userId));
     } catch (error) {
-      console.error('保存验证码失败:', error);
-      throw new Error('保存验证码失败');
-    }
-  }
-
-  /**
-   * 验证验证码
-   */
-  async verifyCode(phone: string, code: string, type: string = 'login'): Promise<boolean> {
-    try {
-      const now = new Date();
-      
-      // 查找有效的验证码
-      const result = await db.select()
-        .from(verificationCodes)
-        .where(
-          and(
-            eq(verificationCodes.phone, phone),
-            eq(verificationCodes.code, code),
-            eq(verificationCodes.type, type),
-            eq(verificationCodes.isUsed, false),
-            gt(verificationCodes.expiresAt, now)
-          )
-        )
-        .limit(1);
-
-      if (result.length === 0) {
-        return false;
-      }
-
-      // 标记验证码为已使用
-      await db.update(verificationCodes)
-        .set({ isUsed: true })
-        .where(eq(verificationCodes.id, result[0].id));
-
-      return true;
-    } catch (error) {
-      console.error('验证码验证失败:', error);
-      return false;
+      console.error('更新最后登录时间失败:', error);
+      throw new Error('更新最后登录时间失败');
     }
   }
 
@@ -184,9 +176,11 @@ class AuthDbService {
         return { valid: false };
       }
 
+      // 返回用户信息时移除密码字段
+      const { password: _, ...userWithoutPassword } = result[0].user;
       return {
         valid: true,
-        user: result[0].user,
+        user: userWithoutPassword as User,
       };
     } catch (error) {
       console.error('会话验证失败:', error);
@@ -208,32 +202,15 @@ class AuthDbService {
   }
 
   /**
-   * 更新用户最后登录时间
+   * 删除用户的所有会话
    */
-  async updateLastLogin(userId: number): Promise<void> {
+  async deleteUserSessions(userId: number): Promise<void> {
     try {
-      await db.update(users)
-        .set({ 
-          lastLoginAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .where(eq(users.id, userId));
+      await db.delete(userSessions)
+        .where(eq(userSessions.userId, userId));
     } catch (error) {
-      console.error('更新最后登录时间失败:', error);
-      throw new Error('更新最后登录时间失败');
-    }
-  }
-
-  /**
-   * 清理过期的验证码
-   */
-  async cleanupExpiredCodes(): Promise<void> {
-    try {
-      const now = new Date();
-      await db.delete(verificationCodes)
-        .where(lt(verificationCodes.expiresAt, now));
-    } catch (error) {
-      console.error('清理过期验证码失败:', error);
+      console.error('删除用户会话失败:', error);
+      throw new Error('删除用户会话失败');
     }
   }
 
@@ -251,5 +228,4 @@ class AuthDbService {
   }
 }
 
-// 导出服务实例
 export const authDbService = new AuthDbService(); 

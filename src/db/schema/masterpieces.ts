@@ -79,8 +79,8 @@ export const comicUniverseArtworks = pgTable('comic_universe_artworks', {
   artist: varchar('artist', { length: 255 }).notNull(),
   image: text('image').notNull(), // 支持URL或base64
   description: text('description'),
-  year: varchar('year', { length: 20 }), // 创作年代
-  medium: varchar('medium', { length: 255 }), // 材质技法
+  createdTime: varchar('created_time', { length: 20 }), // 创作时间
+  theme: varchar('theme', { length: 255 }), // 主题
   dimensions: varchar('dimensions', { length: 100 }), // 尺寸
   pageOrder: integer('page_order').notNull().default(0), // 在画集中的顺序
   isActive: boolean('is_active').notNull().default(true),

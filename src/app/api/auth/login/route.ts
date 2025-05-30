@@ -4,33 +4,31 @@ import type { LoginRequest, LoginResponse } from '@/types/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const { phone, code }: LoginRequest = await request.json();
+    const { phone, password }: LoginRequest = await request.json();
     
     // 验证输入
-    if (!phone || !code) {
+    if (!phone || !password) {
       return NextResponse.json<LoginResponse>(
-        { success: false, message: '请输入手机号和验证码' },
+        { success: false, message: '请输入手机号和密码' },
         { status: 400 }
       );
     }
     
-    // 验证验证码
-    const isCodeValid = await authDbService.verifyCode(phone, code, 'login');
-    
-    if (!isCodeValid) {
+    // 验证手机号格式
+    if (!/^1[3-9]\d{9}$/.test(phone)) {
       return NextResponse.json<LoginResponse>(
-        { success: false, message: '验证码错误或已过期' },
-        { status: 401 }
+        { success: false, message: '请输入正确的手机号格式' },
+        { status: 400 }
       );
     }
     
-    // 查找用户
-    const user = await authDbService.findUserByPhone(phone);
+    // 验证用户密码
+    const user = await authDbService.verifyPassword(phone, password);
     
     if (!user) {
       return NextResponse.json<LoginResponse>(
-        { success: false, message: '用户不存在' },
-        { status: 404 }
+        { success: false, message: '手机号或密码错误' },
+        { status: 401 }
       );
     }
     
