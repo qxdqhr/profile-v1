@@ -67,6 +67,9 @@ export const createCollection = async (collectionData: CollectionFormData): Prom
   });
   
   if (!response.ok) {
+    if (response.status === 413) {
+      throw new Error('图片文件太大，请选择更小的图片或等待图片压缩完成后重试');
+    }
     throw new Error('创建画集失败');
   }
   return await response.json();
@@ -82,6 +85,9 @@ export const updateCollection = async (id: number, collectionData: CollectionFor
   });
   
   if (!response.ok) {
+    if (response.status === 413) {
+      throw new Error('图片文件太大，请选择更小的图片或等待图片压缩完成后重试');
+    }
     throw new Error('更新画集失败');
   }
   return await response.json();
@@ -108,6 +114,9 @@ export const addArtworkToCollection = async (collectionId: number, artworkData: 
   });
   
   if (!response.ok) {
+    if (response.status === 413) {
+      throw new Error('图片文件太大，请选择更小的图片或等待图片压缩完成后重试');
+    }
     throw new Error('添加作品失败');
   }
   return await response.json();
@@ -123,6 +132,9 @@ export const updateArtwork = async (collectionId: number, artworkId: number, art
   });
   
   if (!response.ok) {
+    if (response.status === 413) {
+      throw new Error('图片文件太大，请选择更小的图片或等待图片压缩完成后重试');
+    }
     throw new Error('更新作品失败');
   }
   return await response.json();
