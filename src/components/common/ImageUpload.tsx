@@ -9,6 +9,49 @@ interface ImageUploadProps {
   label?: string;
 }
 
+// 图片压缩函数
+const compressImage = (file: File, maxWidth: number = 1200, quality: number = 0.8): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    
+    img.onload = () => {
+      // 计算新的尺寸
+      let { width, height } = img;
+      if (width > maxWidth) {
+        height = (height * maxWidth) / width;
+        width = maxWidth;
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      
+      // 绘制压缩后的图片
+      ctx?.drawImage(img, 0, 0, width, height);
+      
+      // 转换为base64
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target?.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          } else {
+            reject(new Error('图片压缩失败'));
+          }
+        },
+        'image/jpeg',
+        quality
+      );
+    };
+    
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+};
+
 export const ImageUpload: React.FC<ImageUploadProps> = ({
   value,
   onChange,
@@ -17,28 +60,44 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 }) => {
   const [uploadMode, setUploadMode] = useState<'url' | 'upload'>('url');
   const [dragOver, setDragOver] = useState(false);
+  const [compressing, setCompressing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 处理文件上传
-  const handleFileUpload = (file: File) => {
+  const handleFileUpload = async (file: File) => {
     if (!file.type.startsWith('image/')) {
       alert('请选择图片文件');
       return;
     }
 
-    // 检查文件大小 (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('图片文件大小不能超过5MB');
+    // 检查文件大小 (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('图片文件大小不能超过10MB');
       return;
     }
 
-    // 转换为base64
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      onChange(result);
-    };
-    reader.readAsDataURL(file);
+    try {
+      setCompressing(true);
+      
+      // 如果文件较大，进行压缩
+      if (file.size > 1024 * 1024) { // 1MB以上的文件进行压缩
+        const compressedBase64 = await compressImage(file);
+        onChange(compressedBase64);
+      } else {
+        // 小文件直接转换
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const result = e.target?.result as string;
+          onChange(result);
+        };
+        reader.readAsDataURL(file);
+      }
+    } catch (error) {
+      console.error('图片处理失败:', error);
+      alert('图片处理失败，请重试');
+    } finally {
+      setCompressing(false);
+    }
   };
 
   // 处理文件选择
@@ -80,7 +139,9 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
   // 打开文件选择器
   const handleUploadClick = () => {
-    fileInputRef.current?.click();
+    if (!compressing) {
+      fileInputRef.current?.click();
+    }
   };
 
   return (
@@ -156,6 +217,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                   handleClear();
                 }}
                 className={styles.removeButton}
+                disabled={compressing}
               >
                 <X size={16} />
               </button>
@@ -164,10 +226,10 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
             <div className={styles.uploadPrompt}>
               <ImageIcon size={48} className={styles.uploadIcon} />
               <p className={styles.uploadText}>
-                点击上传或拖拽图片到此处
+                {compressing ? '正在压缩图片...' : '点击上传或拖拽图片到此处'}
               </p>
               <p className={styles.uploadHint}>
-                支持 JPG、PNG、GIF 格式，最大 5MB
+                支持 JPG、PNG、GIF 格式，最大 10MB，大图片将自动压缩
               </p>
             </div>
           )}

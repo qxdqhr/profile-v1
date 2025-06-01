@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { artworksDbService } from '@/db/services/masterpiecesDbService';
 import { validateApiAuth, createUnauthorizedResponse } from '@/utils/authUtils';
 
+// 配置请求体解析器，增加大小限制
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }

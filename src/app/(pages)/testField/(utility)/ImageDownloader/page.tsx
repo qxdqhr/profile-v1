@@ -36,9 +36,23 @@ export default function ImageDownloader() {
 
     setIsDownloading(true);
     try {
-      const response = await fetch(imageUrl);
-      if (!response.ok) {
-        throw new Error('图片下载失败');
+      // 尝试直接下载，如果失败则使用代理
+      let response;
+      try {
+        response = await fetch(imageUrl);
+        if (!response.ok) {
+          throw new Error('直接下载失败');
+        }
+      } catch (directError) {
+        console.log('直接下载失败，尝试使用代理:', directError);
+        
+        // 使用代理API绕过跨域限制
+        const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
+        response = await fetch(proxyUrl);
+        
+        if (!response.ok) {
+          throw new Error('代理下载也失败了');
+        }
       }
 
       const blob = await response.blob();
@@ -59,7 +73,22 @@ export default function ImageDownloader() {
       alert('图片下载成功！');
     } catch (error) {
       console.error('下载错误:', error);
-      alert('图片下载失败，请检查URL是否正确');
+      
+      // 如果所有方法都失败，提供替代方案
+      const fallbackMessage = `
+图片下载失败，这可能是由于跨域限制造成的。
+
+请尝试以下替代方案：
+1. 右键点击预览图片 → "图片另存为"
+2. 复制图片链接到新标签页，然后右键保存
+3. 使用本地图片上传功能避免跨域问题
+
+图片链接: ${imageUrl}
+      `;
+      
+      if (confirm(fallbackMessage + '\n\n是否在新标签页中打开图片？')) {
+        window.open(imageUrl, '_blank');
+      }
     } finally {
       setIsDownloading(false);
     }
@@ -739,9 +768,55 @@ export default function ImageDownloader() {
                 <li>使用"智能抠图"可以自动移除简单背景</li>
                 <li>使用"高级抠图"可以处理复杂背景和精细边缘</li>
                 <li>抠图结果会以PNG格式保存，保留透明背景</li>
-                <li>推荐使用本地上传避免网络图片的跨域限制</li>
+                <li className={styles.corsWarning}>
+                  <strong>⚠️ 跨域问题：</strong>某些网站的图片可能因跨域限制无法直接下载，
+                  系统会自动尝试代理下载。如仍失败，请使用右键保存或本地上传功能
+                </li>
                 <li>处理大尺寸图片可能需要较长时间，请耐心等待</li>
               </ul>
+            </div>
+
+            {/* 跨域问题说明 */}
+            <div className={styles.corsSection}>
+              <h3 className={styles.corsTitle}>🌐 关于跨域问题</h3>
+              <div className={styles.corsContent}>
+                <p className={styles.corsDescription}>
+                  <strong>跨域资源共享（CORS）</strong>是浏览器的安全机制，用于防止恶意网站访问其他域的资源。
+                  当图片服务器未设置适当的CORS头时，JavaScript无法直接下载图片。
+                </p>
+                
+                <div className={styles.corsExamples}>
+                  <div className={styles.corsExample}>
+                    <h4>✅ 通常支持的图片源</h4>
+                    <ul>
+                      <li>GitHub、GitLab等代码托管平台</li>
+                      <li>一些CDN服务（如jsDelivr、unpkg等）</li>
+                      <li>设置了CORS的个人服务器</li>
+                      <li>本地上传的图片文件</li>
+                    </ul>
+                  </div>
+                  
+                  <div className={styles.corsExample}>
+                    <h4>❌ 可能受限的图片源</h4>
+                    <ul>
+                      <li>社交媒体平台（微博、Twitter等）</li>
+                      <li>电商网站的商品图片</li>
+                      <li>新闻网站的图片</li>
+                      <li>未设置CORS的个人网站</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className={styles.corsWorkaround}>
+                  <h4>🔧 解决方案</h4>
+                  <ol>
+                    <li><strong>自动代理</strong>：系统会自动尝试通过服务器代理下载</li>
+                    <li><strong>右键保存</strong>：在预览图片上右键选择"图片另存为"</li>
+                    <li><strong>新标签页</strong>：在新标签页中打开图片链接后保存</li>
+                    <li><strong>本地上传</strong>：先下载到本地，再使用本地上传功能</li>
+                  </ol>
+                </div>
+              </div>
             </div>
 
             {/* 功能特性 */}
