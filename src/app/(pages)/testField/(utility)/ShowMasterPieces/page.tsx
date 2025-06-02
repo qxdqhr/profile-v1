@@ -1,15 +1,15 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Settings } from 'lucide-react';
 import { useMasterpieces } from '@/hooks/useMasterpieces';
 import { getConfig } from '@/services/masterpiecesConfigService';
 import { MasterpiecesConfig } from '@/types/masterpieces';
-import { CollectionCard, ArtworkViewer, ThumbnailSidebar, UserMenu } from '@/components/masterpieces';
-import { useAuth } from '@/hooks/useAuth';
+import { CollectionCard, ArtworkViewer, ThumbnailSidebar } from '@/components/masterpieces';
+import { AuthProvider, useAuth, UserMenu, CustomMenuItem } from '@/modules/auth';
 import styles from './ShowMasterPieces.module.css';
 
-export default function ShowMasterPieces() {
+function ShowMasterPiecesContent() {
   const {
     collections,
     selectedCollection,
@@ -43,8 +43,8 @@ export default function ShowMasterPieces() {
   }, []);
 
   // 处理配置页面访问
-  const handleConfigAccess = () => {
-    console.log('🎯 [ShowMasterPieces] handleConfigAccess 被调用');
+  const handleConfigClick = () => {
+    console.log('🎯 [ShowMasterPieces] handleConfigClick 被调用');
     console.log('🔐 [ShowMasterPieces] 当前认证状态:', { isAuthenticated, user });
     
     if (isAuthenticated) {
@@ -53,10 +53,20 @@ export default function ShowMasterPieces() {
     } else {
       console.log('❌ [ShowMasterPieces] 用户未认证，需要先登录');
       // 如果未登录，显示提示信息
-      console.log('用户未登录，需要先登录才能访问配置页面');
+      alert('请先登录后访问配置页面');
     }
-    // UserMenu 组件会处理登录流程
   };
+
+  // 自定义菜单项配置
+  const customMenuItems: CustomMenuItem[] = [
+    {
+      id: 'config',
+      label: '配置',
+      icon: Settings,
+      onClick: handleConfigClick,
+      requireAuth: true // 只有登录后才显示配置选项
+    }
+  ];
 
   // 加载状态
   if (loading) {
@@ -100,7 +110,7 @@ export default function ShowMasterPieces() {
                 <h1>{selectedCollection.title}</h1>
                 <p>作者：{selectedCollection.artist}</p>
               </div>
-              <UserMenu onConfigAccess={handleConfigAccess} />
+              <UserMenu customMenuItems={customMenuItems} />
             </div>
           </div>
         </div>
@@ -149,7 +159,7 @@ export default function ShowMasterPieces() {
               <h1>{config?.heroTitle || '艺术画集展览馆'}</h1>
               <p>{config?.heroSubtitle || '精选世界各地艺术大师的经典作品，每一页都是一次艺术的沉浸体验'}</p>
             </div>
-            <UserMenu onConfigAccess={handleConfigAccess} />
+            <UserMenu customMenuItems={customMenuItems} />
           </div>
         </div>
       </div>
@@ -173,7 +183,7 @@ export default function ShowMasterPieces() {
           <h3>暂无画集</h3>
           <p>请前往配置页面添加画集</p>
           <button 
-            onClick={handleConfigAccess}
+            onClick={handleConfigClick}
             className={styles.configLink}
           >
             前往配置
@@ -181,5 +191,13 @@ export default function ShowMasterPieces() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ShowMasterPieces() {
+  return (
+    <AuthProvider>
+      <ShowMasterPiecesContent />
+    </AuthProvider>
   );
 }

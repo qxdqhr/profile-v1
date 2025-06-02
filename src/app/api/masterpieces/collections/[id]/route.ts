@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { collectionsDbService } from '@/db/services/masterpiecesDbService';
-import { validateApiAuth, createUnauthorizedResponse } from '@/utils/authUtils';
+import { validateApiAuth } from '@/modules/auth/server';
 
 export async function PUT(
   request: NextRequest,
@@ -10,8 +10,7 @@ export async function PUT(
     // 验证用户权限
     const user = await validateApiAuth(request);
     if (!user) {
-      const { error, status } = createUnauthorizedResponse();
-      return NextResponse.json({ error }, { status });
+      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }
 
     // 检查请求体大小
@@ -23,9 +22,9 @@ export async function PUT(
       );
     }
 
-    const id = parseInt(params.id);
+    const collectionId = parseInt(params.id);
     const collectionData = await request.json();
-    const updatedCollection = await collectionsDbService.updateCollection(id, collectionData);
+    const updatedCollection = await collectionsDbService.updateCollection(collectionId, collectionData);
     return NextResponse.json(updatedCollection);
   } catch (error) {
     console.error('更新画集失败:', error);
@@ -51,12 +50,11 @@ export async function DELETE(
     // 验证用户权限
     const user = await validateApiAuth(request);
     if (!user) {
-      const { error, status } = createUnauthorizedResponse();
-      return NextResponse.json({ error }, { status });
+      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }
 
-    const id = parseInt(params.id);
-    await collectionsDbService.deleteCollection(id);
+    const collectionId = parseInt(params.id);
+    await collectionsDbService.deleteCollection(collectionId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('删除画集失败:', error);

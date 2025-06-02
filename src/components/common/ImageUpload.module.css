@@ -138,6 +138,13 @@
   margin: 0;
 }
 
+/* 水印提示样式 */
+.watermarkHint {
+  color: #059669;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
 /* 已上传图片 */
 .uploadedImage {
   position: relative;

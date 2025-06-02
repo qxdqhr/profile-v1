@@ -1,10 +1,11 @@
 import { NextRequest } from 'next/server';
-import { authDbService } from '@/db/services/authDbService';
-import type { User } from '@/types/auth';
+import { authDbService } from '../services/authDbService';
+import type { User } from '../types';
 
 /**
  * API权限验证工具函数
  * 从请求中提取会话token并验证用户身份
+ * 注意：这个函数只能在服务端使用
  */
 export async function validateApiAuth(request: NextRequest): Promise<User | null> {
   console.log('🔐 [authUtils] 开始API权限验证');
@@ -30,21 +31,4 @@ export async function validateApiAuth(request: NextRequest): Promise<User | null
     console.error('💥 [authUtils] API权限验证异常:', error);
     return null;
   }
-}
-
-/**
- * 检查用户是否具有管理员权限
- */
-export function isAdmin(user: User): boolean {
-  return user.role === 'admin';
-}
-
-/**
- * 创建未授权响应
- */
-export function createUnauthorizedResponse() {
-  return {
-    error: '未授权访问',
-    status: 401
-  };
 } 

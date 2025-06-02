@@ -1,103 +1,84 @@
-import { db } from '../index';
-import { users, userSessions } from '../schema/auth';
-import { eq, and, gt, lt } from 'drizzle-orm';
 import { randomBytes } from 'crypto';
+import { eq, and, gt, lt } from 'drizzle-orm';
+import { db } from '@/db/index';
+import { users, userSessions } from '@/db/schema/auth';
 import bcrypt from 'bcryptjs';
+import type { User, UserSession, SessionValidation, AuthService } from '../types';
 
-export interface User {
-  id: number;
-  phone: string;
-  name?: string | null;
-  email?: string | null;
-  role: string;
-  isActive: boolean;
-  lastLoginAt?: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface UserSession {
-  id: number;
-  userId: number;
-  sessionToken: string;
-  expiresAt: Date;
-  createdAt: Date;
-}
-
-export interface SessionValidation {
-  valid: boolean;
-  user?: User;
-}
-
-class AuthDbService {
-  /**
-   * 根据手机号查找用户
-   */
-  async findUserByPhone(phone: string): Promise<User | null> {
-    try {
-      const result = await db.select()
-        .from(users)
-        .where(eq(users.phone, phone))
-        .limit(1);
-      
-      return result.length > 0 ? result[0] : null;
-    } catch (error) {
-      console.error('查找用户失败:', error);
-      throw new Error('查找用户失败');
-    }
-  }
-
+/**
+ * 认证数据库服务类
+ * 处理用户认证、会话管理等数据库操作
+ */
+class AuthDbService implements AuthService {
   /**
    * 验证用户密码
    */
   async verifyPassword(phone: string, password: string): Promise<User | null> {
     try {
-      const result = await db.select()
-        .from(users)
-        .where(and(
-          eq(users.phone, phone),
-          eq(users.isActive, true)
-        ))
-        .limit(1);
-
-      if (result.length === 0) {
-        return null;
-      }
-
-      const user = result[0];
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+      console.log('🔍 [authDbService] 查找用户:', phone);
       
-      if (!isPasswordValid) {
+      // 查找用户
+      const result = await db.select().from(users).where(eq(users.phone, phone)).limit(1);
+      
+      if (result.length === 0) {
+        console.log('❌ [authDbService] 用户不存在');
         return null;
       }
-
+      
+      const user = result[0];
+      console.log('✅ [authDbService] 找到用户:', { id: user.id, phone: user.phone, isActive: user.isActive });
+      
+      // 检查用户是否激活
+      if (!user.isActive) {
+        console.log('❌ [authDbService] 用户已被禁用');
+        return null;
+      }
+      
+      // 验证密码
+      console.log('🔐 [authDbService] 验证密码...');
+      const isValid = await bcrypt.compare(password, user.password);
+      
+      if (!isValid) {
+        console.log('❌ [authDbService] 密码验证失败');
+        return null;
+      }
+      
+      console.log('✅ [authDbService] 密码验证成功');
+      
       // 返回用户信息时移除密码字段
       const { password: _, ...userWithoutPassword } = user;
       return userWithoutPassword as User;
     } catch (error) {
-      console.error('密码验证失败:', error);
+      console.error('💥 [authDbService] 密码验证异常:', error);
       return null;
     }
   }
 
   /**
-   * 创建用户（用于注册新用户）
+   * 创建新用户
    */
-  async createUser(phone: string, password: string, name?: string, email?: string): Promise<User> {
+  async createUser(phone: string, password: string, name?: string): Promise<User> {
     try {
-      // 密码哈希
+      // 检查用户是否已存在
+      const existingUser = await db.select().from(users).where(eq(users.phone, phone)).limit(1);
+      if (existingUser.length > 0) {
+        throw new Error('用户已存在');
+      }
+
+      // 加密密码
       const hashedPassword = await bcrypt.hash(password, 12);
-      
+
+      // 创建用户
       const result = await db.insert(users)
         .values({
           phone,
           password: hashedPassword,
-          name,
-          email,
+          name: name || null,
+          isActive: true,
+          role: 'user',
         })
         .returning();
-      
-      // 返回用户信息时移除密码字段
+
       const { password: _, ...userWithoutPassword } = result[0];
       return userWithoutPassword as User;
     } catch (error) {
@@ -112,9 +93,9 @@ class AuthDbService {
   async updateLastLogin(userId: number): Promise<void> {
     try {
       await db.update(users)
-        .set({ 
+        .set({
           lastLoginAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(users.id, userId));
     } catch (error) {
@@ -226,6 +207,51 @@ class AuthDbService {
       console.error('清理过期会话失败:', error);
     }
   }
+
+  /**
+   * 根据ID获取用户信息
+   */
+  async getUserById(userId: number): Promise<User | null> {
+    try {
+      const result = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+      
+      if (result.length === 0) {
+        return null;
+      }
+
+      const { password: _, ...userWithoutPassword } = result[0];
+      return userWithoutPassword as User;
+    } catch (error) {
+      console.error('获取用户信息失败:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 更新用户信息
+   */
+  async updateUser(userId: number, updates: Partial<Pick<User, 'name' | 'email'>>): Promise<User | null> {
+    try {
+      const result = await db.update(users)
+        .set({
+          ...updates,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, userId))
+        .returning();
+
+      if (result.length === 0) {
+        return null;
+      }
+
+      const { password: _, ...userWithoutPassword } = result[0];
+      return userWithoutPassword as User;
+    } catch (error) {
+      console.error('更新用户信息失败:', error);
+      throw new Error('更新用户信息失败');
+    }
+  }
 }
 
+// 导出单例实例
 export const authDbService = new AuthDbService(); 

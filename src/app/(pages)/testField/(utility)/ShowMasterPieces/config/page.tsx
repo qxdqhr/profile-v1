@@ -5,7 +5,8 @@ import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit,
 import { useMasterpiecesConfig } from '@/hooks/useMasterpiecesConfig';
 import { ConfigFormData, CollectionFormData, ArtworkFormData } from '@/types/masterpieces';
 import { ImageUpload } from '@/components/common';
-import AuthGuard from '@/components/auth/AuthGuard';
+import { WatermarkConfigComponent } from '@/components/common/WatermarkConfig';
+import { AuthGuard, AuthProvider } from '@/modules/auth';
 import styles from './ConfigPage.module.css';
 
 type TabType = 'general' | 'collections' | 'artworks';
@@ -69,6 +70,22 @@ function ConfigPageContent() {
     createdTime: '',
     theme: '',
   });
+
+  // 水印配置状态
+  const [watermarkConfig, setWatermarkConfig] = useState({
+    enabled: true,
+    text: '© 艺术画集',
+    position: 'bottom-right' as const,
+    opacity: 0.6,
+    fontSize: 18,
+    color: '#ffffff',
+    imageUrl: ''
+  });
+
+  // 处理水印配置更新
+  const handleWatermarkChange = (config: any) => {
+    setWatermarkConfig(config);
+  };
 
   // 更新配置表单
   React.useEffect(() => {
@@ -553,6 +570,7 @@ function ConfigPageContent() {
                   value={collectionForm.coverImage}
                   onChange={(value) => setCollectionForm(prev => ({ ...prev, coverImage: value }))}
                   placeholder="输入封面图片URL或上传本地图片"
+                  watermark={watermarkConfig}
                 />
               </div>
               <div className={styles.formGroup}>
@@ -583,6 +601,13 @@ function ConfigPageContent() {
                   发布画集
                 </label>
               </div>
+
+              {/* 水印配置 */}
+              <WatermarkConfigComponent
+                config={watermarkConfig}
+                onChange={handleWatermarkChange}
+                className={styles.watermarkConfig}
+              />
             </div>
             <div className={styles.modalFooter}>
               <button
@@ -640,6 +665,7 @@ function ConfigPageContent() {
                   value={artworkForm.image}
                   onChange={(value) => setArtworkForm(prev => ({ ...prev, image: value }))}
                   placeholder="输入作品图片URL或上传本地图片"
+                  watermark={watermarkConfig}
                 />
               </div>
               <div className={styles.formGroup}>
@@ -693,8 +719,10 @@ function ConfigPageContent() {
 
 export default function ConfigPage() {
   return (
-    <AuthGuard>
-      <ConfigPageContent />
-    </AuthGuard>
+    <AuthProvider>
+      <AuthGuard>
+        <ConfigPageContent />
+      </AuthGuard>
+    </AuthProvider>
   );
 } 

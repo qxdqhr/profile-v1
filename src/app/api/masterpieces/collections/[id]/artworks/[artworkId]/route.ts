@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { artworksDbService } from '@/db/services/masterpiecesDbService';
-import { validateApiAuth, createUnauthorizedResponse } from '@/utils/authUtils';
+import { validateApiAuth } from '@/modules/auth/server';
 
 export async function PUT(
   request: NextRequest,
@@ -10,8 +10,7 @@ export async function PUT(
     // 验证用户权限
     const user = await validateApiAuth(request);
     if (!user) {
-      const { error, status } = createUnauthorizedResponse();
-      return NextResponse.json({ error }, { status });
+      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }
 
     // 检查请求体大小
@@ -52,8 +51,7 @@ export async function DELETE(
     // 验证用户权限
     const user = await validateApiAuth(request);
     if (!user) {
-      const { error, status } = createUnauthorizedResponse();
-      return NextResponse.json({ error }, { status });
+      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }
 
     const collectionId = parseInt(params.id);

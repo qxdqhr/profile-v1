@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { AuthProvider, useAuth } from '@/modules/auth';
 
-export default function DebugPage() {
+function DebugPageContent() {
   const { user, loading, isAuthenticated } = useAuth();
   const [cookies, setCookies] = useState<string>('');
   const [apiValidation, setApiValidation] = useState<any>(null);
@@ -44,58 +44,63 @@ export default function DebugPage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'monospace' }}>
-      <h1>🔍 认证状态调试页面</h1>
+    <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+      <h1>🧪 认证调试页面</h1>
       
-      <div style={{ margin: '20px 0' }}>
-        <h2>📊 当前状态</h2>
-        <div style={{ background: '#f5f5f5', padding: '10px', borderRadius: '5px' }}>
-          <p><strong>Loading:</strong> {loading.toString()}</p>
-          <p><strong>IsAuthenticated:</strong> {isAuthenticated.toString()}</p>
-          <p><strong>User:</strong> {user ? JSON.stringify(user, null, 2) : 'null'}</p>
-        </div>
+      <div style={{ marginBottom: '2rem' }}>
+        <h2>认证状态</h2>
+        <pre style={{ background: '#f5f5f5', padding: '1rem' }}>
+          {JSON.stringify({
+            isAuthenticated,
+            loading,
+            user: user ? {
+              id: user.id,
+              phone: user.phone,
+              name: user.name,
+              role: user.role
+            } : null
+          }, null, 2)}
+        </pre>
       </div>
 
-      <div style={{ margin: '20px 0' }}>
-        <h2>🍪 客户端Cookies</h2>
-        <div style={{ background: '#f5f5f5', padding: '10px', borderRadius: '5px', wordBreak: 'break-all' }}>
-          {cookies || '无cookies'}
-        </div>
+      <div style={{ marginBottom: '2rem' }}>
+        <h2>客户端 Cookies</h2>
+        <pre style={{ background: '#f5f5f5', padding: '1rem' }}>
+          {cookies || '无 cookies'}
+        </pre>
       </div>
 
-      <div style={{ margin: '20px 0' }}>
-        <h2>🔍 API验证结果</h2>
-        <div style={{ background: '#f5f5f5', padding: '10px', borderRadius: '5px' }}>
-          <pre>{JSON.stringify(apiValidation, null, 2)}</pre>
-        </div>
+      <div style={{ marginBottom: '2rem' }}>
+        <h2>API 验证结果</h2>
+        <pre style={{ background: '#f5f5f5', padding: '1rem' }}>
+          {JSON.stringify(apiValidation, null, 2)}
+        </pre>
       </div>
 
-      <div style={{ margin: '20px 0' }}>
-        <h2>🧪 测试功能</h2>
+      <div>
+        <h2>测试操作</h2>
         <button 
           onClick={testLogin}
-          style={{ 
-            padding: '10px 20px', 
-            backgroundColor: '#007bff', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '5px',
+          style={{
+            padding: '0.5rem 1rem',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
             cursor: 'pointer'
           }}
         >
-          测试登录
+          测试登录 (管理员账号)
         </button>
       </div>
-
-      <div style={{ margin: '20px 0' }}>
-        <h2>📝 说明</h2>
-        <ul>
-          <li>检查浏览器开发者工具的Console日志</li>
-          <li>检查Network标签页中的请求和响应</li>
-          <li>检查Application标签页中的Cookies</li>
-          <li>如果curl能登录成功但浏览器不行，可能是cookie设置问题</li>
-        </ul>
-      </div>
     </div>
+  );
+}
+
+export default function DebugPage() {
+  return (
+    <AuthProvider>
+      <DebugPageContent />
+    </AuthProvider>
   );
 } 
