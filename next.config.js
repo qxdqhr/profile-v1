@@ -3,6 +3,8 @@ const nextConfig = {
     output: 'standalone',
     experimental: {
         // 如果需要的话，可以添加其他实验性功能
+        // 增加请求体大小限制
+        serverComponentsExternalPackages: [],
     },
     // 确保静态资源能够正确处理
     images: {
