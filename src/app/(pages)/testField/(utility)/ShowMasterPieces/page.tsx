@@ -47,7 +47,7 @@ function ShowMasterPiecesContent() {
     console.log('🎯 [ShowMasterPieces] handleConfigClick 被调用');
     console.log('🔐 [ShowMasterPieces] 当前认证状态:', { isAuthenticated, user });
     
-    if (isAuthenticated) {
+    if (isAuthenticated && user) {
       console.log('✅ [ShowMasterPieces] 用户已认证，跳转到配置页面');
       window.location.href = '/testField/ShowMasterPieces/config';
     } else {
@@ -57,16 +57,43 @@ function ShowMasterPiecesContent() {
     }
   };
 
+  // 检查用户是否有配置权限（仅管理员可访问）
+  const hasConfigPermission = () => {
+    if (!isAuthenticated || !user) {
+      return false;
+    }
+    
+    // 方式1：基于用户角色判断
+    if (user.role === 'admin') {
+      return true;
+    }
+    
+    // 方式2：基于特定用户手机号白名单（可选）
+    const configWhitelist = [
+      '15663733877', // 管理员账号
+      // 可以在这里添加更多有权限的手机号
+    ];
+    
+    if (configWhitelist.includes(user.phone)) {
+      return true;
+    }
+    
+    return false;
+  };
+
   // 自定义菜单项配置
-  const customMenuItems: CustomMenuItem[] = [
-    {
+  const customMenuItems: CustomMenuItem[] = [];
+  
+  // 只有有权限的用户才显示配置选项
+  if (hasConfigPermission()) {
+    customMenuItems.push({
       id: 'config',
       label: '配置',
       icon: Settings,
       onClick: handleConfigClick,
-      requireAuth: true // 只有登录后才显示配置选项
-    }
-  ];
+      requireAuth: true // 双重保险：要求登录且有权限
+    });
+  }
 
   // 加载状态
   if (loading) {
