@@ -2,15 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { artworksDbService } from '@/db/services/masterpiecesDbService';
 import { validateApiAuth, createUnauthorizedResponse } from '@/utils/authUtils';
 
-// 配置请求体解析器，增加大小限制
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb',
-    },
-  },
-}
-
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string; artworkId: string } }
@@ -23,6 +14,15 @@ export async function PUT(
       return NextResponse.json({ error }, { status });
     }
 
+    // 检查请求体大小
+    const contentLength = request.headers.get('content-length');
+    if (contentLength && parseInt(contentLength) > 10 * 1024 * 1024) { // 10MB 限制
+      return NextResponse.json(
+        { error: '请求数据太大，请压缩图片后重试' },
+        { status: 413 }
+      );
+    }
+
     const collectionId = parseInt(params.id);
     const artworkId = parseInt(params.artworkId);
     const artworkData = await request.json();
@@ -30,6 +30,13 @@ export async function PUT(
     return NextResponse.json(updatedArtwork);
   } catch (error) {
     console.error('更新作品失败:', error);
+    // 检查是否是请求体过大的错误
+    if (error instanceof Error && error.message.includes('body')) {
+      return NextResponse.json(
+        { error: '请求数据太大，请压缩图片后重试' },
+        { status: 413 }
+      );
+    }
     return NextResponse.json(
       { error: '更新作品失败' },
       { status: 500 }
