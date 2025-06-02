@@ -1,15 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 import LoginModal from './LoginModal';
+import type { AuthGuardProps } from '../types';
 
-interface AuthGuardProps {
-  children: React.ReactNode;
-  fallback?: React.ReactNode;
-  requireAuth?: boolean;
-}
-
+/**
+ * 认证守卫组件
+ * 保护需要登录的页面和组件
+ */
 export default function AuthGuard({ 
   children, 
   fallback,
@@ -38,9 +37,19 @@ export default function AuthGuard({
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: '200px',
-        color: '#6b7280'
+        color: '#6b7280',
+        flexDirection: 'column',
+        gap: '12px'
       }}>
-        验证登录状态...
+        <div style={{
+          width: '32px',
+          height: '32px',
+          border: '3px solid #e5e7eb',
+          borderTop: '3px solid #3b82f6',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }}></div>
+        <div>验证登录状态...</div>
       </div>
     );
   }
@@ -55,9 +64,30 @@ export default function AuthGuard({
             alignItems: 'center',
             justifyContent: 'center',
             minHeight: '200px',
-            color: '#6b7280'
+            color: '#6b7280',
+            flexDirection: 'column',
+            gap: '16px',
+            padding: '24px',
+            textAlign: 'center'
           }}>
-            请先登录以访问此页面
+            <div style={{
+              fontSize: '48px',
+              opacity: 0.5
+            }}>
+              🔒
+            </div>
+            <div style={{
+              fontSize: '18px',
+              fontWeight: '500'
+            }}>
+              请先登录以访问此页面
+            </div>
+            <div style={{
+              fontSize: '14px',
+              opacity: 0.7
+            }}>
+              登录后即可查看相关内容
+            </div>
           </div>
         )}
         <LoginModal

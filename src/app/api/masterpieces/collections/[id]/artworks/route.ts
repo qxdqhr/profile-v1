@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { artworksDbService } from '@/db/services/masterpiecesDbService';
-import { validateApiAuth, createUnauthorizedResponse } from '@/utils/authUtils';
+import { validateApiAuth } from '@/modules/auth/server';
 
 export async function POST(
   request: NextRequest,
@@ -10,8 +10,7 @@ export async function POST(
     // 验证用户权限
     const user = await validateApiAuth(request);
     if (!user) {
-      const { error, status } = createUnauthorizedResponse();
-      return NextResponse.json({ error }, { status });
+      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }
 
     // 检查请求体大小
@@ -25,8 +24,8 @@ export async function POST(
 
     const collectionId = parseInt(params.id);
     const artworkData = await request.json();
-    const newArtwork = await artworksDbService.addArtworkToCollection(collectionId, artworkData);
-    return NextResponse.json(newArtwork);
+    const artwork = await artworksDbService.addArtworkToCollection(collectionId, artworkData);
+    return NextResponse.json(artwork);
   } catch (error) {
     console.error('添加作品失败:', error);
     // 检查是否是请求体过大的错误

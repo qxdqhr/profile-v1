@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { collectionsDbService } from '@/db/services/masterpiecesDbService';
-import { validateApiAuth, createUnauthorizedResponse } from '@/utils/authUtils';
+import { validateApiAuth } from '@/modules/auth/server';
 
 export async function GET() {
   try {
     const collections = await collectionsDbService.getAllCollections();
     return NextResponse.json(collections);
   } catch (error) {
-    console.error('获取画集失败:', error);
+    console.error('获取画集列表失败:', error);
     return NextResponse.json(
-      { error: '获取画集失败' },
+      { error: '获取画集列表失败' },
       { status: 500 }
     );
   }
@@ -20,8 +20,7 @@ export async function POST(request: NextRequest) {
     // 验证用户权限
     const user = await validateApiAuth(request);
     if (!user) {
-      const { error, status } = createUnauthorizedResponse();
-      return NextResponse.json({ error }, { status });
+      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }
 
     // 检查请求体大小
