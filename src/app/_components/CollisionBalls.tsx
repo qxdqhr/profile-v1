@@ -55,11 +55,21 @@ const CollisionBalls: React.FC<CollisionBallsProps> = ({
       updateCanvasSize();
     };
 
-    window.addEventListener('resize', handleResize);
-    updateCanvasSize(); // 初始化时调用一次
+    // 安全地添加事件监听器
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', handleResize);
+      updateCanvasSize(); // 初始化时调用一次
+    }
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      // 安全地清理事件监听器
+      try {
+        if (typeof window !== 'undefined') {
+          window.removeEventListener('resize', handleResize);
+        }
+      } catch (error) {
+        console.warn('清理CollisionBalls resize监听器时出错:', error);
+      }
     };
   }, []);
 

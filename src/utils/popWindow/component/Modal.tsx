@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styles from '../styles.module.css';
 
@@ -32,6 +32,15 @@ const Modal: React.FC<ModalProps> = ({
   children,
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  // 确保只在客户端渲染Portal
+  useEffect(() => {
+    setMounted(true);
+    return () => {
+      setMounted(false);
+    };
+  }, []);
 
   useEffect(() => {
     // 处理按ESC键关闭弹窗
@@ -42,14 +51,21 @@ const Modal: React.FC<ModalProps> = ({
     };
 
     // 禁止背景滚动
-    if (isOpen) {
+    if (isOpen && typeof document !== 'undefined' && document.body) {
       document.body.style.overflow = 'hidden';
       document.addEventListener('keydown', handleEscKey);
     }
 
     return () => {
-      document.body.style.overflow = '';
-      document.removeEventListener('keydown', handleEscKey);
+      // 安全地恢复样式和移除监听器
+      try {
+        if (typeof document !== 'undefined' && document.body) {
+          document.body.style.overflow = '';
+          document.removeEventListener('keydown', handleEscKey);
+        }
+      } catch (error) {
+        console.warn('清理Modal事件监听器时出错:', error);
+      }
     };
   }, [isOpen, onClose]);
 
@@ -67,33 +83,44 @@ const Modal: React.FC<ModalProps> = ({
     zIndex,
   };
 
-  if (!isOpen) return null;
+  // 只在客户端且Modal打开时渲染
+  if (!mounted || !isOpen) return null;
+
+  // 安全检查document.body是否存在
+  if (typeof document === 'undefined' || !document.body) {
+    return null;
+  }
 
   // 使用Portal渲染到body下，避免层级问题
-  return ReactDOM.createPortal(
-    <div className={`${styles.modalOverlay}`} onClick={handleMaskClick}>
-      <div
-        className={`${styles.modalContainer} ${className}`}
-        style={modalStyle}
-        ref={modalRef}
-      >
-        {(title || showCloseButton) && (
-          <div className={styles.modalHeader}>
-            {title && <div className={styles.modalTitle}>{title}</div>}
-            {showCloseButton && (
-              <button className={styles.closeButton} onClick={onClose}>
-                ×
-              </button>
-            )}
+  try {
+    return ReactDOM.createPortal(
+      <div className={`${styles.modalOverlay}`} onClick={handleMaskClick}>
+        <div
+          className={`${styles.modalContainer} ${className}`}
+          style={modalStyle}
+          ref={modalRef}
+        >
+          {(title || showCloseButton) && (
+            <div className={styles.modalHeader}>
+              {title && <div className={styles.modalTitle}>{title}</div>}
+              {showCloseButton && (
+                <button className={styles.closeButton} onClick={onClose}>
+                  ×
+                </button>
+              )}
+            </div>
+          )}
+          <div className={`${styles.modalContent} ${contentClassName}`}>
+            {children}
           </div>
-        )}
-        <div className={`${styles.modalContent} ${contentClassName}`}>
-          {children}
         </div>
-      </div>
-    </div>,
-    document.body
-  );
+      </div>,
+      document.body
+    );
+  } catch (error) {
+    console.error('Portal创建失败:', error);
+    return null;
+  }
 };
 
 export default Modal; 

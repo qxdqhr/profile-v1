@@ -64,18 +64,41 @@ export const saveConfigurations = async (config: ConfigData, examId: string = 'd
 
 // 导出配置为JSON文件
 export const exportConfigurations = (config: ConfigData, examId: string = 'default'): void => {
-  const dataStr = JSON.stringify(config, null, 2);
-  const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
-  
-  const titlePart = config.startScreen?.title 
-    ? config.startScreen.title.replace(/\s+/g, '_').slice(0, 20) 
-    : '';
-  const exportFileName = `exam_${examId}_${titlePart}_${new Date().toISOString().slice(0, 10)}.json`;
-  
-  const linkElement = document.createElement('a');
-  linkElement.setAttribute('href', dataUri);
-  linkElement.setAttribute('download', exportFileName);
-  linkElement.click();
+  try {
+    const dataStr = JSON.stringify(config, null, 2);
+    const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
+    
+    const titlePart = config.startScreen?.title 
+      ? config.startScreen.title.replace(/\s+/g, '_').slice(0, 20) 
+      : '';
+    const exportFileName = `exam_${examId}_${titlePart}_${new Date().toISOString().slice(0, 10)}.json`;
+    
+    // 安全的DOM操作
+    if (typeof document !== 'undefined' && document.body) {
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileName);
+      
+      // 安全地添加到DOM并点击
+      try {
+        document.body.appendChild(linkElement);
+        linkElement.click();
+        
+        // 安全地移除元素
+        if (linkElement.parentNode === document.body) {
+          document.body.removeChild(linkElement);
+        }
+      } catch (domError) {
+        console.warn('DOM操作警告:', domError);
+        // 降级处理：直接点击元素
+        linkElement.click();
+      }
+    } else {
+      console.error('无法导出文件：document或document.body不可用');
+    }
+  } catch (error) {
+    console.error('导出配置失败:', error);
+  }
 };
 
 // 从文件导入配置

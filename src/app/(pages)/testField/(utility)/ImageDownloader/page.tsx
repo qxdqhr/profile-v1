@@ -29,46 +29,66 @@ export default function ImageDownloader() {
   };
 
   const downloadImage = async () => {
-    if (!imageUrl.trim()) {
-      alert('请输入图片URL');
+    if (!imageUrl.trim() && !preview) {
+      alert('请输入图片URL或上传本地图片');
       return;
     }
 
     setIsDownloading(true);
+    
     try {
-      // 尝试直接下载，如果失败则使用代理
-      let response;
-      try {
-        response = await fetch(imageUrl);
-        if (!response.ok) {
-          throw new Error('直接下载失败');
-        }
-      } catch (directError) {
-        console.log('直接下载失败，尝试使用代理:', directError);
-        
-        // 使用代理API绕过跨域限制
-        const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
-        response = await fetch(proxyUrl);
-        
-        if (!response.ok) {
-          throw new Error('代理下载也失败了');
-        }
-      }
+      let url: string;
+      
+      // 如果是本地上传的图片，直接使用preview
+      if (preview && !imageUrl.trim()) {
+        url = preview;
+      } else {
+        // 处理网络图片
+        const response = await fetch(`/api/proxy-image?url=${encodeURIComponent(imageUrl)}`, {
+          method: 'GET',
+        });
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('图片不存在或URL无效');
+          } else if (response.status === 403) {
+            throw new Error('访问被拒绝，图片可能有防盗链保护');
+          } else {
+            throw new Error(`下载失败 (${response.status})`);
+          }
+        }
+
+        const blob = await response.blob();
+        url = window.URL.createObjectURL(blob);
+      }
+      
       const link = document.createElement('a');
       link.href = url;
       
       // 设置下载文件名
-      const fileExtension = blob.type.split('/')[1] || 'jpg';
-      const downloadFileName = fileName.includes('.') ? fileName : `${fileName}.${fileExtension}`;
+      const fileExtension = url.startsWith('data:') ? 
+        (preview?.includes('data:image/png') ? 'png' : 'jpg') : 
+        'jpg';
+      const downloadFileName = fileName.includes('.') ? fileName : `${fileName || 'image'}.${fileExtension}`;
       link.download = downloadFileName;
       
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      // 安全的DOM操作
+      try {
+        document.body.appendChild(link);
+        link.click();
+        
+        // 安全地移除元素
+        if (link.parentNode === document.body) {
+          document.body.removeChild(link);
+        }
+      } catch (domError) {
+        console.warn('DOM操作警告:', domError);
+      }
+      
+      // 清理URL对象
+      if (url.startsWith('blob:')) {
+        window.URL.revokeObjectURL(url);
+      }
       
       alert('图片下载成功！');
     } catch (error) {
@@ -573,9 +593,19 @@ export default function ImageDownloader() {
       fileName.replace(/\.[^/.]+$/, '_processed.png') : 
       `${fileName || 'processed_image'}.png`;
     link.download = downloadFileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    
+    // 安全的DOM操作
+    try {
+      document.body.appendChild(link);
+      link.click();
+      
+      // 安全地移除元素
+      if (link.parentNode === document.body) {
+        document.body.removeChild(link);
+      }
+    } catch (domError) {
+      console.warn('DOM操作警告:', domError);
+    }
     
     alert('处理后的图片下载成功！');
   };

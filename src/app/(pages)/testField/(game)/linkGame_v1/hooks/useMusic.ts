@@ -13,16 +13,28 @@ export const useMusic = () => {
     // 监听用户交互
     const handleInteraction = () => {
       hasInteracted.current = true
-      window.removeEventListener('click', handleInteraction)
-      window.removeEventListener('touchstart', handleInteraction)
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('click', handleInteraction)
+        window.removeEventListener('touchstart', handleInteraction)
+      }
     }
 
-    window.addEventListener('click', handleInteraction)
-    window.addEventListener('touchstart', handleInteraction)
+    // 安全地添加事件监听器
+    if (typeof window !== 'undefined') {
+      window.addEventListener('click', handleInteraction)
+      window.addEventListener('touchstart', handleInteraction)
+    }
 
     return () => {
-      window.removeEventListener('click', handleInteraction)
-      window.removeEventListener('touchstart', handleInteraction)
+      // 安全地清理事件监听器
+      try {
+        if (typeof window !== 'undefined') {
+          window.removeEventListener('click', handleInteraction)
+          window.removeEventListener('touchstart', handleInteraction)
+        }
+      } catch (error) {
+        console.warn('清理useMusic事件监听器时出错:', error);
+      }
     }
   }, [])
 
@@ -90,12 +102,16 @@ export const useMusic = () => {
         const waitForInteraction = new Promise<void>((resolve) => {
           const handler = () => {
             hasInteracted.current = true
-            window.removeEventListener('click', handler)
-            window.removeEventListener('touchstart', handler)
+            if (typeof window !== 'undefined') {
+              window.removeEventListener('click', handler)
+              window.removeEventListener('touchstart', handler)
+            }
             resolve()
           }
-          window.addEventListener('click', handler)
-          window.addEventListener('touchstart', handler)
+          if (typeof window !== 'undefined') {
+            window.addEventListener('click', handler)
+            window.addEventListener('touchstart', handler)
+          }
         })
         await waitForInteraction
       }
@@ -134,12 +150,16 @@ export const useMusic = () => {
           await new Promise<void>((resolve) => {
             const handler = () => {
               hasInteracted.current = true
-              window.removeEventListener('click', handler)
-              window.removeEventListener('touchstart', handler)
+              if (typeof window !== 'undefined') {
+                window.removeEventListener('click', handler)
+                window.removeEventListener('touchstart', handler)
+              }
               resolve()
             }
-            window.addEventListener('click', handler)
-            window.addEventListener('touchstart', handler)
+            if (typeof window !== 'undefined') {
+              window.addEventListener('click', handler)
+              window.addEventListener('touchstart', handler)
+            }
           })
         }
         await audioRef.current.play()
