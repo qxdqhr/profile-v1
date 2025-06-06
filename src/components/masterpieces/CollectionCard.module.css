@@ -181,7 +181,33 @@
 }
 
 /* 响应式设计 */
+@media (max-width: 1024px) {
+  .collectionCard {
+    max-width: 100%;
+  }
+  
+  .collectionImageContainer {
+    height: 15rem;
+  }
+  
+  .collectionCover {
+    height: 15rem;
+  }
+  
+  .collectionContent {
+    padding: 1.375rem;
+  }
+  
+  .collectionTitle {
+    font-size: 1.1875rem;
+  }
+}
+
 @media (max-width: 768px) {
+  .collectionCard {
+    max-width: 450px; /* 在平板上限制最大宽度 */
+  }
+  
   .collectionImageContainer {
     height: 14rem;
   }
@@ -199,7 +225,8 @@
   }
   
   .collectionButton {
-    padding: 0.625rem 0.875rem;
+    padding: 0.75rem 1rem;
+    min-height: 48px; /* 增大触控区域 */
   }
   
   .collectionBadge {
@@ -209,6 +236,10 @@
 }
 
 @media (max-width: 640px) {
+  .collectionCard {
+    max-width: 100%;
+  }
+  
   .collectionImageContainer {
     height: 12rem;
   }
@@ -223,19 +254,79 @@
   
   .collectionTitle {
     font-size: 1rem;
+    line-height: 1.25;
+  }
+  
+  .collectionDescription {
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    -webkit-line-clamp: 2; /* 减少行数节省空间 */
   }
   
   .collectionButton {
-    padding: 0.625rem 0.875rem;
-    font-size: 0.8rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.8125rem;
+    min-height: 48px;
   }
   
   .collectionBadgeText {
     font-size: 0.75rem;
   }
+  
+  .collectionArtist,
+  .collectionCategory {
+    font-size: 0.8125rem;
+  }
 }
 
 @media (max-width: 480px) {
+  .collectionImageContainer {
+    height: 11rem;
+  }
+  
+  .collectionCover {
+    height: 11rem;
+  }
+  
+  .collectionContent {
+    padding: 0.875rem;
+  }
+  
+  .collectionTitle {
+    font-size: 0.9375rem;
+    -webkit-line-clamp: 2;
+    line-height: 1.3;
+  }
+  
+  .collectionDescription {
+    -webkit-line-clamp: 2;
+    font-size: 0.8rem;
+    margin-bottom: 0.875rem;
+  }
+  
+  .collectionArtist,
+  .collectionCategory {
+    font-size: 0.8rem;
+    margin-bottom: 0.1875rem;
+  }
+  
+  .collectionButton {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.8rem;
+    min-height: 48px;
+  }
+  
+  .collectionBadge {
+    bottom: 0.625rem;
+    left: 0.625rem;
+  }
+  
+  .collectionBadgeText {
+    font-size: 0.6875rem;
+  }
+}
+
+@media (max-width: 375px) {
   .collectionImageContainer {
     height: 10rem;
   }
@@ -245,22 +336,27 @@
   }
   
   .collectionContent {
-    padding: 0.875rem;
+    padding: 0.75rem;
   }
   
   .collectionTitle {
-    font-size: 0.95rem;
-    -webkit-line-clamp: 1;
+    font-size: 0.875rem;
+    -webkit-line-clamp: 1; /* 在最小屏幕上只显示一行 */
   }
   
   .collectionDescription {
-    -webkit-line-clamp: 2;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    margin-bottom: 0.75rem;
   }
   
   .collectionArtist,
   .collectionCategory {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+  }
+  
+  .collectionButton {
+    padding: 0.6875rem 0.75rem;
+    font-size: 0.75rem;
   }
 }
 
@@ -279,6 +375,22 @@
   .collectionCard {
     cursor: pointer;
   }
+  
+  /* 为触控设备增加点击反馈 */
+  .collectionCard:active {
+    transform: translateY(0.125rem);
+    transition: transform 0.1s ease;
+  }
+  
+  .collectionButton:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+  
+  /* 确保所有按钮都有合适的触控区域 */
+  .collectionButton {
+    min-height: 48px;
+  }
 }
 
 /* 提升可访问性 */
@@ -290,4 +402,36 @@
 .collectionButton:focus {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
+}
+
+/* 高DPI屏幕优化 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .loadingSpinner {
+    border-width: 1px;
+  }
+  
+  .collectionCard {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* 减少动画效果以提升性能 */
+@media (prefers-reduced-motion: reduce) {
+  .collectionCard,
+  .collectionButton,
+  .collectionCover {
+    transition: none;
+  }
+  
+  .collectionCard:hover {
+    transform: translateY(0);
+  }
+  
+  .collectionButton:hover {
+    transform: translateY(0);
+  }
+  
+  .loadingSpinner {
+    animation: none;
+  }
 } 

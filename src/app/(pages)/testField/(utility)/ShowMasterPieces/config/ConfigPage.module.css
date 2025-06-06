@@ -903,11 +903,4 @@
   .tab.active {
     border-bottom-color: #000;
   }
-}
-
-/* 水印配置样式 */
-.watermarkConfig {
-  margin-top: 1rem;
-  border-top: 1px solid #e5e7eb;
-  padding-top: 1rem;
 } 

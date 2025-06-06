@@ -100,7 +100,9 @@ const AudioPlayer = ({
       const pauseEvent = new CustomEvent('pauseOtherAudio', {
         detail: { excludeId: audioUrl }
       });
-      window.dispatchEvent(pauseEvent);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(pauseEvent);
+      }
     }
     
     // 监听其他播放器的暂停请求
@@ -113,10 +115,20 @@ const AudioPlayer = ({
       }
     };
     
-    window.addEventListener('pauseOtherAudio', handlePauseRequest as EventListener);
+    // 安全地添加事件监听器
+    if (typeof window !== 'undefined') {
+      window.addEventListener('pauseOtherAudio', handlePauseRequest as EventListener);
+    }
     
     return () => {
-      window.removeEventListener('pauseOtherAudio', handlePauseRequest as EventListener);
+      // 安全地移除事件监听器
+      try {
+        if (typeof window !== 'undefined') {
+          window.removeEventListener('pauseOtherAudio', handlePauseRequest as EventListener);
+        }
+      } catch (error) {
+        console.warn('清理AudioPlayer事件监听器时出错:', error);
+      }
     };
   }, [audioUrl, isPlaying]);
   

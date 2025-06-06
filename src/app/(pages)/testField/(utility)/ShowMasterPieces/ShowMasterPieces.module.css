@@ -80,7 +80,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2rem;
+  gap: 1rem;
   min-height: 44px; /* 触控友好的最小高度 */
 }
 
@@ -98,6 +98,7 @@
   border-radius: 0.375rem;
   min-height: 44px;
   min-width: 44px;
+  flex-shrink: 0;
 }
 
 .backButton:hover {
@@ -108,7 +109,8 @@
 .headerTitle {
   flex: 1;
   text-align: center;
-  padding: 0 1rem;
+  padding: 0 0.5rem;
+  min-width: 0; /* 允许文本截断 */
 }
 
 .headerTitle h1 {
@@ -117,6 +119,9 @@
   color: #1e293b;
   margin: 0;
   line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .headerTitle p {
@@ -124,6 +129,9 @@
   color: #64748b;
   margin: 0;
   line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .configButton {
@@ -140,6 +148,7 @@
   transition: all 0.2s ease;
   min-height: 44px;
   min-width: 44px;
+  flex-shrink: 0;
 }
 
 .configButton:hover {
@@ -229,25 +238,34 @@
   .artworkContainer {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    padding: 1.5rem 1rem;
   }
   
   .artworkSidebar {
-    order: -1;
+    order: -1; /* 将侧边栏移到顶部 */
   }
   
   .collectionsGrid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1.5rem;
+  }
+  
+  .artworkMain {
+    min-height: 500px;
   }
 }
 
 @media (max-width: 768px) {
+  .headerContent {
+    padding: 0.75rem 1rem;
+  }
+  
   .headerNav {
-    gap: 1rem;
+    gap: 0.75rem;
   }
   
   .headerTitle {
-    padding: 0 0.5rem;
+    padding: 0 0.25rem;
   }
   
   .headerTitle h1 {
@@ -265,11 +283,17 @@
   .collectionsGrid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    max-width: 450px; /* 限制单列最大宽度 */
+    margin: 0 auto;
   }
   
   .artworkContainer {
     padding: 1rem;
     gap: 1rem;
+  }
+  
+  .artworkMain {
+    min-height: 400px;
   }
   
   .emptyState {
@@ -279,19 +303,20 @@
   .emptyState h3 {
     font-size: 1.25rem;
   }
+  
+  .configButton {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .headerContent {
-    padding: 0.75rem;
+    padding: 0.5rem 0.75rem;
   }
   
   .headerNav {
     gap: 0.5rem;
-  }
-  
-  .headerTitle {
-    padding: 0;
   }
   
   .headerTitle h1 {
@@ -300,15 +325,72 @@
   
   .headerTitle p {
     font-size: 0.75rem;
-    display: none; /* 在小屏幕上隐藏副标题 */
   }
   
   .collectionsContainer {
     padding: 1rem 0.75rem;
   }
   
+  .collectionsGrid {
+    max-width: 100%; /* 移除最大宽度限制 */
+    gap: 1.25rem;
+  }
+  
   .artworkContainer {
     padding: 0.75rem;
+  }
+  
+  .artworkMain {
+    min-height: 350px;
+  }
+  
+  .backButton {
+    padding: 0.375rem;
+  }
+  
+  .configButton {
+    width: 2rem;
+    height: 2rem;
+    min-width: 40px;
+    min-height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .headerContent {
+    padding: 0.5rem;
+  }
+  
+  .headerNav {
+    gap: 0.25rem;
+  }
+  
+  .headerTitle {
+    padding: 0;
+  }
+  
+  .headerTitle h1 {
+    font-size: 1rem;
+  }
+  
+  .headerTitle p {
+    display: none; /* 在最小屏幕上隐藏副标题 */
+  }
+  
+  .collectionsContainer {
+    padding: 1rem 0.5rem;
+  }
+  
+  .collectionsGrid {
+    gap: 1rem;
+  }
+  
+  .artworkContainer {
+    padding: 0.5rem;
+  }
+  
+  .artworkMain {
+    min-height: 300px;
   }
   
   .backButton span {
@@ -318,6 +400,10 @@
   .configLink {
     padding: 0.625rem 1.25rem;
     font-size: 0.875rem;
+  }
+  
+  .emptyState {
+    padding: 1rem 0.5rem;
   }
 }
 
@@ -336,11 +422,36 @@
   .configLink:hover {
     background: #3b82f6;
   }
+  
+  /* 增加所有可点击元素的触控区域 */
+  .backButton,
+  .configButton {
+    min-width: 48px;
+    min-height: 48px;
+  }
 }
 
 /* 高DPI屏幕优化 */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   .loadingSpinner {
     border-width: 2px;
+  }
+}
+
+/* 安全区域适配（刘海屏） */
+@supports (padding: max(0px)) {
+  .headerContent {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+  
+  .collectionsContainer {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+  
+  .artworkContainer {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
   }
 } 

@@ -6,14 +6,27 @@ export const useDevice = () => {
   // 检测是否为移动设备
   useEffect(() => {
     const checkIfMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+      if (typeof window !== 'undefined') {
+        setIsMobile(window.innerWidth <= 768);
+      }
     };
     
     checkIfMobile();
-    window.addEventListener('resize', checkIfMobile);
+    
+    // 安全地添加事件监听器
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', checkIfMobile);
+    }
     
     return () => {
-      window.removeEventListener('resize', checkIfMobile);
+      // 安全地清理事件监听器
+      try {
+        if (typeof window !== 'undefined') {
+          window.removeEventListener('resize', checkIfMobile);
+        }
+      } catch (error) {
+        console.warn('清理useDevice resize监听器时出错:', error);
+      }
     };
   }, []);
   
