@@ -20,6 +20,7 @@ export {
   updateConfig,
   resetConfig,
   getAllCollections,
+  getCollectionsOverview,
   createCollection,
   updateCollection,
   deleteCollection,
