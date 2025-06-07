@@ -165,116 +165,153 @@ export class TagsDbService {
 
 // 画集相关服务
 export class CollectionsDbService {
-  // 获取所有画集
-  async getAllCollections(): Promise<ArtCollection[]> {
-    // 使用 JOIN 查询一次性获取所有相关数据，避免 N+1 问题
-    const collectionsWithData = await db
-      .select({
-        // 画集基本信息
-        collectionId: comicUniverseCollections.id,
-        title: comicUniverseCollections.title,
-        artist: comicUniverseCollections.artist,
-        coverImage: comicUniverseCollections.coverImage,
-        description: comicUniverseCollections.description,
-        isPublished: comicUniverseCollections.isPublished,
-        displayOrder: comicUniverseCollections.displayOrder,
-        createdAt: comicUniverseCollections.createdAt,
-        categoryId: comicUniverseCollections.categoryId,
-        
-        // 分类信息
-        categoryName: comicUniverseCategories.name,
-        
-        // 作品信息
-        artworkId: comicUniverseArtworks.id,
-        artworkTitle: comicUniverseArtworks.title,
-        artworkArtist: comicUniverseArtworks.artist,
-        artworkImage: comicUniverseArtworks.image,
-        artworkDescription: comicUniverseArtworks.description,
-        artworkCreatedTime: comicUniverseArtworks.createdTime,
-        artworkTheme: comicUniverseArtworks.theme,
-        pageOrder: comicUniverseArtworks.pageOrder,
-      })
-      .from(comicUniverseCollections)
-      .leftJoin(
-        comicUniverseCategories,
-        eq(comicUniverseCollections.categoryId, comicUniverseCategories.id)
-      )
-      .leftJoin(
-        comicUniverseArtworks,
-        and(
-          eq(comicUniverseArtworks.collectionId, comicUniverseCollections.id),
-          eq(comicUniverseArtworks.isActive, true)
-        )
-      )
-      .where(eq(comicUniverseCollections.isPublished, true))
-      .orderBy(
-        desc(comicUniverseCollections.displayOrder),
-        desc(comicUniverseCollections.createdAt),
-        asc(comicUniverseArtworks.pageOrder)
-      );
+  // 缓存配置
+  private collectionsCache: ArtCollection[] | null = null;
+  private collectionsCacheTime: number = 0;
+  private readonly CACHE_DURATION = 2 * 60 * 1000; // 2分钟缓存
 
-    // 获取所有画集的标签（一次查询）
-    const collectionIds = [...new Set(collectionsWithData.map(item => item.collectionId))];
-    const allTags = await db
-      .select({
-        collectionId: comicUniverseCollectionTags.collectionId,
-        tagName: comicUniverseTags.name,
-      })
-      .from(comicUniverseCollectionTags)
-      .innerJoin(
-        comicUniverseTags,
-        eq(comicUniverseCollectionTags.tagId, comicUniverseTags.id)
-      )
-      .where(
-        and(
-          inArray(comicUniverseCollectionTags.collectionId, collectionIds),
-          eq(comicUniverseTags.isActive, true)
-        )
-      );
+  // 获取所有画集 - 优化版本
+  async getAllCollections(useCache: boolean = true): Promise<ArtCollection[]> {
+    // 检查缓存
+    if (useCache && this.collectionsCache && (Date.now() - this.collectionsCacheTime) < this.CACHE_DURATION) {
+      return this.collectionsCache;
+    }
 
-    // 构建标签映射
-    const tagsMap = new Map<number, string[]>();
-    allTags.forEach(tag => {
-      if (!tagsMap.has(tag.collectionId)) {
-        tagsMap.set(tag.collectionId, []);
+    try {
+      // 1. 首先获取画集基本信息（不包含作品）
+      const collections = await db
+        .select({
+          id: comicUniverseCollections.id,
+          title: comicUniverseCollections.title,
+          artist: comicUniverseCollections.artist,
+          coverImage: comicUniverseCollections.coverImage,
+          description: comicUniverseCollections.description,
+          isPublished: comicUniverseCollections.isPublished,
+          displayOrder: comicUniverseCollections.displayOrder,
+          createdAt: comicUniverseCollections.createdAt,
+          categoryId: comicUniverseCollections.categoryId,
+        })
+        .from(comicUniverseCollections)
+        .where(eq(comicUniverseCollections.isPublished, true))
+        .orderBy(
+          desc(comicUniverseCollections.displayOrder),
+          desc(comicUniverseCollections.createdAt)
+        );
+
+      if (collections.length === 0) {
+        return [];
       }
-      tagsMap.get(tag.collectionId)!.push(tag.tagName);
-    });
 
-    // 按画集分组并构建最终结果
-    const collectionsMap = new Map<number, ArtCollection>();
+      const collectionIds = collections.map(c => c.id);
 
-    collectionsWithData.forEach(item => {
-      if (!collectionsMap.has(item.collectionId)) {
-        collectionsMap.set(item.collectionId, {
-          id: item.collectionId,
-          title: item.title,
-          artist: item.artist,
-          coverImage: item.coverImage,
-          description: item.description || '',
-          category: item.categoryName || '',
-          tags: tagsMap.get(item.collectionId) || [],
-          isPublished: item.isPublished,
-          pages: [],
+      // 2. 并行获取分类、标签和作品数据
+      const [categories, tags, artworks] = await Promise.all([
+        // 获取分类信息
+        db
+          .select({
+            id: comicUniverseCategories.id,
+            name: comicUniverseCategories.name,
+          })
+          .from(comicUniverseCategories)
+          .where(eq(comicUniverseCategories.isActive, true)),
+
+        // 获取标签信息
+        db
+          .select({
+            collectionId: comicUniverseCollectionTags.collectionId,
+            tagName: comicUniverseTags.name,
+          })
+          .from(comicUniverseCollectionTags)
+          .innerJoin(
+            comicUniverseTags,
+            eq(comicUniverseCollectionTags.tagId, comicUniverseTags.id)
+          )
+          .where(
+            and(
+              inArray(comicUniverseCollectionTags.collectionId, collectionIds),
+              eq(comicUniverseTags.isActive, true)
+            )
+          ),
+
+        // 获取作品信息（只选择必要字段）
+        db
+          .select({
+            collectionId: comicUniverseArtworks.collectionId,
+            id: comicUniverseArtworks.id,
+            title: comicUniverseArtworks.title,
+            artist: comicUniverseArtworks.artist,
+            image: comicUniverseArtworks.image,
+            description: comicUniverseArtworks.description,
+            createdTime: comicUniverseArtworks.createdTime,
+            theme: comicUniverseArtworks.theme,
+            pageOrder: comicUniverseArtworks.pageOrder,
+          })
+          .from(comicUniverseArtworks)
+          .where(
+            and(
+              inArray(comicUniverseArtworks.collectionId, collectionIds),
+              eq(comicUniverseArtworks.isActive, true)
+            )
+          )
+          .orderBy(asc(comicUniverseArtworks.pageOrder))
+      ]);
+
+      // 3. 构建映射表以提高查找效率
+      const categoriesMap = new Map(categories.map(cat => [cat.id, cat.name]));
+      
+      const tagsMap = new Map<number, string[]>();
+      tags.forEach(tag => {
+        if (!tagsMap.has(tag.collectionId)) {
+          tagsMap.set(tag.collectionId, []);
+        }
+        tagsMap.get(tag.collectionId)!.push(tag.tagName);
+      });
+
+      const artworksMap = new Map<number, ArtworkPage[]>();
+      artworks.forEach(artwork => {
+        if (!artworksMap.has(artwork.collectionId)) {
+          artworksMap.set(artwork.collectionId, []);
+        }
+        artworksMap.get(artwork.collectionId)!.push({
+          id: artwork.id,
+          title: artwork.title || '',
+          artist: artwork.artist || '',
+          image: artwork.image || '',
+          description: artwork.description || '',
+          createdTime: artwork.createdTime || '',
+          theme: artwork.theme || '',
         });
-      }
+      });
 
-      // 添加作品页面（如果存在）
-      if (item.artworkId) {
-        const collection = collectionsMap.get(item.collectionId)!;
-        collection.pages.push({
-          id: item.artworkId,
-          title: item.artworkTitle || '',
-          artist: item.artworkArtist || '',
-          image: item.artworkImage || '',
-          description: item.artworkDescription || '',
-          createdTime: item.artworkCreatedTime || '',
-          theme: item.artworkTheme || '',
-        });
-      }
-    });
+      // 4. 构建最终结果
+      const result: ArtCollection[] = collections.map(collection => ({
+        id: collection.id,
+        title: collection.title,
+        artist: collection.artist,
+        coverImage: collection.coverImage,
+        description: collection.description || '',
+        category: collection.categoryId ? (categoriesMap.get(collection.categoryId) || '') : '',
+        tags: tagsMap.get(collection.id) || [],
+        isPublished: collection.isPublished,
+        pages: artworksMap.get(collection.id) || [],
+      }));
 
-    return Array.from(collectionsMap.values());
+      // 5. 更新缓存
+      this.collectionsCache = result;
+      this.collectionsCacheTime = Date.now();
+
+      return result;
+
+    } catch (error) {
+      console.error('获取画集数据失败:', error);
+      throw error;
+    }
+  }
+
+  // 清除缓存的方法
+  clearCache(): void {
+    this.collectionsCache = null;
+    this.collectionsCacheTime = 0;
   }
 
   // 创建画集
@@ -313,8 +350,11 @@ export class CollectionsDbService {
       await this.updateCollectionTags(newCollection[0].id, collectionData.tags);
     }
 
+    // 清除缓存
+    this.clearCache();
+
     // 返回完整的画集数据
-    const collections = await this.getAllCollections();
+    const collections = await this.getAllCollections(false); // 强制重新查询
     return collections.find(c => c.id === newCollection[0].id)!;
   }
 
@@ -355,8 +395,11 @@ export class CollectionsDbService {
     // 更新标签
     await this.updateCollectionTags(id, collectionData.tags || []);
 
+    // 清除缓存
+    this.clearCache();
+
     // 返回更新后的画集数据
-    const collections = await this.getAllCollections();
+    const collections = await this.getAllCollections(false); // 强制重新查询
     return collections.find(c => c.id === id)!;
   }
 
@@ -364,6 +407,9 @@ export class CollectionsDbService {
   async deleteCollection(id: number): Promise<void> {
     await db.delete(comicUniverseCollections)
       .where(eq(comicUniverseCollections.id, id));
+    
+    // 清除缓存
+    this.clearCache();
   }
 
   // 更新画集标签
@@ -400,10 +446,118 @@ export class CollectionsDbService {
 
     await db.insert(comicUniverseCollectionTags).values(tagRelations);
   }
+
+  // 获取画集概览（不包含作品详情，用于列表展示）
+  async getCollectionsOverview(): Promise<Omit<ArtCollection, 'pages'>[]> {
+    try {
+      // 1. 获取画集基本信息
+      const collections = await db
+        .select({
+          id: comicUniverseCollections.id,
+          title: comicUniverseCollections.title,
+          artist: comicUniverseCollections.artist,
+          coverImage: comicUniverseCollections.coverImage,
+          description: comicUniverseCollections.description,
+          isPublished: comicUniverseCollections.isPublished,
+          displayOrder: comicUniverseCollections.displayOrder,
+          createdAt: comicUniverseCollections.createdAt,
+          categoryId: comicUniverseCollections.categoryId,
+        })
+        .from(comicUniverseCollections)
+        .where(eq(comicUniverseCollections.isPublished, true))
+        .orderBy(
+          desc(comicUniverseCollections.displayOrder),
+          desc(comicUniverseCollections.createdAt)
+        );
+
+      if (collections.length === 0) {
+        return [];
+      }
+
+      const collectionIds = collections.map(c => c.id);
+
+      // 2. 并行获取分类、标签和作品数量
+      const [categories, tags, artworkCounts] = await Promise.all([
+        // 获取分类信息
+        db
+          .select({
+            id: comicUniverseCategories.id,
+            name: comicUniverseCategories.name,
+          })
+          .from(comicUniverseCategories)
+          .where(eq(comicUniverseCategories.isActive, true)),
+
+        // 获取标签信息
+        db
+          .select({
+            collectionId: comicUniverseCollectionTags.collectionId,
+            tagName: comicUniverseTags.name,
+          })
+          .from(comicUniverseCollectionTags)
+          .innerJoin(
+            comicUniverseTags,
+            eq(comicUniverseCollectionTags.tagId, comicUniverseTags.id)
+          )
+          .where(
+            and(
+              inArray(comicUniverseCollectionTags.collectionId, collectionIds),
+              eq(comicUniverseTags.isActive, true)
+            )
+          ),
+
+        // 获取作品数量（而不是具体作品）
+        db
+          .select({
+            collectionId: comicUniverseArtworks.collectionId,
+            count: sql<number>`count(*)`.as('count'),
+          })
+          .from(comicUniverseArtworks)
+          .where(
+            and(
+              inArray(comicUniverseArtworks.collectionId, collectionIds),
+              eq(comicUniverseArtworks.isActive, true)
+            )
+          )
+          .groupBy(comicUniverseArtworks.collectionId)
+      ]);
+
+      // 3. 构建映射表
+      const categoriesMap = new Map(categories.map(cat => [cat.id, cat.name]));
+      
+      const tagsMap = new Map<number, string[]>();
+      tags.forEach(tag => {
+        if (!tagsMap.has(tag.collectionId)) {
+          tagsMap.set(tag.collectionId, []);
+        }
+        tagsMap.get(tag.collectionId)!.push(tag.tagName);
+      });
+
+      const artworkCountsMap = new Map(artworkCounts.map(ac => [ac.collectionId, ac.count]));
+
+      // 4. 构建结果（包含作品数量而不是具体作品）
+      return collections.map(collection => ({
+        id: collection.id,
+        title: collection.title,
+        artist: collection.artist,
+        coverImage: collection.coverImage,
+        description: collection.description || '',
+        category: collection.categoryId ? (categoriesMap.get(collection.categoryId) || '') : '',
+        tags: tagsMap.get(collection.id) || [],
+        isPublished: collection.isPublished,
+        artworkCount: artworkCountsMap.get(collection.id) || 0,
+      }));
+
+    } catch (error) {
+      console.error('获取画集概览失败:', error);
+      throw error;
+    }
+  }
 }
 
 // 作品相关服务
 export class ArtworksDbService {
+  constructor(private collectionsService: CollectionsDbService) {}
+
   // 添加作品到画集
   async addArtworkToCollection(collectionId: number, artworkData: ArtworkFormData): Promise<ArtworkPage> {
     // 获取当前画集中作品的最大顺序号
@@ -425,6 +579,9 @@ export class ArtworksDbService {
       theme: artworkData.theme,
       pageOrder: newOrder,
     }).returning();
+
+    // 清除画集缓存
+    this.collectionsService.clearCache();
 
     return {
       id: newArtwork[0].id,
@@ -472,6 +629,9 @@ export class ArtworksDbService {
       throw new Error('更新作品失败，未返回数据');
     }
 
+    // 清除画集缓存
+    this.collectionsService.clearCache();
+
     return {
       id: updatedArtwork[0].id,
       title: updatedArtwork[0].title,
@@ -490,6 +650,9 @@ export class ArtworksDbService {
         eq(comicUniverseArtworks.id, artworkId),
         eq(comicUniverseArtworks.collectionId, collectionId)
       ));
+
+    // 清除画集缓存
+    this.collectionsService.clearCache();
   }
 }
 
@@ -498,4 +661,4 @@ export const masterpiecesConfigDbService = new MasterpiecesConfigDbService();
 export const categoriesDbService = new CategoriesDbService();
 export const tagsDbService = new TagsDbService();
 export const collectionsDbService = new CollectionsDbService();
-export const artworksDbService = new ArtworksDbService(); 
+export const artworksDbService = new ArtworksDbService(collectionsDbService); 

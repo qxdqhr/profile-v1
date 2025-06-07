@@ -197,4 +197,13 @@ export const getTags = async (): Promise<string[]> => {
     throw new Error('获取标签失败');
   }
   return await response.json();
-}; 
+};
+
+// 获取画集概览（不包含作品详情，用于列表展示）
+export async function getCollectionsOverview(): Promise<Omit<ArtCollection, 'pages'>[]> {
+  const response = await fetch('/api/masterpieces/collections?overview=true');
+  if (!response.ok) {
+    throw new Error('获取画集概览失败');
+  }
+  return response.json();
+} 

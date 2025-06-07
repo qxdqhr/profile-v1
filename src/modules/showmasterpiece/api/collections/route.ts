@@ -2,10 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import { collectionsDbService } from '../../db/masterpiecesDbService';
 import { validateApiAuth } from '@/modules/auth/server';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const searchParams = request.nextUrl.searchParams;
+    const overview = searchParams.get('overview') === 'true';
+    
+    // 如果请求overview，返回不包含作品详情的快速响应
+    if (overview) {
+      const collectionsOverview = await collectionsDbService.getCollectionsOverview();
+      
+      // 设置缓存头
+      const response = NextResponse.json(collectionsOverview);
+      response.headers.set('Cache-Control', 'public, max-age=120, stale-while-revalidate=300');
+      return response;
+    }
+    
+    // 完整的画集数据（包含所有作品）
     const collections = await collectionsDbService.getAllCollections();
-    return NextResponse.json(collections);
+    
+    // 设置缓存头
+    const response = NextResponse.json(collections);
+    response.headers.set('Cache-Control', 'public, max-age=120, stale-while-revalidate=300');
+    return response;
+    
   } catch (error) {
     console.error('获取画集列表失败:', error);
     return NextResponse.json(
