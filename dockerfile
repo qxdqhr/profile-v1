@@ -8,33 +8,33 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
+# Install pnpm globally
+RUN npm install -g pnpm
+
 # 首先只复制必要的文件来安装依赖
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
-
-RUN npm install -g pnpm && pnpm install
-
-# Rebuild the source code only when needed
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-
-# 安装 pnpm
-RUN npm install -g pnpm
 
 # 安装依赖
 RUN pnpm install --frozen-lockfile
 
-# 构建应用
-RUN pnpm run build || (cat /app/.next/error.log && exit 1)
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+
+# Install pnpm globally
+RUN npm install -g pnpm
+
+# 从deps阶段复制已安装的依赖
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN npm install -g pnpm && pnpm install && pnpm run build
-
+# 构建应用（只执行一次）
+RUN pnpm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
