@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { ArrowLeft, Settings } from 'lucide-react';
 import { useMasterpieces } from '@/hooks/useMasterpieces';
 import { getConfig } from '@/services/masterpiecesConfigService';
@@ -42,58 +42,44 @@ function ShowMasterPiecesContent() {
     loadConfig();
   }, []);
 
+  // 使用 useMemo 缓存权限检查结果，避免重复计算
+  const hasConfigPermission = useMemo(() => {
+    if (!isAuthenticated || !user) {
+      return false;
+    }
+    
+    // 基于用户角色或手机号判断
+    return user.role === 'admin' || user.phone === '15663733877';
+  }, [isAuthenticated, user]);
+
   // 处理配置页面访问
   const handleConfigClick = () => {
     console.log('🎯 [ShowMasterPieces] handleConfigClick 被调用');
     console.log('🔐 [ShowMasterPieces] 当前认证状态:', { isAuthenticated, user });
     
-    if (isAuthenticated && user) {
+    if (hasConfigPermission) {
       console.log('✅ [ShowMasterPieces] 用户已认证，跳转到配置页面');
       window.location.href = '/testField/ShowMasterPieces/config';
     } else {
       console.log('❌ [ShowMasterPieces] 用户未认证，需要先登录');
-      // 如果未登录，显示提示信息
       alert('请先登录后访问配置页面');
     }
   };
 
-  // 检查用户是否有配置权限（仅管理员可访问）
-  const hasConfigPermission = () => {
-    if (!isAuthenticated || !user) {
-      return false;
-    }
-    
-    // 方式1：基于用户角色判断
-    if (user.role === 'admin') {
-      return true;
-    }
-    
-    // 方式2：基于特定用户手机号白名单（可选）
-    const configWhitelist = [
-      '15663733877', // 管理员账号
-      // 可以在这里添加更多有权限的手机号
-    ];
-    
-    if (configWhitelist.includes(user.phone)) {
-      return true;
-    }
-    
-    return false;
-  };
-
   // 自定义菜单项配置
-  const customMenuItems: CustomMenuItem[] = [];
-  
-  // 只有有权限的用户才显示配置选项
-  if (hasConfigPermission()) {
-    customMenuItems.push({
+  const customMenuItems: CustomMenuItem[] = useMemo(() => {
+    if (!hasConfigPermission) {
+      return [];
+    }
+    
+    return [{
       id: 'config',
       label: '配置',
       icon: Settings,
       onClick: handleConfigClick,
-      requireAuth: true // 双重保险：要求登录且有权限
-    });
-  }
+      requireAuth: true
+    }];
+  }, [hasConfigPermission]);
 
   // 加载状态
   if (loading) {
