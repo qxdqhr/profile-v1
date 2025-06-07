@@ -167,63 +167,114 @@ export class TagsDbService {
 export class CollectionsDbService {
   // 获取所有画集
   async getAllCollections(): Promise<ArtCollection[]> {
-    const collections = await db.select()
+    // 使用 JOIN 查询一次性获取所有相关数据，避免 N+1 问题
+    const collectionsWithData = await db
+      .select({
+        // 画集基本信息
+        collectionId: comicUniverseCollections.id,
+        title: comicUniverseCollections.title,
+        artist: comicUniverseCollections.artist,
+        coverImage: comicUniverseCollections.coverImage,
+        description: comicUniverseCollections.description,
+        isPublished: comicUniverseCollections.isPublished,
+        displayOrder: comicUniverseCollections.displayOrder,
+        createdAt: comicUniverseCollections.createdAt,
+        categoryId: comicUniverseCollections.categoryId,
+        
+        // 分类信息
+        categoryName: comicUniverseCategories.name,
+        
+        // 作品信息
+        artworkId: comicUniverseArtworks.id,
+        artworkTitle: comicUniverseArtworks.title,
+        artworkArtist: comicUniverseArtworks.artist,
+        artworkImage: comicUniverseArtworks.image,
+        artworkDescription: comicUniverseArtworks.description,
+        artworkCreatedTime: comicUniverseArtworks.createdTime,
+        artworkTheme: comicUniverseArtworks.theme,
+        pageOrder: comicUniverseArtworks.pageOrder,
+      })
       .from(comicUniverseCollections)
-      .where(eq(comicUniverseCollections.isPublished, true))
-      .orderBy(desc(comicUniverseCollections.displayOrder), desc(comicUniverseCollections.createdAt));
-
-    const result: ArtCollection[] = [];
-
-    for (const collection of collections) {
-      // 获取画集的作品
-      const artworks = await db.select()
-        .from(comicUniverseArtworks)
-        .where(and(
-          eq(comicUniverseArtworks.collectionId, collection.id),
+      .leftJoin(
+        comicUniverseCategories,
+        eq(comicUniverseCollections.categoryId, comicUniverseCategories.id)
+      )
+      .leftJoin(
+        comicUniverseArtworks,
+        and(
+          eq(comicUniverseArtworks.collectionId, comicUniverseCollections.id),
           eq(comicUniverseArtworks.isActive, true)
-        ))
-        .orderBy(asc(comicUniverseArtworks.pageOrder));
+        )
+      )
+      .where(eq(comicUniverseCollections.isPublished, true))
+      .orderBy(
+        desc(comicUniverseCollections.displayOrder),
+        desc(comicUniverseCollections.createdAt),
+        asc(comicUniverseArtworks.pageOrder)
+      );
 
-      // 获取分类名称
-      let categoryName = '';
-      if (collection.categoryId) {
-        const category = await db.select()
-          .from(comicUniverseCategories)
-          .where(eq(comicUniverseCategories.id, collection.categoryId))
-          .limit(1);
-        categoryName = category[0]?.name || '';
+    // 获取所有画集的标签（一次查询）
+    const collectionIds = [...new Set(collectionsWithData.map(item => item.collectionId))];
+    const allTags = await db
+      .select({
+        collectionId: comicUniverseCollectionTags.collectionId,
+        tagName: comicUniverseTags.name,
+      })
+      .from(comicUniverseCollectionTags)
+      .innerJoin(
+        comicUniverseTags,
+        eq(comicUniverseCollectionTags.tagId, comicUniverseTags.id)
+      )
+      .where(
+        and(
+          inArray(comicUniverseCollectionTags.collectionId, collectionIds),
+          eq(comicUniverseTags.isActive, true)
+        )
+      );
+
+    // 构建标签映射
+    const tagsMap = new Map<number, string[]>();
+    allTags.forEach(tag => {
+      if (!tagsMap.has(tag.collectionId)) {
+        tagsMap.set(tag.collectionId, []);
+      }
+      tagsMap.get(tag.collectionId)!.push(tag.tagName);
+    });
+
+    // 按画集分组并构建最终结果
+    const collectionsMap = new Map<number, ArtCollection>();
+
+    collectionsWithData.forEach(item => {
+      if (!collectionsMap.has(item.collectionId)) {
+        collectionsMap.set(item.collectionId, {
+          id: item.collectionId,
+          title: item.title,
+          artist: item.artist,
+          coverImage: item.coverImage,
+          description: item.description || '',
+          category: item.categoryName || '',
+          tags: tagsMap.get(item.collectionId) || [],
+          isPublished: item.isPublished,
+          pages: [],
+        });
       }
 
-      // 获取标签
-      const collectionTags = await db.select({
-        tagName: comicUniverseTags.name
-      })
-        .from(comicUniverseCollectionTags)
-        .innerJoin(comicUniverseTags, eq(comicUniverseCollectionTags.tagId, comicUniverseTags.id))
-        .where(eq(comicUniverseCollectionTags.collectionId, collection.id));
+      // 添加作品页面（如果存在）
+      if (item.artworkId) {
+        const collection = collectionsMap.get(item.collectionId)!;
+        collection.pages.push({
+          id: item.artworkId,
+          title: item.artworkTitle || '',
+          artist: item.artworkArtist || '',
+          image: item.artworkImage || '',
+          description: item.artworkDescription || '',
+          createdTime: item.artworkCreatedTime || '',
+          theme: item.artworkTheme || '',
+        });
+      }
+    });
 
-      result.push({
-        id: collection.id,
-        title: collection.title,
-        artist: collection.artist,
-        coverImage: collection.coverImage,
-        description: collection.description || '',
-        category: categoryName,
-        tags: collectionTags.map(ct => ct.tagName),
-        isPublished: collection.isPublished,
-        pages: artworks.map(artwork => ({
-          id: artwork.id,
-          title: artwork.title,
-          artist: artwork.artist,
-          image: artwork.image,
-          description: artwork.description || undefined,
-          createdTime: artwork.createdTime || undefined,
-          theme: artwork.theme || undefined,
-        }))
-      });
-    }
-
-    return result;
+    return Array.from(collectionsMap.values());
   }
 
   // 创建画集

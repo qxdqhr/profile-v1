@@ -2,6 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { ArtCollection } from '@/types/masterpieces';
 import { MasterpiecesService } from '@/services/masterpiecesService';
 
+// 数据缓存
+let collectionsCache: ArtCollection[] | null = null;
+let collectionsCacheTime: number = 0;
+const COLLECTIONS_CACHE_DURATION = 3 * 60 * 1000; // 3分钟缓存
+
 export const useMasterpieces = () => {
   const [collections, setCollections] = useState<ArtCollection[]>([]);
   const [selectedCollection, setSelectedCollection] = useState<ArtCollection | null>(null);
@@ -10,11 +15,23 @@ export const useMasterpieces = () => {
   const [error, setError] = useState<string | null>(null);
 
   // 加载所有画集
-  const loadCollections = useCallback(async () => {
+  const loadCollections = useCallback(async (forceRefresh = false) => {
     try {
+      // 检查缓存是否有效
+      const now = Date.now();
+      if (!forceRefresh && collectionsCache && (now - collectionsCacheTime) < COLLECTIONS_CACHE_DURATION) {
+        setCollections(collectionsCache);
+        return;
+      }
+
       setLoading(true);
       setError(null);
       const data = await MasterpiecesService.getAllCollections();
+      
+      // 更新缓存
+      collectionsCache = data;
+      collectionsCacheTime = now;
+      
       setCollections(data);
     } catch (err) {
       setError('加载画集失败');

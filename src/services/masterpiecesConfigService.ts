@@ -13,13 +13,31 @@ import type {
   ArtworkFormData 
 } from '@/types/masterpieces';
 
+// 配置缓存
+let configCache: MasterpiecesConfig | null = null;
+let configCacheTime: number = 0;
+const CONFIG_CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存
+
 // 配置管理
 export const getConfig = async (): Promise<MasterpiecesConfig> => {
+  // 检查缓存是否有效
+  const now = Date.now();
+  if (configCache && (now - configCacheTime) < CONFIG_CACHE_DURATION) {
+    return configCache;
+  }
+
   const response = await fetch('/api/masterpieces/config');
   if (!response.ok) {
     throw new Error('获取配置失败');
   }
-  return await response.json();
+  
+  const config = await response.json();
+  
+  // 更新缓存
+  configCache = config;
+  configCacheTime = now;
+  
+  return config;
 };
 
 export const updateConfig = async (configData: Partial<MasterpiecesConfig>): Promise<MasterpiecesConfig> => {
@@ -34,7 +52,14 @@ export const updateConfig = async (configData: Partial<MasterpiecesConfig>): Pro
   if (!response.ok) {
     throw new Error('更新配置失败');
   }
-  return await response.json();
+  
+  const updatedConfig = await response.json();
+  
+  // 更新缓存
+  configCache = updatedConfig;
+  configCacheTime = Date.now();
+  
+  return updatedConfig;
 };
 
 export const resetConfig = async (): Promise<MasterpiecesConfig> => {
@@ -45,7 +70,14 @@ export const resetConfig = async (): Promise<MasterpiecesConfig> => {
   if (!response.ok) {
     throw new Error('重置配置失败');
   }
-  return await response.json();
+  
+  const resetConfigData = await response.json();
+  
+  // 清除缓存
+  configCache = resetConfigData;
+  configCacheTime = Date.now();
+  
+  return resetConfigData;
 };
 
 // 画集管理
