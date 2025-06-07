@@ -1,4 +1,4 @@
-import type { ArtCollection } from '@/types/masterpieces';
+import type { ArtCollection } from '../types';
 
 export const getMasterpieces = async (): Promise<ArtCollection[]> => {
   const response = await fetch('/api/masterpieces/collections');

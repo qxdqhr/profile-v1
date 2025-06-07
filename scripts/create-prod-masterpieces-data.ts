@@ -4,7 +4,7 @@ import {
   comicUniverseCategories,
   comicUniverseCollections,
   comicUniverseArtworks
-} from '../src/db/schema/masterpieces';
+} from '../src/modules/showmasterpiece/db/schema/masterpieces';
 import 'dotenv/config';
 
 async function createProdTestData() {

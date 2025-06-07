@@ -12,13 +12,13 @@ import {
   deleteArtwork,
   getCategories,
   getTags
-} from '@/services/masterpiecesConfigService';
+} from '../services/masterpiecesConfigService';
 import type { 
   MasterpiecesConfig, 
   ArtCollection, 
   CollectionFormData, 
   ArtworkFormData 
-} from '@/types/masterpieces';
+} from '../types';
 
 export const useMasterpiecesConfig = () => {
   const [config, setConfig] = useState<MasterpiecesConfig | null>(null);

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ImageIcon } from 'lucide-react';
-import { ArtworkPage } from '@/types/masterpieces';
+import { ArtworkPage } from '../types';
 import styles from './ThumbnailSidebar.module.css';
 
 interface ThumbnailSidebarProps {

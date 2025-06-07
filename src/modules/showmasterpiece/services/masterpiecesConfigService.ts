@@ -4,14 +4,14 @@ import {
   tagsDbService,
   collectionsDbService,
   artworksDbService
-} from '@/db/services/masterpiecesDbService';
+} from '../db/masterpiecesDbService';
 import type { 
   MasterpiecesConfig, 
   ArtCollection, 
   ArtworkPage,
   CollectionFormData,
   ArtworkFormData 
-} from '@/types/masterpieces';
+} from '../types';
 
 // 配置缓存
 let configCache: MasterpiecesConfig | null = null;

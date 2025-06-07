@@ -5,7 +5,7 @@ import { serial, text, timestamp, pgTable, json, integer, primaryKey } from 'dri
 export * from './auth';
 
 // 导出画集相关的表
-export * from './masterpieces';
+// export * from './masterpieces';
 
 // 考试类型表
 export const examTypes = pgTable('exam_types', {

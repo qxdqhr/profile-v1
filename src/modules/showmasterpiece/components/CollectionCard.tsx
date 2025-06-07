@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Book, Eye, ImageIcon } from 'lucide-react';
-import { ArtCollection } from '@/types/masterpieces';
+import { ArtCollection } from '../types';
 import styles from './CollectionCard.module.css';
 
 interface CollectionCardProps {
