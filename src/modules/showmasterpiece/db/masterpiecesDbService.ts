@@ -1,4 +1,4 @@
-import { db } from '../index';
+import { db } from '@/db/index';
 import { 
   comicUniverseConfigs,
   comicUniverseCategories,
@@ -6,7 +6,7 @@ import {
   comicUniverseCollections,
   comicUniverseCollectionTags,
   comicUniverseArtworks
-} from '../schema/masterpieces';
+} from './schema/masterpieces';
 import { eq, desc, asc, and, sql, inArray } from 'drizzle-orm';
 import type { 
   MasterpiecesConfig, 
@@ -14,7 +14,7 @@ import type {
   ArtworkPage,
   CollectionFormData,
   ArtworkFormData 
-} from '@/types/masterpieces';
+} from '../types';
 
 // 配置相关服务
 export class MasterpiecesConfigDbService {

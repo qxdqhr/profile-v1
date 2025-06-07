@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ArtCollection } from '@/types/masterpieces';
-import { MasterpiecesService } from '@/services/masterpiecesService';
+import { ArtCollection } from '../types';
+import { MasterpiecesService } from '../services/masterpiecesService';
 
 // 数据缓存
 let collectionsCache: ArtCollection[] | null = null;
