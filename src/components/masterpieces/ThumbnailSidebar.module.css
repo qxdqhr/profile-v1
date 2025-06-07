@@ -5,6 +5,9 @@
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   padding: 1.5rem;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0;
 }
 
 .sidebarTitle {
@@ -167,6 +170,9 @@
   .sidebarCard {
     margin-bottom: 1rem;
     padding: 1.25rem;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
   
   .sidebarTitle {
@@ -184,6 +190,9 @@
     padding-bottom: 0.625rem;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch; /* iOS 流畅滚动 */
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   
   /* 横向滚动条样式 */
@@ -206,8 +215,10 @@
     flex-shrink: 0;
     width: auto;
     min-width: 220px;
+    max-width: 220px;
     scroll-snap-align: start;
     padding: 0.875rem;
+    box-sizing: border-box;
   }
   
   .thumbnailImageContainer {
@@ -217,6 +228,9 @@
   
   .thumbnailContent {
     gap: 0.875rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 }
 
@@ -225,6 +239,10 @@
   .sidebarCard {
     padding: 1rem;
     border-radius: 0.75rem;
+    max-width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
   
   .sidebarTitle {
@@ -235,16 +253,24 @@
   .thumbnailList {
     gap: 0.875rem;
     padding-bottom: 0.5rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   
   .thumbnailItem {
     min-width: 200px;
+    max-width: 200px;
     padding: 0.75rem;
     min-height: 48px; /* 增大触控区域 */
+    box-sizing: border-box;
   }
   
   .thumbnailContent {
     gap: 0.75rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   
   .thumbnailImageContainer {
@@ -264,6 +290,10 @@
 @media (max-width: 640px) {
   .sidebarCard {
     padding: 0.875rem;
+    max-width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
   
   .sidebarTitle {
@@ -272,11 +302,16 @@
   
   .thumbnailList {
     gap: 0.75rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   
   .thumbnailItem {
     min-width: 180px;
+    max-width: 180px;
     padding: 0.625rem;
+    box-sizing: border-box;
   }
   
   .thumbnailImageContainer {
@@ -291,11 +326,21 @@
   .thumbnailPage {
     font-size: 0.6875rem;
   }
+  
+  .thumbnailContent {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 }
 
 @media (max-width: 480px) {
   .sidebarCard {
     padding: 0.75rem;
+    max-width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
   
   .sidebarTitle {
@@ -306,12 +351,17 @@
   .thumbnailList {
     gap: 0.625rem;
     padding-bottom: 0.375rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   
   .thumbnailItem {
     min-width: 160px;
+    max-width: 160px;
     padding: 0.5rem;
     border-radius: 0.375rem;
+    box-sizing: border-box;
   }
   
   .thumbnailImageContainer {
@@ -322,6 +372,9 @@
   
   .thumbnailContent {
     gap: 0.625rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   
   .thumbnailTitle {
@@ -337,11 +390,17 @@
 @media (max-width: 375px) {
   .sidebarCard {
     padding: 0.625rem;
+    max-width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
   
   .thumbnailItem {
     min-width: 140px;
+    max-width: 140px;
     padding: 0.4375rem;
+    box-sizing: border-box;
   }
   
   .thumbnailImageContainer {
@@ -351,6 +410,9 @@
   
   .thumbnailContent {
     gap: 0.5rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   
   .thumbnailTitle {
