@@ -2,6 +2,7 @@ export interface ArtworkPage {
   id: number;
   title: string;
   image: string;
+  imageUrl?: string;
   artist: string;
   description?: string;
   createdTime?: string;

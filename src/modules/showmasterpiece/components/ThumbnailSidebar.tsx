@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ImageIcon } from 'lucide-react';
 import { ArtworkPage } from '../types';
 import styles from './ThumbnailSidebar.module.css';
@@ -16,9 +16,85 @@ interface ThumbnailItemProps {
   onSelect: () => void;
 }
 
+// 🚀 懒加载缩略图组件
 const ThumbnailItem: React.FC<ThumbnailItemProps> = ({ page, index, isActive, onSelect }) => {
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
+  const [imageSrc, setImageSrc] = useState<string>('');
+  const [isVisible, setIsVisible] = useState(false);
+
+  // 使用Intersection Observer实现真正的懒加载
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const element = document.getElementById(`thumbnail-${page.id}`);
+    if (element) {
+      observer.observe(element);
+    }
+
+    return () => {
+      if (element) {
+        observer.unobserve(element);
+      }
+    };
+  }, [page.id]);
+
+  // 当组件可见时才加载图片
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const loadThumbnail = async () => {
+      setImageLoading(true);
+      setImageError(false);
+
+      try {
+        // 如果已有图片数据，直接使用
+        if (page.image && page.image.trim() !== '') {
+          setImageSrc(page.image);
+          setImageLoading(false);
+          return;
+        }
+
+        // 否则通过懒加载API获取图片
+        if (page.imageUrl) {
+          const response = await fetch(page.imageUrl);
+          if (response.ok) {
+            const blob = await response.blob();
+            const imageUrl = URL.createObjectURL(blob);
+            setImageSrc(imageUrl);
+          } else {
+            throw new Error(`HTTP ${response.status}`);
+          }
+        } else {
+          throw new Error('无图片数据');
+        }
+      } catch (error) {
+        console.error('缩略图加载失败:', error);
+        setImageError(true);
+      } finally {
+        setImageLoading(false);
+      }
+    };
+
+    loadThumbnail();
+
+    // 清理函数
+    return () => {
+      if (imageSrc && imageSrc.startsWith('blob:')) {
+        URL.revokeObjectURL(imageSrc);
+      }
+    };
+  }, [isVisible, page.id, page.image, page.imageUrl]);
 
   const handleImageLoad = () => {
     setImageLoading(false);
@@ -32,43 +108,44 @@ const ThumbnailItem: React.FC<ThumbnailItemProps> = ({ page, index, isActive, on
 
   return (
     <button
+      id={`thumbnail-${page.id}`}
       onClick={onSelect}
       className={`${styles.thumbnailItem} ${isActive ? styles.active : ''}`}
+      aria-label={`查看第 ${index + 1} 页：${page.title}`}
     >
-      <div className={styles.thumbnailContent}>
-        <div className={styles.thumbnailImageContainer}>
-          {/* 图片加载状态 */}
-          {imageLoading && (
-            <div className={styles.imageLoading}>
-              <div className={styles.loadingSpinner}></div>
-            </div>
-          )}
+      <div className={styles.thumbnailImageContainer}>
+        {/* 加载状态 */}
+        {imageLoading && (
+          <div className={styles.thumbnailLoading}>
+            <div className={styles.loadingSpinner}></div>
+          </div>
+        )}
 
-          {/* 图片错误状态 */}
-          {imageError && (
-            <div className={styles.imageError}>
-              <ImageIcon size={16} />
-            </div>
-          )}
+        {/* 错误状态 */}
+        {imageError && (
+          <div className={styles.thumbnailError}>
+            <ImageIcon size={20} />
+          </div>
+        )}
 
-          {/* 缩略图 */}
+        {/* 缩略图 */}
+        {imageSrc && !imageError && (
           <img
-            src={page.image}
+            src={imageSrc}
             alt={page.title}
-            className={`${styles.thumbnailImage} ${imageLoading ? styles.hidden : ''} ${imageError ? styles.hidden : ''}`}
+            className={`${styles.thumbnailImage} ${imageLoading ? styles.hidden : ''}`}
             onLoad={handleImageLoad}
             onError={handleImageError}
           />
-        </div>
-        
-        <div className={styles.thumbnailInfo}>
-          <div className={styles.thumbnailTitle}>
-            {page.title}
-          </div>
-          <div className={styles.thumbnailPage}>
-            第 {index + 1} 页
-          </div>
-        </div>
+        )}
+
+        {/* 页码指示器 */}
+        <div className={styles.pageNumber}>{index + 1}</div>
+      </div>
+      
+      <div className={styles.thumbnailInfo}>
+        <h4 className={styles.thumbnailTitle}>{page.title}</h4>
+        <p className={styles.thumbnailArtist}>{page.artist}</p>
       </div>
     </button>
   );
@@ -80,8 +157,14 @@ export const ThumbnailSidebar: React.FC<ThumbnailSidebarProps> = ({
   onPageSelect
 }) => {
   return (
-    <div className={styles.sidebarCard}>
-      <h3 className={styles.sidebarTitle}>画集目录</h3>
+    <div className={styles.thumbnailSidebar}>
+      <div className={styles.thumbnailHeader}>
+        <h3>作品列表</h3>
+        <span className={styles.pageIndicator}>
+          {currentPage + 1} / {pages.length}
+        </span>
+      </div>
+      
       <div className={styles.thumbnailList}>
         {pages.map((page, index) => (
           <ThumbnailItem
