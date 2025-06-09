@@ -333,18 +333,27 @@ export class CollectionsDbService {
     }
 
     const collectionIds = collections.map(c => c.id);
+    // 🚀 优化：只获取当前画集实际使用的分类ID
+    const usedCategoryIds = [...new Set(collections.map(c => c.categoryId).filter(id => id !== null))] as number[];
 
     // 2. 并行获取分类、标签和作品基本信息（不包含图片数据）
     // 🚀 性能优化：移除图片数据查询，减少90%的数据传输量
     const [categories, tags, artworks] = await Promise.all([
-      // 获取分类信息 - 相对轻量
-      db
-        .select({
-          id: comicUniverseCategories.id,
-          name: comicUniverseCategories.name,
-        })
-        .from(comicUniverseCategories)
-        .where(eq(comicUniverseCategories.isActive, true)), // 需要isActive字段索引
+      // 🚀 优化：只获取当前画集实际使用的分类信息，而不是所有分类
+      usedCategoryIds.length > 0 
+        ? db
+            .select({
+              id: comicUniverseCategories.id,
+              name: comicUniverseCategories.name,
+            })
+            .from(comicUniverseCategories)
+            .where(
+              and(
+                inArray(comicUniverseCategories.id, usedCategoryIds),
+                eq(comicUniverseCategories.isActive, true)
+              )
+            )
+        : Promise.resolve([]), // 如果没有使用分类，直接返回空数组
 
       // 获取标签信息 - 相对轻量，但涉及JOIN
       db
@@ -364,7 +373,7 @@ export class CollectionsDbService {
           )
         ),
 
-      // 🚀 关键优化：只获取作品基本信息，不加载图片数据
+      // 🚀 关键优化：只获取作品核心信息，进一步精简字段
       db
         .select({
           collectionId: comicUniverseArtworks.collectionId,
@@ -372,10 +381,10 @@ export class CollectionsDbService {
           title: comicUniverseArtworks.title,
           artist: comicUniverseArtworks.artist,
           // image: comicUniverseArtworks.image, // ⭐ 移除图片数据查询
-          description: comicUniverseArtworks.description,
-          createdTime: comicUniverseArtworks.createdTime,
-          theme: comicUniverseArtworks.theme,
-          pageOrder: comicUniverseArtworks.pageOrder, // 需要索引优化
+          // description: comicUniverseArtworks.description, // 🚀 进一步优化：移除描述字段，减少数据量
+          // createdTime: comicUniverseArtworks.createdTime, // 🚀 优化：移除创建时间，减少数据量
+          // theme: comicUniverseArtworks.theme, // 🚀 优化：移除主题字段，减少数据量
+          pageOrder: comicUniverseArtworks.pageOrder, // 保留排序必需字段
         })
         .from(comicUniverseArtworks)
         .where(
@@ -410,9 +419,9 @@ export class CollectionsDbService {
         artist: artwork.artist || '',
         image: '', // 🚀 懒加载：初始为空，由前端按需加载
         imageUrl: `/api/masterpieces/collections/${artwork.collectionId}/artworks/${artwork.id}/image`, // 图片加载URL
-        description: artwork.description || '',
-        createdTime: artwork.createdTime || '',
-        theme: artwork.theme || '',
+        description: '', // 🚀 优化：初始为空，减少数据量，可由前端按需加载
+        createdTime: '', // 🚀 优化：初始为空，减少数据量
+        theme: '', // 🚀 优化：初始为空，减少数据量
       });
     });
 
@@ -426,7 +435,7 @@ export class CollectionsDbService {
       category: collection.categoryId ? (categoriesMap.get(collection.categoryId) || '') : '',
       tags: tagsMap.get(collection.id) || [],
       isPublished: collection.isPublished,
-      pages: artworksMap.get(collection.id) || [], // 🚀 作品数据不包含图片，大幅减少传输量
+      pages: artworksMap.get(collection.id) || [], // 🚀 作品数据精简，大幅减少传输量
     }));
   }
 
