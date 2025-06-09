@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
 import { ArtworkPage } from '../types';
+import { ImagePreloadService } from '../services/imagePreloadService';
 import styles from './ArtworkViewer.module.css';
 
 interface ArtworkViewerProps {
@@ -21,38 +22,73 @@ export const ArtworkViewer: React.FC<ArtworkViewerProps> = ({
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
   const [imageSrc, setImageSrc] = useState<string>('');
+  const [isLoadingHighRes, setIsLoadingHighRes] = useState(false);
 
-  // 🚀 图片懒加载逻辑
+  // 🚀 优化的图片加载逻辑：渐进式加载（缩略图 -> 高清图）
   useEffect(() => {
     const loadImage = async () => {
       setImageLoading(true);
       setImageError(false);
+      setIsLoadingHighRes(false);
       
       try {
-        // 如果已有图片数据，直接使用
+        const preloadService = ImagePreloadService.getInstance();
+        
+        // 🚀 第一阶段：快速显示大缩略图作为占位符
+        if (artwork.thumbnailLarge && artwork.thumbnailLarge.trim() !== '') {
+          setImageSrc(artwork.thumbnailLarge);
+          setImageLoading(false);
+          // 继续加载高清图
+          setIsLoadingHighRes(true);
+        } else if (artwork.thumbnailMedium && artwork.thumbnailMedium.trim() !== '') {
+          setImageSrc(artwork.thumbnailMedium);
+          setImageLoading(false);
+          setIsLoadingHighRes(true);
+        }
+
+        // 🚀 第二阶段：加载高清原始图片
         if (artwork.image && artwork.image.trim() !== '') {
+          // 如果有缩略图，延迟加载高清图避免闪烁
+          if (artwork.thumbnailLarge || artwork.thumbnailMedium) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+          }
+          
           setImageSrc(artwork.image);
+          setIsLoadingHighRes(false);
           setImageLoading(false);
           return;
         }
         
-        // 否则通过懒加载API获取图片
+        // 🚀 第三阶段：通过API懒加载原始图片
         if (artwork.imageUrl) {
+          // 检查是否已预加载
+          if (preloadService.isImagePreloaded(artwork.imageUrl)) {
+            const preloadedImg = preloadService.getPreloadedImage(artwork.imageUrl);
+            if (preloadedImg) {
+              setImageSrc(preloadedImg.src);
+              setIsLoadingHighRes(false);
+              setImageLoading(false);
+              return;
+            }
+          }
+
           const response = await fetch(artwork.imageUrl);
           if (response.ok) {
-            // 对于base64图片，API返回的是图片流，需要转换为blob URL
             const blob = await response.blob();
             const imageUrl = URL.createObjectURL(blob);
             setImageSrc(imageUrl);
+            setIsLoadingHighRes(false);
           } else {
             throw new Error(`HTTP ${response.status}`);
           }
         } else {
-          throw new Error('无图片数据');
+          // 如果只有缩略图，则完成加载
+          setIsLoadingHighRes(false);
         }
       } catch (error) {
         console.error('图片加载失败:', error);
         setImageError(true);
+        setIsLoadingHighRes(false);
       } finally {
         setImageLoading(false);
       }
@@ -66,7 +102,7 @@ export const ArtworkViewer: React.FC<ArtworkViewerProps> = ({
         URL.revokeObjectURL(imageSrc);
       }
     };
-  }, [artwork.id, artwork.image, artwork.imageUrl]); // 当作品ID或图片数据变化时重新加载
+  }, [artwork.id, artwork.image, artwork.imageUrl, artwork.thumbnailLarge, artwork.thumbnailMedium]);
 
   const handleImageLoad = () => {
     setImageLoading(false);
@@ -102,6 +138,13 @@ export const ArtworkViewer: React.FC<ArtworkViewerProps> = ({
           </div>
         )}
 
+        {/* 高清图加载指示器 */}
+        {isLoadingHighRes && imageSrc && (
+          <div className={styles.highResLoading}>
+            <div className={styles.loadingIndicator}>加载高清图...</div>
+          </div>
+        )}
+
         {/* 图片错误状态 */}
         {imageError && (
           <div className={styles.imageError}>
@@ -121,7 +164,7 @@ export const ArtworkViewer: React.FC<ArtworkViewerProps> = ({
           <img
             src={imageSrc}
             alt={artwork.title}
-            className={`${styles.artworkImage} ${imageLoading ? styles.hidden : ''}`}
+            className={`${styles.artworkImage} ${imageLoading ? styles.hidden : ''} ${isLoadingHighRes ? styles.lowRes : ''}`}
             onLoad={handleImageLoad}
             onError={handleImageError}
           />

@@ -71,6 +71,13 @@
       "when": 1749473233644,
       "tag": "0009_red_marten_broadcloak",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1749476828014,
+      "tag": "0010_organic_lifeguard",
+      "breakpoints": true
     }
   ]
 }
