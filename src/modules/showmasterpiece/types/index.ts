@@ -3,9 +3,6 @@ export interface ArtworkPage {
   title: string;
   image: string;
   imageUrl?: string;
-  thumbnailSmall?: string; // 小缩略图 (150x150) - 用于列表展示
-  thumbnailMedium?: string; // 中缩略图 (300x300) - 用于预览
-  thumbnailLarge?: string; // 大缩略图 (600x600) - 用于快速加载
   artist: string;
   description?: string;
   createdTime?: string;
