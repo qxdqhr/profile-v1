@@ -135,6 +135,67 @@ export const deleteCollection = async (id: number): Promise<void> => {
   }
 };
 
+// 画集顺序管理
+export const updateCollectionOrder = async (collectionOrders: { id: number; displayOrder: number }[]): Promise<void> => {
+  const response = await fetch('/api/masterpieces/collections?action=reorder', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ collectionOrders }),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || '更新画集顺序失败');
+  }
+};
+
+export const moveCollection = async (collectionId: number, targetOrder: number): Promise<void> => {
+  const response = await fetch('/api/masterpieces/collections?action=move', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ collectionId, targetOrder }),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || '移动画集失败');
+  }
+};
+
+export const moveCollectionUp = async (collectionId: number): Promise<void> => {
+  const response = await fetch('/api/masterpieces/collections?action=up', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ collectionId }),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || '上移画集失败');
+  }
+};
+
+export const moveCollectionDown = async (collectionId: number): Promise<void> => {
+  const response = await fetch('/api/masterpieces/collections?action=down', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ collectionId }),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || '下移画集失败');
+  }
+};
+
 // 作品管理
 export const addArtworkToCollection = async (collectionId: number, artworkData: ArtworkFormData): Promise<ArtworkPage> => {
   const response = await fetch(`/api/masterpieces/collections/${collectionId}/artworks`, {
@@ -179,6 +240,75 @@ export const deleteArtwork = async (collectionId: number, artworkId: number): Pr
   
   if (!response.ok) {
     throw new Error('删除作品失败');
+  }
+};
+
+// 作品排序管理
+export const getArtworksByCollection = async (collectionId: number): Promise<(ArtworkPage & { pageOrder: number })[]> => {
+  const response = await fetch(`/api/masterpieces/collections/${collectionId}/artworks`);
+  if (!response.ok) {
+    throw new Error('获取作品列表失败');
+  }
+  return await response.json();
+};
+
+export const updateArtworkOrder = async (collectionId: number, artworkOrders: { id: number; pageOrder: number }[]): Promise<void> => {
+  const response = await fetch(`/api/masterpieces/collections/${collectionId}/artworks?action=reorder`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ artworkOrders }),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || '更新作品顺序失败');
+  }
+};
+
+export const moveArtwork = async (collectionId: number, artworkId: number, targetOrder: number): Promise<void> => {
+  const response = await fetch(`/api/masterpieces/collections/${collectionId}/artworks?action=move`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ artworkId, targetOrder }),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || '移动作品失败');
+  }
+};
+
+export const moveArtworkUp = async (collectionId: number, artworkId: number): Promise<void> => {
+  const response = await fetch(`/api/masterpieces/collections/${collectionId}/artworks?action=up`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ artworkId }),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || '上移作品失败');
+  }
+};
+
+export const moveArtworkDown = async (collectionId: number, artworkId: number): Promise<void> => {
+  const response = await fetch(`/api/masterpieces/collections/${collectionId}/artworks?action=down`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ artworkId }),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || '下移作品失败');
   }
 };
 

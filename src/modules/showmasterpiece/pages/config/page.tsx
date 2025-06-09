@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown } from 'lucide-react';
 import { useMasterpiecesConfig } from '../../hooks/useMasterpiecesConfig';
 import { ConfigFormData, CollectionFormData, ArtworkFormData } from '../../types';
 import { ImageUpload } from '@/components/common';
 import { AuthGuard, AuthProvider } from '@/modules/auth';
+import { CollectionOrderManager } from '../../components/CollectionOrderManager';
+import { ArtworkOrderManager } from '../../components/ArtworkOrderManager';
 import styles from './ConfigPage.module.css';
 
 type TabType = 'general' | 'collections' | 'artworks';
@@ -34,6 +36,8 @@ function ConfigPageContent() {
   const [showArtworkForm, setShowArtworkForm] = useState(false);
   const [editingCollection, setEditingCollection] = useState<number | null>(null);
   const [editingArtwork, setEditingArtwork] = useState<{ collectionId: number; artworkId: number } | null>(null);
+  const [showArtworkOrder, setShowArtworkOrder] = useState(false);
+  const [showCollectionOrder, setShowCollectionOrder] = useState(false);
 
   // 配置表单状态
   const [configForm, setConfigForm] = useState<ConfigFormData>({
@@ -375,61 +379,88 @@ function ConfigPageContent() {
           <div className={styles.collectionsSection}>
             <div className={styles.sectionHeader}>
               <h2>画集管理</h2>
-              <button
-                onClick={() => {
-                  setCollectionForm({
-                    title: '',
-                    artist: '',
-                    coverImage: '',
-                    description: '',
-                    category: '',
-                    tags: [],
-                    isPublished: true,
-                  });
-                  setEditingCollection(null);
-                  setShowCollectionForm(true);
-                }}
-                className={styles.addButton}
-              >
-                <Plus size={16} />
-                添加画集
-              </button>
+              <div className={styles.sectionActions}>
+                <button
+                  onClick={() => {
+                    setCollectionForm({
+                      title: '',
+                      artist: '',
+                      coverImage: '',
+                      description: '',
+                      category: '',
+                      tags: [],
+                      isPublished: true,
+                    });
+                    setEditingCollection(null);
+                    setShowCollectionForm(true);
+                  }}
+                  className={styles.addButton}
+                >
+                  <Plus size={16} />
+                  添加画集
+                </button>
+                <button
+                  onClick={() => setShowCollectionOrder(!showCollectionOrder)}
+                  className={styles.orderButton}
+                >
+                  <ArrowUpDown size={16} />
+                  {showCollectionOrder ? '关闭排序' : '画集排序'}
+                </button>
+              </div>
             </div>
 
-            <div className={styles.collectionsList}>
-              {collections.map((collection) => (
-                <div key={collection.id} className={styles.collectionItem}>
-                  <div className={styles.collectionImage}>
-                    <img src={collection.coverImage} alt={collection.title} />
-                  </div>
-                  <div className={styles.collectionInfo}>
-                    <h3>{collection.title}</h3>
-                    <p>作者：{collection.artist}</p>
-                    <p>分类：{collection.category}</p>
-                    <p>作品数量：{collection.pages.length}</p>
-                    <p>状态：{collection.isPublished ? '已发布' : '草稿'}</p>
-                  </div>
-                  <div className={styles.collectionActions}>
-                    <button
-                      onClick={() => handleEditCollection(collection)}
-                      className={styles.editButton}
-                    >
-                      <Edit size={16} />
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (confirm('确定要删除这个画集吗？')) {
-                          deleteCollection(collection.id);
-                        }
-                      }}
-                      className={styles.deleteButton}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
+            {showCollectionOrder && (
+              <div className={styles.collectionOrderSection}>
+                <div className={styles.orderSectionHeader}>
+                  <h3>画集排序管理</h3>
+                  <p className={styles.orderDescription}>
+                    拖拽或使用按钮调整画集在前台的显示顺序
+                  </p>
                 </div>
-              ))}
-            </div>
+                <CollectionOrderManager
+                  onOrderChanged={() => {
+                    console.log('画集顺序已更新');
+                  }}
+                />
+              </div>
+            )}
+
+            {!showCollectionOrder && (
+              <div className={styles.collectionsList}>
+                {collections.map((collection) => (
+                  <div key={collection.id} className={styles.collectionItem}>
+                    <div className={styles.collectionImage}>
+                      <img src={collection.coverImage} alt={collection.title} />
+                    </div>
+                    <div className={styles.collectionInfo}>
+                      <h3>{collection.title}</h3>
+                      <p>作者：{collection.artist}</p>
+                      <p>分类：{collection.category}</p>
+                      <p>作品数量：{collection.pages.length}</p>
+                      <p>状态：{collection.isPublished ? '已发布' : '草稿'}</p>
+                    </div>
+                    <div className={styles.collectionActions}>
+                      <button
+                        onClick={() => handleEditCollection(collection)}
+                        className={styles.editButton}
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm('确定要删除这个画集吗？')) {
+                            deleteCollection(collection.id);
+                          }
+                        }}
+                        className={styles.deleteButton}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -452,29 +483,49 @@ function ConfigPageContent() {
                   ))}
                 </select>
                 {selectedCollection && (
-                  <button
-                    onClick={() => {
-                      setArtworkForm({
-                        title: '',
-                        artist: '',
-                        image: '',
-                        description: '',
-                        createdTime: '',
-                        theme: '',
-                      });
-                      setEditingArtwork(null);
-                      setShowArtworkForm(true);
-                    }}
-                    className={styles.addButton}
-                  >
-                    <Plus size={16} />
-                    添加作品
-                  </button>
+                  <>
+                    <button
+                      onClick={() => {
+                        setArtworkForm({
+                          title: '',
+                          artist: '',
+                          image: '',
+                          description: '',
+                          createdTime: '',
+                          theme: '',
+                        });
+                        setEditingArtwork(null);
+                        setShowArtworkForm(true);
+                      }}
+                      className={styles.addButton}
+                    >
+                      <Plus size={16} />
+                      添加作品
+                    </button>
+                    <button
+                      onClick={() => setShowArtworkOrder(!showArtworkOrder)}
+                      className={styles.orderButton}
+                    >
+                      <ArrowUpDown size={16} />
+                      {showArtworkOrder ? '关闭排序' : '作品排序'}
+                    </button>
+                  </>
                 )}
               </div>
             </div>
 
-            {selectedCollection && (
+            {selectedCollection && showArtworkOrder && (
+              <div className={styles.artworkOrderSection}>
+                <ArtworkOrderManager 
+                  collectionId={selectedCollection}
+                  onOrderChanged={() => {
+                    console.log('作品顺序已更新');
+                  }}
+                />
+              </div>
+            )}
+
+            {selectedCollection && !showArtworkOrder && (
               <div className={styles.artworksList}>
                 {collections
                   .find(c => c.id === selectedCollection)
