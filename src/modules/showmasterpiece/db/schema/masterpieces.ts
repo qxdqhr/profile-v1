@@ -7,7 +7,8 @@ import {
   json, 
   integer, 
   boolean,
-  varchar
+  varchar,
+  index
 } from 'drizzle-orm/pg-core';
 
 // 画廊配置表
@@ -36,7 +37,10 @@ export const comicUniverseCategories = pgTable('comic_universe_categories', {
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  isActiveIndex: index('categories_is_active_idx').on(table.isActive),
+  displayOrderIndex: index('categories_display_order_idx').on(table.displayOrder),
+}));
 
 // 标签表
 export const comicUniverseTags = pgTable('comic_universe_tags', {
@@ -45,7 +49,9 @@ export const comicUniverseTags = pgTable('comic_universe_tags', {
   color: varchar('color', { length: 7 }).default('#3b82f6'), // 十六进制颜色值
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  isActiveIndex: index('tags_is_active_idx').on(table.isActive),
+}));
 
 // 画集表
 export const comicUniverseCollections = pgTable('comic_universe_collections', {
@@ -61,14 +67,22 @@ export const comicUniverseCollections = pgTable('comic_universe_collections', {
   viewCount: integer('view_count').notNull().default(0),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  isPublishedIndex: index('collections_is_published_idx').on(table.isPublished),
+  displayOrderIndex: index('collections_display_order_idx').on(table.displayOrder),
+  categoryIdIndex: index('collections_category_id_idx').on(table.categoryId),
+  publishedOrderIndex: index('collections_published_order_idx').on(table.isPublished, table.displayOrder),
+  publishedCreatedIndex: index('collections_published_created_idx').on(table.isPublished, table.createdAt),
+}));
 
 // 画集标签关联表（多对多关系）
 export const comicUniverseCollectionTags = pgTable('comic_universe_collection_tags', {
   collectionId: integer('collection_id').notNull().references(() => comicUniverseCollections.id, { onDelete: 'cascade' }),
   tagId: integer('tag_id').notNull().references(() => comicUniverseTags.id, { onDelete: 'cascade' }),
 }, (table) => ({
-  pk: { primaryKey: [table.collectionId, table.tagId] }
+  pk: { primaryKey: [table.collectionId, table.tagId] },
+  collectionIdIndex: index('collection_tags_collection_id_idx').on(table.collectionId),
+  tagIdIndex: index('collection_tags_tag_id_idx').on(table.tagId),
 }));
 
 // 作品页面表
@@ -86,7 +100,14 @@ export const comicUniverseArtworks = pgTable('comic_universe_artworks', {
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  collectionIdIndex: index('artworks_collection_id_idx').on(table.collectionId),
+  isActiveIndex: index('artworks_is_active_idx').on(table.isActive),
+  pageOrderIndex: index('artworks_page_order_idx').on(table.pageOrder),
+  collectionActiveIndex: index('artworks_collection_active_idx').on(table.collectionId, table.isActive),
+  collectionOrderIndex: index('artworks_collection_order_idx').on(table.collectionId, table.pageOrder),
+  collectionActiveOrderIndex: index('artworks_collection_active_order_idx').on(table.collectionId, table.isActive, table.pageOrder),
+}));
 
 // 定义关系
 export const comicUniverseConfigsRelations = relations(comicUniverseConfigs, ({ many }) => ({
