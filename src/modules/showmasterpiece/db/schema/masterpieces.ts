@@ -91,7 +91,13 @@ export const comicUniverseArtworks = pgTable('comic_universe_artworks', {
   collectionId: integer('collection_id').notNull().references(() => comicUniverseCollections.id, { onDelete: 'cascade' }),
   title: varchar('title', { length: 255 }).notNull(),
   artist: varchar('artist', { length: 255 }).notNull(),
-  image: text('image').notNull(), // 支持URL或base64
+  image: text('image').notNull(), // 原始图片 - 支持URL或base64
+  thumbnailSmall: text('thumbnail_small'), // 小缩略图 (150x150) - 用于列表展示
+  thumbnailMedium: text('thumbnail_medium'), // 中缩略图 (300x300) - 用于预览
+  thumbnailLarge: text('thumbnail_large'), // 大缩略图 (600x600) - 用于快速加载
+  imageWidth: integer('image_width'), // 原始图片宽度
+  imageHeight: integer('image_height'), // 原始图片高度
+  fileSize: integer('file_size'), // 文件大小（字节）
   description: text('description'),
   createdTime: varchar('created_time', { length: 20 }), // 创作时间
   theme: varchar('theme', { length: 255 }), // 主题

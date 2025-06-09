@@ -8,6 +8,7 @@ import {
   comicUniverseArtworks
 } from './schema/masterpieces';
 import { eq, desc, asc, and, sql, inArray } from 'drizzle-orm';
+import { ImageProcessingService } from '../services/imageProcessingService';
 import type { 
   MasterpiecesConfig, 
   ArtCollection, 
@@ -364,14 +365,17 @@ export class CollectionsDbService {
           )
         ),
 
-      // 🚀 关键优化：只获取作品基本信息，不加载图片数据
+      // 🚀 关键优化：获取作品基本信息和缩略图，不加载原始图片数据
       db
         .select({
           collectionId: comicUniverseArtworks.collectionId,
           id: comicUniverseArtworks.id,
           title: comicUniverseArtworks.title,
           artist: comicUniverseArtworks.artist,
-          // image: comicUniverseArtworks.image, // ⭐ 移除图片数据查询
+          // image: comicUniverseArtworks.image, // ⭐ 移除原始图片数据查询
+          thumbnailSmall: comicUniverseArtworks.thumbnailSmall, // 🚀 添加小缩略图
+          thumbnailMedium: comicUniverseArtworks.thumbnailMedium, // 🚀 添加中缩略图
+          thumbnailLarge: comicUniverseArtworks.thumbnailLarge, // 🚀 添加大缩略图
           description: comicUniverseArtworks.description,
           createdTime: comicUniverseArtworks.createdTime,
           theme: comicUniverseArtworks.theme,
@@ -409,7 +413,10 @@ export class CollectionsDbService {
         title: artwork.title || '',
         artist: artwork.artist || '',
         image: '', // 🚀 懒加载：初始为空，由前端按需加载
-        imageUrl: `/api/masterpieces/collections/${artwork.collectionId}/artworks/${artwork.id}/image`, // 图片加载URL
+        imageUrl: `/api/masterpieces/collections/${artwork.collectionId}/artworks/${artwork.id}/image`, // 原始图片加载URL
+        thumbnailSmall: artwork.thumbnailSmall || '', // 🚀 小缩略图 (150x150)
+        thumbnailMedium: artwork.thumbnailMedium || '', // 🚀 中缩略图 (300x300)  
+        thumbnailLarge: artwork.thumbnailLarge || '', // 🚀 大缩略图 (600x600)
         description: artwork.description || '',
         createdTime: artwork.createdTime || '',
         theme: artwork.theme || '',
@@ -820,38 +827,56 @@ export class ArtworksDbService {
 
   // 添加作品到画集
   async addArtworkToCollection(collectionId: number, artworkData: ArtworkFormData): Promise<ArtworkPage> {
-    // 获取当前画集中作品的最大顺序号
-    const maxOrder = await db.select({
-      maxOrder: sql<number>`COALESCE(MAX(${comicUniverseArtworks.pageOrder}), -1)`
-    })
-      .from(comicUniverseArtworks)
-      .where(eq(comicUniverseArtworks.collectionId, collectionId));
+    try {
+      // 🚀 新增：处理图片，生成压缩版本和缩略图
+      const processedImage = await ImageProcessingService.processImage(artworkData.image);
 
-    const newOrder = (maxOrder[0]?.maxOrder || -1) + 1;
+      // 获取当前画集中作品的最大顺序号
+      const maxOrder = await db.select({
+        maxOrder: sql<number>`COALESCE(MAX(${comicUniverseArtworks.pageOrder}), -1)`
+      })
+        .from(comicUniverseArtworks)
+        .where(eq(comicUniverseArtworks.collectionId, collectionId));
 
-    const newArtwork = await db.insert(comicUniverseArtworks).values({
-      collectionId,
-      title: artworkData.title,
-      artist: artworkData.artist,
-      image: artworkData.image,
-      description: artworkData.description,
-      createdTime: artworkData.createdTime,
-      theme: artworkData.theme,
-      pageOrder: newOrder,
-    }).returning();
+      const newOrder = (maxOrder[0]?.maxOrder || -1) + 1;
 
-    // 清除画集缓存
-    this.collectionsService.clearCache();
+      const newArtwork = await db.insert(comicUniverseArtworks).values({
+        collectionId,
+        title: artworkData.title,
+        artist: artworkData.artist,
+        image: processedImage.originalImage, // 🚀 存储压缩后的原始图片
+        thumbnailSmall: processedImage.thumbnailSmall, // 🚀 存储小缩略图
+        thumbnailMedium: processedImage.thumbnailMedium, // 🚀 存储中缩略图
+        thumbnailLarge: processedImage.thumbnailLarge, // 🚀 存储大缩略图
+        imageWidth: processedImage.imageWidth, // 🚀 存储图片尺寸
+        imageHeight: processedImage.imageHeight,
+        fileSize: processedImage.fileSize, // 🚀 存储文件大小
+        description: artworkData.description,
+        createdTime: artworkData.createdTime,
+        theme: artworkData.theme,
+        pageOrder: newOrder,
+      }).returning();
 
-    return {
-      id: newArtwork[0].id,
-      title: newArtwork[0].title,
-      artist: newArtwork[0].artist,
-      image: newArtwork[0].image,
-      description: newArtwork[0].description || undefined,
-      createdTime: newArtwork[0].createdTime || undefined,
-      theme: newArtwork[0].theme || undefined,
-    };
+      // 清除画集缓存
+      this.collectionsService.clearCache();
+
+      return {
+        id: newArtwork[0].id,
+        title: newArtwork[0].title,
+        artist: newArtwork[0].artist,
+        image: newArtwork[0].image,
+        thumbnailSmall: newArtwork[0].thumbnailSmall || '',
+        thumbnailMedium: newArtwork[0].thumbnailMedium || '',
+        thumbnailLarge: newArtwork[0].thumbnailLarge || '',
+        description: newArtwork[0].description || undefined,
+        createdTime: newArtwork[0].createdTime || undefined,
+        theme: newArtwork[0].theme || undefined,
+      };
+
+    } catch (error) {
+      console.error('添加作品失败:', error);
+      throw new Error(`添加作品失败: ${error instanceof Error ? error.message : '未知错误'}`);
+    }
   }
 
   // 更新作品
