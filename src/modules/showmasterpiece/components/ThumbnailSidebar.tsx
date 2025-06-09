@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ImageIcon } from 'lucide-react';
 import { ArtworkPage } from '../types';
-import { ImagePreloadService } from '../services/imagePreloadService';
 import styles from './ThumbnailSidebar.module.css';
 
 interface ThumbnailSidebarProps {
@@ -17,7 +16,7 @@ interface ThumbnailItemProps {
   onSelect: () => void;
 }
 
-// 🚀 优化后的懒加载缩略图组件
+// 🚀 懒加载缩略图组件
 const ThumbnailItem: React.FC<ThumbnailItemProps> = ({ page, index, isActive, onSelect }) => {
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
@@ -50,7 +49,7 @@ const ThumbnailItem: React.FC<ThumbnailItemProps> = ({ page, index, isActive, on
     };
   }, [page.id]);
 
-  // 🚀 优化的图片加载逻辑：优先使用缩略图
+  // 当组件可见时才加载图片
   useEffect(() => {
     if (!isVisible) return;
 
@@ -59,31 +58,16 @@ const ThumbnailItem: React.FC<ThumbnailItemProps> = ({ page, index, isActive, on
       setImageError(false);
 
       try {
-        const preloadService = ImagePreloadService.getInstance();
-        
-        // 🚀 第一优先级：使用已有的小缩略图数据
-        if (page.thumbnailSmall && page.thumbnailSmall.trim() !== '') {
-          setImageSrc(page.thumbnailSmall);
+        // 如果已有图片数据，直接使用
+        if (page.image && page.image.trim() !== '') {
+          setImageSrc(page.image);
           setImageLoading(false);
           return;
         }
 
-        // 🚀 第二优先级：尝试使用缩略图API
+        // 否则通过懒加载API获取图片
         if (page.imageUrl) {
-          const thumbnailUrl = page.imageUrl.replace('/image', '/thumbnail?size=small');
-          
-          // 检查是否已预加载
-          if (preloadService.isImagePreloaded(thumbnailUrl)) {
-            const preloadedImg = preloadService.getPreloadedImage(thumbnailUrl);
-            if (preloadedImg) {
-              setImageSrc(preloadedImg.src);
-              setImageLoading(false);
-              return;
-            }
-          }
-
-          // 直接加载缩略图
-          const response = await fetch(thumbnailUrl);
+          const response = await fetch(page.imageUrl);
           if (response.ok) {
             const blob = await response.blob();
             const imageUrl = URL.createObjectURL(blob);
@@ -92,17 +76,11 @@ const ThumbnailItem: React.FC<ThumbnailItemProps> = ({ page, index, isActive, on
             throw new Error(`HTTP ${response.status}`);
           }
         } else {
-          throw new Error('无缩略图数据');
+          throw new Error('无图片数据');
         }
       } catch (error) {
-        console.warn('缩略图加载失败，尝试加载原始图片:', error);
-        
-        // 🚀 降级策略：使用原始图片数据
-        if (page.image && page.image.trim() !== '') {
-          setImageSrc(page.image);
-        } else {
-          setImageError(true);
-        }
+        console.error('缩略图加载失败:', error);
+        setImageError(true);
       } finally {
         setImageLoading(false);
       }
@@ -110,13 +88,13 @@ const ThumbnailItem: React.FC<ThumbnailItemProps> = ({ page, index, isActive, on
 
     loadThumbnail();
 
-    // 清理函数：释放blob URL
+    // 清理函数
     return () => {
       if (imageSrc && imageSrc.startsWith('blob:')) {
         URL.revokeObjectURL(imageSrc);
       }
     };
-  }, [isVisible, page.id, page.thumbnailSmall, page.image, page.imageUrl]);
+  }, [isVisible, page.id, page.image, page.imageUrl]);
 
   const handleImageLoad = () => {
     setImageLoading(false);
@@ -178,17 +156,6 @@ export const ThumbnailSidebar: React.FC<ThumbnailSidebarProps> = ({
   currentPage,
   onPageSelect
 }) => {
-  // 🚀 集成预加载服务
-  useEffect(() => {
-    const preloadService = ImagePreloadService.getInstance();
-    
-    // 当页面变化时，触发相邻页面的预加载
-    if (pages.length > 0 && currentPage >= 0 && currentPage < pages.length) {
-      preloadService.preloadAdjacentArtworks(pages, currentPage, 3)
-        .catch(error => console.warn('预加载失败:', error));
-    }
-  }, [pages, currentPage]);
-
   return (
     <div className={styles.thumbnailSidebar}>
       <div className={styles.thumbnailHeader}>
