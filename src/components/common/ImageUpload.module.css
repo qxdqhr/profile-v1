@@ -85,6 +85,52 @@
   color: #374151;
 }
 
+/* 错误和警告消息 */
+.errorMessage,
+.warningMessage {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+.errorMessage {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+.errorMessage svg {
+  color: #dc2626;
+  flex-shrink: 0;
+}
+
+.warningMessage {
+  background: #fffbeb;
+  border: 1px solid #fed7aa;
+  color: #d97706;
+}
+
+.warningMessage svg {
+  color: #d97706;
+  flex-shrink: 0;
+}
+
+/* 处理状态样式 */
+.uploadArea.processing {
+  pointer-events: none;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.uploadArea.processing .uploadPrompt {
+  opacity: 0.8;
+}
+
 /* 文件上传区域 */
 .uploadArea {
   border: 2px dashed #d1d5db;
@@ -100,7 +146,7 @@
   justify-content: center;
 }
 
-.uploadArea:hover {
+.uploadArea:hover:not(.processing) {
   border-color: #3b82f6;
   background: #f8fafc;
 }
@@ -162,8 +208,13 @@
   transition: background-color 0.2s ease;
 }
 
-.removeButton:hover {
+.removeButton:hover:not(:disabled) {
   background: rgba(0, 0, 0, 0.9);
+}
+
+.removeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* 图片预览 */
@@ -179,6 +230,61 @@
   max-height: 300px;
   object-fit: contain;
   display: block;
+}
+
+/* 压缩信息显示 */
+.compressionInfo {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-top: 0.75rem;
+}
+
+.compressionTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 0.75rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.compressionDetails {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.compressionItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8125rem;
+  padding: 0.375rem 0;
+}
+
+.compressionItem span:first-child {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.compressionItem span:last-child {
+  color: #374151;
+  font-weight: 600;
+}
+
+.compressionRatio {
+  color: #059669 !important;
+  font-weight: 700 !important;
+}
+
+/* 优化提示文本 */
+.uploadHint small {
+  color: #059669;
+  font-style: italic;
+  font-weight: 500;
 }
 
 /* 响应式设计 */
@@ -204,5 +310,24 @@
   .modeButton {
     padding: 0.375rem 0.5rem;
     font-size: 0.75rem;
+  }
+  
+  .compressionDetails {
+    grid-template-columns: 1fr;
+    gap: 0.375rem;
+  }
+  
+  .compressionItem {
+    font-size: 0.75rem;
+  }
+  
+  .compressionTitle {
+    font-size: 0.8125rem;
+  }
+
+  .errorMessage,
+  .warningMessage {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
   }
 } 

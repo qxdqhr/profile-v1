@@ -11,20 +11,20 @@ import {
 } from '../services/masterpiecesConfigService';
 import type { ArtworkPage } from '../types';
 
-interface ArtworkOrderManagerProps {
+interface ArtworkOrderManagerV2Props {
   collectionId: number;
   onOrderChanged?: () => void;
 }
 
 type ArtworkWithOrder = ArtworkPage & { pageOrder: number };
 
-export function ArtworkOrderManager({ collectionId, onOrderChanged }: ArtworkOrderManagerProps) {
+export function ArtworkOrderManagerV2({ collectionId, onOrderChanged }: ArtworkOrderManagerV2Props) {
   // 定义操作函数
   const operations = {
     loadItems: async (): Promise<ArtworkWithOrder[]> => {
-      console.log('📋 [作品排序] 开始加载作品数据...', { collectionId });
+      console.log('📋 [作品排序V2] 开始加载作品数据...', { collectionId });
       const data = await getArtworksByCollection(collectionId);
-      console.log('📋 [作品排序] 加载作品数据完成:', {
+      console.log('📋 [作品排序V2] 加载作品数据完成:', {
         collectionId,
         artworksCount: data.length,
         artworks: data.map(a => ({ id: a.id, title: a.title, pageOrder: a.pageOrder }))
@@ -33,32 +33,21 @@ export function ArtworkOrderManager({ collectionId, onOrderChanged }: ArtworkOrd
     },
 
     moveItemUp: async (id: number): Promise<void> => {
-      console.log('⬆️ [作品排序] 执行上移操作:', { collectionId, artworkId: id });
+      console.log('⬆️ [作品排序V2] 执行上移操作:', { collectionId, artworkId: id });
       await moveArtworkUp(collectionId, id);
     },
 
     moveItemDown: async (id: number): Promise<void> => {
-      console.log('⬇️ [作品排序] 执行下移操作:', { collectionId, artworkId: id });
+      console.log('⬇️ [作品排序V2] 执行下移操作:', { collectionId, artworkId: id });
       await moveArtworkDown(collectionId, id);
     },
 
     updateItemOrder: async (orders: { id: number; order: number }[]): Promise<void> => {
-      console.log('💾 [作品排序] 批量更新顺序:', { collectionId, orders });
-      
-      // orders数组已经按照items的当前顺序排列，直接使用索引作为pageOrder
-      const artworkOrders = orders.map((order, index) => {
-        console.log(`转换映射: id=${order.id}, 数组索引=${index}, pageOrder=${index}`);
-        return {
-          id: order.id,
-          pageOrder: index // 直接使用索引，从0开始递增
-        };
-      });
-      
-      console.log('💾 [作品排序] 转换后的pageOrder:', { 
-        collectionId, 
-        artworkOrders: artworkOrders.map(ao => ({ id: ao.id, pageOrder: ao.pageOrder }))
-      });
-      
+      console.log('💾 [作品排序V2] 批量更新顺序:', { collectionId, orders });
+      const artworkOrders = orders.map(order => ({
+        id: order.id,
+        pageOrder: order.order
+      }));
       await updateArtworkOrder(collectionId, artworkOrders);
     }
   };

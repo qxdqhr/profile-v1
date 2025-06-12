@@ -10,17 +10,17 @@ import {
 } from '../services/masterpiecesConfigService';
 import type { ArtCollection } from '../types';
 
-interface CollectionOrderManagerProps {
+interface CollectionOrderManagerV2Props {
   onOrderChanged?: () => void;
 }
 
-export function CollectionOrderManager({ onOrderChanged }: CollectionOrderManagerProps) {
+export function CollectionOrderManagerV2({ onOrderChanged }: CollectionOrderManagerV2Props) {
   // 定义操作函数
   const operations = {
     loadItems: async (): Promise<ArtCollection[]> => {
-      console.log('📚 [画集排序] 开始加载画集数据...');
+      console.log('📚 [画集排序V2] 开始加载画集数据...');
       const data = await getAllCollections();
-      console.log('📚 [画集排序] 画集数据加载完成:', {
+      console.log('📚 [画集排序V2] 画集数据加载完成:', {
         collectionsCount: data.length,
         collections: data.map(c => ({ id: c.id, title: c.title }))
       });
@@ -28,17 +28,17 @@ export function CollectionOrderManager({ onOrderChanged }: CollectionOrderManage
     },
 
     moveItemUp: async (id: number): Promise<void> => {
-      console.log('⬆️ [画集排序] 执行上移操作:', id);
+      console.log('⬆️ [画集排序V2] 执行上移操作:', id);
       await moveCollectionUp(id);
     },
 
     moveItemDown: async (id: number): Promise<void> => {
-      console.log('⬇️ [画集排序] 执行下移操作:', id);
+      console.log('⬇️ [画集排序V2] 执行下移操作:', id);
       await moveCollectionDown(id);
     },
 
     updateItemOrder: async (orders: { id: number; order: number }[]): Promise<void> => {
-      console.log('💾 [画集排序] 批量更新顺序:', orders);
+      console.log('💾 [画集排序V2] 批量更新顺序:', orders);
       const collectionOrders = orders.map(order => ({
         id: order.id,
         displayOrder: order.order

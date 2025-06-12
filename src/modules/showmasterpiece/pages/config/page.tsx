@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown } from 'lucide-react';
+import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown, ChevronUp, ChevronDown } from 'lucide-react';
 import { useMasterpiecesConfig } from '../../hooks/useMasterpiecesConfig';
 import { ConfigFormData, CollectionFormData, ArtworkFormData } from '../../types';
 import { ImageUpload } from '@/components/common';
@@ -28,6 +28,9 @@ function ConfigPageContent() {
     addArtworkToCollection,
     updateArtwork,
     deleteArtwork,
+    moveArtworkUp,
+    moveArtworkDown,
+    refreshData,
   } = useMasterpiecesConfig();
 
   const [activeTab, setActiveTab] = useState<TabType>('general');
@@ -143,13 +146,33 @@ function ConfigPageContent() {
   const handleSaveArtwork = async () => {
     if (!selectedCollection) return;
     
+    console.log('📝 [配置页面] 开始保存作品:', {
+      isEditing: !!editingArtwork,
+      selectedCollection,
+      title: artworkForm.title,
+      artist: artworkForm.artist,
+      imagePresent: !!artworkForm.image,
+      imageSize: artworkForm.image ? `${artworkForm.image.length} chars` : 'null'
+    });
+    
     try {
       if (editingArtwork) {
+        console.log('✏️ [配置页面] 执行作品更新...', {
+          collectionId: editingArtwork.collectionId,
+          artworkId: editingArtwork.artworkId
+        });
         await updateArtwork(editingArtwork.collectionId, editingArtwork.artworkId, artworkForm);
         setEditingArtwork(null);
+        console.log('✅ [配置页面] 作品更新完成');
       } else {
+        console.log('➕ [配置页面] 执行作品创建...', {
+          collectionId: selectedCollection
+        });
         await addArtworkToCollection(selectedCollection, artworkForm);
+        console.log('✅ [配置页面] 作品创建完成');
       }
+      
+      console.log('🧹 [配置页面] 清理表单状态...');
       setShowArtworkForm(false);
       setArtworkForm({
         title: '',
@@ -159,9 +182,20 @@ function ConfigPageContent() {
         createdTime: '',
         theme: '',
       });
+      
       alert('作品保存成功！');
+      console.log('🎉 [配置页面] 作品保存流程完成');
+      
     } catch (err) {
-      console.error('保存作品时发生错误:', err);
+      console.error('❌ [配置页面] 保存作品时发生错误:', err);
+      console.error('错误上下文:', {
+        isEditing: !!editingArtwork,
+        selectedCollection,
+        artworkTitle: artworkForm.title,
+        errorMessage: err instanceof Error ? err.message : '未知错误',
+        stack: err instanceof Error ? err.stack : undefined
+      });
+      
       const errorMessage = err instanceof Error ? err.message : '作品保存失败';
       alert(`作品保存失败：${errorMessage}`);
     }
@@ -194,6 +228,53 @@ function ConfigPageContent() {
     });
     setEditingArtwork({ collectionId, artworkId: artwork.id });
     setShowArtworkForm(true);
+  };
+
+  // 处理作品移动
+  const handleMoveArtworkUp = async (collectionId: number, artworkId: number) => {
+    try {
+      await moveArtworkUp(collectionId, artworkId);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : '上移作品失败');
+    }
+  };
+
+  const handleMoveArtworkDown = async (collectionId: number, artworkId: number) => {
+    try {
+      await moveArtworkDown(collectionId, artworkId);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : '下移作品失败');
+    }
+  };
+
+  // 处理作品排序切换
+  const handleToggleArtworkOrder = async () => {
+    if (showArtworkOrder) {
+      // 关闭排序时刷新数据确保显示最新顺序
+      console.log('🔄 [配置页面] 关闭排序，刷新作品数据...');
+      try {
+        await refreshData();
+        console.log('✅ [配置页面] 作品数据刷新完成');
+      } catch (err) {
+        console.error('❌ [配置页面] 刷新数据失败:', err);
+      }
+    }
+    setShowArtworkOrder(!showArtworkOrder);
+  };
+
+  // 处理画集排序切换
+  const handleToggleCollectionOrder = async () => {
+    if (showCollectionOrder) {
+      // 关闭排序时刷新数据确保显示最新顺序
+      console.log('🔄 [配置页面] 关闭画集排序，刷新画集数据...');
+      try {
+        await refreshData();
+        console.log('✅ [配置页面] 画集数据刷新完成');
+      } catch (err) {
+        console.error('❌ [配置页面] 刷新画集数据失败:', err);
+      }
+    }
+    setShowCollectionOrder(!showCollectionOrder);
   };
 
   if (loading) {
@@ -400,7 +481,7 @@ function ConfigPageContent() {
                   添加画集
                 </button>
                 <button
-                  onClick={() => setShowCollectionOrder(!showCollectionOrder)}
+                  onClick={() => handleToggleCollectionOrder()}
                   className={styles.orderButton}
                 >
                   <ArrowUpDown size={16} />
@@ -419,7 +500,7 @@ function ConfigPageContent() {
                 </div>
                 <CollectionOrderManager
                   onOrderChanged={() => {
-                    console.log('画集顺序已更新');
+                    console.log('🔄 [配置页面] 画集顺序已更新（仅排序界面内更新）');
                   }}
                 />
               </div>
@@ -503,7 +584,7 @@ function ConfigPageContent() {
                       添加作品
                     </button>
                     <button
-                      onClick={() => setShowArtworkOrder(!showArtworkOrder)}
+                      onClick={handleToggleArtworkOrder}
                       className={styles.orderButton}
                     >
                       <ArrowUpDown size={16} />
@@ -519,7 +600,7 @@ function ConfigPageContent() {
                 <ArtworkOrderManager 
                   collectionId={selectedCollection}
                   onOrderChanged={() => {
-                    console.log('作品顺序已更新');
+                    console.log('🔄 [配置页面] 作品顺序已更新（仅排序界面内更新）');
                   }}
                 />
               </div>
@@ -529,10 +610,21 @@ function ConfigPageContent() {
               <div className={styles.artworksList}>
                 {collections
                   .find(c => c.id === selectedCollection)
-                  ?.pages.map((artwork) => (
+                  ?.pages.map((artwork, index, artworks) => (
                     <div key={artwork.id} className={styles.artworkItem}>
                       <div className={styles.artworkImage}>
-                        <img src={artwork.image} alt={artwork.title} />
+                        <img 
+                          src={artwork.image || artwork.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuacn+WbvueJhzwvdGV4dD48L3N2Zz4='} 
+                          alt={artwork.title}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            const placeholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuacn+WbvueJhzwvdGV4dD48L3N2Zz4=';
+                            if (target.src !== placeholder) {
+                              target.src = placeholder;
+                            }
+                          }}
+                          style={{ maxWidth: '100%', height: 'auto', backgroundColor: '#f5f5f5' }}
+                        />
                       </div>
                       <div className={styles.artworkInfo}>
                         <h4>{artwork.title}</h4>
@@ -541,19 +633,42 @@ function ConfigPageContent() {
                         <p>主题：{artwork.theme}</p>
                       </div>
                       <div className={styles.artworkActions}>
+                        {/* 排序按钮 */}
+                        <div className={styles.sortButtons}>
+                          <button
+                            onClick={() => handleMoveArtworkUp(selectedCollection!, artwork.id)}
+                            className={`${styles.sortButton} ${index === 0 ? styles.disabled : ''}`}
+                            disabled={index === 0}
+                            title="上移"
+                          >
+                            <ChevronUp size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleMoveArtworkDown(selectedCollection!, artwork.id)}
+                            className={`${styles.sortButton} ${index === artworks.length - 1 ? styles.disabled : ''}`}
+                            disabled={index === artworks.length - 1}
+                            title="下移"
+                          >
+                            <ChevronDown size={14} />
+                          </button>
+                        </div>
+                        
+                        {/* 编辑和删除按钮 */}
                         <button
-                          onClick={() => handleEditArtwork(selectedCollection, artwork)}
+                          onClick={() => handleEditArtwork(selectedCollection!, artwork)}
                           className={styles.editButton}
+                          title="编辑"
                         >
                           <Edit size={16} />
                         </button>
                         <button
                           onClick={() => {
                             if (confirm('确定要删除这个作品吗？')) {
-                              deleteArtwork(selectedCollection, artwork.id);
+                              deleteArtwork(selectedCollection!, artwork.id);
                             }
                           }}
                           className={styles.deleteButton}
+                          title="删除"
                         >
                           <Trash2 size={16} />
                         </button>

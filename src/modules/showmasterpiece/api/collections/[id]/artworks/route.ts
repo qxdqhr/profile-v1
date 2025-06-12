@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { artworksDbService } from '../../../../db/masterpiecesDbService';
+import { artworksDbService, collectionsDbService } from '../../../../db/masterpiecesDbService';
 import { validateApiAuth } from '@/modules/auth/server';
 
 export async function POST(
@@ -7,27 +7,94 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    console.log('🎨 开始创建作品，画集ID:', params.id);
+    
     // 验证用户权限
     const user = await validateApiAuth(request);
     if (!user) {
+      console.log('❌ 用户未授权');
       return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }
+    console.log('✅ 用户授权验证通过:', user.id || 'anonymous');
 
     // 检查请求体大小
     const contentLength = request.headers.get('content-length');
     if (contentLength && parseInt(contentLength) > 10 * 1024 * 1024) { // 10MB 限制
+      console.log('❌ 请求体过大:', contentLength);
       return NextResponse.json(
         { error: '请求数据太大，请压缩图片后重试' },
         { status: 413 }
       );
     }
+    console.log('✅ 请求体大小检查通过:', contentLength, 'bytes');
 
     const collectionId = parseInt(params.id);
+    console.log('📊 画集ID解析:', collectionId);
+    
+    // 🔍 新增：检查画集是否存在
+    console.log('🔍 检查画集是否存在...');
+    try {
+      const collections = await collectionsDbService.getAllCollections(false); // 强制从数据库查询
+      const targetCollection = collections.find(c => c.id === collectionId);
+      
+      if (!targetCollection) {
+        console.error('❌ 画集不存在:', {
+          requestedId: collectionId,
+          existingIds: collections.map((c: any) => c.id)
+        });
+        return NextResponse.json(
+          { error: `画集不存在 (ID: ${collectionId})，请刷新页面后重试` },
+          { status: 404 }
+        );
+      }
+      
+      console.log('✅ 画集存在验证通过:', {
+        id: targetCollection.id,
+        title: targetCollection.title,
+        artworkCount: targetCollection.pages.length
+      });
+    } catch (checkError) {
+      console.error('❌ 检查画集存在性时发生错误:', checkError);
+      return NextResponse.json(
+        { error: '检查画集状态失败，请稍后重试' },
+        { status: 500 }
+      );
+    }
+    
     const artworkData = await request.json();
+    console.log('📄 作品数据接收:', {
+      title: artworkData.title,
+      artist: artworkData.artist,
+      imageSize: artworkData.image ? `${artworkData.image.length} chars` : 'null',
+      description: artworkData.description?.substring(0, 50) + '...'
+    });
+    
+    console.log('💾 开始保存作品到数据库...');
     const artwork = await artworksDbService.addArtworkToCollection(collectionId, artworkData);
+    
+    console.log('✅ 作品保存成功:', {
+      id: artwork.id,
+      title: artwork.title,
+      artist: artwork.artist
+    });
+    
     return NextResponse.json(artwork);
   } catch (error) {
-    console.error('添加作品失败:', error);
+    console.error('❌ 添加作品失败:', error);
+    console.error('错误详情:', {
+      message: error instanceof Error ? error.message : '未知错误',
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    
+    // 检查是否是外键约束错误
+    if (error instanceof Error && error.message.includes('foreign key constraint')) {
+      console.error('🚨 外键约束违反 - 画集可能已被删除');
+      return NextResponse.json(
+        { error: '画集不存在或已被删除，请刷新页面后重试' },
+        { status: 409 }
+      );
+    }
+    
     // 检查是否是请求体过大的错误
     if (error instanceof Error && error.message.includes('body')) {
       return NextResponse.json(
@@ -182,11 +249,19 @@ export async function GET(
       );
     }
 
+    console.log('📋 [API] 获取作品列表:', { collectionId });
     const artworks = await artworksDbService.getArtworksByCollection(collectionId);
+    console.log('📋 [API] 作品列表获取成功:', { 
+      collectionId, 
+      count: artworks.length,
+      orders: artworks.map(a => ({ id: a.id, pageOrder: a.pageOrder }))
+    });
     
-    // 设置缓存头
+    // 设置不缓存的响应头，确保总是返回最新数据
     const response = NextResponse.json(artworks);
-    response.headers.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
     return response;
   } catch (error) {
     console.error('获取作品列表失败:', error);
