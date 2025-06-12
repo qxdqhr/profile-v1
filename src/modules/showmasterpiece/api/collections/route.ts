@@ -17,8 +17,16 @@ import { validateApiAuth } from '@/modules/auth/server';
  */
 export async function GET(request: NextRequest) {
   try {
+    // 验证用户权限
+    const user = await validateApiAuth(request);
+    if (!user) {
+      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const overview = searchParams.get('overview') === 'true';
+    const nocache = searchParams.get('nocache') === 'true'; // 检查是否强制不使用缓存
+    const includeImages = searchParams.get('includeImages') === 'true'; // 检查是否包含图片数据
     
     // 如果请求overview，返回不包含作品详情的快速响应
     // 这种模式适用于首页展示、列表页等场景，大幅提升加载速度
@@ -33,13 +41,16 @@ export async function GET(request: NextRequest) {
     
     // 完整的画集数据（包含所有作品）
     // 这种模式适用于详情页、编辑页等需要完整数据的场景
-    const collections = await collectionsDbService.getAllCollections();
+    const collections = await collectionsDbService.getAllCollections(!nocache, includeImages); // 传递缓存和图片参数
     
-    // 设置缓存头 - 与overview模式相同的缓存策略
+    // 设置不缓存的响应头
     const response = NextResponse.json(collections);
-    response.headers.set('Cache-Control', 'public, max-age=120, stale-while-revalidate=300');
-    return response;
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    response.headers.set('Surrogate-Control', 'no-store');
     
+    return response;
   } catch (error) {
     console.error('获取画集列表失败:', error);
     return NextResponse.json(

@@ -192,9 +192,9 @@ export class CollectionsDbService {
    * ✅ 延长缓存时间 - 从2分钟增加到10分钟
    * ⚠️ 需要优化 - 数据库索引、分页加载、图片懒加载
    */
-  async getAllCollections(useCache: boolean = true): Promise<ArtCollection[]> {
+  async getAllCollections(useCache: boolean = true, includeImages: boolean = false): Promise<ArtCollection[]> {
     // 检查缓存 - 首次访问时缓存为空，必须执行完整查询
-    if (useCache && this.collectionsCache) {
+    if (useCache && this.collectionsCache && !includeImages) {
       const cacheAge = Date.now() - this.collectionsCacheTime;
       
       // 如果在有效期内，直接返回缓存
@@ -212,11 +212,13 @@ export class CollectionsDbService {
 
     try {
       // 执行完整查询
-      const result = await this.fetchAllCollectionsFromDb();
+      const result = await this.fetchAllCollectionsFromDb(includeImages);
       
-      // 更新缓存
-      this.collectionsCache = result;
-      this.collectionsCacheTime = Date.now();
+      // 更新缓存（仅当不包含图片时缓存，避免缓存大数据）
+      if (!includeImages) {
+        this.collectionsCache = result;
+        this.collectionsCacheTime = Date.now();
+      }
 
       return result;
 
@@ -224,7 +226,7 @@ export class CollectionsDbService {
       console.error('获取画集数据失败:', error);
       
       // 如果查询失败但有过期缓存，返回过期缓存
-      if (this.collectionsCache) {
+      if (this.collectionsCache && !includeImages) {
         console.warn('数据库查询失败，返回过期缓存数据');
         return this.collectionsCache;
       }
@@ -306,7 +308,7 @@ export class CollectionsDbService {
   /**
    * 从数据库获取完整画集数据
    */
-  private async fetchAllCollectionsFromDb(): Promise<ArtCollection[]> {
+  private async fetchAllCollectionsFromDb(includeImages: boolean = false): Promise<ArtCollection[]> {
     // 1. 首先获取画集基本信息（不包含作品）
     // 潜在问题：如果画集数量很多，这个查询本身也会变慢
     const collections = await db
@@ -380,10 +382,13 @@ export class CollectionsDbService {
           id: comicUniverseArtworks.id,
           title: comicUniverseArtworks.title,
           artist: comicUniverseArtworks.artist,
-          // image: comicUniverseArtworks.image, // ⭐ 移除图片数据查询
-          // description: comicUniverseArtworks.description, // 🚀 进一步优化：移除描述字段，减少数据量
-          // createdTime: comicUniverseArtworks.createdTime, // 🚀 优化：移除创建时间，减少数据量
-          // theme: comicUniverseArtworks.theme, // 🚀 优化：移除主题字段，减少数据量
+          // 根据参数决定是否包含图片数据
+          ...(includeImages ? { 
+            image: comicUniverseArtworks.image,
+            description: comicUniverseArtworks.description,
+            createdTime: comicUniverseArtworks.createdTime,
+            theme: comicUniverseArtworks.theme,
+          } : {}),
           pageOrder: comicUniverseArtworks.pageOrder, // 保留排序必需字段
         })
         .from(comicUniverseArtworks)
@@ -413,16 +418,28 @@ export class CollectionsDbService {
       if (!artworksMap.has(artwork.collectionId)) {
         artworksMap.set(artwork.collectionId, []);
       }
-      artworksMap.get(artwork.collectionId)!.push({
+      
+      // 创建基础作品对象
+      const artworkPage: ArtworkPage = {
         id: artwork.id,
         title: artwork.title || '',
         artist: artwork.artist || '',
-        image: '', // 🚀 懒加载：初始为空，由前端按需加载
-        imageUrl: `/api/masterpieces/collections/${artwork.collectionId}/artworks/${artwork.id}/image`, // 图片加载URL
-        description: '', // 🚀 优化：初始为空，减少数据量，可由前端按需加载
-        createdTime: '', // 🚀 优化：初始为空，减少数据量
-        theme: '', // 🚀 优化：初始为空，减少数据量
-      });
+        image: '', // 默认为空
+        imageUrl: `/api/masterpieces/collections/${artwork.collectionId}/artworks/${artwork.id}/image`,
+        description: '',
+        createdTime: '',
+        theme: '',
+      };
+      
+      // 如果包含图片数据，则填充相应字段
+      if (includeImages) {
+        artworkPage.image = (artwork as any).image || '';
+        artworkPage.description = (artwork as any).description || '';
+        artworkPage.createdTime = (artwork as any).createdTime || '';
+        artworkPage.theme = (artwork as any).theme || '';
+      }
+      
+      artworksMap.get(artwork.collectionId)!.push(artworkPage);
     });
 
     // 4. 构建最终结果
@@ -751,22 +768,54 @@ export class CollectionsDbService {
   // 上移画集
   async moveCollectionUp(collectionId: number): Promise<void> {
     try {
+      console.log('📊 [后端排序] 开始上移画集操作，collectionId:', collectionId);
+      
       const collections = await db
         .select({
           id: comicUniverseCollections.id,
           displayOrder: comicUniverseCollections.displayOrder,
+          title: comicUniverseCollections.title,
         })
         .from(comicUniverseCollections)
         .where(eq(comicUniverseCollections.isPublished, true))
         .orderBy(desc(comicUniverseCollections.displayOrder));
 
+      console.log('📊 [后端排序] 当前数据库排序状态 (按displayOrder降序):', {
+        totalCount: collections.length,
+        collections: collections.map((c, i) => ({
+          dbIndex: i,
+          id: c.id,
+          title: c.title,
+          displayOrder: c.displayOrder,
+          note: i === 0 ? '(数据库第一条/displayOrder最大)' : i === collections.length - 1 ? '(数据库最后条/displayOrder最小)' : ''
+        }))
+      });
+
       const currentIndex = collections.findIndex(c => c.id === collectionId);
       if (currentIndex === -1) {
+        console.error('❌ [后端排序] 画集不存在');
         throw new Error('画集不存在');
       }
       if (currentIndex === 0) {
+        console.error('❌ [后端排序] 画集已经在最顶部 (displayOrder最大值)');
         throw new Error('画集已经在最顶部');
       }
+
+      console.log('📊 [后端排序] 上移操作详情:', {
+        targetCollection: {
+          id: collections[currentIndex].id,
+          title: collections[currentIndex].title,
+          currentDisplayOrder: collections[currentIndex].displayOrder,
+          currentDbIndex: currentIndex
+        },
+        willSwapWith: {
+          id: collections[currentIndex - 1].id,
+          title: collections[currentIndex - 1].title,
+          currentDisplayOrder: collections[currentIndex - 1].displayOrder,
+          currentDbIndex: currentIndex - 1
+        },
+        semantics: '上移=交换displayOrder值，使目标画集获得更大的displayOrder值'
+      });
 
       // 交换当前画集和上一个画集的顺序，处理null值
       const targetIndex = currentIndex - 1;
@@ -778,9 +827,16 @@ export class CollectionsDbService {
         { id: collections[targetIndex].id, displayOrder: targetOrder }
       ];
 
+      console.log('📊 [后端排序] 将执行的更新操作:', {
+        updates,
+        explanation: '目标画集将获得更大的displayOrder值，从而在列表中上移'
+      });
+
       await this.updateCollectionOrder(updates);
+      
+      console.log('✅ [后端排序] 上移操作完成');
     } catch (error) {
-      console.error('上移画集失败:', error);
+      console.error('❌ [后端排序] 上移画集失败:', error);
       throw error;
     }
   }
@@ -788,22 +844,54 @@ export class CollectionsDbService {
   // 下移画集
   async moveCollectionDown(collectionId: number): Promise<void> {
     try {
+      console.log('📊 [后端排序] 开始下移画集操作，collectionId:', collectionId);
+      
       const collections = await db
         .select({
           id: comicUniverseCollections.id,
           displayOrder: comicUniverseCollections.displayOrder,
+          title: comicUniverseCollections.title,
         })
         .from(comicUniverseCollections)
         .where(eq(comicUniverseCollections.isPublished, true))
         .orderBy(desc(comicUniverseCollections.displayOrder));
 
+      console.log('📊 [后端排序] 当前数据库排序状态 (按displayOrder降序):', {
+        totalCount: collections.length,
+        collections: collections.map((c, i) => ({
+          dbIndex: i,
+          id: c.id,
+          title: c.title,
+          displayOrder: c.displayOrder,
+          note: i === 0 ? '(数据库第一条/displayOrder最大)' : i === collections.length - 1 ? '(数据库最后条/displayOrder最小)' : ''
+        }))
+      });
+
       const currentIndex = collections.findIndex(c => c.id === collectionId);
       if (currentIndex === -1) {
+        console.error('❌ [后端排序] 画集不存在');
         throw new Error('画集不存在');
       }
       if (currentIndex === collections.length - 1) {
+        console.error('❌ [后端排序] 画集已经在最底部 (displayOrder最小值)');
         throw new Error('画集已经在最底部');
       }
+
+      console.log('📊 [后端排序] 下移操作详情:', {
+        targetCollection: {
+          id: collections[currentIndex].id,
+          title: collections[currentIndex].title,
+          currentDisplayOrder: collections[currentIndex].displayOrder,
+          currentDbIndex: currentIndex
+        },
+        willSwapWith: {
+          id: collections[currentIndex + 1].id,
+          title: collections[currentIndex + 1].title,
+          currentDisplayOrder: collections[currentIndex + 1].displayOrder,
+          currentDbIndex: currentIndex + 1
+        },
+        semantics: '下移=交换displayOrder值，使目标画集获得更小的displayOrder值'
+      });
 
       // 交换当前画集和下一个画集的顺序，处理null值
       const targetIndex = currentIndex + 1;
@@ -815,9 +903,16 @@ export class CollectionsDbService {
         { id: collections[targetIndex].id, displayOrder: targetOrder }
       ];
 
+      console.log('📊 [后端排序] 将执行的更新操作:', {
+        updates,
+        explanation: '目标画集将获得更小的displayOrder值，从而在列表中下移'
+      });
+
       await this.updateCollectionOrder(updates);
+      
+      console.log('✅ [后端排序] 下移操作完成');
     } catch (error) {
-      console.error('下移画集失败:', error);
+      console.error('❌ [后端排序] 下移画集失败:', error);
       throw error;
     }
   }
@@ -829,6 +924,12 @@ export class ArtworksDbService {
 
   // 添加作品到画集
   async addArtworkToCollection(collectionId: number, artworkData: ArtworkFormData): Promise<ArtworkPage> {
+    console.log('🗃️ [数据库] 开始添加作品到画集:', {
+      collectionId,
+      title: artworkData.title,
+      artist: artworkData.artist
+    });
+    
     // 获取当前画集中作品的最大顺序号
     const maxOrder = await db.select({
       maxOrder: sql<number>`COALESCE(MAX(${comicUniverseArtworks.pageOrder}), -1)`
@@ -837,6 +938,7 @@ export class ArtworksDbService {
       .where(eq(comicUniverseArtworks.collectionId, collectionId));
 
     const newOrder = (maxOrder[0]?.maxOrder || -1) + 1;
+    console.log('📊 [数据库] 计算新的页面顺序:', newOrder);
 
     const newArtwork = await db.insert(comicUniverseArtworks).values({
       collectionId,
@@ -849,10 +951,18 @@ export class ArtworksDbService {
       pageOrder: newOrder,
     }).returning();
 
+    console.log('✅ [数据库] 作品插入成功:', {
+      id: newArtwork[0].id,
+      collectionId: newArtwork[0].collectionId,
+      pageOrder: newArtwork[0].pageOrder,
+      title: newArtwork[0].title
+    });
+
     // 清除画集缓存
     this.collectionsService.clearCache();
+    console.log('🧹 [数据库] 缓存已清除');
 
-    return {
+    const result = {
       id: newArtwork[0].id,
       title: newArtwork[0].title,
       artist: newArtwork[0].artist,
@@ -861,6 +971,9 @@ export class ArtworksDbService {
       createdTime: newArtwork[0].createdTime || undefined,
       theme: newArtwork[0].theme || undefined,
     };
+    
+    console.log('📤 [数据库] 返回作品数据:', result);
+    return result;
   }
 
   // 更新作品

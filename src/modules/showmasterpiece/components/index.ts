@@ -55,10 +55,24 @@ export { ArtworkViewer } from './ArtworkViewer';
  */
 export { ThumbnailSidebar } from './ThumbnailSidebar';
 
+/**
+ * 通用顺序管理器组件
+ * 
+ * 抽象的通用排序组件，可以用于任何具有顺序的数据管理。
+ * 通过传入操作函数和渲染函数来实现不同类型数据的排序功能。
+ * 
+ * 主要功能：
+ * - 拖拽排序
+ * - 上移/下移按钮
+ * - 批量保存和重置
+ * - 通用的错误处理和加载状态
+ */
+export { GenericOrderManager } from './GenericOrderManager';
+
 /** 
  * 画集顺序管理器组件
  * 
- * 在配置管理界面用于调整画集的显示顺序。
+ * 基于通用组件的画集排序组件，用于调整画集的显示顺序。
  * 支持拖拽排序和按钮操作。
  * 
  * 主要功能：
@@ -67,18 +81,47 @@ export { ThumbnailSidebar } from './ThumbnailSidebar';
  * - 实时预览效果
  * - 批量顺序更新
  */
-export { CollectionOrderManager } from './CollectionOrderManager';
+export { CollectionOrderManagerV2 as CollectionOrderManager } from './CollectionOrderManagerV2';
 
-/** 
+/**
  * 作品顺序管理器组件
  * 
- * 在配置管理界面用于调整画集内作品的显示顺序。
+ * 基于通用组件的作品排序组件，用于调整画集内作品的显示顺序。
  * 支持拖拽排序和按钮操作。
  * 
  * 主要功能：
  * - 拖拽排序界面
  * - 上移/下移按钮
- * - 作品缩略图预览
- * - 实时顺序更新
+ * - 实时预览效果  
+ * - 批量顺序更新
  */
-export { ArtworkOrderManager } from './ArtworkOrderManager'; 
+export { ArtworkOrderManagerV2 as ArtworkOrderManager } from './ArtworkOrderManagerV2';
+
+/**
+ * 基于通用组件的画集顺序管理器 V2
+ * 
+ * 使用通用顺序管理器重构的画集排序组件。
+ * 代码更简洁，逻辑更清晰，易于维护。
+ */
+export { CollectionOrderManagerV2 } from './CollectionOrderManagerV2';
+
+/**
+ * 基于通用组件的作品顺序管理器 V2
+ * 
+ * 使用通用顺序管理器重构的作品排序组件。
+ * 代码更简洁，逻辑更清晰，易于维护。
+ */
+export { ArtworkOrderManagerV2 } from './ArtworkOrderManagerV2';
+
+// ===== 过时组件 (已被V2版本替代) =====
+/**
+ * @deprecated 请使用 CollectionOrderManagerV2 替代
+ * 原有的画集排序组件，已被基于通用组件的V2版本替代
+ */
+export { CollectionOrderManager as CollectionOrderManagerLegacy } from './CollectionOrderManagerLegacy';
+
+/**
+ * @deprecated 请使用 ArtworkOrderManagerV2 替代  
+ * 原有的作品排序组件，已被基于通用组件的V2版本替代
+ */
+export { ArtworkOrderManager as ArtworkOrderManagerLegacy } from './ArtworkOrderManagerLegacy'; 

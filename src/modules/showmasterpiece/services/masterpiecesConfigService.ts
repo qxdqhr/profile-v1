@@ -82,11 +82,42 @@ export const resetConfig = async (): Promise<MasterpiecesConfig> => {
 
 // 画集管理
 export const getAllCollections = async (): Promise<ArtCollection[]> => {
-  const response = await fetch('/api/masterpieces/collections');
-  if (!response.ok) {
-    throw new Error('获取画集失败');
+  console.log('📡 [服务] 开始获取所有画集...');
+  
+  try {
+    // 添加时间戳参数防止缓存
+    const timestamp = new Date().getTime();
+    const response = await fetch(`/api/masterpieces/collections?_t=${timestamp}`, {
+      method: 'GET',
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
+    
+    console.log('📡 [服务] 画集请求响应状态:', response.status);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ [服务] 获取画集失败:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText
+      });
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const collections = await response.json();
+    console.log('✅ [服务] 画集数据获取成功:', {
+      count: collections.length,
+      titles: collections.map((c: ArtCollection) => c.title)
+    });
+    
+    return collections;
+  } catch (error) {
+    console.error('❌ [服务] 获取画集数据失败:', error);
+    throw error;
   }
-  return await response.json();
 };
 
 export const createCollection = async (collectionData: CollectionFormData): Promise<ArtCollection> => {
@@ -198,21 +229,64 @@ export const moveCollectionDown = async (collectionId: number): Promise<void> =>
 
 // 作品管理
 export const addArtworkToCollection = async (collectionId: number, artworkData: ArtworkFormData): Promise<ArtworkPage> => {
-  const response = await fetch(`/api/masterpieces/collections/${collectionId}/artworks`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(artworkData),
+  console.log('🌐 [服务] 开始发送作品创建请求:', {
+    collectionId,
+    title: artworkData.title,
+    artist: artworkData.artist,
+    imageSize: artworkData.image ? `${artworkData.image.length} chars` : 'null'
   });
   
-  if (!response.ok) {
-    if (response.status === 413) {
-      throw new Error('图片文件太大，请选择更小的图片或等待图片压缩完成后重试');
+  const requestBody = JSON.stringify(artworkData);
+  console.log('📦 [服务] 请求体大小:', `${requestBody.length} chars (${(requestBody.length / 1024).toFixed(1)} KB)`);
+  
+  try {
+    console.log('🚀 [服务] 发送HTTP POST请求到:', `/api/masterpieces/collections/${collectionId}/artworks`);
+    
+    const response = await fetch(`/api/masterpieces/collections/${collectionId}/artworks`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: requestBody,
+    });
+    
+    console.log('📡 [服务] 收到HTTP响应:', {
+      status: response.status,
+      statusText: response.statusText,
+      contentLength: response.headers.get('content-length'),
+      contentType: response.headers.get('content-type')
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ [服务] HTTP请求失败:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorText: errorText.substring(0, 200)
+      });
+      
+      if (response.status === 413) {
+        throw new Error('图片文件太大，请选择更小的图片或等待图片压缩完成后重试');
+      }
+      throw new Error(`添加作品失败: ${response.status} ${response.statusText}`);
     }
-    throw new Error('添加作品失败');
+    
+    const result = await response.json();
+    console.log('✅ [服务] 作品创建成功:', {
+      id: result.id,
+      title: result.title,
+      artist: result.artist
+    });
+    
+    return result;
+    
+  } catch (error) {
+    console.error('❌ [服务] 请求过程中发生错误:', error);
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('网络连接失败，请检查网络连接后重试');
+    }
+    throw error;
   }
-  return await response.json();
 };
 
 export const updateArtwork = async (collectionId: number, artworkId: number, artworkData: ArtworkFormData): Promise<ArtworkPage> => {
@@ -245,7 +319,14 @@ export const deleteArtwork = async (collectionId: number, artworkId: number): Pr
 
 // 作品排序管理
 export const getArtworksByCollection = async (collectionId: number): Promise<(ArtworkPage & { pageOrder: number })[]> => {
-  const response = await fetch(`/api/masterpieces/collections/${collectionId}/artworks`);
+  // 添加时间戳参数防止缓存
+  const timestamp = new Date().getTime();
+  const response = await fetch(`/api/masterpieces/collections/${collectionId}/artworks?_t=${timestamp}`, {
+    headers: {
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache'
+    }
+  });
   if (!response.ok) {
     throw new Error('获取作品列表失败');
   }
