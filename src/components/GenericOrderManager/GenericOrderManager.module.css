@@ -1,132 +1,109 @@
+/* 通用顺序管理组件样式 */
 .container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e5e7eb;
 }
 
 .header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
   border-bottom: 1px solid #e5e7eb;
 }
 
 .header h3 {
   margin: 0;
   color: #1f2937;
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 600;
 }
 
 .actions {
   display: flex;
-  gap: 10px;
+  gap: 0.75rem;
 }
 
-.resetButton,
 .saveButton {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.resetButton {
-  background: #f3f4f6;
-  color: #6b7280;
-}
-
-.resetButton:hover {
-  background: #e5e7eb;
-  color: #4b5563;
-}
-
-.saveButton {
+  gap: 0.5rem;
   background: #3b82f6;
   color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.saveButton:hover {
+.saveButton:hover:not(:disabled) {
   background: #2563eb;
 }
 
 .saveButton:disabled {
-  background: #9ca3af;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.loading {
+.resetButton {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 40px;
-  color: #6b7280;
+  gap: 0.5rem;
+  background: #f59e0b;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid #e5e7eb;
-  border-top: 3px solid #3b82f6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 12px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.resetButton:hover {
+  background: #d97706;
 }
 
 .error {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px;
+  gap: 0.5rem;
   background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 6px;
   color: #dc2626;
-  margin-bottom: 20px;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #fecaca;
 }
 
 .hint {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 16px;
-  margin-bottom: 20px;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .hint p {
-  margin: 0 0 8px 0;
-  color: #475569;
-  font-weight: 500;
+  margin: 0 0 0.5rem 0;
+  color: #64748b;
+  font-size: 0.875rem;
 }
 
 .hint ul {
   margin: 0;
-  padding-left: 20px;
+  padding-left: 1.5rem;
   color: #64748b;
+  font-size: 0.875rem;
 }
 
 .hint li {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-bottom: 4px;
+  margin-bottom: 0.25rem;
 }
 
 .inlineIcon {
@@ -135,13 +112,13 @@
   color: #6b7280;
 }
 
-.collectionList {
+.itemList {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.collectionItem {
+.itemWrapper {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -152,12 +129,12 @@
   transition: all 0.2s ease;
 }
 
-.collectionItem:hover {
+.itemWrapper:hover {
   border-color: #d1d5db;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.collectionItem.dragging {
+.itemWrapper.dragging {
   opacity: 0.5;
   transform: rotate(2deg);
   border-color: #3b82f6;
@@ -182,42 +159,9 @@
   cursor: grabbing;
 }
 
-.collectionInfo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.itemContent {
   flex: 1;
-}
-
-.coverImage {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-}
-
-.details h4 {
-  margin: 0 0 4px 0;
-  color: #1f2937;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.details p {
-  margin: 0 0 4px 0;
-  color: #6b7280;
-  font-size: 14px;
-}
-
-.category {
-  display: inline-block;
-  padding: 2px 8px;
-  background: #dbeafe;
-  color: #1e40af;
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: 12px;
+  min-width: 0;
 }
 
 .orderInfo {
@@ -261,59 +205,89 @@
 }
 
 .moveButton:hover:not(:disabled) {
-  border-color: #3b82f6;
-  color: #3b82f6;
-  background: #eff6ff;
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: #374151;
 }
 
 .moveButton:disabled {
-  border-color: #e5e7eb;
-  color: #d1d5db;
+  opacity: 0.4;
   cursor: not-allowed;
-  background: #fafafa;
+  background: #f9fafb;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e5e7eb;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 0.5rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .empty {
   text-align: center;
-  padding: 40px;
+  padding: 3rem;
   color: #9ca3af;
+  font-style: italic;
 }
 
 .empty p {
   margin: 0;
-  font-size: 16px;
 }
 
-/* 响应式设计 */
-@media (max-width: 640px) {
+/* 响应式样式 */
+@media (max-width: 768px) {
   .container {
-    padding: 16px;
+    padding: 1rem;
   }
   
   .header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: 1rem;
   }
   
-  .collectionItem {
+  .actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .itemWrapper {
     padding: 12px;
-  }
-  
-  .collectionInfo {
     gap: 8px;
   }
   
-  .coverImage {
-    width: 48px;
-    height: 48px;
+  .moveButtons {
+    flex-direction: row;
+    gap: 4px;
   }
   
-  .details h4 {
-    font-size: 14px;
+  .moveButton {
+    width: 28px;
+    height: 28px;
   }
   
-  .details p {
+  .orderNumber {
+    width: 28px;
+    height: 28px;
     font-size: 12px;
   }
 } 

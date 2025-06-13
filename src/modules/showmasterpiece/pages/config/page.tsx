@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown, ChevronUp, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown } from 'lucide-react';
 import { useMasterpiecesConfig } from '../../hooks/useMasterpiecesConfig';
 import { ConfigFormData, CollectionFormData, ArtworkFormData } from '../../types';
-import { ImageUpload } from '@/components/common';
+import { ImageUpload } from '@/components/ImageUpload';
 import { AuthGuard, AuthProvider } from '@/modules/auth';
-import { CollectionOrderManager } from '../../components/CollectionOrderManager';
-import { ArtworkOrderManager } from '../../components/ArtworkOrderManager';
+import { CollectionOrderManagerV2 as CollectionOrderManager } from '../../components/CollectionOrderManagerV2';
+import { ArtworkOrderManagerV2 as ArtworkOrderManager } from '../../components/ArtworkOrderManagerV2';
 import styles from './ConfigPage.module.css';
 
 type TabType = 'general' | 'collections' | 'artworks';
@@ -28,8 +28,6 @@ function ConfigPageContent() {
     addArtworkToCollection,
     updateArtwork,
     deleteArtwork,
-    moveArtworkUp,
-    moveArtworkDown,
     refreshData,
   } = useMasterpiecesConfig();
 
@@ -94,6 +92,50 @@ function ConfigPageContent() {
       });
     }
   }, [config]);
+
+  // 作品管理tab自动选择画集逻辑
+  React.useEffect(() => {
+    if (activeTab === 'artworks' && collections.length > 0) {
+      // 检查当前选择的画集是否还存在
+      if (selectedCollection && !collections.find(c => c.id === selectedCollection)) {
+        console.log('⚠️ [配置页面] 当前选择的画集已不存在，重置选择');
+        setSelectedCollection(null);
+        setShowArtworkOrder(false);
+        setShowArtworkForm(false);
+        setEditingArtwork(null);
+      }
+      // 如果用户未选择画集，自动选择第一个
+      else if (!selectedCollection) {
+        const firstCollection = collections[0];
+        console.log('🎯 [配置页面] 作品管理tab首次进入，自动选择第一个画集:', {
+          selectedCollection: firstCollection.id,
+          title: firstCollection.title
+        });
+        setSelectedCollection(firstCollection.id);
+      }
+      // 如果用户已选择且画集存在，保留用户选择
+      else {
+        const currentCollection = collections.find(c => c.id === selectedCollection);
+        console.log('✅ [配置页面] 保留用户选择的画集:', {
+          selectedCollection: selectedCollection,
+          title: currentCollection?.title
+        });
+      }
+    }
+  }, [activeTab, collections, selectedCollection]);
+
+  // 当离开作品管理tab时，重置相关UI状态但保留用户选择的画集
+  React.useEffect(() => {
+    if (activeTab !== 'artworks') {
+      // 只重置UI状态，保留selectedCollection让用户下次进入时还能看到之前选择的画集
+      if (showArtworkOrder || showArtworkForm || editingArtwork) {
+        console.log('🔄 [配置页面] 离开作品管理tab，重置UI状态但保留用户选择');
+        setShowArtworkOrder(false);
+        setShowArtworkForm(false);
+        setEditingArtwork(null);
+      }
+    }
+  }, [activeTab, showArtworkOrder, showArtworkForm, editingArtwork]);
 
   // 处理配置保存
   const handleSaveConfig = async () => {
@@ -230,22 +272,7 @@ function ConfigPageContent() {
     setShowArtworkForm(true);
   };
 
-  // 处理作品移动
-  const handleMoveArtworkUp = async (collectionId: number, artworkId: number) => {
-    try {
-      await moveArtworkUp(collectionId, artworkId);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : '上移作品失败');
-    }
-  };
 
-  const handleMoveArtworkDown = async (collectionId: number, artworkId: number) => {
-    try {
-      await moveArtworkDown(collectionId, artworkId);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : '下移作品失败');
-    }
-  };
 
   // 处理作品排序切换
   const handleToggleArtworkOrder = async () => {
@@ -633,26 +660,6 @@ function ConfigPageContent() {
                         <p>主题：{artwork.theme}</p>
                       </div>
                       <div className={styles.artworkActions}>
-                        {/* 排序按钮 */}
-                        <div className={styles.sortButtons}>
-                          <button
-                            onClick={() => handleMoveArtworkUp(selectedCollection!, artwork.id)}
-                            className={`${styles.sortButton} ${index === 0 ? styles.disabled : ''}`}
-                            disabled={index === 0}
-                            title="上移"
-                          >
-                            <ChevronUp size={14} />
-                          </button>
-                          <button
-                            onClick={() => handleMoveArtworkDown(selectedCollection!, artwork.id)}
-                            className={`${styles.sortButton} ${index === artworks.length - 1 ? styles.disabled : ''}`}
-                            disabled={index === artworks.length - 1}
-                            title="下移"
-                          >
-                            <ChevronDown size={14} />
-                          </button>
-                        </div>
-                        
                         {/* 编辑和删除按钮 */}
                         <button
                           onClick={() => handleEditArtwork(selectedCollection!, artwork)}

@@ -11,19 +11,19 @@ import {
 } from 'lucide-react';
 import styles from './GenericOrderManager.module.css';
 
-interface OrderableItem {
+export interface OrderableItem {
   id: number;
   [key: string]: any;
 }
 
-interface OrderManagerOperations<T extends OrderableItem> {
+export interface OrderManagerOperations<T extends OrderableItem> {
   loadItems: () => Promise<T[]>;
   moveItemUp: (id: number) => Promise<void>; // 保留用于向后兼容，但在统一流程中不使用
   moveItemDown: (id: number) => Promise<void>; // 保留用于向后兼容，但在统一流程中不使用
   updateItemOrder: (orders: { id: number; order: number }[]) => Promise<void>; // 统一的批量更新接口
 }
 
-interface GenericOrderManagerProps<T extends OrderableItem> {
+export interface GenericOrderManagerProps<T extends OrderableItem> {
   operations: OrderManagerOperations<T>;
   renderItem: (item: T, index: number, isFirst: boolean, isLast: boolean) => React.ReactNode;
   className?: string;

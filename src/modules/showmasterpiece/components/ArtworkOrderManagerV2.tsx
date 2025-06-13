@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Image as ImageIcon } from 'lucide-react';
-import { GenericOrderManager } from './GenericOrderManager';
+import { GenericOrderManager } from '@/components/GenericOrderManager';
 import { 
   getArtworksByCollection,
   updateArtworkOrder,
@@ -44,10 +44,21 @@ export function ArtworkOrderManagerV2({ collectionId, onOrderChanged }: ArtworkO
 
     updateItemOrder: async (orders: { id: number; order: number }[]): Promise<void> => {
       console.log('💾 [作品排序V2] 批量更新顺序:', { collectionId, orders });
-      const artworkOrders = orders.map(order => ({
-        id: order.id,
-        pageOrder: order.order
-      }));
+      
+      // orders数组已经按照items的当前顺序排列，直接使用索引作为pageOrder
+      const artworkOrders = orders.map((order, index) => {
+        console.log(`转换映射: id=${order.id}, 数组索引=${index}, pageOrder=${index}`);
+        return {
+          id: order.id,
+          pageOrder: index // 直接使用索引，从0开始递增
+        };
+      });
+      
+      console.log('💾 [作品排序V2] 转换后的pageOrder:', { 
+        collectionId, 
+        artworkOrders: artworkOrders.map(ao => ({ id: ao.id, pageOrder: ao.pageOrder }))
+      });
+      
       await updateArtworkOrder(collectionId, artworkOrders);
     }
   };
