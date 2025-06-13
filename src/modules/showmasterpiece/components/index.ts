@@ -66,8 +66,10 @@ export { ThumbnailSidebar } from './ThumbnailSidebar';
  * - 上移/下移按钮
  * - 批量保存和重置
  * - 通用的错误处理和加载状态
+ * 
+ * 注意：此组件已迁移到 @/components/GenericOrderManager
  */
-export { GenericOrderManager } from './GenericOrderManager';
+export { GenericOrderManager } from '@/components/GenericOrderManager';
 
 /** 
  * 画集顺序管理器组件
@@ -113,15 +115,4 @@ export { CollectionOrderManagerV2 } from './CollectionOrderManagerV2';
  */
 export { ArtworkOrderManagerV2 } from './ArtworkOrderManagerV2';
 
-// ===== 过时组件 (已被V2版本替代) =====
-/**
- * @deprecated 请使用 CollectionOrderManagerV2 替代
- * 原有的画集排序组件，已被基于通用组件的V2版本替代
- */
-export { CollectionOrderManager as CollectionOrderManagerLegacy } from './CollectionOrderManagerLegacy';
-
-/**
- * @deprecated 请使用 ArtworkOrderManagerV2 替代  
- * 原有的作品排序组件，已被基于通用组件的V2版本替代
- */
-export { ArtworkOrderManager as ArtworkOrderManagerLegacy } from './ArtworkOrderManagerLegacy'; 
+ 

@@ -42,8 +42,10 @@ export { ThumbnailSidebar } from './components/ThumbnailSidebar';
  * - 上移/下移按钮
  * - 批量保存和重置
  * - 通用的错误处理和加载状态
+ * 
+ * 注意：此组件已迁移到 @/components/GenericOrderManager
  */
-export { GenericOrderManager } from './components/GenericOrderManager';
+export { GenericOrderManager } from '@/components/GenericOrderManager';
 
 /** 画集顺序管理器 - 基于通用组件的画集排序组件 */
 export { CollectionOrderManagerV2 as CollectionOrderManager } from './components/CollectionOrderManagerV2';
@@ -51,34 +53,6 @@ export { CollectionOrderManagerV2 as CollectionOrderManager } from './components
 /** 作品顺序管理器 - 基于通用组件的作品排序组件 */
 export { ArtworkOrderManagerV2 as ArtworkOrderManager } from './components/ArtworkOrderManagerV2';
 
-/**
- * 基于通用组件的画集顺序管理器 V2
- * 
- * 使用通用顺序管理器重构的画集排序组件。
- * 代码更简洁，逻辑更清晰，易于维护。
- */
-export { CollectionOrderManagerV2 } from './components/CollectionOrderManagerV2';
-
-/**
- * 基于通用组件的作品顺序管理器 V2
- * 
- * 使用通用顺序管理器重构的作品排序组件。
- * 代码更简洁，逻辑更清晰，易于维护。
- */
-export { ArtworkOrderManagerV2 } from './components/ArtworkOrderManagerV2';
-
-// ===== 过时组件 (已被V2版本替代) =====
-/**
- * @deprecated 请使用 CollectionOrderManagerV2 替代
- * 原有的画集排序组件，已被基于通用组件的V2版本替代
- */
-export { CollectionOrderManager as CollectionOrderManagerLegacy } from './components/CollectionOrderManagerLegacy';
-
-/**
- * @deprecated 请使用 ArtworkOrderManagerV2 替代
- * 原有的作品排序组件，已被基于通用组件的V2版本替代
- */
-export { ArtworkOrderManager as ArtworkOrderManagerLegacy } from './components/ArtworkOrderManagerLegacy';
 
 // ===== 页面组件导出 =====
 // 完整的页面组件，可以直接用作路由页面

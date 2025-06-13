@@ -486,4 +486,37 @@
     border-color: #000;
     box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3);
   }
+}
+
+/* 忘记密码链接 */
+.forgotPassword {
+  text-align: right;
+  margin: -8px 0 16px;
+}
+
+/* 发送验证码按钮 */
+.sendCodeButton {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.sendCodeButton:hover:not(:disabled) {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.sendCodeButton:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
 } 

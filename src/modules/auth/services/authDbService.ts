@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto';
 import { eq, and, gt, lt } from 'drizzle-orm';
 import { db } from '@/db/index';
-import { users, userSessions } from '@/db/schema/auth';
+import { users, userSessions, verificationCodes } from '@/db/schema/auth';
 import bcrypt from 'bcryptjs';
 import type { User, UserSession, SessionValidation, AuthService } from '../types';
 
@@ -249,6 +249,106 @@ class AuthDbService implements AuthService {
     } catch (error) {
       console.error('更新用户信息失败:', error);
       throw new Error('更新用户信息失败');
+    }
+  }
+
+  /**
+   * 根据手机号获取用户
+   */
+  async getUserByPhone(phone: string): Promise<User | null> {
+    console.log('🔍 [AuthDbService] 根据手机号查询用户:', phone);
+    try {
+      const user = await db.select().from(users).where(eq(users.phone, phone)).limit(1);
+      console.log('✅ [AuthDbService] 用户查询结果:', user.length > 0 ? '找到用户' : '未找到用户');
+      return user.length > 0 ? user[0] : null;
+    } catch (error) {
+      console.error('❌ [AuthDbService] 查询用户失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 发送验证码
+   */
+  async sendVerificationCode(phone: string): Promise<string> {
+    console.log('📱 [AuthDbService] 开始发送验证码:', phone);
+    try {
+      // 生成6位数字验证码
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      // 保存验证码到数据库
+      await db.insert(verificationCodes)
+        .values({
+          phone,
+          code,
+          expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10分钟有效期
+        })
+        .returning();
+      
+      // TODO: 实际项目中应该调用短信服务发送验证码
+      // 这里为了演示，直接返回验证码
+      console.log('✅ [AuthDbService] 验证码生成成功:', code);
+      return code;
+    } catch (error) {
+      console.error('❌ [AuthDbService] 发送验证码失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 验证验证码
+   */
+  async verifyCode(phone: string, code: string): Promise<boolean> {
+    console.log('🔍 [AuthDbService] 验证验证码:', { phone, code });
+    try {
+      const result = await db.select()
+        .from(verificationCodes)
+        .where(
+          and(
+            eq(verificationCodes.phone, phone),
+            eq(verificationCodes.code, code),
+            eq(verificationCodes.used, false),
+            gt(verificationCodes.expiresAt, new Date())
+          )
+        )
+        .limit(1);
+
+      if (result.length === 0) {
+        console.log('❌ [AuthDbService] 验证码无效或已过期');
+        return false;
+      }
+
+      // 标记验证码为已使用
+      await db.update(verificationCodes)
+        .set({ used: true })
+        .where(eq(verificationCodes.id, result[0].id));
+
+      console.log('✅ [AuthDbService] 验证码验证成功');
+      return true;
+    } catch (error) {
+      console.error('❌ [AuthDbService] 验证码验证失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 重置密码
+   */
+  async resetPassword(phone: string, newPassword: string): Promise<void> {
+    console.log('🔑 [AuthDbService] 开始重置密码:', phone);
+    try {
+      // 对密码进行加密
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      
+      // 更新用户密码
+      await db.update(users)
+        .set({ password: hashedPassword })
+        .where(eq(users.phone, phone));
+      
+      console.log('✅ [AuthDbService] 密码重置成功');
+    } catch (error) {
+      console.error('❌ [AuthDbService] 密码重置失败:', error);
+      throw error;
     }
   }
 }

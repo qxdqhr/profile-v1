@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { CollectionOrderManager } from './CollectionOrderManager';
-import { ArtworkOrderManager } from './ArtworkOrderManager';
+import { CollectionOrderManagerV2 as CollectionOrderManager } from './CollectionOrderManagerV2';
+import { ArtworkOrderManagerV2 as ArtworkOrderManager } from './ArtworkOrderManagerV2';
 
 /**
  * 顺序管理组件使用示例

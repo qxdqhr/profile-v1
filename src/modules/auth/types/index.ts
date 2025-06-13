@@ -132,6 +132,15 @@ export interface UserMenuProps {
   className?: string; // 自定义样式类名
 }
 
+/**
+ * 忘记密码模态框Props
+ */
+export interface ForgotPasswordModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
 // ===== Hook返回类型 =====
 
 /**

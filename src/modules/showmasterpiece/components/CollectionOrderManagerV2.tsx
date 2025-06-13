@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { GenericOrderManager } from './GenericOrderManager';
+import { GenericOrderManager } from '@/components/GenericOrderManager';
 import { 
   getAllCollections,
   updateCollectionOrder,
