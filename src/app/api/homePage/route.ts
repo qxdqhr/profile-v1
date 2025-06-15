@@ -50,63 +50,55 @@ const config = {
   },
   // 时间线配置
   timelineConfig: {
-    timelines: [
+    items: [
       {
-        direction: "vertical" as const,
-        items: [
-          { date: "Career Start" },
-          {
-            date: "2021.6",
-            title: "哈尔滨理工大学",
-            description: "在学校学习了C++ 与Qt开发、网络编程、数据结构、算法等",
-            tags: ["C++", "Qt"],
-          },
-          { date: "北京篇" },
-          {
-            date: "2021.7",
-            title: "校招实习：Go开发工程师",
-            description:
-                "在公司学习了Go开发、Gin、Gorm、MySQL 对于后端应用的curd操作有了一定的了解",
-            tags: ["Go", "Gin", "Gorm", "MySQL"],
-          },
-          {
-            date: "2021.12",
-            title: "校招实习+报道：Mac开发工程师",
-            description:
-                "在公司学习了Objective-C、Swift、Mac开发、CocoaPods、Xcode等",
-            tags: ["Objective-C", "Swift", "CocoaPods", "Xcode"],
-          },
-          {
-            date: "2024.04",
-            title: "第一次社招：iOS开发工程师",
-            description:
-                "在公司学习了Objective-C、Swift、iOS开发、CocoaPods、Xcode等",
-            tags: ["Objective-C", "Swift", "CocoaPods", "Xcode"],
-          },
-          {
-            date: "2025.01",
-            title: "个人学习：React",
-            description:
-                "在个人学习了React、TypeScript、Next.js、Tailwind CSS等",
-            tags: ["React", "TypeScript", "Next.js", "Tailwind CSS"],
-          },
-        ],
+        id: "1",
+        date: "2021.6",
+        title: "哈尔滨理工大学",
+        description: "在学校学习了C++ 与Qt开发、网络编程、数据结构、算法等",
+        tags: ["C++", "Qt"],
+      },
+      {
+        id: "2",
+        date: "2021.7",
+        title: "校招实习：Go开发工程师",
+        description: "在公司学习了Go开发、Gin、Gorm、MySQL 对于后端应用的curd操作有了一定的了解",
+        tags: ["Go", "Gin", "Gorm", "MySQL"],
+      },
+      {
+        id: "3",
+        date: "2021.12",
+        title: "校招实习+报道：Mac开发工程师",
+        description: "在公司学习了Objective-C、Swift、Mac开发、CocoaPods、Xcode等",
+        tags: ["Objective-C", "Swift", "CocoaPods", "Xcode"],
+      },
+      {
+        id: "4",
+        date: "2024.04",
+        title: "第一次社招：iOS开发工程师",
+        description: "在公司学习了Objective-C、Swift、iOS开发、CocoaPods、Xcode等",
+        tags: ["Objective-C", "Swift", "CocoaPods", "Xcode"],
+      },
+      {
+        id: "5",
+        date: "2025.01",
+        title: "个人学习：React",
+        description: "在个人学习了React、TypeScript、Next.js、Tailwind CSS等",
+        tags: ["React", "TypeScript", "Next.js", "Tailwind CSS"],
       },
     ],
   },
   // 碰撞球配置
   collisionBallsConfig: {
     balls: [
-      { text: "Swift", textColor: "#fff", weight: 35, color: "#FA7343" },
-      { text: "Objective-C", textColor: "#fff", weight: 45, color: "#438EFF" },
-      { text: "TypeScript", textColor: "#fff", weight: 25, color: "#3178C6" },
-      { text: "React", textColor: "#000", weight: 25, color: "#61DAFB" },
-      { text: "ReactNative", textColor: "#000", weight: 25, color: "#61DAFB" },
+      { id: "1", label: "Swift", color: "#FA7343", size: 35 },
+      { id: "2", label: "Objective-C", color: "#438EFF", size: 45 },
+      { id: "3", label: "TypeScript", color: "#3178C6", size: 25 },
+      { id: "4", label: "React", color: "#61DAFB", size: 25 },
+      { id: "5", label: "ReactNative", color: "#61DAFB", size: 25 },
     ],
     width: 800,
     height: 600,
-    minVelocity: 0,
-    maxVelocity: 2,
   },
   // 项目展示配置
   projectsConfig: {
