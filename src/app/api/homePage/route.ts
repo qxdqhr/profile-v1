@@ -27,10 +27,14 @@ const config = {
         label: "项目",
         href: "#projects",
       },
+      { id: "contact",
+        label: "联系方式",
+        href: "#contact"
+      },
       {
         id: "blog",
         label: "博客",
-        href: "/blog",
+        href: "//domain:8080",
       },
       {
         id: "testField",
@@ -41,10 +45,6 @@ const config = {
         id: "gameField",
         label: "休闲区",
         href: "/gameField",
-      },
-      { id: "contact",
-        label: "联系方式",
-        href: "#contact"
       },
     ],
   },

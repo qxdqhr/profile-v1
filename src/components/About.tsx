@@ -2,10 +2,8 @@
 
 import React from "react";
 
-import CollisionBalls from "./CollisionBalls";
-import Timeline from "./Timeline";
-import { TimelineConfig, CollisionBallsConfig } from "./types";
-import { TimelineItem } from "@/components/Home/types";
+import CollisionBalls, { CollisionBallsConfig } from "./CollisionBalls";
+import Timeline, { TimelineConfig } from "./Timeline";
 
 interface AboutProps {
   timelineConfig: TimelineConfig;

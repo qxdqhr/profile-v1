@@ -3,13 +3,18 @@
 import React, { useState } from 'react';
 import ExperimentCard from './ExperimentCard';
 
-interface Project {
+// Project相关的类型定义
+export interface Project {
   id: string;
   title: string;
   description: string;
-  imageUrl: string;
+  image: string;
+  link?: string;
   tags: string[];
-  link: string;
+}
+
+export interface ProjectsConfig {
+  projects: Project[];
 }
 
 interface ProjectCarouselProps {
@@ -51,7 +56,7 @@ const ProjectCarousel: React.FC<ProjectCarouselProps> = ({ projects }) => {
                 }`}
               >
                 <ExperimentCard
-                  href={project.link}
+                  href={project.link || '#'}
                   title={project.title}
                   description={project.description}
                   tags={project.tags}
