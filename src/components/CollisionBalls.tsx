@@ -1,7 +1,29 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from "react";
-import { CollisionBallsConfig, Ball } from "./types";
+
+// CollisionBalls相关的类型定义
+export interface Ball {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  radius: number;
+  color: string;
+  text?: string;
+  isDragging?: boolean;
+}
+
+export interface CollisionBallsConfig {
+  balls: {
+    id: string;
+    label: string;
+    color: string;
+    size: number;
+  }[];
+  width: number;
+  height: number;
+}
 
 interface CollisionBallsProps {
   collisionBallsConfig: CollisionBallsConfig;

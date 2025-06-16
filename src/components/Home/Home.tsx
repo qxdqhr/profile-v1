@@ -1,7 +1,17 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { HomeConfig } from "./types";
+
+// Home组件相关的类型定义
+export interface HomeConfig {
+  title: string;
+  subtitle: string;
+  buttons: Array<{
+    text: string;
+    link: string;
+  }>;
+  imageSrc: string;
+}
 
 interface HomeProps {
   homeConfig: HomeConfig;

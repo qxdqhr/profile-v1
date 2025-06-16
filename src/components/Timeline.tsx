@@ -1,7 +1,17 @@
 'use client';
 
 import React from 'react';
-import { TimelineItem } from './Home/types';
+
+// Timeline相关的类型定义
+export interface TimelineItem {
+  date: string;
+  title: string;
+  description: string;
+}
+
+export interface TimelineConfig {
+  items: TimelineItem[];
+}
 
 interface TimelineProps {
   items?: TimelineItem[];
