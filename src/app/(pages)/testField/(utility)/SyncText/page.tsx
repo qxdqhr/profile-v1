@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BackButton } from '@/app/_components/BackButton';
+import BackButton from '@/components/BackButton';
 import '@pixi/events'
 
 interface SyncBox {

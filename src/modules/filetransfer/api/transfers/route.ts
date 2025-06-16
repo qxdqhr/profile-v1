@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     // 获取传输列表
     const transfers = await fileTransferDbService.getTransfers({
-      userId: user.id,
+      userId: user.id.toString(),
       page,
       limit,
       status: status as any,
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     // 创建传输记录
     const transfer = await fileTransferDbService.createTransfer({
       file,
-      userId: user.id,
+      userId: user.id.toString(),
     });
 
     return NextResponse.json(transfer);
@@ -104,7 +104,7 @@ export async function DELETE(
     const { id } = params;
 
     // 删除传输记录
-    await fileTransferDbService.deleteTransfer(id, user.id);
+    await fileTransferDbService.deleteTransfer(id, user.id.toString());
 
     return NextResponse.json({ success: true });
   } catch (error) {

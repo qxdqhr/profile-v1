@@ -30,7 +30,7 @@ export async function GET(
 
     // 获取文件信息
     const [transfer] = await fileTransferDbService.getTransfers({
-      userId: user.id,
+      userId: user.id.toString(),
       page: 1,
       limit: 1,
     });

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { BackButton } from '@/app/_components/BackButton';
+import BackButton from '@/components/BackButton';
 import styles from './imageDownloader.module.css';
 
 export default function ImageDownloader() {
