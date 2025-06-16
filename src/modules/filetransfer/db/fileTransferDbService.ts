@@ -6,8 +6,8 @@
 
 import { db } from '@/db';
 import { fileTransfers } from './schema';
-import { eq, and, desc } from 'drizzle-orm';
-import type { FileTransfer } from '../types';
+import { eq, and, desc, sql } from 'drizzle-orm';
+import type { FileTransfer, TransferStatus } from '../types';
 import { writeFile, unlink } from 'fs/promises';
 import { join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -16,7 +16,7 @@ interface GetTransfersOptions {
   userId: string;
   page: number;
   limit: number;
-  status?: string;
+  status?: TransferStatus;
 }
 
 interface CreateTransferOptions {
@@ -82,7 +82,12 @@ export class FileTransferDbService {
       })
       .returning();
 
-    return transfer;
+    return {
+      ...transfer,
+      createdAt: transfer.createdAt.toISOString(),
+      updatedAt: transfer.updatedAt.toISOString(),
+      expiresAt: transfer.expiresAt?.toISOString(),
+    };
   }
 
   /**
@@ -126,7 +131,7 @@ export class FileTransferDbService {
   async incrementDownloadCount(id: string): Promise<void> {
     await db.update(fileTransfers)
       .set({
-        downloadCount: fileTransfers.downloadCount + 1
+        downloadCount: sql`${fileTransfers.downloadCount} + 1`
       })
       .where(eq(fileTransfers.id, id));
   }

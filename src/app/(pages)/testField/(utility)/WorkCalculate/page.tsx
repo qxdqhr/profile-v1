@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { BackButton } from '@/app/_components/BackButton';
+import BackButton from '@/components/BackButton';
 import dayjs, { Dayjs } from 'dayjs';
 import { WorkItem, Assignment, Person } from './types';
 import { DateControls } from './components/DateControls';
