@@ -18,7 +18,8 @@ export async function DELETE(
   try {
     // 验证用户权限
     const user = await validateApiAuth(request);
-    if (!user) {
+    if (!user) 
+      {
       return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }
 
