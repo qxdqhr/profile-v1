@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { validateApiAuth } from '@/modules/auth/server';
-import { fileTransferDbService } from '../../db/fileTransferDbService';
+import { fileTransferService } from '../../services/fileTransferService';
 
 /**
  * GET /api/filetransfer/transfers
@@ -29,12 +29,14 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
 
     // 获取传输列表
-    const transfers = await fileTransferDbService.getTransfers({
-      userId: user.id.toString(),
+    const transfers = await fileTransferService.getUserTransfers(
+      user.id.toString(),
+      {
       page,
       limit,
       status: status as any,
-    });
+      }
+    );
 
     return NextResponse.json(transfers);
   } catch (error) {
@@ -70,10 +72,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 创建传输记录
-    const transfer = await fileTransferDbService.createTransfer({
-      file,
-      userId: user.id.toString(),
-    });
+    const transfer = await fileTransferService.uploadFile(file, user.id.toString());
 
     return NextResponse.json(transfer);
   } catch (error) {
@@ -104,7 +103,7 @@ export async function DELETE(
     const { id } = params;
 
     // 删除传输记录
-    await fileTransferDbService.deleteTransfer(id, user.id.toString());
+    await fileTransferService.deleteTransfer(id, user.id.toString());
 
     return NextResponse.json({ success: true });
   } catch (error) {
