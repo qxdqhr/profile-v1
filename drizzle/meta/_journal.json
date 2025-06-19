@@ -71,6 +71,20 @@
       "when": 1749473233644,
       "tag": "0009_red_marten_broadcloak",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1750346513871,
+      "tag": "0010_far_rhodey",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1750348002800,
+      "tag": "0011_mysterious_cobalt_man",
+      "breakpoints": true
     }
   ]
 }

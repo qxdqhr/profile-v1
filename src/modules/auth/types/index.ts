@@ -170,6 +170,11 @@ export interface AuthService {
   deleteUserSessions(userId: number): Promise<void>;
   updateLastLogin(userId: number): Promise<void>;
   cleanupExpiredSessions(): Promise<void>;
+  getUserByPhone(phone: string): Promise<User | null>;
+  sendVerificationCode(phone: string): Promise<string>;
+  verifyCode(phone: string, code: string): Promise<boolean>;
+  resetPassword(phone: string, newPassword: string): Promise<void>;
+  cleanupExpiredVerificationCodes(): Promise<void>;
 }
 
 // ===== 工具函数类型 =====

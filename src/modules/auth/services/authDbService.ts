@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto';
 import { eq, and, gt, lt } from 'drizzle-orm';
 import { db } from '@/db/index';
-import { users, userSessions, verificationCodes } from '@/db/schema/auth';
+import { users, userSessions, verificationCodes } from '@/modules/auth/db/schema';
 import bcrypt from 'bcryptjs';
 import type { User, UserSession, SessionValidation, AuthService } from '../types';
 
@@ -258,9 +258,16 @@ class AuthDbService implements AuthService {
   async getUserByPhone(phone: string): Promise<User | null> {
     console.log('🔍 [AuthDbService] 根据手机号查询用户:', phone);
     try {
-      const user = await db.select().from(users).where(eq(users.phone, phone)).limit(1);
-      console.log('✅ [AuthDbService] 用户查询结果:', user.length > 0 ? '找到用户' : '未找到用户');
-      return user.length > 0 ? user[0] : null;
+      const result = await db.select().from(users).where(eq(users.phone, phone)).limit(1);
+      console.log('✅ [AuthDbService] 用户查询结果:', result.length > 0 ? '找到用户' : '未找到用户');
+      
+      if (result.length === 0) {
+        return null;
+      }
+
+      // 返回用户信息时移除密码字段
+      const { password: _, ...userWithoutPassword } = result[0];
+      return userWithoutPassword as User;
     } catch (error) {
       console.error('❌ [AuthDbService] 查询用户失败:', error);
       throw error;
@@ -273,6 +280,29 @@ class AuthDbService implements AuthService {
   async sendVerificationCode(phone: string): Promise<string> {
     console.log('📱 [AuthDbService] 开始发送验证码:', phone);
     try {
+      // 清理过期的验证码
+      await this.cleanupExpiredVerificationCodes();
+      
+      // 检查是否存在未过期的验证码（防止频繁发送）
+      const existingCode = await db.select()
+        .from(verificationCodes)
+        .where(
+          and(
+            eq(verificationCodes.phone, phone),
+            eq(verificationCodes.used, false),
+            gt(verificationCodes.expiresAt, new Date())
+          )
+        )
+        .limit(1);
+
+      if (existingCode.length > 0) {
+        // 检查是否在60秒内
+        const timeDiff = Date.now() - existingCode[0].createdAt.getTime();
+        if (timeDiff < 60 * 1000) { // 60秒内
+          throw new Error('验证码发送过于频繁，请稍后再试');
+        }
+      }
+      
       // 生成6位数字验证码
       const code = Math.floor(100000 + Math.random() * 900000).toString();
       
@@ -349,6 +379,23 @@ class AuthDbService implements AuthService {
     } catch (error) {
       console.error('❌ [AuthDbService] 密码重置失败:', error);
       throw error;
+    }
+  }
+
+  /**
+   * 清理过期的验证码
+   */
+  async cleanupExpiredVerificationCodes(): Promise<void> {
+    console.log('🧹 [AuthDbService] 清理过期验证码');
+    try {
+      const now = new Date();
+      const result = await db.delete(verificationCodes)
+        .where(lt(verificationCodes.expiresAt, now))
+        .returning();
+      
+      console.log(`✅ [AuthDbService] 清理了 ${result.length} 个过期验证码`);
+    } catch (error) {
+      console.error('❌ [AuthDbService] 清理过期验证码失败:', error);
     }
   }
 }

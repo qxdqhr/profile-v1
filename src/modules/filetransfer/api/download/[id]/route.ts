@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateApiAuth } from '@/modules/auth/server';
 import { fileTransferDbService } from '../../../db/fileTransferDbService';
+import { fileTransferService } from '../../../services/fileTransferService';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 
@@ -29,15 +30,11 @@ export async function GET(
     const { id } = params;
 
     // 获取文件信息
-    const [transfer] = await fileTransferDbService.getTransfers({
-      userId: user.id.toString(),
-      page: 1,
-      limit: 1,
-    });
+    const transfer = await fileTransferDbService.getTransferById(id, user.id.toString());
 
     if (!transfer) {
       return NextResponse.json(
-        { error: '文件不存在' },
+        { error: '文件不存在或无权限访问' },
         { status: 404 }
       );
     }
@@ -46,7 +43,7 @@ export async function GET(
     const fileBuffer = await readFile(transfer.filePath);
 
     // 更新下载次数
-    await fileTransferDbService.incrementDownloadCount(id);
+    await fileTransferService.recordDownload(id);
 
     // 返回文件
     return new NextResponse(fileBuffer, {

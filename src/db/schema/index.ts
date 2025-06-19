@@ -1,10 +1,14 @@
 import { relations } from 'drizzle-orm';
 import { serial, text, timestamp, pgTable, json, integer, primaryKey } from 'drizzle-orm/pg-core';
-// 导出认证相关的表
-export * from './auth';
 
 // 导出画集相关的表
 export * from '@/modules/showmasterpiece/db/schema/masterpieces';
+// 导出认证相关的表
+export * from '@/modules/auth/db/schema';
+
+export * from '@/modules/showmasterpiece/db/schema/masterpieces';
+
+export * from '@/modules/filetransfer/db/schema';
 
 // 考试类型表
 export const examTypes = pgTable('exam_types', {

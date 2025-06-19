@@ -1,5 +1,5 @@
 import './globals.css'
-import '@/components/app.css'
+
 
 export const metadata = {
   title: 'Next.js',
@@ -13,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen">{children}</body>
+      <body>{children}</body>
     </html>
   )
 }

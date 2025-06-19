@@ -4,7 +4,7 @@ const config = {
   // 首页配置
   homeConfig: {
     title: "你好，我是皋月朔星",
-    subtitle: "我会在这里记录coding生活中遇到的大大小小的故事",
+    subtitle: "我会在这里记录coding生活中遇到的许许多多的事情",
     buttons: [
       { text: "查看作品", link: "#projects" },
       { text: "联系我", link: "#contact" },

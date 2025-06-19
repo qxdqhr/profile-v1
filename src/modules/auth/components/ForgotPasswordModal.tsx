@@ -68,6 +68,8 @@ export default function ForgotPasswordModal({ isOpen, onClose, onSuccess }: Forg
 
     try {
       setLoading(true);
+      setError(''); // 清除之前的错误信息
+      
       const response = await fetch('/api/auth/send-verification-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -87,10 +89,14 @@ export default function ForgotPasswordModal({ isOpen, onClose, onSuccess }: Forg
             return prev - 1;
           });
         }, 1000);
+        
+        // 显示成功提示
+        console.log('✅ 验证码发送成功');
       } else {
         setError(data.message || '发送验证码失败');
       }
     } catch (error) {
+      console.error('发送验证码异常:', error);
       setError('发送验证码失败，请稍后重试');
     } finally {
       setLoading(false);

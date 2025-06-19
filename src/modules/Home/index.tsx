@@ -9,7 +9,7 @@ import ProjectCarousel, { ProjectsConfig } from "@/components/ProjectCarousel";
 import Contact from "@/components/Contact";
 import { TimelineConfig } from "@/components/Timeline";
 import { CollisionBallsConfig } from "@/components/CollisionBalls";
-import "@/components/app.css";
+
 
 // 整体配置类型
 interface Config {

@@ -8,9 +8,10 @@ import { db } from '@/db';
 import { fileTransfers } from './schema';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import type { FileTransfer, TransferStatus } from '../types';
-import { writeFile, unlink } from 'fs/promises';
+import { writeFile, unlink, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { existsSync } from 'fs';
 
 interface GetTransfersOptions {
   userId: string;
@@ -53,6 +54,23 @@ export class FileTransferDbService {
   }
 
   /**
+   * 根据ID获取单个文件传输记录
+   */
+  async getTransferById(id: string, userId?: string) {
+    const query = db.select()
+      .from(fileTransfers)
+      .where(
+        and(
+          eq(fileTransfers.id, id),
+          userId ? eq(fileTransfers.uploaderId, userId) : undefined
+        )
+      );
+
+    const [transfer] = await query;
+    return transfer;
+  }
+
+  /**
    * 创建文件传输记录
    */
   async createTransfer({ file, userId }: CreateTransferOptions): Promise<FileTransfer> {
@@ -61,6 +79,12 @@ export class FileTransferDbService {
     const fileType = file.type;
     const fileSize = file.size;
     const filePath = join(this.storagePath, fileId);
+
+    // 确保存储目录存在
+    if (!existsSync(this.storagePath)) {
+      await mkdir(this.storagePath, { recursive: true });
+      console.log('📁 [FileTransferDbService] 创建存储目录:', this.storagePath);
+    }
 
     // 保存文件
     const arrayBuffer = await file.arrayBuffer();
