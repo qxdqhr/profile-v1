@@ -1,4 +1,4 @@
-import Phaser from 'phaser'
+import * as Phaser from 'phaser'
 
 export class SettingsScene extends Phaser.Scene {
   constructor() {

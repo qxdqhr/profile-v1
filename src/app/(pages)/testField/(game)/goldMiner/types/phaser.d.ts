@@ -1,4 +1,4 @@
-import Phaser from 'phaser'
+import * as Phaser from 'phaser'
 import { GameData } from './gameData'
 
 declare module 'phaser' {
