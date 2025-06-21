@@ -1,0 +1,1 @@
+ALTER TABLE "calendar_events" ADD COLUMN "priority" varchar(10) DEFAULT 'normal' NOT NULL;

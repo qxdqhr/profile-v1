@@ -219,5 +219,14 @@ export const experiments: ExperimentItem[] = [
     tags: ["文件", "传输", "上传", "下载"],
     category: "utility", 
     isCompleted: true
+  },
+  {
+    id: "calendar",
+    title: "日历管理",
+    description: "企业级日历应用，具备完整的事件管理、智能提醒、重复事件、事件搜索等高级功能。支持月/周/日视图切换，具备导入导出、时区支持、响应式设计等现代化特性",
+    path: "/testField/calendar",
+    tags: ["日历", "事件管理", "智能提醒", "重复事件", "搜索过滤", "企业级"],
+    category: "utility",
+    isCompleted: true
   }
 ];
