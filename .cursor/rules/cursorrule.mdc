@@ -1,0 +1,23 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+本项目是一个nextJS项目
+数据库采用的是drizzle orm + postgress
+生成页面的时候css都采用tailwindcss方式生成
+
+运行项目 参照package.json中的命令并使用pnpm执行
+build项目 参照package.json中的命令并使用pnpm执行
+生成新的数据库迁移文件 参照package.json中的命令并使用pnpm执行
+
+构建新的模块时,参照module/auth模块的目录结构构建
+构建新模块时,不仅需要构建前端界面URL 还要构建后端路由 
+构建新模块时,在实际路径中使用对应模块的前端导出,可以参照showmasterpiece 模块
+构建新模块时,在实际路径中使用对应模块的后端导出,可以参照showmasterpiece 模块
+构建新模块时,先在对应模块/功能目录下创建一个分步骤markdown文档并逐步构建且每次执行时需要同步更新文档
+
+构建前端页面样式时,需要适配桌面端和移动端
+如果新增加了模块表在src/db/index.ts中引用新模块中的db/schema.ts中的表结构,并记得自动更新测试环境表结构以及生产环境表结构(分别对应 package.json中的两个命令)
+如果生成了较为通用的UI组件,需要按照支持泛型的方式提取出公共组件并将公共组件放置在components目录下
+添加了新模块,需要在实验田模块中添加新模块项目的路由json

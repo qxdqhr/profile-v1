@@ -10,6 +10,9 @@ export * from '@/modules/showmasterpiece/db/schema/masterpieces';
 
 export * from '@/modules/filetransfer/db/schema';
 
+// 导出日历相关的表
+export * from '@/modules/calendar/db/schema';
+
 // 考试类型表
 export const examTypes = pgTable('exam_types', {
   id: text('id').primaryKey(), // 如 "default", "arknights"
