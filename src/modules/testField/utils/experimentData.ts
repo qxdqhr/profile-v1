@@ -88,6 +88,15 @@ export const experiments: ExperimentItem[] = [
     category: "utility",
     isCompleted: false
   },
+  {
+    id: "idea-list",
+    title: "想法清单",
+    description: "管理和组织各种想法的清单工具，支持多个清单、优先级设置、标签分类和完成状态跟踪",
+    path: "/testField/ideaList",
+    tags: ["想法", "清单", "待办事项", "管理"],
+    category: "utility",
+    isCompleted: false
+  },
 
   // 休闲娱乐类
   {
