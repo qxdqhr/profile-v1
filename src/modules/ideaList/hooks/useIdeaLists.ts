@@ -123,6 +123,21 @@ export function useIdeaLists(): UseIdeaListsState {
     }
   }, [ideaLists, refreshLists]);
 
+  /**
+   * 本地更新清单统计数据（避免重新加载导致闪烁）
+   */
+  const updateListStats = useCallback((listId: number, itemCountChange: number, completedCountChange: number) => {
+    setIdeaLists(prev => prev.map(list => 
+      list.id === listId 
+        ? {
+            ...list,
+            itemCount: Math.max(0, list.itemCount + itemCountChange),
+            completedCount: Math.max(0, list.completedCount + completedCountChange)
+          }
+        : list
+    ));
+  }, []);
+
   return {
     ideaLists,
     loading,
@@ -132,5 +147,6 @@ export function useIdeaLists(): UseIdeaListsState {
     updateList,
     deleteList,
     reorderLists,
+    updateListStats,
   };
 } 
