@@ -94,6 +94,7 @@ export interface UseIdeaListsState {
   updateList: (id: number, data: Partial<IdeaListFormData>) => Promise<boolean>;
   deleteList: (id: number) => Promise<boolean>;
   reorderLists: (orderedIds: number[]) => Promise<boolean>;
+  updateListStats: (listId: number, itemCountChange: number, completedCountChange: number) => void;
 }
 
 export interface UseIdeaItemsState {
