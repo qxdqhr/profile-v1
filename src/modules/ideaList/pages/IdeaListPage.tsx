@@ -9,6 +9,7 @@ import EditIdeaListModal from '../components/EditIdeaListModal';
 import CreateIdeaItemModal from '../components/CreateIdeaItemModal';
 import EditIdeaItemModal from '../components/EditIdeaItemModal';
 import type { IdeaList, IdeaListWithItems, IdeaListFormData, IdeaItemFormData, IdeaItem } from '../types';
+import { AuthProvider, UserMenu } from '@/modules/auth';
 
 /**
  * 想法清单主页面
@@ -280,15 +281,16 @@ export default function IdeaListPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
               <h1 className="text-2xl font-bold text-gray-900">想法清单</h1>
-                              <button
-                  onClick={() => {
-                    setShowCreateModal(true);
-                    setEditingList(null);
-                  }}
-                  className="bg-white hover:bg-gray-50 text-black border border-gray-300 hover:border-gray-400 px-4 py-2 rounded-md text-sm font-medium shadow-sm"
-                >
-                  创建新清单
-                </button>
+              <UserMenu />
+              <button
+                onClick={() => {
+                  setShowCreateModal(true);
+                  setEditingList(null);
+                }}
+                className="bg-white hover:bg-gray-50 text-black border border-gray-300 hover:border-gray-400 px-4 py-2 rounded-md text-sm font-medium shadow-sm"
+              >
+                创建新清单
+              </button>
             </div>
           </div>
         </div>
@@ -299,11 +301,11 @@ export default function IdeaListPage() {
           {/* 左侧清单列表侧边栏 */}
           <div className={`${sidebarCollapsed ? 'w-16' : 'w-80'} transition-[width] duration-200 border-r border-gray-200 flex flex-col`}>
             {/* 侧边栏头部 */}
-            <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+            <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 ">
               {!sidebarCollapsed && <h2 className="text-lg font-medium text-gray-900">我的清单</h2>}
               <button
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                className="p-2 rounded-md hover:bg-gray-200"
+                className="p-2 rounded-lg hover:bg-gray-200"
                 title={sidebarCollapsed ? '展开清单' : '收起清单'}
               >
                 <svg 
