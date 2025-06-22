@@ -15,6 +15,7 @@ interface DroppableCalendarCellProps {
   onEventClick?: (event: CalendarEvent) => void;
   onDateClick?: (date: Date) => void;
   className?: string;
+  disableDrop?: boolean;
 }
 
 /**
@@ -34,10 +35,13 @@ export const DroppableCalendarCell: React.FC<DroppableCalendarCellProps> = ({
   dragOverPreview,
   onEventClick,
   onDateClick,
-  className = ''
+  className = '',
+  disableDrop = false
 }) => {
   const dateStr = formatDate(date);
   const dropId = `date-${dateStr}`;
+  
+  // 只在支持拖拽时启用可放置功能
   const {
     isOver,
     setNodeRef,
@@ -47,6 +51,7 @@ export const DroppableCalendarCell: React.FC<DroppableCalendarCellProps> = ({
       date,
       dateStr,
     },
+    disabled: disableDrop,
   });
 
   // 调试日志
@@ -98,7 +103,7 @@ export const DroppableCalendarCell: React.FC<DroppableCalendarCellProps> = ({
 
   return (
     <div
-      ref={setNodeRef}
+      ref={disableDrop ? undefined : setNodeRef}
       className={getCellClasses()}
       onClick={() => onDateClick?.(date)}
     >

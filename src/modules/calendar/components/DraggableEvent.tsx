@@ -4,6 +4,7 @@ import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CalendarEvent } from '../types';
 import { formatTime } from '../utils/dateUtils';
+import { useDeviceType } from '../utils/deviceUtils';
 
 interface DraggableEventProps {
   event: CalendarEvent;
@@ -17,7 +18,8 @@ interface DraggableEventProps {
  * 可拖拽的事件组件
  * 
  * 功能特性：
- * - 支持拖拽移动事件
+ * - 支持拖拽移动事件（桌面端）
+ * - 移动端禁用拖拽功能
  * - 拖拽时显示半透明效果
  * - 保持原有的点击功能
  * - 响应式设计
@@ -29,6 +31,10 @@ export const DraggableEvent: React.FC<DraggableEventProps> = ({
   onClick,
   children
 }) => {
+  // 检测设备类型
+  const { isMobile, dragSupported } = useDeviceType();
+  
+  // 只在支持拖拽的设备上启用拖拽功能
   const {
     attributes,
     listeners,
@@ -40,6 +46,7 @@ export const DraggableEvent: React.FC<DraggableEventProps> = ({
     data: {
       event,
     },
+    disabled: !dragSupported, // 移动端禁用拖拽
   });
 
   // 计算拖拽时的样式变换
@@ -95,26 +102,49 @@ export const DraggableEvent: React.FC<DraggableEventProps> = ({
       ref={setNodeRef}
       style={style}
       className={`
-        group relative rounded border-l-2 px-1 py-0.5 mb-0.5 cursor-grab active:cursor-grabbing
+        group relative rounded border-l-2 px-1 py-0.5 mb-0.5 
+        ${dragSupported ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
         transition-all duration-150 ease-in-out text-xs
         ${getEventColorClasses(event.color)}
         ${isDragActive || isDragging ? 'opacity-60 shadow-md z-40' : 'opacity-100'}
         ${className}
       `}
-      {...listeners}
-      {...attributes}
+      // 只在支持拖拽时应用拖拽事件监听器
+      {...(dragSupported ? listeners : {})}
+      {...(dragSupported ? attributes : {})}
       onClick={onClick}
     >
-      {/* 拖拽指示器 */}
-      <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <svg 
-          className="w-3 h-3 text-gray-400" 
-          fill="currentColor" 
-          viewBox="0 0 20 20"
-        >
-          <path d="M7 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
-        </svg>
-      </div>
+      {/* 拖拽指示器 - 只在桌面端显示 */}
+      {dragSupported && (
+        <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <svg 
+            className="w-3 h-3 text-gray-400" 
+            fill="currentColor" 
+            viewBox="0 0 20 20"
+          >
+            <path d="M7 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
+          </svg>
+        </div>
+      )}
+
+      {/* 移动端操作提示 */}
+      {isMobile && (
+        <div className="absolute top-1 right-1 opacity-70">
+          <svg 
+            className="w-3 h-3 text-gray-500" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" 
+            />
+          </svg>
+        </div>
+      )}
 
       {/* 事件内容 - 紧凑模式 */}
       <div className="flex items-center gap-1">
