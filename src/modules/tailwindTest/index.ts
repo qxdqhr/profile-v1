@@ -5,12 +5,3 @@
 
 // 页面组件
 export { default as TailwindTestPage } from './pages/TailwindTestPage'
-
-// 组件
-export * from './components'
-
-// 类型
-export * from './types'
-
-// 工具函数
-export * from './utils'
