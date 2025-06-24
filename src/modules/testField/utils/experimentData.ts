@@ -97,6 +97,33 @@ export const experiments: ExperimentItem[] = [
     category: "utility",
     isCompleted: false
   },
+  {
+    id: "mmd-viewer",
+    title: "MMD模型查看器",
+    description: "基于Three.js的MMD(MikuMikuDance)模型查看器，支持PMD/PMX模型格式和VMD动画播放",
+    path: "/testField/mmdViewer",
+    tags: ["3D", "MMD", "Three.js", "模型", "动画"],
+    category: "leisure",
+    isCompleted: false
+  },
+  {
+    id: "card-maker",
+    title: "名片制作器",
+    description: "移动端名片制作工具，支持角色头像、背景图片、文字编辑等功能，可创建个性化名片",
+    path: "/testField/cardMaker",
+    tags: ["名片", "设计", "移动端", "编辑器", "个性化"],
+    category: "utility",
+    isCompleted: false
+  },
+  {
+    id: "tailwind-test",
+    title: "TailwindCSS 测试场",
+    description: "专门用于测试和学习TailwindCSS的实验模块，包含各种样式特性的示例和测试用例",
+    path: "/testField/tailwindTest",
+    tags: ["TailwindCSS", "样式", "测试", "学习", "CSS"],
+    category: "utility",
+    isCompleted: false
+  },
 
   // 休闲娱乐类
   {
@@ -236,6 +263,15 @@ export const experiments: ExperimentItem[] = [
     path: "/testField/calendar",
     tags: ["日历", "事件管理", "智能提醒", "重复事件", "搜索过滤", "企业级"],
     category: "utility",
+    isCompleted: true
+  },
+  {
+    id: "solar-system",
+    title: "实时太阳系",
+    description: "基于真实天文数据的太阳系3D可视化，使用Three.js展示太阳和八大行星的实时位置与轨道运动。支持时间控制、行星信息查看、轨道可视化等功能",
+    path: "/testField/solarSystem",
+    tags: ["太阳系", "3D", "Three.js", "天文", "可视化", "实时"],
+    category: "leisure",
     isCompleted: true
   }
 ];

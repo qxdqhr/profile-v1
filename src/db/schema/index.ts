@@ -16,6 +16,12 @@ export * from '@/modules/calendar/db/schema';
 // 导出想法清单相关的表
 export * from '@/modules/ideaList/db/schema';
 
+// 导出MMD相关的表
+export * from '@/modules/mmd/db/schema';
+
+// 导出名片制作器相关的表
+export * from '@/modules/cardMaker/db/schema';
+
 // 考试类型表
 export const examTypes = pgTable('exam_types', {
   id: text('id').primaryKey(), // 如 "default", "arknights"

@@ -1,0 +1,1 @@
+export { UniversalFileUploader, type UniversalFileUploaderProps } from './UniversalFileUploader'; 
