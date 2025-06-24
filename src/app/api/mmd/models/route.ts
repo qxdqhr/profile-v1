@@ -1,0 +1,1 @@
+export { GET, POST } from '@/modules/mmd/api/models/route'; 

@@ -12,12 +12,10 @@ export default function TestFieldLayout({
 }) {
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-gray-50"> 
         {/* 主要内容 */}
-        <main>
+        {/* <main> */}
           {children}
-        </main>
-      </div>
+        {/* </main> */}
     </AuthProvider>
   )
 }
