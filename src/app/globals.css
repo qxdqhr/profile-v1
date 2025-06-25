@@ -10,10 +10,22 @@
   
   html {
     @apply scroll-smooth;
+    /* 防止双击放大 */
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
   }
   
   body {
     @apply bg-background text-foreground;
+    /* 防止移动端滚动回弹 */
+    overscroll-behavior: none;
+    /* 防止双击选择 */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
   }
   
   /* 自定义滚动条样式 */
@@ -38,5 +50,41 @@
 @layer components {
   .container {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* 移动端触摸优化 */
+  .touch-optimized {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  /* 防止双击放大的游戏区域 */
+  .no-zoom {
+    touch-action: pan-x pan-y;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* 移动端按钮优化 */
+  .mobile-button {
+    min-height: 44px;
+    min-width: 44px;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    /* 确保按钮可点击 */
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 999;
+    /* 防止事件穿透 */
+    background-clip: padding-box;
   }
 } 

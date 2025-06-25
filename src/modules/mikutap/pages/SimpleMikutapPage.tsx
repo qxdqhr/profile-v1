@@ -33,6 +33,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     keyboardEnabled: true,
     mouseEnabled: true,
   });
+  const [touchHandled, setTouchHandled] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const audioGeneratorRef = useRef(getAudioGenerator());
 
@@ -111,7 +112,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
   }, [isAudioInitialized, isDragging, lastPlayTime]);
 
   /**
-   * 处理位置音效播放
+   * 处理位置音效播放 - 网格布局 (5列 x 6行)
    */
   const handlePlaySoundAtPosition = useCallback(async (x: number, y: number, skipThrottle = false) => {
     if (!isAudioInitialized) {
@@ -122,16 +123,25 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
     
-    // 根据位置选择音效
+    // 网格配置: 5列 x 6行 = 30个格子，使用前26个
+    const cols = 5;
+    const rows = 6;
     const keys = 'qwertyuiopasdfghjklzxcvbnm';
-    const index = Math.floor((x / rect.width) * keys.length);
-    const key = keys[index] || 'q';
+    
+    // 计算网格位置
+    const col = Math.floor((x / rect.width) * cols);
+    const row = Math.floor((y / rect.height) * rows);
+    const gridIndex = row * cols + col;
+    
+    // 确保在有效范围内
+    const keyIndex = Math.min(gridIndex, keys.length - 1);
+    const key = keys[keyIndex] || 'q';
     
     playSound(key, x, y, skipThrottle);
   }, [isAudioInitialized, initializeAudio, playSound]);
 
   /**
-   * 处理鼠标点击
+   * 处理鼠标点击和触摸
    */
   const handleClick = useCallback(async (e: React.MouseEvent) => {
     if (!settings.mouseEnabled || isDragging) return; // 鼠标禁用或拖拽时不处理点击
@@ -144,6 +154,59 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     
     await handlePlaySoundAtPosition(x, y, true);
   }, [settings.mouseEnabled, isDragging, handlePlaySoundAtPosition]);
+
+  /**
+   * 处理触摸开始
+   */
+  const handleTouchStart = useCallback(async (e: React.TouchEvent) => {
+    if (!settings.mouseEnabled) return;
+    
+    e.preventDefault(); // 防止双击放大和其他默认行为
+    setIsDragging(true);
+    
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    
+    const touch = e.touches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    
+    await handlePlaySoundAtPosition(x, y, true);
+  }, [settings.mouseEnabled, handlePlaySoundAtPosition]);
+
+  /**
+   * 处理触摸移动
+   */
+  const handleTouchMove = useCallback(async (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    const rect = containerRef.current?.getBoundingClientRect();
+    
+    if (showHelpInfo && rect) {
+      setMousePosition({
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top
+      });
+    }
+    
+    if (!settings.mouseEnabled || !isDragging) return;
+    
+    e.preventDefault(); // 防止页面滚动
+    
+    if (!rect) return;
+    
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    
+    await handlePlaySoundAtPosition(x, y);
+  }, [settings.mouseEnabled, isDragging, showHelpInfo, handlePlaySoundAtPosition]);
+
+  /**
+   * 处理触摸结束
+   */
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
 
   /**
    * 处理鼠标按下
@@ -260,12 +323,27 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
   }, []);
 
+  // 监听全局触摸结束事件
+  useEffect(() => {
+    const handleGlobalTouchEnd = () => {
+      setIsDragging(false);
+      setMousePosition(null);
+    };
+
+    window.addEventListener('touchend', handleGlobalTouchEnd);
+    window.addEventListener('touchcancel', handleGlobalTouchEnd);
+    return () => {
+      window.removeEventListener('touchend', handleGlobalTouchEnd);
+      window.removeEventListener('touchcancel', handleGlobalTouchEnd);
+    };
+  }, []);
+
   return (
-    <div className={`w-full h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-black relative overflow-hidden ${className}`}>
+    <div className={`w-full h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-black relative overflow-hidden touch-optimized ${className}`}>
       {/* 主游戏区域 */}
       <div
         ref={containerRef}
-        className={`relative w-full h-full select-none ${isDragging ? 'cursor-grabbing' : 'cursor-crosshair'}`}
+        className={`relative w-full h-full select-none no-zoom ${isDragging ? 'cursor-grabbing' : 'cursor-crosshair'}`}
         onClick={handleClick}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -274,6 +352,9 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
           setMousePosition(null);
           setIsDragging(false); // 鼠标离开时停止拖拽
         }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         {/* 粒子效果 */}
         {particles.map(particle => (
@@ -315,10 +396,16 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
           <>
             <div className="absolute top-4 left-4 text-white text-sm opacity-75 z-20">
               <div>🎵 Mikutap - 合成音效版</div>
-              <div className="mt-1">点击鼠标 • 拖拽 • 按键盘字母开始演奏</div>
+              <div className="mt-1">
+                <span className="hidden md:inline">点击鼠标 • 拖拽 • 按键盘字母开始演奏</span>
+                <span className="md:hidden">触摸屏幕 • 拖拽 • 按键盘字母开始演奏</span>
+              </div>
               <div className="mt-1">🔊 音频系统已激活</div>
               {isDragging && (
-                <div className="mt-1 text-green-300">🎨 拖拽模式 - 连续演奏中</div>
+                <div className="mt-1 text-green-300">
+                  <span className="hidden md:inline">🎨 拖拽模式 - 连续演奏中</span>
+                  <span className="md:hidden">🎨 触摸模式 - 连续演奏中</span>
+                </div>
               )}
               {!showHelpInfo && (
                 <div className="mt-1 text-xs opacity-60">💡 点击左下角查看操作指南</div>
@@ -341,112 +428,101 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
                onMouseDown={handleMouseDown}
                onMouseMove={handleMouseMove}
                onMouseUp={handleMouseUp}
+               onTouchStart={handleTouchStart}
+               onTouchMove={handleTouchMove}
+               onTouchEnd={handleTouchEnd}
                style={{ pointerEvents: 'auto' }}>
             
-            {/* 点击区域边界线 */}
+            {/* 网格边界线 */}
             <div className="absolute inset-0 pointer-events-none z-10">
-              {/* 背景颜色区域 */}
-              <div className="absolute inset-0 flex">
-                {/* 钢琴音色区域背景 */}
-                <div 
-                  className="bg-blue-500 bg-opacity-10 border-r-2 border-blue-300 border-opacity-50"
-                  style={{ width: `${(10/26) * 100}%` }}
-                />
-                {/* 鼓点音色区域背景 */}
-                <div 
-                  className="bg-green-500 bg-opacity-10 border-r-2 border-green-300 border-opacity-50"
-                  style={{ width: `${(9/26) * 100}%` }}
-                />
-                {/* 特效音色区域背景 */}
-                <div 
-                  className="bg-purple-500 bg-opacity-10"
-                  style={{ width: `${(7/26) * 100}%` }}
-                />
-              </div>
-              
-              {/* 垂直分割线 */}
-              {Array.from({ length: 25 }, (_, i) => (
-                <div
-                  key={i}
-                  className="absolute top-0 bottom-0 w-0.5 bg-white bg-opacity-40"
-                  style={{
-                    left: `${((i + 1) / 26) * 100}%`,
-                    boxShadow: '0 0 3px rgba(255,255,255,0.8)'
-                  }}
-                />
-              ))}
-              
-              {/* 主要区域分割线 */}
-              <div
-                className="absolute top-0 bottom-0 w-1 bg-blue-300 bg-opacity-80"
-                style={{
-                  left: `${(10/26) * 100}%`,
-                  boxShadow: '0 0 5px rgba(59, 130, 246, 0.8)'
-                }}
-              />
-              <div
-                className="absolute top-0 bottom-0 w-1 bg-green-300 bg-opacity-80"
-                style={{
-                  left: `${(19/26) * 100}%`,
-                  boxShadow: '0 0 5px rgba(34, 197, 94, 0.8)'
-                }}
-              />
-              
-              {/* 区域标识 */}
-              {Array.from({ length: 26 }, (_, index) => {
-                const char = 'qwertyuiopasdfghjklzxcvbnm'[index];
-                const soundName = index < 10 ? '钢琴' : index < 19 ? '鼓点' : '特效';
-                const bgColor = index < 10 ? 'bg-blue-500' : index < 19 ? 'bg-green-500' : 'bg-purple-500';
+              {/* 网格配置: 5列 x 6行 */}
+              {(() => {
+                const cols = 5;
+                const rows = 6;
+                const keys = 'qwertyuiopasdfghjklzxcvbnm';
                 
                 return (
-                  <div
-                    key={index}
-                    className={`absolute top-1/2 justify-center bg-clear text-white text-xs px-1 py-0.5 rounded font-mono font-bold pointer-events-none`}
-                    style={{
-                      left: `${((index + 0.5) / 26) * 100}%`,
-                      transform: 'translateX(-50%)',
-                      fontSize: '10px'
-                    }}
-                  >
-                      {/* 音效图标 */}
-                      <div className="text-lg md:text-2xl mb-1">
-                      {index < 10 ? '🎹' : index < 19 ? '🥁' : '🎛️'}
-                    </div>
+                  <>
+                    {/* 垂直分割线 */}
+                    {Array.from({ length: cols - 1 }, (_, i) => (
+                      <div
+                        key={`v-${i}`}
+                        className="absolute top-0 bottom-0 w-0.5 bg-white bg-opacity-50"
+                        style={{
+                          left: `${((i + 1) / cols) * 100}%`,
+                          boxShadow: '0 0 3px rgba(255,255,255,0.8)'
+                        }}
+                      />
+                    ))}
                     
-                    {/* 字母 */}
-                    <div className="text-xl md:text-3xl font-bold font-mono mb-1">
-                      {char.toUpperCase()}
-                    </div>
+                    {/* 水平分割线 */}
+                    {Array.from({ length: rows - 1 }, (_, i) => (
+                      <div
+                        key={`h-${i}`}
+                        className="absolute left-0 right-0 h-0.5 bg-white bg-opacity-50"
+                        style={{
+                          top: `${((i + 1) / rows) * 100}%`,
+                          boxShadow: '0 0 3px rgba(255,255,255,0.8)'
+                        }}
+                      />
+                    ))}
                     
-                    {/* 音色类型 */}
-                    <div className="text-xs md:text-sm font-semibold">
-                      {soundName}
-                    </div>
-                    
-                    {/* 波形类型 - 桌面端显示 */}
-                    <div className="hidden md:block text-xs opacity-75 mt-1">
-                      {index < 10 ? '正弦波' : index < 19 ? '方波' : '锯齿波'}
-                    </div>
-                  </div>
+                    {/* 网格单元格 */}
+                    {Array.from({ length: Math.min(26, cols * rows) }, (_, index) => {
+                      const row = Math.floor(index / cols);
+                      const col = index % cols;
+                      const char = keys[index];
+                      const soundName = index < 10 ? '钢琴' : index < 19 ? '鼓点' : '特效';
+                      const bgColor = index < 10 ? 'bg-blue-500' : index < 19 ? 'bg-green-500' : 'bg-purple-500';
+                      const borderColor = index < 10 ? 'border-blue-300' : index < 19 ? 'border-green-300' : 'border-purple-300';
+                      
+                      return (
+                        <div
+                          key={index}
+                          className={`absolute flex flex-col items-center justify-center text-white border ${borderColor} border-opacity-30 ${bgColor} bg-opacity-10 hover:bg-opacity-20 transition-all duration-200 pointer-events-none`}
+                          style={{
+                            left: `${(col / cols) * 100}%`,
+                            top: `${(row / rows) * 100}%`,
+                            width: `${(1 / cols) * 100}%`,
+                            height: `${(1 / rows) * 100}%`,
+                          }}
+                        >
+                          {/* 音效图标 */}
+                          <div className="text-lg md:text-2xl xl:text-3xl mb-1">
+                            {index < 10 ? '🎹' : index < 19 ? '🥁' : '🎛️'}
+                          </div>
+                          
+                          {/* 字母 */}
+                          <div className="text-xl md:text-2xl xl:text-4xl font-bold font-mono mb-1">
+                            {char.toUpperCase()}
+                          </div>
+                          
+                          {/* 音色类型 */}
+                          <div className="text-xs md:text-sm xl:text-base font-semibold">
+                            {soundName}
+                          </div>
+                          
+                          {/* 波形类型 - 桌面端显示 */}
+                          <div className="hidden md:block text-xs xl:text-sm opacity-75 mt-1">
+                            {index < 10 ? '正弦波' : index < 19 ? '方波' : '锯齿波'}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </>
                 );
-              })}
+              })()}
               
               {/* 底部区域标识 */}
-              <div className="absolute bottom-24 left-0 right-0 flex pointer-events-none">
-                <div className="flex-1 text-center">
-                  <div className="bg-blue-500 bg-opacity-60 text-white text-xs px-2 py-1 rounded mx-auto inline-block">
-                    🎹 钢琴音色区域 (Q-P)
-                  </div>
+              <div className="absolute bottom-24 left-0 right-0 flex flex-wrap justify-center gap-2 pointer-events-none">
+                <div className="bg-blue-500 bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                  🎹 钢琴音色 (Q-P)
                 </div>
-                <div className="flex-1 text-center">
-                  <div className="bg-green-500 bg-opacity-60 text-white text-xs px-2 py-1 rounded mx-auto inline-block">
-                    🥁 鼓点音色区域 (A-L)
-                  </div>
+                <div className="bg-green-500 bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                  🥁 鼓点音色 (A-L)
                 </div>
-                <div className="flex-1 text-center">
-                  <div className="bg-purple-500 bg-opacity-60 text-white text-xs px-2 py-1 rounded mx-auto inline-block">
-                    🎛️ 特效音色区域 (Z-M)
-                  </div>
+                <div className="bg-purple-500 bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                  🎛️ 特效音色 (Z-M)
                 </div>
               </div>
             </div>
@@ -455,12 +531,12 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
             
             {/* 顶部说明 */}
             <div className="absolute top-2 md:top-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-90 text-white px-3 md:px-4 py-2 rounded-lg text-center pointer-events-auto max-w-[90vw]">
-              <div className="text-sm md:text-lg font-bold mb-1">🎵 Mikutap 操作区域划分</div>
+              <div className="text-sm md:text-lg font-bold mb-1">🎵 Mikutap 网格操作区域</div>
               <div className="text-xs md:text-sm opacity-75">
-                垂直线条显示26个音效区域边界 • 点击任意位置演奏对应音效
+                5x6网格显示26个音效区域 • 点击任意网格演奏对应音效
               </div>
               <div className="text-xs opacity-60 mt-1">
-                按ESC或💡按钮关闭蒙版
+                按ESC或💡按钮关闭蒙版 • 网格布局更适合触摸操作
               </div>
             </div>
 
@@ -477,11 +553,21 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
                 {(() => {
                   const rect = containerRef.current?.getBoundingClientRect();
                   if (!rect) return '';
-                  const index = Math.floor((mousePosition.x / rect.width) * 26);
-                  const char = 'qwertyuiopasdfghjklzxcvbnm'[index] || 'q';
+                  
+                  // 网格计算: 5列 x 6行
+                  const cols = 5;
+                  const rows = 6;
+                  const keys = 'qwertyuiopasdfghjklzxcvbnm';
+                  
+                  const col = Math.floor((mousePosition.x / rect.width) * cols);
+                  const row = Math.floor((mousePosition.y / rect.height) * rows);
+                  const gridIndex = row * cols + col;
+                  const index = Math.min(gridIndex, keys.length - 1);
+                  
+                  const char = keys[index] || 'q';
                   const soundName = index < 10 ? '钢琴音' : index < 19 ? '鼓点音' : '特效音';
                   const icon = index < 10 ? '🎹' : index < 19 ? '🥁' : '🎛️';
-                  return `${icon} ${char.toUpperCase()} - ${soundName}`;
+                  return `${icon} ${char.toUpperCase()} - ${soundName} (行${row+1}列${col+1})`;
                 })()}
               </div>
             )}
@@ -491,27 +577,52 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
               <div className="text-xs md:text-sm">
                 <div className="md:hidden space-y-1">
                   <div>⌨️ 键盘: 直接按字母键</div>
-                  <div>🖱️ 鼠标: 点击或拖拽任意位置</div>
-                  <div>📏 白线显示区域边界</div>
+                  <div>🖱️ 鼠标: 点击或拖拽网格</div>
+                  <div>📱 网格: 5列×6行布局</div>
                   <div>⚡ ESC关闭 / F1切换</div>
                 </div>
-                <div className="hidden md:block space-x-3">
+                {/* <div className="hidden md:block space-x-3">
                   <span>⌨️ 键盘: 直接按字母键</span>
-                  <span>🖱️ 鼠标: 点击或拖拽任意位置连续演奏</span>
-                  <span>📏 白线显示26个音效区域边界</span>
+                  <span>🖱️ 鼠标: 点击或拖拽网格连续演奏</span>
+                  <span>📱 网格: 5列×6行显示26个音效区域</span>
                   <span>⚡ 快捷键: ESC关闭 / F1切换</span>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
         )}
 
         {/* 功能按钮组 */}
-        <div className="absolute bottom-20 right-4 z-20 flex flex-col gap-2">
+        <div 
+          className="absolute bottom-20 right-4 z-50 flex flex-col gap-2 pointer-events-auto"
+          onTouchStart={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
+          onTouchEnd={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
           {/* 设置按钮 */}
           <button
-            onClick={() => setShowSettings(true)}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              if (touchHandled) {
+                setTouchHandled(false);
+                return;
+              }
+              setShowSettings(true);
+            }}
+            onTouchStart={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setTouchHandled(true);
+            }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setShowSettings(true);
+              setTimeout(() => setTouchHandled(false), 100);
+            }}
+            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 mobile-button pointer-events-auto"
             title="打开设置 (Ctrl+S)"
           >
             <span>⚙️</span>
@@ -520,7 +631,13 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
           
           {/* 测试按钮 */}
           <button
-            onClick={async () => {
+            onClick={async (e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              if (touchHandled) {
+                setTouchHandled(false);
+                return;
+              }
               if (!isAudioInitialized) {
                 await initializeAudio();
               } else {
@@ -536,19 +653,68 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
                 });
               }
             }}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+            onTouchStart={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setTouchHandled(true);
+            }}
+            onTouchEnd={async (e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              if (!isAudioInitialized) {
+                await initializeAudio();
+              } else {
+                // 播放测试音阶
+                const notes = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i'];
+                notes.forEach((note, index) => {
+                  setTimeout(() => {
+                    const rect = containerRef.current?.getBoundingClientRect();
+                    const x = rect ? rect.width / 2 : 400;
+                    const y = rect ? rect.height / 2 : 300;
+                    playSound(note, x, y, true);
+                  }, index * 200);
+                });
+              }
+              setTimeout(() => setTouchHandled(false), 100);
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors mobile-button pointer-events-auto"
           >
             {isAudioInitialized ? '🎹 播放音阶' : '🔊 初始化音频'}
           </button>
 
-                          {/* 帮助信息切换按钮 */}
-        <button
-          onClick={() => setShowHelpInfo(!showHelpInfo)}
-          className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-all duration-200 z-30 flex items-center gap-2"
-        >
+          {/* 帮助信息切换按钮 */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              // 如果刚刚处理过触摸事件，跳过点击事件
+              if (touchHandled) {
+                setTouchHandled(false);
+                return;
+              }
+              setShowHelpInfo(prev => !prev);
+            }}
+            onTouchStart={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setTouchHandled(true);
+            }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              // 在触摸设备上处理状态切换
+              setShowHelpInfo(prev => !prev);
+              // 设置延时清除flag，防止后续的click事件被触发
+              setTimeout(() => setTouchHandled(false), 100);
+            }}
+            onMouseDown={(e) => {
+              e.stopPropagation();
+            }}
+            className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-all duration-200 z-50 flex items-center gap-2 mobile-button pointer-events-auto"
+          >
           <span>{showHelpInfo ? '🙈' : '💡'}</span>
           <span>{showHelpInfo ? '隐藏帮助' : '显示帮助'}</span>
-        </button> */}
+        </button> 
         </div>
       </div>
 
