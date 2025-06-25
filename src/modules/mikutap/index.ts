@@ -17,8 +17,6 @@ export {
 
 // ===== 服务导出 =====
 export {
-  loadGridConfig,
-  saveGridConfig,
   resetToDefaultConfig,
   updateGridSize,
   updateGridCell,

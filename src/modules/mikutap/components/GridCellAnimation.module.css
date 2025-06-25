@@ -1,0 +1,176 @@
+.animation {
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.pulse {
+  animation-name: pulse-animation;
+}
+
+.bounce {
+  animation-name: bounce-animation;
+}
+
+.flash {
+  animation-name: flash-animation;
+}
+
+.spin {
+  animation-name: spin-animation;
+}
+
+.scale {
+  animation-name: scale-animation;
+}
+
+.slideUp {
+  animation-name: slide-up-animation;
+}
+
+.slideDown {
+  animation-name: slide-down-animation;
+}
+
+.slideLeft {
+  animation-name: slide-left-animation;
+}
+
+.slideRight {
+  animation-name: slide-right-animation;
+}
+
+.ripple {
+  animation-name: ripple-animation;
+}
+
+@keyframes pulse-animation {
+  0% { 
+    transform: scale(1); 
+    opacity: 1; 
+  }
+  50% { 
+    transform: scale(var(--animation-scale, 1.2)); 
+    opacity: var(--animation-opacity, 0.8); 
+  }
+  100% { 
+    transform: scale(1); 
+    opacity: 1; 
+  }
+}
+
+@keyframes bounce-animation {
+  0%, 20%, 53%, 80%, 100% { 
+    transform: translateY(0); 
+  }
+  40%, 43% { 
+    transform: translateY(-20px); 
+  }
+  70% { 
+    transform: translateY(-10px); 
+  }
+  90% { 
+    transform: translateY(-4px); 
+  }
+}
+
+@keyframes flash-animation {
+  0%, 50%, 100% { 
+    opacity: 1; 
+  }
+  25%, 75% { 
+    opacity: 0.3; 
+  }
+}
+
+@keyframes spin-animation {
+  from { 
+    transform: rotate(0deg); 
+  }
+  to { 
+    transform: rotate(360deg); 
+  }
+}
+
+@keyframes scale-animation {
+  0% { 
+    transform: scale(1); 
+  }
+  50% { 
+    transform: scale(var(--animation-scale, 1.2)); 
+  }
+  100% { 
+    transform: scale(1); 
+  }
+}
+
+@keyframes slide-up-animation {
+  from { 
+    transform: translateY(100%); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translateY(var(--animation-offset-y, 0)); 
+    opacity: var(--animation-opacity, 0.8); 
+  }
+}
+
+@keyframes slide-down-animation {
+  from { 
+    transform: translateY(-100%); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translateY(var(--animation-offset-y, 0)); 
+    opacity: var(--animation-opacity, 0.8); 
+  }
+}
+
+@keyframes slide-left-animation {
+  from { 
+    transform: translateX(100%); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translateX(var(--animation-offset-x, 0)); 
+    opacity: var(--animation-opacity, 0.8); 
+  }
+}
+
+@keyframes slide-right-animation {
+  from { 
+    transform: translateX(-100%); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translateX(var(--animation-offset-x, 0)); 
+    opacity: var(--animation-opacity, 0.8); 
+  }
+}
+
+@keyframes ripple-animation {
+  0% { 
+    transform: scale(0); 
+    opacity: 1; 
+  }
+  100% { 
+    transform: scale(var(--animation-scale, 2)); 
+    opacity: 0; 
+  }
+}
+
+.slideElement {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.rippleElement {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+} 

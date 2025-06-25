@@ -10,6 +10,8 @@ import { getAudioGenerator } from '../utils/audioGenerator';
 import { Modal } from '@/components/PopWindow';
 import { GridConfig, GridCell } from '../types';
 import { useConfigDatabase } from '../hooks/useConfigDatabase';
+import GridCellAnimation from '../components/GridCellAnimation';
+import TestAnimation from '../components/TestAnimation';
 
 interface SimpleMikutapPageProps {
   className?: string;
@@ -40,6 +42,20 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
   const containerRef = useRef<HTMLDivElement>(null);
   const audioGeneratorRef = useRef(getAudioGenerator());
   const { loadConfig: loadConfigFromDB } = useConfigDatabase();
+  const [animationTriggers, setAnimationTriggers] = useState<Record<string, number>>({});
+
+
+  // 监控animationTriggers状态变化
+  useEffect(() => {
+    console.log('🔥 animationTriggers state changed 🔥:', animationTriggers);
+  }, [animationTriggers]);
+
+
+
+  // 监控showHelpInfo状态变化
+  useEffect(() => {
+    console.log('showHelpInfo state changed:', showHelpInfo);
+  }, [showHelpInfo]);
 
   useEffect(() => {
     async function loadConfig() {
@@ -108,6 +124,17 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       setInteractionCount(prev => prev + 1);
       setLastKey(key.toUpperCase());
       
+      // 键盘事件总是触发动画（不受showHelpInfo限制）
+      console.log('playSoundByKey: Triggering animation for keyboard event', { 
+        cellId: cell.id, 
+        animationType: cell.animationType 
+      });
+      
+      setAnimationTriggers(prev => ({
+        ...prev,
+        [cell.id]: (prev[cell.id] || 0) + 1
+      }));
+      
       // 添加粒子效果
       if (settings.enableParticles) {
         const particleId = Math.random().toString(36);
@@ -133,7 +160,17 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
   }, [isAudioInitialized, isDragging, lastPlayTime, gridConfig, settings]);
 
   /**
-   * 根据单元格播放音效
+   * 触发单元格动画（支持重复触发）
+   */
+  const triggerCellAnimation = useCallback((cellId: string) => {
+    setAnimationTriggers(prev => ({
+      ...prev,
+      [cellId]: (prev[cellId] || 0) + 1
+    }));
+  }, []);
+
+  /**
+   * 根据单元格播放音效（简化版）
    */
   const playSoundByCell = useCallback(async (cell: GridCell, x: number, y: number, skipThrottle = false) => {
     if (!isAudioInitialized || !cell.enabled) return;
@@ -150,6 +187,9 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       await audioGeneratorRef.current.playSoundByCell(cell, 1, settings.volume);
       setInteractionCount(prev => prev + 1);
       setLastKey(cell.key || `(${cell.row},${cell.col})`);
+      
+      // 简化：所有音效播放都触发动画
+      triggerCellAnimation(cell.id);
       
       // 添加粒子效果
       if (settings.enableParticles) {
@@ -173,10 +213,10 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     } catch (error) {
       console.error('播放音效失败:', error);
     }
-  }, [isAudioInitialized, isDragging, lastPlayTime, settings]);
+  }, [isAudioInitialized, isDragging, lastPlayTime, settings, triggerCellAnimation]);
 
   /**
-   * 处理位置音效播放 - 根据配置的网格布局
+   * 处理位置音效播放 - 根据配置的网格布局（简化版）
    */
   const handlePlaySoundAtPosition = useCallback(async (x: number, y: number, skipThrottle = false) => {
     if (!isAudioInitialized) {
@@ -436,6 +476,47 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
           />
         ))}
 
+        {/* 隐藏的动画层 - 用于测试动画效果 */}
+        {gridConfig && !showHelpInfo && (
+          <div className="absolute inset-0 pointer-events-none z-5">
+            {gridConfig.cells.map((cell) => {
+              if (!cell.enabled) return null;
+              
+              const cols = gridConfig.cols;
+              const rows = gridConfig.rows;
+              
+              return (
+                <div
+                  key={`hidden-animation-${cell.id}`}
+                  className="absolute pointer-events-none"
+                  style={{
+                    left: `${(cell.col / cols) * 100}%`,
+                    top: `${(cell.row / rows) * 100}%`,
+                    width: `${(1 / cols) * 100}%`,
+                    height: `${(1 / rows) * 100}%`,
+                  }}
+                >
+                  <TestAnimation
+                    key={`test-animation-${cell.id}`}
+                    isTriggered={animationTriggers[cell.id] || 0}
+                    cellId={cell.id}
+                    onAnimationEnd={() => {
+                      console.log(`🎭 TestAnimation ended for ${cell.id}`);
+                      // 动画结束后重置为0，为下次触发做准备
+                      setAnimationTriggers(prev => ({
+                        ...prev,
+                        [cell.id]: 0
+                      }));
+                    }}
+                  >
+                    <div className="w-full h-full" />
+                  </TestAnimation>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         {/* 初始化提示 */}
         {!isAudioInitialized && (
           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
@@ -539,40 +620,60 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
                       return (
                         <div
                           key={cell.id}
-                          className={`absolute flex flex-col items-center justify-center text-white border border-opacity-30 bg-opacity-10 hover:bg-opacity-20 transition-all duration-200 pointer-events-none`}
+                          className="absolute pointer-events-none"
                           style={{
                             left: `${(cell.col / cols) * 100}%`,
                             top: `${(cell.row / rows) * 100}%`,
                             width: `${(1 / cols) * 100}%`,
                             height: `${(1 / rows) * 100}%`,
-                            backgroundColor: cell.color + '20',
-                            borderColor: cell.color,
                           }}
                         >
-                          {/* 音效图标 */}
-                          <div className="text-lg md:text-2xl xl:text-3xl mb-1">
-                            {cell.icon}
-                          </div>
-                          
-                          {/* 字母 */}
-                          <div className="text-xl md:text-2xl xl:text-4xl font-bold font-mono mb-1">
-                            {cell.key ? cell.key.toUpperCase() : '无按键'}
-                          </div>
-                          
-                          {/* 音色类型 */}
-                          <div className="text-xs md:text-sm xl:text-base font-semibold">
-                            {cell.soundType}
-                          </div>
-                          
-                          {/* 波形类型 - 桌面端显示 */}
-                          <div className="hidden md:block text-xs xl:text-sm opacity-75 mt-1">
-                            {cell.waveType}
-                          </div>
+                          <TestAnimation
+                            key={`animation-${cell.id}`}
+                            isTriggered={animationTriggers[cell.id] || 0}
+                            cellId={cell.id}
+                            onAnimationEnd={() => {
+                              console.log(`🎭 TestAnimation ended for ${cell.id}`);
+                              // 动画结束后重置为0，为下次触发做准备
+                              setAnimationTriggers(prev => ({
+                                ...prev,
+                                [cell.id]: 0
+                              }));
+                            }}
+                          >
+                            <div
+                              className={`w-full h-full flex flex-col items-center justify-center text-white border border-opacity-30 bg-opacity-10 hover:bg-opacity-20 transition-all duration-200`}
+                              style={{
+                                backgroundColor: cell.color + '20',
+                                borderColor: cell.color,
+                              }}
+                            >
+                              {/* 音效图标 */}
+                              <div className="text-lg md:text-2xl xl:text-3xl mb-1">
+                                {cell.icon}
+                              </div>
+                              
+                              {/* 字母 */}
+                              <div className="text-xl md:text-2xl xl:text-4xl font-bold font-mono mb-1">
+                                {cell.key ? cell.key.toUpperCase() : '无按键'}
+                              </div>
+                              
+                              {/* 音色类型 */}
+                              <div className="text-xs md:text-sm xl:text-base font-semibold">
+                                {cell.soundType}
+                              </div>
+                              
+                              {/* 波形类型 - 桌面端显示 */}
+                              <div className="hidden md:block text-xs xl:text-sm opacity-75 mt-1">
+                                {cell.waveType}
+                              </div>
 
-                          {/* 频率信息 - 桌面端显示 */}
-                          <div className="hidden lg:block text-xs opacity-60 mt-1">
-                            {cell.frequency}Hz
-                          </div>
+                              {/* 频率信息 - 桌面端显示 */}
+                              <div className="hidden lg:block text-xs opacity-60 mt-1">
+                                {cell.frequency}Hz
+                              </div>
+                            </div>
+                          </TestAnimation>
                         </div>
                       );
                     })}
@@ -606,9 +707,9 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
               <div className="text-xs md:text-sm opacity-75">
                 {gridConfig.cols}x{gridConfig.rows}网格显示{gridConfig.cells.filter(c => c.enabled).length}个音效区域 • 点击任意网格演奏对应音效
               </div>
-              <div className="text-xs opacity-60 mt-1">
-                按ESC或💡按钮关闭蒙版 • 网格布局更适合触摸操作
-              </div>
+                          <div className="text-xs opacity-60 mt-1">
+                              按ESC或💡按钮关闭蒙版 • 网格布局更适合触摸操作
+            </div>
             </div>
 
             {/* 鼠标位置指示器 */}

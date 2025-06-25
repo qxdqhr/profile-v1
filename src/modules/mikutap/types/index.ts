@@ -4,6 +4,21 @@ export type SoundType = 'piano' | 'drum' | 'synth' | 'bass' | 'lead' | 'pad' | '
 // 音效源类型
 export type SoundSource = 'synthesized' | 'file' | 'url';
 
+// 动画类型
+export type AnimationType = 'pulse' | 'slide' | 'bounce' | 'flash' | 'spin' | 'scale' | 'ripple' | 'custom';
+
+// 动画配置
+export interface AnimationConfig {
+  duration?: number;        // 动画持续时间(ms)
+  speed?: number;          // 动画速度倍数
+  scale?: number;          // 缩放倍数
+  opacity?: number;        // 透明度
+  direction?: 'up' | 'down' | 'left' | 'right' | 'random'; // 动画方向
+  loop?: boolean;          // 是否循环
+  autoplay?: boolean;      // 是否自动播放
+  offset?: { x: number; y: number }; // 位置偏移
+}
+
 // 网格单元格配置
 export interface GridCell {
     id: string;
@@ -38,6 +53,11 @@ export interface GridCell {
         release: number;
       };
     };
+    // 动画配置
+    animationEnabled?: boolean;    // 是否启用动画
+    animationType?: AnimationType; // 动画类型
+    animationData?: any;          // Lottie JSON数据或自定义动画数据
+    animationConfig?: AnimationConfig; // 动画配置参数
   }
   
   // 网格配置
@@ -88,7 +108,24 @@ export interface GridCell {
   };
   
   // 音效源类型
-  export const SOUND_SOURCES: SoundSource[] = ['synthesized', 'file', 'url'];
-  
-  // 配置存储键
-  export const CONFIG_STORAGE_KEY = 'mikutap-config';
+export const SOUND_SOURCES: SoundSource[] = ['synthesized', 'file', 'url'];
+
+// 动画类型数组
+export const ANIMATION_TYPES: AnimationType[] = [
+  'pulse', 'slide', 'bounce', 'flash', 'spin', 'scale', 'ripple', 'custom'
+];
+
+// 动画类型描述
+export const ANIMATION_TYPE_DESCRIPTIONS: Record<AnimationType, string> = {
+  pulse: '脉冲效果 - 放大缩小',
+  slide: '滑动效果 - 方块滑过',
+  bounce: '弹跳效果 - 上下弹跳',
+  flash: '闪烁效果 - 快速闪烁',
+  spin: '旋转效果 - 360度旋转',
+  scale: '缩放效果 - 渐变缩放',
+  ripple: '涟漪效果 - 水波扩散',
+  custom: '自定义动画 - Lottie JSON'
+};
+
+// 配置存储键
+export const CONFIG_STORAGE_KEY = 'mikutap-config';

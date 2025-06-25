@@ -31,6 +31,11 @@ export const mikutapGridCells = pgTable('mikutap_grid_cells', {
   enabled: boolean('enabled').notNull().default(true),
   audioFile: text('audio_file'), // 音频文件路径或URL
   effects: json('effects'), // 音效处理参数
+  // 动画配置字段
+  animationEnabled: boolean('animation_enabled').notNull().default(true),
+  animationType: text('animation_type').notNull().default('pulse'), // 'pulse' | 'slide' | 'bounce' | 'flash' | 'custom'
+  animationData: json('animation_data'), // 存储Lottie JSON动画数据或自定义动画参数
+  animationConfig: json('animation_config'), // 动画配置: { duration, speed, scale, opacity, direction }
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

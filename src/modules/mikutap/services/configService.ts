@@ -43,6 +43,19 @@ export function generateDefaultCells(rows: number, cols: number): GridCell[] {
         icon,
         color,
         enabled: true,
+        // 默认动画配置
+        animationEnabled: true,
+        animationType: index < 10 ? 'pulse' : index < 19 ? 'bounce' : 'ripple',
+        animationConfig: {
+          duration: 500,
+          speed: 1,
+          scale: 1.2,
+          opacity: 0.8,
+          direction: 'up',
+          loop: false,
+          autoplay: false,
+          offset: { x: 0, y: 0 }
+        }
       });
     }
   }
