@@ -5,6 +5,8 @@
 // ===== 组件导出 =====
 
 export { default as SimpleMikutapPage } from './pages/SimpleMikutapPage';
+export { default as ConfigPage } from './pages/ConfigPage';
+export { default as SoundLibraryManager } from './components/SoundLibraryManager';
 
 
 // ===== 工具导出 =====
@@ -13,10 +15,20 @@ export {
   AudioGenerator 
 } from './utils/audioGenerator';
 
+// ===== 服务导出 =====
+export {
+  loadGridConfig,
+  saveGridConfig,
+  resetToDefaultConfig,
+  updateGridSize,
+  updateGridCell,
+  generateDefaultCells
+} from './services/configService';
+
 // ===== 类型导出 =====
-// 类型定义已内嵌在组件中
+export * from './types';
 
 
 // ===== 模块信息 =====
-export const MIKUTAP_MODULE_VERSION = '1.0.0';
+export const MIKUTAP_MODULE_VERSION = '1.2.0';
 export const MIKUTAP_MODULE_NAME = '@profile-v1/mikutap';

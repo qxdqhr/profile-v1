@@ -1,0 +1,1 @@
+export { GET, POST, PUT, DELETE } from '@/modules/mikutap/api/configs/route'; 

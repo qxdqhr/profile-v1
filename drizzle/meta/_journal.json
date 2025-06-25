@@ -120,6 +120,20 @@
       "when": 1750769714152,
       "tag": "0016_old_bug",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1750870808188,
+      "tag": "0017_aspiring_kulan_gath",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1750871657310,
+      "tag": "0018_wandering_banshee",
+      "breakpoints": true
     }
   ]
 }

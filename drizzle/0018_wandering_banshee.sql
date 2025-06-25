@@ -1,0 +1,1 @@
+ALTER TABLE "mikutap_grid_cells" ALTER COLUMN "key" DROP NOT NULL;
