@@ -22,6 +22,9 @@ export * from '@/modules/mmd/db/schema';
 // 导出名片制作器相关的表
 export * from '@/modules/cardMaker/db/schema';
 
+// 导出Mikutap相关的表
+export * from '@/modules/mikutap/db/schema';
+
 // 考试类型表
 export const examTypes = pgTable('exam_types', {
   id: text('id').primaryKey(), // 如 "default", "arknights"

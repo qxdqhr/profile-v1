@@ -1,4 +1,4 @@
- /**
+/**
  * 简化版 Mikutap 页面组件
  * 直接使用合成音效，无需加载音频文件
  */
@@ -8,6 +8,8 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { getAudioGenerator } from '../utils/audioGenerator';
 import { Modal } from '@/components/PopWindow';
+import { GridConfig, GridCell } from '../types';
+import { useConfigDatabase } from '../hooks/useConfigDatabase';
 
 interface SimpleMikutapPageProps {
   className?: string;
@@ -34,8 +36,25 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     mouseEnabled: true,
   });
   const [touchHandled, setTouchHandled] = useState(false);
+  const [gridConfig, setGridConfig] = useState<GridConfig | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const audioGeneratorRef = useRef(getAudioGenerator());
+  const { loadConfig: loadConfigFromDB } = useConfigDatabase();
+
+  useEffect(() => {
+    async function loadConfig() {
+      try {
+        const config = await loadConfigFromDB('default');
+        if (config) {
+          setGridConfig(config);
+        }
+      } catch (error) {
+        console.error('Failed to load configuration from database:', error);
+      }
+    }
+    
+    loadConfig();
+  }, [loadConfigFromDB]);
 
   /**
    * 初始化音频系统
@@ -46,9 +65,12 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       const success = await audioGeneratorRef.current.initialize();
       setIsAudioInitialized(success);
       
-      if (success) {
+      if (success && gridConfig) {
         // 播放测试音效确认音频工作
-        audioGeneratorRef.current.playSoundById('q', 0.5, 0.5);
+        const firstCell = gridConfig.cells.find(cell => cell.enabled);
+        if (firstCell) {
+          audioGeneratorRef.current.playSoundByCell(firstCell, 0.5, 0.5);
+        }
       }
       
       return success;
@@ -58,13 +80,13 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       console.error('音频初始化失败:', error);
       return false;
     }
-  }, []);
+  }, [gridConfig]);
 
   /**
-   * 播放音效
+   * 根据键盘按键播放音效
    */
-  const playSound = useCallback((key: string, x: number, y: number, skipThrottle = false) => {
-    if (!isAudioInitialized) return;
+  const playSoundByKey = useCallback(async (key: string, x: number = 0, y: number = 0, skipThrottle = false) => {
+    if (!isAudioInitialized || !gridConfig) return;
     
     // 拖拽时的节流控制
     const now = Date.now();
@@ -74,27 +96,26 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     setLastPlayTime(now);
     
     try {
-      audioGeneratorRef.current.playSoundById(key, 1, settings.volume);
+      // 查找对应的网格单元格（必须有键盘映射且启用）
+      const cell = gridConfig.cells.find(c => c.key?.toLowerCase() === key.toLowerCase() && c.enabled);
+      if (!cell) {
+        console.warn(`No enabled cell found for key: ${key}`);
+        return;
+      }
+
+      // 播放音效
+      await audioGeneratorRef.current.playSoundByCell(cell, 1, settings.volume);
       setInteractionCount(prev => prev + 1);
       setLastKey(key.toUpperCase());
       
       // 添加粒子效果
       if (settings.enableParticles) {
-        const colors = {
-          q: '#FF6B9D', w: '#C44569', e: '#F8B500', r: '#40E0D0', t: '#6C5CE7',
-          y: '#A8E6CF', u: '#FFD93D', i: '#6BCF7F', o: '#4834DF', p: '#FF3838',
-          a: '#FF9F1C', s: '#2ECC71', d: '#E74C3C', f: '#9B59B6', g: '#1ABC9C',
-          h: '#F39C12', j: '#3498DB', k: '#E67E22', l: '#8E44AD',
-          z: '#FF6B6B', x: '#4ECDC4', c: '#45B7D1', v: '#96CEB4', b: '#FFEAA7',
-          n: '#DDA0DD', m: '#98D8C8'
-        };
-        
         const particleId = Math.random().toString(36);
         const newParticle = {
           id: particleId,
           x,
           y,
-          color: colors[key as keyof typeof colors] || '#FFFFFF',
+          color: cell.color,
           life: 1
         };
         
@@ -109,10 +130,53 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     } catch (error) {
       console.error('播放音效失败:', error);
     }
-  }, [isAudioInitialized, isDragging, lastPlayTime]);
+  }, [isAudioInitialized, isDragging, lastPlayTime, gridConfig, settings]);
 
   /**
-   * 处理位置音效播放 - 网格布局 (5列 x 6行)
+   * 根据单元格播放音效
+   */
+  const playSoundByCell = useCallback(async (cell: GridCell, x: number, y: number, skipThrottle = false) => {
+    if (!isAudioInitialized || !cell.enabled) return;
+    
+    // 拖拽时的节流控制
+    const now = Date.now();
+    if (!skipThrottle && isDragging && settings.enableDragThrottle && now - lastPlayTime < settings.dragThrottleDelay) {
+      return;
+    }
+    setLastPlayTime(now);
+    
+    try {
+      // 播放音效
+      await audioGeneratorRef.current.playSoundByCell(cell, 1, settings.volume);
+      setInteractionCount(prev => prev + 1);
+      setLastKey(cell.key || `(${cell.row},${cell.col})`);
+      
+      // 添加粒子效果
+      if (settings.enableParticles) {
+        const particleId = Math.random().toString(36);
+        const newParticle = {
+          id: particleId,
+          x,
+          y,
+          color: cell.color,
+          life: 1
+        };
+        
+        setParticles(prev => [...prev, newParticle]);
+        
+        // 移除粒子
+        setTimeout(() => {
+          setParticles(prev => prev.filter(p => p.id !== particleId));
+        }, settings.particleLifetime);
+      }
+      
+    } catch (error) {
+      console.error('播放音效失败:', error);
+    }
+  }, [isAudioInitialized, isDragging, lastPlayTime, settings]);
+
+  /**
+   * 处理位置音效播放 - 根据配置的网格布局
    */
   const handlePlaySoundAtPosition = useCallback(async (x: number, y: number, skipThrottle = false) => {
     if (!isAudioInitialized) {
@@ -120,25 +184,25 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       return;
     }
     
+    if (!gridConfig) return;
+    
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
     
-    // 网格配置: 5列 x 6行 = 30个格子，使用前26个
-    const cols = 5;
-    const rows = 6;
-    const keys = 'qwertyuiopasdfghjklzxcvbnm';
+    // 使用配置的网格尺寸
+    const cols = gridConfig.cols;
+    const rows = gridConfig.rows;
     
     // 计算网格位置
     const col = Math.floor((x / rect.width) * cols);
     const row = Math.floor((y / rect.height) * rows);
-    const gridIndex = row * cols + col;
     
-    // 确保在有效范围内
-    const keyIndex = Math.min(gridIndex, keys.length - 1);
-    const key = keys[keyIndex] || 'q';
+    // 查找对应位置的单元格
+    const cell = gridConfig.cells.find(c => c.row === row && c.col === col && c.enabled);
+    if (!cell) return;
     
-    playSound(key, x, y, skipThrottle);
-  }, [isAudioInitialized, initializeAudio, playSound]);
+    await playSoundByCell(cell, x, y, skipThrottle);
+  }, [isAudioInitialized, initializeAudio, playSoundByCell, gridConfig]);
 
   /**
    * 处理鼠标点击和触摸
@@ -289,9 +353,11 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       return;
     }
     
-    const validKeys = 'qwertyuiopasdfghjklzxcvbnm';
+    // 检查键是否在配置中存在
+    if (!gridConfig || !settings.keyboardEnabled) return;
     
-    if (!validKeys.includes(key) || !settings.keyboardEnabled) return;
+    const cell = gridConfig.cells.find(c => c.key?.toLowerCase() === key && c.enabled);
+    if (!cell) return;
     
     if (!isAudioInitialized) {
       await initializeAudio();
@@ -304,8 +370,8 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     const centerX = rect ? rect.width / 2 : 400;
     const centerY = rect ? rect.height / 2 : 300;
     
-    playSound(key, centerX, centerY, true);
-  }, [isAudioInitialized, initializeAudio, playSound, showHelpInfo, showSettings, settings.keyboardEnabled]);
+    await playSoundByKey(key, centerX, centerY, true);
+  }, [isAudioInitialized, initializeAudio, playSoundByKey, showHelpInfo, showSettings, settings.keyboardEnabled, gridConfig]);
 
   // 监听键盘事件
   useEffect(() => {
@@ -422,7 +488,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
         )}
 
         {/* 网格蒙版 - 显示点击区域信息 */}
-        {showHelpInfo && (
+        {showHelpInfo && gridConfig && (
           <div className="absolute inset-0 bg-black bg-opacity-60 z-25 pointer-events-none"
                onClick={handleClick}
                onMouseDown={handleMouseDown}
@@ -435,11 +501,10 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
             
             {/* 网格边界线 */}
             <div className="absolute inset-0 pointer-events-none z-10">
-              {/* 网格配置: 5列 x 6行 */}
+              {/* 使用配置的网格尺寸 */}
               {(() => {
-                const cols = 5;
-                const rows = 6;
-                const keys = 'qwertyuiopasdfghjklzxcvbnm';
+                const cols = gridConfig.cols;
+                const rows = gridConfig.rows;
                 
                 return (
                   <>
@@ -468,43 +533,45 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
                     ))}
                     
                     {/* 网格单元格 */}
-                    {Array.from({ length: Math.min(26, cols * rows) }, (_, index) => {
-                      const row = Math.floor(index / cols);
-                      const col = index % cols;
-                      const char = keys[index];
-                      const soundName = index < 10 ? '钢琴' : index < 19 ? '鼓点' : '特效';
-                      const bgColor = index < 10 ? 'bg-blue-500' : index < 19 ? 'bg-green-500' : 'bg-purple-500';
-                      const borderColor = index < 10 ? 'border-blue-300' : index < 19 ? 'border-green-300' : 'border-purple-300';
+                    {gridConfig.cells.map((cell) => {
+                      if (!cell.enabled) return null;
                       
                       return (
                         <div
-                          key={index}
-                          className={`absolute flex flex-col items-center justify-center text-white border ${borderColor} border-opacity-30 ${bgColor} bg-opacity-10 hover:bg-opacity-20 transition-all duration-200 pointer-events-none`}
+                          key={cell.id}
+                          className={`absolute flex flex-col items-center justify-center text-white border border-opacity-30 bg-opacity-10 hover:bg-opacity-20 transition-all duration-200 pointer-events-none`}
                           style={{
-                            left: `${(col / cols) * 100}%`,
-                            top: `${(row / rows) * 100}%`,
+                            left: `${(cell.col / cols) * 100}%`,
+                            top: `${(cell.row / rows) * 100}%`,
                             width: `${(1 / cols) * 100}%`,
                             height: `${(1 / rows) * 100}%`,
+                            backgroundColor: cell.color + '20',
+                            borderColor: cell.color,
                           }}
                         >
                           {/* 音效图标 */}
                           <div className="text-lg md:text-2xl xl:text-3xl mb-1">
-                            {index < 10 ? '🎹' : index < 19 ? '🥁' : '🎛️'}
+                            {cell.icon}
                           </div>
                           
                           {/* 字母 */}
                           <div className="text-xl md:text-2xl xl:text-4xl font-bold font-mono mb-1">
-                            {char.toUpperCase()}
+                            {cell.key ? cell.key.toUpperCase() : '无按键'}
                           </div>
                           
                           {/* 音色类型 */}
                           <div className="text-xs md:text-sm xl:text-base font-semibold">
-                            {soundName}
+                            {cell.soundType}
                           </div>
                           
                           {/* 波形类型 - 桌面端显示 */}
                           <div className="hidden md:block text-xs xl:text-sm opacity-75 mt-1">
-                            {index < 10 ? '正弦波' : index < 19 ? '方波' : '锯齿波'}
+                            {cell.waveType}
+                          </div>
+
+                          {/* 频率信息 - 桌面端显示 */}
+                          <div className="hidden lg:block text-xs opacity-60 mt-1">
+                            {cell.frequency}Hz
                           </div>
                         </div>
                       );
@@ -515,15 +582,19 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
               
               {/* 底部区域标识 */}
               <div className="absolute bottom-24 left-0 right-0 flex flex-wrap justify-center gap-2 pointer-events-none">
-                <div className="bg-blue-500 bg-opacity-60 text-white text-xs px-2 py-1 rounded">
-                  🎹 钢琴音色 (Q-P)
-                </div>
-                <div className="bg-green-500 bg-opacity-60 text-white text-xs px-2 py-1 rounded">
-                  🥁 鼓点音色 (A-L)
-                </div>
-                <div className="bg-purple-500 bg-opacity-60 text-white text-xs px-2 py-1 rounded">
-                  🎛️ 特效音色 (Z-M)
-                </div>
+                {(() => {
+                  const soundTypes = Array.from(new Set(gridConfig.cells.filter(c => c.enabled).map(c => c.soundType)));
+                  return soundTypes.map(type => {
+                    const typeCell = gridConfig.cells.find(c => c.soundType === type && c.enabled);
+                    if (!typeCell) return null;
+                    
+                    return (
+                      <div key={type} className="text-white text-xs px-2 py-1 rounded" style={{ backgroundColor: typeCell.color + '80' }}>
+                        {typeCell.icon} {type}音色
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             </div>
 
@@ -533,7 +604,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
             <div className="absolute top-2 md:top-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-90 text-white px-3 md:px-4 py-2 rounded-lg text-center pointer-events-auto max-w-[90vw]">
               <div className="text-sm md:text-lg font-bold mb-1">🎵 Mikutap 网格操作区域</div>
               <div className="text-xs md:text-sm opacity-75">
-                5x6网格显示26个音效区域 • 点击任意网格演奏对应音效
+                {gridConfig.cols}x{gridConfig.rows}网格显示{gridConfig.cells.filter(c => c.enabled).length}个音效区域 • 点击任意网格演奏对应音效
               </div>
               <div className="text-xs opacity-60 mt-1">
                 按ESC或💡按钮关闭蒙版 • 网格布局更适合触摸操作
@@ -554,20 +625,17 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
                   const rect = containerRef.current?.getBoundingClientRect();
                   if (!rect) return '';
                   
-                  // 网格计算: 5列 x 6行
-                  const cols = 5;
-                  const rows = 6;
-                  const keys = 'qwertyuiopasdfghjklzxcvbnm';
+                  // 使用配置的网格尺寸
+                  const cols = gridConfig.cols;
+                  const rows = gridConfig.rows;
                   
                   const col = Math.floor((mousePosition.x / rect.width) * cols);
                   const row = Math.floor((mousePosition.y / rect.height) * rows);
-                  const gridIndex = row * cols + col;
-                  const index = Math.min(gridIndex, keys.length - 1);
                   
-                  const char = keys[index] || 'q';
-                  const soundName = index < 10 ? '钢琴音' : index < 19 ? '鼓点音' : '特效音';
-                  const icon = index < 10 ? '🎹' : index < 19 ? '🥁' : '🎛️';
-                  return `${icon} ${char.toUpperCase()} - ${soundName} (行${row+1}列${col+1})`;
+                  const cell = gridConfig.cells.find(c => c.row === row && c.col === col && c.enabled);
+                  if (!cell) return `空白区域 (行${row+1}列${col+1})`;
+                  
+                  return `${cell.icon} ${cell.key ? cell.key.toUpperCase() : '无按键'} - ${cell.soundType}音 (行${row+1}列${col+1})`;
                 })()}
               </div>
             )}
@@ -578,15 +646,9 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
                 <div className="md:hidden space-y-1">
                   <div>⌨️ 键盘: 直接按字母键</div>
                   <div>🖱️ 鼠标: 点击或拖拽网格</div>
-                  <div>📱 网格: 5列×6行布局</div>
+                  <div>📱 网格: {gridConfig.cols}列×{gridConfig.rows}行布局</div>
                   <div>⚡ ESC关闭 / F1切换</div>
                 </div>
-                {/* <div className="hidden md:block space-x-3">
-                  <span>⌨️ 键盘: 直接按字母键</span>
-                  <span>🖱️ 鼠标: 点击或拖拽网格连续演奏</span>
-                  <span>📱 网格: 5列×6行显示26个音效区域</span>
-                  <span>⚡ 快捷键: ESC关闭 / F1切换</span>
-                </div> */}
               </div>
             </div>
           </div>
@@ -600,6 +662,35 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
           onTouchEnd={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
+          {/* 配置按钮 */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              if (touchHandled) {
+                setTouchHandled(false);
+                return;
+              }
+              window.open('/testField/mikutap/config', '_blank');
+            }}
+            onTouchStart={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setTouchHandled(true);
+            }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              window.open('/testField/mikutap/config', '_blank');
+              setTimeout(() => setTouchHandled(false), 100);
+            }}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 mobile-button pointer-events-auto"
+            title="网格配置"
+          >
+            <span>🎛️</span>
+            <span className="hidden md:inline">配置</span>
+          </button>
+
           {/* 设置按钮 */}
           <button
             onClick={(e) => {
@@ -648,7 +739,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
                     const rect = containerRef.current?.getBoundingClientRect();
                     const x = rect ? rect.width / 2 : 400;
                     const y = rect ? rect.height / 2 : 300;
-                    playSound(note, x, y, true);
+                    playSoundByKey(note, x, y, true);
                   }, index * 200);
                 });
               }
@@ -671,7 +762,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
                     const rect = containerRef.current?.getBoundingClientRect();
                     const x = rect ? rect.width / 2 : 400;
                     const y = rect ? rect.height / 2 : 300;
-                    playSound(note, x, y, true);
+                    playSoundByKey(note, x, y, true);
                   }, index * 200);
                 });
               }
