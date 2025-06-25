@@ -23,6 +23,16 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
   const [mousePosition, setMousePosition] = useState<{x: number, y: number} | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [lastPlayTime, setLastPlayTime] = useState(0);
+  const [showSettings, setShowSettings] = useState(false);
+  const [settings, setSettings] = useState({
+    volume: 0.7,
+    enableParticles: true,
+    enableDragThrottle: true,
+    dragThrottleDelay: 50,
+    particleLifetime: 1000,
+    keyboardEnabled: true,
+    mouseEnabled: true,
+  });
   const containerRef = useRef<HTMLDivElement>(null);
   const audioGeneratorRef = useRef(getAudioGenerator());
 
@@ -55,43 +65,45 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
   const playSound = useCallback((key: string, x: number, y: number, skipThrottle = false) => {
     if (!isAudioInitialized) return;
     
-    // 拖拽时的节流控制（50ms间隔）
+    // 拖拽时的节流控制
     const now = Date.now();
-    if (!skipThrottle && isDragging && now - lastPlayTime < 50) {
+    if (!skipThrottle && isDragging && settings.enableDragThrottle && now - lastPlayTime < settings.dragThrottleDelay) {
       return;
     }
     setLastPlayTime(now);
     
     try {
-      audioGeneratorRef.current.playSoundById(key, 1, 0.7);
+      audioGeneratorRef.current.playSoundById(key, 1, settings.volume);
       setInteractionCount(prev => prev + 1);
       setLastKey(key.toUpperCase());
       
       // 添加粒子效果
-      const colors = {
-        q: '#FF6B9D', w: '#C44569', e: '#F8B500', r: '#40E0D0', t: '#6C5CE7',
-        y: '#A8E6CF', u: '#FFD93D', i: '#6BCF7F', o: '#4834DF', p: '#FF3838',
-        a: '#FF9F1C', s: '#2ECC71', d: '#E74C3C', f: '#9B59B6', g: '#1ABC9C',
-        h: '#F39C12', j: '#3498DB', k: '#E67E22', l: '#8E44AD',
-        z: '#FF6B6B', x: '#4ECDC4', c: '#45B7D1', v: '#96CEB4', b: '#FFEAA7',
-        n: '#DDA0DD', m: '#98D8C8'
-      };
-      
-      const particleId = Math.random().toString(36);
-      const newParticle = {
-        id: particleId,
-        x,
-        y,
-        color: colors[key as keyof typeof colors] || '#FFFFFF',
-        life: 1
-      };
-      
-      setParticles(prev => [...prev, newParticle]);
-      
-      // 移除粒子
-      setTimeout(() => {
-        setParticles(prev => prev.filter(p => p.id !== particleId));
-      }, 1000);
+      if (settings.enableParticles) {
+        const colors = {
+          q: '#FF6B9D', w: '#C44569', e: '#F8B500', r: '#40E0D0', t: '#6C5CE7',
+          y: '#A8E6CF', u: '#FFD93D', i: '#6BCF7F', o: '#4834DF', p: '#FF3838',
+          a: '#FF9F1C', s: '#2ECC71', d: '#E74C3C', f: '#9B59B6', g: '#1ABC9C',
+          h: '#F39C12', j: '#3498DB', k: '#E67E22', l: '#8E44AD',
+          z: '#FF6B6B', x: '#4ECDC4', c: '#45B7D1', v: '#96CEB4', b: '#FFEAA7',
+          n: '#DDA0DD', m: '#98D8C8'
+        };
+        
+        const particleId = Math.random().toString(36);
+        const newParticle = {
+          id: particleId,
+          x,
+          y,
+          color: colors[key as keyof typeof colors] || '#FFFFFF',
+          life: 1
+        };
+        
+        setParticles(prev => [...prev, newParticle]);
+        
+        // 移除粒子
+        setTimeout(() => {
+          setParticles(prev => prev.filter(p => p.id !== particleId));
+        }, settings.particleLifetime);
+      }
       
     } catch (error) {
       console.error('播放音效失败:', error);
@@ -122,7 +134,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
    * 处理鼠标点击
    */
   const handleClick = useCallback(async (e: React.MouseEvent) => {
-    if (isDragging) return; // 拖拽时不处理点击
+    if (!settings.mouseEnabled || isDragging) return; // 鼠标禁用或拖拽时不处理点击
     
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -131,12 +143,14 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     const y = e.clientY - rect.top;
     
     await handlePlaySoundAtPosition(x, y, true);
-  }, [isDragging, handlePlaySoundAtPosition]);
+  }, [settings.mouseEnabled, isDragging, handlePlaySoundAtPosition]);
 
   /**
    * 处理鼠标按下
    */
   const handleMouseDown = useCallback(async (e: React.MouseEvent) => {
+    if (!settings.mouseEnabled) return;
+    
     setIsDragging(true);
     
     const rect = containerRef.current?.getBoundingClientRect();
@@ -146,7 +160,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     const y = e.clientY - rect.top;
     
     await handlePlaySoundAtPosition(x, y, true);
-  }, [handlePlaySoundAtPosition]);
+  }, [settings.mouseEnabled, handlePlaySoundAtPosition]);
 
   /**
    * 处理鼠标移动（拖拽）
@@ -162,7 +176,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       }
     }
     
-    if (!isDragging) return;
+    if (!settings.mouseEnabled || !isDragging) return;
     
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -171,7 +185,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     const y = e.clientY - rect.top;
     
     await handlePlaySoundAtPosition(x, y);
-  }, [isDragging, showHelpInfo, handlePlaySoundAtPosition]);
+  }, [settings.mouseEnabled, isDragging, showHelpInfo, handlePlaySoundAtPosition]);
 
   /**
    * 处理鼠标松开
@@ -189,6 +203,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     // 特殊按键处理
     if (key === 'escape') {
       setShowHelpInfo(false);
+      setShowSettings(false);
       return;
     }
     
@@ -204,9 +219,16 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       return;
     }
     
+    // 设置快捷键
+    if (key === 's' && e.ctrlKey) {
+      e.preventDefault();
+      setShowSettings(!showSettings);
+      return;
+    }
+    
     const validKeys = 'qwertyuiopasdfghjklzxcvbnm';
     
-    if (!validKeys.includes(key)) return;
+    if (!validKeys.includes(key) || !settings.keyboardEnabled) return;
     
     if (!isAudioInitialized) {
       await initializeAudio();
@@ -219,8 +241,8 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     const centerX = rect ? rect.width / 2 : 400;
     const centerY = rect ? rect.height / 2 : 300;
     
-    playSound(key, centerX, centerY);
-  }, [isAudioInitialized, initializeAudio, playSound, showHelpInfo]);
+    playSound(key, centerX, centerY, true);
+  }, [isAudioInitialized, initializeAudio, playSound, showHelpInfo, showSettings, settings.keyboardEnabled]);
 
   // 监听键盘事件
   useEffect(() => {
@@ -311,15 +333,6 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
             </div>
           </>
         )}
-
-                {/* 帮助信息切换按钮 */}
-        <button
-          onClick={() => setShowHelpInfo(!showHelpInfo)}
-          className="absolute bottom-4 left-4 bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-all duration-200 z-30 flex items-center gap-2"
-        >
-          <span>{showHelpInfo ? '🙈' : '💡'}</span>
-          <span>{showHelpInfo ? '隐藏帮助' : '显示帮助'}</span>
-        </button>
 
         {/* 网格蒙版 - 显示点击区域信息 */}
         {showHelpInfo && (
@@ -493,8 +506,19 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
           </div>
         )}
 
-        {/* 测试按钮 */}
-        <div className="absolute bottom-20 right-4 z-20">
+        {/* 功能按钮组 */}
+        <div className="absolute bottom-20 right-4 z-20 flex flex-col gap-2">
+          {/* 设置按钮 */}
+          <button
+            onClick={() => setShowSettings(true)}
+            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+            title="打开设置 (Ctrl+S)"
+          >
+            <span>⚙️</span>
+            <span className="hidden md:inline">设置</span>
+          </button>
+          
+          {/* 测试按钮 */}
           <button
             onClick={async () => {
               if (!isAudioInitialized) {
@@ -507,7 +531,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
                     const rect = containerRef.current?.getBoundingClientRect();
                     const x = rect ? rect.width / 2 : 400;
                     const y = rect ? rect.height / 2 : 300;
-                    playSound(note, x, y);
+                    playSound(note, x, y, true);
                   }, index * 200);
                 });
               }
@@ -516,19 +540,205 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
           >
             {isAudioInitialized ? '🎹 播放音阶' : '🔊 初始化音频'}
           </button>
+
+                          {/* 帮助信息切换按钮 */}
+        <button
+          onClick={() => setShowHelpInfo(!showHelpInfo)}
+          className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-all duration-200 z-30 flex items-center gap-2"
+        >
+          <span>{showHelpInfo ? '🙈' : '💡'}</span>
+          <span>{showHelpInfo ? '隐藏帮助' : '显示帮助'}</span>
+        </button> */}
         </div>
       </div>
 
       {/* 开发调试信息 */}
-      {process.env.NODE_ENV === 'development' && (
+      {/* {process.env.NODE_ENV === 'development' && (
         <div className="fixed bottom-4 left-10 bg-black bg-opacity-70 text-white p-2 rounded text-xs z-30">
           <div>音频状态: {isAudioInitialized ? '已初始化' : '未初始化'}</div>
           <div>活跃粒子: {particles.length}</div>
           <div>最后按键: {lastKey || '无'}</div>
           <div>拖拽状态: {isDragging ? '拖拽中' : '正常'}</div>
           <div>帮助蒙版: {showHelpInfo ? '显示' : '隐藏'}</div>
+          <div>设置窗口: {showSettings ? '显示' : '隐藏'}</div>
+          <div>音量: {Math.round(settings.volume * 100)}%</div>
         </div>
-      )}
+      )} */}
+
+      {/* 设置弹窗 */}
+      <Modal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        title="🎵 Mikutap 设置"
+        width={500}
+        height="auto"
+        className="settings-modal"
+      >
+        <div className="space-y-6 p-4">
+          {/* 音频设置 */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">🔊 音频设置</h3>
+            
+            {/* 音量控制 */}
+            <div className="space-y-2">
+              <label className="flex items-center justify-between text-sm font-medium text-gray-700">
+                <span>音量</span>
+                <span className="text-gray-500">{Math.round(settings.volume * 100)}%</span>
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={settings.volume}
+                onChange={(e) => setSettings(prev => ({ ...prev, volume: parseFloat(e.target.value) }))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+          </div>
+
+          {/* 交互设置 */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">🎮 交互设置</h3>
+            
+            {/* 键盘启用 */}
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-gray-700">启用键盘操作</label>
+              <input
+                type="checkbox"
+                checked={settings.keyboardEnabled}
+                onChange={(e) => setSettings(prev => ({ ...prev, keyboardEnabled: e.target.checked }))}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+              />
+            </div>
+
+            {/* 鼠标启用 */}
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-gray-700">启用鼠标操作</label>
+              <input
+                type="checkbox"
+                checked={settings.mouseEnabled}
+                onChange={(e) => setSettings(prev => ({ ...prev, mouseEnabled: e.target.checked }))}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          {/* 拖拽设置 */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">🖱️ 拖拽设置</h3>
+            
+            {/* 拖拽节流 */}
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-gray-700">启用拖拽节流</label>
+              <input
+                type="checkbox"
+                checked={settings.enableDragThrottle}
+                onChange={(e) => setSettings(prev => ({ ...prev, enableDragThrottle: e.target.checked }))}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+              />
+            </div>
+
+            {/* 节流延迟 */}
+            {settings.enableDragThrottle && (
+              <div className="space-y-2">
+                <label className="flex items-center justify-between text-sm font-medium text-gray-700">
+                  <span>拖拽延迟</span>
+                  <span className="text-gray-500">{settings.dragThrottleDelay}ms</span>
+                </label>
+                <input
+                  type="range"
+                  min="10"
+                  max="200"
+                  step="10"
+                  value={settings.dragThrottleDelay}
+                  onChange={(e) => setSettings(prev => ({ ...prev, dragThrottleDelay: parseInt(e.target.value) }))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* 视觉效果设置 */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">✨ 视觉效果</h3>
+            
+            {/* 粒子效果 */}
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-gray-700">启用粒子效果</label>
+              <input
+                type="checkbox"
+                checked={settings.enableParticles}
+                onChange={(e) => setSettings(prev => ({ ...prev, enableParticles: e.target.checked }))}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+              />
+            </div>
+
+            {/* 粒子生命周期 */}
+            {settings.enableParticles && (
+              <div className="space-y-2">
+                <label className="flex items-center justify-between text-sm font-medium text-gray-700">
+                  <span>粒子持续时间</span>
+                  <span className="text-gray-500">{settings.particleLifetime}ms</span>
+                </label>
+                <input
+                  type="range"
+                  min="200"
+                  max="3000"
+                  step="100"
+                  value={settings.particleLifetime}
+                  onChange={(e) => setSettings(prev => ({ ...prev, particleLifetime: parseInt(e.target.value) }))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* 操作按钮 */}
+          <div className="flex justify-between pt-4 border-t">
+            <button
+              onClick={() => {
+                setSettings({
+                  volume: 0.7,
+                  enableParticles: true,
+                  enableDragThrottle: true,
+                  dragThrottleDelay: 50,
+                  particleLifetime: 1000,
+                  keyboardEnabled: true,
+                  mouseEnabled: true,
+                });
+              }}
+              className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              重置默认
+            </button>
+            
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowSettings(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                取消
+              </button>
+              <button
+                onClick={() => setShowSettings(false)}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                保存
+              </button>
+            </div>
+          </div>
+
+          {/* 快捷键提示 */}
+          <div className="text-xs text-gray-500 border-t pt-4">
+            <div className="space-y-1">
+              <div>• Ctrl+S: 打开/关闭设置</div>
+              <div>• Ctrl+H 或 F1: 显示/隐藏帮助</div>
+              <div>• ESC: 关闭所有弹窗</div>
+            </div>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
