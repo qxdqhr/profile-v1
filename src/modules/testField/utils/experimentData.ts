@@ -277,18 +277,18 @@ export const experiments: ExperimentItem[] = [
   {
     id: "mikutap",
     title: "Mikutap 音乐互动",
-    description: "复刻经典音乐互动游戏Mikutap，支持点击、拖拽和按键触发音效，具备多种音色包、可配置化视觉效果、响应式设计，完美支持桌面和移动端",
+    description: "复刻经典音乐互动游戏Mikutap，支持点击、拖拽和按键触发音效，具备多种音色包、丰富的动画效果、可配置化视觉效果、响应式设计，完美支持桌面和移动端",
     path: "/testField/mikutap",
-    tags: ["音乐", "互动", "游戏", "初音未来", "音效", "可配置", "响应式"],
+    tags: ["音乐", "互动", "游戏", "初音未来", "音效", "动画", "可配置", "响应式"],
     category: "leisure",
     isCompleted: true
   },
   {
     id: "mikutap-config",
     title: "Mikutap 配置管理",
-    description: "Mikutap音乐互动游戏的配置管理界面，支持网格布局自定义、音效设置、数据库持久化存储，可创建和管理多种配置预设",
+    description: "Mikutap音乐互动游戏的配置管理界面，支持网格布局自定义、音效设置、动画效果配置（脉冲、滑动、弹跳、闪烁、旋转、缩放、涟漪、自定义Lottie）、数据库持久化存储，可创建和管理多种配置预设",
     path: "/testField/mikutap/config",
-    tags: ["配置", "管理", "音效", "数据库", "持久化", "预设"],
+    tags: ["配置", "管理", "音效", "动画", "Lottie", "数据库", "持久化", "预设"],
     category: "utility",
     isCompleted: true
   }

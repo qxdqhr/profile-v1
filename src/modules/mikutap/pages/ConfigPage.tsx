@@ -9,7 +9,7 @@ import {
   DEFAULT_GRID_CONFIG,
   generateDefaultCells
 } from '../services/configService';
-import { GridCell, GridConfig, DEFAULT_KEYS, SOUND_TYPES, WAVE_TYPES, SOUND_TYPE_COLORS, SOUND_SOURCES, SoundType } from '../types';
+import { GridCell, GridConfig, DEFAULT_KEYS, SOUND_TYPES, WAVE_TYPES, SOUND_TYPE_COLORS, SOUND_SOURCES, SoundType, ANIMATION_TYPES, ANIMATION_TYPE_DESCRIPTIONS, AnimationType } from '../types';
 import SoundLibraryManager from '../components/SoundLibraryManager';
 import { useConfigDatabase } from '../hooks/useConfigDatabase';
 
@@ -541,6 +541,161 @@ export default function ConfigPage() {
                     className="mr-2"
                   />
                   <label className="text-sm text-gray-300">启用这个格子</label>
+                </div>
+
+                {/* 动画配置部分 */}
+                <div className="border-t border-gray-600 pt-4 mt-4">
+                  <h3 className="text-sm font-semibold text-gray-200 mb-3">🎨 动画配置</h3>
+                  
+                  <div className="flex items-center mb-3">
+                    <input
+                      type="checkbox"
+                      checked={editingCell.animationEnabled ?? true}
+                      onChange={(e) => setEditingCell({
+                        ...editingCell, 
+                        animationEnabled: e.target.checked,
+                        animationType: editingCell.animationType || 'pulse',
+                        animationConfig: editingCell.animationConfig || {
+                          duration: 500,
+                          speed: 1,
+                          scale: 1.2,
+                          opacity: 0.8,
+                          direction: 'up',
+                          loop: false,
+                          autoplay: false,
+                          offset: { x: 0, y: 0 }
+                        }
+                      })}
+                      className="mr-2"
+                    />
+                    <label className="text-sm text-gray-300">启用点击动画效果</label>
+                  </div>
+
+                  {editingCell.animationEnabled && (
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm text-gray-300 mb-1">动画类型</label>
+                        <select
+                          value={editingCell.animationType || 'pulse'}
+                          onChange={(e) => setEditingCell({
+                            ...editingCell, 
+                            animationType: e.target.value as AnimationType
+                          })}
+                          className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+                        >
+                          {ANIMATION_TYPES.map((type: AnimationType) => (
+                            <option key={type} value={type}>
+                              {ANIMATION_TYPE_DESCRIPTIONS[type]}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm text-gray-300 mb-1">持续时间 (ms)</label>
+                          <input
+                            type="number"
+                            min="100"
+                            max="2000"
+                            value={editingCell.animationConfig?.duration || 500}
+                            onChange={(e) => setEditingCell({
+                              ...editingCell,
+                              animationConfig: {
+                                ...editingCell.animationConfig,
+                                duration: parseInt(e.target.value)
+                              }
+                            })}
+                            className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm text-gray-300 mb-1">缩放倍数</label>
+                          <input
+                            type="number"
+                            min="0.5"
+                            max="3"
+                            step="0.1"
+                            value={editingCell.animationConfig?.scale || 1.2}
+                            onChange={(e) => setEditingCell({
+                              ...editingCell,
+                              animationConfig: {
+                                ...editingCell.animationConfig,
+                                scale: parseFloat(e.target.value)
+                              }
+                            })}
+                            className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm text-gray-300 mb-1">透明度</label>
+                          <input
+                            type="number"
+                            min="0.1"
+                            max="1"
+                            step="0.1"
+                            value={editingCell.animationConfig?.opacity || 0.8}
+                            onChange={(e) => setEditingCell({
+                              ...editingCell,
+                              animationConfig: {
+                                ...editingCell.animationConfig,
+                                opacity: parseFloat(e.target.value)
+                              }
+                            })}
+                            className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm text-gray-300 mb-1">动画方向</label>
+                          <select
+                            value={editingCell.animationConfig?.direction || 'up'}
+                            onChange={(e) => setEditingCell({
+                              ...editingCell,
+                              animationConfig: {
+                                ...editingCell.animationConfig,
+                                direction: e.target.value as 'up' | 'down' | 'left' | 'right' | 'random'
+                              }
+                            })}
+                            className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+                          >
+                            <option value="up">向上</option>
+                            <option value="down">向下</option>
+                            <option value="left">向左</option>
+                            <option value="right">向右</option>
+                            <option value="random">随机</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {editingCell.animationType === 'custom' && (
+                        <div>
+                          <label className="block text-sm text-gray-300 mb-1">Lottie动画JSON</label>
+                          <textarea
+                            value={editingCell.animationData ? JSON.stringify(editingCell.animationData, null, 2) : ''}
+                            onChange={(e) => {
+                              try {
+                                const animationData = e.target.value ? JSON.parse(e.target.value) : null;
+                                setEditingCell({
+                                  ...editingCell,
+                                  animationData
+                                });
+                              } catch (error) {
+                                // 忽略JSON解析错误，允许用户输入过程中的无效JSON
+                              }
+                            }}
+                            placeholder="粘贴Lottie动画JSON数据..."
+                            className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white h-32 text-sm font-mono"
+                          />
+                          <div className="text-xs text-gray-400 mt-1">
+                            💡 您可以从 <a href="https://lottiefiles.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">LottieFiles</a> 下载动画JSON文件
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 

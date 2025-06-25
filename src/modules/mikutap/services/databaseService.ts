@@ -55,6 +55,11 @@ export async function saveGridConfigToDB(config: GridConfig): Promise<void> {
             enabled: cell.enabled,
             audioFile: cell.audioFile || null,
             effects: cell.effects ? JSON.stringify(cell.effects) : null,
+            // 动画字段
+            animationEnabled: cell.animationEnabled ?? true,
+            animationType: cell.animationType || 'pulse',
+            animationData: cell.animationData ? JSON.stringify(cell.animationData) : null,
+            animationConfig: cell.animationConfig ? JSON.stringify(cell.animationConfig) : null,
           })));
       }
     });
@@ -94,7 +99,7 @@ export async function loadGridConfigFromDB(configId: string = 'default'): Promis
         id: cell.id,
         row: cell.row,
         col: cell.col,
-        key: cell.key,
+        key: cell.key || undefined,
         soundType: cell.soundType as any,
         soundSource: cell.soundSource as any,
         waveType: cell.waveType as any,
@@ -106,6 +111,17 @@ export async function loadGridConfigFromDB(configId: string = 'default'): Promis
         enabled: cell.enabled,
         audioFile: cell.audioFile || undefined,
         effects: cell.effects ? JSON.parse(cell.effects as string) : undefined,
+        // 动画字段
+        animationEnabled: cell.animationEnabled ?? true,
+        animationType: (cell.animationType || 'pulse') as any,
+        animationData: (() => {
+          if (!cell.animationData) return undefined;
+          return typeof cell.animationData === 'string' ? JSON.parse(cell.animationData) : (cell.animationData as any);
+        })(),
+        animationConfig: (() => {
+          if (!cell.animationConfig) return undefined;
+          return typeof cell.animationConfig === 'string' ? JSON.parse(cell.animationConfig) : (cell.animationConfig as any);
+        })(),
       })),
       createdAt: config.createdAt,
       updatedAt: config.updatedAt,
