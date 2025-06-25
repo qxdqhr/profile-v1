@@ -273,5 +273,14 @@ export const experiments: ExperimentItem[] = [
     tags: ["太阳系", "3D", "Three.js", "天文", "可视化", "实时"],
     category: "leisure",
     isCompleted: true
+  },
+  {
+    id: "mikutap",
+    title: "Mikutap 音乐互动",
+    description: "复刻经典音乐互动游戏Mikutap，支持点击、拖拽和按键触发音效，具备多种音色包、可配置化视觉效果、响应式设计，完美支持桌面和移动端",
+    path: "/testField/mikutap",
+    tags: ["音乐", "互动", "游戏", "初音未来", "音效", "可配置", "响应式"],
+    category: "leisure",
+    isCompleted: true
   }
 ];
