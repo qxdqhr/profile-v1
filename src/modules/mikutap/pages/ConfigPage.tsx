@@ -137,7 +137,7 @@ export default function ConfigPage() {
       soundSource: 'synthesized',
       waveType: 'sine',
       frequency: 440,
-      volume: 70,
+      volume: 100,
       description: availableKey ? `新音效 - ${availableKey.toUpperCase()}` : `新音效 - (${row},${col})`,
       icon: '🎹',
       color: '#3B82F6',

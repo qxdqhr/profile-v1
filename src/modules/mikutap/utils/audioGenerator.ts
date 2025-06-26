@@ -125,11 +125,12 @@ export class AudioGenerator {
   
     /**
      * 播放合成音效
+     * 修改后支持同时播放多个音效
      */
     playTone(
       frequency: number,
       duration: number = 0.3,
-      volume: number = 0.1,
+      volume: number = 1.0,
       waveType: OscillatorType = 'sine',
       effects?: GridCell['effects']
     ): void {
@@ -139,7 +140,9 @@ export class AudioGenerator {
       }
   
       try {
+        // 每次播放创建新的振荡器和增益节点
         const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
         let audioNode: AudioNode = oscillator;
         
         // 设置基础参数
@@ -174,8 +177,7 @@ export class AudioGenerator {
           }
         }
 
-        // 创建增益节点（音量控制和包络）
-        const gainNode = this.audioContext.createGain();
+        // 连接增益节点（音量控制和包络）
         audioNode.connect(gainNode);
         gainNode.connect(this.audioContext.destination);
         
@@ -199,6 +201,16 @@ export class AudioGenerator {
         oscillator.start(now);
         oscillator.stop(now + duration);
         
+        // 在音效结束后断开连接，释放资源
+        setTimeout(() => {
+          try {
+            gainNode.disconnect();
+            oscillator.disconnect();
+          } catch (e) {
+            // 忽略可能的错误
+          }
+        }, duration * 1000 + 100);
+        
       } catch (error) {
         console.error('播放音效失败:', error);
       }
@@ -209,7 +221,7 @@ export class AudioGenerator {
      */
     async playAudioFile(
       audioBuffer: ArrayBuffer | AudioBuffer,
-      volume: number = 0.1,
+      volume: number = 1.0,
       effects?: GridCell['effects']
     ): Promise<void> {
       if (!this.audioContext || !this.isInitialized) {
@@ -278,7 +290,7 @@ export class AudioGenerator {
       }
 
       const cellVolume = (cell.volume || 70) / 100; // 转换百分比为小数
-      const volume = 0.1 * intensity * masterVolume * cellVolume;
+      const volume = 1.0 * intensity * masterVolume * cellVolume;
 
       try {
         if (cell.soundSource === 'file' && cell.audioFile) {
@@ -403,7 +415,7 @@ export class AudioGenerator {
      */
     playSoundById(soundId: string, intensity: number = 1, masterVolume: number = 0.7): void {
       const { frequency, waveType } = this.getSoundParams(soundId);
-      const volume = 0.1 * intensity * masterVolume;
+      const volume = 1.0 * intensity * masterVolume;
       
       // 根据音效类型调整持续时间
       let duration = 0.3;

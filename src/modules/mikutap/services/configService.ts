@@ -38,7 +38,7 @@ export function generateDefaultCells(rows: number, cols: number): GridCell[] {
         soundSource: 'synthesized',
         waveType: waveType as 'sine' | 'square' | 'sawtooth',
         frequency: getDefaultFrequency(soundType, index),
-        volume: 0.7,
+        volume: 100,
         description,
         icon,
         color,

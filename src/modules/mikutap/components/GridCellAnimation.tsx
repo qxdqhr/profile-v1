@@ -84,19 +84,18 @@ export function GridCellAnimation({
   children,
   onAnimationComplete
 }: GridCellAnimationProps) {
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [showOverlay, setShowOverlay] = useState(false);
+  // 存储多个动画实例
+  const [animations, setAnimations] = useState<{id: number, timestamp: number}[]>([]);
+  const lastTriggeredTimeRef = useRef<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutsRef = useRef<{[key: number]: NodeJS.Timeout}>({});
 
   console.log('GridCellAnimation: Component created/rendered', {
     isTriggered,
     animationType,
     hasAnimationData: !!animationData,
     animationConfig,
-    isAnimating,
-    showOverlay
+    animationsCount: animations.length
   });
 
   const {
@@ -113,47 +112,47 @@ export function GridCellAnimation({
   useEffect(() => {
     console.log('GridCellAnimation: useEffect triggered', { 
       isTriggered, 
-      isAnimating, 
       animationType,
       animationData: !!animationData,
-      animationConfig,
-      showOverlay 
+      animationConfig
     });
-    if (isTriggered && !isAnimating) {
+    
+    if (isTriggered) {
       console.log('GridCellAnimation: About to trigger animation');
       triggerAnimation();
-    } else {
-      console.log('GridCellAnimation: Skipping animation trigger', { 
-        isTriggered, 
-        isAnimating,
-        reason: !isTriggered ? 'not triggered' : 'already animating'
-      });
     }
   }, [isTriggered]);
 
   const triggerAnimation = () => {
-    if (isAnimating) {
-      console.log('GridCellAnimation: Animation already running, skipping');
-      return;
-    }
-
-    console.log('GridCellAnimation: Triggering animation', { animationType, duration, scale, opacity });
-    setIsAnimating(true);
-    setShowOverlay(true);
-
-    // 清除之前的定时器
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+    const now = Date.now();
+    // 即使上次动画还在进行中，也创建新的动画实例
+    const animationId = now;
+    console.log('GridCellAnimation: Triggering new animation', { animationId, animationType, duration, scale, opacity });
+    
+    // 添加新的动画实例
+    setAnimations(prev => [...prev, { id: animationId, timestamp: now }]);
+    lastTriggeredTimeRef.current = now;
 
     // 设置动画完成的定时器
-    timeoutRef.current = setTimeout(() => {
-      console.log('GridCellAnimation: Animation completed');
-      setIsAnimating(false);
-      setShowOverlay(false);
-      onAnimationComplete?.();
+    timeoutsRef.current[animationId] = setTimeout(() => {
+      console.log('GridCellAnimation: Animation completed', { animationId });
+      // 移除此动画实例
+      setAnimations(prev => prev.filter(a => a.id !== animationId));
+      delete timeoutsRef.current[animationId];
+      
+      // 如果这是最后一个动画，通知完成
+      if (animations.length <= 1 && onAnimationComplete) {
+        onAnimationComplete();
+      }
     }, duration / speed);
   };
+
+  // 组件卸载时清理所有定时器
+  useEffect(() => {
+    return () => {
+      Object.values(timeoutsRef.current).forEach(timeout => clearTimeout(timeout));
+    };
+  }, []);
 
   const getCSSAnimationClass = () => {
     const baseClasses = [styles.animation];
@@ -222,88 +221,53 @@ export function GridCellAnimation({
     } as React.CSSProperties;
   };
 
-  const renderOverlayAnimation = () => {
-    console.log('GridCellAnimation: renderOverlayAnimation called', { showOverlay, animationType });
-    if (!showOverlay) return null;
+  const renderAnimations = () => {
+    return animations.map(animation => {
+      // 自定义Lottie动画
+      if (animationType === 'custom' && animationData) {
+        return (
+          <div 
+            key={`lottie-animation-${animation.id}`} 
+            className="absolute inset-0 pointer-events-none z-10"
+          >
+            <Lottie
+              animationData={animationData}
+              loop={loop}
+              autoplay={true}
+              style={{
+                width: '100%',
+                height: '100%',
+                opacity,
+                transform: `scale(${scale}) translate(${offset.x}px, ${offset.y}px)`,
+              }}
+            />
+          </div>
+        );
+      }
 
-    // 如果是自定义Lottie动画
-    if (animationType === 'custom' && animationData) {
+      // CSS动画
       return (
-        <div className="absolute inset-0 pointer-events-none z-10">
-          <Lottie
-            animationData={animationData}
-            loop={loop}
-            autoplay={true}
-            style={{
-              width: '100%',
-              height: '100%',
-              opacity,
-              transform: `scale(${scale}) translate(${offset.x}px, ${offset.y}px)`,
-            }}
-          />
+        <div 
+          key={`css-animation-${animation.id}`}
+          className={getCSSAnimationClass()}
+          style={getAnimationStyle()}
+        >
+          {/* 动画内容 */}
+          <div className="absolute inset-0 bg-white bg-opacity-30 rounded-lg" />
         </div>
       );
-    }
-
-    // 预设动画覆盖层 - 使用简化的内联样式
-    const animationStyle = {
-      position: 'absolute' as const,
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      pointerEvents: 'none' as const,
-      zIndex: 10,
-      backgroundColor: 'rgba(255, 255, 0, 0.8)', // 明显的黄色用于测试
-      borderRadius: '8px',
-      border: '3px solid red', // 明显的红色边框用于测试
-      animation: `pulse-test ${duration}ms ease-out`,
-      transform: `scale(${scale})`,
-      opacity: opacity
-    };
-
-    return (
-      <>
-        <div
-          ref={overlayRef}
-          style={animationStyle}
-        />
-        
-        {/* 内联CSS动画定义 */}
-        <style jsx>{`
-          @keyframes pulse-test {
-            0% { 
-              transform: scale(1); 
-              background-color: rgba(255, 255, 0, 0.3);
-              border-color: yellow;
-            }
-            50% { 
-              transform: scale(1.2); 
-              background-color: rgba(255, 0, 0, 0.8);
-              border-color: red;
-            }
-            100% { 
-              transform: scale(1); 
-              background-color: rgba(0, 255, 0, 0.3);
-              border-color: green;
-            }
-          }
-        `}</style>
-      </>
-    );
+    });
   };
 
   return (
     <div ref={containerRef} className="relative w-full h-full">
       {/* 原始内容 */}
-      <div className={isAnimating && animationType !== 'custom' ? getCSSAnimationClass() : ''} style={getAnimationStyle()}>
+      <div>
         {children}
       </div>
 
-      {/* 动画覆盖层 */}
-      {renderOverlayAnimation()}
-
-
+      {/* 动画层 */}
+      {renderAnimations()}
     </div>
   );
 }
