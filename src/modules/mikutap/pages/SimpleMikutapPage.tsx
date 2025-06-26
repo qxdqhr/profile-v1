@@ -29,28 +29,31 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
   const [lastPlayTime, setLastPlayTime] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState({
-    volume: 0.7,
+    volume: 1.0,
     enableParticles: true,
     enableDragThrottle: true,
-    dragThrottleDelay: 50,
+    dragThrottleDelay: 10,
     particleLifetime: 1000,
     keyboardEnabled: true,
     mouseEnabled: true,
   });
   const [touchHandled, setTouchHandled] = useState(false);
   const [gridConfig, setGridConfig] = useState<GridConfig | null>(null);
+  const [triggeredCells, setTriggeredCells] = useState<Set<string>>(new Set());
+  const [lastTriggeredCellId, setLastTriggeredCellId] = useState<string | null>(null);
+  const [lastMousePosition, setLastMousePosition] = useState<{x: number, y: number} | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const audioGeneratorRef = useRef(getAudioGenerator());
   const { loadConfig: loadConfigFromDB } = useConfigDatabase();
   const [animationTriggers, setAnimationTriggers] = useState<Record<string, number>>({});
 
+  // 记录上一次触发的格子位置
+  const lastGridPositionRef = useRef<{row: number, col: number} | null>(null);
 
   // 监控animationTriggers状态变化
   useEffect(() => {
     console.log('🔥 animationTriggers state changed 🔥:', animationTriggers);
   }, [animationTriggers]);
-
-
 
   // 监控showHelpInfo状态变化
   useEffect(() => {
@@ -104,12 +107,14 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
   const playSoundByKey = useCallback(async (key: string, x: number = 0, y: number = 0, skipThrottle = false) => {
     if (!isAudioInitialized || !gridConfig) return;
     
-    // 拖拽时的节流控制
-    const now = Date.now();
-    if (!skipThrottle && isDragging && settings.enableDragThrottle && now - lastPlayTime < settings.dragThrottleDelay) {
-      return;
+    // 拖拽时的节流控制，但跳过点击时的节流
+    if (!skipThrottle) {
+      const now = Date.now();
+      if (isDragging && settings.enableDragThrottle && now - lastPlayTime < settings.dragThrottleDelay) {
+        return;
+      }
+      setLastPlayTime(now);
     }
-    setLastPlayTime(now);
     
     try {
       // 查找对应的网格单元格（必须有键盘映射且启用）
@@ -175,12 +180,14 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
   const playSoundByCell = useCallback(async (cell: GridCell, x: number, y: number, skipThrottle = false) => {
     if (!isAudioInitialized || !cell.enabled) return;
     
-    // 拖拽时的节流控制
-    const now = Date.now();
-    if (!skipThrottle && isDragging && settings.enableDragThrottle && now - lastPlayTime < settings.dragThrottleDelay) {
-      return;
+    // 拖拽时的节流控制，但跳过点击时的节流
+    if (!skipThrottle) {
+      const now = Date.now();
+      if (isDragging && settings.enableDragThrottle && now - lastPlayTime < settings.dragThrottleDelay) {
+        return;
+      }
+      setLastPlayTime(now);
     }
-    setLastPlayTime(now);
     
     try {
       // 播放音效
@@ -241,76 +248,64 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     const cell = gridConfig.cells.find(c => c.row === row && c.col === col && c.enabled);
     if (!cell) return;
     
+    // 更新最后触发的格子ID（仅用于记录）
+    setLastTriggeredCellId(cell.id);
+    
     await playSoundByCell(cell, x, y, skipThrottle);
   }, [isAudioInitialized, initializeAudio, playSoundByCell, gridConfig]);
 
   /**
-   * 处理鼠标点击和触摸
+   * 获取两点之间经过的所有格子
    */
-  const handleClick = useCallback(async (e: React.MouseEvent) => {
-    if (!settings.mouseEnabled || isDragging) return; // 鼠标禁用或拖拽时不处理点击
+  const getCellsBetweenPoints = useCallback((x1: number, y1: number, x2: number, y2: number): {row: number, col: number}[] => {
+    if (!gridConfig || !containerRef.current) return [];
     
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const cols = gridConfig.cols;
+    const rows = gridConfig.rows;
     
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    // 计算起点和终点的网格坐标
+    const startCol = Math.floor((x1 / rect.width) * cols);
+    const startRow = Math.floor((y1 / rect.height) * rows);
+    const endCol = Math.floor((x2 / rect.width) * cols);
+    const endRow = Math.floor((y2 / rect.height) * rows);
     
-    await handlePlaySoundAtPosition(x, y, true);
-  }, [settings.mouseEnabled, isDragging, handlePlaySoundAtPosition]);
-
-  /**
-   * 处理触摸开始
-   */
-  const handleTouchStart = useCallback(async (e: React.TouchEvent) => {
-    if (!settings.mouseEnabled) return;
-    
-    e.preventDefault(); // 防止双击放大和其他默认行为
-    setIsDragging(true);
-    
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    
-    const touch = e.touches[0];
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
-    
-    await handlePlaySoundAtPosition(x, y, true);
-  }, [settings.mouseEnabled, handlePlaySoundAtPosition]);
-
-  /**
-   * 处理触摸移动
-   */
-  const handleTouchMove = useCallback(async (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    const rect = containerRef.current?.getBoundingClientRect();
-    
-    if (showHelpInfo && rect) {
-      setMousePosition({
-        x: touch.clientX - rect.left,
-        y: touch.clientY - rect.top
-      });
+    // 如果起点和终点相同，直接返回
+    if (startCol === endCol && startRow === endRow) {
+      return [{row: startRow, col: startCol}];
     }
     
-    if (!settings.mouseEnabled || !isDragging) return;
+    // 使用Bresenham算法计算两点之间的所有格子
+    const cells: {row: number, col: number}[] = [];
     
-    e.preventDefault(); // 防止页面滚动
+    // 计算步进方向和距离
+    const dx = Math.abs(endCol - startCol);
+    const dy = Math.abs(endRow - startRow);
+    const sx = startCol < endCol ? 1 : -1;
+    const sy = startRow < endRow ? 1 : -1;
+    let err = dx - dy;
     
-    if (!rect) return;
+    let x = startCol;
+    let y = startRow;
     
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
+    while (true) {
+      cells.push({row: y, col: x});
+      
+      if (x === endCol && y === endRow) break;
+      
+      const e2 = 2 * err;
+      if (e2 > -dy) {
+        err -= dy;
+        x += sx;
+      }
+      if (e2 < dx) {
+        err += dx;
+        y += sy;
+      }
+    }
     
-    await handlePlaySoundAtPosition(x, y);
-  }, [settings.mouseEnabled, isDragging, showHelpInfo, handlePlaySoundAtPosition]);
-
-  /**
-   * 处理触摸结束
-   */
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  }, []);
+    return cells;
+  }, [gridConfig]);
 
   /**
    * 处理鼠标按下
@@ -326,11 +321,19 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     
+    // 记录初始鼠标位置
+    setLastMousePosition({x, y});
+    
+    // 计算当前格子位置
+    const col = Math.floor((x / rect.width) * gridConfig?.cols!);
+    const row = Math.floor((y / rect.height) * gridConfig?.rows!);
+    lastGridPositionRef.current = {row, col};
+    
     await handlePlaySoundAtPosition(x, y, true);
-  }, [settings.mouseEnabled, handlePlaySoundAtPosition]);
+  }, [settings.mouseEnabled, handlePlaySoundAtPosition, gridConfig]);
 
   /**
-   * 处理鼠标移动（拖拽）
+   * 处理鼠标移动（拖拽）- 简化版
    */
   const handleMouseMove = useCallback(async (e: React.MouseEvent) => {
     if (showHelpInfo) {
@@ -343,7 +346,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       }
     }
     
-    if (!settings.mouseEnabled || !isDragging) return;
+    if (!settings.mouseEnabled || !isDragging || !lastMousePosition || !gridConfig) return;
     
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -351,14 +354,111 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     
-    await handlePlaySoundAtPosition(x, y);
-  }, [settings.mouseEnabled, isDragging, showHelpInfo, handlePlaySoundAtPosition]);
+    // 计算当前格子位置
+    const col = Math.floor((x / rect.width) * gridConfig.cols);
+    const row = Math.floor((y / rect.height) * gridConfig.rows);
+    
+    // 如果格子位置发生变化，才触发音效
+    if (lastGridPositionRef.current && 
+        (lastGridPositionRef.current.row !== row || lastGridPositionRef.current.col !== col)) {
+      
+      // 查找对应位置的单元格
+      const cell = gridConfig.cells.find(c => c.row === row && c.col === col && c.enabled);
+      if (cell) {
+        // 更新最后触发的格子位置
+        lastGridPositionRef.current = {row, col};
+        setLastTriggeredCellId(cell.id);
+        await playSoundByCell(cell, x, y, false);
+      }
+    }
+    
+    // 更新上一次鼠标位置
+    setLastMousePosition({x, y});
+    
+  }, [settings.mouseEnabled, isDragging, showHelpInfo, lastMousePosition, gridConfig, playSoundByCell]);
 
   /**
-   * 处理鼠标松开
+   * 处理触摸开始
    */
-  const handleMouseUp = useCallback(() => {
+  const handleTouchStart = useCallback(async (e: React.TouchEvent) => {
+    if (!settings.mouseEnabled) return;
+    
+    e.preventDefault(); // 防止双击放大和其他默认行为
+    setIsDragging(true);
+    
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect || !gridConfig) return;
+    
+    const touch = e.touches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    
+    // 记录初始触摸位置
+    setLastMousePosition({x, y});
+    
+    // 计算当前格子位置
+    const col = Math.floor((x / rect.width) * gridConfig.cols);
+    const row = Math.floor((y / rect.height) * gridConfig.rows);
+    lastGridPositionRef.current = {row, col};
+    
+    await handlePlaySoundAtPosition(x, y, true);
+  }, [settings.mouseEnabled, handlePlaySoundAtPosition, gridConfig]);
+
+  /**
+   * 处理触摸移动 - 简化版
+   */
+  const handleTouchMove = useCallback(async (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    const rect = containerRef.current?.getBoundingClientRect();
+    
+    if (showHelpInfo && rect) {
+      setMousePosition({
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top
+      });
+    }
+    
+    if (!settings.mouseEnabled || !isDragging || !lastMousePosition || !gridConfig) return;
+    
+    e.preventDefault(); // 防止页面滚动
+    
+    if (!rect) return;
+    
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    
+    // 计算当前格子位置
+    const col = Math.floor((x / rect.width) * gridConfig.cols);
+    const row = Math.floor((y / rect.height) * gridConfig.rows);
+    
+    // 如果格子位置发生变化，才触发音效
+    if (lastGridPositionRef.current && 
+        (lastGridPositionRef.current.row !== row || lastGridPositionRef.current.col !== col)) {
+      
+      // 查找对应位置的单元格
+      const cell = gridConfig.cells.find(c => c.row === row && c.col === col && c.enabled);
+      if (cell) {
+        // 更新最后触发的格子位置
+        lastGridPositionRef.current = {row, col};
+        setLastTriggeredCellId(cell.id);
+        await playSoundByCell(cell, x, y, false);
+      }
+    }
+    
+    // 更新上一次触摸位置
+    setLastMousePosition({x, y});
+    
+  }, [settings.mouseEnabled, isDragging, showHelpInfo, lastMousePosition, gridConfig, playSoundByCell]);
+
+  /**
+   * 处理触摸结束
+   */
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
     setIsDragging(false);
+    // 重置最后触发的格子ID和触摸位置
+    setLastTriggeredCellId(null);
+    setLastMousePosition(null);
   }, []);
 
   /**
@@ -450,10 +550,11 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       <div
         ref={containerRef}
         className={`relative w-full h-full select-none no-zoom ${isDragging ? 'cursor-grabbing' : 'cursor-crosshair'}`}
-        onClick={handleClick}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
+        onMouseUp={()=>{
+          // setIsDragging(false);
+        }}
         onMouseLeave={() => {
           setMousePosition(null);
           setIsDragging(false); // 鼠标离开时停止拖拽
@@ -571,10 +672,11 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
         {/* 网格蒙版 - 显示点击区域信息 */}
         {showHelpInfo && gridConfig && (
           <div className="absolute inset-0 bg-black bg-opacity-60 z-25 pointer-events-none"
-               onClick={handleClick}
                onMouseDown={handleMouseDown}
                onMouseMove={handleMouseMove}
-               onMouseUp={handleMouseUp}
+               onMouseUp={()=>{
+                // setIsDragging(false);
+               }}
                onTouchStart={handleTouchStart}
                onTouchMove={handleTouchMove}
                onTouchEnd={handleTouchEnd}
@@ -1057,10 +1159,10 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
             <button
               onClick={() => {
                 setSettings({
-                  volume: 0.7,
+                  volume: 1.0,
                   enableParticles: true,
                   enableDragThrottle: true,
-                  dragThrottleDelay: 50,
+                  dragThrottleDelay: 10,
                   particleLifetime: 1000,
                   keyboardEnabled: true,
                   mouseEnabled: true,
