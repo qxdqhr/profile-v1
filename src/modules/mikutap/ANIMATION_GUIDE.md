@@ -15,6 +15,11 @@ Mikutap现在支持丰富的动画效果！每个音效格子都可以配置独�
 - **旋转效果 (spin)** - 360度旋转动画
 - **缩放效果 (scale)** - 渐变缩放效果
 - **涟漪效果 (ripple)** - 水波扩散效果
+- **爆炸效果 (explosion)** - 快速扩张的爆炸动画
+- **漩涡效果 (vortex)** - 旋转缩放的漩涡动画
+- **闪电效果 (lightning)** - 快速闪烁的闪电动画
+- **彩虹效果 (rainbow)** - 颜色渐变的彩虹动画
+- **波浪效果 (wave)** - 多重扩散的波浪动画
 
 ### 2. 自定义Lottie动画
 
@@ -48,13 +53,17 @@ Mikutap现在支持丰富的动画效果！每个音效格子都可以配置独�
 
 项目提供了一些示例动画JSON文件，位于：
 ```
-public/mikutap/animations/sample-animations.json
+public/mikutap/animations/animations.json
 ```
 
 包含以下示例：
 - `pulse`: 脉冲动画
 - `sparkle`: 闪烁星星动画
 - `wave`: 波浪扩散动画
+- `explosion`: 爆炸效果动画
+- `vortex`: 漩涡效果动画
+- `lightning`: 闪电效果动画
+- `rainbow`: 彩虹效果动画
 
 ## 最佳实践
 

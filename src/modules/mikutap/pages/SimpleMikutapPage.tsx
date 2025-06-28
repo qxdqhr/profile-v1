@@ -12,6 +12,7 @@ import { GridConfig, GridCell } from '../types';
 import { useConfigDatabase } from '../hooks/useConfigDatabase';
 import GridCellAnimation from '../components/GridCellAnimation';
 import TestAnimation from '../components/TestAnimation';
+import FullscreenAnimation from '../components/FullscreenAnimation';
 
 interface SimpleMikutapPageProps {
   className?: string;
@@ -49,6 +50,10 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
 
   // 记录上一次触发的格子位置
   const lastGridPositionRef = useRef<{row: number, col: number} | null>(null);
+
+  // 添加全屏动画相关状态
+  const [fullscreenAnimationTrigger, setFullscreenAnimationTrigger] = useState<number>(0);
+  const [activeCell, setActiveCell] = useState<GridCell | null>(null);
 
   // 监控animationTriggers状态变化
   useEffect(() => {
@@ -135,10 +140,15 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
         animationType: cell.animationType 
       });
       
+      // 触发网格动画
       setAnimationTriggers(prev => ({
         ...prev,
         [cell.id]: (prev[cell.id] || 0) + 1
       }));
+      
+      // 触发全屏动画
+      setActiveCell(cell);
+      setFullscreenAnimationTrigger(prev => prev + 1);
       
       // 添加粒子效果
       if (settings.enableParticles) {
@@ -197,6 +207,10 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       
       // 简化：所有音效播放都触发动画
       triggerCellAnimation(cell.id);
+      
+      // 触发全屏动画
+      setActiveCell(cell);
+      setFullscreenAnimationTrigger(prev => prev + 1);
       
       // 添加粒子效果
       if (settings.enableParticles) {
@@ -563,6 +577,15 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
+        {/* 全屏动画效果 */}
+        <FullscreenAnimation 
+          isTriggered={fullscreenAnimationTrigger}
+          cell={activeCell}
+          onAnimationEnd={() => {
+            console.log('Fullscreen animation ended');
+          }}
+        />
+
         {/* 粒子效果 */}
         {particles.map(particle => (
           <div

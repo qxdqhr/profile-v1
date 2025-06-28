@@ -43,6 +43,26 @@
   animation-name: ripple-animation;
 }
 
+.explosion {
+  animation-name: explosion-animation;
+}
+
+.vortex {
+  animation-name: vortex-animation;
+}
+
+.lightning {
+  animation-name: lightning-animation;
+}
+
+.rainbow {
+  animation-name: rainbow-animation;
+}
+
+.wave {
+  animation-name: wave-animation;
+}
+
 @keyframes pulse-animation {
   0% { 
     transform: scale(1); 
@@ -155,6 +175,86 @@
   100% { 
     transform: scale(var(--animation-scale, 2)); 
     opacity: 0; 
+  }
+}
+
+@keyframes explosion-animation {
+  0% { 
+    transform: scale(0); 
+    opacity: 1; 
+    background-color: rgba(255, 165, 0, 0.8);
+  }
+  50% { 
+    transform: scale(var(--animation-scale, 1.5)); 
+    opacity: var(--animation-opacity, 0.8); 
+    background-color: rgba(255, 69, 0, 0.6);
+  }
+  100% { 
+    transform: scale(var(--animation-scale, 2)); 
+    opacity: 0; 
+    background-color: rgba(255, 0, 0, 0.3);
+  }
+}
+
+@keyframes vortex-animation {
+  0% { 
+    transform: scale(1) rotate(0deg); 
+    opacity: 1; 
+  }
+  100% { 
+    transform: scale(0.2) rotate(720deg); 
+    opacity: 0; 
+  }
+}
+
+@keyframes lightning-animation {
+  0%, 20%, 40%, 60%, 80%, 100% { 
+    opacity: 0; 
+    background-color: transparent;
+  }
+  10%, 30%, 50%, 70%, 90% { 
+    opacity: var(--animation-opacity, 0.8); 
+    background-color: rgba(255, 255, 0, 0.5);
+  }
+}
+
+@keyframes rainbow-animation {
+  0% { 
+    background-color: rgba(255, 0, 0, var(--animation-opacity, 0.5)); 
+    transform: scale(1); 
+  }
+  16.6% { 
+    background-color: rgba(255, 165, 0, var(--animation-opacity, 0.5)); 
+  }
+  33.3% { 
+    background-color: rgba(255, 255, 0, var(--animation-opacity, 0.5)); 
+  }
+  50% { 
+    background-color: rgba(0, 255, 0, var(--animation-opacity, 0.5)); 
+    transform: scale(var(--animation-scale, 1.2)); 
+  }
+  66.6% { 
+    background-color: rgba(0, 0, 255, var(--animation-opacity, 0.5)); 
+  }
+  83.3% { 
+    background-color: rgba(128, 0, 128, var(--animation-opacity, 0.5)); 
+  }
+  100% { 
+    background-color: rgba(255, 0, 0, var(--animation-opacity, 0.5)); 
+    transform: scale(1); 
+  }
+}
+
+@keyframes wave-animation {
+  0% { 
+    box-shadow: 0 0 0 0 rgba(var(--animation-color, 0, 128, 255), var(--animation-opacity, 0.4)),
+                0 0 0 0 rgba(var(--animation-color, 0, 128, 255), var(--animation-opacity, 0.2)),
+                0 0 0 0 rgba(var(--animation-color, 0, 128, 255), var(--animation-opacity, 0.1));
+  }
+  100% { 
+    box-shadow: 0 0 0 20px rgba(var(--animation-color, 0, 128, 255), 0),
+                0 0 0 40px rgba(var(--animation-color, 0, 128, 255), 0),
+                0 0 0 60px rgba(var(--animation-color, 0, 128, 255), 0);
   }
 }
 

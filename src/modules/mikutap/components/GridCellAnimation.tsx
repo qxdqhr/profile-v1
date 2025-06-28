@@ -198,6 +198,21 @@ export function GridCellAnimation({
       case 'ripple':
         baseClasses.push(styles.ripple);
         break;
+      case 'explosion':
+        baseClasses.push(styles.explosion);
+        break;
+      case 'vortex':
+        baseClasses.push(styles.vortex);
+        break;
+      case 'lightning':
+        baseClasses.push(styles.lightning);
+        break;
+      case 'rainbow':
+        baseClasses.push(styles.rainbow);
+        break;
+      case 'wave':
+        baseClasses.push(styles.wave);
+        break;
       default:
         // 如果没有匹配的动画类型，使用pulse作为后备
         baseClasses.push(styles.pulse);
