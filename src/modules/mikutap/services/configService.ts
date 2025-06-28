@@ -1,4 +1,4 @@
-import { GridCell, GridConfig } from '../types';
+import { GridCell, GridConfig, AnimationType } from '../types';
 
 // 默认网格配置
 export const DEFAULT_GRID_CONFIG: GridConfig = {
@@ -16,6 +16,15 @@ export const DEFAULT_GRID_CONFIG: GridConfig = {
 export function generateDefaultCells(rows: number, cols: number): GridCell[] {
   const keys = 'qwertyuiopasdfghjklzxcvbnm'.split('');
   const cells: GridCell[] = [];
+  
+  // 所有可用的动画类型
+  const animationTypes = [
+    'pulse', 'slide', 'bounce', 'flash', 'spin', 'scale', 'ripple',
+    'explosion', 'vortex', 'lightning', 'rainbow', 'wave'
+  ];
+  
+  // 滑动动画的方向
+  const slideDirections = ['up', 'down', 'left', 'right'] as const;
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
@@ -28,6 +37,22 @@ export function generateDefaultCells(rows: number, cols: number): GridCell[] {
       const description = index < 10 ? '钢琴音' : index < 19 ? '鼓点音' : '特效音';
       const icon = index < 10 ? '🎹' : index < 19 ? '🥁' : '🎛️';
       const color = index < 10 ? '#3B82F6' : index < 19 ? '#10B981' : '#8B5CF6';
+      
+      // 根据单元格索引分配不同的动画类型
+      const animationType = animationTypes[index % animationTypes.length] as AnimationType;
+      
+      // 为滑动动画设置随机方向
+      const direction = animationType === 'slide' 
+        ? slideDirections[index % slideDirections.length]
+        : 'up';
+      
+      // 根据动画类型设置适合的持续时间
+      let duration = 500;
+      if (animationType === 'explosion' || animationType === 'lightning') {
+        duration = 700;
+      } else if (animationType === 'rainbow' || animationType === 'wave') {
+        duration = 1000;
+      }
 
       cells.push({
         id: `cell-${row}-${col}`,
@@ -43,15 +68,15 @@ export function generateDefaultCells(rows: number, cols: number): GridCell[] {
         icon,
         color,
         enabled: true,
-        // 默认动画配置
+        // 默认动画配置 - 每个单元格使用不同的动画效果
         animationEnabled: true,
-        animationType: index < 10 ? 'pulse' : index < 19 ? 'bounce' : 'ripple',
+        animationType: animationType,
         animationConfig: {
-          duration: 500,
+          duration: duration,
           speed: 1,
-          scale: 1.2,
+          scale: animationType === 'explosion' || animationType === 'ripple' ? 2.0 : 1.2,
           opacity: 0.8,
-          direction: 'up',
+          direction: direction,
           loop: false,
           autoplay: false,
           offset: { x: 0, y: 0 }

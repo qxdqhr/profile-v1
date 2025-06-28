@@ -90,6 +90,21 @@ export default function ConfigPage() {
       setConfig(defaultConfig);
     }
   };
+  
+  const handleResetAndSaveConfig = async () => {
+    if (confirm('确定要重置为默认配置并保存吗？这将覆盖数据库中的配置。')) {
+      const defaultConfig = resetToDefaultConfig();
+      setConfig(defaultConfig);
+      
+      try {
+        await saveConfigToDB(defaultConfig);
+        alert('默认配置已保存到数据库！');
+      } catch (error) {
+        console.error('Failed to save default configuration:', error);
+        alert('保存默认配置失败：' + (error instanceof Error ? error.message : '未知错误'));
+      }
+    }
+  };
 
   const handleUpdateGridSize = (rows: number, cols: number) => {
     if (!config) return;
@@ -327,6 +342,12 @@ export default function ConfigPage() {
             className="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition-colors"
           >
             🔄 重置默认
+          </button>
+          <button
+            onClick={handleResetAndSaveConfig}
+            className="bg-orange-600 hover:bg-orange-700 px-6 py-2 rounded-lg font-medium transition-colors"
+          >
+            🔄💾 重置并保存
           </button>
           <button
             onClick={() => window.location.href = '/testField/mikutap'}

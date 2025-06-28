@@ -5,7 +5,7 @@ export type SoundType = 'piano' | 'drum' | 'synth' | 'bass' | 'lead' | 'pad' | '
 export type SoundSource = 'synthesized' | 'file' | 'url';
 
 // 动画类型
-export type AnimationType = 'pulse' | 'slide' | 'bounce' | 'flash' | 'spin' | 'scale' | 'ripple' | 'custom';
+export type AnimationType = 'pulse' | 'slide' | 'bounce' | 'flash' | 'spin' | 'scale' | 'ripple' | 'custom' | 'explosion' | 'vortex' | 'lightning' | 'rainbow' | 'wave';
 
 // 动画配置
 export interface AnimationConfig {
@@ -112,7 +112,7 @@ export const SOUND_SOURCES: SoundSource[] = ['synthesized', 'file', 'url'];
 
 // 动画类型数组
 export const ANIMATION_TYPES: AnimationType[] = [
-  'pulse', 'slide', 'bounce', 'flash', 'spin', 'scale', 'ripple', 'custom'
+  'pulse', 'slide', 'bounce', 'flash', 'spin', 'scale', 'ripple', 'explosion', 'vortex', 'lightning', 'rainbow', 'wave', 'custom'
 ];
 
 // 动画类型描述
@@ -124,6 +124,11 @@ export const ANIMATION_TYPE_DESCRIPTIONS: Record<AnimationType, string> = {
   spin: '旋转效果 - 360度旋转',
   scale: '缩放效果 - 渐变缩放',
   ripple: '涟漪效果 - 水波扩散',
+  explosion: '爆炸效果 - 快速扩张',
+  vortex: '漩涡效果 - 旋转缩放',
+  lightning: '闪电效果 - 快速闪烁',
+  rainbow: '彩虹效果 - 颜色渐变',
+  wave: '波浪效果 - 多重扩散',
   custom: '自定义动画 - Lottie JSON'
 };
 
