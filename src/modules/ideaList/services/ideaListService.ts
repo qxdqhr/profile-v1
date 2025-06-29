@@ -185,4 +185,27 @@ export class IdeaListService {
 
     return result.data;
   }
-} 
+
+  /**
+   * 将想法转换为新的清单
+   */
+  static async convertToList(itemId: number, data: { name: string; description?: string; color?: string; deleteOriginal: boolean }): Promise<any> {
+    const response = await fetch(`${this.BASE_URL}/items/${itemId}/convert-to-list`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        itemId,
+        ...data,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || '转换为清单失败');
+    }
+
+    return response.json();
+  }
+}

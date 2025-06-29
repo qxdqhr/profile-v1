@@ -37,6 +37,9 @@ export interface ExperimentItem {
   
   /** 更新时间 */
   updatedAt?: string;
+
+  /** 用户自定义排序索引 */
+  userOrder?: number;
 }
 
 /**
@@ -48,6 +51,11 @@ export type ViewMode = 'all' | 'utility' | 'leisure';
  * 完成状态筛选选项
  */
 export type CompletionFilter = 'all' | 'completed' | 'incomplete';
+
+/**
+ * 排序模式
+ */
+export type SortMode = 'auto' | 'manual';
 
 /**
  * 实验田搜索和筛选配置
@@ -67,6 +75,9 @@ export interface TestFieldConfig {
   
   /** 排序方向 */
   sortOrder: 'asc' | 'desc';
+
+  /** 排序模式 */
+  sortMode: SortMode;
 }
 
 /**

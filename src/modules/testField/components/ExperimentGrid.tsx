@@ -13,6 +13,8 @@ export interface ExperimentGridItem extends GridItem {
   tags: string[];
   category: string;
   isCompleted?: boolean;
+  updatedAt?: string;
+  createdAt?: string;
 }
 
 /** 实验项目网格组件 Props */
@@ -41,6 +43,8 @@ function defaultExperimentRenderer(item: ExperimentItem) {
       tags={item.tags}
       category={item.category}
       isCompleted={item.isCompleted}
+      updatedAt={item.updatedAt}
+      createdAt={item.createdAt}
     />
   );
 }

@@ -10,6 +10,8 @@ interface ExperimentCardProps {
   tags: string[];
   category: 'utility' | 'leisure';
   isCompleted?: boolean;
+  updatedAt?: string;
+  createdAt?: string;
 }
 
 const ExperimentCard: React.FC<ExperimentCardProps> = ({ 
@@ -18,8 +20,26 @@ const ExperimentCard: React.FC<ExperimentCardProps> = ({
   description, 
   tags, 
   category, 
-  isCompleted 
+  isCompleted,
+  updatedAt,
+  createdAt
 }) => {
+  // 格式化日期显示
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '';
+    
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    } catch (e) {
+      return dateString;
+    }
+  };
+  
   return (
     <Link href={href} className="block group">
       <div className="w-full h-full bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform group-hover:-translate-y-1 border border-gray-100 hover:border-gray-200">
@@ -46,6 +66,20 @@ const ExperimentCard: React.FC<ExperimentCardProps> = ({
             </div>
           </div>
           <p className="text-gray-600 mb-4">{description}</p>
+          
+          {/* 显示更新时间 */}
+          {updatedAt && (
+            <div className="flex items-center gap-1 mb-3 text-xs text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>更新于: {formatDate(updatedAt)}</span>
+              {createdAt && createdAt !== updatedAt && (
+                <span className="ml-2 text-gray-400">创建于: {formatDate(createdAt)}</span>
+              )}
+            </div>
+          )}
+          
           <div className="flex flex-wrap gap-2">
             {tags.map((tag) => (
               <span
