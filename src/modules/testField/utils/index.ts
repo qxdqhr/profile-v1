@@ -70,10 +70,30 @@ export function sortExperiments(
         comparison = bCompleted - aCompleted;
         break;
       case 'createdAt':
-        comparison = (a.createdAt || '').localeCompare(b.createdAt || '');
+        // 处理创建日期排序，确保没有日期的项目排在最后
+        if (!a.createdAt && !b.createdAt) {
+          comparison = 0;
+        } else if (!a.createdAt) {
+          comparison = 1; // a没有日期，排在后面
+        } else if (!b.createdAt) {
+          comparison = -1; // b没有日期，排在后面
+        } else {
+          // 日期字符串比较（假设格式为YYYY-MM-DD）
+          comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        }
         break;
       case 'updatedAt':
-        comparison = (a.updatedAt || '').localeCompare(b.updatedAt || '');
+        // 处理更新日期排序，确保没有日期的项目排在最后
+        if (!a.updatedAt && !b.updatedAt) {
+          comparison = 0;
+        } else if (!a.updatedAt) {
+          comparison = 1; // a没有日期，排在后面
+        } else if (!b.updatedAt) {
+          comparison = -1; // b没有日期，排在后面
+        } else {
+          // 日期字符串比较（假设格式为YYYY-MM-DD）
+          comparison = new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
+        }
         break;
       default:
         comparison = 0;

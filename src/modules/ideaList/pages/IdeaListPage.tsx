@@ -8,7 +8,8 @@ import CreateIdeaListModal from '../components/CreateIdeaListModal';
 import EditIdeaListModal from '../components/EditIdeaListModal';
 import CreateIdeaItemModal from '../components/CreateIdeaItemModal';
 import EditIdeaItemModal from '../components/EditIdeaItemModal';
-import type { IdeaList, IdeaListWithItems, IdeaListFormData, IdeaItemFormData, IdeaItem } from '../types';
+import IdeaItem from '../components/IdeaItem';
+import type { IdeaList, IdeaListWithItems, IdeaListFormData, IdeaItemFormData, IdeaItem as IdeaItemType } from '../types';
 import { AuthProvider, UserMenu } from '@/modules/auth';
 
 /**
@@ -31,12 +32,13 @@ export default function IdeaListPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingList, setEditingList] = useState<IdeaList | null>(null);
   const [showCreateItemModal, setShowCreateItemModal] = useState(false);
-  const [editingItem, setEditingItem] = useState<IdeaItem | null>(null);
+  const [editingItem, setEditingItem] = useState<IdeaItemType | null>(null);
   const [createLoading, setCreateLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
   const [createItemLoading, setCreateItemLoading] = useState(false);
   const [editItemLoading, setEditItemLoading] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const {
     items,
@@ -49,6 +51,37 @@ export default function IdeaListPage() {
     toggleComplete,
   } = useIdeaItems(selectedListId || undefined);
 
+  // 初始化时检查是否为移动端
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    // 初始检查
+    checkIsMobile();
+
+    // 监听窗口大小变化
+    window.addEventListener('resize', checkIsMobile);
+
+    return () => {
+      window.removeEventListener('resize', checkIsMobile);
+    };
+  }, []);
+
+  // 根据设备类型选择是否自动选择第一个清单
+  useEffect(() => {
+    if (ideaLists.length > 0 && !selectedListId && !isMobile) {
+      setSelectedListId(ideaLists[0].id);
+    }
+  }, [ideaLists, selectedListId, isMobile]);
+
+  // 当从桌面端切换到移动端时，如果没有选中的清单，清除选择
+  useEffect(() => {
+    if (isMobile && !selectedListId) {
+      setSelectedListId(null);
+    }
+  }, [isMobile]);
+
   // 初始化加载
   useEffect(() => {
     refreshLists();
@@ -60,13 +93,6 @@ export default function IdeaListPage() {
       refreshItems(false); // 不显示loading状态
     }
   }, [selectedListId, refreshItems]);
-
-  // 选择第一个列表作为默认选择
-  useEffect(() => {
-    if (ideaLists.length > 0 && !selectedListId) {
-      setSelectedListId(ideaLists[0].id);
-    }
-  }, [ideaLists, selectedListId]);
 
   const selectedList = ideaLists.find(list => list.id === selectedListId);
 
@@ -192,34 +218,21 @@ export default function IdeaListPage() {
   };
 
   // 处理删除想法项目
-  const handleDeleteItem = async () => {
-    if (!editingItem) {
-      console.warn('⚠️ [IdeaListPage] 没有正在编辑的项目');
-      return;
-    }
-    console.log('🚀 [IdeaListPage] 开始删除想法项目:', editingItem.id);
-    
-    setEditItemLoading(true);
+  const handleDeleteItem = useCallback(async (id: number) => {
+    if (!selectedListId) return;
     try {
-      console.log('📡 [IdeaListPage] 调用 deleteItem...');
-      const success = await deleteItem(editingItem.id);
-      console.log('✅ [IdeaListPage] 删除想法项目结果:', success);
-      if (success) {
-        // 本地更新清单统计数据（删除项目）
-        console.log('🔄 [IdeaListPage] 本地更新清单统计数据...');
-        if (selectedListId) {
-          // 如果删除的是已完成项目，需要同时减少 completedCount
-          const completedCountChange = editingItem.isCompleted ? -1 : 0;
-          updateListStats(selectedListId, -1, completedCountChange);
-        }
-        setEditingItem(null);
-      }
+      await deleteItem(id);
+      updateListStats(selectedListId, -1, 0);
     } catch (error) {
-      console.error('❌ [IdeaListPage] 删除想法项目失败:', error);
-    } finally {
-      setEditItemLoading(false);
+      console.error('Failed to delete item:', error);
     }
-  };
+  }, [deleteItem, selectedListId, updateListStats]);
+
+  // 处理编辑模态框的删除操作
+  const handleEditModalDelete = useCallback(() => {
+    if (!editingItem) return;
+    handleDeleteItem(editingItem.id);
+  }, [editingItem, handleDeleteItem]);
 
   // 处理切换完成状态
   const handleToggleComplete = async (id: number) => {
@@ -249,6 +262,20 @@ export default function IdeaListPage() {
     }
   };
 
+  // 处理转换成功
+  const handleConvertSuccess = useCallback((deleteOriginal: boolean) => {
+    // 刷新清单列表以显示新创建的清单
+    refreshLists();
+    
+    // 如果删除了原始想法，更新原清单的统计数据
+    if (deleteOriginal && selectedListId) {
+      updateListStats(selectedListId, -1, 0);
+    }
+    
+    // 立即刷新原清单的内容
+    refreshItems(true);
+  }, [refreshLists, refreshItems, selectedListId, updateListStats]);
+
   return (
     <AuthGuard 
       requireAuth={true}
@@ -275,33 +302,253 @@ export default function IdeaListPage() {
         </div>
       }
     >
-      <div className="bg-gray-50">
+      <div className="bg-gray-50 min-h-screen">
+        {/* 移动端布局 */}
+        <div className="block sm:hidden">
+          {!selectedList ? (
+            // 清单列表页面
+            <div className="min-h-screen flex flex-col bg-gray-50">
+              {/* 顶部导航栏 */}
+              <div className="bg-white border-b">
+                <div className="px-4 h-14 flex items-center justify-between">
+                  <h1 className="text-xl font-semibold">想法清单</h1>
+                  <div className="flex items-center space-x-2">
+                    <UserMenu />
+                    <button
+                      onClick={() => setShowCreateModal(true)}
+                      className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-600 text-white"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* 清单列表 */}
+              <div className="flex-1 overflow-y-auto">
+                {listsLoading ? (
+                  <div className="p-4 space-y-4">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="animate-pulse">
+                        <div className="h-16 bg-gray-200 rounded-lg"></div>
+                      </div>
+                    ))}
+                  </div>
+                ) : listsError ? (
+                  <div className="p-4">
+                    <div className="bg-red-50 text-red-600 p-4 rounded-lg text-sm">
+                      {listsError}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-100 bg-white">
+                    {ideaLists.map((list) => (
+                      <div
+                        key={list.id}
+                        onClick={() => setSelectedListId(list.id)}
+                        className="p-4 active:bg-gray-50"
+                      >
+                        <div className="flex items-center space-x-4">
+                          <div className={`w-10 h-10 rounded-full bg-${list.color}-500 flex items-center justify-center flex-shrink-0`}>
+                            <span className="text-lg font-bold text-white">
+                              {list.name.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-base font-medium text-gray-900 mb-1">
+                              {list.name}
+                            </h3>
+                            <div className="flex items-center text-sm text-gray-500">
+                              <span>{list.itemCount} 项</span>
+                              <span className="mx-1.5">•</span>
+                              <span>{list.completedCount} 已完成</span>
+                            </div>
+                          </div>
+                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                    ))}
+
+                    {ideaLists.length === 0 && (
+                      <div className="p-8 text-center">
+                        <div className="mx-auto w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                          <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">创建你的第一个清单</h3>
+                        <p className="text-gray-500 text-sm mb-4">开始记录和管理你的想法</p>
+                        <button
+                          onClick={() => setShowCreateModal(true)}
+                          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
+                        >
+                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                          创建清单
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            // 具体清单页面
+            <div className="min-h-screen flex flex-col bg-gray-50">
+              {/* 清单详情导航栏 */}
+              <div className="bg-white border-b">
+                <div className="px-4 h-14 flex items-center space-x-4">
+                  <button
+                    onClick={() => setSelectedListId(null)}
+                    className="flex items-center text-blue-600"
+                  >
+                    <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <span>返回</span>
+                  </button>
+                  <h1 className="text-lg font-medium flex-1 truncate">{selectedList.name}</h1>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => setEditingList(selectedList)}
+                      className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+                    >
+                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => setShowCreateItemModal(true)}
+                      className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-600 text-white"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 清单统计信息 */}
+                <div className="px-4 py-2 bg-gray-50 flex items-center justify-between text-sm text-gray-600">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center">
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                      {selectedList.itemCount} 项
+                    </div>
+                    <div className="flex items-center">
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {selectedList.completedCount} 完成
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-20 bg-gray-200 rounded-full h-1.5 mr-2">
+                      <div 
+                        className={`bg-${selectedList.color}-500 h-1.5 rounded-full`}
+                        style={{ 
+                          width: `${selectedList.itemCount > 0 ? (selectedList.completedCount / selectedList.itemCount) * 100 : 0}%` 
+                        }}
+                      ></div>
+                    </div>
+                    <span className="text-xs">
+                      {selectedList.itemCount > 0 ? Math.round((selectedList.completedCount / selectedList.itemCount) * 100) : 0}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 想法列表内容 */}
+              <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
+                {itemsLoading ? (
+                  <div className="space-y-4">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="animate-pulse">
+                        <div className="h-16 bg-gray-200 rounded-lg"></div>
+                      </div>
+                    ))}
+                  </div>
+                ) : itemsError ? (
+                  <div className="bg-red-50 text-red-600 p-4 rounded-lg text-sm">
+                    {itemsError}
+                  </div>
+                ) : items.length === 0 ? (
+                  <div className="text-center py-12 px-4">
+                    <div className="mx-auto w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-4">
+                      <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">还没有想法</h3>
+                    <p className="text-gray-500 mb-4">这个清单还是空的，添加你的第一个想法开始吧！</p>
+                    <button
+                      onClick={() => setShowCreateItemModal(true)}
+                      className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      添加第一个想法
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {items.map((item) => (
+                      <IdeaItem
+                        key={item.id}
+                        item={item}
+                        onUpdate={() => refreshItems(true)}
+                        onDelete={() => {
+                          handleDeleteItem(item.id);
+                          refreshItems(true);
+                        }}
+                        onConvertSuccess={handleConvertSuccess}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 桌面端布局 */}
+        <div className="hidden sm:block">
         {/* 页面标题 */}
         <div className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
               <h1 className="text-2xl font-bold text-gray-900">想法清单</h1>
+                <div className="flex items-center space-x-2">
               <UserMenu />
               <button
                 onClick={() => {
                   setShowCreateModal(true);
                   setEditingList(null);
                 }}
-                className="bg-white hover:bg-gray-50 text-black border border-gray-300 hover:border-gray-400 px-4 py-2 rounded-md text-sm font-medium shadow-sm"
+                    className="bg-white hover:bg-gray-50 text-black border border-gray-300 hover:border-gray-400 px-4 py-2 rounded-md text-sm font-medium shadow-sm hidden sm:block"
               >
                 创建新清单
               </button>
+                </div>
             </div>
           </div>
         </div>
 
              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
          {/* 统一的想法清单视图 */}
-         <div className="bg-white rounded-lg shadow-sm border min-h-[600px] flex">
-          {/* 左侧清单列表侧边栏 */}
-          <div className={`${sidebarCollapsed ? 'w-16' : 'w-80'} transition-[width] duration-200 border-r border-gray-200 flex flex-col`}>
+            <div className="bg-white rounded-lg shadow-sm border min-h-[600px] flex flex-col sm:flex-row">
+              {/* 桌面端侧边栏 */}
+              <div className={`hidden sm:flex ${sidebarCollapsed ? 'w-16' : 'w-80'} transition-[width] duration-200 border-r border-gray-200 flex-col`}>
             {/* 侧边栏头部 */}
-            <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 ">
+                <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
               {!sidebarCollapsed && <h2 className="text-lg font-medium text-gray-900">我的清单</h2>}
               <button
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -309,7 +556,7 @@ export default function IdeaListPage() {
                 title={sidebarCollapsed ? '展开清单' : '收起清单'}
               >
                 <svg 
-                  className={`w-5 h-5 text-gray-600 ${sidebarCollapsed ? 'rotate-180' : ''}`} 
+                      className={`w-5 h-5 text-gray-600 transform ${sidebarCollapsed ? 'rotate-180 sm:rotate-0 sm:-rotate-180' : ''} sm:rotate-0`} 
                   fill="none" 
                   stroke="currentColor" 
                   viewBox="0 0 24 24"
@@ -320,8 +567,7 @@ export default function IdeaListPage() {
             </div>
             
             {/* 清单列表内容 */}
-            <div className="flex-1 overflow-y-auto">
-              
+                <div className={`flex-1 overflow-y-auto ${sidebarCollapsed ? 'hidden sm:block' : ''}`}>
                 {listsLoading ? (
                   <div className="p-4">
                     <div className="animate-pulse space-y-3">
@@ -417,12 +663,12 @@ export default function IdeaListPage() {
             </div>
 
           {/* 主内容区域 */}
-          <div className="flex-1 flex flex-col">
+              <div className="flex-1 flex flex-col overflow-hidden">
             {selectedList ? (
               <>
-                {/* 清单详情头部 */}
-                <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
-                  <div className="flex justify-between items-start">
+                    {/* 桌面端清单详情头部 */}
+                    <div className="hidden sm:block p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                      <div className="flex justify-between items-start min-w-[640px]">
                     <div className="flex items-start space-x-4">
                       <div className={`w-12 h-12 rounded-full bg-${selectedList.color}-500 flex items-center justify-center flex-shrink-0`}>
                         <span className="text-lg font-bold text-white">
@@ -490,8 +736,9 @@ export default function IdeaListPage() {
                   </div>
                 </div>
 
-                {/* 想法列表内容 */}
-                <div className="flex-1 p-6 overflow-y-auto">
+                    {/* 渲染想法项目列表 */}
+                    <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
+                      <div className="space-y-4">
                   {itemsError ? (
                     <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg p-4">
                       <div className="flex items-center">
@@ -503,122 +750,55 @@ export default function IdeaListPage() {
                     </div>
                   ) : itemsLoading && items.length === 0 ? (
                     <div className="animate-pulse space-y-4">
-                      {[1, 2, 3, 4].map(i => (
-                        <div key={i} className="h-20 bg-gray-200 rounded-lg"></div>
+                            {[1, 2, 3].map(i => (
+                              <div key={i} className="h-24 bg-gray-200 rounded-lg"></div>
                       ))}
                     </div>
                   ) : (
                     <div className="space-y-4">
                       {items.map((item) => (
-                        <div
+                        <IdeaItem
                           key={item.id}
-                          className="flex items-start space-x-4 p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md hover:border-gray-300"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={item.isCompleted}
-                            onChange={() => handleToggleComplete(item.id)}
-                            className="mt-1 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                          />
-                          <div 
-                            className="flex-1 min-w-0 cursor-pointer"
-                            onClick={() => setEditingItem(item)}
-                          >
-                            <h4 className={`text-base font-medium mb-1 ${
-                              item.isCompleted ? 'line-through text-gray-500' : 'text-gray-900'
-                            }`}>
-                              {item.title}
-                            </h4>
-                            {item.description && (
-                              <p className={`text-sm mb-3 leading-relaxed ${
-                                item.isCompleted ? 'text-gray-400' : 'text-gray-600'
-                              }`}>
-                                {item.description}
-                              </p>
-                            )}
-                            <div className="flex items-center space-x-3">
-                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                                item.priority === 'high' ? 'bg-red-100 text-red-800' :
-                                item.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                                'bg-green-100 text-green-800'
-                              }`}>
-                                {item.priority === 'high' ? '🔴 高优先级' :
-                                 item.priority === 'medium' ? '🟡 中优先级' : '🟢 低优先级'}
-                              </span>
-                              {item.tags && item.tags.length > 0 && (
-                                <div className="flex space-x-2">
-                                  {item.tags.map((tag, index) => (
-                                    <span
-                                      key={index}
-                                      className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800"
-                                    >
-                                      #{tag}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
+                          item={item}
+                          onUpdate={() => refreshItems(true)}
+                          onDelete={() => {
+                            handleDeleteItem(item.id);
+                            refreshItems(true);
+                          }}
+                          onConvertSuccess={handleConvertSuccess}
+                        />
                       ))}
-                      
-                      {items.length === 0 && (
-                        <div className="text-center py-16 text-gray-500">
-                          <div className="mx-auto w-32 h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-6">
-                            <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                            </svg>
-                          </div>
-                          <h3 className="text-xl font-medium text-gray-900 mb-3">还没有想法</h3>
-                          <p className="text-gray-500 mb-6">这个清单还是空的，添加你的第一个想法开始吧！</p>
-                          <button
-                            onClick={() => setShowCreateItemModal(true)}
-                            className="bg-white hover:bg-gray-50 text-black border border-gray-300 hover:border-gray-400 px-8 py-3 rounded-lg font-medium shadow-sm hover:shadow inline-flex items-center space-x-2"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                            <span>添加第一个想法</span>
-                          </button>
-                        </div>
-                      )}
                     </div>
                   )}
+                      </div>
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center p-12">
-                <div className="text-center text-gray-500 max-w-md">
-                  <div className="mx-auto w-32 h-32 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-full flex items-center justify-center mb-8">
-                    <svg className="w-16 h-16 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                  <div className="flex-1 flex items-center justify-center p-6">
+                    <div className="text-center max-w-sm mx-auto">
+                      <div className="mx-auto w-24 h-24 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-full flex items-center justify-center mb-6">
+                        <svg className="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">💡 开始管理你的想法</h3>
-                  <p className="text-gray-600 mb-8 leading-relaxed">
+                      <h3 className="text-xl font-bold text-gray-900 mb-3">💡 开始管理你的想法</h3>
+                      <p className="text-gray-600 mb-6 text-sm">
                     {sidebarCollapsed 
                       ? '点击左侧的圆形图标选择想法清单，或创建新的清单开始你的创意之旅' 
                       : '从左侧选择一个想法清单，或创建新的清单开始你的创意之旅'
                     }
                   </p>
-                  <div className="space-y-4">
                     <button
                       onClick={() => setShowCreateModal(true)}
-                      className="bg-white hover:bg-gray-50 text-black border border-gray-300 hover:border-gray-400 px-8 py-3 rounded-lg font-medium shadow-sm hover:shadow inline-flex items-center space-x-3"
+                        className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg font-medium shadow-sm hover:bg-blue-700"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                      <span>创建第一个清单</span>
+                        创建第一个清单
                     </button>
-                    <div className="text-sm text-gray-400">
-                      或者{sidebarCollapsed ? '展开' : '收起'}左侧面板来{sidebarCollapsed ? '浏览' : '专注于'}清单
                     </div>
                   </div>
-                </div>
+                )}
               </div>
-            )}
-          </div>
+            </div>
         </div>
       </div>
 
@@ -649,14 +829,16 @@ export default function IdeaListPage() {
       />
 
       {/* 编辑想法项目模态框 */}
-      <EditIdeaItemModal
-        isOpen={!!editingItem}
-        onClose={() => setEditingItem(null)}
-        onSubmit={handleEditItem}
-        onDelete={handleDeleteItem}
-        item={editingItem}
-        loading={editItemLoading}
-      />
+      {editingItem && (
+        <EditIdeaItemModal
+          isOpen={!!editingItem}
+          onClose={() => setEditingItem(null)}
+          onSubmit={handleEditItem}
+          onDelete={handleEditModalDelete}
+          item={editingItem}
+          loading={editItemLoading}
+        />
+      )}
       </div>
     </AuthGuard>
   );

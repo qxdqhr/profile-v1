@@ -118,10 +118,10 @@ export default function CreateIdeaItemModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">添加新想法</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start sm:items-center justify-center z-50 p-4 sm:p-6">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+        <div className="flex justify-between items-center p-4 sm:p-6 border-b">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">添加新想法</h2>
           <button
             onClick={handleClose}
             disabled={loading}
@@ -133,153 +133,156 @@ export default function CreateIdeaItemModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* 想法标题 */}
-          <div>
-            <label htmlFor="item-title" className="block text-sm font-medium text-gray-700 mb-1">
-              想法标题 <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="item-title"
-              value={formData.title}
-              onChange={(e) => {
-                setFormData({ ...formData, title: e.target.value });
-                if (errors.title) {
-                  setErrors({ ...errors, title: undefined });
-                }
-              }}
-              className={`block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
-                errors.title ? 'border-red-300' : 'border-gray-300'
-              }`}
-              placeholder="例如：学习新技术、完成项目设计、阅读专业书籍"
-              disabled={loading}
-              autoFocus
-            />
-            {errors.title && (
-              <p className="mt-1 text-sm text-red-600">{errors.title}</p>
-            )}
-          </div>
-
-          {/* 想法描述 */}
-          <div>
-            <label htmlFor="item-description" className="block text-sm font-medium text-gray-700 mb-1">
-              详细描述（可选）
-            </label>
-            <textarea
-              id="item-description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              rows={3}
-              placeholder="详细描述这个想法的内容、目标或计划"
-              disabled={loading}
-            />
-          </div>
-
-          {/* 优先级选择 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              优先级
-            </label>
-            <div className="space-y-2">
-              {priorityOptions.map((option) => (
-                <label
-                  key={option.value}
-                  className="flex items-center cursor-pointer"
-                >
-                  <input
-                    type="radio"
-                    name="priority"
-                    value={option.value}
-                    checked={formData.priority === option.value}
-                    onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                    disabled={loading}
-                  />
-                  <span className={`ml-3 px-3 py-1 rounded-full text-sm font-medium border ${option.color}`}>
-                    {option.label}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* 标签管理 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              标签
-            </label>
-            <div className="flex space-x-2 mb-2">
+        <div className="max-h-[calc(100vh-8rem)] sm:max-h-[calc(100vh-16rem)] overflow-y-auto">
+          <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
+            {/* 想法标题 */}
+            <div>
+              <label htmlFor="item-title" className="block text-sm font-medium text-gray-700 mb-1">
+                想法标题 <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyPress={handleTagInputKeyPress}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="输入标签名称"
+                id="item-title"
+                value={formData.title}
+                onChange={(e) => {
+                  setFormData({ ...formData, title: e.target.value });
+                  if (errors.title) {
+                    setErrors({ ...errors, title: undefined });
+                  }
+                }}
+                className={`block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                  errors.title ? 'border-red-300' : 'border-gray-300'
+                }`}
+                placeholder="例如：学习新技术、完成项目设计、阅读专业书籍"
+                disabled={loading}
+                autoFocus
+              />
+              {errors.title && (
+                <p className="mt-1 text-sm text-red-600">{errors.title}</p>
+              )}
+            </div>
+
+            {/* 想法描述 */}
+            <div>
+              <label htmlFor="item-description" className="block text-sm font-medium text-gray-700 mb-1">
+                详细描述（可选）
+              </label>
+              <textarea
+                id="item-description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                rows={3}
+                placeholder="详细描述这个想法的内容、目标或计划"
                 disabled={loading}
               />
-              <button
-                type="button"
-                onClick={handleAddTag}
-                disabled={loading || !tagInput.trim()}
-                className="px-3 py-2 text-sm font-medium text-black bg-white hover:bg-gray-50 border border-gray-300 hover:border-gray-400 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-              >
-                添加
-              </button>
             </div>
-            
-            {/* 显示已添加的标签 */}
-            {formData.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {formData.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
+
+            {/* 优先级选择 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                优先级
+              </label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                {priorityOptions.map((option) => (
+                  <label
+                    key={option.value}
+                    className="flex-1 flex items-center p-3 border rounded-md cursor-pointer hover:bg-gray-50 transition-colors"
                   >
-                    {tag}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTag(tag)}
+                    <input
+                      type="radio"
+                      name="priority"
+                      value={option.value}
+                      checked={formData.priority === option.value}
+                      onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                       disabled={loading}
-                      className="ml-2 h-4 w-4 text-blue-600 hover:text-blue-800 focus:outline-none"
-                    >
-                      <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                  </span>
+                    />
+                    <span className={`ml-3 px-3 py-1 rounded-full text-sm font-medium border ${option.color}`}>
+                      {option.label}
+                    </span>
+                  </label>
                 ))}
               </div>
-            )}
-          </div>
+            </div>
 
-          {/* 按钮组 */}
-          <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={handleClose}
-              disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-black bg-white hover:bg-gray-50 border border-gray-300 hover:border-gray-400 rounded-md transition-colors disabled:opacity-50 shadow-sm"
-            >
-              取消
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-black bg-white hover:bg-gray-50 border border-gray-300 hover:border-gray-400 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center shadow-sm"
-            >
-              {loading && (
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              )}
-              {loading ? '添加中...' : '添加想法'}
-            </button>
-          </div>
-        </form>
+            {/* 标签输入 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                添加标签（可选）
+              </label>
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyPress={handleTagInputKeyPress}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="输入标签后按回车或点击添加"
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddTag}
+                    disabled={loading || !tagInput.trim()}
+                    className="px-4 py-2 text-sm font-medium text-black bg-white hover:bg-gray-50 border border-gray-300 hover:border-gray-400 rounded-md transition-colors disabled:opacity-50 shadow-sm whitespace-nowrap"
+                  >
+                    添加
+                  </button>
+                </div>
+
+                {formData.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {formData.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+                      >
+                        {tag}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveTag(tag)}
+                          disabled={loading}
+                          className="ml-2 text-blue-600 hover:text-blue-800 focus:outline-none"
+                        >
+                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 按钮组 */}
+            <div className="flex justify-end space-x-3 pt-4 border-t mt-6">
+              <button
+                type="button"
+                onClick={handleClose}
+                disabled={loading}
+                className="px-4 py-2 text-sm font-medium text-black bg-white hover:bg-gray-50 border border-gray-300 hover:border-gray-400 rounded-md transition-colors disabled:opacity-50 shadow-sm"
+              >
+                取消
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-4 py-2 text-sm font-medium text-black bg-white hover:bg-gray-50 border border-gray-300 hover:border-gray-400 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center shadow-sm"
+              >
+                {loading && (
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                )}
+                {loading ? '创建中...' : '创建想法'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

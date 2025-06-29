@@ -5,6 +5,13 @@ export const metadata = {
   description: '功能测试和实验的地方',
 }
 
+// 添加专门的viewport导出
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+}
+
 export default function TestFieldLayout({
   children,
 }: {

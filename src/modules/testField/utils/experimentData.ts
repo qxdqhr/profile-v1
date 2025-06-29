@@ -13,7 +13,21 @@ export const experiments: ExperimentItem[] = [
     path: '/testField/experiment',
     tags: ['考试', '教育', '实验'],
     category: 'utility',
-    isCompleted: false
+    isCompleted: false,
+    createdAt: '2023-01-15',
+    updatedAt: '2023-06-20'
+  },
+  // 新增悬浮菜单演示
+  {
+    id: 'floating-menu',
+    title: '可拖动悬浮菜单',
+    description: '一个可在页面任意位置拖动的悬浮菜单，根据位置自动调整弹出方向',
+    path: '/testField/FloatingMenuDemo',
+    tags: ['UI组件', '交互', '菜单'],
+    category: 'utility',
+    isCompleted: true,
+    createdAt: '2023-08-15',
+    updatedAt: '2023-08-15'
   },
   {
     id: '2',
@@ -22,7 +36,9 @@ export const experiments: ExperimentItem[] = [
     path: '/testField/LiveActivity',
     tags: ['实时', '活动', '实验'],
     category: 'utility',
-    isCompleted: false
+    isCompleted: false,
+    createdAt: '2023-02-10',
+    updatedAt: '2023-07-05'
   },
   {
     id: "config-default",
@@ -31,7 +47,9 @@ export const experiments: ExperimentItem[] = [
     path: "/testField/experiment/config",
     tags: ["配置", "考试"],
     category: "utility",
-    isCompleted: false
+    isCompleted: false,
+    createdAt: '2023-01-20',
+    updatedAt: '2023-05-15'
   },
   {
     id: "config-arknights",
@@ -40,7 +58,9 @@ export const experiments: ExperimentItem[] = [
     path: "/testField/experiment/config?type=arknights",
     tags: ["配置", "游戏"],
     category: "utility",
-    isCompleted: false
+    isCompleted: false,
+    createdAt: '2023-02-05',
+    updatedAt: '2023-04-10'
   },
 
   {
@@ -50,7 +70,9 @@ export const experiments: ExperimentItem[] = [
     path: "/testField/SyncText",
     tags: ["同步", "剪贴板"],
     category: "utility",
-    isCompleted: false
+    isCompleted: false,
+    createdAt: '2023-03-12',
+    updatedAt: '2023-08-01'
   },
   {
     id: "home-page-config",
@@ -59,7 +81,9 @@ export const experiments: ExperimentItem[] = [
     path: "/testField/HomePageConfig",
     tags: ["配置页面", "首页"],
     category: "utility",
-    isCompleted: false
+    isCompleted: false,
+    createdAt: '2023-01-05',
+    updatedAt: '2023-07-28'
   },
   {
     id: "show-master-pieces",
@@ -68,7 +92,9 @@ export const experiments: ExperimentItem[] = [
     path: "/testField/ShowMasterPieces",
     tags: ["艺术", "画集", "展览"],
     category: "leisure",
-    isCompleted: false
+    isCompleted: false,
+    createdAt: '2023-04-18',
+    updatedAt: '2023-08-10'
   },
   {
     id: "image-downloader",
