@@ -134,3 +134,26 @@ export const ANIMATION_TYPE_DESCRIPTIONS: Record<AnimationType, string> = {
 
 // 配置存储键
 export const CONFIG_STORAGE_KEY = 'mikutap-config';
+
+// 背景音乐类型
+export interface RhythmPattern {
+  enabled: boolean;
+  pattern: number[];
+  soundType: 'sine' | 'square' | 'sawtooth' | 'triangle';
+  volume: number;
+}
+
+export interface BackgroundMusic {
+  id: string;
+  name: string;
+  file: string;
+  fileType: 'uploaded' | 'generated';
+  volume: number;
+  loop: boolean;
+  bpm: number;
+  isDefault: boolean;
+  rhythmPattern: RhythmPattern;
+  size?: number;
+  duration?: number;
+  generationConfig?: any;
+}

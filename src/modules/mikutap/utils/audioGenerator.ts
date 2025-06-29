@@ -438,6 +438,53 @@ export class AudioGenerator {
       this.audioContext = null;
       this.isInitialized = false;
     }
+
+    /**
+     * 创建音频源节点
+     */
+    createBufferSource(): AudioBufferSourceNode {
+      if (!this.audioContext) {
+        throw new Error('Audio context not initialized');
+      }
+      return this.audioContext.createBufferSource();
+    }
+
+    /**
+     * 创建增益节点
+     */
+    createGain(): GainNode {
+      if (!this.audioContext) {
+        throw new Error('Audio context not initialized');
+      }
+      return this.audioContext.createGain();
+    }
+
+    /**
+     * 获取目标节点（主输出）
+     */
+    getDestination(): AudioDestinationNode {
+      if (!this.audioContext) {
+        throw new Error('Audio context not initialized');
+      }
+      return this.audioContext.destination;
+    }
+
+    /**
+     * 获取音频上下文
+     */
+    getAudioContext(): AudioContext | null {
+      return this.audioContext;
+    }
+
+    /**
+     * 获取采样率
+     */
+    getSampleRate(): number {
+      if (!this.audioContext) {
+        throw new Error('Audio context not initialized');
+      }
+      return this.audioContext.sampleRate;
+    }
   }
   
   // 全局音频生成器实例

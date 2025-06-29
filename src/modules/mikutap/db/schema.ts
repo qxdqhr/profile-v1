@@ -54,6 +54,28 @@ export const mikutapSoundLibrary = pgTable('mikutap_sound_library', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// Mikutap背景音乐表
+export const mikutapBackgroundMusic = pgTable('mikutap_background_music', {
+  id: text('id').primaryKey(),
+  configId: text('config_id').notNull().references(() => mikutapConfigs.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  file: text('file').notNull(), // 存储文件路径或URL，不再存储base64
+  fileType: text('file_type').notNull().default('uploaded'), // 'uploaded' | 'generated'
+  isDefault: boolean('is_default').notNull().default(false),
+  volume: real('volume').notNull().default(0.5),
+  loop: boolean('loop').notNull().default(true),
+  bpm: integer('bpm').notNull().default(120),
+  description: text('description'),
+  size: integer('size'),
+  duration: real('duration'),
+  // 音乐生成配置
+  generationConfig: json('generation_config'), // 存储音乐生成参数
+  // 节奏配置
+  rhythmPattern: json('rhythm_pattern'), // 存储节奏配置
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // 定义关系
 export const mikutapConfigsRelations = relations(mikutapConfigs, ({ many }) => ({
   cells: many(mikutapGridCells),
