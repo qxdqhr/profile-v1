@@ -8,11 +8,12 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { getAudioGenerator } from '../utils/audioGenerator';
 import { Modal } from '@/components/PopWindow';
-import { GridConfig, GridCell } from '../types';
+import { GridConfig, GridCell, BackgroundMusic } from '../types';
 import { useConfigDatabase } from '../hooks/useConfigDatabase';
 import GridCellAnimation from '../components/GridCellAnimation';
 import TestAnimation from '../components/TestAnimation';
 import FullscreenAnimation from '../components/FullscreenAnimation';
+import { RhythmGenerator } from '../utils/rhythmGenerator';
 
 interface SimpleMikutapPageProps {
   className?: string;
@@ -47,6 +48,14 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
   const audioGeneratorRef = useRef(getAudioGenerator());
   const { loadConfig: loadConfigFromDB } = useConfigDatabase();
   const [animationTriggers, setAnimationTriggers] = useState<Record<string, number>>({});
+  const [backgroundMusics, setBackgroundMusics] = useState<BackgroundMusic[]>([]);
+  const [currentBgMusic, setCurrentBgMusic] = useState<BackgroundMusic | undefined>();
+  const [bgMusicBuffer, setBgMusicBuffer] = useState<AudioBuffer | null>(null);
+  const bgMusicSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const bgMusicRef = useRef<HTMLAudioElement | null>(null);
+  const rhythmGeneratorRef = useRef<RhythmGenerator | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const [isBackgroundMusicStarted, setIsBackgroundMusicStarted] = useState(false);
 
   // 记录上一次触发的格子位置
   const lastGridPositionRef = useRef<{row: number, col: number} | null>(null);
@@ -65,6 +74,11 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     console.log('showHelpInfo state changed:', showHelpInfo);
   }, [showHelpInfo]);
 
+  // 监控currentBgMusic状态变化
+  useEffect(() => {
+    console.log('🎵 currentBgMusic state changed:', currentBgMusic);
+  }, [currentBgMusic]);
+
   useEffect(() => {
     async function loadConfig() {
       try {
@@ -80,37 +94,278 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     loadConfig();
   }, [loadConfigFromDB]);
 
+  // 初始化时加载背景音乐列表
+  useEffect(() => {
+    loadBackgroundMusics();
+    // 测试数据库连接
+    testDatabaseConnection();
+  }, []);
+
+  const testDatabaseConnection = async () => {
+    try {
+      console.log('🔍 测试数据库连接...');
+      const response = await fetch('/api/mikutap/background-music/test');
+      const result = await response.json();
+      console.log('🔍 数据库测试结果:', result);
+      
+      // 调用调试API
+      console.log('🔍 调用调试API...');
+      const debugResponse = await fetch('/api/mikutap/background-music/debug');
+      const debugResult = await debugResponse.json();
+      console.log('🔍 调试API结果:', debugResult);
+    } catch (error) {
+      console.error('🔍 数据库测试失败:', error);
+    }
+  };
+
+  // 测试音频文件是否可访问
+  const testAudioFile = async (filePath: string) => {
+    try {
+      console.log('🔍 测试音频文件访问:', filePath);
+      const response = await fetch(filePath);
+      console.log('🔍 音频文件响应状态:', response.status);
+      console.log('🔍 音频文件响应头:', response.headers.get('content-type'));
+      console.log('🔍 音频文件大小:', response.headers.get('content-length'));
+      
+      if (!response.ok) {
+        console.error('🔍 音频文件访问失败:', response.statusText);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('🔍 音频文件测试失败:', error);
+      return false;
+    }
+  };
+
+  const loadBackgroundMusics = async () => {
+    try {
+      console.log('🎵 开始加载背景音乐...');
+      const response = await fetch('/api/mikutap/background-music?configId=default');
+      const result = await response.json();
+      console.log('🎵 背景音乐API响应:', result);
+      
+      if (result.success) {
+        setBackgroundMusics(result.data);
+        console.log('🎵 设置背景音乐列表:', result.data);
+        
+        const defaultMusic = result.data.find((m: BackgroundMusic) => m.isDefault);
+        console.log('🎵 找到默认音乐:', defaultMusic);
+        console.log('🎵 音乐列表长度:', result.data.length);
+        console.log('🎵 第一个音乐详情:', result.data[0]);
+        
+        if (defaultMusic) {
+          setCurrentBgMusic(defaultMusic);
+          console.log('🎵 设置当前背景音乐:', defaultMusic.name);
+        } else if (result.data.length > 0) {
+          // 如果没有默认音乐但有音乐列表，使用第一个音乐
+          const firstMusic = result.data[0];
+          console.log('🎵 没有默认音乐，准备使用第一个音乐:', firstMusic);
+          setCurrentBgMusic(firstMusic);
+          console.log('🎵 已设置第一个音乐为当前背景音乐:', firstMusic.name);
+          
+          // 测试音频文件是否可访问
+          testAudioFile(firstMusic.file);
+        } else {
+          console.log('🎵 没有找到任何背景音乐');
+        }
+      } else {
+        console.error('❌ 加载背景音乐失败:', result.error);
+      }
+    } catch (error) {
+      console.error('❌ 加载背景音乐失败:', error);
+    }
+  };
+
+  // 启动背景音乐的函数
+  const startBackgroundMusic = useCallback(async () => {
+    console.log('🎵 尝试启动背景音乐...');
+    console.log('🎵 当前背景音乐:', currentBgMusic);
+    console.log('🎵 背景音乐是否已启动:', isBackgroundMusicStarted);
+    
+    if (!currentBgMusic || isBackgroundMusicStarted) {
+      console.log('🎵 跳过启动背景音乐 - 没有音乐或已启动');
+      return;
+    }
+    
+    try {
+      // 初始化音频上下文
+      if (!audioContextRef.current) {
+        audioContextRef.current = new AudioContext();
+      }
+      
+      // 确保音频上下文处于运行状态
+      if (audioContextRef.current.state === 'suspended') {
+        console.log('🎵 AudioContext 被暂停，尝试恢复...');
+        await audioContextRef.current.resume();
+        console.log('🎵 AudioContext 状态:', audioContextRef.current.state);
+      }
+      
+      // 初始化节奏生成器
+      if (!rhythmGeneratorRef.current && audioContextRef.current) {
+        rhythmGeneratorRef.current = new RhythmGenerator(audioContextRef.current);
+      }
+
+      // 如果是上传的音乐文件（服务器路径）
+      if (currentBgMusic.fileType === 'uploaded') {
+        console.log('🎵 播放上传的音乐文件:', currentBgMusic.file);
+        
+        // 创建audio元素播放
+        if (!bgMusicRef.current) {
+          bgMusicRef.current = new Audio();
+        }
+        
+        bgMusicRef.current.src = currentBgMusic.file;
+        bgMusicRef.current.volume = currentBgMusic.volume;
+        bgMusicRef.current.loop = currentBgMusic.loop;
+        
+        console.log('🎵 音频元素设置完成，开始播放...');
+        console.log('🎵 音频文件路径:', bgMusicRef.current.src);
+        console.log('🎵 音量设置:', bgMusicRef.current.volume);
+        console.log('🎵 循环设置:', bgMusicRef.current.loop);
+        
+        // 添加事件监听器来调试
+        bgMusicRef.current.addEventListener('loadstart', () => console.log('🎵 开始加载音频'));
+        bgMusicRef.current.addEventListener('loadeddata', () => console.log('🎵 音频数据加载完成'));
+        bgMusicRef.current.addEventListener('canplay', () => console.log('🎵 音频可以播放'));
+        bgMusicRef.current.addEventListener('playing', () => console.log('🎵 音频开始播放'));
+        bgMusicRef.current.addEventListener('error', (e) => console.error('🎵 音频播放错误:', e));
+        
+        try {
+          const playPromise = bgMusicRef.current.play();
+          if (playPromise !== undefined) {
+            await playPromise;
+            console.log('🎵 音频播放成功');
+          }
+        } catch (playError) {
+          console.error('🎵 音频播放失败:', playError);
+          
+          // 如果是自动播放被阻止，提示用户
+          if (playError instanceof Error) {
+            console.error('🎵 错误详情:', playError.name, playError.message);
+            if (playError.name === 'NotAllowedError') {
+              console.log('🎵 自动播放被浏览器阻止，需要用户交互');
+              alert('浏览器阻止了自动播放，请点击页面任意位置后再试');
+            }
+          }
+          
+          throw playError;
+        }
+        
+        // 启动节奏
+        if (currentBgMusic.rhythmPattern.enabled && rhythmGeneratorRef.current) {
+          console.log('🎵 启动节奏生成器');
+          rhythmGeneratorRef.current.start(currentBgMusic);
+        }
+      } 
+      // 如果是生成的音乐（服务器路径）
+      else if (currentBgMusic.fileType === 'generated') {
+        // 使用AudioContext播放
+        const response = await fetch(currentBgMusic.file);
+        const audioData = await response.arrayBuffer();
+        const buffer = await audioContextRef.current!.decodeAudioData(audioData);
+        
+        const source = audioContextRef.current!.createBufferSource();
+        source.buffer = buffer;
+        source.loop = currentBgMusic.loop;
+        
+        const gainNode = audioContextRef.current!.createGain();
+        gainNode.gain.value = currentBgMusic.volume;
+        
+        source.connect(gainNode);
+        gainNode.connect(audioContextRef.current!.destination);
+        
+        source.start();
+        bgMusicSourceRef.current = source;
+        
+        // 启动节奏
+        if (currentBgMusic.rhythmPattern.enabled && rhythmGeneratorRef.current) {
+          rhythmGeneratorRef.current.start(currentBgMusic);
+        }
+      }
+      
+      setIsBackgroundMusicStarted(true);
+      console.log('背景音乐已启动:', currentBgMusic.name);
+    } catch (error) {
+      console.error('启动背景音乐失败:', error);
+    }
+  }, [currentBgMusic, isBackgroundMusicStarted]);
+
+  // 停止背景音乐
+  const stopBackgroundMusic = useCallback(() => {
+    if (bgMusicRef.current) {
+      bgMusicRef.current.pause();
+      bgMusicRef.current.currentTime = 0;
+    }
+    
+    if (bgMusicSourceRef.current) {
+      bgMusicSourceRef.current.stop();
+      bgMusicSourceRef.current = null;
+    }
+    
+    if (rhythmGeneratorRef.current) {
+      rhythmGeneratorRef.current.stop();
+    }
+    
+    setIsBackgroundMusicStarted(false);
+  }, []);
+
+  // 在组件卸载时停止背景音乐
+  useEffect(() => {
+    return () => {
+      stopBackgroundMusic();
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
+  }, [stopBackgroundMusic]);
+
   /**
    * 初始化音频系统
    */
   const initializeAudio = useCallback(async () => {
     try {
-      setAudioError(null);
       const success = await audioGeneratorRef.current.initialize();
-      setIsAudioInitialized(success);
-      
-      if (success && gridConfig) {
-        // 播放测试音效确认音频工作
-        const firstCell = gridConfig.cells.find(cell => cell.enabled);
-        if (firstCell) {
-          audioGeneratorRef.current.playSoundByCell(firstCell, 0.5, 0.5);
-        }
+      if (success) {
+        setIsAudioInitialized(true);
+        setAudioError(null);
+      } else {
+        setAudioError('音频系统初始化失败');
       }
-      
-      return success;
     } catch (error) {
-      const errorMsg = (error as Error).message;
-      setAudioError(errorMsg);
-      console.error('音频初始化失败:', error);
-      return false;
+      setAudioError('音频系统初始化出错');
+      console.error('音频初始化错误:', error);
     }
-  }, [gridConfig]);
+  }, [audioGeneratorRef]);
+
+  /**
+   * 触发单元格动画（支持重复触发）
+   */
+  const triggerCellAnimation = useCallback((cellId: string) => {
+    setAnimationTriggers(prev => ({
+      ...prev,
+      [cellId]: (prev[cellId] || 0) + 1
+    }));
+  }, []);
 
   /**
    * 根据键盘按键播放音效
    */
   const playSoundByKey = useCallback(async (key: string, x: number = 0, y: number = 0, skipThrottle = false) => {
-    if (!isAudioInitialized || !gridConfig) return;
+    // 1. 初始化
+    if (!isAudioInitialized) {
+      await initializeAudio();
+    }
+    if (!isBackgroundMusicStarted && currentBgMusic) {
+      console.log('🎵 首次交互 (by key)，启动背景音乐...');
+      await startBackgroundMusic();
+    }
+
+    // 2. 检查配置
+    if (!gridConfig) return;
+    
+    console.log('🎹 播放音效 - 按键:', key);
     
     // 拖拽时的节流控制，但跳过点击时的节流
     if (!skipThrottle) {
@@ -122,67 +377,57 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     }
     
     try {
-      // 查找对应的网格单元格（必须有键盘映射且启用）
-      const cell = gridConfig.cells.find(c => c.key?.toLowerCase() === key.toLowerCase() && c.enabled);
-      if (!cell) {
-        console.warn(`No enabled cell found for key: ${key}`);
-        return;
-      }
-
-      // 播放音效
-      await audioGeneratorRef.current.playSoundByCell(cell, 1, settings.volume);
-      setInteractionCount(prev => prev + 1);
-      setLastKey(key.toUpperCase());
-      
-      // 键盘事件总是触发动画（不受showHelpInfo限制）
-      console.log('playSoundByKey: Triggering animation for keyboard event', { 
-        cellId: cell.id, 
-        animationType: cell.animationType 
-      });
-      
-      // 触发网格动画
-      setAnimationTriggers(prev => ({
-        ...prev,
-        [cell.id]: (prev[cell.id] || 0) + 1
-      }));
-      
-      // 触发全屏动画
-      setActiveCell(cell);
-      setFullscreenAnimationTrigger(prev => prev + 1);
-      
-      // 添加粒子效果
-      if (settings.enableParticles) {
-        const particleId = Math.random().toString(36);
-        const newParticle = {
-          id: particleId,
-          x,
-          y,
-          color: cell.color,
-          life: 1
-        };
+      // 找到对应的格子
+      const cell = gridConfig.cells.find(c => c.key === key.toLowerCase());
+      if (cell) {
+        await audioGeneratorRef.current.playSoundByCell(cell, 1, settings.volume);
         
-        setParticles(prev => [...prev, newParticle]);
+        // 更新交互计数
+        setInteractionCount(prev => prev + 1);
+        setLastKey(key);
         
-        // 移除粒子
-        setTimeout(() => {
-          setParticles(prev => prev.filter(p => p.id !== particleId));
-        }, settings.particleLifetime);
+        // 创建粒子效果
+        if (settings.enableParticles) {
+          const particleId = `${Date.now()}-${Math.random()}`;
+          setParticles(prev => [...prev, {
+            id: particleId,
+            x: x || window.innerWidth / 2,
+            y: y || window.innerHeight / 2,
+            color: cell.color,
+            life: settings.particleLifetime
+          }]);
+          
+          // 移除粒子
+          setTimeout(() => {
+            setParticles(prev => prev.filter(p => p.id !== particleId));
+          }, settings.particleLifetime);
+        }
+        
+        // 触发动画
+        setAnimationTriggers(prev => ({
+          ...prev,
+          [cell.id]: Date.now()
+        }));
+        
+        // 触发全屏动画
+        setActiveCell(cell);
+        setFullscreenAnimationTrigger(Date.now());
       }
-      
     } catch (error) {
       console.error('播放音效失败:', error);
     }
-  }, [isAudioInitialized, isDragging, lastPlayTime, gridConfig, settings]);
-
-  /**
-   * 触发单元格动画（支持重复触发）
-   */
-  const triggerCellAnimation = useCallback((cellId: string) => {
-    setAnimationTriggers(prev => ({
-      ...prev,
-      [cellId]: (prev[cellId] || 0) + 1
-    }));
-  }, []);
+  }, [
+    isAudioInitialized, 
+    gridConfig, 
+    settings, 
+    isDragging, 
+    lastPlayTime, 
+    isBackgroundMusicStarted, 
+    currentBgMusic, 
+    startBackgroundMusic, 
+    initializeAudio,
+    setActiveCell,
+  ]);
 
   /**
    * 根据单元格播放音效（简化版）
@@ -238,35 +483,80 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
 
   /**
    * 处理位置音效播放 - 根据配置的网格布局（简化版）
+   * 这是鼠标/触摸交互的统一入口，负责处理初始化和播放。
    */
   const handlePlaySoundAtPosition = useCallback(async (x: number, y: number, skipThrottle = false) => {
+    // 1. 初始化和启动
     if (!isAudioInitialized) {
       await initializeAudio();
-      return;
     }
-    
+    if (!isBackgroundMusicStarted && currentBgMusic) {
+      console.log('🎵 首次交互 (by position)，启动背景音乐...');
+      await startBackgroundMusic();
+    }
+
+    // 2. 核心播放逻辑 (为避免stale state, 不再调用 playSoundByCell, 而是将逻辑内联)
     if (!gridConfig) return;
-    
+
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
-    
-    // 使用配置的网格尺寸
+
     const cols = gridConfig.cols;
     const rows = gridConfig.rows;
-    
-    // 计算网格位置
     const col = Math.floor((x / rect.width) * cols);
     const row = Math.floor((y / rect.height) * rows);
-    
-    // 查找对应位置的单元格
     const cell = gridConfig.cells.find(c => c.row === row && c.col === col && c.enabled);
     if (!cell) return;
     
-    // 更新最后触发的格子ID（仅用于记录）
     setLastTriggeredCellId(cell.id);
-    
-    await playSoundByCell(cell, x, y, skipThrottle);
-  }, [isAudioInitialized, initializeAudio, playSoundByCell, gridConfig]);
+
+    // --- playSoundByCell 的内联逻辑开始 ---
+    if (!cell.enabled) return;
+
+    if (!skipThrottle) {
+      const now = Date.now();
+      if (isDragging && settings.enableDragThrottle && now - lastPlayTime < settings.dragThrottleDelay) {
+        return;
+      }
+      setLastPlayTime(now);
+    }
+
+    try {
+      await audioGeneratorRef.current.playSoundByCell(cell, 1, settings.volume);
+      setInteractionCount(prev => prev + 1);
+      setLastKey(cell.key || `(${cell.row},${cell.col})`);
+
+      triggerCellAnimation(cell.id);
+
+      setActiveCell(cell);
+      setFullscreenAnimationTrigger(prev => prev + 1);
+
+      if (settings.enableParticles) {
+        const particleId = Math.random().toString(36);
+        const newParticle = { id: particleId, x, y, color: cell.color, life: 1 };
+        setParticles(prev => [...prev, newParticle]);
+        setTimeout(() => {
+          setParticles(prev => prev.filter(p => p.id !== particleId));
+        }, settings.particleLifetime);
+      }
+    } catch (error) {
+      console.error('播放音效失败:', error);
+    }
+    // --- playSoundByCell 的内联逻辑结束 ---
+
+  }, [
+    isAudioInitialized, 
+    initializeAudio, 
+    isBackgroundMusicStarted, 
+    currentBgMusic, 
+    startBackgroundMusic, 
+    gridConfig,
+    isDragging,
+    lastPlayTime,
+    settings,
+    triggerCellAnimation,
+    setActiveCell,
+  ]);
 
   /**
    * 获取两点之间经过的所有格子
@@ -382,14 +672,14 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
         // 更新最后触发的格子位置
         lastGridPositionRef.current = {row, col};
         setLastTriggeredCellId(cell.id);
-        await playSoundByCell(cell, x, y, false);
+        await handlePlaySoundAtPosition(x, y, false);
       }
     }
     
     // 更新上一次鼠标位置
     setLastMousePosition({x, y});
     
-  }, [settings.mouseEnabled, isDragging, showHelpInfo, lastMousePosition, gridConfig, playSoundByCell]);
+  }, [settings.mouseEnabled, isDragging, showHelpInfo, lastMousePosition, gridConfig, handlePlaySoundAtPosition]);
 
   /**
    * 处理触摸开始
@@ -455,14 +745,14 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
         // 更新最后触发的格子位置
         lastGridPositionRef.current = {row, col};
         setLastTriggeredCellId(cell.id);
-        await playSoundByCell(cell, x, y, false);
+        await handlePlaySoundAtPosition(x, y, false);
       }
     }
     
     // 更新上一次触摸位置
     setLastMousePosition({x, y});
     
-  }, [settings.mouseEnabled, isDragging, showHelpInfo, lastMousePosition, gridConfig, playSoundByCell]);
+  }, [settings.mouseEnabled, isDragging, showHelpInfo, lastMousePosition, gridConfig, handlePlaySoundAtPosition]);
 
   /**
    * 处理触摸结束
@@ -478,7 +768,8 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
   /**
    * 处理键盘事件
    */
-  const handleKeyPress = useCallback(async (e: KeyboardEvent) => {
+  const handleKeyPress = async (e: KeyboardEvent) => {
+    console.log(`[KeyDebug] 1. Key event triggered: ${e.key}`);
     const key = e.key.toLowerCase();
     
     // 特殊按键处理
@@ -507,16 +798,22 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       return;
     }
     
-    // 检查键是否在配置中存在
-    if (!gridConfig || !settings.keyboardEnabled) return;
-    
-    const cell = gridConfig.cells.find(c => c.key?.toLowerCase() === key && c.enabled);
-    if (!cell) return;
-    
-    if (!isAudioInitialized) {
-      await initializeAudio();
+    console.log('[KeyDebug] 2. Checking preconditions...');
+    if (!gridConfig || !settings.keyboardEnabled) {
+      console.error(`[KeyDebug] Precondition failed: gridConfig=${!!gridConfig}, keyboardEnabled=${settings.keyboardEnabled}`);
       return;
     }
+    
+    const cell = gridConfig.cells.find(c => c.key?.toLowerCase() === key && c.enabled);
+    console.log(`[KeyDebug] 3. Searching for cell with key "${key}"...`);
+    
+    if (!cell) {
+      console.warn(`[KeyDebug] No enabled cell found for key "${key}".`);
+      return;
+    }
+    
+    console.log(`[KeyDebug] 4. Cell found:`, cell);
+    console.log(`[KeyDebug] 5. Calling playSoundByKey...`);
     
     e.preventDefault();
     
@@ -524,8 +821,10 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     const centerX = rect ? rect.width / 2 : 400;
     const centerY = rect ? rect.height / 2 : 300;
     
+    // 键盘按下时，不需要节流 (skipThrottle = true)
     await playSoundByKey(key, centerX, centerY, true);
-  }, [isAudioInitialized, initializeAudio, playSoundByKey, showHelpInfo, showSettings, settings.keyboardEnabled, gridConfig]);
+    console.log(`[KeyDebug] 6. playSoundByKey finished.`);
+  };
 
   // 监听键盘事件
   useEffect(() => {
@@ -555,6 +854,38 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     return () => {
       window.removeEventListener('touchend', handleGlobalTouchEnd);
       window.removeEventListener('touchcancel', handleGlobalTouchEnd);
+    };
+  }, []);
+
+  // 处理背景音乐
+  const handleBackgroundMusic = useCallback(() => {
+    if (currentBgMusic && bgMusicRef.current) {
+      bgMusicRef.current.volume = currentBgMusic.volume;
+      bgMusicRef.current.loop = currentBgMusic.loop;
+      bgMusicRef.current.play().catch(error => {
+        console.error('背景音乐播放失败:', error);
+      });
+
+      // 播放节奏
+      if (rhythmGeneratorRef.current && currentBgMusic.rhythmPattern.enabled) {
+        rhythmGeneratorRef.current.start(currentBgMusic);
+      }
+    }
+  }, [currentBgMusic]);
+
+  // 组件卸载时停止所有音频
+  useEffect(() => {
+    return () => {
+      if (bgMusicRef.current) {
+        bgMusicRef.current.pause();
+        bgMusicRef.current.currentTime = 0;
+      }
+      if (rhythmGeneratorRef.current) {
+        rhythmGeneratorRef.current.stop();
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
     };
   }, []);
 
@@ -1032,6 +1363,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
           <span>{showHelpInfo ? '🙈' : '💡'}</span>
           <span>{showHelpInfo ? '隐藏帮助' : '显示帮助'}</span>
         </button> 
+
         </div>
       </div>
 
@@ -1222,6 +1554,17 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
           </div>
         </div>
       </Modal>
+
+
+
+      {/* 背景音乐播放器 */}
+      {currentBgMusic && (
+        <audio
+          ref={bgMusicRef}
+          src={currentBgMusic.file}
+          loop={currentBgMusic.loop}
+        />
+      )}
     </div>
   );
 }

@@ -10,7 +10,6 @@ interface TestAnimationProps {
 }
 
 export function TestAnimation({ isTriggered, cellId, children, onAnimationEnd }: TestAnimationProps) {
-  console.log('TestAnimation: Component rendered', { isTriggered, cellId });
   
   // 判断是否应该显示动画
   const shouldShowAnimation = isTriggered > 0;
@@ -21,18 +20,18 @@ export function TestAnimation({ isTriggered, cellId, children, onAnimationEnd }:
   
   // 当isTriggered变化时创建新的动画实例
   useEffect(() => {
-    console.log('TestAnimation: useEffect triggered', { isTriggered, prevTriggered: prevTriggeredRef.current, cellId });
+    // console.log('TestAnimation: useEffect triggered', { isTriggered, prevTriggered: prevTriggeredRef.current, cellId });
     
     // 只有当触发值增加时才添加新动画
     if (isTriggered > prevTriggeredRef.current) {
       const newAnimationId = Date.now();
-      console.log('TestAnimation: Creating new animation', { id: newAnimationId, cellId });
+      // console.log('TestAnimation: Creating new animation', { id: newAnimationId, cellId });
       
       setAnimations(prev => [...prev, { id: newAnimationId, timestamp: Date.now() }]);
       
       // 为新动画设置自动结束定时器
       setTimeout(() => {
-        console.log('TestAnimation: Removing animation', { id: newAnimationId, cellId });
+        // console.log('TestAnimation: Removing animation', { id: newAnimationId, cellId });
         setAnimations(prev => prev.filter(anim => anim.id !== newAnimationId));
         
         // 如果这是最后一个动画，通知父组件动画结束

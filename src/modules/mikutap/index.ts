@@ -7,6 +7,8 @@
 export { default as SimpleMikutapPage } from './pages/SimpleMikutapPage';
 export { default as ConfigPage } from './pages/ConfigPage';
 export { default as SoundLibraryManager } from './components/SoundLibraryManager';
+export { default as MusicGeneratorPage } from './pages/MusicGeneratorPage';
+export { default as BackgroundMusicManager } from './components/BackgroundMusicManager';
 
 
 // ===== 工具导出 =====
