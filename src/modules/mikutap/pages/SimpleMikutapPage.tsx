@@ -1,18 +1,18 @@
 /**
  * 简化版 Mikutap 页面组件
- * 直接使用合成音效，无需加载音频文件
+ * 使用统一音频管理器解决音频冲突问题
  */
 
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { getAudioGenerator } from '../utils/audioGenerator';
+import { audioManager } from '../utils/audioManager';
 import { Modal } from '@/components/PopWindow';
 import { GridConfig, GridCell, BackgroundMusic } from '../types';
 import { useConfigDatabase } from '../hooks/useConfigDatabase';
-import GridCellAnimation from '../components/GridCellAnimation';
 import TestAnimation from '../components/TestAnimation';
 import FullscreenAnimation from '../components/FullscreenAnimation';
+import MikutapButton from '../components/MikutapButton';
 import { RhythmGenerator } from '../utils/rhythmGenerator';
 
 interface SimpleMikutapPageProps {
@@ -24,12 +24,11 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
   const [audioError, setAudioError] = useState<string | null>(null);
   const [interactionCount, setInteractionCount] = useState(0);
   const [lastKey, setLastKey] = useState<string>('');
-  const [particles, setParticles] = useState<Array<{id: string, x: number, y: number, color: string, life: number}>>([]);
+  const [particles, setParticles] = useState<Array<{ id: string, x: number, y: number, color: string, life: number }>>([]);
   const [showHelpInfo, setShowHelpInfo] = useState(false);
-  const [mousePosition, setMousePosition] = useState<{x: number, y: number} | null>(null);
+  const [mousePosition, setMousePosition] = useState<{ x: number, y: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [lastPlayTime, setLastPlayTime] = useState(0);
-  const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState({
     volume: 1.0,
     enableParticles: true,
@@ -43,22 +42,17 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
   const [gridConfig, setGridConfig] = useState<GridConfig | null>(null);
   const [triggeredCells, setTriggeredCells] = useState<Set<string>>(new Set());
   const [lastTriggeredCellId, setLastTriggeredCellId] = useState<string | null>(null);
-  const [lastMousePosition, setLastMousePosition] = useState<{x: number, y: number} | null>(null);
+  const [lastMousePosition, setLastMousePosition] = useState<{ x: number, y: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const audioGeneratorRef = useRef(getAudioGenerator());
+  // 移除旧的音频生成器引用，现在使用统一音频管理器
   const { loadConfig: loadConfigFromDB } = useConfigDatabase();
   const [animationTriggers, setAnimationTriggers] = useState<Record<string, number>>({});
   const [backgroundMusics, setBackgroundMusics] = useState<BackgroundMusic[]>([]);
   const [currentBgMusic, setCurrentBgMusic] = useState<BackgroundMusic | undefined>();
-  const [bgMusicBuffer, setBgMusicBuffer] = useState<AudioBuffer | null>(null);
-  const bgMusicSourceRef = useRef<AudioBufferSourceNode | null>(null);
-  const bgMusicRef = useRef<HTMLAudioElement | null>(null);
-  const rhythmGeneratorRef = useRef<RhythmGenerator | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
   const [isBackgroundMusicStarted, setIsBackgroundMusicStarted] = useState(false);
 
   // 记录上一次触发的格子位置
-  const lastGridPositionRef = useRef<{row: number, col: number} | null>(null);
+  const lastGridPositionRef = useRef<{ row: number, col: number } | null>(null);
 
   // 添加全屏动画相关状态
   const [fullscreenAnimationTrigger, setFullscreenAnimationTrigger] = useState<number>(0);
@@ -90,7 +84,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
         console.error('Failed to load configuration from database:', error);
       }
     }
-    
+
     loadConfig();
   }, [loadConfigFromDB]);
 
@@ -107,7 +101,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       const response = await fetch('/api/mikutap/background-music/test');
       const result = await response.json();
       console.log('🔍 数据库测试结果:', result);
-      
+
       // 调用调试API
       console.log('🔍 调用调试API...');
       const debugResponse = await fetch('/api/mikutap/background-music/debug');
@@ -126,12 +120,12 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       console.log('🔍 音频文件响应状态:', response.status);
       console.log('🔍 音频文件响应头:', response.headers.get('content-type'));
       console.log('🔍 音频文件大小:', response.headers.get('content-length'));
-      
+
       if (!response.ok) {
         console.error('🔍 音频文件访问失败:', response.statusText);
         return false;
       }
-      
+
       return true;
     } catch (error) {
       console.error('🔍 音频文件测试失败:', error);
@@ -145,16 +139,16 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       const response = await fetch('/api/mikutap/background-music?configId=default');
       const result = await response.json();
       console.log('🎵 背景音乐API响应:', result);
-      
+
       if (result.success) {
         setBackgroundMusics(result.data);
         console.log('🎵 设置背景音乐列表:', result.data);
-        
+
         const defaultMusic = result.data.find((m: BackgroundMusic) => m.isDefault);
         console.log('🎵 找到默认音乐:', defaultMusic);
         console.log('🎵 音乐列表长度:', result.data.length);
         console.log('🎵 第一个音乐详情:', result.data[0]);
-        
+
         if (defaultMusic) {
           setCurrentBgMusic(defaultMusic);
           console.log('🎵 设置当前背景音乐:', defaultMusic.name);
@@ -164,7 +158,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
           console.log('🎵 没有默认音乐，准备使用第一个音乐:', firstMusic);
           setCurrentBgMusic(firstMusic);
           console.log('🎵 已设置第一个音乐为当前背景音乐:', firstMusic.name);
-          
+
           // 测试音频文件是否可访问
           testAudioFile(firstMusic.file);
         } else {
@@ -183,150 +177,87 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     console.log('🎵 尝试启动背景音乐...');
     console.log('🎵 当前背景音乐:', currentBgMusic);
     console.log('🎵 背景音乐是否已启动:', isBackgroundMusicStarted);
-    
+
     if (!currentBgMusic || isBackgroundMusicStarted) {
       console.log('🎵 跳过启动背景音乐 - 没有音乐或已启动');
       return;
     }
-    
-    try {
-      // 初始化音频上下文
-      if (!audioContextRef.current) {
-        audioContextRef.current = new AudioContext();
-      }
-      
-      // 确保音频上下文处于运行状态
-      if (audioContextRef.current.state === 'suspended') {
-        console.log('🎵 AudioContext 被暂停，尝试恢复...');
-        await audioContextRef.current.resume();
-        console.log('🎵 AudioContext 状态:', audioContextRef.current.state);
-      }
-      
-      // 初始化节奏生成器
-      if (!rhythmGeneratorRef.current && audioContextRef.current) {
-        rhythmGeneratorRef.current = new RhythmGenerator(audioContextRef.current);
-      }
 
-      // 如果是上传的音乐文件（服务器路径）
-      if (currentBgMusic.fileType === 'uploaded') {
-        console.log('🎵 播放上传的音乐文件:', currentBgMusic.file);
-        
-        // 创建audio元素播放
-        if (!bgMusicRef.current) {
-          bgMusicRef.current = new Audio();
-        }
-        
-        bgMusicRef.current.src = currentBgMusic.file;
-        bgMusicRef.current.volume = currentBgMusic.volume;
-        bgMusicRef.current.loop = currentBgMusic.loop;
-        
-        console.log('🎵 音频元素设置完成，开始播放...');
-        console.log('🎵 音频文件路径:', bgMusicRef.current.src);
-        console.log('🎵 音量设置:', bgMusicRef.current.volume);
-        console.log('🎵 循环设置:', bgMusicRef.current.loop);
-        
-        // 添加事件监听器来调试
-        bgMusicRef.current.addEventListener('loadstart', () => console.log('🎵 开始加载音频'));
-        bgMusicRef.current.addEventListener('loadeddata', () => console.log('🎵 音频数据加载完成'));
-        bgMusicRef.current.addEventListener('canplay', () => console.log('🎵 音频可以播放'));
-        bgMusicRef.current.addEventListener('playing', () => console.log('🎵 音频开始播放'));
-        bgMusicRef.current.addEventListener('error', (e) => console.error('🎵 音频播放错误:', e));
-        
-        try {
-          const playPromise = bgMusicRef.current.play();
-          if (playPromise !== undefined) {
-            await playPromise;
-            console.log('🎵 音频播放成功');
-          }
-        } catch (playError) {
-          console.error('🎵 音频播放失败:', playError);
-          
-          // 如果是自动播放被阻止，提示用户
-          if (playError instanceof Error) {
-            console.error('🎵 错误详情:', playError.name, playError.message);
-            if (playError.name === 'NotAllowedError') {
-              console.log('🎵 自动播放被浏览器阻止，需要用户交互');
-              alert('浏览器阻止了自动播放，请点击页面任意位置后再试');
-            }
-          }
-          
-          throw playError;
-        }
-        
-        // 启动节奏
-        if (currentBgMusic.rhythmPattern.enabled && rhythmGeneratorRef.current) {
-          console.log('🎵 启动节奏生成器');
-          rhythmGeneratorRef.current.start(currentBgMusic);
-        }
-      } 
-      // 如果是生成的音乐（服务器路径）
-      else if (currentBgMusic.fileType === 'generated') {
-        // 使用AudioContext播放
-        const response = await fetch(currentBgMusic.file);
-        const audioData = await response.arrayBuffer();
-        const buffer = await audioContextRef.current!.decodeAudioData(audioData);
-        
-        const source = audioContextRef.current!.createBufferSource();
-        source.buffer = buffer;
-        source.loop = currentBgMusic.loop;
-        
-        const gainNode = audioContextRef.current!.createGain();
-        gainNode.gain.value = currentBgMusic.volume;
-        
-        source.connect(gainNode);
-        gainNode.connect(audioContextRef.current!.destination);
-        
-        source.start();
-        bgMusicSourceRef.current = source;
-        
-        // 启动节奏
-        if (currentBgMusic.rhythmPattern.enabled && rhythmGeneratorRef.current) {
-          rhythmGeneratorRef.current.start(currentBgMusic);
-        }
-      }
-      
+    try {
+      // 使用统一音频管理器播放背景音乐
+      await audioManager.playBackgroundMusic(currentBgMusic);
       setIsBackgroundMusicStarted(true);
-      console.log('背景音乐已启动:', currentBgMusic.name);
+      console.log('🎵 背景音乐已通过统一管理器启动:', currentBgMusic.name);
     } catch (error) {
-      console.error('启动背景音乐失败:', error);
+      console.error('❌ 启动背景音乐失败:', error);
     }
   }, [currentBgMusic, isBackgroundMusicStarted]);
 
   // 停止背景音乐
   const stopBackgroundMusic = useCallback(() => {
-    if (bgMusicRef.current) {
-      bgMusicRef.current.pause();
-      bgMusicRef.current.currentTime = 0;
-    }
-    
-    if (bgMusicSourceRef.current) {
-      bgMusicSourceRef.current.stop();
-      bgMusicSourceRef.current = null;
-    }
-    
-    if (rhythmGeneratorRef.current) {
-      rhythmGeneratorRef.current.stop();
-    }
-    
+    audioManager.stopBackgroundMusic();
     setIsBackgroundMusicStarted(false);
   }, []);
 
-  // 在组件卸载时停止背景音乐
+  // 在组件卸载时清理音频资源
   useEffect(() => {
     return () => {
       stopBackgroundMusic();
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
+      // 不需要手动清理audioContext，统一音频管理器会处理
     };
   }, [stopBackgroundMusic]);
+
+  // 按钮处理函数
+  const handleConfigClick = () => {
+    window.open('/testField/mikutap/config', '_blank');
+  };
+
+
+
+  const handleTestClick = async () => {
+    if (!isAudioInitialized) {
+      await initializeAudio();
+    } else {
+      // 播放测试音阶
+      const notes = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i'];
+      notes.forEach((note, index) => {
+        setTimeout(() => {
+          const rect = containerRef.current?.getBoundingClientRect();
+          const x = rect ? rect.width / 2 : 400;
+          const y = rect ? rect.height / 2 : 300;
+          playSoundByKey(note, x, y, true);
+        }, index * 200);
+      });
+    }
+  };
+
+  const handleHelpClick = () => {
+    setShowHelpInfo(prev => !prev);
+  };
+
+  const handleMusicToggle = async () => {
+    if (!currentBgMusic) {
+      console.log('🎵 没有可用的背景音乐');
+      return;
+    }
+
+    if (isBackgroundMusicStarted) {
+      // 当前正在播放，暂停音乐
+      stopBackgroundMusic();
+      console.log('🎵 暂停背景音乐');
+    } else {
+      // 当前暂停中，开始播放音乐
+      await startBackgroundMusic();
+      console.log('🎵 恢复背景音乐播放');
+    }
+  };
 
   /**
    * 初始化音频系统
    */
   const initializeAudio = useCallback(async () => {
     try {
-      const success = await audioGeneratorRef.current.initialize();
+      const success = await audioManager.initialize();
       if (success) {
         setIsAudioInitialized(true);
         setAudioError(null);
@@ -337,7 +268,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       setAudioError('音频系统初始化出错');
       console.error('音频初始化错误:', error);
     }
-  }, [audioGeneratorRef]);
+  }, []);
 
   /**
    * 触发单元格动画（支持重复触发）
@@ -364,9 +295,9 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
 
     // 2. 检查配置
     if (!gridConfig) return;
-    
+
     console.log('🎹 播放音效 - 按键:', key);
-    
+
     // 拖拽时的节流控制，但跳过点击时的节流
     if (!skipThrottle) {
       const now = Date.now();
@@ -375,17 +306,26 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       }
       setLastPlayTime(now);
     }
-    
+
     try {
-      // 找到对应的格子
-      const cell = gridConfig.cells.find(c => c.key === key.toLowerCase());
+      // 找到对应的格子 - 不区分大小写匹配
+      const cell = gridConfig.cells.find(c => c.key && c.key.toLowerCase() === key.toLowerCase());
+      console.log('🎹 查找按键对应的格子:', {
+        key,
+        keyLower: key.toLowerCase(),
+        foundCell: !!cell,
+        cellDetails: cell,
+        availableKeys: gridConfig.cells.filter(c => c.key).map(c => c.key)
+      });
+
       if (cell) {
-        await audioGeneratorRef.current.playSoundByCell(cell, 1, settings.volume);
-        
+        console.log('🎹 开始播放音效:', { cell: cell.key, enabled: cell.enabled, volume: settings.volume });
+        await audioManager.playEffect(cell, 1, settings.volume);
+
         // 更新交互计数
         setInteractionCount(prev => prev + 1);
         setLastKey(key);
-        
+
         // 创建粒子效果
         if (settings.enableParticles) {
           const particleId = `${Date.now()}-${Math.random()}`;
@@ -396,19 +336,16 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
             color: cell.color,
             life: settings.particleLifetime
           }]);
-          
+
           // 移除粒子
           setTimeout(() => {
             setParticles(prev => prev.filter(p => p.id !== particleId));
           }, settings.particleLifetime);
         }
-        
+
         // 触发动画
-        setAnimationTriggers(prev => ({
-          ...prev,
-          [cell.id]: Date.now()
-        }));
-        
+        triggerCellAnimation(cell.id);
+
         // 触发全屏动画
         setActiveCell(cell);
         setFullscreenAnimationTrigger(Date.now());
@@ -417,16 +354,17 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       console.error('播放音效失败:', error);
     }
   }, [
-    isAudioInitialized, 
-    gridConfig, 
-    settings, 
-    isDragging, 
-    lastPlayTime, 
-    isBackgroundMusicStarted, 
-    currentBgMusic, 
-    startBackgroundMusic, 
+    isAudioInitialized,
+    gridConfig,
+    settings,
+    isDragging,
+    lastPlayTime,
+    isBackgroundMusicStarted,
+    currentBgMusic,
+    startBackgroundMusic,
     initializeAudio,
     setActiveCell,
+    triggerCellAnimation,
   ]);
 
   /**
@@ -434,7 +372,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
    */
   const playSoundByCell = useCallback(async (cell: GridCell, x: number, y: number, skipThrottle = false) => {
     if (!isAudioInitialized || !cell.enabled) return;
-    
+
     // 拖拽时的节流控制，但跳过点击时的节流
     if (!skipThrottle) {
       const now = Date.now();
@@ -443,20 +381,20 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       }
       setLastPlayTime(now);
     }
-    
+
     try {
       // 播放音效
-      await audioGeneratorRef.current.playSoundByCell(cell, 1, settings.volume);
+      await audioManager.playEffect(cell, 1, settings.volume);
       setInteractionCount(prev => prev + 1);
       setLastKey(cell.key || `(${cell.row},${cell.col})`);
-      
+
       // 简化：所有音效播放都触发动画
       triggerCellAnimation(cell.id);
-      
+
       // 触发全屏动画
       setActiveCell(cell);
       setFullscreenAnimationTrigger(prev => prev + 1);
-      
+
       // 添加粒子效果
       if (settings.enableParticles) {
         const particleId = Math.random().toString(36);
@@ -467,15 +405,15 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
           color: cell.color,
           life: 1
         };
-        
+
         setParticles(prev => [...prev, newParticle]);
-        
+
         // 移除粒子
         setTimeout(() => {
           setParticles(prev => prev.filter(p => p.id !== particleId));
         }, settings.particleLifetime);
       }
-      
+
     } catch (error) {
       console.error('播放音效失败:', error);
     }
@@ -507,7 +445,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     const row = Math.floor((y / rect.height) * rows);
     const cell = gridConfig.cells.find(c => c.row === row && c.col === col && c.enabled);
     if (!cell) return;
-    
+
     setLastTriggeredCellId(cell.id);
 
     // --- playSoundByCell 的内联逻辑开始 ---
@@ -522,7 +460,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     }
 
     try {
-      await audioGeneratorRef.current.playSoundByCell(cell, 1, settings.volume);
+      await audioManager.playEffect(cell, 1, settings.volume);
       setInteractionCount(prev => prev + 1);
       setLastKey(cell.key || `(${cell.row},${cell.col})`);
 
@@ -545,11 +483,11 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     // --- playSoundByCell 的内联逻辑结束 ---
 
   }, [
-    isAudioInitialized, 
-    initializeAudio, 
-    isBackgroundMusicStarted, 
-    currentBgMusic, 
-    startBackgroundMusic, 
+    isAudioInitialized,
+    initializeAudio,
+    isBackgroundMusicStarted,
+    currentBgMusic,
+    startBackgroundMusic,
     gridConfig,
     isDragging,
     lastPlayTime,
@@ -561,42 +499,42 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
   /**
    * 获取两点之间经过的所有格子
    */
-  const getCellsBetweenPoints = useCallback((x1: number, y1: number, x2: number, y2: number): {row: number, col: number}[] => {
+  const getCellsBetweenPoints = useCallback((x1: number, y1: number, x2: number, y2: number): { row: number, col: number }[] => {
     if (!gridConfig || !containerRef.current) return [];
-    
+
     const rect = containerRef.current.getBoundingClientRect();
     const cols = gridConfig.cols;
     const rows = gridConfig.rows;
-    
+
     // 计算起点和终点的网格坐标
     const startCol = Math.floor((x1 / rect.width) * cols);
     const startRow = Math.floor((y1 / rect.height) * rows);
     const endCol = Math.floor((x2 / rect.width) * cols);
     const endRow = Math.floor((y2 / rect.height) * rows);
-    
+
     // 如果起点和终点相同，直接返回
     if (startCol === endCol && startRow === endRow) {
-      return [{row: startRow, col: startCol}];
+      return [{ row: startRow, col: startCol }];
     }
-    
+
     // 使用Bresenham算法计算两点之间的所有格子
-    const cells: {row: number, col: number}[] = [];
-    
+    const cells: { row: number, col: number }[] = [];
+
     // 计算步进方向和距离
     const dx = Math.abs(endCol - startCol);
     const dy = Math.abs(endRow - startRow);
     const sx = startCol < endCol ? 1 : -1;
     const sy = startRow < endRow ? 1 : -1;
     let err = dx - dy;
-    
+
     let x = startCol;
     let y = startRow;
-    
+
     while (true) {
-      cells.push({row: y, col: x});
-      
+      cells.push({ row: y, col: x });
+
       if (x === endCol && y === endRow) break;
-      
+
       const e2 = 2 * err;
       if (e2 > -dy) {
         err -= dy;
@@ -607,7 +545,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
         y += sy;
       }
     }
-    
+
     return cells;
   }, [gridConfig]);
 
@@ -616,23 +554,23 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
    */
   const handleMouseDown = useCallback(async (e: React.MouseEvent) => {
     if (!settings.mouseEnabled) return;
-    
+
     setIsDragging(true);
-    
+
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
-    
+
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
+
     // 记录初始鼠标位置
-    setLastMousePosition({x, y});
-    
+    setLastMousePosition({ x, y });
+
     // 计算当前格子位置
     const col = Math.floor((x / rect.width) * gridConfig?.cols!);
     const row = Math.floor((y / rect.height) * gridConfig?.rows!);
-    lastGridPositionRef.current = {row, col};
-    
+    lastGridPositionRef.current = { row, col };
+
     await handlePlaySoundAtPosition(x, y, true);
   }, [settings.mouseEnabled, handlePlaySoundAtPosition, gridConfig]);
 
@@ -649,36 +587,36 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
         });
       }
     }
-    
+
     if (!settings.mouseEnabled || !isDragging || !lastMousePosition || !gridConfig) return;
-    
+
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
-    
+
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
+
     // 计算当前格子位置
     const col = Math.floor((x / rect.width) * gridConfig.cols);
     const row = Math.floor((y / rect.height) * gridConfig.rows);
-    
+
     // 如果格子位置发生变化，才触发音效
-    if (lastGridPositionRef.current && 
-        (lastGridPositionRef.current.row !== row || lastGridPositionRef.current.col !== col)) {
-      
+    if (lastGridPositionRef.current &&
+      (lastGridPositionRef.current.row !== row || lastGridPositionRef.current.col !== col)) {
+
       // 查找对应位置的单元格
       const cell = gridConfig.cells.find(c => c.row === row && c.col === col && c.enabled);
       if (cell) {
         // 更新最后触发的格子位置
-        lastGridPositionRef.current = {row, col};
+        lastGridPositionRef.current = { row, col };
         setLastTriggeredCellId(cell.id);
         await handlePlaySoundAtPosition(x, y, false);
       }
     }
-    
+
     // 更新上一次鼠标位置
-    setLastMousePosition({x, y});
-    
+    setLastMousePosition({ x, y });
+
   }, [settings.mouseEnabled, isDragging, showHelpInfo, lastMousePosition, gridConfig, handlePlaySoundAtPosition]);
 
   /**
@@ -686,25 +624,25 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
    */
   const handleTouchStart = useCallback(async (e: React.TouchEvent) => {
     if (!settings.mouseEnabled) return;
-    
+
     e.preventDefault(); // 防止双击放大和其他默认行为
     setIsDragging(true);
-    
+
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect || !gridConfig) return;
-    
+
     const touch = e.touches[0];
     const x = touch.clientX - rect.left;
     const y = touch.clientY - rect.top;
-    
+
     // 记录初始触摸位置
-    setLastMousePosition({x, y});
-    
+    setLastMousePosition({ x, y });
+
     // 计算当前格子位置
     const col = Math.floor((x / rect.width) * gridConfig.cols);
     const row = Math.floor((y / rect.height) * gridConfig.rows);
-    lastGridPositionRef.current = {row, col};
-    
+    lastGridPositionRef.current = { row, col };
+
     await handlePlaySoundAtPosition(x, y, true);
   }, [settings.mouseEnabled, handlePlaySoundAtPosition, gridConfig]);
 
@@ -714,44 +652,44 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
   const handleTouchMove = useCallback(async (e: React.TouchEvent) => {
     const touch = e.touches[0];
     const rect = containerRef.current?.getBoundingClientRect();
-    
+
     if (showHelpInfo && rect) {
       setMousePosition({
         x: touch.clientX - rect.left,
         y: touch.clientY - rect.top
       });
     }
-    
+
     if (!settings.mouseEnabled || !isDragging || !lastMousePosition || !gridConfig) return;
-    
+
     e.preventDefault(); // 防止页面滚动
-    
+
     if (!rect) return;
-    
+
     const x = touch.clientX - rect.left;
     const y = touch.clientY - rect.top;
-    
+
     // 计算当前格子位置
     const col = Math.floor((x / rect.width) * gridConfig.cols);
     const row = Math.floor((y / rect.height) * gridConfig.rows);
-    
+
     // 如果格子位置发生变化，才触发音效
-    if (lastGridPositionRef.current && 
-        (lastGridPositionRef.current.row !== row || lastGridPositionRef.current.col !== col)) {
-      
+    if (lastGridPositionRef.current &&
+      (lastGridPositionRef.current.row !== row || lastGridPositionRef.current.col !== col)) {
+
       // 查找对应位置的单元格
       const cell = gridConfig.cells.find(c => c.row === row && c.col === col && c.enabled);
       if (cell) {
         // 更新最后触发的格子位置
-        lastGridPositionRef.current = {row, col};
+        lastGridPositionRef.current = { row, col };
         setLastTriggeredCellId(cell.id);
         await handlePlaySoundAtPosition(x, y, false);
       }
     }
-    
+
     // 更新上一次触摸位置
-    setLastMousePosition({x, y});
-    
+    setLastMousePosition({ x, y });
+
   }, [settings.mouseEnabled, isDragging, showHelpInfo, lastMousePosition, gridConfig, handlePlaySoundAtPosition]);
 
   /**
@@ -769,61 +707,48 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
    * 处理键盘事件
    */
   const handleKeyPress = async (e: KeyboardEvent) => {
-    console.log(`[KeyDebug] 1. Key event triggered: ${e.key}`);
     const key = e.key.toLowerCase();
-    
+
     // 特殊按键处理
     if (key === 'escape') {
       setShowHelpInfo(false);
-      setShowSettings(false);
       return;
     }
-    
+
     if (key === 'h' && e.ctrlKey) {
       e.preventDefault();
       setShowHelpInfo(!showHelpInfo);
       return;
     }
-    
+
     if (key === 'f1') {
       e.preventDefault();
       setShowHelpInfo(!showHelpInfo);
       return;
     }
-    
-    // 设置快捷键
+
+    // 配置页面快捷键
     if (key === 's' && e.ctrlKey) {
       e.preventDefault();
-      setShowSettings(!showSettings);
+      const configUrl = new URL('/testField/mikutap/config', window.location.origin);
+      configUrl.searchParams.set('tab', 'interface-settings');
+      window.open(configUrl.toString(), '_blank');
       return;
     }
-    
-    console.log('[KeyDebug] 2. Checking preconditions...');
-    if (!gridConfig || !settings.keyboardEnabled) {
-      console.error(`[KeyDebug] Precondition failed: gridConfig=${!!gridConfig}, keyboardEnabled=${settings.keyboardEnabled}`);
-      return;
-    }
-    
+
+    if (!gridConfig || !settings.keyboardEnabled) return;
+
     const cell = gridConfig.cells.find(c => c.key?.toLowerCase() === key && c.enabled);
-    console.log(`[KeyDebug] 3. Searching for cell with key "${key}"...`);
-    
-    if (!cell) {
-      console.warn(`[KeyDebug] No enabled cell found for key "${key}".`);
-      return;
-    }
-    
-    console.log(`[KeyDebug] 4. Cell found:`, cell);
-    console.log(`[KeyDebug] 5. Calling playSoundByKey...`);
-    
+    if (!cell) return;
+
     e.preventDefault();
-    
+
     const rect = containerRef.current?.getBoundingClientRect();
     const centerX = rect ? rect.width / 2 : 400;
     const centerY = rect ? rect.height / 2 : 300;
-    
+
     // 键盘按下时，不需要节流 (skipThrottle = true)
     await playSoundByKey(key, centerX, centerY, true);
-    console.log(`[KeyDebug] 6. playSoundByKey finished.`);
   };
 
   // 监听键盘事件
@@ -857,35 +782,13 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     };
   }, []);
 
-  // 处理背景音乐
-  const handleBackgroundMusic = useCallback(() => {
-    if (currentBgMusic && bgMusicRef.current) {
-      bgMusicRef.current.volume = currentBgMusic.volume;
-      bgMusicRef.current.loop = currentBgMusic.loop;
-      bgMusicRef.current.play().catch(error => {
-        console.error('背景音乐播放失败:', error);
-      });
+  // 处理背景音乐（现在由统一音频管理器处理，此函数已不需要）
 
-      // 播放节奏
-      if (rhythmGeneratorRef.current && currentBgMusic.rhythmPattern.enabled) {
-        rhythmGeneratorRef.current.start(currentBgMusic);
-      }
-    }
-  }, [currentBgMusic]);
-
-  // 组件卸载时停止所有音频
+  // 组件卸载时停止所有音频（这些清理现在由统一音频管理器处理）
   useEffect(() => {
     return () => {
-      if (bgMusicRef.current) {
-        bgMusicRef.current.pause();
-        bgMusicRef.current.currentTime = 0;
-      }
-      if (rhythmGeneratorRef.current) {
-        rhythmGeneratorRef.current.stop();
-      }
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
+      // 统一音频管理器会处理所有清理工作
+      audioManager.destroy();
     };
   }, []);
 
@@ -897,7 +800,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
         className={`relative w-full h-full select-none no-zoom ${isDragging ? 'cursor-grabbing' : 'cursor-crosshair'}`}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
-        onMouseUp={()=>{
+        onMouseUp={() => {
           // setIsDragging(false);
         }}
         onMouseLeave={() => {
@@ -909,7 +812,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
         onTouchEnd={handleTouchEnd}
       >
         {/* 全屏动画效果 */}
-        <FullscreenAnimation 
+        <FullscreenAnimation
           isTriggered={fullscreenAnimationTrigger}
           cell={activeCell}
           onAnimationEnd={() => {
@@ -936,10 +839,10 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
           <div className="absolute inset-0 pointer-events-none z-5">
             {gridConfig.cells.map((cell) => {
               if (!cell.enabled) return null;
-              
+
               const cols = gridConfig.cols;
               const rows = gridConfig.rows;
-              
+
               return (
                 <div
                   key={`hidden-animation-${cell.id}`}
@@ -974,13 +877,9 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
 
         {/* 初始化提示 */}
         {!isAudioInitialized && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-60">
             <div className="text-center text-white">
-              <div className="text-3xl mb-6">🎵 Mikutap</div>
-              <div className="text-xl mb-4">点击任意位置开始演奏</div>
-              <div className="text-sm opacity-75">
-                使用合成音效，无需下载音频文件
-              </div>
+              <div className="text-5xl">🎵</div>
             </div>
           </div>
         )}
@@ -993,56 +892,28 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
           </div>
         )}
 
-        {/* 游戏信息 */}
-        {isAudioInitialized && (
-          <>
-            <div className="absolute top-4 left-4 text-white text-sm opacity-75 z-20">
-              <div>🎵 Mikutap - 合成音效版</div>
-              <div className="mt-1">
-                <span className="hidden md:inline">点击鼠标 • 拖拽 • 按键盘字母开始演奏</span>
-                <span className="md:hidden">触摸屏幕 • 拖拽 • 按键盘字母开始演奏</span>
-              </div>
-              <div className="mt-1">🔊 音频系统已激活</div>
-              {isDragging && (
-                <div className="mt-1 text-green-300">
-                  <span className="hidden md:inline">🎨 拖拽模式 - 连续演奏中</span>
-                  <span className="md:hidden">🎨 触摸模式 - 连续演奏中</span>
-                </div>
-              )}
-              {!showHelpInfo && (
-                <div className="mt-1 text-xs opacity-60">💡 点击左下角查看操作指南</div>
-              )}
-              {lastKey && (
-                <div className="mt-1">最后按键: <span className="font-mono text-yellow-300">{lastKey}</span></div>
-              )}
-            </div>
 
-            <div className="absolute top-4 right-4 text-white text-sm opacity-75 z-20">
-              <div>交互次数: {interactionCount}</div>
-            </div>
-          </>
-        )}
 
         {/* 网格蒙版 - 显示点击区域信息 */}
         {showHelpInfo && gridConfig && (
           <div className="absolute inset-0 bg-black bg-opacity-60 z-25 pointer-events-none"
-               onMouseDown={handleMouseDown}
-               onMouseMove={handleMouseMove}
-               onMouseUp={()=>{
-                // setIsDragging(false);
-               }}
-               onTouchStart={handleTouchStart}
-               onTouchMove={handleTouchMove}
-               onTouchEnd={handleTouchEnd}
-               style={{ pointerEvents: 'auto' }}>
-            
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={() => {
+              // setIsDragging(false);
+            }}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            style={{ pointerEvents: 'auto' }}>
+
             {/* 网格边界线 */}
             <div className="absolute inset-0 pointer-events-none z-10">
               {/* 使用配置的网格尺寸 */}
               {(() => {
                 const cols = gridConfig.cols;
                 const rows = gridConfig.rows;
-                
+
                 return (
                   <>
                     {/* 垂直分割线 */}
@@ -1056,7 +927,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
                         }}
                       />
                     ))}
-                    
+
                     {/* 水平分割线 */}
                     {Array.from({ length: rows - 1 }, (_, i) => (
                       <div
@@ -1068,11 +939,11 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
                         }}
                       />
                     ))}
-                    
+
                     {/* 网格单元格 */}
                     {gridConfig.cells.map((cell) => {
                       if (!cell.enabled) return null;
-                      
+
                       return (
                         <div
                           key={cell.id}
@@ -1105,28 +976,13 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
                               }}
                             >
                               {/* 音效图标 */}
-                              <div className="text-lg md:text-2xl xl:text-3xl mb-1">
+                              <div className="text-2xl md:text-3xl xl:text-4xl mb-2">
                                 {cell.icon}
                               </div>
-                              
-                              {/* 字母 */}
-                              <div className="text-xl md:text-2xl xl:text-4xl font-bold font-mono mb-1">
-                                {cell.key ? cell.key.toUpperCase() : '无按键'}
-                              </div>
-                              
-                              {/* 音色类型 */}
-                              <div className="text-xs md:text-sm xl:text-base font-semibold">
-                                {cell.soundType}
-                              </div>
-                              
-                              {/* 波形类型 - 桌面端显示 */}
-                              <div className="hidden md:block text-xs xl:text-sm opacity-75 mt-1">
-                                {cell.waveType}
-                              </div>
 
-                              {/* 频率信息 - 桌面端显示 */}
-                              <div className="hidden lg:block text-xs opacity-60 mt-1">
-                                {cell.frequency}Hz
+                              {/* 字母 */}
+                              <div className="text-xl md:text-2xl xl:text-3xl font-bold font-mono">
+                                {cell.key ? cell.key.toUpperCase() : ''}
                               </div>
                             </div>
                           </TestAnimation>
@@ -1136,234 +992,92 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
                   </>
                 );
               })()}
-              
-              {/* 底部区域标识 */}
-              <div className="absolute bottom-24 left-0 right-0 flex flex-wrap justify-center gap-2 pointer-events-none">
-                {(() => {
-                  const soundTypes = Array.from(new Set(gridConfig.cells.filter(c => c.enabled).map(c => c.soundType)));
-                  return soundTypes.map(type => {
-                    const typeCell = gridConfig.cells.find(c => c.soundType === type && c.enabled);
-                    if (!typeCell) return null;
-                    
-                    return (
-                      <div key={type} className="text-white text-xs px-2 py-1 rounded" style={{ backgroundColor: typeCell.color + '80' }}>
-                        {typeCell.icon} {type}音色
-                      </div>
-                    );
-                  });
-                })()}
-              </div>
-            </div>
 
-      
-            
-            {/* 顶部说明 */}
-            <div className="absolute top-2 md:top-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-90 text-white px-3 md:px-4 py-2 rounded-lg text-center pointer-events-auto max-w-[90vw]">
-              <div className="text-sm md:text-lg font-bold mb-1">🎵 Mikutap 网格操作区域</div>
-              <div className="text-xs md:text-sm opacity-75">
-                {gridConfig.cols}x{gridConfig.rows}网格显示{gridConfig.cells.filter(c => c.enabled).length}个音效区域 • 点击任意网格演奏对应音效
-              </div>
-                          <div className="text-xs opacity-60 mt-1">
-                              按ESC或💡按钮关闭蒙版 • 网格布局更适合触摸操作
-            </div>
-            </div>
-
-            {/* 鼠标位置指示器 */}
-            {mousePosition && (
-              <div 
-                className="absolute pointer-events-none bg-yellow-400 bg-opacity-80 text-black px-2 py-1 rounded text-xs font-bold z-50"
-                style={{
-                  left: mousePosition.x + 10,
-                  top: mousePosition.y - 30,
-                  transform: mousePosition.x > window.innerWidth - 100 ? 'translateX(-100%)' : 'none'
-                }}
-              >
-                {(() => {
-                  const rect = containerRef.current?.getBoundingClientRect();
-                  if (!rect) return '';
-                  
-                  // 使用配置的网格尺寸
-                  const cols = gridConfig.cols;
-                  const rows = gridConfig.rows;
-                  
-                  const col = Math.floor((mousePosition.x / rect.width) * cols);
-                  const row = Math.floor((mousePosition.y / rect.height) * rows);
-                  
-                  const cell = gridConfig.cells.find(c => c.row === row && c.col === col && c.enabled);
-                  if (!cell) return `空白区域 (行${row+1}列${col+1})`;
-                  
-                  return `${cell.icon} ${cell.key ? cell.key.toUpperCase() : '无按键'} - ${cell.soundType}音 (行${row+1}列${col+1})`;
-                })()}
-              </div>
-            )}
-            
-            {/* 底部快捷键提示 */}
-            <div className="absolute bottom-16 md:bottom-20 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-90 text-white px-3 md:px-4 py-2 rounded-lg text-center pointer-events-auto max-w-[90vw]">
-              <div className="text-xs md:text-sm">
-                <div className="md:hidden space-y-1">
-                  <div>⌨️ 键盘: 直接按字母键</div>
-                  <div>🖱️ 鼠标: 点击或拖拽网格</div>
-                  <div>📱 网格: {gridConfig.cols}列×{gridConfig.rows}行布局</div>
-                  <div>⚡ ESC关闭 / F1切换</div>
-                </div>
-              </div>
             </div>
           </div>
         )}
 
         {/* 功能按钮组 */}
-        <div 
+        <div
           className="absolute bottom-20 right-4 z-50 flex flex-col gap-2 pointer-events-auto"
-          onTouchStart={(e) => e.stopPropagation()}
-          onTouchMove={(e) => e.stopPropagation()}
-          onTouchEnd={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
+          onTouchStart={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          onTouchMove={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          onTouchEnd={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          onMouseUp={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          onPointerUp={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
         >
-          {/* 配置按钮 */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              if (touchHandled) {
-                setTouchHandled(false);
-                return;
-              }
-              window.open('/testField/mikutap/config', '_blank');
-            }}
-            onTouchStart={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              setTouchHandled(true);
-            }}
-            onTouchEnd={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              window.open('/testField/mikutap/config', '_blank');
-              setTimeout(() => setTouchHandled(false), 100);
-            }}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 mobile-button pointer-events-auto"
-            title="网格配置"
-          >
-            <span>🎛️</span>
-            <span className="hidden md:inline">配置</span>
-          </button>
+          <MikutapButton
+            onClick={handleConfigClick}
+            onTouchAction={handleConfigClick}
+            icon="🎛️"
+            text="配置"
+            className="bg-purple-600 hover:bg-purple-700 text-white"
+            title="Mikutap配置中心"
+            touchHandled={touchHandled}
+            setTouchHandled={setTouchHandled}
+          />
 
-          {/* 设置按钮 */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              if (touchHandled) {
-                setTouchHandled(false);
-                return;
-              }
-              setShowSettings(true);
-            }}
-            onTouchStart={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              setTouchHandled(true);
-            }}
-            onTouchEnd={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              setShowSettings(true);
-              setTimeout(() => setTouchHandled(false), 100);
-            }}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 mobile-button pointer-events-auto"
-            title="打开设置 (Ctrl+S)"
-          >
-            <span>⚙️</span>
-            <span className="hidden md:inline">设置</span>
-          </button>
-          
-          {/* 测试按钮 */}
-          <button
-            onClick={async (e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              if (touchHandled) {
-                setTouchHandled(false);
-                return;
-              }
-              if (!isAudioInitialized) {
-                await initializeAudio();
-              } else {
-                // 播放测试音阶
-                const notes = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i'];
-                notes.forEach((note, index) => {
-                  setTimeout(() => {
-                    const rect = containerRef.current?.getBoundingClientRect();
-                    const x = rect ? rect.width / 2 : 400;
-                    const y = rect ? rect.height / 2 : 300;
-                    playSoundByKey(note, x, y, true);
-                  }, index * 200);
-                });
-              }
-            }}
-            onTouchStart={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              setTouchHandled(true);
-            }}
-            onTouchEnd={async (e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              if (!isAudioInitialized) {
-                await initializeAudio();
-              } else {
-                // 播放测试音阶
-                const notes = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i'];
-                notes.forEach((note, index) => {
-                  setTimeout(() => {
-                    const rect = containerRef.current?.getBoundingClientRect();
-                    const x = rect ? rect.width / 2 : 400;
-                    const y = rect ? rect.height / 2 : 300;
-                    playSoundByKey(note, x, y, true);
-                  }, index * 200);
-                });
-              }
-              setTimeout(() => setTouchHandled(false), 100);
-            }}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors mobile-button pointer-events-auto"
-          >
-            {isAudioInitialized ? '🎹 播放音阶' : '🔊 初始化音频'}
-          </button>
+          <MikutapButton
+            onClick={handleTestClick}
+            onTouchAction={handleTestClick}
+            icon={isAudioInitialized ? '🎹' : '🔊'}
+            text={isAudioInitialized ? '播放音阶' : '初始化音频'}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+            touchHandled={touchHandled}
+            setTouchHandled={setTouchHandled}
+          />
 
-          {/* 帮助信息切换按钮 */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              // 如果刚刚处理过触摸事件，跳过点击事件
-              if (touchHandled) {
-                setTouchHandled(false);
-                return;
-              }
-              setShowHelpInfo(prev => !prev);
-            }}
-            onTouchStart={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              setTouchHandled(true);
-            }}
-            onTouchEnd={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              // 在触摸设备上处理状态切换
-              setShowHelpInfo(prev => !prev);
-              // 设置延时清除flag，防止后续的click事件被触发
-              setTimeout(() => setTouchHandled(false), 100);
-            }}
-            onMouseDown={(e) => {
-              e.stopPropagation();
-            }}
-            className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-all duration-200 z-50 flex items-center gap-2 mobile-button pointer-events-auto"
-          >
-          <span>{showHelpInfo ? '🙈' : '💡'}</span>
-          <span>{showHelpInfo ? '隐藏帮助' : '显示帮助'}</span>
-        </button> 
+          <MikutapButton
+            onClick={handleMusicToggle}
+            onTouchAction={handleMusicToggle}
+            icon={isBackgroundMusicStarted ? '⏸️' : '▶️'}
+            text={isBackgroundMusicStarted ? '暂停音乐' : '播放音乐'}
+            className={`${currentBgMusic ? 
+              (isBackgroundMusicStarted ? 'bg-orange-600 hover:bg-orange-700' : 'bg-green-600 hover:bg-green-700') 
+              : 'bg-gray-500 cursor-not-allowed'} text-white`}
+            title={currentBgMusic ? 
+              (isBackgroundMusicStarted ? '暂停背景音乐' : '播放背景音乐') 
+              : '没有可用的背景音乐'}
+            touchHandled={touchHandled}
+            setTouchHandled={setTouchHandled}
+          />
 
+          <MikutapButton
+            onClick={handleHelpClick}
+            onTouchAction={handleHelpClick}
+            icon={showHelpInfo ? '🙈' : '💡'}
+            text={showHelpInfo ? '隐藏按键映射' : '显示按键映射'}
+            className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white"
+            touchHandled={touchHandled}
+            setTouchHandled={setTouchHandled}
+          />
         </div>
       </div>
 
@@ -1380,191 +1094,6 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
         </div>
       )} */}
 
-      {/* 设置弹窗 */}
-      <Modal
-        isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
-        title="🎵 Mikutap 设置"
-        width={500}
-        height="auto"
-        className="settings-modal"
-      >
-        <div className="space-y-6 p-4">
-          {/* 音频设置 */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">🔊 音频设置</h3>
-            
-            {/* 音量控制 */}
-            <div className="space-y-2">
-              <label className="flex items-center justify-between text-sm font-medium text-gray-700">
-                <span>音量</span>
-                <span className="text-gray-500">{Math.round(settings.volume * 100)}%</span>
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.05"
-                value={settings.volume}
-                onChange={(e) => setSettings(prev => ({ ...prev, volume: parseFloat(e.target.value) }))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
-          </div>
-
-          {/* 交互设置 */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">🎮 交互设置</h3>
-            
-            {/* 键盘启用 */}
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700">启用键盘操作</label>
-              <input
-                type="checkbox"
-                checked={settings.keyboardEnabled}
-                onChange={(e) => setSettings(prev => ({ ...prev, keyboardEnabled: e.target.checked }))}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-              />
-            </div>
-
-            {/* 鼠标启用 */}
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700">启用鼠标操作</label>
-              <input
-                type="checkbox"
-                checked={settings.mouseEnabled}
-                onChange={(e) => setSettings(prev => ({ ...prev, mouseEnabled: e.target.checked }))}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          {/* 拖拽设置 */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">🖱️ 拖拽设置</h3>
-            
-            {/* 拖拽节流 */}
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700">启用拖拽节流</label>
-              <input
-                type="checkbox"
-                checked={settings.enableDragThrottle}
-                onChange={(e) => setSettings(prev => ({ ...prev, enableDragThrottle: e.target.checked }))}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-              />
-            </div>
-
-            {/* 节流延迟 */}
-            {settings.enableDragThrottle && (
-              <div className="space-y-2">
-                <label className="flex items-center justify-between text-sm font-medium text-gray-700">
-                  <span>拖拽延迟</span>
-                  <span className="text-gray-500">{settings.dragThrottleDelay}ms</span>
-                </label>
-                <input
-                  type="range"
-                  min="10"
-                  max="200"
-                  step="10"
-                  value={settings.dragThrottleDelay}
-                  onChange={(e) => setSettings(prev => ({ ...prev, dragThrottleDelay: parseInt(e.target.value) }))}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                />
-              </div>
-            )}
-          </div>
-
-          {/* 视觉效果设置 */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">✨ 视觉效果</h3>
-            
-            {/* 粒子效果 */}
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700">启用粒子效果</label>
-              <input
-                type="checkbox"
-                checked={settings.enableParticles}
-                onChange={(e) => setSettings(prev => ({ ...prev, enableParticles: e.target.checked }))}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-              />
-            </div>
-
-            {/* 粒子生命周期 */}
-            {settings.enableParticles && (
-              <div className="space-y-2">
-                <label className="flex items-center justify-between text-sm font-medium text-gray-700">
-                  <span>粒子持续时间</span>
-                  <span className="text-gray-500">{settings.particleLifetime}ms</span>
-                </label>
-                <input
-                  type="range"
-                  min="200"
-                  max="3000"
-                  step="100"
-                  value={settings.particleLifetime}
-                  onChange={(e) => setSettings(prev => ({ ...prev, particleLifetime: parseInt(e.target.value) }))}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                />
-              </div>
-            )}
-          </div>
-
-          {/* 操作按钮 */}
-          <div className="flex justify-between pt-4 border-t">
-            <button
-              onClick={() => {
-                setSettings({
-                  volume: 1.0,
-                  enableParticles: true,
-                  enableDragThrottle: true,
-                  dragThrottleDelay: 10,
-                  particleLifetime: 1000,
-                  keyboardEnabled: true,
-                  mouseEnabled: true,
-                });
-              }}
-              className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              重置默认
-            </button>
-            
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowSettings(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                取消
-              </button>
-              <button
-                onClick={() => setShowSettings(false)}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                保存
-              </button>
-            </div>
-          </div>
-
-          {/* 快捷键提示 */}
-          <div className="text-xs text-gray-500 border-t pt-4">
-            <div className="space-y-1">
-              <div>• Ctrl+S: 打开/关闭设置</div>
-              <div>• Ctrl+H 或 F1: 显示/隐藏帮助</div>
-              <div>• ESC: 关闭所有弹窗</div>
-            </div>
-          </div>
-        </div>
-      </Modal>
-
-
-
-      {/* 背景音乐播放器 */}
-      {currentBgMusic && (
-        <audio
-          ref={bgMusicRef}
-          src={currentBgMusic.file}
-          loop={currentBgMusic.loop}
-        />
-      )}
     </div>
   );
 }

@@ -10,24 +10,45 @@ export class AudioGenerator {
     private isInitialized = false;
     private audioBuffers: Map<string, AudioBuffer> = new Map();
     private loadingPromises: Map<string, Promise<ArrayBuffer>> = new Map();
+    private masterGain: GainNode | null = null;
+    private compressor: DynamicsCompressorNode | null = null;
   
     /**
      * 初始化音频上下文
      */
     async initialize(): Promise<boolean> {
-      try {
-        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        
-        if (this.audioContext.state === 'suspended') {
-          await this.audioContext.resume();
-        }
-        
-        this.isInitialized = true;
+      if (this.audioContext && this.audioContext.state !== 'closed') {
         return true;
-      } catch (error) {
-        console.error('音频上下文初始化失败:', error);
-        return false;
       }
+      if (typeof window !== 'undefined') {
+        try {
+          this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+          
+          if (this.audioContext.state === 'suspended') {
+            await this.audioContext.resume();
+          }
+
+          // Create master gain
+          this.masterGain = this.audioContext.createGain();
+          this.masterGain.gain.value = 0.7; // Default master volume
+
+          this.compressor = this.audioContext.createDynamicsCompressor();
+          this.compressor.threshold.setValueAtTime(-24, this.audioContext.currentTime);
+          this.compressor.knee.setValueAtTime(30, this.audioContext.currentTime);
+          this.compressor.ratio.setValueAtTime(12, this.audioContext.currentTime);
+          this.compressor.attack.setValueAtTime(0.003, this.audioContext.currentTime);
+          this.compressor.release.setValueAtTime(0.25, this.audioContext.currentTime);
+
+          this.masterGain.connect(this.compressor);
+          this.compressor.connect(this.audioContext.destination);
+
+          return true;
+        } catch (e) {
+          console.error('音频上下文初始化失败:', e);
+          return false;
+        }
+      }
+      return false;
     }
   
     /**
@@ -284,6 +305,13 @@ export class AudioGenerator {
      * 根据网格单元格配置播放音效
      */
     async playSoundByCell(cell: GridCell, intensity: number = 1, masterVolume: number = 0.7): Promise<void> {
+      if (!this.audioContext || !this.masterGain) {
+        return;
+      }
+      if (this.audioContext.state === 'suspended') {
+        await this.audioContext.resume();
+      }
+  
       if (!cell || !cell.enabled) {
         console.warn('单元格未启用或为空');
         return;
@@ -485,37 +513,37 @@ export class AudioGenerator {
       }
       return this.audioContext.sampleRate;
     }
-  }
+}
   
-  // 全局音频生成器实例
-  let globalAudioGenerator: AudioGenerator | null = null;
+// 全局音频生成器实例
+let globalAudioGenerator: AudioGenerator | null = null;
   
-  /**
-   * 获取全局音频生成器实例
-   */
-  export function getAudioGenerator(): AudioGenerator {
-    if (!globalAudioGenerator) {
-      globalAudioGenerator = new AudioGenerator();
-    }
-    return globalAudioGenerator;
+/**
+ * 获取全局音频生成器实例
+ */
+export function getAudioGenerator(): AudioGenerator {
+  if (!globalAudioGenerator) {
+    globalAudioGenerator = new AudioGenerator();
   }
+  return globalAudioGenerator;
+}
   
-  /**
-   * 初始化全局音频生成器
-   */
-  export async function initializeGlobalAudioGenerator(): Promise<boolean> {
-    const generator = getAudioGenerator();
-    return await generator.initialize();
-  }
+/**
+ * 初始化全局音频生成器
+ */
+export async function initializeGlobalAudioGenerator(): Promise<boolean> {
+  const generator = getAudioGenerator();
+  return await generator.initialize();
+}
   
-  /**
-   * 播放测试音效
-   */
-  export function playTestSound(
-    soundId: string, 
-    intensity: number = 1, 
-    masterVolume: number = 0.7
-  ): void {
-    const generator = getAudioGenerator();
-    generator.playSoundById(soundId, intensity, masterVolume);
-  }
+/**
+ * 播放测试音效
+ */
+export function playTestSound(
+  soundId: string, 
+  intensity: number = 1, 
+  masterVolume: number = 0.7
+): void {
+  const generator = getAudioGenerator();
+  generator.playSoundById(soundId, intensity, masterVolume);
+}
