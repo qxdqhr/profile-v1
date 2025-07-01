@@ -17,6 +17,17 @@ export class RhythmGenerator {
     this.gainNode.connect(audioContext.destination);
   }
 
+  // 重新连接音频输出节点
+  public reconnectOutput(destination: AudioNode) {
+    this.gainNode.disconnect();
+    this.gainNode.connect(destination);
+  }
+
+  // 获取增益节点（用于外部连接）
+  public getGainNode(): GainNode {
+    return this.gainNode;
+  }
+
   private scheduleNote(time: number, volume: number, duration: number, frequency: number, type: OscillatorType) {
     const osc = this.audioContext.createOscillator();
     const noteGain = this.audioContext.createGain();

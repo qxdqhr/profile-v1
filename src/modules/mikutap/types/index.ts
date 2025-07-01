@@ -156,4 +156,31 @@ export interface BackgroundMusic {
   size?: number;
   duration?: number;
   generationConfig?: any;
+  description?: string;
+  timeSignature?: {
+    numerator: number;
+    denominator: number;
+  };
 }
+
+// 界面设置类型
+export interface InterfaceSettings {
+  volume: number;
+  enableParticles: boolean;
+  enableDragThrottle: boolean;
+  dragThrottleDelay: number;
+  particleLifetime: number;
+  keyboardEnabled: boolean;
+  mouseEnabled: boolean;
+}
+
+// 默认界面设置
+export const DEFAULT_INTERFACE_SETTINGS: InterfaceSettings = {
+  volume: 1.0,
+  enableParticles: true,
+  enableDragThrottle: true,
+  dragThrottleDelay: 10,
+  particleLifetime: 1000,
+  keyboardEnabled: true,
+  mouseEnabled: true,
+};
