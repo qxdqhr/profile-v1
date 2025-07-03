@@ -313,9 +313,23 @@ export default function ConfigPage() {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // 检查文件大小 (25MB限制)
+      const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`文件大小超出限制！\n文件大小: ${Math.round(file.size / 1024 / 1024 * 100) / 100}MB\n最大支持: ${Math.round(MAX_FILE_SIZE / 1024 / 1024)}MB\n\n请选择更小的音频文件或使用音频压缩工具处理后再上传。`);
+        // 重置文件选择
+        if (event.target) {
+          event.target.value = '';
+        }
+        return;
+      }
+      
       setUploadedFile(file);
       const url = URL.createObjectURL(file);
       setUploadPreviewUrl(url);
+      
+      // 显示文件信息
+      console.log(`📁 已选择文件: ${file.name}, 大小: ${Math.round(file.size / 1024)}KB`);
     }
   };
 
@@ -376,6 +390,15 @@ export default function ConfigPage() {
       
       // 将 AudioBuffer 转换为 WAV 格式的 Blob
       const wavBlob = audioBufferToWav(buffer);
+      
+      // 检查生成的音乐文件大小
+      const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+      if (wavBlob.size > MAX_FILE_SIZE) {
+        alert(`生成的音乐文件过大！\n文件大小: ${Math.round(wavBlob.size / 1024 / 1024 * 100) / 100}MB\n最大支持: ${Math.round(MAX_FILE_SIZE / 1024 / 1024)}MB\n\n请减少音乐时长或降低音质设置。`);
+        return;
+      }
+      
+      console.log(`🎵 生成音乐文件大小: ${Math.round(wavBlob.size / 1024)}KB`);
       
       // 创建 FormData
       const formData = new FormData();

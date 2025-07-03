@@ -5,6 +5,10 @@ import { eq, and } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { blobToBase64 } from '../../../../modules/mikutap/utils/audioUtils';
 
+// App Router中增加路由配置
+export const maxDuration = 60; // 60秒超时
+export const dynamic = 'force-dynamic'; // 强制动态渲染
+
 // 获取背景音乐列表
 export async function GET(request: NextRequest) {
   try {
@@ -42,6 +46,9 @@ export async function POST(request: NextRequest) {
     let fileSize = 0;
     let duration = 0;
 
+    // 设置文件大小限制 (25MB，考虑base64编码会增加约33%的大小)
+    const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+
     if (fileType === 'uploaded') {
       // 处理上传的文件
       const file = formData.get('file') as File;
@@ -53,8 +60,17 @@ export async function POST(request: NextRequest) {
       }
 
       fileSize = file.size;
+      
+      // 检查文件大小
+      if (fileSize > MAX_FILE_SIZE) {
+        return NextResponse.json(
+          { success: false, error: `文件大小超出限制，最大支持 ${Math.round(MAX_FILE_SIZE / 1024 / 1024)}MB` },
+          { status: 413 }
+        );
+      }
+
       audioData = await blobToBase64(file);
-      console.log('✅ 将上传的音乐文件存储到数据库');
+      console.log(`✅ 将上传的音乐文件存储到数据库，文件大小: ${Math.round(fileSize / 1024)}KB`);
     } else if (fileType === 'generated') {
       // 处理生成的音乐
       const generatedFile = formData.get('generatedFile') as File;
@@ -67,8 +83,17 @@ export async function POST(request: NextRequest) {
       }
 
       fileSize = generatedFile.size;
+      
+      // 检查文件大小
+      if (fileSize > MAX_FILE_SIZE) {
+        return NextResponse.json(
+          { success: false, error: `生成的音乐文件过大，请减少音乐时长或降低质量` },
+          { status: 413 }
+        );
+      }
+
       audioData = await blobToBase64(generatedFile);
-      console.log('✅ 将生成的音乐文件存储到数据库');
+      console.log(`✅ 将生成的音乐文件存储到数据库，文件大小: ${Math.round(fileSize / 1024)}KB`);
     }
 
     if (!audioData) {
