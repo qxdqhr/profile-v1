@@ -189,7 +189,7 @@ export interface RhythmPattern {
 export interface BackgroundMusic {
   id: string;
   name: string;
-  file: string;
+  audioData: string; // Base64编码的音频数据 - 必填
   fileType: 'uploaded' | 'generated';
   volume: number;
   loop: boolean;

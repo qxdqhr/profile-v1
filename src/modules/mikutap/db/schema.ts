@@ -60,7 +60,7 @@ export const mikutapBackgroundMusic = pgTable('mikutap_background_music', {
   id: text('id').primaryKey(),
   configId: text('config_id').notNull().references(() => mikutapConfigs.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
-  file: text('file').notNull(), // 存储文件路径或URL，不再存储base64
+  audioData: text('audio_data').notNull(), // Base64编码的音频数据 - 必填
   fileType: text('file_type').notNull().default('uploaded'), // 'uploaded' | 'generated'
   isDefault: boolean('is_default').notNull().default(false),
   volume: real('volume').notNull().default(0.5),

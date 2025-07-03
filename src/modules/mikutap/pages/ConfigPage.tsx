@@ -10,6 +10,7 @@ import {
   generateDefaultCells
 } from '../services/configService';
 import { GridCell, GridConfig, DEFAULT_KEYS, SOUND_TYPES, WAVE_TYPES, SOUND_TYPE_COLORS, SOUND_SOURCES, SoundType, ANIMATION_TYPES, ANIMATION_TYPE_DESCRIPTIONS, AnimationType, BackgroundMusic, BACKGROUND_ANIMATION_TYPES, BACKGROUND_ANIMATION_DESCRIPTIONS, BackgroundAnimationType, InterfaceSettings, DEFAULT_INTERFACE_SETTINGS } from '../types';
+import { audioBufferToWav, blobToBase64, base64ToUrl } from '../utils/audioUtils';
 import SoundLibraryManager from '../components/SoundLibraryManager';
 import SoundLibraryPresets, { SoundPreset } from '../components/SoundLibraryPresets';
 import { useConfigDatabase } from '../hooks/useConfigDatabase';
@@ -248,7 +249,10 @@ export default function ConfigPage() {
         
         // 设置音频源并播放
         if (previewAudioRef.current) {
-          previewAudioRef.current.src = music.file;
+          // 从数据库获取Base64音频数据并转换为可播放URL
+          const audioSrc = base64ToUrl(music.audioData);
+          
+          previewAudioRef.current.src = audioSrc;
           previewAudioRef.current.volume = music.volume;
           previewAudioRef.current.loop = music.loop;
           try {
@@ -288,7 +292,10 @@ export default function ConfigPage() {
 
     // 播放新的背景音乐
     if (bgMusicRef.current) {
-      bgMusicRef.current.src = music.file;
+      // 从数据库获取Base64音频数据并转换为可播放URL
+      const audioSrc = base64ToUrl(music.audioData);
+      
+      bgMusicRef.current.src = audioSrc;
       bgMusicRef.current.volume = music.volume;
       bgMusicRef.current.loop = music.loop;
       bgMusicRef.current.play().catch(error => {
@@ -451,7 +458,7 @@ export default function ConfigPage() {
                 const rhythmMusic: BackgroundMusic = {
                     id: 'preview',
                     name: 'preview',
-                    file: '',
+                    audioData: '', // 预览不需要实际音频数据
                     fileType: 'generated',
                     volume: 1,
                     loop: true,
@@ -1483,11 +1490,12 @@ export default function ConfigPage() {
                           <div>音量: {Math.round(music.volume * 100)}%</div>
                           <div>循环: {music.loop ? '是' : '否'}</div>
                           <div>BPM: {music.bpm}</div>
-                          <div>类型: {music.file.startsWith('data:') ? '上传音乐' : '生成音乐'}</div>
+                          <div>类型: {music.fileType === 'uploaded' ? '上传音乐' : '生成音乐'}</div>
+                          <div>存储: 数据库</div>
                           {music.isDefault && (
                             <div className="text-green-600 font-medium">⭐ 默认音乐</div>
                           )}
-                          {music.rhythmPattern.enabled && music.file.startsWith('blob:') && (
+                          {music.rhythmPattern.enabled && (
                             <>
                               <div>节奏音色: {
                                 {
@@ -2560,7 +2568,7 @@ export default function ConfigPage() {
         {currentBgMusic && (
           <audio
             ref={bgMusicRef}
-            src={currentBgMusic.file}
+                            src={base64ToUrl(currentBgMusic.audioData)}
             loop={currentBgMusic.loop}
           />
         )}
