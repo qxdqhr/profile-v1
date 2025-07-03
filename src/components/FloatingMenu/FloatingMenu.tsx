@@ -100,7 +100,7 @@ const FloatingMenu: React.FC<FloatingMenuProps> = ({
       window.removeEventListener('resize', updateMenuDirection);
       window.removeEventListener('scroll', updateMenuDirection);
     };
-  }, [mounted, position]);
+  }, [mounted]);
 
   // 处理拖动开始
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -141,9 +141,16 @@ const FloatingMenu: React.FC<FloatingMenuProps> = ({
         }
       }
       
+      // 计算新位置并应用边界检查
+      const newX = e.clientX - dragOffset.x;
+      const newY = e.clientY - dragOffset.y;
+      
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      
       setPosition({
-        x: e.clientX - dragOffset.x,
-        y: e.clientY - dragOffset.y
+        x: Math.min(Math.max(newX, 0), windowWidth - 50),
+        y: Math.min(Math.max(newY, 0), windowHeight - 50)
       });
     };
     
@@ -210,7 +217,7 @@ const FloatingMenu: React.FC<FloatingMenuProps> = ({
     };
   }, [isMenuOpen]);
 
-  // 添加边界检查，防止拖出屏幕
+  // 窗口大小变化时的边界检查
   useEffect(() => {
     if (!mounted) return;
     
@@ -219,19 +226,25 @@ const FloatingMenu: React.FC<FloatingMenuProps> = ({
       const windowHeight = window.innerHeight;
       
       // 确保悬浮窗不会被拖出屏幕
-      setPosition(prev => ({
-        x: Math.min(Math.max(prev.x, 0), windowWidth - 50),
-        y: Math.min(Math.max(prev.y, 0), windowHeight - 50)
-      }));
+      setPosition(prev => {
+        const newX = Math.min(Math.max(prev.x, 0), windowWidth - 50);
+        const newY = Math.min(Math.max(prev.y, 0), windowHeight - 50);
+        
+        // 只有在实际需要调整时才更新位置
+        if (newX !== prev.x || newY !== prev.y) {
+          return { x: newX, y: newY };
+        }
+        return prev;
+      });
     };
     
-    checkBoundaries();
+    // 只在窗口大小变化时检查边界
     window.addEventListener('resize', checkBoundaries);
     
     return () => {
       window.removeEventListener('resize', checkBoundaries);
     };
-  }, [mounted, position]);
+  }, [mounted]);
 
   if (!mounted) return null;
 
@@ -277,6 +290,13 @@ const FloatingMenu: React.FC<FloatingMenuProps> = ({
             ${menuClassName}
           `}
           onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onMouseUp={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
+          onTouchEnd={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          onPointerUp={(e) => e.stopPropagation()}
         >
           {menu}
         </div>
@@ -286,4 +306,4 @@ const FloatingMenu: React.FC<FloatingMenuProps> = ({
   );
 };
 
-export default FloatingMenu; 
+export default FloatingMenu;

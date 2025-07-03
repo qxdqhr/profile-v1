@@ -9,6 +9,7 @@ export const mikutapConfigs = pgTable('mikutap_configs', {
   rows: integer('rows').notNull().default(6),
   cols: integer('cols').notNull().default(5),
   soundLibrary: json('sound_library'), // 音效库配置
+  interfaceSettings: json('interface_settings'), // 界面设置
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

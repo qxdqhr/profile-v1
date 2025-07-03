@@ -22,6 +22,36 @@ interface AnimationInstance {
   completed: boolean; // 标记动画是否已完成
 }
 
+// 动画类型映射 - 将按钮动效类型映射到lottie动画文件
+const ANIMATION_TYPE_MAPPING: Record<string, string> = {
+  // 直接对应的动画
+  'explosion': 'explosion',
+  'vortex': 'vortex', 
+  'lightning': 'lightning',
+  'rainbow': 'rainbow',
+  'wave': 'wave',
+  'custom': 'fx', // custom使用fx效果
+  
+  // 按钮动效映射到音效类型的动画
+  'pulse': 'piano',      // 脉冲 -> 钢琴动画
+  'slide': 'synth',      // 滑动 -> 合成器动画  
+  'bounce': 'drum',      // 弹跳 -> 鼓点动画
+  'flash': 'lightning',  // 闪烁 -> 闪电动画
+  'spin': 'vortex',      // 旋转 -> 漩涡动画
+  'scale': 'bass',       // 缩放 -> 低音动画
+  'ripple': 'wave',      // 涟漪 -> 波纹动画
+  
+  // 音效类型保持映射
+  'piano': 'piano',
+  'drum': 'drum', 
+  'synth': 'synth',
+  'bass': 'bass',
+  'lead': 'lead',
+  'pad': 'pad',
+  'fx': 'fx',
+  'vocal': 'vocal'
+};
+
 // 加载动画数据
 const loadAnimationData = async (type: string) => {
   try {
@@ -29,15 +59,17 @@ const loadAnimationData = async (type: string) => {
     const response = await fetch(`/mikutap/animations/animations.json`);
     const animations = await response.json();
     
-    // 检查动画类型是否存在，如果存在则返回对应的动画数据
-    // 支持的类型: piano, drum, synth, bass, lead, pad, fx, vocal, explosion, vortex, lightning, rainbow, wave
-    if (animations[type]) {
-      console.log(`加载动画类型: ${type}`);
-      return animations[type];
+    // 使用映射表获取实际的动画文件名
+    const mappedType = ANIMATION_TYPE_MAPPING[type] || 'piano';
+    
+    // 检查映射后的动画类型是否存在
+    if (animations[mappedType]) {
+      console.log(`🎬 按钮动效类型 "${type}" 映射到 Lottie动画 "${mappedType}"`);
+      return animations[mappedType];
     }
     
     // 如果找不到对应类型，返回默认的piano动画
-    console.log(`找不到动画类型: ${type}，使用默认piano动画`);
+    console.log(`找不到动画类型: ${mappedType}，使用默认piano动画`);
     return animations.piano;
   } catch (error) {
     console.error('Failed to load animation data:', error);
@@ -271,16 +303,33 @@ export function FullscreenAnimation({ isTriggered, cell, onAnimationEnd }: Fulls
           // 生成批次ID
           const batchId = generateUniqueId();
           
-          // 根据单元格的音效类型选择动画
-          const soundType = cell.soundType || 'piano';
-          const cacheKey = `${soundType}_${cell.color}`;
+          // 优先使用背景动画类型，否则使用按钮动画类型
+          let animationType: string;
+          if (cell.backgroundAnimationEnabled && 
+              cell.backgroundAnimationType && 
+              cell.backgroundAnimationType !== 'none') {
+            animationType = cell.backgroundAnimationType;
+            console.log(`🎭 使用配置的背景动画类型: ${animationType}`);
+          } else if (cell.animationType) {
+            // 使用按钮动效的类型作为背景动效
+            animationType = cell.animationType;
+            console.log(`🎭 使用按钮动效类型作为背景动效: ${animationType}`);
+          } else {
+            // 最后fallback到默认的pulse动画
+            animationType = 'pulse';
+            console.log(`🎭 使用默认动画类型: ${animationType}`);
+          }
+          
+          // 决定颜色覆盖
+          const effectiveColor = (cell.backgroundAnimationConfig?.colorOverride) || cell.color;
+          const cacheKey = `${animationType}_${effectiveColor}`;
           
           // 检查缓存中是否已有该动画
           if (!animationCache[cacheKey]) {
             // 加载动画数据
-            const baseAnimation = await loadAnimationData(soundType);
+            const baseAnimation = await loadAnimationData(animationType);
             // 修改颜色
-            const coloredAnimation = modifyAnimationColor(baseAnimation, hexToRgb(cell.color));
+            const coloredAnimation = modifyAnimationColor(baseAnimation, hexToRgb(effectiveColor));
             // 存入缓存
             animationCache[cacheKey] = coloredAnimation;
           }
@@ -408,20 +457,6 @@ export function FullscreenAnimation({ isTriggered, cell, onAnimationEnd }: Fulls
           ))}
         </React.Fragment>
       ))}
-      
-      {/* 调试信息 - 仅在开发环境显示 */}
-      {process.env.NODE_ENV === 'development' && totalAnimationCount > 0 && (
-        <div className="absolute top-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 text-xs rounded">
-          <div>批次数: {animationBatches.length}</div>
-          <div>动画总数: {totalAnimationCount}</div>
-          <button 
-            onClick={forceCleanupAllAnimations}
-            className="bg-red-500 px-1 py-0.5 rounded text-xs mt-1 pointer-events-auto"
-          >
-            清理全部
-          </button>
-        </div>
-      )}
     </div>
   );
 }

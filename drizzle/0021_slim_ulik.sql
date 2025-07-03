@@ -1,0 +1,1 @@
+ALTER TABLE "mikutap_configs" ADD COLUMN "interface_settings" json;
