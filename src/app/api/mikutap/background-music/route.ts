@@ -2,9 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '../../../../db';
 import { mikutapBackgroundMusic } from '../../../../modules/mikutap/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { blobToBase64 } from '../../../../modules/mikutap/utils/audioUtils';
 
 // 获取背景音乐列表
 export async function GET(request: NextRequest) {
@@ -39,7 +38,7 @@ export async function POST(request: NextRequest) {
     const isDefault = formData.get('isDefault') === 'true';
     const fileType = formData.get('fileType') as string; // 'uploaded' | 'generated'
     
-    let filePath = '';
+    let audioData = '';
     let fileSize = 0;
     let duration = 0;
 
@@ -53,26 +52,12 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // 创建上传目录
-      const uploadDir = join(process.cwd(), 'public', 'uploads', 'mikutap', 'background-music');
-      await mkdir(uploadDir, { recursive: true });
-
-      // 生成唯一文件名
-      const fileExtension = file.name.split('.').pop();
-      const fileName = `${uuidv4()}.${fileExtension}`;
-      const fullPath = join(uploadDir, fileName);
-
-      // 保存文件
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      await writeFile(fullPath, buffer);
-
-      filePath = `/uploads/mikutap/background-music/${fileName}`;
       fileSize = file.size;
+      audioData = await blobToBase64(file);
+      console.log('✅ 将上传的音乐文件存储到数据库');
     } else if (fileType === 'generated') {
       // 处理生成的音乐
       const generatedFile = formData.get('generatedFile') as File;
-      const generationConfig = JSON.parse(formData.get('generationConfig') as string);
       
       if (!generatedFile) {
         return NextResponse.json(
@@ -81,21 +66,16 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // 创建上传目录
-      const uploadDir = join(process.cwd(), 'public', 'uploads', 'mikutap', 'generated-music');
-      await mkdir(uploadDir, { recursive: true });
-
-      // 生成唯一文件名
-      const fileName = `${uuidv4()}.wav`;
-      const fullPath = join(uploadDir, fileName);
-
-      // 保存生成的音乐文件
-      const bytes = await generatedFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      await writeFile(fullPath, buffer);
-
-      filePath = `/uploads/mikutap/generated-music/${fileName}`;
       fileSize = generatedFile.size;
+      audioData = await blobToBase64(generatedFile);
+      console.log('✅ 将生成的音乐文件存储到数据库');
+    }
+
+    if (!audioData) {
+      return NextResponse.json(
+        { success: false, error: '音频数据处理失败' },
+        { status: 500 }
+      );
     }
 
     // 解析节奏配置
@@ -123,7 +103,7 @@ export async function POST(request: NextRequest) {
         id: uuidv4(),
         configId,
         name,
-        file: filePath,
+        audioData, // Base64音频数据 - 必填
         fileType,
         volume,
         loop,

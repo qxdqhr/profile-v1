@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 export interface MikutapMusicTrack {
   id: string;
   name: string;
-  file: string;
+  audioData: string;
   duration?: number;
 }
 

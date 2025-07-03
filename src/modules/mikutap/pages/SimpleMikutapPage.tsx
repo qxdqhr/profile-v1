@@ -169,8 +169,8 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
           setCurrentBgMusic(firstMusic);
           console.log('🎵 已设置第一个音乐为当前背景音乐:', firstMusic.name);
           
-          // 测试音频文件是否可访问
-          testAudioFile(firstMusic.file);
+          // 测试音频数据是否有效
+          console.log('🎵 音频数据长度:', firstMusic.audioData?.length || 0);
         } else {
           console.log('🎵 没有找到任何背景音乐');
         }
@@ -343,7 +343,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
   const currentMusicTrack: MikutapMusicTrack | undefined = currentBgMusic ? {
     id: currentBgMusic.id,
     name: currentBgMusic.name,
-    file: currentBgMusic.file,
+    audioData: currentBgMusic.audioData,
     duration: currentBgMusic.duration
   } : undefined;
 

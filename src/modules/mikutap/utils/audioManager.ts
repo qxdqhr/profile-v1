@@ -5,6 +5,7 @@
 
 import { GridCell, BackgroundMusic } from '../types';
 import { RhythmGenerator } from './rhythmGenerator';
+import { base64ToUrl } from './audioUtils';
 
 export class UnifiedAudioManager {
   private static instance: UnifiedAudioManager | null = null;
@@ -108,19 +109,19 @@ export class UnifiedAudioManager {
     this.currentMusic = music;
     
     try {
-      if (music.fileType === 'uploaded' && music.file.startsWith('data:')) {
-        // 上传的音乐文件使用 HTML Audio
-        this.currentMusicElement = new Audio(music.file);
-        this.currentMusicElement.volume = music.volume * 0.6; // 降低背景音乐音量
-        this.currentMusicElement.loop = music.loop;
-        await this.currentMusicElement.play();
-      } else if (music.fileType === 'generated') {
-        // 生成的音乐使用 HTML Audio Element 以支持暂停恢复
-        this.currentMusicElement = new Audio(music.file);
-        this.currentMusicElement.volume = music.volume * 0.6;
-        this.currentMusicElement.loop = music.loop;
-        await this.currentMusicElement.play();
+      // 从数据库获取Base64音频数据并转换为URL
+      if (!music.audioData) {
+        console.error('❌ 音频数据不存在:', music);
+        return;
       }
+      
+      const audioSrc = base64ToUrl(music.audioData);
+
+      // 创建并播放音频
+      this.currentMusicElement = new Audio(audioSrc);
+      this.currentMusicElement.volume = music.volume * 0.6; // 降低背景音乐音量
+      this.currentMusicElement.loop = music.loop;
+      await this.currentMusicElement.play();
       
       // 启动节奏
       if (music.rhythmPattern.enabled && this.rhythmGenerator) {
