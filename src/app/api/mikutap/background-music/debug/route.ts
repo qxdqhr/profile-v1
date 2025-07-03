@@ -16,7 +16,8 @@ export async function GET() {
         name: music.name,
         isDefault: music.isDefault,
         fileType: music.fileType,
-        file: music.file,
+        audioDataLength: music.audioData?.length || 0, // 显示音频数据长度而不是完整数据
+        hasAudioData: !!music.audioData,
         volume: music.volume,
         loop: music.loop,
         bpm: music.bpm
