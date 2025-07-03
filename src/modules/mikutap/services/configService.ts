@@ -1,30 +1,22 @@
-import { GridCell, GridConfig, AnimationType } from '../types';
+import { GridCell, GridConfig, AnimationType, AnimationConfig, DEFAULT_INTERFACE_SETTINGS } from '../types';
 
 // 默认网格配置
 export const DEFAULT_GRID_CONFIG: GridConfig = {
   id: 'default',
   name: '默认配置',
-  description: '5x6网格，包含钢琴、鼓点和特效音色',
+  description: '5x6网格，包含钢琴、鼓点和特效音色 - 可在动效映射标签页中自定义动画',
   rows: 6,
   cols: 5,
   cells: [],
   createdAt: new Date(),
   updatedAt: new Date(),
+  interfaceSettings: DEFAULT_INTERFACE_SETTINGS,
 };
 
 // 生成默认网格单元格
 export function generateDefaultCells(rows: number, cols: number): GridCell[] {
   const keys = 'qwertyuiopasdfghjklzxcvbnm'.split('');
   const cells: GridCell[] = [];
-  
-  // 所有可用的动画类型
-  const animationTypes = [
-    'pulse', 'slide', 'bounce', 'flash', 'spin', 'scale', 'ripple',
-    'explosion', 'vortex', 'lightning', 'rainbow', 'wave'
-  ];
-  
-  // 滑动动画的方向
-  const slideDirections = ['up', 'down', 'left', 'right'] as const;
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
@@ -32,33 +24,55 @@ export function generateDefaultCells(rows: number, cols: number): GridCell[] {
       if (index >= keys.length) break;
 
       const key = keys[index];
+      
+      // 根据索引生成默认配置
       const soundType = index < 10 ? 'piano' : index < 19 ? 'drum' : 'synth';
       const waveType = index < 10 ? 'sine' : index < 19 ? 'square' : 'sawtooth';
       const description = index < 10 ? '钢琴音' : index < 19 ? '鼓点音' : '特效音';
       const icon = index < 10 ? '🎹' : index < 19 ? '🥁' : '🎛️';
       const color = index < 10 ? '#3B82F6' : index < 19 ? '#10B981' : '#8B5CF6';
       
-      // 根据单元格索引分配不同的动画类型
-      const animationType = animationTypes[index % animationTypes.length] as AnimationType;
+      // 为不同类型的音效生成不同的默认动画配置
+      const animationTypes: AnimationType[] = ['pulse', 'bounce', 'flash', 'spin', 'scale', 'slide', 'ripple', 'explosion', 'vortex', 'lightning', 'rainbow', 'wave'];
+      const animationType = animationTypes[index % animationTypes.length];
       
-      // 为滑动动画设置随机方向
-      const direction = animationType === 'slide' 
-        ? slideDirections[index % slideDirections.length]
-        : 'up';
+      // 根据音效类型和位置生成差异化的动画配置
+      const baseDuration = 500;
+      const durationVariation = (index % 5) * 100; // 100-400ms 的变化
+      const scaleVariation = 1.2 + (index % 4) * 0.1; // 1.2-1.5x 的变化
+      const opacityVariation = 0.6 + (index % 4) * 0.1; // 0.6-0.9 的变化
       
-      // 根据动画类型设置适合的持续时间
-      let duration = 500;
-      if (animationType === 'explosion' || animationType === 'lightning') {
-        duration = 700;
-      } else if (animationType === 'rainbow' || animationType === 'wave') {
-        duration = 1000;
-      }
+      const animationConfig: AnimationConfig = {
+        duration: baseDuration + durationVariation,
+        speed: 1,
+        scale: scaleVariation,
+        opacity: opacityVariation,
+        direction: ['up', 'down', 'left', 'right'][index % 4] as 'up' | 'down' | 'left' | 'right',
+        loop: false,
+        autoplay: false,
+        offset: { x: 0, y: 0 }
+      };
+
+      // 根据音效类型选择默认背景动画
+      const getDefaultBackgroundAnimationType = (soundType: string, index: number) => {
+        switch (soundType) {
+          case 'piano':
+            return ['piano', 'wave', 'spiral'][index % 3] as any;
+          case 'drum':
+            return ['drum', 'explosion', 'fireworks'][index % 3] as any;
+          case 'synth':
+          case 'fx':
+            return ['synth', 'lightning', 'rainbow'][index % 3] as any;
+          default:
+            return 'piano' as any;
+        }
+      };
 
       cells.push({
         id: `cell-${row}-${col}`,
         row,
         col,
-        key: key.toUpperCase(), // 默认配置仍然分配键盘按键
+        key: key.toUpperCase(),
         soundType: soundType as 'piano' | 'drum' | 'synth',
         soundSource: 'synthesized',
         waveType: waveType as 'sine' | 'square' | 'sawtooth',
@@ -68,18 +82,18 @@ export function generateDefaultCells(rows: number, cols: number): GridCell[] {
         icon,
         color,
         enabled: true,
-        // 默认动画配置 - 每个单元格使用不同的动画效果
+        // 使用生成的动画设置
         animationEnabled: true,
         animationType: animationType,
-        animationConfig: {
-          duration: duration,
-          speed: 1,
-          scale: animationType === 'explosion' || animationType === 'ripple' ? 2.0 : 1.2,
-          opacity: 0.8,
-          direction: direction,
-          loop: false,
-          autoplay: false,
-          offset: { x: 0, y: 0 }
+        animationConfig: animationConfig,
+        // 背景动画配置
+        backgroundAnimationEnabled: true,
+        backgroundAnimationType: getDefaultBackgroundAnimationType(soundType, index),
+        backgroundAnimationConfig: {
+          intensity: 80,
+          size: 1.0 + (index % 3) * 0.2, // 1.0-1.4倍大小
+          position: 'center',
+          blendMode: 'screen'
         }
       });
     }
@@ -111,6 +125,8 @@ export function resetToDefaultConfig(): GridConfig {
   const defaultConfig = {
     ...DEFAULT_GRID_CONFIG,
     cells: generateDefaultCells(DEFAULT_GRID_CONFIG.rows, DEFAULT_GRID_CONFIG.cols),
+    interfaceSettings: DEFAULT_INTERFACE_SETTINGS,
+    updatedAt: new Date(),
   };
   return defaultConfig;
 }

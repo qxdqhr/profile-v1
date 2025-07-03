@@ -18,6 +18,7 @@ export class UnifiedAudioManager {
   // 背景音乐相关
   private currentMusicSource: AudioBufferSourceNode | null = null;
   private currentMusicElement: HTMLAudioElement | null = null;
+  private currentMusic: BackgroundMusic | null = null; // 当前音乐对象
   private rhythmGenerator: RhythmGenerator | null = null;
   
   // 音效相关
@@ -103,6 +104,9 @@ export class UnifiedAudioManager {
     // 停止当前音乐
     this.stopBackgroundMusic();
     
+    // 记录当前音乐
+    this.currentMusic = music;
+    
     try {
       if (music.fileType === 'uploaded' && music.file.startsWith('data:')) {
         // 上传的音乐文件使用 HTML Audio
@@ -111,21 +115,11 @@ export class UnifiedAudioManager {
         this.currentMusicElement.loop = music.loop;
         await this.currentMusicElement.play();
       } else if (music.fileType === 'generated') {
-        // 生成的音乐使用 AudioContext
-        const response = await fetch(music.file);
-        const audioData = await response.arrayBuffer();
-        const buffer = await this.audioContext!.decodeAudioData(audioData);
-        
-        this.currentMusicSource = this.audioContext!.createBufferSource();
-        this.currentMusicSource.buffer = buffer;
-        this.currentMusicSource.loop = music.loop;
-        
-        const musicVolumeGain = this.audioContext!.createGain();
-        musicVolumeGain.gain.value = music.volume;
-        
-        this.currentMusicSource.connect(musicVolumeGain);
-        musicVolumeGain.connect(this.musicGain!);
-        this.currentMusicSource.start();
+        // 生成的音乐使用 HTML Audio Element 以支持暂停恢复
+        this.currentMusicElement = new Audio(music.file);
+        this.currentMusicElement.volume = music.volume * 0.6;
+        this.currentMusicElement.loop = music.loop;
+        await this.currentMusicElement.play();
       }
       
       // 启动节奏
@@ -136,6 +130,39 @@ export class UnifiedAudioManager {
       console.log('🎵 背景音乐播放成功:', music.name);
     } catch (error) {
       console.error('❌ 背景音乐播放失败:', error);
+    }
+  }
+  
+  /**
+   * 暂停背景音乐
+   */
+  public pauseBackgroundMusic(): void {
+    if (this.currentMusicElement && !this.currentMusicElement.paused) {
+      this.currentMusicElement.pause();
+      console.log('🎵 背景音乐已暂停');
+    }
+    
+    if (this.rhythmGenerator) {
+      this.rhythmGenerator.stop();
+    }
+  }
+
+  /**
+   * 恢复背景音乐播放
+   */
+  public async resumeBackgroundMusic(): Promise<void> {
+    if (this.currentMusicElement && this.currentMusicElement.paused) {
+      try {
+        await this.currentMusicElement.play();
+        console.log('🎵 背景音乐已恢复播放');
+        
+        // 恢复节奏
+        if (this.currentMusic && this.currentMusic.rhythmPattern.enabled && this.rhythmGenerator) {
+          this.rhythmGenerator.start(this.currentMusic);
+        }
+      } catch (error) {
+        console.error('❌ 恢复背景音乐播放失败:', error);
+      }
     }
   }
   
@@ -157,6 +184,57 @@ export class UnifiedAudioManager {
     
     if (this.rhythmGenerator) {
       this.rhythmGenerator.stop();
+    }
+    
+    // 清空当前音乐记录
+    this.currentMusic = null;
+  }
+
+  /**
+   * 设置背景音乐音量
+   */
+  public setMusicVolume(volume: number): void {
+    const clampedVolume = Math.max(0, Math.min(1, volume));
+    
+    if (this.currentMusicElement) {
+      this.currentMusicElement.volume = clampedVolume * 0.6; // 保持音乐音量较低
+    }
+    
+    if (this.musicGain) {
+      this.musicGain.gain.value = clampedVolume * 0.6;
+    }
+  }
+
+  /**
+   * 获取背景音乐播放状态
+   */
+  public getMusicPlaybackState(): {
+    isPlaying: boolean;
+    currentTime: number;
+    duration: number;
+  } {
+    if (this.currentMusicElement) {
+      return {
+        isPlaying: !this.currentMusicElement.paused,
+        currentTime: this.currentMusicElement.currentTime || 0,
+        duration: this.currentMusicElement.duration || 0
+      };
+    }
+    
+    return {
+      isPlaying: false,
+      currentTime: 0,
+      duration: 0
+    };
+  }
+
+  /**
+   * 跳转背景音乐播放位置
+   */
+  public seekMusic(time: number): void {
+    if (this.currentMusicElement && !isNaN(this.currentMusicElement.duration)) {
+      const seekTime = Math.max(0, Math.min(time, this.currentMusicElement.duration));
+      this.currentMusicElement.currentTime = seekTime;
     }
   }
   
@@ -252,14 +330,7 @@ export class UnifiedAudioManager {
     }
   }
   
-  /**
-   * 设置音乐音量
-   */
-  public setMusicVolume(volume: number): void {
-    if (this.musicGain) {
-      this.musicGain.gain.setValueAtTime(volume, this.audioContext!.currentTime);
-    }
-  }
+
   
   /**
    * 设置音效音量

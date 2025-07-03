@@ -7,6 +7,9 @@ export type SoundSource = 'synthesized' | 'file' | 'url';
 // 动画类型
 export type AnimationType = 'pulse' | 'slide' | 'bounce' | 'flash' | 'spin' | 'scale' | 'ripple' | 'custom' | 'explosion' | 'vortex' | 'lightning' | 'rainbow' | 'wave';
 
+// 背景动画类型 - 与按钮动效类型对齐
+export type BackgroundAnimationType = 'pulse' | 'slide' | 'bounce' | 'flash' | 'spin' | 'scale' | 'ripple' | 'explosion' | 'vortex' | 'lightning' | 'rainbow' | 'wave' | 'custom' | 'none';
+
 // 动画配置
 export interface AnimationConfig {
   duration?: number;        // 动画持续时间(ms)
@@ -17,6 +20,16 @@ export interface AnimationConfig {
   loop?: boolean;          // 是否循环
   autoplay?: boolean;      // 是否自动播放
   offset?: { x: number; y: number }; // 位置偏移
+}
+
+// 背景动画配置
+export interface BackgroundAnimationConfig {
+  intensity?: number;       // 动画强度 (0-100)
+  colorOverride?: string;   // 颜色覆盖
+  size?: number;           // 动画大小倍数
+  position?: 'center' | 'random' | 'custom'; // 动画位置
+  customPosition?: { x: number; y: number }; // 自定义位置
+  blendMode?: 'normal' | 'multiply' | 'screen' | 'overlay'; // 混合模式
 }
 
 // 网格单元格配置
@@ -58,6 +71,11 @@ export interface GridCell {
     animationType?: AnimationType; // 动画类型
     animationData?: any;          // Lottie JSON数据或自定义动画数据
     animationConfig?: AnimationConfig; // 动画配置参数
+    
+    // 背景动画配置
+    backgroundAnimationEnabled?: boolean;    // 是否启用背景动画
+    backgroundAnimationType?: BackgroundAnimationType; // 背景动画类型
+    backgroundAnimationConfig?: BackgroundAnimationConfig; // 背景动画配置参数
   }
   
   // 网格配置
@@ -79,6 +97,8 @@ export interface GridCell {
         description: string;
       };
     };
+    // 界面设置
+    interfaceSettings?: InterfaceSettings;
   }
   
   // 默认键位映射
@@ -115,6 +135,11 @@ export const ANIMATION_TYPES: AnimationType[] = [
   'pulse', 'slide', 'bounce', 'flash', 'spin', 'scale', 'ripple', 'explosion', 'vortex', 'lightning', 'rainbow', 'wave', 'custom'
 ];
 
+// 背景动画类型数组 - 与按钮动效对齐
+export const BACKGROUND_ANIMATION_TYPES: BackgroundAnimationType[] = [
+  'none', 'pulse', 'slide', 'bounce', 'flash', 'spin', 'scale', 'ripple', 'explosion', 'vortex', 'lightning', 'rainbow', 'wave', 'custom'
+];
+
 // 动画类型描述
 export const ANIMATION_TYPE_DESCRIPTIONS: Record<AnimationType, string> = {
   pulse: '脉冲效果 - 放大缩小',
@@ -129,6 +154,24 @@ export const ANIMATION_TYPE_DESCRIPTIONS: Record<AnimationType, string> = {
   lightning: '闪电效果 - 快速闪烁',
   rainbow: '彩虹效果 - 颜色渐变',
   wave: '波浪效果 - 多重扩散',
+  custom: '自定义动画 - Lottie JSON'
+};
+
+// 背景动画类型描述 - 与按钮动效对齐
+export const BACKGROUND_ANIMATION_DESCRIPTIONS: Record<BackgroundAnimationType, string> = {
+  none: '无背景动画',
+  pulse: '脉冲动画 - 优雅扩散',
+  slide: '滑动动画 - 流畅滑移',
+  bounce: '弹跳动画 - 活力跳跃',
+  flash: '闪烁动画 - 快速闪耀',
+  spin: '旋转动画 - 优雅旋转',
+  scale: '缩放动画 - 渐变缩放',
+  ripple: '涟漪动画 - 波纹扩散',
+  explosion: '爆炸动画 - 星状爆发',
+  vortex: '漩涡动画 - 螺旋旋转',
+  lightning: '闪电动画 - 电光闪烁',
+  rainbow: '彩虹动画 - 色彩旋转',
+  wave: '波纹动画 - 多重涟漪',
   custom: '自定义动画 - Lottie JSON'
 };
 
@@ -172,6 +215,8 @@ export interface InterfaceSettings {
   particleLifetime: number;
   keyboardEnabled: boolean;
   mouseEnabled: boolean;
+  enableRegionAnimations: boolean;
+  enableBackgroundAnimations: boolean;
 }
 
 // 默认界面设置
@@ -183,4 +228,6 @@ export const DEFAULT_INTERFACE_SETTINGS: InterfaceSettings = {
   particleLifetime: 1000,
   keyboardEnabled: true,
   mouseEnabled: true,
+  enableRegionAnimations: true,
+  enableBackgroundAnimations: true,
 };

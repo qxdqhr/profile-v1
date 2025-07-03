@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Modal } from '@/components/PopWindow';
 import { 
   resetToDefaultConfig, 
@@ -9,8 +9,9 @@ import {
   DEFAULT_GRID_CONFIG,
   generateDefaultCells
 } from '../services/configService';
-import { GridCell, GridConfig, DEFAULT_KEYS, SOUND_TYPES, WAVE_TYPES, SOUND_TYPE_COLORS, SOUND_SOURCES, SoundType, ANIMATION_TYPES, ANIMATION_TYPE_DESCRIPTIONS, AnimationType, BackgroundMusic, InterfaceSettings, DEFAULT_INTERFACE_SETTINGS } from '../types';
+import { GridCell, GridConfig, DEFAULT_KEYS, SOUND_TYPES, WAVE_TYPES, SOUND_TYPE_COLORS, SOUND_SOURCES, SoundType, ANIMATION_TYPES, ANIMATION_TYPE_DESCRIPTIONS, AnimationType, BackgroundMusic, BACKGROUND_ANIMATION_TYPES, BACKGROUND_ANIMATION_DESCRIPTIONS, BackgroundAnimationType, InterfaceSettings, DEFAULT_INTERFACE_SETTINGS } from '../types';
 import SoundLibraryManager from '../components/SoundLibraryManager';
+import SoundLibraryPresets, { SoundPreset } from '../components/SoundLibraryPresets';
 import { useConfigDatabase } from '../hooks/useConfigDatabase';
 
 import { RhythmGenerator } from '../utils/rhythmGenerator';
@@ -26,7 +27,7 @@ interface SoundLibraryItem {
   duration?: number;
 }
 
-type Tab = 'background-music' | 'interface-settings' | 'other-config';
+type Tab = 'background-music' | 'animation-mapping' | 'other-config';
 type MusicTab = 'upload' | 'generate';
 
 interface MusicGenerationConfig {
@@ -49,7 +50,7 @@ export default function ConfigPage() {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const tab = urlParams.get('tab') as Tab;
-      if (tab && ['background-music', 'interface-settings', 'other-config'].includes(tab)) {
+      if (tab && ['background-music', 'animation-mapping', 'other-config'].includes(tab)) {
         return tab;
       }
     }
@@ -65,7 +66,7 @@ export default function ConfigPage() {
   const [showCellEditor, setShowCellEditor] = useState(false);
   const [showSoundLibrary, setShowSoundLibrary] = useState(false);
   const [soundLibrary, setSoundLibrary] = useState<SoundLibraryItem[]>([]);
-  const [interfaceSettings, setInterfaceSettings] = useState<InterfaceSettings>(DEFAULT_INTERFACE_SETTINGS);
+
   const { loading, error, saveConfig: saveConfigToDB, loadConfig: loadConfigFromDB } = useConfigDatabase();
 
   // 音乐生成器相关状态
@@ -103,6 +104,8 @@ export default function ConfigPage() {
   const musicGeneratorRef = useRef<MusicGenerator | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+
+
   // 初始化加载配置
   useEffect(() => {
     async function loadInitialConfig() {
@@ -131,15 +134,8 @@ export default function ConfigPage() {
           }
         }
 
-        // 加载界面设置
-        const savedSettings = localStorage.getItem('mikutap-interface-settings');
-        if (savedSettings) {
-          try {
-            setInterfaceSettings(JSON.parse(savedSettings));
-          } catch (error) {
-            console.error('Failed to load interface settings:', error);
-          }
-        }
+
+
       } catch (error) {
         console.error('Failed to load configuration from database:', error);
         // 如果数据库完全不可用，创建默认配置
@@ -153,6 +149,26 @@ export default function ConfigPage() {
 
     loadInitialConfig();
   }, [loadConfigFromDB, saveConfigToDB]);
+
+  // 保存界面设置
+  const saveInterfaceSettings = useCallback(async (newSettings: InterfaceSettings) => {
+    if (!config) return;
+    
+    const updatedConfig = {
+      ...config,
+      interfaceSettings: newSettings,
+      updatedAt: new Date(),
+    };
+    
+    setConfig(updatedConfig);
+    
+    try {
+      await saveConfigToDB(updatedConfig);
+      console.log('🎛️ 界面设置已保存到数据库:', newSettings);
+    } catch (error) {
+      console.error('保存界面设置失败:', error);
+    }
+  }, [config, saveConfigToDB]);
 
   // 从数据库加载背景音乐列表
   const loadBackgroundMusics = async () => {
@@ -177,12 +193,7 @@ export default function ConfigPage() {
     }
   };
 
-  // 自动保存界面设置
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('mikutap-interface-settings', JSON.stringify(interfaceSettings));
-    }
-  }, [interfaceSettings]);
+
 
   // 初始化音频系统
   useEffect(() => {
@@ -552,13 +563,7 @@ export default function ConfigPage() {
   // AudioBuffer 转 WAV
 
 
-  // 重置界面设置
-  const resetInterfaceSettings = () => {
-    if (confirm('确定要重置界面设置为默认值吗？')) {
-      setInterfaceSettings(DEFAULT_INTERFACE_SETTINGS);
-      // 设置会通过useEffect自动保存
-    }
-  };
+
 
   const audioBufferToWav = (buffer: AudioBuffer): Blob => {
     const numberOfChannels = buffer.numberOfChannels;
@@ -722,6 +727,254 @@ export default function ConfigPage() {
     setEditingCell(null);
   };
 
+  // 计算最优网格布局
+  const calculateOptimalLayout = (cellCount: number): { rows: number; cols: number } => {
+    // 预定义的最优布局配置
+    const layoutMap: Record<number, { rows: number; cols: number }> = {
+      1: { rows: 1, cols: 1 },
+      2: { rows: 1, cols: 2 },
+      3: { rows: 1, cols: 3 },
+      4: { rows: 2, cols: 2 },
+      5: { rows: 1, cols: 5 },
+      6: { rows: 2, cols: 3 },
+      7: { rows: 1, cols: 7 },
+      8: { rows: 2, cols: 4 },
+      9: { rows: 3, cols: 3 },
+      10: { rows: 2, cols: 5 }, // 用户要求的5*2布局
+      12: { rows: 3, cols: 4 },
+      15: { rows: 3, cols: 5 },
+      16: { rows: 4, cols: 4 },
+      20: { rows: 4, cols: 5 },
+      25: { rows: 5, cols: 5 },
+      30: { rows: 5, cols: 6 }, // 钢琴30键的最优布局
+    };
+
+    // 如果有预定义的布局，直接使用
+    if (layoutMap[cellCount]) {
+      return layoutMap[cellCount];
+    }
+
+    // 对于其他数量，计算最接近正方形的布局
+    const sqrt = Math.sqrt(cellCount);
+    const rows = Math.ceil(sqrt);
+    const cols = Math.ceil(cellCount / rows);
+    
+    return { rows, cols };
+  };
+
+  // 应用音效预设
+  // 随机刷新所有动效
+  const handleRandomizeAnimations = async () => {
+    if (!config) return;
+
+    const enabledCells = config.cells.filter(cell => cell.enabled);
+    if (enabledCells.length === 0) {
+      alert('⚠️ 没有启用的格子，无法随机刷新动效！');
+      return;
+    }
+
+    const updatedCells = config.cells.map(cell => {
+      if (!cell.enabled) return cell; // 只更新启用的格子
+
+      // 随机选择动画类型
+      const randomAnimationType = ANIMATION_TYPES[Math.floor(Math.random() * ANIMATION_TYPES.length)];
+      
+      // 随机生成动画配置参数
+      const randomDuration = Math.floor(Math.random() * 1000) + 300; // 300-1300ms
+      const randomScale = Math.round((Math.random() * 1.5 + 0.8) * 10) / 10; // 0.8-2.3x
+      const randomOpacity = Math.round((Math.random() * 0.4 + 0.5) * 10) / 10; // 0.5-0.9
+      const directions = ['up', 'down', 'left', 'right'] as const;
+      const randomDirection = directions[Math.floor(Math.random() * directions.length)];
+
+      return {
+        ...cell,
+        animationType: randomAnimationType,
+        animationConfig: {
+          ...cell.animationConfig,
+          duration: randomDuration,
+          scale: randomScale,
+          opacity: randomOpacity,
+          direction: randomDirection,
+        }
+      };
+    });
+
+    const updatedConfig = {
+      ...config,
+      cells: updatedCells,
+      updatedAt: new Date(),
+    };
+
+    try {
+      setConfig(updatedConfig);
+      await saveConfigToDB(updatedConfig);
+      const changedCount = enabledCells.length;
+      alert(`✨ 已随机刷新 ${changedCount} 个格子的动效！`);
+    } catch (error) {
+      console.error('保存配置失败:', error);
+      alert('❌ 保存失败，请重试');
+    }
+  };
+
+  // 智能随机刷新（根据音效类型智能选择动画）
+  const handleSmartRandomizeAnimations = async () => {
+    if (!config) return;
+
+    const pianoAnimations = ['pulse', 'wave', 'ripple', 'scale'] as AnimationType[];
+    const drumAnimations = ['explosion', 'bounce', 'flash', 'lightning'] as AnimationType[];
+    const synthAnimations = ['vortex', 'rainbow', 'slide', 'spin'] as AnimationType[];
+
+    const updatedCells = config.cells.map(cell => {
+      if (!cell.enabled) return cell;
+
+      let suitableAnimations: AnimationType[];
+      switch (cell.soundType) {
+        case 'piano':
+          suitableAnimations = pianoAnimations;
+          break;
+        case 'drum':
+          suitableAnimations = drumAnimations;
+          break;
+        case 'synth':
+          suitableAnimations = synthAnimations;
+          break;
+        default:
+          suitableAnimations = ANIMATION_TYPES;
+      }
+
+      // 为不同音效类型设置不同的参数范围
+      let durationRange, scaleRange, opacityRange;
+      switch (cell.soundType) {
+        case 'piano':
+          durationRange = [400, 800]; // 钢琴音较柔和，中等持续时间
+          scaleRange = [1.0, 1.6]; // 适中缩放
+          opacityRange = [0.6, 0.8]; // 较低透明度
+          break;
+        case 'drum':
+          durationRange = [200, 600]; // 鼓点音短促有力
+          scaleRange = [1.4, 2.5]; // 较大缩放
+          opacityRange = [0.7, 0.9]; // 较高透明度
+          break;
+        case 'synth':
+          durationRange = [600, 1200]; // 合成音较长
+          scaleRange = [1.2, 2.0]; // 灵活缩放
+          opacityRange = [0.5, 0.8]; // 多样透明度
+          break;
+        default:
+          durationRange = [300, 1000];
+          scaleRange = [0.8, 2.0];
+          opacityRange = [0.5, 0.9];
+      }
+
+      const randomDuration = Math.floor(Math.random() * (durationRange[1] - durationRange[0])) + durationRange[0];
+      const randomScale = Math.round((Math.random() * (scaleRange[1] - scaleRange[0]) + scaleRange[0]) * 10) / 10;
+      const randomOpacity = Math.round((Math.random() * (opacityRange[1] - opacityRange[0]) + opacityRange[0]) * 10) / 10;
+
+      return {
+        ...cell,
+        animationType: suitableAnimations[Math.floor(Math.random() * suitableAnimations.length)],
+        animationConfig: {
+          ...cell.animationConfig,
+          duration: randomDuration,
+          scale: randomScale,
+          opacity: randomOpacity,
+          direction: ['up', 'down', 'left', 'right'][Math.floor(Math.random() * 4)] as 'up' | 'down' | 'left' | 'right',
+        }
+      };
+    });
+
+    const updatedConfig = {
+      ...config,
+      cells: updatedCells,
+      updatedAt: new Date(),
+    };
+
+    try {
+      setConfig(updatedConfig);
+      await saveConfigToDB(updatedConfig);
+      const enabledCount = config.cells.filter(cell => cell.enabled).length;
+      alert(`🎯 已智能随机刷新 ${enabledCount} 个格子的动效！\n🎹 钢琴: 柔和动效\n🥁 鼓点: 强劲动效\n🎛️ 合成器: 炫酷动效`);
+    } catch (error) {
+      console.error('保存配置失败:', error);
+      alert('❌ 保存失败，请重试');
+    }
+  };
+
+  const handleApplyPreset = async (preset: SoundPreset) => {
+    if (!config) return;
+
+    const cellCount = preset.cells.length;
+    
+    // 计算最优布局
+    const optimalLayout = calculateOptimalLayout(cellCount);
+    const currentSize = config.rows * config.cols;
+    
+    // 如果当前网格大小不够或布局不优，询问用户是否调整
+    let shouldAdjustLayout = false;
+    if (currentSize < cellCount) {
+      // 当前网格太小，必须调整
+      shouldAdjustLayout = confirm(
+        `当前网格 ${config.rows}×${config.cols} 只有 ${currentSize} 个格子，但预设需要 ${cellCount} 个格子。\n` +
+        `建议调整为 ${optimalLayout.rows}×${optimalLayout.cols} 以获得最佳布局效果。\n\n是否自动调整网格布局？`
+      );
+    } else if (cellCount <= 30 && (config.rows !== optimalLayout.rows || config.cols !== optimalLayout.cols)) {
+      // 当前网格够用但布局不是最优，建议调整
+      shouldAdjustLayout = confirm(
+        `为了更好地展示 "${preset.name}" (${cellCount} 个音效)，\n` +
+        `建议将网格从当前的 ${config.rows}×${config.cols} 调整为 ${optimalLayout.rows}×${optimalLayout.cols}。\n\n是否自动调整网格布局？`
+      );
+    }
+
+    // 确定最终使用的行列数
+    const finalRows = shouldAdjustLayout ? optimalLayout.rows : config.rows;
+    const finalCols = shouldAdjustLayout ? optimalLayout.cols : config.cols;
+    const maxCells = finalRows * finalCols;
+    
+    // 生成新的格子配置
+    const clearedCells: GridCell[] = [];
+    const cellsToApply = preset.cells.slice(0, Math.min(cellCount, maxCells));
+    
+    for (let i = 0; i < cellsToApply.length; i++) {
+      const row = Math.floor(i / finalCols);
+      const col = i % finalCols;
+      const presetCell = cellsToApply[i];
+      
+      const newCell: GridCell = {
+        id: `cell-${row}-${col}`,
+        row,
+        col,
+        ...presetCell,
+      };
+      
+      clearedCells.push(newCell);
+    }
+    
+    const updatedConfig = {
+      ...config,
+      rows: finalRows,
+      cols: finalCols,
+      cells: clearedCells,
+      updatedAt: new Date(),
+    };
+    
+    setConfig(updatedConfig);
+    
+    try {
+      await saveConfigToDB(updatedConfig);
+      
+      let successMessage = `✅ 成功应用预设 "${preset.name}"！`;
+      if (shouldAdjustLayout) {
+        successMessage += `\n📐 网格已调整为 ${finalRows}×${finalCols}`;
+      }
+      successMessage += `\n🎵 已配置 ${cellsToApply.length} 个音效格子。`;
+      
+      alert(successMessage);
+    } catch (error) {
+      console.error('Failed to save preset configuration:', error);
+      alert('保存预设配置失败：' + (error instanceof Error ? error.message : '未知错误'));
+    }
+  };
+
   const renderGrid = () => {
     if (!config) return [];
     
@@ -757,7 +1010,7 @@ export default function ConfigPage() {
                 <div className="font-bold text-sm">{cell.key || '无按键'}</div>
                 <div className="text-xs text-gray-400">{cell.soundType}</div>
                 <div className="text-xs text-gray-500">{cell.waveType}</div>
-                <div className="text-xs text-gray-500">{cell.frequency}Hz</div>
+                <div className="text-xs text-gray-500">{cell.frequency ? cell.frequency.toFixed(2) : '0.00'}Hz</div>
               </div>
             ) : (
               <div className="text-center text-gray-500 hover:text-gray-300 transition-colors">
@@ -790,16 +1043,17 @@ export default function ConfigPage() {
       <div className="bg-white/80 backdrop-blur-sm border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <div className="text-2xl">🎵</div>
-              <h1 className="text-xl font-semibold text-gray-900">Mikutap 配置中心</h1>
+            <div className="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1">
+              <div className="text-xl sm:text-2xl">🎵</div>
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">Mikutap 配置中心</h1>
             </div>
             <button
               onClick={() => window.location.href = '/testField/mikutap'}
-              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-200 shadow-md hover:shadow-lg"
+              className="inline-flex items-center px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base whitespace-nowrap"
             >
-              <span className="mr-2">🎮</span>
-              返回游戏
+              <span className="mr-1 sm:mr-2">🎮</span>
+              <span className="hidden xs:inline">返回</span><span className="hidden sm:inline">游戏</span>
+              <span className="xs:hidden">🎮</span>
             </button>
           </div>
         </div>
@@ -810,37 +1064,39 @@ export default function ConfigPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-1 mb-8">
           <div className="flex space-x-1">
             <button
-              className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+              className={`flex-1 flex items-center justify-center px-3 sm:px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
                 activeTab === 'background-music'
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
               onClick={() => setActiveTab('background-music')}
             >
-              <span className="mr-2">🎵</span>
-              背景音乐
+              <span className="mr-1 sm:mr-2">🎵</span>
+              <span className="text-sm sm:text-base">背景音乐</span>
             </button>
+
             <button
-              className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-                activeTab === 'interface-settings'
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+              className={`flex-1 flex items-center justify-center px-3 sm:px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                activeTab === 'animation-mapping'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
-              onClick={() => setActiveTab('interface-settings')}
+              onClick={() => setActiveTab('animation-mapping')}
             >
-              <span className="mr-2">⚙️</span>
-              界面设置
+              <span className="mr-1 sm:mr-2">🎨</span>
+              <span className="text-sm sm:text-base">动效映射</span>
             </button>
+
             <button
-              className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+              className={`flex-1 flex items-center justify-center px-3 sm:px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
                 activeTab === 'other-config'
                   ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
               onClick={() => setActiveTab('other-config')}
             >
-              <span className="mr-2">🎛️</span>
-              映射配置
+              <span className="mr-1 sm:mr-2">🎛️</span>
+              <span className="text-sm sm:text-base">网格配置</span>
             </button>
           </div>
         </div>
@@ -1293,155 +1549,198 @@ export default function ConfigPage() {
           </div>
         )}
 
-        {/* 界面设置标签页内容 */}
-        {activeTab === 'interface-settings' && (
+
+
+        {/* 动效映射配置标签页内容 */}
+        {activeTab === 'animation-mapping' && config && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">界面设置</h2>
-            
-            {/* 音频设置 */}
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">🔊 音频设置</h3>
-              
-              {/* 音量控制 */}
-              <div className="space-y-2">
-                <label className="flex items-center justify-between text-sm font-medium text-gray-700">
-                  <span>音量</span>
-                  <span className="text-gray-500">{Math.round(interfaceSettings.volume * 100)}%</span>
-                </label>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  value={interfaceSettings.volume}
-                  onChange={(e) => setInterfaceSettings(prev => ({ ...prev, volume: parseFloat(e.target.value) }))}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                />
-              </div>
-            </div>
-
-            {/* 交互设置 */}
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">🎮 交互设置</h3>
-              
-              <div className="space-y-4">
-                {/* 键盘启用 */}
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-gray-700">启用键盘操作</label>
-                  <input
-                    type="checkbox"
-                    checked={interfaceSettings.keyboardEnabled}
-                    onChange={(e) => setInterfaceSettings(prev => ({ ...prev, keyboardEnabled: e.target.checked }))}
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                  />
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">🎨 动效映射配置</h2>
+                  <p className="text-gray-600">为每个按钮配置独特的动画效果，创造丰富的视觉体验</p>
                 </div>
-
-                {/* 鼠标启用 */}
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-gray-700">启用鼠标操作</label>
-                  <input
-                    type="checkbox"
-                    checked={interfaceSettings.mouseEnabled}
-                    onChange={(e) => setInterfaceSettings(prev => ({ ...prev, mouseEnabled: e.target.checked }))}
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                  />
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={handleRandomizeAnimations}
+                    className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg transition-colors font-medium"
+                  >
+                    🎲 随机刷新动效
+                  </button>
+                  <button
+                    onClick={handleSmartRandomizeAnimations}
+                    className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white rounded-lg transition-colors font-medium"
+                  >
+                    🎯 智能随机刷新
+                  </button>
+                  <button
+                    onClick={() => {
+                      const enabledCells = config.cells.filter(cell => cell.enabled);
+                      const animationCells = enabledCells.filter(cell => cell.animationEnabled);
+                      alert(`✅ 动效配置统计：\n• 总格子数：${config.cells.length}\n• 启用格子：${enabledCells.length}\n• 启用动效：${animationCells.length}`);
+                    }}
+                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                  >
+                    📊 配置统计
+                  </button>
+                  <button
+                    onClick={() => {
+                      const data = JSON.stringify(config, null, 2);
+                      const blob = new Blob([data], { type: 'application/json' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = 'mikutap-config.json';
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
+                    }}
+                    className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+                  >
+                    📤 导出配置
+                  </button>
                 </div>
               </div>
-            </div>
 
-            {/* 拖拽设置 */}
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">🖱️ 拖拽设置</h3>
-              
-              <div className="space-y-4">
-                {/* 拖拽节流 */}
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-gray-700">启用拖拽节流</label>
-                  <input
-                    type="checkbox"
-                    checked={interfaceSettings.enableDragThrottle}
-                    onChange={(e) => setInterfaceSettings(prev => ({ ...prev, enableDragThrottle: e.target.checked }))}
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                  />
-                </div>
-
-                {/* 节流延迟 */}
-                {interfaceSettings.enableDragThrottle && (
-                  <div className="space-y-2">
-                    <label className="flex items-center justify-between text-sm font-medium text-gray-700">
-                      <span>拖拽延迟</span>
-                      <span className="text-gray-500">{interfaceSettings.dragThrottleDelay}ms</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="10"
-                      max="200"
-                      step="10"
-                      value={interfaceSettings.dragThrottleDelay}
-                      onChange={(e) => setInterfaceSettings(prev => ({ ...prev, dragThrottleDelay: parseInt(e.target.value) }))}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                    />
+              {/* 动效统计信息 */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="text-sm text-blue-600 font-medium">🎹 钢琴音效</div>
+                  <div className="text-2xl font-bold text-blue-800 mt-1">
+                    {config.cells.filter(cell => cell.soundType === 'piano').length}
                   </div>
-                )}
-              </div>
-            </div>
-
-            {/* 视觉效果设置 */}
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">✨ 视觉效果</h3>
-              
-              <div className="space-y-4">
-                {/* 粒子效果 */}
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-gray-700">启用粒子效果</label>
-                  <input
-                    type="checkbox"
-                    checked={interfaceSettings.enableParticles}
-                    onChange={(e) => setInterfaceSettings(prev => ({ ...prev, enableParticles: e.target.checked }))}
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                  />
-                </div>
-
-                {/* 粒子生命周期 */}
-                {interfaceSettings.enableParticles && (
-                  <div className="space-y-2">
-                    <label className="flex items-center justify-between text-sm font-medium text-gray-700">
-                      <span>粒子持续时间</span>
-                      <span className="text-gray-500">{interfaceSettings.particleLifetime}ms</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="200"
-                      max="3000"
-                      step="100"
-                      value={interfaceSettings.particleLifetime}
-                      onChange={(e) => setInterfaceSettings(prev => ({ ...prev, particleLifetime: parseInt(e.target.value) }))}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                    />
+                  <div className="text-xs text-blue-600 mt-1">
+                    钢琴键音效数量
                   </div>
-                )}
+                </div>
+                <div className="bg-green-50 rounded-lg p-4">
+                  <div className="text-sm text-green-600 font-medium">🥁 鼓点音效</div>
+                  <div className="text-2xl font-bold text-green-800 mt-1">
+                    {config.cells.filter(cell => cell.soundType === 'drum').length}
+                  </div>
+                  <div className="text-xs text-green-600 mt-1">
+                    鼓点音效数量
+                  </div>
+                </div>
+                <div className="bg-purple-50 rounded-lg p-4">
+                  <div className="text-sm text-purple-600 font-medium">🎛️ 特效音效</div>
+                  <div className="text-2xl font-bold text-purple-800 mt-1">
+                    {config.cells.filter(cell => cell.soundType === 'synth').length}
+                  </div>
+                  <div className="text-xs text-purple-600 mt-1">
+                    合成器音效数量
+                  </div>
+                </div>
+                <div className="bg-orange-50 rounded-lg p-4">
+                  <div className="text-sm text-orange-600 font-medium">✨ 启用动效</div>
+                  <div className="text-2xl font-bold text-orange-800 mt-1">
+                    {config.cells.filter(cell => cell.animationEnabled).length}
+                  </div>
+                  <div className="text-xs text-orange-600 mt-1">
+                    启用动效的格子
+                  </div>
+                </div>
               </div>
-            </div>
 
-            {/* 操作按钮 */}
-            <div className="flex justify-center pt-4 border-t">
-              <button
-                onClick={resetInterfaceSettings}
-                className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                重置默认
-              </button>
-            </div>
+              {/* 动效网格 */}
+              <div className="bg-gray-50 rounded-lg p-4 sm:p-6">
+                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">🎮 动效网格</h3>
+                <div className="overflow-auto">
+                  <div 
+                    className="grid gap-2 sm:gap-3 w-full max-w-full mx-auto"
+                    style={{
+                      gridTemplateColumns: `repeat(${config.cols}, minmax(80px, 1fr))`,
+                      gridTemplateRows: `repeat(${config.rows}, minmax(80px, auto))`,
+                      maxWidth: config.cols > 6 ? '100%' : 'min(100%, 700px)'
+                    }}
+                  >
+                    {Array.from({ length: config.rows * config.cols }, (_, index) => {
+                      const row = Math.floor(index / config.cols);
+                      const col = index % config.cols;
+                      const cell = config.cells.find(c => c.row === row && c.col === col);
+                      
+                      return (
+                        <div
+                          key={`animation-cell-${row}-${col}`}
+                          className={`
+                            relative border rounded-lg p-2 cursor-pointer transition-all duration-200 min-h-[80px] flex flex-col items-center justify-center
+                            ${cell ? 
+                              `${cell.animationEnabled ? 'bg-gradient-to-br from-purple-100 to-pink-100 border-purple-300 hover:from-purple-200 hover:to-pink-200' : 'bg-gray-100 border-gray-300 hover:bg-gray-200'}`
+                              : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                            }
+                          `}
+                          onClick={() => {
+                            if (cell) {
+                              setEditingCell(cell);
+                              setShowCellEditor(true);
+                            }
+                          }}
+                        >
+                          {cell ? (
+                            <>
+                              <div className="text-lg mb-1">{cell.icon || '🎵'}</div>
+                              <div className="text-xs font-bold text-center mb-1">
+                                {cell.key || `${row},${col}`}
+                              </div>
+                              <div className="text-xs text-center text-gray-600 mb-1">
+                                {cell.description || 'Unknown'}
+                              </div>
+                              
+                              {/* 动效信息 */}
+                              <div className="text-xs text-center">
+                                {cell.animationEnabled ? (
+                                  <div className="space-y-1">
+                                    <div className="px-1 py-0.5 bg-purple-200 text-purple-800 rounded text-xs">
+                                      {cell.animationType || 'pulse'}
+                                    </div>
+                                    <div className="text-gray-500">
+                                      {cell.animationConfig?.duration || 500}ms
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="text-gray-400">动效已禁用</div>
+                                )}
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-gray-400 text-xs text-center">
+                              <div>空格子</div>
+                              <div>({row},{col})</div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="mt-4 sm:mt-6 text-sm text-gray-600 bg-blue-50 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-blue-800 mb-2">💡 操作指南</h4>
+                  <div className="space-y-1 text-blue-700">
+                    <div>• 点击有内容的格子可以编辑其动效配置</div>
+                    <div>• 紫色边框表示启用了动效，灰色表示禁用动效</div>
+                    <div>• 在弹窗中可以修改动画类型、持续时间、缩放等参数</div>
+                    <div>• 配置修改后会自动保存到数据库</div>
+                  </div>
+                </div>
+              </div>
 
-            {/* 快捷键提示 */}
-            <div className="text-xs text-gray-500 border-t pt-4">
-              <div className="bg-blue-50 rounded-lg p-4">
-                <h4 className="text-sm font-medium text-blue-800 mb-2">💡 快捷键提示</h4>
-                <div className="space-y-1 text-blue-700">
-                  <div>• Ctrl+S: 打开/关闭设置（主界面）</div>
-                  <div>• Ctrl+H 或 F1: 显示/隐藏帮助（主界面）</div>
-                  <div>• ESC: 关闭所有弹窗（主界面）</div>
-                  <div>• 所有设置修改后会自动保存</div>
+              {/* 动效类型分布 */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">📊 动效类型分布</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {ANIMATION_TYPES.map(type => {
+                    const count = config.cells.filter(cell => cell.animationType === type).length;
+                    return (
+                      <div key={type} className="bg-white rounded-lg p-3 text-center">
+                        <div className="text-lg font-bold text-gray-800">{count}</div>
+                        <div className="text-xs text-gray-600 capitalize">{type}</div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {ANIMATION_TYPE_DESCRIPTIONS[type]}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -1454,54 +1753,217 @@ export default function ConfigPage() {
             <h2 className="text-2xl font-bold text-gray-900">映射配置</h2>
 
             {/* 网格设置 */}
-            <div className="bg-gray-50 rounded-lg p-6">
+            <div className="bg-gray-50 rounded-lg p-4 sm:p-6">
               <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">🎮 网格设置</h3>
-              <div className="flex gap-6 items-end">
-                <div>
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 sm:items-end">
+                <div className="flex-1 sm:flex-none">
                   <label className="block text-sm font-medium text-gray-700 mb-1">行数</label>
                   <select
                     value={config.rows}
                     onChange={(e) => handleUpdateGridSize(parseInt(e.target.value), config.cols)}
-                    className="w-20 px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full sm:w-20 px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     {[1,2,3,4,5,6,7,8,9,10].map(n => (
                       <option key={n} value={n}>{n}</option>
                     ))}
                   </select>
                 </div>
-                <div>
+                <div className="flex-1 sm:flex-none">
                   <label className="block text-sm font-medium text-gray-700 mb-1">列数</label>
                   <select
                     value={config.cols}
                     onChange={(e) => handleUpdateGridSize(config.rows, parseInt(e.target.value))}
-                    className="w-20 px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full sm:w-20 px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     {[1,2,3,4,5,6,7,8,9,10].map(n => (
                       <option key={n} value={n}>{n}</option>
                     ))}
                   </select>
                 </div>
-                <div className="ml-auto">
-                  <div className="text-sm text-gray-600 bg-blue-50 px-3 py-2 rounded-lg">
+                <div className="flex-1 sm:ml-auto sm:flex-none">
+                  <div className="text-sm text-gray-600 bg-blue-50 px-3 py-2 rounded-lg text-center sm:text-left">
                     📊 总格子数: <span className="font-semibold text-blue-600">{config.rows * config.cols}</span> / {DEFAULT_KEYS.length}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* 网格预览 */}
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">🎹 网格预览</h3>
-              <div 
-                className="grid gap-3 max-w-4xl mx-auto"
-                style={{
-                  gridTemplateColumns: `repeat(${config.cols}, 1fr)`,
-                  gridTemplateRows: `repeat(${config.rows}, 1fr)`
-                }}
-              >
-                {renderGrid()}
+            {/* 音效库预设 */}
+            <SoundLibraryPresets 
+              onApplyPreset={handleApplyPreset}
+              currentRows={config.rows}
+              currentCols={config.cols}
+            />
+
+            {/* 界面设置 */}
+            <div className="bg-gray-50 rounded-lg p-4 sm:p-6">
+              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">🎛️ 界面设置</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* 区域动画开关 */}
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center">
+                      <span className="text-lg mr-2">🎨</span>
+                      <span className="font-medium text-gray-900">按钮动效</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={config.interfaceSettings?.enableRegionAnimations ?? DEFAULT_INTERFACE_SETTINGS.enableRegionAnimations}
+                      onChange={(e) => saveInterfaceSettings({
+                        ...(config.interfaceSettings || DEFAULT_INTERFACE_SETTINGS),
+                        enableRegionAnimations: e.target.checked
+                      })}
+                      className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    控制按钮点击时的区域动画效果
+                  </p>
+                </div>
+
+                {/* 粒子效果开关 */}
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center">
+                      <span className="text-lg mr-2">✨</span>
+                      <span className="font-medium text-gray-900">粒子效果</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={config.interfaceSettings?.enableParticles ?? DEFAULT_INTERFACE_SETTINGS.enableParticles}
+                      onChange={(e) => saveInterfaceSettings({
+                        ...(config.interfaceSettings || DEFAULT_INTERFACE_SETTINGS),
+                        enableParticles: e.target.checked
+                      })}
+                      className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    点击时显示彩色粒子飞散效果
+                  </p>
+                </div>
+
+                {/* 键盘控制开关 */}
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center">
+                      <span className="text-lg mr-2">⌨️</span>
+                      <span className="font-medium text-gray-900">键盘控制</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={config.interfaceSettings?.keyboardEnabled ?? DEFAULT_INTERFACE_SETTINGS.keyboardEnabled}
+                      onChange={(e) => saveInterfaceSettings({
+                        ...(config.interfaceSettings || DEFAULT_INTERFACE_SETTINGS),
+                        keyboardEnabled: e.target.checked
+                      })}
+                      className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    允许使用键盘按键触发音效
+                  </p>
+                </div>
+
+                {/* 鼠标控制开关 */}
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center">
+                      <span className="text-lg mr-2">🖱️</span>
+                      <span className="font-medium text-gray-900">鼠标控制</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={config.interfaceSettings?.mouseEnabled ?? DEFAULT_INTERFACE_SETTINGS.mouseEnabled}
+                      onChange={(e) => saveInterfaceSettings({
+                        ...(config.interfaceSettings || DEFAULT_INTERFACE_SETTINGS),
+                        mouseEnabled: e.target.checked
+                      })}
+                      className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    允许使用鼠标点击和拖拽触发音效
+                  </p>
+                </div>
+
+                {/* 音量控制 */}
+                <div className="bg-white rounded-lg p-4 border border-gray-200 sm:col-span-2">
+                  <div className="flex items-center mb-3">
+                    <span className="text-lg mr-2">🔊</span>
+                    <span className="font-medium text-gray-900">主音量</span>
+                    <span className="ml-auto text-sm text-gray-600">{Math.round((config.interfaceSettings?.volume ?? DEFAULT_INTERFACE_SETTINGS.volume) * 100)}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={config.interfaceSettings?.volume ?? DEFAULT_INTERFACE_SETTINGS.volume}
+                    onChange={(e) => saveInterfaceSettings({
+                      ...(config.interfaceSettings || DEFAULT_INTERFACE_SETTINGS),
+                      volume: parseFloat(e.target.value)
+                    })}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  />
+                  <p className="text-sm text-gray-600 mt-2">
+                    控制所有音效的音量大小
+                  </p>
+                </div>
+
+                {/* 背景动效开关 */}
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center">
+                      <span className="text-lg mr-2">🌟</span>
+                      <span className="font-medium text-gray-900">背景动效</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={config.interfaceSettings?.enableBackgroundAnimations ?? DEFAULT_INTERFACE_SETTINGS.enableBackgroundAnimations}
+                      onChange={(e) => saveInterfaceSettings({
+                        ...(config.interfaceSettings || DEFAULT_INTERFACE_SETTINGS),
+                        enableBackgroundAnimations: e.target.checked
+                      })}
+                      className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    控制全屏背景动画效果（Lottie动画）
+                  </p>
+                </div>
               </div>
-              <div className="mt-6 text-sm text-gray-600 bg-blue-50 rounded-lg p-4">
+              
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-start">
+                  <span className="text-blue-600 mr-2">💡</span>
+                  <div className="text-sm text-blue-800">
+                    <p className="font-medium mb-1">界面设置说明：</p>
+                    <p>• 这些设置会影响游戏界面的交互体验</p>
+                    <p>• 设置会自动保存到数据库，随配置同步</p>
+                    <p>• 关闭按钮动效可以提升低性能设备的流畅度</p>
+                    <p>• 关闭背景动效可以降低GPU占用</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 网格预览 */}
+            <div className="bg-gray-50 rounded-lg p-4 sm:p-6">
+              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">🎹 网格预览</h3>
+              <div className="overflow-auto">
+                <div 
+                  className="grid gap-2 sm:gap-3 w-full max-w-full mx-auto"
+                  style={{
+                    gridTemplateColumns: `repeat(${config.cols}, minmax(60px, 1fr))`,
+                    gridTemplateRows: `repeat(${config.rows}, minmax(60px, auto))`,
+                    maxWidth: config.cols > 6 ? '100%' : 'min(100%, 600px)'
+                  }}
+                >
+                  {renderGrid()}
+                </div>
+              </div>
+              <div className="mt-4 sm:mt-6 text-sm text-gray-600 bg-blue-50 rounded-lg p-4">
                 <h4 className="text-sm font-medium text-blue-800 mb-2">💡 操作指南</h4>
                 <div className="space-y-1 text-blue-700">
                   <div>• 点击已有格子进行编辑配置</div>
@@ -1516,7 +1978,7 @@ export default function ConfigPage() {
             <div className="flex justify-center pt-4 border-t">
               <button
                 onClick={handleResetConfig}
-                className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors min-w-0"
               >
                 🔄 重置默认
               </button>
@@ -1882,6 +2344,165 @@ export default function ConfigPage() {
                             </div>
                           </div>
                         )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 背景动画配置部分 */}
+                  <div className="border-t border-gray-600 pt-4 mt-4">
+                    <h3 className="text-sm font-semibold text-gray-200 mb-3">🌟 背景动画配置</h3>
+                    
+                    <div className="flex items-center mb-3">
+                      <input
+                        type="checkbox"
+                        checked={editingCell.backgroundAnimationEnabled ?? true}
+                        onChange={(e) => setEditingCell({
+                          ...editingCell, 
+                          backgroundAnimationEnabled: e.target.checked,
+                          backgroundAnimationType: editingCell.backgroundAnimationType || 'pulse',
+                          backgroundAnimationConfig: editingCell.backgroundAnimationConfig || {
+                            intensity: 80,
+                            size: 1.0,
+                            position: 'center',
+                            blendMode: 'screen'
+                          }
+                        })}
+                        className="mr-2"
+                      />
+                      <label className="text-sm text-gray-300">启用全屏背景动画</label>
+                    </div>
+
+                    {editingCell.backgroundAnimationEnabled && (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-sm text-gray-300 mb-1">背景动画类型</label>
+                          <select
+                            value={editingCell.backgroundAnimationType || 'pulse'}
+                            onChange={(e) => setEditingCell({
+                              ...editingCell, 
+                              backgroundAnimationType: e.target.value as any
+                            })}
+                            className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+                          >
+                            {BACKGROUND_ANIMATION_TYPES.map((type: BackgroundAnimationType) => (
+                              <option key={type} value={type}>
+                                {BACKGROUND_ANIMATION_DESCRIPTIONS[type]}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-sm text-gray-300 mb-1">动画强度</label>
+                            <input
+                              type="number"
+                              min="10"
+                              max="100"
+                              value={editingCell.backgroundAnimationConfig?.intensity || 80}
+                              onChange={(e) => setEditingCell({
+                                ...editingCell,
+                                backgroundAnimationConfig: {
+                                  ...editingCell.backgroundAnimationConfig,
+                                  intensity: parseInt(e.target.value)
+                                }
+                              })}
+                              className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm text-gray-300 mb-1">动画大小</label>
+                            <input
+                              type="number"
+                              min="0.5"
+                              max="3"
+                              step="0.1"
+                              value={editingCell.backgroundAnimationConfig?.size || 1.0}
+                              onChange={(e) => setEditingCell({
+                                ...editingCell,
+                                backgroundAnimationConfig: {
+                                  ...editingCell.backgroundAnimationConfig,
+                                  size: parseFloat(e.target.value)
+                                }
+                              })}
+                              className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm text-gray-300 mb-1">动画位置</label>
+                            <select
+                              value={editingCell.backgroundAnimationConfig?.position || 'center'}
+                              onChange={(e) => setEditingCell({
+                                ...editingCell,
+                                backgroundAnimationConfig: {
+                                  ...editingCell.backgroundAnimationConfig,
+                                  position: e.target.value as 'center' | 'random' | 'custom'
+                                }
+                              })}
+                              className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+                            >
+                              <option value="center">屏幕中心</option>
+                              <option value="random">随机位置</option>
+                              <option value="custom">自定义位置</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm text-gray-300 mb-1">混合模式</label>
+                            <select
+                              value={editingCell.backgroundAnimationConfig?.blendMode || 'screen'}
+                              onChange={(e) => setEditingCell({
+                                ...editingCell,
+                                backgroundAnimationConfig: {
+                                  ...editingCell.backgroundAnimationConfig,
+                                  blendMode: e.target.value as 'normal' | 'multiply' | 'screen' | 'overlay'
+                                }
+                              })}
+                              className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+                            >
+                              <option value="normal">正常</option>
+                              <option value="multiply">叠加</option>
+                              <option value="screen">滤色</option>
+                              <option value="overlay">覆盖</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        {editingCell.backgroundAnimationConfig?.colorOverride && (
+                          <div>
+                            <label className="block text-sm text-gray-300 mb-1">自定义颜色</label>
+                            <input
+                              type="color"
+                              value={editingCell.backgroundAnimationConfig.colorOverride}
+                              onChange={(e) => setEditingCell({
+                                ...editingCell,
+                                backgroundAnimationConfig: {
+                                  ...editingCell.backgroundAnimationConfig,
+                                  colorOverride: e.target.value
+                                }
+                              })}
+                              className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2"
+                            />
+                          </div>
+                        )}
+
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={!!editingCell.backgroundAnimationConfig?.colorOverride}
+                            onChange={(e) => setEditingCell({
+                              ...editingCell,
+                              backgroundAnimationConfig: {
+                                ...editingCell.backgroundAnimationConfig,
+                                colorOverride: e.target.checked ? editingCell.color : undefined
+                              }
+                            })}
+                            className="mr-2"
+                          />
+                          <label className="text-sm text-gray-300">使用自定义颜色</label>
+                        </div>
                       </div>
                     )}
                   </div>
