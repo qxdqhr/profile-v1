@@ -12,6 +12,7 @@ import {
 import { GridCell, GridConfig, DEFAULT_KEYS, SOUND_TYPES, WAVE_TYPES, SOUND_TYPE_COLORS, SOUND_SOURCES, SoundType, ANIMATION_TYPES, ANIMATION_TYPE_DESCRIPTIONS, AnimationType, BackgroundMusic, BACKGROUND_ANIMATION_TYPES, BACKGROUND_ANIMATION_DESCRIPTIONS, BackgroundAnimationType, InterfaceSettings, DEFAULT_INTERFACE_SETTINGS } from '../types';
 import { audioBufferToWav, blobToBase64, base64ToUrl } from '../utils/audioUtils';
 import { audioWorker } from '../utils/audioWorker';
+import { serverDiagnostics } from '../utils/serverDiagnostics';
 // import { runAudioWorkerTests } from '../utils/audioWorkerTest';
 import SoundLibraryManager from '../components/SoundLibraryManager';
 import SoundLibraryPresets, { SoundPreset } from '../components/SoundLibraryPresets';
@@ -102,6 +103,11 @@ export default function ConfigPage() {
   const [uploadLoading, setUploadLoading] = useState(false);
   const [generateLoading, setGenerateLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<string>('');
+  
+  // 服务器诊断相关状态
+  const [diagnosticsLoading, setDiagnosticsLoading] = useState(false);
+  const [diagnosticsResults, setDiagnosticsResults] = useState<any>(null);
+  const [showDiagnosticsModal, setShowDiagnosticsModal] = useState(false);
   
   // 音频相关的引用
   const bgMusicRef = useRef<HTMLAudioElement | null>(null);
@@ -264,6 +270,40 @@ export default function ConfigPage() {
       console.error('🎵 [前端] 最终加载背景音乐失败:', error);
       // 不显示alert，避免干扰用户体验
       // 可以在界面上显示错误状态
+    }
+  };
+
+  // 服务器诊断功能
+  const handleServerDiagnostics = async () => {
+    setDiagnosticsLoading(true);
+    setDiagnosticsResults(null);
+    
+    try {
+      console.log('🔍 [前端] 开始服务器诊断...');
+      const health = await serverDiagnostics.runHealthCheck();
+      const report = serverDiagnostics.generateReport(health);
+      
+      setDiagnosticsResults({ health, report });
+      setShowDiagnosticsModal(true);
+      
+      console.log('📊 [前端] 服务器诊断完成:', health);
+    } catch (error) {
+      console.error('❌ [前端] 服务器诊断失败:', error);
+      setDiagnosticsResults({
+        health: {
+          overall: 'unhealthy',
+          checks: [{
+            status: 'error',
+            message: `诊断工具执行失败: ${error instanceof Error ? error.message : '未知错误'}`,
+            timestamp: Date.now()
+          }],
+          recommendations: ['🔧 请检查网络连接', '📞 联系技术支持']
+        },
+        report: `❌ 诊断失败: ${error instanceof Error ? error.message : '未知错误'}`
+      });
+      setShowDiagnosticsModal(true);
+    } finally {
+      setDiagnosticsLoading(false);
     }
   };
 
@@ -1513,14 +1553,35 @@ export default function ConfigPage() {
               <div className="text-xl sm:text-2xl">🎵</div>
               <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">Mikutap 配置中心</h1>
             </div>
-            <button
-              onClick={() => window.location.href = '/testField/mikutap'}
-              className="inline-flex items-center px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base whitespace-nowrap"
-            >
-              <span className="mr-1 sm:mr-2">🎮</span>
-              <span className="hidden xs:inline">返回</span><span className="hidden sm:inline">游戏</span>
-              <span className="xs:hidden">🎮</span>
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleServerDiagnostics}
+                disabled={diagnosticsLoading}
+                className="inline-flex items-center px-3 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg text-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                title="服务器状态检查"
+              >
+                {diagnosticsLoading ? (
+                  <>
+                    <span className="mr-2 animate-spin">⚙️</span>
+                    <span className="hidden sm:inline">检查中...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="mr-1 sm:mr-2">🔍</span>
+                    <span className="hidden sm:inline">服务器诊断</span>
+                    <span className="sm:hidden">🔍</span>
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => window.location.href = '/testField/mikutap'}
+                className="inline-flex items-center px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base whitespace-nowrap"
+              >
+                <span className="mr-1 sm:mr-2">🎮</span>
+                <span className="hidden xs:inline">返回</span><span className="hidden sm:inline">游戏</span>
+                <span className="xs:hidden">🎮</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -3072,6 +3133,120 @@ export default function ConfigPage() {
               }
             }}
           />
+
+          {/* 服务器诊断结果Modal */}
+          {showDiagnosticsModal && diagnosticsResults && (
+            <Modal
+              title="🔍 服务器诊断报告"
+              isOpen={showDiagnosticsModal}
+              onClose={() => setShowDiagnosticsModal(false)}
+              className="max-w-4xl"
+            >
+              <div className="bg-gray-900 text-white p-6 rounded-lg">
+                <div className="space-y-6">
+                  {/* 总体状态 */}
+                  <div className="text-center pb-4 border-b border-gray-700">
+                    <div className={`text-6xl mb-4 ${
+                      diagnosticsResults.health.overall === 'healthy' ? 'text-green-400' :
+                      diagnosticsResults.health.overall === 'degraded' ? 'text-yellow-400' : 
+                      'text-red-400'
+                    }`}>
+                      {diagnosticsResults.health.overall === 'healthy' ? '🟢' :
+                       diagnosticsResults.health.overall === 'degraded' ? '🟡' : '🔴'}
+                    </div>
+                    <h3 className="text-2xl font-bold mb-2">
+                      服务器状态: {
+                        diagnosticsResults.health.overall === 'healthy' ? '健康' :
+                        diagnosticsResults.health.overall === 'degraded' ? '降级' : '不健康'
+                      }
+                    </h3>
+                    <p className="text-gray-400">检查时间: {new Date().toLocaleString()}</p>
+                  </div>
+
+                  {/* 详细检查结果 */}
+                  <div>
+                    <h4 className="text-xl font-semibold mb-4 text-blue-400">📋 检查项目</h4>
+                    <div className="space-y-3">
+                      {diagnosticsResults.health.checks.map((check: any, index: number) => (
+                        <div key={index} className={`p-4 rounded-lg border-l-4 ${
+                          check.status === 'success' ? 'bg-green-900/30 border-green-400' :
+                          check.status === 'warning' ? 'bg-yellow-900/30 border-yellow-400' :
+                          'bg-red-900/30 border-red-400'
+                        }`}>
+                          <div className="flex items-start space-x-3">
+                            <span className="text-2xl mt-1">
+                              {check.status === 'success' ? '✅' : 
+                               check.status === 'warning' ? '⚠️' : '❌'}
+                            </span>
+                            <div className="flex-1">
+                              <p className="font-medium">{check.message}</p>
+                              {check.details && (
+                                <details className="mt-2">
+                                  <summary className="cursor-pointer text-gray-400 hover:text-white">
+                                    查看详情
+                                  </summary>
+                                  <pre className="mt-2 p-3 bg-gray-800 rounded text-sm overflow-auto">
+                                    {JSON.stringify(check.details, null, 2)}
+                                  </pre>
+                                </details>
+                              )}
+                            </div>
+                            <span className="text-xs text-gray-400 mt-1">
+                              {new Date(check.timestamp).toLocaleTimeString()}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 建议 */}
+                  {diagnosticsResults.health.recommendations.length > 0 && (
+                    <div>
+                      <h4 className="text-xl font-semibold mb-4 text-yellow-400">💡 解决建议</h4>
+                      <div className="space-y-2">
+                        {diagnosticsResults.health.recommendations.map((rec: string, index: number) => (
+                          <div key={index} className="flex items-start space-x-3">
+                            <span className="text-lg mt-1">💡</span>
+                            <p className="text-gray-300">{rec}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 操作按钮 */}
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-700">
+                    <button
+                      onClick={handleServerDiagnostics}
+                      disabled={diagnosticsLoading}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {diagnosticsLoading ? '🔄 重新检查中...' : '🔄 重新检查'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(diagnosticsResults.report).then(() => {
+                          alert('✅ 诊断报告已复制到剪贴板');
+                        }).catch(() => {
+                          alert('❌ 复制失败，请手动复制');
+                        });
+                      }}
+                      className="flex-1 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition-colors"
+                    >
+                      📋 复制报告
+                    </button>
+                    <button
+                      onClick={() => setShowDiagnosticsModal(false)}
+                      className="flex-1 bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg font-medium transition-colors"
+                    >
+                      关闭
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </Modal>
+          )}
         </div>
         
 
