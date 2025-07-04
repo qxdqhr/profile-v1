@@ -47,6 +47,11 @@ const nextConfig = {
                 destination: 'http://localhost:8081/:path*'
             },
         ]
+    },
+    api: {
+        bodyParser: {
+            sizeLimit: '10mb' // 增加允许的请求体大小
+        }
     }
 }
 
