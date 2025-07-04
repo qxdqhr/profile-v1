@@ -159,7 +159,10 @@ export class AudioWorker {
     const taskId = `task_${Date.now()}_${Math.random()}`;
     
     return new Promise((resolve, reject) => {
-      this.pendingTasks.set(taskId, { resolve, reject });
+      this.pendingTasks.set(taskId, { 
+        resolve: (data: { result: string }) => resolve(data.result), 
+        reject 
+      });
       
       this.worker!.postMessage({
         id: taskId,
@@ -198,7 +201,10 @@ export class AudioWorker {
     const taskId = `compress_${Date.now()}_${Math.random()}`;
     
     return new Promise((resolve, reject) => {
-      this.pendingTasks.set(taskId, { resolve, reject });
+      this.pendingTasks.set(taskId, { 
+        resolve: (data: { result: string; originalSize: number; compressedSize: number }) => resolve(data), 
+        reject 
+      });
       
       this.worker!.postMessage({
         id: taskId,

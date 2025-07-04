@@ -426,6 +426,7 @@ export default function ConfigPage() {
     const attemptUpload = async (): Promise<boolean> => {
       try {
         console.log(`🎵 [前端] 尝试上传音乐文件 (第${retryCount + 1}次)...`);
+        console.log(`🎵 [前端] 文件信息: 名称=${uploadedFile.name}, 大小=${Math.round(uploadedFile.size / 1024)}KB, 类型=${uploadedFile.type}`);
         setUploadProgress(`正在处理音频文件... (${retryCount > 0 ? `重试 ${retryCount}/${MAX_RETRIES}` : ''})`);
         
         // 使用Web Worker进行Base64编码，避免阻塞主线程
@@ -437,16 +438,42 @@ export default function ConfigPage() {
           console.log('🎵 [前端] 尝试Web Worker编码...');
           base64Data = await audioWorker.blobToBase64(uploadedFile);
           console.log('🎵 [前端] Web Worker编码成功');
+          
+          // 验证编码结果
+          if (!base64Data || typeof base64Data !== 'string' || base64Data.length === 0) {
+            throw new Error(`Web Worker编码结果无效: ${typeof base64Data}, 长度: ${base64Data ? base64Data.length : 'undefined'}`);
+          }
+          
+          console.log(`🎵 [前端] Web Worker编码验证通过，数据类型: ${typeof base64Data}, 长度: ${base64Data.length}`);
+          
         } catch (workerError) {
           console.warn('🎵 [前端] Web Worker编码失败，回退到主线程:', workerError);
           setUploadProgress(`正在处理音频文件 (回退模式)... (${retryCount > 0 ? `重试 ${retryCount}/${MAX_RETRIES}` : ''})`);
-          base64Data = await blobToBase64(uploadedFile);
-          console.log('🎵 [前端] 主线程编码成功');
+          
+          try {
+            base64Data = await blobToBase64(uploadedFile);
+            console.log('🎵 [前端] 主线程编码成功');
+            
+            // 验证主线程编码结果
+            if (!base64Data || typeof base64Data !== 'string' || base64Data.length === 0) {
+              throw new Error(`主线程编码结果无效: ${typeof base64Data}, 长度: ${base64Data ? base64Data.length : 'undefined'}`);
+            }
+            
+            console.log(`🎵 [前端] 主线程编码验证通过，数据类型: ${typeof base64Data}, 长度: ${base64Data.length}`);
+            
+          } catch (mainThreadError) {
+            console.error('🎵 [前端] 主线程编码也失败:', mainThreadError);
+            const errorMessage = mainThreadError instanceof Error ? mainThreadError.message : String(mainThreadError);
+            throw new Error(`音频编码失败: ${errorMessage}`);
+          }
         }
         
         const encodingTime = Date.now() - encodingStartTime;
-        console.log(`🎵 [前端] 音频编码完成，耗时: ${encodingTime}ms，数据长度: ${base64Data.length}`);
+        console.log(`🎵 [前端] 音频编码完成，耗时: ${encodingTime}ms，数据长度: ${base64Data.length} 字符`);
+        console.log(`🎵 [前端] Base64数据预览: ${base64Data.substring(0, 100)}...`);
         
+        // 创建FormData
+        console.log('🎵 [前端] 创建FormData...');
         const formData = new FormData();
         formData.append('configId', 'default');
         formData.append('name', musicName);
@@ -463,51 +490,123 @@ export default function ConfigPage() {
           volume: 0.5
         }));
 
+        console.log('🎵 [前端] FormData创建完成，包含字段:', Array.from(formData.keys()));
+
         setUploadProgress(`正在上传到服务器... (${Math.round(uploadedFile.size / 1024)}KB)`);
         console.log('🎵 [前端] 开始发送请求到服务器...');
+        console.log('🎵 [前端] 请求URL: /api/mikutap/background-music');
+        console.log('🎵 [前端] 请求方法: POST');
 
         // 增加超时时间
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 300000); // 5分钟超时
+        const timeoutId = setTimeout(() => {
+          console.log('🎵 [前端] 请求超时，正在取消...');
+          controller.abort();
+        }, 300000); // 5分钟超时
 
-        const response = await fetch('/api/mikutap/background-music', {
-          method: 'POST',
-          body: formData,
-          signal: controller.signal,
-        });
+        const requestStartTime = Date.now();
+        let response: Response;
+        
+        try {
+          response = await fetch('/api/mikutap/background-music', {
+            method: 'POST',
+            body: formData,
+            signal: controller.signal,
+          });
+        } catch (fetchError) {
+          clearTimeout(timeoutId);
+          console.error('🎵 [前端] Fetch请求失败:', fetchError);
+          
+          if (fetchError instanceof Error) {
+            if (fetchError.name === 'AbortError') {
+              throw new Error('请求超时');
+            }
+            throw new Error(`网络请求失败: ${fetchError.message}`);
+          }
+          throw fetchError;
+        }
 
         clearTimeout(timeoutId);
+        const requestTime = Date.now() - requestStartTime;
+        console.log(`🎵 [前端] 请求完成，耗时: ${requestTime}ms`);
 
         setUploadProgress('正在处理服务器响应...');
         console.log('🎵 [前端] 收到服务器响应，状态:', response.status);
+        console.log('🎵 [前端] 响应头信息:', Object.fromEntries(response.headers.entries()));
 
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error('🎵 [前端] 服务器错误响应:', errorText);
+          let errorText = '';
+          let errorDetails = '';
           
-          // 特定错误的重试策略
-          if (response.status === 413) {
-            throw new Error(`文件过大，无法上传 (${Math.round(uploadedFile.size / 1024 / 1024 * 100) / 100}MB)`);
-          } else if (response.status >= 500 && retryCount < MAX_RETRIES - 1) {
-            // 服务器错误，可以重试
-            return false;
+          try {
+            errorText = await response.text();
+            console.error('🎵 [前端] 服务器错误响应内容:', errorText);
+            
+            // 尝试解析JSON错误信息
+            try {
+              const errorJson = JSON.parse(errorText);
+              errorDetails = errorJson.error || errorJson.message || errorText;
+            } catch {
+              errorDetails = errorText;
+            }
+          } catch (textError) {
+            console.error('🎵 [前端] 无法读取错误响应:', textError);
+            errorDetails = `无法读取错误信息 (${response.status})`;
           }
           
-          throw new Error(`服务器错误 ${response.status}: ${errorText}`);
+          // 针对不同状态码的特殊处理
+          if (response.status === 503) {
+            console.error('🎵 [前端] 服务器503错误 - 服务不可用');
+            if (retryCount < MAX_RETRIES - 1) {
+              console.log('🎵 [前端] 503错误将重试');
+              return false; // 503错误可以重试
+            }
+            throw new Error(`服务器暂时不可用 (503)。请稍后重试。\n错误详情: ${errorDetails}`);
+          } else if (response.status === 413) {
+            throw new Error(`文件过大，无法上传 (${Math.round(uploadedFile.size / 1024 / 1024 * 100) / 100}MB)`);
+          } else if (response.status === 502 || response.status === 504) {
+            console.error(`🎵 [前端] 网关错误 ${response.status}`);
+            if (retryCount < MAX_RETRIES - 1) {
+              console.log(`🎵 [前端] ${response.status}错误将重试`);
+              return false; // 网关错误可以重试
+            }
+            throw new Error(`服务器网关错误 (${response.status})。请稍后重试。\n错误详情: ${errorDetails}`);
+          } else if (response.status >= 500) {
+            console.error(`🎵 [前端] 服务器内部错误 ${response.status}`);
+            if (retryCount < MAX_RETRIES - 1) {
+              console.log(`🎵 [前端] ${response.status}错误将重试`);
+              return false; // 5xx错误可以重试
+            }
+            throw new Error(`服务器内部错误 (${response.status})。\n错误详情: ${errorDetails}`);
+          }
+          
+          throw new Error(`请求失败 (${response.status}): ${errorDetails}`);
         }
 
-        const result = await response.json();
-        console.log('🎵 [前端] 解析服务器响应成功:', result);
+        let result;
+        try {
+          const responseText = await response.text();
+          console.log('🎵 [前端] 服务器响应内容长度:', responseText.length);
+          console.log('🎵 [前端] 服务器响应内容预览:', responseText.substring(0, 200));
+          
+          result = JSON.parse(responseText);
+          console.log('🎵 [前端] 解析服务器响应成功:', result);
+        } catch (parseError) {
+          console.error('🎵 [前端] 解析响应JSON失败:', parseError);
+          throw new Error('服务器响应格式错误');
+        }
         
         if (result.success) {
           setUploadProgress('上传成功！正在更新列表...');
           console.log('🎵 [前端] 音乐上传成功！');
+          console.log('🎵 [前端] 返回的音乐数据:', result.data);
           
           // 直接添加新音乐到列表末尾，保持创建时间顺序
           setBackgroundMusics(prevMusics => [...prevMusics, result.data]);
           
           // 强制刷新列表以确保数据同步
           setTimeout(async () => {
+            console.log('🎵 [前端] 开始强制刷新音乐列表...');
             await loadBackgroundMusics(true);
           }, 500);
           
@@ -530,10 +629,15 @@ export default function ConfigPage() {
           if (retryCount < MAX_RETRIES - 1) {
             return false; // 重试
           }
-          throw new Error(result.error);
+          throw new Error(result.error || '保存音乐失败');
         }
       } catch (error) {
         console.error(`🎵 [前端] 上传尝试 ${retryCount + 1} 失败:`, error);
+        console.error(`🎵 [前端] 错误详细信息:`, {
+          name: error instanceof Error ? error.name : 'Unknown',
+          message: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined
+        });
         
         if (error instanceof Error) {
           if (error.name === 'AbortError') {
@@ -544,6 +648,7 @@ export default function ConfigPage() {
         }
         
         if (retryCount < MAX_RETRIES - 1) {
+          console.log(`🎵 [前端] 将进行第${retryCount + 2}次重试`);
           return false; // 重试
         }
         
@@ -562,6 +667,7 @@ export default function ConfigPage() {
         retryCount++;
         if (retryCount < MAX_RETRIES) {
           const delay = Math.pow(2, retryCount) * 1000; // 指数退避：2s, 4s, 8s
+          console.log(`🎵 [前端] 准备重试，延迟${delay / 1000}秒`);
           setUploadProgress(`上传失败，${delay / 1000}秒后重试...`);
           await new Promise(resolve => setTimeout(resolve, delay));
         }
@@ -571,7 +677,22 @@ export default function ConfigPage() {
       setUploadProgress('');
       
       const errorMessage = error instanceof Error ? error.message : '未知错误';
-      alert(`上传音乐失败: ${errorMessage}\n\n请检查：\n1. 网络连接是否正常\n2. 文件格式是否支持 (MP3/WAV/OGG)\n3. 文件大小是否超出25MB限制\n4. 服务器是否正常运行\n\n建议：\n- 尝试压缩音频文件\n- 检查网络连接\n- 刷新页面重试`);
+      console.error('🎵 [前端] 向用户显示错误:', errorMessage);
+      
+      let alertMessage = `上传音乐失败: ${errorMessage}\n\n`;
+      
+      // 根据错误类型提供不同的建议
+      if (errorMessage.includes('503') || errorMessage.includes('服务不可用')) {
+        alertMessage += `这是服务器暂时不可用的问题，建议：\n1. 等待几分钟后重试\n2. 检查服务器状态\n3. 联系管理员`;
+      } else if (errorMessage.includes('网络') || errorMessage.includes('超时')) {
+        alertMessage += `这是网络连接问题，建议：\n1. 检查网络连接\n2. 尝试刷新页面\n3. 切换网络环境重试`;
+      } else if (errorMessage.includes('文件过大')) {
+        alertMessage += `文件大小问题，建议：\n1. 压缩音频文件\n2. 转换为更小的格式\n3. 确保文件小于25MB`;
+      } else {
+        alertMessage += `请检查：\n1. 网络连接是否正常\n2. 文件格式是否支持 (MP3/WAV/OGG)\n3. 文件大小是否超出25MB限制\n4. 服务器是否正常运行`;
+      }
+      
+      alert(alertMessage);
     } finally {
       setUploadLoading(false);
     }
