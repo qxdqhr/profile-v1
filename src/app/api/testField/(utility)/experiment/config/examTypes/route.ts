@@ -3,6 +3,9 @@ import { db } from '@/db';
 import { examTypes, examMetadata, examQuestions, examStartScreens, examResultModals } from '@/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 
+// 标记为动态路由，防止静态生成
+export const dynamic = 'force-dynamic';
+
 // GET 请求 - 获取所有试卷类型
 export async function GET(request: NextRequest) {
   try {

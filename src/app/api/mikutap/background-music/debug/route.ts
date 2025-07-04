@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { db } from '../../../../../db';
 import { mikutapBackgroundMusic } from '../../../../../modules/mikutap/db/schema';
 
+// 标记为动态路由，防止静态生成
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     console.log('🔍 调试：查询所有背景音乐数据...');

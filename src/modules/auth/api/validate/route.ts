@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authDbService } from '../../services/authDbService';
 import type { SessionValidationResponse } from '../../types';
 
+// 标记为动态路由，防止静态生成
+export const dynamic = 'force-dynamic';
+
 /**
  * 处理会话验证请求
  */
