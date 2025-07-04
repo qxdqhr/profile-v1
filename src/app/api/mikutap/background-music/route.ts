@@ -12,20 +12,50 @@ export const runtime = 'nodejs'; // 使用Node.js运行时
 
 // 获取背景音乐列表
 export async function GET(request: NextRequest) {
+  console.log('🎵 [API GET] 开始处理获取背景音乐请求...');
+  const startTime = Date.now();
+  
   try {
     const { searchParams } = new URL(request.url);
     const configId = searchParams.get('configId') || 'default';
+    console.log(`🎵 [API GET] 查询配置ID: ${configId}`);
 
+    console.log('🎵 [API GET] 开始数据库查询...');
+    const dbStartTime = Date.now();
+    
     const musics = await db
       .select()
       .from(mikutapBackgroundMusic)
       .where(eq(mikutapBackgroundMusic.configId, configId));
+      
+    const dbTime = Date.now() - dbStartTime;
+    console.log(`🎵 [API GET] 数据库查询完成，耗时: ${dbTime}ms，返回${musics.length}条记录`);
+
+    const totalTime = Date.now() - startTime;
+    console.log(`✅ [API GET] 请求处理完成，总耗时: ${totalTime}ms`);
 
     return NextResponse.json({ success: true, data: musics });
   } catch (error) {
-    console.error('获取背景音乐失败:', error);
+    const totalTime = Date.now() - startTime;
+    console.error(`❌ [API GET] 获取背景音乐失败 (耗时: ${totalTime}ms):`, error);
+    
+    let errorMessage = '获取背景音乐失败';
+    if (error instanceof Error) {
+      errorMessage += `: ${error.message}`;
+      console.error('❌ [API GET] 错误堆栈:', error.stack);
+      
+      // 检查是否是数据库连接问题
+      if (error.message.includes('ECONNREFUSED') || error.message.includes('Connection')) {
+        console.error('❌ [API GET] 数据库连接失败');
+        return NextResponse.json(
+          { success: false, error: '数据库连接失败，请稍后重试' },
+          { status: 503 }
+        );
+      }
+    }
+    
     return NextResponse.json(
-      { success: false, error: '获取背景音乐失败' },
+      { success: false, error: errorMessage },
       { status: 500 }
     );
   }
@@ -33,13 +63,27 @@ export async function GET(request: NextRequest) {
 
 // 上传或创建背景音乐
 export async function POST(request: NextRequest) {
-  console.log('🎵 [API] 开始处理背景音乐上传请求...');
+  console.log('🎵 [API POST] 开始处理背景音乐上传请求...');
   const startTime = Date.now();
   
+  // 检查系统资源状态
   try {
-    console.log('🎵 [API] 开始解析FormData...');
+    const memoryUsage = process.memoryUsage();
+    console.log('🎵 [API POST] 系统内存状态:', {
+      used: Math.round(memoryUsage.heapUsed / 1024 / 1024) + 'MB',
+      total: Math.round(memoryUsage.heapTotal / 1024 / 1024) + 'MB',
+      external: Math.round(memoryUsage.external / 1024 / 1024) + 'MB'
+    });
+  } catch (e) {
+    console.warn('🎵 [API POST] 无法获取内存状态:', e);
+  }
+  
+  try {
+    console.log('🎵 [API POST] 开始解析FormData...');
+    const parseStartTime = Date.now();
     const formData = await request.formData();
-    console.log('🎵 [API] FormData解析完成');
+    const parseTime = Date.now() - parseStartTime;
+    console.log(`🎵 [API POST] FormData解析完成，耗时: ${parseTime}ms`);
     const configId = formData.get('configId') as string || 'default';
     const name = formData.get('name') as string;
     const volume = parseFloat(formData.get('volume') as string);
@@ -173,18 +217,54 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, data: newMusic });
   } catch (error) {
     const processingTime = Date.now() - startTime;
-    console.error(`❌ [API] 保存背景音乐失败 (处理时间: ${processingTime}ms):`, error);
+    console.error(`❌ [API POST] 保存背景音乐失败 (处理时间: ${processingTime}ms):`, error);
     
-    // 更详细的错误信息
+    // 检查系统资源状态
+    try {
+      const memoryUsage = process.memoryUsage();
+      console.error('❌ [API POST] 错误时内存状态:', {
+        used: Math.round(memoryUsage.heapUsed / 1024 / 1024) + 'MB',
+        total: Math.round(memoryUsage.heapTotal / 1024 / 1024) + 'MB',
+        external: Math.round(memoryUsage.external / 1024 / 1024) + 'MB'
+      });
+    } catch (e) {
+      console.warn('❌ [API POST] 无法获取错误时内存状态:', e);
+    }
+    
+    // 更详细的错误信息和状态码判断
     let errorMessage = '保存背景音乐失败';
+    let statusCode = 500;
+    
     if (error instanceof Error) {
       errorMessage += `: ${error.message}`;
-      console.error('❌ [API] 错误堆栈:', error.stack);
+      console.error('❌ [API POST] 错误堆栈:', error.stack);
+      console.error('❌ [API POST] 错误类型:', error.constructor.name);
+      
+      // 根据错误类型判断状态码
+      if (error.message.includes('ECONNREFUSED') || error.message.includes('Connection')) {
+        console.error('❌ [API POST] 数据库连接失败');
+        errorMessage = '数据库连接失败，请稍后重试';
+        statusCode = 503;
+      } else if (error.message.includes('timeout') || error.message.includes('TIMEOUT')) {
+        console.error('❌ [API POST] 请求超时');
+        errorMessage = '请求处理超时，请稍后重试';
+        statusCode = 503;
+      } else if (error.message.includes('ENOMEM') || error.message.includes('memory')) {
+        console.error('❌ [API POST] 内存不足');
+        errorMessage = '服务器内存不足，请稍后重试';
+        statusCode = 503;
+      } else if (error.message.includes('EMFILE') || error.message.includes('ENOTFOUND')) {
+        console.error('❌ [API POST] 系统资源不足');
+        errorMessage = '服务器资源不足，请稍后重试';
+        statusCode = 503;
+      }
     }
+    
+    console.error(`❌ [API POST] 最终错误响应: ${statusCode} - ${errorMessage}`);
     
     return NextResponse.json(
       { success: false, error: errorMessage },
-      { status: 500 }
+      { status: statusCode }
     );
   }
 }
