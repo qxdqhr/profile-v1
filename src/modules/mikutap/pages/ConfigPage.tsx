@@ -12,6 +12,7 @@ import {
 import { GridCell, GridConfig, DEFAULT_KEYS, SOUND_TYPES, WAVE_TYPES, SOUND_TYPE_COLORS, SOUND_SOURCES, SoundType, ANIMATION_TYPES, ANIMATION_TYPE_DESCRIPTIONS, AnimationType, BackgroundMusic, BACKGROUND_ANIMATION_TYPES, BACKGROUND_ANIMATION_DESCRIPTIONS, BackgroundAnimationType, InterfaceSettings, DEFAULT_INTERFACE_SETTINGS } from '../types';
 import { audioBufferToWav, blobToBase64, base64ToUrl } from '../utils/audioUtils';
 import { audioWorker } from '../utils/audioWorker';
+// import { runAudioWorkerTests } from '../utils/audioWorkerTest';
 import SoundLibraryManager from '../components/SoundLibraryManager';
 import SoundLibraryPresets, { SoundPreset } from '../components/SoundLibraryPresets';
 import { useConfigDatabase } from '../hooks/useConfigDatabase';
@@ -286,6 +287,13 @@ export default function ConfigPage() {
     // 加载保存的背景音乐列表
     loadBackgroundMusics();
 
+    // // 开发环境下测试AudioWorker
+    // if (process.env.NODE_ENV === 'development') {
+    //   runAudioWorkerTests().catch(error => {
+    //     console.warn('🧪 AudioWorker测试失败，将使用主线程回退方案:', error);
+    //   });
+    // }
+
     // 清理函数 - 注释掉AudioContext的关闭，避免影响音乐播放
     return () => {
       if (rhythmGeneratorRef.current) {
@@ -421,11 +429,23 @@ export default function ConfigPage() {
         setUploadProgress(`正在处理音频文件... (${retryCount > 0 ? `重试 ${retryCount}/${MAX_RETRIES}` : ''})`);
         
         // 使用Web Worker进行Base64编码，避免阻塞主线程
-        console.log('🎵 [前端] 开始Web Worker音频编码...');
+        console.log('🎵 [前端] 开始音频编码...');
         const encodingStartTime = Date.now();
-        const base64Data = await audioWorker.blobToBase64(uploadedFile);
+        let base64Data: string;
+        
+        try {
+          console.log('🎵 [前端] 尝试Web Worker编码...');
+          base64Data = await audioWorker.blobToBase64(uploadedFile);
+          console.log('🎵 [前端] Web Worker编码成功');
+        } catch (workerError) {
+          console.warn('🎵 [前端] Web Worker编码失败，回退到主线程:', workerError);
+          setUploadProgress(`正在处理音频文件 (回退模式)... (${retryCount > 0 ? `重试 ${retryCount}/${MAX_RETRIES}` : ''})`);
+          base64Data = await blobToBase64(uploadedFile);
+          console.log('🎵 [前端] 主线程编码成功');
+        }
+        
         const encodingTime = Date.now() - encodingStartTime;
-        console.log(`🎵 [前端] Web Worker编码完成，耗时: ${encodingTime}ms，数据长度: ${base64Data.length}`);
+        console.log(`🎵 [前端] 音频编码完成，耗时: ${encodingTime}ms，数据长度: ${base64Data.length}`);
         
         const formData = new FormData();
         formData.append('configId', 'default');
@@ -590,11 +610,23 @@ export default function ConfigPage() {
         setUploadProgress(`正在编码音频数据... (${retryCount > 0 ? `重试 ${retryCount}/${MAX_RETRIES}` : ''})`);
         
         // 使用Web Worker进行Base64编码
-        console.log('🎵 [前端] 开始Web Worker音频编码...');
+        console.log('🎵 [前端] 开始音频编码...');
         const encodingStartTime = Date.now();
-        const base64Data = await audioWorker.blobToBase64(wavBlob);
+        let base64Data: string;
+        
+        try {
+          console.log('🎵 [前端] 尝试Web Worker编码...');
+          base64Data = await audioWorker.blobToBase64(wavBlob);
+          console.log('🎵 [前端] Web Worker编码成功');
+        } catch (workerError) {
+          console.warn('🎵 [前端] Web Worker编码失败，回退到主线程:', workerError);
+          setUploadProgress(`正在编码音频数据 (回退模式)... (${retryCount > 0 ? `重试 ${retryCount}/${MAX_RETRIES}` : ''})`);
+          base64Data = await blobToBase64(wavBlob);
+          console.log('🎵 [前端] 主线程编码成功');
+        }
+        
         const encodingTime = Date.now() - encodingStartTime;
-        console.log(`🎵 [前端] Web Worker编码完成，耗时: ${encodingTime}ms，数据长度: ${base64Data.length}`);
+        console.log(`🎵 [前端] 音频编码完成，耗时: ${encodingTime}ms，数据长度: ${base64Data.length}`);
         
         // 创建 FormData
         const formData = new FormData();

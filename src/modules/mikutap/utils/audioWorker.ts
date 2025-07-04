@@ -32,8 +32,17 @@ const workerCode = `
             }
           }
           
-          // 转换为Base64
-          const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+          // 转换为Base64 - 分块处理避免调用栈溢出
+          const uint8Array = new Uint8Array(arrayBuffer);
+          let binaryString = '';
+          const chunkSize = 8192; // 8KB分块
+          
+          for (let i = 0; i < uint8Array.length; i += chunkSize) {
+            const chunk = uint8Array.slice(i, i + chunkSize);
+            binaryString += String.fromCharCode.apply(null, Array.from(chunk));
+          }
+          
+          const base64 = btoa(binaryString);
           
           self.postMessage({
             id,
@@ -52,7 +61,18 @@ const workerCode = `
           // 这里可以实现音频压缩逻辑
           // 目前先直接返回原始数据
           const arrayBuffer = await blob.arrayBuffer();
-          const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+          
+          // 转换为Base64 - 分块处理避免调用栈溢出
+          const uint8Array = new Uint8Array(arrayBuffer);
+          let binaryString = '';
+          const chunkSize = 8192; // 8KB分块
+          
+          for (let i = 0; i < uint8Array.length; i += chunkSize) {
+            const chunk = uint8Array.slice(i, i + chunkSize);
+            binaryString += String.fromCharCode.apply(null, Array.from(chunk));
+          }
+          
+          const base64 = btoa(binaryString);
           
           self.postMessage({
             id,
@@ -97,15 +117,21 @@ export class AudioWorker {
 
       // 监听Worker消息
       this.worker.onmessage = (e) => {
-        const { id, success, result, error, ...extra } = e.data;
+        const { id, success, result, error, type, ...extra } = e.data;
         const task = this.pendingTasks.get(id);
         
         if (task) {
+          // 处理进度消息
+          if (type === 'progress') {
+            // 可以在这里处理进度回调
+            return;
+          }
+          
           this.pendingTasks.delete(id);
           if (success) {
             task.resolve({ result, ...extra });
           } else {
-            task.reject(new Error(error));
+            task.reject(new Error(error || 'Worker task failed'));
           }
         }
       };
