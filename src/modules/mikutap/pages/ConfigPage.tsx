@@ -97,6 +97,9 @@ export default function ConfigPage() {
   // 文件上传相关状态
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadPreviewUrl, setUploadPreviewUrl] = useState<string>('');
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [generateLoading, setGenerateLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<string>('');
   
   // 音频相关的引用
   const bgMusicRef = useRef<HTMLAudioElement | null>(null);
@@ -335,9 +338,15 @@ export default function ConfigPage() {
 
   // 保存上传的音乐
   const handleSaveUploadedMusic = async () => {
-    if (!uploadedFile || !musicName) return;
+    if (!uploadedFile || !musicName || uploadLoading) return;
+
+    setUploadLoading(true);
+    setUploadProgress('准备上传音乐文件...');
 
     try {
+      console.log('🎵 [前端] 开始上传音乐文件...');
+      setUploadProgress('正在处理音频文件...');
+      
       const formData = new FormData();
       formData.append('configId', 'default');
       formData.append('name', musicName);
@@ -354,13 +363,29 @@ export default function ConfigPage() {
         volume: 0.5
       }));
 
+      setUploadProgress('正在上传到服务器...');
+      console.log('🎵 [前端] 开始发送请求到服务器...');
+
       const response = await fetch('/api/mikutap/background-music', {
         method: 'POST',
         body: formData,
       });
 
+      setUploadProgress('正在处理服务器响应...');
+      console.log('🎵 [前端] 收到服务器响应，状态:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('🎵 [前端] 服务器错误响应:', errorText);
+        throw new Error(`服务器错误 ${response.status}: ${errorText}`);
+      }
+
       const result = await response.json();
+      console.log('🎵 [前端] 解析服务器响应成功:', result);
       if (result.success) {
+        setUploadProgress('上传成功！');
+        console.log('🎵 [前端] 音乐上传成功！');
+        
         // 直接添加新音乐到列表末尾，保持创建时间顺序
         setBackgroundMusics(prevMusics => [...prevMusics, result.data]);
         
@@ -371,34 +396,52 @@ export default function ConfigPage() {
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
+        
+        // 延迟清除成功消息
+        setTimeout(() => {
+          setUploadProgress('');
+        }, 2000);
       } else {
-        console.error('保存音乐失败:', result.error);
-        alert('保存音乐失败: ' + result.error);
+        console.error('🎵 [前端] 保存音乐失败:', result.error);
+        throw new Error(result.error);
       }
     } catch (error) {
-      console.error('保存音乐失败:', error);
-      alert('保存音乐失败，请重试');
+      console.error('🎵 [前端] 上传音乐异常:', error);
+      setUploadProgress('');
+      
+      const errorMessage = error instanceof Error ? error.message : '未知错误';
+      alert(`上传音乐失败: ${errorMessage}\n\n请检查：\n1. 网络连接是否正常\n2. 文件格式是否支持\n3. 文件大小是否超出限制\n\n如问题持续，请刷新页面重试。`);
+    } finally {
+      setUploadLoading(false);
     }
   };
 
   // 生成并保存音乐
   const handleGenerateMusic = async () => {
-    if (!musicGeneratorRef.current || !musicName) return;
+    if (!musicGeneratorRef.current || !musicName || generateLoading) return;
+
+    setGenerateLoading(true);
+    setUploadProgress('正在生成音乐...');
 
     try {
+      console.log('🎵 [前端] 开始生成音乐...');
       const buffer = await musicGeneratorRef.current.generateMusic(musicConfig);
+      
+      setUploadProgress('正在转换音频格式...');
       
       // 将 AudioBuffer 转换为 WAV 格式的 Blob
       const wavBlob = audioBufferToWav(buffer);
+      console.log(`🎵 [前端] 音频转换完成，文件大小: ${Math.round(wavBlob.size / 1024)}KB`);
       
       // 检查生成的音乐文件大小
       const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
       if (wavBlob.size > MAX_FILE_SIZE) {
+        setUploadProgress('');
         alert(`生成的音乐文件过大！\n文件大小: ${Math.round(wavBlob.size / 1024 / 1024 * 100) / 100}MB\n最大支持: ${Math.round(MAX_FILE_SIZE / 1024 / 1024)}MB\n\n请减少音乐时长或降低音质设置。`);
         return;
       }
       
-      console.log(`🎵 生成音乐文件大小: ${Math.round(wavBlob.size / 1024)}KB`);
+      setUploadProgress('正在准备上传...');
       
       // 创建 FormData
       const formData = new FormData();
@@ -418,25 +461,52 @@ export default function ConfigPage() {
         volume: rhythmVolume
       }));
 
+      setUploadProgress('正在上传生成的音乐...');
+      console.log('🎵 [前端] 开始上传生成的音乐...');
+
       const response = await fetch('/api/mikutap/background-music', {
         method: 'POST',
         body: formData,
       });
 
+      setUploadProgress('正在处理服务器响应...');
+      console.log('🎵 [前端] 收到服务器响应，状态:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('🎵 [前端] 服务器错误响应:', errorText);
+        throw new Error(`服务器错误 ${response.status}: ${errorText}`);
+      }
+
       const result = await response.json();
+      console.log('🎵 [前端] 解析服务器响应成功:', result);
+      
       if (result.success) {
+        setUploadProgress('生成并保存成功！');
+        console.log('🎵 [前端] 生成的音乐保存成功！');
+        
         // 直接添加新生成的音乐到列表末尾，保持创建时间顺序
         setBackgroundMusics(prevMusics => [...prevMusics, result.data]);
         
         // 重置表单
         setMusicName('');
+        
+        // 延迟清除成功消息
+        setTimeout(() => {
+          setUploadProgress('');
+        }, 2000);
       } else {
-        console.error('保存生成音乐失败:', result.error);
-        alert('保存生成音乐失败: ' + result.error);
+        console.error('🎵 [前端] 保存生成音乐失败:', result.error);
+        throw new Error(result.error);
       }
     } catch (error) {
-      console.error('生成音乐失败:', error);
-      alert('生成音乐失败，请重试');
+      console.error('🎵 [前端] 生成音乐异常:', error);
+      setUploadProgress('');
+      
+      const errorMessage = error instanceof Error ? error.message : '未知错误';
+      alert(`生成音乐失败: ${errorMessage}\n\n请检查：\n1. 网络连接是否正常\n2. 音乐配置是否合理\n3. 服务器是否正常\n\n如问题持续，请刷新页面重试。`);
+    } finally {
+      setGenerateLoading(false);
     }
   };
 
@@ -1426,29 +1496,81 @@ export default function ConfigPage() {
                         />
                       </div>
                     )}
+                    
+                    {/* 上传进度显示 */}
+                    {uploadProgress && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                        <div className="flex items-center gap-2">
+                          <div className="animate-spin w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                          <span className="text-blue-700 text-sm font-medium">{uploadProgress}</span>
+                        </div>
+                      </div>
+                    )}
+                    
                     <button
                       onClick={handleSaveUploadedMusic}
-                      disabled={!uploadedFile || !musicName}
-                      className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-300"
+                      disabled={!uploadedFile || !musicName || uploadLoading}
+                      className={`w-full px-4 py-2 rounded-lg transition-colors font-medium ${
+                        uploadLoading 
+                          ? 'bg-blue-400 cursor-not-allowed text-white' 
+                          : !uploadedFile || !musicName
+                            ? 'bg-gray-300 cursor-not-allowed text-gray-500'
+                            : 'bg-blue-500 hover:bg-blue-600 text-white'
+                      }`}
                     >
-                      保存音乐
+                      {uploadLoading ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
+                          正在上传...
+                        </div>
+                      ) : (
+                        '保存音乐'
+                      )}
                     </button>
                   </div>
                 ) : (
                   <div className="space-y-4">
+                    {/* 生成进度显示 */}
+                    {uploadProgress && (
+                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                        <div className="flex items-center gap-2">
+                          <div className="animate-spin w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full"></div>
+                          <span className="text-purple-700 text-sm font-medium">{uploadProgress}</span>
+                        </div>
+                      </div>
+                    )}
+                    
                     <div className="flex gap-2">
                       <button
                         onClick={handlePreviewGenerated}
-                        className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                        disabled={generateLoading}
+                        className={`flex-1 px-4 py-2 rounded-lg transition-colors font-medium ${
+                          generateLoading 
+                            ? 'bg-gray-400 cursor-not-allowed text-white' 
+                            : 'bg-gray-500 hover:bg-gray-600 text-white'
+                        }`}
                       >
                         {previewPlaying ? '停止预览' : '预览音乐'}
                       </button>
                       <button
                         onClick={handleGenerateMusic}
-                        disabled={!musicName}
-                        className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-300"
+                        disabled={!musicName || generateLoading}
+                        className={`flex-1 px-4 py-2 rounded-lg transition-colors font-medium ${
+                          generateLoading 
+                            ? 'bg-purple-400 cursor-not-allowed text-white' 
+                            : !musicName
+                              ? 'bg-gray-300 cursor-not-allowed text-gray-500'
+                              : 'bg-blue-500 hover:bg-blue-600 text-white'
+                        }`}
                       >
-                        生成并保存
+                        {generateLoading ? (
+                          <div className="flex items-center justify-center gap-2">
+                            <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
+                            生成中...
+                          </div>
+                        ) : (
+                          '生成并保存'
+                        )}
                       </button>
                     </div>
                   </div>

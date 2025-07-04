@@ -4,6 +4,9 @@ import { examTypes } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { getFullExamConfig, saveFullExamConfig } from '@/db/services/exam-service';
 
+// 标记为动态路由，防止静态生成
+export const dynamic = 'force-dynamic';
+
 // GET 请求 - 获取配置数据
 export async function GET(request: NextRequest) {
   try {

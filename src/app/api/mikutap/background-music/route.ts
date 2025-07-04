@@ -6,8 +6,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { blobToBase64 } from '../../../../modules/mikutap/utils/audioUtils';
 
 // App Router中增加路由配置
-export const maxDuration = 60; // 60秒超时
+export const maxDuration = 300; // 5分钟超时（增加处理时间）
 export const dynamic = 'force-dynamic'; // 强制动态渲染
+export const runtime = 'nodejs'; // 使用Node.js运行时
 
 // 获取背景音乐列表
 export async function GET(request: NextRequest) {
@@ -32,8 +33,13 @@ export async function GET(request: NextRequest) {
 
 // 上传或创建背景音乐
 export async function POST(request: NextRequest) {
+  console.log('🎵 [API] 开始处理背景音乐上传请求...');
+  const startTime = Date.now();
+  
   try {
+    console.log('🎵 [API] 开始解析FormData...');
     const formData = await request.formData();
+    console.log('🎵 [API] FormData解析完成');
     const configId = formData.get('configId') as string || 'default';
     const name = formData.get('name') as string;
     const volume = parseFloat(formData.get('volume') as string);
@@ -60,16 +66,20 @@ export async function POST(request: NextRequest) {
       }
 
       fileSize = file.size;
+      console.log(`🎵 [API] 处理上传文件: ${file.name}, 大小: ${Math.round(fileSize / 1024)}KB`);
       
       // 检查文件大小
       if (fileSize > MAX_FILE_SIZE) {
+        console.log(`❌ [API] 文件大小超出限制: ${Math.round(fileSize / 1024 / 1024)}MB > ${Math.round(MAX_FILE_SIZE / 1024 / 1024)}MB`);
         return NextResponse.json(
           { success: false, error: `文件大小超出限制，最大支持 ${Math.round(MAX_FILE_SIZE / 1024 / 1024)}MB` },
           { status: 413 }
         );
       }
 
+      console.log('🎵 [API] 开始转换音频为Base64...');
       audioData = await blobToBase64(file);
+      console.log(`✅ [API] Base64转换完成，数据长度: ${audioData.length} 字符`);
       console.log(`✅ 将上传的音乐文件存储到数据库，文件大小: ${Math.round(fileSize / 1024)}KB`);
     } else if (fileType === 'generated') {
       // 处理生成的音乐
@@ -122,6 +132,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 插入新的背景音乐记录
+    console.log('🎵 [API] 开始插入数据库记录...');
     const [newMusic] = await db
       .insert(mikutapBackgroundMusic)
       .values({
@@ -141,11 +152,23 @@ export async function POST(request: NextRequest) {
       })
       .returning();
 
+    const processingTime = Date.now() - startTime;
+    console.log(`✅ [API] 音乐保存成功! 处理时间: ${processingTime}ms, 音乐ID: ${newMusic.id}`);
+
     return NextResponse.json({ success: true, data: newMusic });
   } catch (error) {
-    console.error('保存背景音乐失败:', error);
+    const processingTime = Date.now() - startTime;
+    console.error(`❌ [API] 保存背景音乐失败 (处理时间: ${processingTime}ms):`, error);
+    
+    // 更详细的错误信息
+    let errorMessage = '保存背景音乐失败';
+    if (error instanceof Error) {
+      errorMessage += `: ${error.message}`;
+      console.error('❌ [API] 错误堆栈:', error.stack);
+    }
+    
     return NextResponse.json(
-      { success: false, error: '保存背景音乐失败' },
+      { success: false, error: errorMessage },
       { status: 500 }
     );
   }
