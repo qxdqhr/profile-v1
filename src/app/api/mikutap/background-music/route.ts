@@ -78,8 +78,10 @@ export async function POST(request: NextRequest) {
       }
 
       console.log('🎵 [API] 开始转换音频为Base64...');
+      const conversionStartTime = Date.now();
       audioData = await blobToBase64(file);
-      console.log(`✅ [API] Base64转换完成，数据长度: ${audioData.length} 字符`);
+      const conversionTime = Date.now() - conversionStartTime;
+      console.log(`✅ [API] Base64转换完成，数据长度: ${audioData.length} 字符，转换耗时: ${conversionTime}ms`);
       console.log(`✅ 将上传的音乐文件存储到数据库，文件大小: ${Math.round(fileSize / 1024)}KB`);
     } else if (fileType === 'generated') {
       // 处理生成的音乐
@@ -123,34 +125,47 @@ export async function POST(request: NextRequest) {
       ? JSON.parse(formData.get('generationConfig') as string)
       : null;
 
-    // 如果设置为默认，先取消其他默认音乐
-    if (isDefault) {
-      await db
-        .update(mikutapBackgroundMusic)
-        .set({ isDefault: false })
-        .where(eq(mikutapBackgroundMusic.configId, configId));
-    }
+    // 使用事务确保数据一致性
+    console.log('🎵 [API] 开始数据库事务...');
+    const dbStartTime = Date.now();
+    
+    const [newMusic] = await db.transaction(async (tx) => {
+      // 如果设置为默认，先取消其他默认音乐
+      if (isDefault) {
+        console.log('🎵 [API] 取消其他默认音乐...');
+        await tx
+          .update(mikutapBackgroundMusic)
+          .set({ isDefault: false })
+          .where(eq(mikutapBackgroundMusic.configId, configId));
+      }
 
-    // 插入新的背景音乐记录
-    console.log('🎵 [API] 开始插入数据库记录...');
-    const [newMusic] = await db
-      .insert(mikutapBackgroundMusic)
-      .values({
-        id: uuidv4(),
-        configId,
-        name,
-        audioData, // Base64音频数据 - 必填
-        fileType,
-        volume,
-        loop,
-        bpm,
-        isDefault,
-        size: fileSize,
-        duration,
-        generationConfig,
-        rhythmPattern,
-      })
-      .returning();
+      // 插入新的背景音乐记录
+      console.log('🎵 [API] 插入新音乐记录...');
+      const result = await tx
+        .insert(mikutapBackgroundMusic)
+        .values({
+          id: uuidv4(),
+          configId,
+          name,
+          audioData, // Base64音频数据 - 必填
+          fileType,
+          volume,
+          loop,
+          bpm,
+          isDefault,
+          size: fileSize,
+          duration,
+          generationConfig,
+          rhythmPattern,
+        })
+        .returning();
+      
+      console.log('🎵 [API] 数据库记录插入成功');
+      return result;
+    });
+    
+    const dbTime = Date.now() - dbStartTime;
+    console.log(`✅ [API] 数据库事务完成，耗时: ${dbTime}ms`);
 
     const processingTime = Date.now() - startTime;
     console.log(`✅ [API] 音乐保存成功! 处理时间: ${processingTime}ms, 音乐ID: ${newMusic.id}`);

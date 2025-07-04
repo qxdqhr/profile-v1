@@ -11,6 +11,7 @@ import {
 } from '../services/configService';
 import { GridCell, GridConfig, DEFAULT_KEYS, SOUND_TYPES, WAVE_TYPES, SOUND_TYPE_COLORS, SOUND_SOURCES, SoundType, ANIMATION_TYPES, ANIMATION_TYPE_DESCRIPTIONS, AnimationType, BackgroundMusic, BACKGROUND_ANIMATION_TYPES, BACKGROUND_ANIMATION_DESCRIPTIONS, BackgroundAnimationType, InterfaceSettings, DEFAULT_INTERFACE_SETTINGS } from '../types';
 import { audioBufferToWav, blobToBase64, base64ToUrl } from '../utils/audioUtils';
+import { audioWorker } from '../utils/audioWorker';
 import SoundLibraryManager from '../components/SoundLibraryManager';
 import SoundLibraryPresets, { SoundPreset } from '../components/SoundLibraryPresets';
 import { useConfigDatabase } from '../hooks/useConfigDatabase';
@@ -174,26 +175,94 @@ export default function ConfigPage() {
     }
   }, [config, saveConfigToDB]);
 
-  // 从数据库加载背景音乐列表
-  const loadBackgroundMusics = async () => {
-    try {
-      const response = await fetch('/api/mikutap/background-music?configId=default');
-      const result = await response.json();
-      if (result.success) {
-        // 保持后端返回的原始顺序（应该是按创建时间排序的）
-        setBackgroundMusics(result.data);
-        const defaultMusic = result.data.find((m: BackgroundMusic) => m.isDefault);
-        if (defaultMusic) {
-          setCurrentBgMusic(defaultMusic);
-        } else if (result.data.length > 0) {
-          // 如果没有默认音乐但有音乐列表，使用第一个音乐
-          setCurrentBgMusic(result.data[0]);
+  // 从数据库加载背景音乐列表 - 优化版本
+  const loadBackgroundMusics = async (forceRefresh: boolean = false) => {
+    const MAX_RETRIES = 2;
+    let retryCount = 0;
+
+    const attemptLoad = async (): Promise<boolean> => {
+      try {
+        console.log(`🎵 [前端] 尝试加载背景音乐列表 (第${retryCount + 1}次)${forceRefresh ? ' - 强制刷新' : ''}...`);
+        
+        // 添加缓存破坏参数以确保获取最新数据
+        const cacheBuster = forceRefresh ? `&_t=${Date.now()}` : '';
+        const response = await fetch(`/api/mikutap/background-music?configId=default${cacheBuster}`, {
+          // 强制刷新时不使用缓存
+          cache: forceRefresh ? 'no-cache' : 'default',
+          headers: forceRefresh ? {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          } : {}
+        });
+        
+        if (!response.ok) {
+          throw new Error(`服务器错误 ${response.status}`);
         }
-      } else {
-        console.error('加载背景音乐失败:', result.error);
+        
+        const result = await response.json();
+        console.log('🎵 [前端] 背景音乐API响应:', { 
+          success: result.success, 
+          count: result.data?.length || 0,
+          hasDefault: result.data?.some((m: BackgroundMusic) => m.isDefault) || false
+        });
+        
+        if (result.success) {
+          // 保持后端返回的原始顺序（应该是按创建时间排序的）
+          setBackgroundMusics(result.data);
+          console.log(`🎵 [前端] 设置背景音乐列表，共 ${result.data.length} 首音乐`);
+          
+          const defaultMusic = result.data.find((m: BackgroundMusic) => m.isDefault);
+          if (defaultMusic) {
+            setCurrentBgMusic(defaultMusic);
+            console.log('🎵 [前端] 设置默认音乐:', defaultMusic.name);
+          } else if (result.data.length > 0) {
+            // 如果没有默认音乐但有音乐列表，使用第一个音乐
+            const firstMusic = result.data[0];
+            setCurrentBgMusic(firstMusic);
+            console.log('🎵 [前端] 没有默认音乐，使用第一个音乐:', firstMusic.name);
+          } else {
+            console.log('🎵 [前端] 没有找到任何背景音乐');
+            setCurrentBgMusic(undefined);
+          }
+          
+          return true;
+        } else {
+          console.error('🎵 [前端] 加载背景音乐失败:', result.error);
+          if (retryCount < MAX_RETRIES - 1) {
+            return false; // 重试
+          }
+          throw new Error(result.error);
+        }
+      } catch (error) {
+        console.error(`🎵 [前端] 加载尝试 ${retryCount + 1} 失败:`, error);
+        
+        if (retryCount < MAX_RETRIES - 1) {
+          return false; // 重试
+        }
+        
+        throw error;
+      }
+    };
+
+    try {
+      // 重试逻辑
+      while (retryCount < MAX_RETRIES) {
+        const success = await attemptLoad();
+        if (success) {
+          break;
+        }
+        
+        retryCount++;
+        if (retryCount < MAX_RETRIES) {
+          const delay = 1000 * retryCount; // 1s, 2s
+          console.log(`🎵 [前端] 加载失败，${delay / 1000}秒后重试...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
       }
     } catch (error) {
-      console.error('加载背景音乐失败:', error);
+      console.error('🎵 [前端] 最终加载背景音乐失败:', error);
+      // 不显示alert，避免干扰用户体验
+      // 可以在界面上显示错误状态
     }
   };
 
@@ -336,175 +405,319 @@ export default function ConfigPage() {
     }
   };
 
-  // 保存上传的音乐
+  // 保存上传的音乐 - 优化版本
   const handleSaveUploadedMusic = async () => {
     if (!uploadedFile || !musicName || uploadLoading) return;
 
     setUploadLoading(true);
     setUploadProgress('准备上传音乐文件...');
 
-    try {
-      console.log('🎵 [前端] 开始上传音乐文件...');
-      setUploadProgress('正在处理音频文件...');
-      
-      const formData = new FormData();
-      formData.append('configId', 'default');
-      formData.append('name', musicName);
-      formData.append('file', uploadedFile);
-      formData.append('fileType', 'uploaded');
-      formData.append('volume', '0.8');
-      formData.append('loop', musicLoop.toString());
-      formData.append('bpm', '120');
-      formData.append('isDefault', 'false');
-      formData.append('rhythmPattern', JSON.stringify({
-        enabled: false, // 上传音乐默认不启用节奏
-        soundType: 'sine',
-        pattern: [1, 0.5, 0.5, 0.5],
-        volume: 0.5
-      }));
+    const MAX_RETRIES = 3;
+    let retryCount = 0;
 
-      setUploadProgress('正在上传到服务器...');
-      console.log('🎵 [前端] 开始发送请求到服务器...');
-
-      const response = await fetch('/api/mikutap/background-music', {
-        method: 'POST',
-        body: formData,
-      });
-
-      setUploadProgress('正在处理服务器响应...');
-      console.log('🎵 [前端] 收到服务器响应，状态:', response.status);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('🎵 [前端] 服务器错误响应:', errorText);
-        throw new Error(`服务器错误 ${response.status}: ${errorText}`);
-      }
-
-      const result = await response.json();
-      console.log('🎵 [前端] 解析服务器响应成功:', result);
-      if (result.success) {
-        setUploadProgress('上传成功！');
-        console.log('🎵 [前端] 音乐上传成功！');
+    const attemptUpload = async (): Promise<boolean> => {
+      try {
+        console.log(`🎵 [前端] 尝试上传音乐文件 (第${retryCount + 1}次)...`);
+        setUploadProgress(`正在处理音频文件... (${retryCount > 0 ? `重试 ${retryCount}/${MAX_RETRIES}` : ''})`);
         
-        // 直接添加新音乐到列表末尾，保持创建时间顺序
-        setBackgroundMusics(prevMusics => [...prevMusics, result.data]);
+        // 使用Web Worker进行Base64编码，避免阻塞主线程
+        console.log('🎵 [前端] 开始Web Worker音频编码...');
+        const encodingStartTime = Date.now();
+        const base64Data = await audioWorker.blobToBase64(uploadedFile);
+        const encodingTime = Date.now() - encodingStartTime;
+        console.log(`🎵 [前端] Web Worker编码完成，耗时: ${encodingTime}ms，数据长度: ${base64Data.length}`);
         
-        // 重置表单
-        setMusicName('');
-        setUploadedFile(null);
-        setUploadPreviewUrl('');
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
+        const formData = new FormData();
+        formData.append('configId', 'default');
+        formData.append('name', musicName);
+        formData.append('file', uploadedFile);
+        formData.append('fileType', 'uploaded');
+        formData.append('volume', '0.8');
+        formData.append('loop', musicLoop.toString());
+        formData.append('bpm', '120');
+        formData.append('isDefault', 'false');
+        formData.append('rhythmPattern', JSON.stringify({
+          enabled: false, // 上传音乐默认不启用节奏
+          soundType: 'sine',
+          pattern: [1, 0.5, 0.5, 0.5],
+          volume: 0.5
+        }));
+
+        setUploadProgress(`正在上传到服务器... (${Math.round(uploadedFile.size / 1024)}KB)`);
+        console.log('🎵 [前端] 开始发送请求到服务器...');
+
+        // 增加超时时间
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 300000); // 5分钟超时
+
+        const response = await fetch('/api/mikutap/background-music', {
+          method: 'POST',
+          body: formData,
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        setUploadProgress('正在处理服务器响应...');
+        console.log('🎵 [前端] 收到服务器响应，状态:', response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('🎵 [前端] 服务器错误响应:', errorText);
+          
+          // 特定错误的重试策略
+          if (response.status === 413) {
+            throw new Error(`文件过大，无法上传 (${Math.round(uploadedFile.size / 1024 / 1024 * 100) / 100}MB)`);
+          } else if (response.status >= 500 && retryCount < MAX_RETRIES - 1) {
+            // 服务器错误，可以重试
+            return false;
+          }
+          
+          throw new Error(`服务器错误 ${response.status}: ${errorText}`);
+        }
+
+        const result = await response.json();
+        console.log('🎵 [前端] 解析服务器响应成功:', result);
+        
+        if (result.success) {
+          setUploadProgress('上传成功！正在更新列表...');
+          console.log('🎵 [前端] 音乐上传成功！');
+          
+          // 直接添加新音乐到列表末尾，保持创建时间顺序
+          setBackgroundMusics(prevMusics => [...prevMusics, result.data]);
+          
+          // 强制刷新列表以确保数据同步
+          setTimeout(async () => {
+            await loadBackgroundMusics(true);
+          }, 500);
+          
+          // 重置表单
+          setMusicName('');
+          setUploadedFile(null);
+          setUploadPreviewUrl('');
+          if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+          }
+          
+          // 延迟清除成功消息
+          setTimeout(() => {
+            setUploadProgress('');
+          }, 3000);
+          
+          return true;
+        } else {
+          console.error('🎵 [前端] 保存音乐失败:', result.error);
+          if (retryCount < MAX_RETRIES - 1) {
+            return false; // 重试
+          }
+          throw new Error(result.error);
+        }
+      } catch (error) {
+        console.error(`🎵 [前端] 上传尝试 ${retryCount + 1} 失败:`, error);
+        
+        if (error instanceof Error) {
+          if (error.name === 'AbortError') {
+            throw new Error('上传超时，请检查网络连接或尝试压缩文件后重新上传');
+          } else if (error.message.includes('文件过大')) {
+            throw error; // 文件过大错误不重试
+          }
         }
         
-        // 延迟清除成功消息
-        setTimeout(() => {
-          setUploadProgress('');
-        }, 2000);
-      } else {
-        console.error('🎵 [前端] 保存音乐失败:', result.error);
-        throw new Error(result.error);
+        if (retryCount < MAX_RETRIES - 1) {
+          return false; // 重试
+        }
+        
+        throw error;
+      }
+    };
+
+    try {
+      // 重试逻辑
+      while (retryCount < MAX_RETRIES) {
+        const success = await attemptUpload();
+        if (success) {
+          break;
+        }
+        
+        retryCount++;
+        if (retryCount < MAX_RETRIES) {
+          const delay = Math.pow(2, retryCount) * 1000; // 指数退避：2s, 4s, 8s
+          setUploadProgress(`上传失败，${delay / 1000}秒后重试...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
       }
     } catch (error) {
-      console.error('🎵 [前端] 上传音乐异常:', error);
+      console.error('🎵 [前端] 最终上传失败:', error);
       setUploadProgress('');
       
       const errorMessage = error instanceof Error ? error.message : '未知错误';
-      alert(`上传音乐失败: ${errorMessage}\n\n请检查：\n1. 网络连接是否正常\n2. 文件格式是否支持\n3. 文件大小是否超出限制\n\n如问题持续，请刷新页面重试。`);
+      alert(`上传音乐失败: ${errorMessage}\n\n请检查：\n1. 网络连接是否正常\n2. 文件格式是否支持 (MP3/WAV/OGG)\n3. 文件大小是否超出25MB限制\n4. 服务器是否正常运行\n\n建议：\n- 尝试压缩音频文件\n- 检查网络连接\n- 刷新页面重试`);
     } finally {
       setUploadLoading(false);
     }
   };
 
-  // 生成并保存音乐
+  // 生成并保存音乐 - 优化版本
   const handleGenerateMusic = async () => {
     if (!musicGeneratorRef.current || !musicName || generateLoading) return;
 
     setGenerateLoading(true);
     setUploadProgress('正在生成音乐...');
 
+    const MAX_RETRIES = 3;
+    let retryCount = 0;
+
+    const attemptGenerate = async (): Promise<boolean> => {
+      try {
+        console.log(`🎵 [前端] 尝试生成音乐 (第${retryCount + 1}次)...`);
+        const generationStartTime = Date.now();
+        const buffer = await musicGeneratorRef.current!.generateMusic(musicConfig);
+        const generationTime = Date.now() - generationStartTime;
+        console.log(`🎵 [前端] 音乐生成完成，耗时: ${generationTime}ms`);
+        
+        setUploadProgress('正在转换音频格式...');
+        
+        // 将 AudioBuffer 转换为 WAV 格式的 Blob
+        const wavBlob = audioBufferToWav(buffer);
+        console.log(`🎵 [前端] 音频转换完成，文件大小: ${Math.round(wavBlob.size / 1024)}KB`);
+        
+        // 检查生成的音乐文件大小
+        const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+        if (wavBlob.size > MAX_FILE_SIZE) {
+          throw new Error(`生成的音乐文件过大 (${Math.round(wavBlob.size / 1024 / 1024 * 100) / 100}MB)，请减少音乐时长或降低音质设置`);
+        }
+        
+        setUploadProgress(`正在编码音频数据... (${retryCount > 0 ? `重试 ${retryCount}/${MAX_RETRIES}` : ''})`);
+        
+        // 使用Web Worker进行Base64编码
+        console.log('🎵 [前端] 开始Web Worker音频编码...');
+        const encodingStartTime = Date.now();
+        const base64Data = await audioWorker.blobToBase64(wavBlob);
+        const encodingTime = Date.now() - encodingStartTime;
+        console.log(`🎵 [前端] Web Worker编码完成，耗时: ${encodingTime}ms，数据长度: ${base64Data.length}`);
+        
+        // 创建 FormData
+        const formData = new FormData();
+        formData.append('configId', 'default');
+        formData.append('name', musicName);
+        formData.append('generatedFile', wavBlob, `${musicName}.wav`);
+        formData.append('fileType', 'generated');
+        formData.append('volume', musicConfig.volume.toString());
+        formData.append('loop', musicLoop.toString());
+        formData.append('bpm', musicConfig.bpm.toString());
+        formData.append('isDefault', 'false');
+        formData.append('generationConfig', JSON.stringify(musicConfig));
+        formData.append('rhythmPattern', JSON.stringify({
+          enabled: rhythmEnabled,
+          soundType: rhythmSoundType,
+          pattern: getPatternByTimeSignature(musicConfig.timeSignature),
+          volume: rhythmVolume
+        }));
+
+        setUploadProgress(`正在上传生成的音乐... (${Math.round(wavBlob.size / 1024)}KB)`);
+        console.log('🎵 [前端] 开始上传生成的音乐...');
+
+        // 增加超时时间
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 300000); // 5分钟超时
+
+        const response = await fetch('/api/mikutap/background-music', {
+          method: 'POST',
+          body: formData,
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        setUploadProgress('正在处理服务器响应...');
+        console.log('🎵 [前端] 收到服务器响应，状态:', response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('🎵 [前端] 服务器错误响应:', errorText);
+          
+          // 特定错误的重试策略
+          if (response.status === 413) {
+            throw new Error(`生成的音乐文件过大，无法上传 (${Math.round(wavBlob.size / 1024 / 1024 * 100) / 100}MB)`);
+          } else if (response.status >= 500 && retryCount < MAX_RETRIES - 1) {
+            // 服务器错误，可以重试
+            return false;
+          }
+          
+          throw new Error(`服务器错误 ${response.status}: ${errorText}`);
+        }
+
+        const result = await response.json();
+        console.log('🎵 [前端] 解析服务器响应成功:', result);
+        
+        if (result.success) {
+          setUploadProgress('生成并保存成功！正在更新列表...');
+          console.log('🎵 [前端] 生成的音乐保存成功！');
+          
+          // 直接添加新生成的音乐到列表末尾，保持创建时间顺序
+          setBackgroundMusics(prevMusics => [...prevMusics, result.data]);
+          
+          // 强制刷新列表以确保数据同步
+          setTimeout(async () => {
+            await loadBackgroundMusics(true);
+          }, 500);
+          
+          // 重置表单
+          setMusicName('');
+          
+          // 延迟清除成功消息
+          setTimeout(() => {
+            setUploadProgress('');
+          }, 3000);
+          
+          return true;
+        } else {
+          console.error('🎵 [前端] 保存生成音乐失败:', result.error);
+          if (retryCount < MAX_RETRIES - 1) {
+            return false; // 重试
+          }
+          throw new Error(result.error);
+        }
+      } catch (error) {
+        console.error(`🎵 [前端] 生成尝试 ${retryCount + 1} 失败:`, error);
+        
+        if (error instanceof Error) {
+          if (error.name === 'AbortError') {
+            throw new Error('上传超时，请尝试减少音乐时长或检查网络连接');
+          } else if (error.message.includes('文件过大')) {
+            throw error; // 文件过大错误不重试
+          }
+        }
+        
+        if (retryCount < MAX_RETRIES - 1) {
+          return false; // 重试
+        }
+        
+        throw error;
+      }
+    };
+
     try {
-      console.log('🎵 [前端] 开始生成音乐...');
-      const buffer = await musicGeneratorRef.current.generateMusic(musicConfig);
-      
-      setUploadProgress('正在转换音频格式...');
-      
-      // 将 AudioBuffer 转换为 WAV 格式的 Blob
-      const wavBlob = audioBufferToWav(buffer);
-      console.log(`🎵 [前端] 音频转换完成，文件大小: ${Math.round(wavBlob.size / 1024)}KB`);
-      
-      // 检查生成的音乐文件大小
-      const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
-      if (wavBlob.size > MAX_FILE_SIZE) {
-        setUploadProgress('');
-        alert(`生成的音乐文件过大！\n文件大小: ${Math.round(wavBlob.size / 1024 / 1024 * 100) / 100}MB\n最大支持: ${Math.round(MAX_FILE_SIZE / 1024 / 1024)}MB\n\n请减少音乐时长或降低音质设置。`);
-        return;
-      }
-      
-      setUploadProgress('正在准备上传...');
-      
-      // 创建 FormData
-      const formData = new FormData();
-      formData.append('configId', 'default');
-      formData.append('name', musicName);
-      formData.append('generatedFile', wavBlob, `${musicName}.wav`);
-      formData.append('fileType', 'generated');
-      formData.append('volume', musicConfig.volume.toString());
-      formData.append('loop', musicLoop.toString());
-      formData.append('bpm', musicConfig.bpm.toString());
-      formData.append('isDefault', 'false');
-      formData.append('generationConfig', JSON.stringify(musicConfig));
-      formData.append('rhythmPattern', JSON.stringify({
-        enabled: rhythmEnabled,
-        soundType: rhythmSoundType,
-        pattern: getPatternByTimeSignature(musicConfig.timeSignature),
-        volume: rhythmVolume
-      }));
-
-      setUploadProgress('正在上传生成的音乐...');
-      console.log('🎵 [前端] 开始上传生成的音乐...');
-
-      const response = await fetch('/api/mikutap/background-music', {
-        method: 'POST',
-        body: formData,
-      });
-
-      setUploadProgress('正在处理服务器响应...');
-      console.log('🎵 [前端] 收到服务器响应，状态:', response.status);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('🎵 [前端] 服务器错误响应:', errorText);
-        throw new Error(`服务器错误 ${response.status}: ${errorText}`);
-      }
-
-      const result = await response.json();
-      console.log('🎵 [前端] 解析服务器响应成功:', result);
-      
-      if (result.success) {
-        setUploadProgress('生成并保存成功！');
-        console.log('🎵 [前端] 生成的音乐保存成功！');
+      // 重试逻辑
+      while (retryCount < MAX_RETRIES) {
+        const success = await attemptGenerate();
+        if (success) {
+          break;
+        }
         
-        // 直接添加新生成的音乐到列表末尾，保持创建时间顺序
-        setBackgroundMusics(prevMusics => [...prevMusics, result.data]);
-        
-        // 重置表单
-        setMusicName('');
-        
-        // 延迟清除成功消息
-        setTimeout(() => {
-          setUploadProgress('');
-        }, 2000);
-      } else {
-        console.error('🎵 [前端] 保存生成音乐失败:', result.error);
-        throw new Error(result.error);
+        retryCount++;
+        if (retryCount < MAX_RETRIES) {
+          const delay = Math.pow(2, retryCount) * 1000; // 指数退避：2s, 4s, 8s
+          setUploadProgress(`生成失败，${delay / 1000}秒后重试...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
       }
     } catch (error) {
-      console.error('🎵 [前端] 生成音乐异常:', error);
+      console.error('🎵 [前端] 最终生成失败:', error);
       setUploadProgress('');
       
       const errorMessage = error instanceof Error ? error.message : '未知错误';
-      alert(`生成音乐失败: ${errorMessage}\n\n请检查：\n1. 网络连接是否正常\n2. 音乐配置是否合理\n3. 服务器是否正常\n\n如问题持续，请刷新页面重试。`);
+      alert(`生成音乐失败: ${errorMessage}\n\n请检查：\n1. 网络连接是否正常\n2. 音乐配置是否合理 (时长不要过长)\n3. 服务器是否正常运行\n\n建议：\n- 减少音乐时长 (推荐8-16秒)\n- 降低音质设置\n- 检查网络连接\n- 刷新页面重试`);
     } finally {
       setGenerateLoading(false);
     }
