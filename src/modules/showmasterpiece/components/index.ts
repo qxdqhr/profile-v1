@@ -115,4 +115,6 @@ export { CollectionOrderManagerV2 } from './CollectionOrderManagerV2';
  */
 export { ArtworkOrderManagerV2 } from './ArtworkOrderManagerV2';
 
+export { ArtworkImageUpload } from './ArtworkImageUpload';
+
  

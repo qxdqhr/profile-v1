@@ -5,6 +5,8 @@ import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit,
 import { useMasterpiecesConfig } from '../../hooks/useMasterpiecesConfig';
 import { ConfigFormData, CollectionFormData, ArtworkFormData } from '../../types';
 import { ImageUpload } from '@/components/ImageUpload';
+import { ArtworkImageUpload } from '../../components/ArtworkImageUpload';
+import { shouldUseUniversalFileService, getStorageModeDisplayName } from '../../services/fileService';
 import { AuthGuard, AuthProvider } from '@/modules/auth';
 import { CollectionOrderManagerV2 as CollectionOrderManager } from '../../components/CollectionOrderManagerV2';
 import { ArtworkOrderManagerV2 as ArtworkOrderManager } from '../../components/ArtworkOrderManagerV2';
@@ -40,6 +42,10 @@ function ConfigPageContent() {
   const [showArtworkOrder, setShowArtworkOrder] = useState(false);
   const [showCollectionOrder, setShowCollectionOrder] = useState(false);
 
+  // 检查是否使用通用文件服务
+  const useUniversalService = shouldUseUniversalFileService();
+  const storageModeDisplay = getStorageModeDisplayName();
+
   // 配置表单状态
   const [configForm, setConfigForm] = useState<ConfigFormData>({
     siteName: config?.siteName || '',
@@ -69,7 +75,7 @@ function ConfigPageContent() {
   const [artworkForm, setArtworkForm] = useState<ArtworkFormData>({
     title: '',
     artist: '',
-    image: '',
+    image: undefined,
     description: '',
     createdTime: '',
     theme: '',
@@ -219,7 +225,8 @@ function ConfigPageContent() {
       setArtworkForm({
         title: '',
         artist: '',
-        image: '',
+        image: undefined,
+        fileId: undefined,
         description: '',
         createdTime: '',
         theme: '',
@@ -263,7 +270,8 @@ function ConfigPageContent() {
     setArtworkForm({
       title: artwork.title,
       artist: artwork.artist,
-      image: artwork.image,
+      image: artwork.image || undefined,
+      fileId: artwork.fileId || undefined,
       description: artwork.description || '',
       createdTime: artwork.createdTime || '',
       theme: artwork.theme || '',
@@ -808,12 +816,23 @@ function ConfigPageContent() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <ImageUpload
+                <ArtworkImageUpload
                   label="作品图片"
                   value={artworkForm.image}
-                  onChange={(value) => setArtworkForm(prev => ({ ...prev, image: value }))}
+                  fileId={artworkForm.fileId}
+                  onChange={(data) => setArtworkForm(prev => ({ 
+                    ...prev, 
+                    image: data.image,
+                    fileId: data.fileId
+                  }))}
                   placeholder="输入作品图片URL或上传本地图片"
+                  forceUniversalMode={useUniversalService}
                 />
+                {useUniversalService && (
+                  <div className="mt-2 text-xs text-blue-600">
+                    当前存储模式: {storageModeDisplay}
+                  </div>
+                )}
               </div>
               <div className={styles.formGroup}>
                 <label>描述</label>

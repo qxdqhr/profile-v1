@@ -31,6 +31,7 @@ import {
   integer, 
   boolean,
   varchar,
+  uuid,
   index
 } from 'drizzle-orm/pg-core';
 
@@ -281,8 +282,14 @@ export const comicUniverseArtworks = pgTable('comic_universe_artworks', {
   /** 艺术家/作者姓名 */
   artist: varchar('artist', { length: 255 }).notNull(),
   
-  /** 作品图片（支持URL或base64编码） */
-  image: text('image').notNull(),
+  /** 作品图片（支持URL或base64编码，兼容旧数据） */
+  image: text('image'),
+  
+  /** 通用文件服务的文件ID（新架构） */
+  fileId: uuid('file_id'),
+  
+  /** 迁移状态：pending(待迁移), completed(已完成), failed(失败) */
+  migrationStatus: varchar('migration_status', { length: 20 }).default('pending'),
   
   /** 作品描述 */
   description: text('description'),
@@ -325,6 +332,12 @@ export const comicUniverseArtworks = pgTable('comic_universe_artworks', {
   
   /** 画集、启用状态和页面顺序的三元复合索引（优化完整查询） */
   collectionActiveOrderIndex: index('artworks_collection_active_order_idx').on(table.collectionId, table.isActive, table.pageOrder),
+  
+  /** 文件ID查询索引（新架构） */
+  fileIdIndex: index('artworks_file_id_idx').on(table.fileId),
+  
+  /** 迁移状态查询索引 */
+  migrationStatusIndex: index('artworks_migration_status_idx').on(table.migrationStatus),
 }));
 
 // ===== 关系定义 =====

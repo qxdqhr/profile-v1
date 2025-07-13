@@ -4,9 +4,9 @@ import { GridCell, GridConfig, AnimationType, AnimationConfig, DEFAULT_INTERFACE
 export const DEFAULT_GRID_CONFIG: GridConfig = {
   id: 'default',
   name: '默认配置',
-  description: '5x6网格，包含钢琴、鼓点和特效音色 - 可在动效映射标签页中自定义动画',
-  rows: 6,
-  cols: 5,
+  description: '4x7网格，标准钢琴音阶布局 - 每行一个完整的do到si音阶',
+  rows: 4,
+  cols: 7,
   cells: [],
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -104,13 +104,26 @@ export function generateDefaultCells(rows: number, cols: number): GridCell[] {
 
 // 获取默认频率
 function getDefaultFrequency(soundType: string, index: number): number {
-  const pianoFreqs = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25];
+  // 钢琴频率：4行7列，每行一个完整的do到si音阶(C-D-E-F-G-A-B)
+  const pianoFreqs = Array.from({ length: 28 }, (_, i) => {
+    const row = Math.floor(i / 7); // 0-3行
+    const col = i % 7; // 0-6列
+    const octave = row + 2; // 从2八度开始: C2, C3, C4, C5
+    
+    // 基于C2 = 65.406 Hz计算
+    const c2Frequency = 65.406;
+    // 半音步数: C=0, D=2, E=4, F=5, G=7, A=9, B=11
+    const semitoneSteps = [0, 2, 4, 5, 7, 9, 11];
+    const semitonesFromC2 = (octave - 2) * 12 + semitoneSteps[col]; // 相对于C2的半音步数
+    return c2Frequency * Math.pow(2, semitonesFromC2 / 12);
+  });
+  
   const drumFreqs = [60, 80, 100, 120, 140, 160, 180, 200, 220];
   const synthFreqs = [110, 146.83, 196, 246.94, 329.63, 415.30, 523.25];
 
   switch (soundType) {
     case 'piano':
-      return pianoFreqs[index] || 440;
+      return pianoFreqs[index] || 261.63; // 默认返回中央C4
     case 'drum':
       return drumFreqs[index - 10] || 100;
     case 'synth':

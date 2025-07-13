@@ -390,7 +390,13 @@ export class MusicGenerator {
         source.start(0);
         console.log('🎵 [MusicGenerator] 音频源播放成功');
         resolve();
-      } catch (error) {
+      } catch (error: any) {
+        // 捕获AbortError，这通常不是真正的错误
+        if (error.name === 'AbortError') {
+          console.log('🎵 [MusicGenerator] 播放被中断 (AbortError)，这是正常的浏览器行为');
+          resolve();
+          return;
+        }
         console.error('❌ [MusicGenerator] 播放音频缓冲区失败:', error);
         reject(error);
       }

@@ -15,19 +15,32 @@ interface SoundPreset {
 
 // 预设音效套装数据
 const SOUND_PRESETS: SoundPreset[] = [
-  // 钢琴键盘 - 低音到高音30个音
+  // 钢琴键盘 - 4行7列，每行一个完整音阶
   {
     id: 'piano-30-keys',
-    name: '钢琴键盘 (30键)',
-    description: '从低音C到高音F，覆盖30个半音阶',
+    name: '钢琴键盘 (28键)',
+    description: '4行7列布局，每行一个完整的do到si音阶，覆盖4个八度',
     icon: '🎹',
     category: 'keyboard',
-    cells: Array.from({ length: 30 }, (_, i) => {
-      const baseFreq = 130.81; // C3
-      const frequency = baseFreq * Math.pow(2, i / 12);
-      const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-      const octave = Math.floor(i / 12) + 3;
-      const noteName = noteNames[i % 12] + octave;
+    cells: Array.from({ length: 28 }, (_, i) => {
+      // 4行7列，每行对应一个八度的7个音符(C-D-E-F-G-A-B)
+      const row = Math.floor(i / 7); // 0-3行
+      const col = i % 7; // 0-6列
+      const octave = row + 2; // 从2八度开始: C2, C3, C4, C5
+      
+      // 七个基本音符: C D E F G A B
+      const noteNames = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+      const noteName = noteNames[col] + octave;
+      
+      // 计算频率 - 基于C2 = 65.406 Hz
+      const c2Frequency = 65.406;
+      // 半音步数: C=0, D=2, E=4, F=5, G=7, A=9, B=11
+      const semitoneSteps = [0, 2, 4, 5, 7, 9, 11];
+      const semitonesFromC2 = (octave - 2) * 12 + semitoneSteps[col]; // 相对于C2的半音步数
+      const frequency = c2Frequency * Math.pow(2, semitonesFromC2 / 12);
+      
+      // 中央C4特殊标记 (第3行第1列，索引14)
+      const isCentralC = (row === 2 && col === 0);
       
       return {
         key: i < DEFAULT_KEYS.length ? DEFAULT_KEYS[i] : undefined,
@@ -36,9 +49,91 @@ const SOUND_PRESETS: SoundPreset[] = [
         waveType: 'sine' as const,
         frequency,
         volume: 80,
-        description: `钢琴 ${noteName}`,
+        description: `钢琴 ${noteName}${isCentralC ? ' (中央C)' : ''}`,
         icon: '🎹',
-        color: '#3B82F6',
+        color: isCentralC ? '#FFD700' : '#3B82F6', // 中央C用金色突出显示
+        enabled: true,
+      };
+    })
+  },
+
+  // 全钢琴键盘 - 5行12列，包含半音
+  {
+    id: 'full-piano-60-keys',
+    name: '全钢琴键盘 (60键)',
+    description: '5行12列布局，包含所有半音，覆盖5个八度的完整钢琴音域',
+    icon: '🎼',
+    category: 'keyboard',
+    cells: Array.from({ length: 60 }, (_, i) => {
+      // 5行12列，每行对应一个八度的12个半音
+      const row = Math.floor(i / 12); // 0-4行
+      const col = i % 12; // 0-11列
+      const octave = row + 1; // 从1八度开始: C1, C2, C3, C4, C5
+      
+      // 十二个半音: C C# D D# E F F# G G# A A# B
+      const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+      const noteName = noteNames[col] + octave;
+      
+      // 计算频率 - 基于C1 = 32.703 Hz
+      const c1Frequency = 32.703;
+      const semitonesFromC1 = (octave - 1) * 12 + col;
+      const frequency = c1Frequency * Math.pow(2, semitonesFromC1 / 12);
+      
+      // 特殊标记
+      const isCentralC = (octave === 4 && col === 0); // C4
+      const isWhiteKey = [0, 2, 4, 5, 7, 9, 11].includes(col); // 白键
+      const isStandardA = (octave === 4 && col === 9); // A4 = 440Hz
+      
+      return {
+        key: i < DEFAULT_KEYS.length ? DEFAULT_KEYS[i] : undefined,
+        soundType: 'piano' as SoundType,
+        soundSource: 'synthesized' as const,
+        waveType: 'sine' as const,
+        frequency,
+        volume: 80,
+        description: `钢琴 ${noteName}${isCentralC ? ' (中央C)' : ''}${isStandardA ? ' (标准A)' : ''}`,
+        icon: '🎹',
+        color: isCentralC ? '#FFD700' : isStandardA ? '#FF6B6B' : isWhiteKey ? '#3B82F6' : '#6366F1', // 中央C金色，标准A红色，白键蓝色，黑键紫色
+        enabled: true,
+      };
+    })
+  },
+
+  // 精简钢琴键盘 - 3行7列，标准音阶
+  {
+    id: 'compact-piano-21-keys',
+    name: '精简钢琴 (21键)',
+    description: '3行7列布局，每行一个完整的do到si音阶，适合移动端使用',
+    icon: '🎵',
+    category: 'keyboard',
+    cells: Array.from({ length: 21 }, (_, i) => {
+      // 3行7列，每行7个音符
+      const row = Math.floor(i / 7); // 0-2行
+      const col = i % 7; // 0-6列
+      const octave = row + 3; // 从3八度开始: C3, C4, C5
+      
+      // 7个音符: C D E F G A B
+      const noteNames = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+      const noteName = noteNames[col] + octave;
+      
+      // 计算频率
+      const c3Frequency = 130.81;
+      const semitoneSteps = [0, 2, 4, 5, 7, 9, 11]; // 标准自然音半音步数
+      const semitonesFromC3 = (octave - 3) * 12 + semitoneSteps[col];
+      const frequency = c3Frequency * Math.pow(2, semitonesFromC3 / 12);
+      
+      const isCentralC = (octave === 4 && col === 0); // C4是中央C
+      
+      return {
+        key: i < DEFAULT_KEYS.length ? DEFAULT_KEYS[i] : undefined,
+        soundType: 'piano' as SoundType,
+        soundSource: 'synthesized' as const,
+        waveType: 'sine' as const,
+        frequency,
+        volume: 80,
+        description: `钢琴 ${noteName}${isCentralC ? ' (中央C)' : ''}`,
+        icon: '🎵',
+        color: isCentralC ? '#FFD700' : '#10B981', // 中央C金色，其他绿色
         enabled: true,
       };
     })

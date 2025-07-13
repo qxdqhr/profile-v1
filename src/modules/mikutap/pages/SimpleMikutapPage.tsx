@@ -8,7 +8,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { audioManager } from '../utils/audioManager';
 import { Modal } from '@/components/PopWindow';
-import { GridConfig, GridCell, BackgroundMusic, InterfaceSettings, DEFAULT_INTERFACE_SETTINGS } from '../types';
+import { GridConfig, GridCell, BackgroundMusic, InterfaceSettings, DEFAULT_INTERFACE_SETTINGS, AnimationType } from '../types';
 import { useConfigDatabase } from '../hooks/useConfigDatabase';
 import TestAnimation from '../components/TestAnimation';
 import FullscreenAnimation from '../components/FullscreenAnimation';
@@ -39,9 +39,39 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
   const getInterfaceSettings = useCallback(() => {
     return gridConfig?.interfaceSettings || DEFAULT_INTERFACE_SETTINGS;
   }, [gridConfig]);
+  
+  // 生成随机颜色的函数
+  const generateRandomColor = useCallback(() => {
+    const colors = [
+      '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57',
+      '#FF9FF3', '#54A0FF', '#5F27CD', '#00D2D3', '#FF9F43',
+      '#EE5A24', '#FFC312', '#C44569', '#F79F1F', '#A3CB38',
+      '#1DD1A1', '#FD79A8', '#FDCB6E', '#6C5CE7', '#A29BFE',
+      '#74B9FF', '#00B894', '#E17055', '#81ECEC', '#FAB1A0',
+      '#E84393', '#00CEC9', '#FDCB6E', '#6C5CE7', '#DDA0DD'
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }, []);
+  
+  // 生成随机动效类型的函数
+  const generateRandomAnimationType = useCallback((): AnimationType => {
+    const animationTypes: AnimationType[] = [
+      'pulse', 'bounce', 'flash', 'spin', 'scale', 'slide', 
+      'ripple', 'explosion', 'vortex', 'lightning', 'rainbow', 'wave'
+    ];
+    return animationTypes[Math.floor(Math.random() * animationTypes.length)];
+  }, []);
   const [triggeredCells, setTriggeredCells] = useState<Set<string>>(new Set());
   const [lastTriggeredCellId, setLastTriggeredCellId] = useState<string | null>(null);
   const [lastMousePosition, setLastMousePosition] = useState<{ x: number, y: number } | null>(null);
+  // 多点触控状态
+  const [activeTouches, setActiveTouches] = useState<Map<number, { x: number, y: number, cellId: string | null }>>(new Map());
+  const activeTouchesRef = useRef<Map<number, { x: number, y: number, cellId: string | null }>>(new Map());
+  
+  // 同步activeTouches状态和ref
+  useEffect(() => {
+    activeTouchesRef.current = activeTouches;
+  }, [activeTouches]);
   const containerRef = useRef<HTMLDivElement>(null);
   // 移除旧的音频生成器引用，现在使用统一音频管理器
   const { loadConfig: loadConfigFromDB } = useConfigDatabase();
@@ -170,7 +200,7 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
           console.log('🎵 已设置第一个音乐为当前背景音乐:', firstMusic.name);
           
           // 测试音频数据是否有效
-          console.log('🎵 音频数据长度:', firstMusic.audioData?.length || 0);
+          console.log('🎵 音频数据长度:', firstMusic.file?.url?.length || 0);
         } else {
           console.log('🎵 没有找到任何背景音乐');
         }
@@ -294,7 +324,12 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
         setIsBackgroundMusicStarted(true);
         setIsUserDisabledMusic(false); // 强制重置用户禁用标志
         console.log('🎵 通过toggle强制启动背景音乐:', currentBgMusic.name);
-      } catch (error) {
+      } catch (error: any) {
+        // 捕获AbortError，这通常不是真正的错误
+        if (error?.name === 'AbortError') {
+          console.log('🎵 Toggle播放被中断 (AbortError)，这是正常的浏览器行为');
+          return;
+        }
         console.error('❌ Toggle启动背景音乐失败:', error);
       }
     }
@@ -313,7 +348,12 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       setIsBackgroundMusicStarted(true);
       setIsUserDisabledMusic(false); // 重置用户禁用标志
       console.log('🎵 用户手动开启背景音乐:', currentBgMusic.name);
-    } catch (error) {
+    } catch (error: any) {
+      // 捕获AbortError，这通常不是真正的错误
+      if (error?.name === 'AbortError') {
+        console.log('🎵 手动播放被中断 (AbortError)，这是正常的浏览器行为');
+        return;
+      }
       console.error('❌ 手动播放背景音乐失败:', error);
     }
   }, [currentBgMusic]);
@@ -340,10 +380,10 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
   }, []);
 
   // 转换BackgroundMusic为MikutapMusicTrack格式
-  const currentMusicTrack: MikutapMusicTrack | undefined = currentBgMusic ? {
+  const currentMusicTrack: MikutapMusicTrack | undefined = currentBgMusic && currentBgMusic.file ? {
     id: currentBgMusic.id,
     name: currentBgMusic.name,
-    audioData: currentBgMusic.audioData,
+    audioUrl: currentBgMusic.file.url,
     duration: currentBgMusic.duration
   } : undefined;
 
@@ -485,11 +525,14 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
         // 创建粒子效果
         if (interfaceSettings.enableParticles) {
           const particleId = `${Date.now()}-${Math.random()}`;
+          // 根据设置决定使用原色还是随机颜色
+          const particleColor = interfaceSettings.randomColors ? generateRandomColor() : cell.color;
+          
           setParticles(prev => [...prev, {
             id: particleId,
             x: x || window.innerWidth / 2,
             y: y || window.innerHeight / 2,
-            color: cell.color,
+            color: particleColor,
             life: interfaceSettings.particleLifetime
           }]);
           
@@ -504,7 +547,12 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
         
         // 触发全屏动画（仅在启用背景动效时）
         if (interfaceSettings.enableBackgroundAnimations) {
-          setActiveCell(cell);
+          // 如果启用了随机颜色，创建一个带随机颜色的cell副本
+          const cellForAnimation = interfaceSettings.randomColors ? {
+            ...cell,
+            color: generateRandomColor()
+          } : cell;
+          setActiveCell(cellForAnimation);
           setFullscreenAnimationTrigger(Date.now());
         }
         
@@ -575,7 +623,25 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       
       // 触发全屏动画（仅在启用背景动效时）
       if (interfaceSettings.enableBackgroundAnimations) {
-        setActiveCell(cell);
+        // 如果启用了随机颜色或随机动效，创建一个修改后的cell副本
+        const cellForAnimation = (() => {
+          let modifiedCell = { ...cell };
+          
+          // 应用随机颜色
+          if (interfaceSettings.randomColors) {
+            modifiedCell.color = generateRandomColor();
+          }
+          
+          // 应用随机动效 - 影响背景动画类型
+          if (interfaceSettings.randomEffects) {
+            const randomAnimationType = generateRandomAnimationType();
+            modifiedCell.backgroundAnimationType = randomAnimationType as any;
+            modifiedCell.animationType = randomAnimationType;
+          }
+          
+          return modifiedCell;
+        })();
+        setActiveCell(cellForAnimation);
         setFullscreenAnimationTrigger(prev => prev + 1);
       }
       
@@ -587,11 +653,13 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       // 添加粒子效果
       if (interfaceSettings.enableParticles) {
         const particleId = Math.random().toString(36);
+        // 根据设置决定使用原色还是随机颜色
+        const particleColor = interfaceSettings.randomColors ? generateRandomColor() : cell.color;
         const newParticle = {
           id: particleId,
           x,
           y,
-          color: cell.color,
+          color: particleColor,
           life: 1
         };
         
@@ -669,7 +737,25 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
 
       // 触发全屏动画（仅在启用背景动效时）
       if (interfaceSettings.enableBackgroundAnimations) {
-        setActiveCell(cell);
+        // 如果启用了随机颜色或随机动效，创建一个修改后的cell副本
+        const cellForAnimation = (() => {
+          let modifiedCell = { ...cell };
+          
+          // 应用随机颜色
+          if (interfaceSettings.randomColors) {
+            modifiedCell.color = generateRandomColor();
+          }
+          
+          // 应用随机动效 - 影响背景动画类型
+          if (interfaceSettings.randomEffects) {
+            const randomAnimationType = generateRandomAnimationType();
+            modifiedCell.backgroundAnimationType = randomAnimationType as any;
+            modifiedCell.animationType = randomAnimationType;
+          }
+          
+          return modifiedCell;
+        })();
+        setActiveCell(cellForAnimation);
         setFullscreenAnimationTrigger(prev => prev + 1);
       }
 
@@ -680,7 +766,9 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
 
       if (interfaceSettings.enableParticles) {
         const particleId = Math.random().toString(36);
-        const newParticle = { id: particleId, x, y, color: cell.color, life: 1 };
+        // 根据设置决定使用原色还是随机颜色
+        const particleColor = interfaceSettings.randomColors ? generateRandomColor() : cell.color;
+        const newParticle = { id: particleId, x, y, color: particleColor, life: 1 };
         setParticles(prev => [...prev, newParticle]);
         setTimeout(() => {
           setParticles(prev => prev.filter(p => p.id !== particleId));
@@ -833,7 +921,38 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
   }, [getInterfaceSettings, isDragging, showHelpInfo, lastMousePosition, gridConfig, handlePlaySoundAtPosition]);
 
   /**
-   * 处理触摸开始
+   * 处理单个触摸点的音效播放
+   */
+  const handleSingleTouchPlay = useCallback(async (touchId: number, x: number, y: number, isStart: boolean = false) => {
+    if (!gridConfig) return;
+    
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    
+    // 计算当前格子位置
+    const col = Math.floor((x / rect.width) * gridConfig.cols);
+    const row = Math.floor((y / rect.height) * gridConfig.rows);
+    const cell = gridConfig.cells.find(c => c.row === row && c.col === col && c.enabled);
+    
+    if (!cell) return;
+    
+    // 检查这个触摸点是否已经在这个格子上
+    const currentTouch = activeTouchesRef.current.get(touchId);
+    if (currentTouch && currentTouch.cellId === cell.id && !isStart) {
+      return; // 如果还在同一个格子上，不重复播放
+    }
+    
+    // 更新触摸点信息
+    const newTouchInfo = { x, y, cellId: cell.id };
+    activeTouchesRef.current.set(touchId, newTouchInfo);
+    setActiveTouches(new Map(activeTouchesRef.current));
+    
+    // 播放音效
+    await handlePlaySoundAtPosition(x, y, isStart);
+  }, [gridConfig, handlePlaySoundAtPosition]);
+
+  /**
+   * 处理触摸开始 - 支持多点触控
    */
   const handleTouchStart = useCallback(async (e: React.TouchEvent) => {
     const interfaceSettings = getInterfaceSettings();
@@ -845,77 +964,97 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect || !gridConfig) return;
     
-    const touch = e.touches[0];
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
-    
-    // 记录初始触摸位置
-    setLastMousePosition({ x, y });
-    
-    // 计算当前格子位置
-    const col = Math.floor((x / rect.width) * gridConfig.cols);
-    const row = Math.floor((y / rect.height) * gridConfig.rows);
-    lastGridPositionRef.current = { row, col };
-    
-    await handlePlaySoundAtPosition(x, y, true);
-  }, [getInterfaceSettings, handlePlaySoundAtPosition, gridConfig]);
-
-  /**
-   * 处理触摸移动 - 简化版
-   */
-  const handleTouchMove = useCallback(async (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    const rect = containerRef.current?.getBoundingClientRect();
-    
-    if (showHelpInfo && rect) {
-      setMousePosition({
-        x: touch.clientX - rect.left,
-        y: touch.clientY - rect.top
-      });
+    // 处理所有新增的触摸点
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const touch = e.changedTouches[i];
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+      
+      // 处理每个触摸点
+      await handleSingleTouchPlay(touch.identifier, x, y, true);
     }
     
+    // 如果是第一个触摸点，记录为主要触摸位置（用于帮助信息显示）
+    if (e.touches.length === 1) {
+      const primaryTouch = e.touches[0];
+      const x = primaryTouch.clientX - rect.left;
+      const y = primaryTouch.clientY - rect.top;
+      setLastMousePosition({ x, y });
+      
+      // 计算主要触摸点的格子位置
+      const col = Math.floor((x / rect.width) * gridConfig.cols);
+      const row = Math.floor((y / rect.height) * gridConfig.rows);
+      lastGridPositionRef.current = { row, col };
+    }
+  }, [getInterfaceSettings, handleSingleTouchPlay, gridConfig]);
+
+  /**
+   * 处理触摸移动 - 支持多点触控
+   */
+  const handleTouchMove = useCallback(async (e: React.TouchEvent) => {
     const interfaceSettings = getInterfaceSettings();
-    if (!interfaceSettings.mouseEnabled || !isDragging || !lastMousePosition || !gridConfig) return;
+    if (!interfaceSettings.mouseEnabled || !isDragging || !gridConfig) return;
     
     e.preventDefault(); // 防止页面滚动
     
+    const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
     
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
-    
-    // 计算当前格子位置
-    const col = Math.floor((x / rect.width) * gridConfig.cols);
-    const row = Math.floor((y / rect.height) * gridConfig.rows);
-    
-    // 如果格子位置发生变化，才触发音效
-    if (lastGridPositionRef.current && 
-        (lastGridPositionRef.current.row !== row || lastGridPositionRef.current.col !== col)) {
+    // 处理所有活动的触摸点
+    for (let i = 0; i < e.touches.length; i++) {
+      const touch = e.touches[i];
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
       
-      // 查找对应位置的单元格
-      const cell = gridConfig.cells.find(c => c.row === row && c.col === col && c.enabled);
-      if (cell) {
-        // 更新最后触发的格子位置
-        lastGridPositionRef.current = { row, col };
-        setLastTriggeredCellId(cell.id);
-        await handlePlaySoundAtPosition(x, y, false);
-      }
+      // 处理每个触摸点的移动
+      await handleSingleTouchPlay(touch.identifier, x, y, false);
     }
     
-    // 更新上一次触摸位置
-    setLastMousePosition({ x, y });
+    // 更新主要触摸点位置（用于帮助信息显示）
+    if (showHelpInfo && e.touches.length > 0) {
+      const primaryTouch = e.touches[0];
+      setMousePosition({
+        x: primaryTouch.clientX - rect.left,
+        y: primaryTouch.clientY - rect.top
+      });
+    }
     
-  }, [getInterfaceSettings, isDragging, showHelpInfo, lastMousePosition, gridConfig, handlePlaySoundAtPosition]);
+    // 如果只有一个触摸点，更新主要触摸位置
+    if (e.touches.length === 1) {
+      const primaryTouch = e.touches[0];
+      const x = primaryTouch.clientX - rect.left;
+      const y = primaryTouch.clientY - rect.top;
+      setLastMousePosition({ x, y });
+      
+      // 计算主要触摸点的格子位置
+      const col = Math.floor((x / rect.width) * gridConfig.cols);
+      const row = Math.floor((y / rect.height) * gridConfig.rows);
+      lastGridPositionRef.current = { row, col };
+    }
+    
+  }, [getInterfaceSettings, isDragging, showHelpInfo, gridConfig, handleSingleTouchPlay]);
 
   /**
-   * 处理触摸结束
+   * 处理触摸结束 - 支持多点触控
    */
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
-    setIsDragging(false);
-    // 重置最后触发的格子ID和触摸位置
-    setLastTriggeredCellId(null);
-    setLastMousePosition(null);
+    
+    // 清理结束的触摸点
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const touch = e.changedTouches[i];
+      activeTouchesRef.current.delete(touch.identifier);
+    }
+    setActiveTouches(new Map(activeTouchesRef.current));
+    
+    // 如果没有活动触摸点，重置拖拽状态
+    if (e.touches.length === 0) {
+      setIsDragging(false);
+      setLastTriggeredCellId(null);
+      setLastMousePosition(null);
+      activeTouchesRef.current.clear();
+      setActiveTouches(new Map());
+    }
   }, []);
 
   /**
@@ -1054,6 +1193,23 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
           />
         ))}
 
+        {/* 多点触控指示器 */}
+        {Array.from(activeTouches.entries()).map(([touchId, touchInfo]) => (
+          <div
+            key={`touch-${touchId}`}
+            className="absolute w-6 h-6 rounded-full pointer-events-none border-2 border-white bg-white bg-opacity-30 animate-pulse"
+            style={{
+              left: touchInfo.x - 12,
+              top: touchInfo.y - 12,
+              boxShadow: '0 0 10px rgba(255, 255, 255, 0.8)'
+            }}
+          >
+            <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
+              {touchId}
+            </div>
+          </div>
+        ))}
+
         {/* 隐藏的动画层 - 用于测试动画效果 */}
         {gridConfig && !showHelpInfo && (
           <div className="absolute inset-0 pointer-events-none z-5">
@@ -1185,9 +1341,23 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
                             isTriggered={animationTriggers[cell.id] || 0}
                             cellId={cell.id}
                             animationEnabled={cell.animationEnabled && (gridConfig?.interfaceSettings?.enableRegionAnimations ?? DEFAULT_INTERFACE_SETTINGS.enableRegionAnimations)}
-                            animationType={cell.animationType}
+                            animationType={(() => {
+                              const interfaceSettings = getInterfaceSettings();
+                              // 如果启用了随机动效，生成随机动效类型
+                              if (interfaceSettings.randomEffects) {
+                                return generateRandomAnimationType();
+                              }
+                              return cell.animationType;
+                            })()}
                             animationConfig={cell.animationConfig}
-                            cellColor={cell.color}
+                            cellColor={(() => {
+                              const interfaceSettings = getInterfaceSettings();
+                              // 如果启用了随机颜色，生成随机颜色
+                              if (interfaceSettings.randomColors) {
+                                return generateRandomColor();
+                              }
+                              return cell.color;
+                            })()}
                             soundType={cell.soundType}
                             onAnimationEnd={() => {
                               console.log(`🎭 TestAnimation ended for ${cell.id}`);
@@ -1312,17 +1482,17 @@ export default function SimpleMikutapPage({ className = '' }: SimpleMikutapPageP
       </div>
 
       {/* 开发调试信息 */}
-      {/* {process.env.NODE_ENV === 'development' && (
+      {process.env.NODE_ENV === 'development' && (
         <div className="fixed bottom-4 left-10 bg-black bg-opacity-70 text-white p-2 rounded text-xs z-30">
           <div>音频状态: {isAudioInitialized ? '已初始化' : '未初始化'}</div>
           <div>活跃粒子: {particles.length}</div>
           <div>最后按键: {lastKey || '无'}</div>
           <div>拖拽状态: {isDragging ? '拖拽中' : '正常'}</div>
           <div>帮助蒙版: {showHelpInfo ? '显示' : '隐藏'}</div>
-          <div>设置窗口: {showSettings ? '显示' : '隐藏'}</div>
+          <div>活动触摸点: {activeTouches.size}</div>
           <div>音量: {Math.round((gridConfig?.interfaceSettings?.volume ?? DEFAULT_INTERFACE_SETTINGS.volume) * 100)}%</div>
         </div>
-      )} */}
+      )}
 
     </div>
   );

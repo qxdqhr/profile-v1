@@ -186,16 +186,26 @@ export interface RhythmPattern {
   volume: number;
 }
 
+export interface FileRecord {
+  id: string;
+  url: string;
+  name: string;
+  size: number;
+  mimeType: string;
+}
+
 export interface BackgroundMusic {
   id: string;
   name: string;
-  audioData: string; // Base64编码的音频数据 - 必填
+  audioData?: string; // Base64编码的音频数据 - 改为可选以兼容不同数据源
+  file?: FileRecord; // Optional because it's a relation that might not be loaded
+  fileId?: string;
   fileType: 'uploaded' | 'generated';
   volume: number;
   loop: boolean;
   bpm: number;
   isDefault: boolean;
-  rhythmPattern: RhythmPattern;
+  rhythmPattern?: RhythmPattern; // 改为可选
   size?: number;
   duration?: number;
   generationConfig?: any;
@@ -217,6 +227,9 @@ export interface InterfaceSettings {
   mouseEnabled: boolean;
   enableRegionAnimations: boolean;
   enableBackgroundAnimations: boolean;
+  // 新增设置
+  randomEffects: boolean;     // 随机动效 - 令相邻格子拥有不同动效
+  randomColors: boolean;      // 随机颜色 - 令每个格子动效颜色都不同
 }
 
 // 默认界面设置
@@ -230,4 +243,7 @@ export const DEFAULT_INTERFACE_SETTINGS: InterfaceSettings = {
   mouseEnabled: true,
   enableRegionAnimations: true,
   enableBackgroundAnimations: true,
+  // 新增默认值
+  randomEffects: false,
+  randomColors: false,
 };

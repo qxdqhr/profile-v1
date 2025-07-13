@@ -5,7 +5,7 @@
 
 import { GridCell, BackgroundMusic } from '../types';
 import { RhythmGenerator } from './rhythmGenerator';
-import { base64ToUrl } from './audioUtils';
+
 
 export class UnifiedAudioManager {
   private static instance: UnifiedAudioManager | null = null;
@@ -109,22 +109,48 @@ export class UnifiedAudioManager {
     this.currentMusic = music;
     
     try {
-      // 从数据库获取Base64音频数据并转换为URL
-      if (!music.audioData) {
-        console.error('❌ 音频数据不存在:', music);
+      let audioSrc = '';
+      
+      // 优先使用 file.url，如果没有则使用 audioData
+      if (music.file?.url) {
+        audioSrc = music.file.url;
+      } else if (music.audioData) {
+        // 将Base64数据转换为Data URL
+        audioSrc = `data:audio/wav;base64,${music.audioData}`;
+      } else if (music.fileId) {
+        // 兼容旧的文件ID方式
+        const response = await fetch(`/api/files/${music.fileId}`);
+        if (!response.ok) {
+          console.error('❌ 获取文件信息失败:', response.statusText);
+          return;
+        }
+        const fileInfo = await response.json();
+        audioSrc = fileInfo.publicUrl;
+      } else {
+        console.error('❌ 音乐没有可用的音频数据:', music);
         return;
       }
-      
-      const audioSrc = base64ToUrl(music.audioData);
 
-      // 创建并播放音频
+      // 创建并播放音频，添加错误处理
       this.currentMusicElement = new Audio(audioSrc);
       this.currentMusicElement.volume = music.volume * 0.6; // 降低背景音乐音量
       this.currentMusicElement.loop = music.loop;
-      await this.currentMusicElement.play();
+      
+      // 添加错误处理和AbortError捕获
+      try {
+        await this.currentMusicElement.play();
+      } catch (playError: any) {
+        // 捕获AbortError，这通常不是真正的错误
+        if (playError.name === 'AbortError') {
+          console.log('🎵 播放被中断 (AbortError)，这是正常的浏览器行为');
+          return;
+        }
+        // 其他错误继续抛出
+        throw playError;
+      }
       
       // 启动节奏
-      if (music.rhythmPattern.enabled && this.rhythmGenerator) {
+      if (music.rhythmPattern && music.rhythmPattern.enabled && this.rhythmGenerator) {
         this.rhythmGenerator.start(music);
       }
       
@@ -158,10 +184,15 @@ export class UnifiedAudioManager {
         console.log('🎵 背景音乐已恢复播放');
         
         // 恢复节奏
-        if (this.currentMusic && this.currentMusic.rhythmPattern.enabled && this.rhythmGenerator) {
+        if (this.currentMusic && this.currentMusic.rhythmPattern && this.currentMusic.rhythmPattern.enabled && this.rhythmGenerator) {
           this.rhythmGenerator.start(this.currentMusic);
         }
-      } catch (error) {
+      } catch (error: any) {
+        // 捕获AbortError，这通常不是真正的错误
+        if (error.name === 'AbortError') {
+          console.log('🎵 恢复播放被中断 (AbortError)，这是正常的浏览器行为');
+          return;
+        }
         console.error('❌ 恢复背景音乐播放失败:', error);
       }
     }

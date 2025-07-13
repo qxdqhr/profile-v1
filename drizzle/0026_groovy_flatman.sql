@@ -1,0 +1,1 @@
+ALTER TABLE "mikutap_background_music" RENAME COLUMN "file" TO "audio_data";

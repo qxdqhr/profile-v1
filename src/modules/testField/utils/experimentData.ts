@@ -177,6 +177,17 @@ export const experiments: ExperimentItem[] = [
     category: "leisure"
   },
   {
+    id: "mikutap-game",
+    title: "MikutapGame 音乐游戏",
+    description: "基于Mikutap的音乐学习游戏，包含旋律模仿、节奏挑战等功能",
+    path: "/mikutapGame",
+    tags: ["音乐游戏", "学习", "Mikutap", "旋律"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2023-12-15',
+    updatedAt: '2023-12-15'
+  },
+  {
     id: "kannot",
     title: " 坎诺特",
     description: "已有坎诺特功能",

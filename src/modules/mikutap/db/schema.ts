@@ -60,7 +60,7 @@ export const mikutapBackgroundMusic = pgTable('mikutap_background_music', {
   id: text('id').primaryKey(),
   configId: text('config_id').notNull().references(() => mikutapConfigs.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
-  audioData: text('audio_data').notNull(), // Base64编码的音频数据 - 必填
+  audioData: text('audio_data').notNull(), // 存储音频文件的数据或URL
   fileType: text('file_type').notNull().default('uploaded'), // 'uploaded' | 'generated'
   isDefault: boolean('is_default').notNull().default(false),
   volume: real('volume').notNull().default(0.5),
@@ -93,6 +93,13 @@ export const mikutapGridCellsRelations = relations(mikutapGridCells, ({ one }) =
 export const mikutapSoundLibraryRelations = relations(mikutapSoundLibrary, ({ one }) => ({
   config: one(mikutapConfigs, {
     fields: [mikutapSoundLibrary.configId],
+    references: [mikutapConfigs.id],
+  }),
+}));
+
+export const mikutapBackgroundMusicRelations = relations(mikutapBackgroundMusic, ({ one }) => ({
+  config: one(mikutapConfigs, {
+    fields: [mikutapBackgroundMusic.configId],
     references: [mikutapConfigs.id],
   }),
 })); 

@@ -348,8 +348,22 @@ export class AudioGenerator {
      * 获取默认频率
      */
     private getDefaultFrequency(soundType: SoundType, index: number): number {
+      // 钢琴频率：4行7列，每行一个完整的do到si音阶(C-D-E-F-G-A-B)
+      const pianoFreqs = Array.from({ length: 28 }, (_, i) => {
+        const row = Math.floor(i / 7); // 0-3行
+        const col = i % 7; // 0-6列
+        const octave = row + 2; // 从2八度开始: C2, C3, C4, C5
+        
+        // 基于C2 = 65.406 Hz计算
+        const c2Frequency = 65.406;
+        // 半音步数: C=0, D=2, E=4, F=5, G=7, A=9, B=11
+        const semitoneSteps = [0, 2, 4, 5, 7, 9, 11];
+        const semitonesFromC2 = (octave - 2) * 12 + semitoneSteps[col]; // 相对于C2的半音步数
+        return c2Frequency * Math.pow(2, semitonesFromC2 / 12);
+      });
+      
       const frequencies: Record<SoundType, number[]> = {
-        piano: [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25],
+        piano: pianoFreqs,
         drum: [60, 80, 100, 120, 140, 160, 180, 200, 220],
         synth: [110, 146.83, 196, 246.94, 329.63, 415.30, 523.25],
         bass: [41.20, 46.25, 51.91, 55.00, 61.74, 69.30, 77.78],
@@ -361,7 +375,7 @@ export class AudioGenerator {
       };
 
       const typeFreqs = frequencies[soundType] || frequencies.custom;
-      return typeFreqs[index % typeFreqs.length] || 440;
+      return typeFreqs[index % typeFreqs.length] || 261.63; // 默认返回中央C4
     }
   
     /**
@@ -387,18 +401,19 @@ export class AudioGenerator {
      * 根据音效ID获取对应的音调参数
      */
     getSoundParams(soundId: string): { frequency: number; waveType: OscillatorType } {
-      // 钢琴音阶频率 (C5-C6)
+      // 钢琴音阶频率 - 以中央C4为中心的标准键盘映射
+      // 前10个键(q-p)对应钢琴键0-9，涵盖从低音到高音的范围
       const pianoFreqs: Record<string, number> = {
-        'q': 523.25, // C5
-        'w': 587.33, // D5
-        'e': 659.25, // E5
-        'r': 698.46, // F5
-        't': 783.99, // G5
-        'y': 880.00, // A5
-        'u': 987.77, // B5
-        'i': 1046.50, // C6
-        'o': 1174.66, // D6
-        'p': 1318.51, // E6
+        'q': 98.00,   // G2 (索引0)
+        'w': 110.00,  // A2 (索引1) 
+        'e': 123.47,  // B2 (索引2)
+        'r': 130.81,  // C3 (索引3)
+        't': 146.83,  // D3 (索引4)
+        'y': 164.81,  // E3 (索引5)
+        'u': 174.61,  // F3 (索引6)
+        'i': 196.00,  // G3 (索引7)
+        'o': 220.00,  // A3 (索引8)
+        'p': 246.94,  // B3 (索引9)
       };
   
       // 鼓点音效频率
@@ -435,7 +450,7 @@ export class AudioGenerator {
       }
   
       // 默认参数
-      return { frequency: 440, waveType: 'sine' };
+      return { frequency: 261.63, waveType: 'sine' }; // 默认返回中央C4
     }
   
     /**

@@ -24,8 +24,11 @@ export interface ArtworkPage {
   /** 作品标题 */
   title: string;
   
-  /** 作品图片文件名或路径 */
-  image: string;
+  /** 作品图片文件名或路径（支持null值） */
+  image: string | null;
+  
+  /** 通用文件服务的文件ID（可选，新架构） */
+  fileId?: string;
   
   /** 完整的图片URL（可选，用于显示） */
   imageUrl?: string;
@@ -240,6 +243,7 @@ export interface CollectionFormData {
  * 
  * 用于作品添加和编辑表单的数据绑定。
  * 包含单个作品的所有基本信息。
+ * 支持新的通用文件服务架构和旧的Base64图片存储方式。
  */
 export interface ArtworkFormData {
   /** 作品标题 */
@@ -248,8 +252,11 @@ export interface ArtworkFormData {
   /** 艺术家姓名 */
   artist: string;
   
-  /** 作品图片路径 */
-  image: string;
+  /** 作品图片路径（兼容旧架构，可选） */
+  image?: string;
+  
+  /** 通用文件服务的文件ID（新架构，可选） */
+  fileId?: string;
   
   /** 作品描述 */
   description: string;

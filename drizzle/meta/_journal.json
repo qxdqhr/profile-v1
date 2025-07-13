@@ -169,6 +169,41 @@
       "when": 1751559645549,
       "tag": "0023_chilly_hedge_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1751651403313,
+      "tag": "0024_tidy_hemingway",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1752072591598,
+      "tag": "0025_open_redwing",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1752155647639,
+      "tag": "0026_groovy_flatman",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1752171004058,
+      "tag": "0027_dry_mysterio",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1752171534049,
+      "tag": "0028_chubby_gargoyle",
+      "breakpoints": true
     }
   ]
 }

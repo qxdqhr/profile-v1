@@ -940,22 +940,38 @@ export class ArtworksDbService {
     const newOrder = (maxOrder[0]?.maxOrder || -1) + 1;
     console.log('📊 [数据库] 计算新的页面顺序:', newOrder);
 
-    const newArtwork = await db.insert(comicUniverseArtworks).values({
+    // 准备插入数据 - 支持新旧两种图片存储方式
+    const insertData: any = {
       collectionId,
       title: artworkData.title,
       artist: artworkData.artist,
-      image: artworkData.image,
       description: artworkData.description,
       createdTime: artworkData.createdTime,
       theme: artworkData.theme,
       pageOrder: newOrder,
-    }).returning();
+    };
+
+    // 如果是fileId（新架构），优先使用
+    if (artworkData.fileId) {
+      insertData.fileId = artworkData.fileId;
+      insertData.migrationStatus = 'completed';
+      console.log('📁 [数据库] 使用通用文件服务ID:', artworkData.fileId);
+    } else if (artworkData.image) {
+      // 兼容旧架构的Base64图片
+      insertData.image = artworkData.image;
+      insertData.migrationStatus = 'pending';
+      console.log('🖼️ [数据库] 使用Base64图片数据');
+    }
+
+    const newArtwork = await db.insert(comicUniverseArtworks).values(insertData).returning();
 
     console.log('✅ [数据库] 作品插入成功:', {
       id: newArtwork[0].id,
       collectionId: newArtwork[0].collectionId,
       pageOrder: newArtwork[0].pageOrder,
-      title: newArtwork[0].title
+      title: newArtwork[0].title,
+      fileId: newArtwork[0].fileId,
+      migrationStatus: newArtwork[0].migrationStatus
     });
 
     // 清除画集缓存
@@ -966,7 +982,8 @@ export class ArtworksDbService {
       id: newArtwork[0].id,
       title: newArtwork[0].title,
       artist: newArtwork[0].artist,
-      image: newArtwork[0].image,
+      image: newArtwork[0].image || '',
+      fileId: newArtwork[0].fileId || undefined,
       description: newArtwork[0].description || undefined,
       createdTime: newArtwork[0].createdTime || undefined,
       theme: newArtwork[0].theme || undefined,
@@ -991,16 +1008,32 @@ export class ArtworksDbService {
       throw new Error(`作品不存在或不属于指定画集 (作品ID: ${artworkId}, 画集ID: ${collectionId})`);
     }
 
+    // 准备更新数据 - 支持新旧两种图片存储方式
+    const updateData: any = {
+      title: artworkData.title,
+      artist: artworkData.artist,
+      description: artworkData.description,
+      createdTime: artworkData.createdTime,
+      theme: artworkData.theme,
+      updatedAt: new Date(),
+    };
+
+    // 如果是fileId（新架构），优先使用
+    if (artworkData.fileId) {
+      updateData.fileId = artworkData.fileId;
+      updateData.migrationStatus = 'completed';
+      // 清空旧的image字段
+      updateData.image = null;
+    } else if (artworkData.image) {
+      // 兼容旧架构的Base64图片
+      updateData.image = artworkData.image;
+      updateData.migrationStatus = 'pending';
+      // 清空fileId
+      updateData.fileId = null;
+    }
+
     const updatedArtwork = await db.update(comicUniverseArtworks)
-      .set({
-        title: artworkData.title,
-        artist: artworkData.artist,
-        image: artworkData.image,
-        description: artworkData.description,
-        createdTime: artworkData.createdTime,
-        theme: artworkData.theme,
-        updatedAt: new Date(),
-      })
+      .set(updateData)
       .where(and(
         eq(comicUniverseArtworks.id, artworkId),
         eq(comicUniverseArtworks.collectionId, collectionId)
@@ -1019,6 +1052,7 @@ export class ArtworksDbService {
       title: updatedArtwork[0].title,
       artist: updatedArtwork[0].artist,
       image: updatedArtwork[0].image,
+      fileId: updatedArtwork[0].fileId || undefined,
       description: updatedArtwork[0].description || undefined,
       createdTime: updatedArtwork[0].createdTime || undefined,
       theme: updatedArtwork[0].theme || undefined,

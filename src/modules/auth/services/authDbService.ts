@@ -367,8 +367,8 @@ class AuthDbService implements AuthService {
   async resetPassword(phone: string, newPassword: string): Promise<void> {
     console.log('🔑 [AuthDbService] 开始重置密码:', phone);
     try {
-      // 对密码进行加密
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      // 对密码进行加密（使用统一的盐值轮数12）
+      const hashedPassword = await bcrypt.hash(newPassword, 12);
       
       // 更新用户密码
       await db.update(users)

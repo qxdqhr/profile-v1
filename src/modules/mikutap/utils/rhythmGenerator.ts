@@ -52,6 +52,8 @@ export class RhythmGenerator {
 
   private scheduler(music: BackgroundMusic) {
     const { bpm, timeSignature, rhythmPattern } = music;
+    if (!rhythmPattern) return;
+    
     const secondsPerBeat = 60.0 / bpm;
     
     while (this.nextNoteTime < this.audioContext.currentTime + 0.1) {
@@ -87,7 +89,7 @@ export class RhythmGenerator {
   }
 
   public start(music: BackgroundMusic) {
-    if (!music.rhythmPattern.enabled) return;
+    if (!music.rhythmPattern || !music.rhythmPattern.enabled) return;
     
     this.stop();
     this.isPlaying = true;

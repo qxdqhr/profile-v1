@@ -1,513 +1,485 @@
 /**
- * 通用文件上传组件
- * 支持图片、音频、3D模型等各种文件类型的上传
- * 集成URL输入、拖拽上传、进度显示、文件预览等功能
+ * 通用文件上传组件 - 集成新的通用文件服务
  */
 
 'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
-import { Upload, X, AlertTriangle, Link, FileIcon, Image, Music, Cog } from 'lucide-react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { Upload, X, FileText, Image, Film, Music, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+
+import type { 
+  UniversalFileService,
+  FileMetadata, 
+  UploadProgress,
+  UploadFileInfo,
+  ProcessingOptions
+} from '../../services/universalFile';
+
+// ============= 类型定义 =============
 
 export interface UniversalFileUploaderProps {
-  /** 当前值（URL或base64） */
-  value?: string;
-  /** 值变化回调 */
-  onChange: (value: string | undefined) => void;
-  /** 接受的文件类型 */
-  accept?: string;
-  /** 最大文件大小（字节） */
+  /** 文件服务实例 */
+  fileService: UniversalFileService;
+  /** 模块标识 */
+  moduleId: string;
+  /** 业务标识 */
+  businessId?: string;
+  /** 允许的文件类型 */
+  acceptedTypes?: string[];
+  /** 最大文件大小(MB) */
   maxFileSize?: number;
-  /** 占位符文本 */
-  placeholder?: string;
-  /** 标签文本 */
-  label?: string;
-  /** 是否支持URL输入 */
-  enableUrlInput?: boolean;
-  /** 上传API端点 */
-  uploadEndpoint?: string;
-  /** 文件类型（影响图标和预览） */
-  fileType?: 'image' | 'audio' | 'model' | 'any';
+  /** 最大文件数量 */
+  maxFiles?: number;
+  /** 是否支持多文件上传 */
+  multiple?: boolean;
+  /** 是否启用文件处理 */
+  enableProcessing?: boolean;
+  /** 默认处理选项 */
+  defaultProcessingOptions?: ProcessingOptions;
+  /** 上传成功回调 */
+  onUploadSuccess?: (files: FileMetadata[]) => void;
+  /** 上传失败回调 */
+  onUploadError?: (error: string) => void;
+  /** 上传进度回调 */
+  onProgress?: (progress: UploadProgress[]) => void;
   /** 自定义样式类名 */
   className?: string;
   /** 是否禁用 */
   disabled?: boolean;
-  /** 错误回调 */
-  onError?: (error: string) => void;
-  /** 上传成功回调 */
-  onSuccess?: (result: any) => void;
+  /** 显示模式 */
+  mode?: 'compact' | 'normal' | 'detailed';
 }
 
-export function UniversalFileUploader({
-  value,
-  onChange,
-  accept = '*/*',
-  maxFileSize = 100 * 1024 * 1024, // 100MB
-  placeholder = '选择文件或输入URL',
-  label = '文件',
-  enableUrlInput = true,
-  uploadEndpoint,
-  fileType = 'any',
+export interface UploadingFile {
+  id: string;
+  file: File;
+  progress: UploadProgress;
+  metadata?: FileMetadata;
+  error?: string;
+}
+
+// ============= 主组件 =============
+
+export const UniversalFileUploader: React.FC<UniversalFileUploaderProps> = ({
+  fileService,
+  moduleId,
+  businessId,
+  acceptedTypes = [],
+  maxFileSize = 100, // 100MB
+  maxFiles = 10,
+  multiple = true,
+  enableProcessing = false,
+  defaultProcessingOptions,
+  onUploadSuccess,
+  onUploadError,
+  onProgress,
   className = '',
   disabled = false,
-  onError,
-  onSuccess,
-}: UniversalFileUploaderProps) {
-  const [uploadMode, setUploadMode] = useState<'url' | 'upload'>(enableUrlInput ? 'url' : 'upload');
-  const [isDragging, setIsDragging] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const [tempUrl, setTempUrl] = useState(value || '');
+  mode = 'normal'
+}) => {
+  // ============= 状态管理 =============
   
+  const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [completedFiles, setCompletedFiles] = useState<FileMetadata[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 格式化文件大小
+  // ============= 文件类型图标 =============
+  
+  const getFileIcon = (mimeType: string) => {
+    if (mimeType.startsWith('image/')) return <Image className="w-5 h-5" />;
+    if (mimeType.startsWith('video/')) return <Film className="w-5 h-5" />;
+    if (mimeType.startsWith('audio/')) return <Music className="w-5 h-5" />;
+    return <FileText className="w-5 h-5" />;
+  };
+
+  // ============= 文件验证 =============
+  
+  const validateFile = (file: File): string | null => {
+    // 检查文件大小
+    if (file.size > maxFileSize * 1024 * 1024) {
+      return `文件大小不能超过 ${maxFileSize}MB`;
+    }
+
+    // 检查文件类型
+    if (acceptedTypes.length > 0 && !acceptedTypes.includes(file.type)) {
+      return `不支持的文件类型: ${file.type}`;
+    }
+
+    return null;
+  };
+
+  // ============= 文件上传逻辑 =============
+  
+  const uploadFile = useCallback(async (file: File): Promise<void> => {
+    const fileId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // 验证文件
+    const error = validateFile(file);
+    if (error) {
+      onUploadError?.(error);
+      return;
+    }
+
+    // 初始化上传进度
+    const initialProgress: UploadProgress = {
+      fileId,
+      status: 'pending',
+      progress: 0,
+      uploadedBytes: 0,
+      totalBytes: file.size,
+      speed: 0,
+      remainingTime: 0
+    };
+
+    const uploadingFile: UploadingFile = {
+      id: fileId,
+      file,
+      progress: initialProgress
+    };
+
+    setUploadingFiles(prev => [...prev, uploadingFile]);
+
+    try {
+      // 构建上传文件信息
+      const uploadInfo: UploadFileInfo = {
+        file,
+        moduleId,
+        businessId,
+        permission: 'public',
+        needsProcessing: enableProcessing,
+        processingOptions: defaultProcessingOptions
+      };
+
+      // 开始上传
+      const result = await fileService.uploadFile(
+        uploadInfo, 
+        undefined, // 使用默认存储类型
+        (progress) => {
+          setUploadingFiles(prev => 
+            prev.map(f => 
+              f.id === fileId 
+                ? { ...f, progress }
+                : f
+            )
+          );
+          
+          // 调用外部进度回调
+          const allProgress = uploadingFiles.map(f => f.progress);
+          onProgress?.(allProgress);
+        }
+      );
+
+      // 上传成功，result直接是FileMetadata
+      setUploadingFiles(prev => prev.filter(f => f.id !== fileId));
+      setCompletedFiles(prev => [...prev, result]);
+      onUploadSuccess?.([result]);
+
+    } catch (error) {
+      console.error('文件上传失败:', error);
+      
+      const errorMessage = error instanceof Error ? error.message : '上传失败';
+      
+      setUploadingFiles(prev => 
+        prev.map(f => 
+          f.id === fileId 
+            ? { ...f, error: errorMessage }
+            : f
+        )
+      );
+      
+      onUploadError?.(errorMessage);
+    }
+  }, [fileService, moduleId, businessId, enableProcessing, defaultProcessingOptions, maxFileSize, acceptedTypes, onUploadSuccess, onUploadError, onProgress, uploadingFiles]);
+
+  // ============= 文件选择处理 =============
+  
+  const handleFileSelect = useCallback((files: FileList | File[]) => {
+    const fileArray = Array.from(files);
+    
+    // 检查文件数量限制
+    if (completedFiles.length + uploadingFiles.length + fileArray.length > maxFiles) {
+      onUploadError?.(`最多只能上传 ${maxFiles} 个文件`);
+      return;
+    }
+
+    // 逐个上传文件
+    fileArray.forEach(uploadFile);
+  }, [completedFiles.length, uploadingFiles.length, maxFiles, onUploadError, uploadFile]);
+
+  // ============= 事件处理 =============
+  
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      handleFileSelect(files);
+    }
+    // 清空input值，允许重复选择同一文件
+    event.target.value = '';
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragOver(false);
+    
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileSelect(files);
+    }
+  };
+
+  const handleClick = () => {
+    if (!disabled) {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const removeUploadingFile = (fileId: string) => {
+    setUploadingFiles(prev => prev.filter(f => f.id !== fileId));
+  };
+
+  const removeCompletedFile = (fileId: string) => {
+    setCompletedFiles(prev => prev.filter(f => f.id !== fileId));
+  };
+
+  // ============= 渲染辅助函数 =============
+
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 B';
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  // 验证文件
-  const validateFile = (file: File): string | null => {
-    if (file.size > maxFileSize) {
-      return `文件大小超过限制（最大 ${formatFileSize(maxFileSize)}）`;
-    }
-    
-    // 如果有特定的accept规则，验证文件扩展名
-    if (accept !== '*/*') {
-      const fileName = file.name.toLowerCase();
-      const extensions = accept.split(',').map(ext => ext.trim());
-      
-      // 检查是否是文件扩展名格式（以.开头）
-      const isExtensionFormat = extensions.some(ext => ext.startsWith('.'));
-      
-      if (isExtensionFormat) {
-        // 基于文件扩展名验证
-        const hasValidExtension = extensions.some(ext => fileName.endsWith(ext.toLowerCase()));
-        if (!hasValidExtension) {
-          return `不支持的文件格式。支持的格式: ${extensions.join(', ')}`;
-        }
-      } else {
-        // 基于MIME类型验证（保持向后兼容）
-        if (!file.type.match(accept.replace(/\*/g, '.*'))) {
-          return `不支持的文件类型：${file.type}`;
-        }
-      }
-    }
-    
-    return null;
-  };
-
-  // 获取文件类型图标
-  const getFileIcon = () => {
-    switch (fileType) {
-      case 'image':
-        return <Image className="w-12 h-12" />;
-      case 'audio':
-        return <Music className="w-12 h-12" />;
-      case 'model':
-        return <Cog className="w-12 h-12" />;
+  const formatProgress = (progress: UploadProgress): string => {
+    switch (progress.status) {
+      case 'pending':
+        return '准备中...';
+      case 'uploading':
+        return `上传中 ${progress.progress.toFixed(1)}%`;
+      case 'processing':
+        return '处理中...';
+      case 'completed':
+        return '完成';
+      case 'failed':
+        return '失败';
       default:
-        return <FileIcon className="w-12 h-12" />;
+        return '未知状态';
     }
   };
 
-  // 处理文件上传
-  const handleFileUpload = async (file: File) => {
-    const validationError = validateFile(file);
-    if (validationError) {
-      setError(validationError);
-      onError?.(validationError);
-      return;
+  // ============= 样式计算 =============
+
+  const containerClasses = `
+    border-2 border-dashed rounded-lg transition-all duration-200
+    ${isDragOver 
+      ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20' 
+      : 'border-gray-300 dark:border-gray-600'
     }
-
-    setIsUploading(true);
-    setError(null);
-    setProgress(0);
-
-    try {
-      // 注释掉服务器上传功能，只进行前端处理
-      // if (uploadEndpoint) {
-      //   // 上传到服务器
-      //   const formData = new FormData();
-      //   formData.append('file', file);
-      //   
-      //   // 从URL参数中提取type，或根据fileType推断
-      //   const url = new URL(uploadEndpoint, window.location.origin);
-      //   const typeFromUrl = url.searchParams.get('type');
-      //   if (typeFromUrl) {
-      //     formData.append('type', typeFromUrl);
-      //   } else {
-      //     // 根据fileType推断
-      //     let inferredType = 'model'; // 默认
-      //     if (fileType === 'audio') inferredType = 'audio';
-      //     else if (fileType === 'model') inferredType = 'model';
-      //     formData.append('type', inferredType);
-      //   }
-
-      //   // 模拟进度
-      //   const progressInterval = setInterval(() => {
-      //     setProgress(prev => {
-      //       if (prev >= 90) {
-      //         clearInterval(progressInterval);
-      //         return prev;
-      //       }
-      //       return prev + 10;
-      //     });
-      //   }, 200);
-
-      //   const response = await fetch(uploadEndpoint, {
-      //     method: 'POST',
-      //     body: formData,
-      //   });
-
-      //   clearInterval(progressInterval);
-
-      //   if (!response.ok) {
-      //     const errorData = await response.json().catch(() => ({}));
-      //     throw new Error(errorData.error || '上传失败');
-      //   }
-
-      //   const result = await response.json();
-      //   setProgress(100);
-      //   
-      //   onChange(result.url || result.path);
-      //   onSuccess?.(result);
-      // } else {
-
-      // 前端直接处理文件，不上传到服务器
-      console.log('本地文件处理模式，文件名:', file.name, '大小:', formatFileSize(file.size));
-      
-      // 模拟处理进度
-      setProgress(30);
-      await new Promise(resolve => setTimeout(resolve, 100));
-      setProgress(60);
-      await new Promise(resolve => setTimeout(resolve, 100));
-      setProgress(90);
-      await new Promise(resolve => setTimeout(resolve, 100));
-      setProgress(100);
-
-      // 创建本地URL用于标识
-      const localUrl = URL.createObjectURL(file);
-      
-      // 返回文件信息给父组件
-      const result = {
-        file: file,          // 原始File对象
-        localUrl: localUrl,  // 本地URL
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        lastModified: file.lastModified,
-        // 这里不再有服务器端的id和url
-      };
-      
-      onChange(localUrl);  // 传递本地URL给onChange
-      onSuccess?.(result); // 传递完整结果给onSuccess
-
-      // }
-      
-      // 原有的base64处理逻辑保持不变作为备用
-      // } else {
-      //   // 转换为base64（用于预览或小文件）
-      //   const reader = new FileReader();
-      //   reader.onload = (e) => {
-      //     const result = e.target?.result as string;
-      //     onChange(result);
-      //     setProgress(100);
-      //     onSuccess?.({ base64: result });
-      //   };
-      //   reader.onerror = () => {
-      //     throw new Error('文件读取失败');
-      //   };
-      //   reader.readAsDataURL(file);
-      // }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : '文件处理失败';
-      setError(errorMsg);
-      onError?.(errorMsg);
-    } finally {
-      setIsUploading(false);
-      setTimeout(() => setProgress(0), 2000); // 2秒后重置进度
+    ${disabled 
+      ? 'opacity-50 cursor-not-allowed' 
+      : 'hover:border-blue-400 cursor-pointer'
     }
-  };
+    ${className}
+  `;
 
-  // 处理拖拽事件
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    if (!disabled) setIsDragging(true);
-  }, [disabled]);
+  const uploadAreaClasses = `
+    p-6 text-center
+    ${mode === 'compact' ? 'p-4' : mode === 'detailed' ? 'p-8' : 'p-6'}
+  `;
 
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    
-    if (disabled) return;
-    
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      handleFileUpload(file);
-    }
-  }, [disabled]);
-
-  // 处理文件选择
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFileUpload(file);
-    }
-  };
-
-  // 处理URL输入
-  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTempUrl(e.target.value);
-  };
-
-  const handleApplyUrl = () => {
-    onChange(tempUrl || undefined);
-    setError(null);
-  };
-
-  // 清除文件
-  const handleClear = () => {
-    onChange(undefined);
-    setTempUrl('');
-    setError(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  // 打开文件选择器
-  const handleUploadClick = () => {
-    if (!disabled && !isUploading) {
-      fileInputRef.current?.click();
-    }
-  };
-
-  // 获取预览组件
-  const renderPreview = () => {
-    if (!value) return null;
-
-    switch (fileType) {
-      case 'image':
-        return (
-          <div className="mt-4 relative">
-            <img 
-              src={value} 
-              alt="预览" 
-              className="w-full max-h-64 object-contain rounded-lg border border-gray-200"
-            />
-            <button
-              type="button"
-              onClick={handleClear}
-              className="absolute top-2 right-2 bg-black/70 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-black/90 transition-colors"
-            >
-              <X size={14} />
-            </button>
-          </div>
-        );
-      case 'audio':
-        return (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <audio controls className="w-full">
-              <source src={value} />
-              您的浏览器不支持音频播放。
-            </audio>
-            <div className="flex justify-between items-center mt-2">
-              <span className="text-sm text-gray-600">音频文件</span>
-              <button
-                type="button"
-                onClick={handleClear}
-                className="text-red-600 hover:text-red-800 text-sm"
-              >
-                删除
-              </button>
-            </div>
-          </div>
-        );
-      default:
-        return (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <FileIcon size={20} className="text-gray-500" />
-                <span className="text-sm text-gray-700">已选择文件</span>
-              </div>
-              <button
-                type="button"
-                onClick={handleClear}
-                className="text-red-600 hover:text-red-800 text-sm"
-              >
-                删除
-              </button>
-            </div>
-          </div>
-        );
-    }
-  };
+  // ============= 渲染 =============
 
   return (
-    <div className={`w-full ${className}`}>
-      {/* 标签 */}
-      {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          {label}
-        </label>
-      )}
-
-      {/* 模式切换 */}
-      {enableUrlInput && (
-        <div className="flex bg-gray-100 rounded-lg p-1 mb-4">
-          <button
-            type="button"
-            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-all ${
-              uploadMode === 'url'
-                ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-800'
-            }`}
-            onClick={() => setUploadMode('url')}
-            disabled={disabled}
-          >
-            <Link size={16} />
-            URL链接
-          </button>
-          <button
-            type="button"
-            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-all ${
-              uploadMode === 'upload'
-                ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-800'
-            }`}
-            onClick={() => setUploadMode('upload')}
-            disabled={disabled}
-          >
-            <Upload size={16} />
-            文件上传
-          </button>
-        </div>
-      )}
-
-      {/* 错误提示 */}
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-          <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-          <span className="text-sm text-red-800">{error}</span>
-          <button
-            onClick={() => setError(null)}
-            className="ml-auto text-red-600 hover:text-red-800"
-          >
-            <X size={16} />
-          </button>
-        </div>
-      )}
-
-      {/* URL输入模式 */}
-      {enableUrlInput && uploadMode === 'url' && (
-        <div className="space-y-3">
-          <div className="flex gap-2">
-            <input
-              type="url"
-              value={tempUrl}
-              onChange={handleUrlChange}
-              placeholder={placeholder}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-              disabled={disabled}
-            />
-            <button
-              type="button"
-              onClick={handleApplyUrl}
-              disabled={disabled || !tempUrl}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              应用
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* 文件上传模式 */}
-      {(!enableUrlInput || uploadMode === 'upload') && (
-        <div
-          className={`
-            relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all
-            ${isDragging 
-              ? 'border-blue-400 bg-blue-50' 
-              : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
-            }
-            ${isUploading || disabled ? 'opacity-60 cursor-not-allowed' : ''}
-          `}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          onClick={handleUploadClick}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept={accept}
-            onChange={handleFileSelect}
-            className="hidden"
-            disabled={disabled || isUploading}
-          />
-
-          <div className="flex flex-col items-center gap-4">
-            {/* 图标 */}
-            <div className={`
-              p-4 rounded-full transition-colors
-              ${isDragging || isUploading 
-                ? 'bg-blue-100 text-blue-600' 
-                : 'bg-gray-100 text-gray-500'
-              }
-            `}>
-              {isUploading ? (
-                <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-              ) : (
-                getFileIcon()
-              )}
-            </div>
-
-            {/* 文本 */}
-            <div>
-              <p className="text-lg font-medium text-gray-900 mb-1">
-                {isUploading 
-                  ? '正在上传...' 
-                  : isDragging 
-                    ? '松开鼠标上传文件' 
-                    : '点击上传或拖拽文件到此处'
-                }
+    <div className="w-full space-y-4">
+      {/* 文件上传区域 */}
+      <div
+        className={containerClasses}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onClick={handleClick}
+      >
+        <div className={uploadAreaClasses}>
+          <Upload className={`mx-auto mb-4 text-gray-400 ${mode === 'compact' ? 'w-8 h-8 mb-2' : 'w-12 h-12'}`} />
+          
+          {mode === 'compact' ? (
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              点击上传或拖拽文件到这里
+            </p>
+          ) : (
+            <>
+              <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                上传文件
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-2">
+                点击选择文件或拖拽文件到这里
               </p>
-              <p className="text-sm text-gray-500">
-                支持 {accept === '*/*' ? '所有格式' : accept}，最大 {formatFileSize(maxFileSize)}
-              </p>
-            </div>
-
-            {/* 进度条 */}
-            {isUploading && progress > 0 && (
-              <div className="w-full max-w-xs">
-                <div className="bg-gray-200 rounded-full h-2 overflow-hidden">
-                  <div 
-                    className="bg-blue-600 h-full transition-all duration-300 rounded-full"
-                    style={{ width: `${progress}%` }}
-                  />
+              {mode === 'detailed' && (
+                <div className="text-sm text-gray-500 space-y-1">
+                  {acceptedTypes.length > 0 && (
+                    <p>支持格式: {acceptedTypes.join(', ')}</p>
+                  )}
+                  <p>最大大小: {maxFileSize}MB | 最多文件: {maxFiles}个</p>
                 </div>
-                <p className="text-xs text-gray-500 mt-1 text-center">{progress}%</p>
+              )}
+            </>
+          )}
+        </div>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple={multiple}
+          accept={acceptedTypes.join(',')}
+          onChange={handleInputChange}
+          className="hidden"
+          disabled={disabled}
+        />
+      </div>
+
+      {/* 上传进度列表 */}
+      {uploadingFiles.length > 0 && (
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            上传中 ({uploadingFiles.length})
+          </h4>
+          
+          {uploadingFiles.map((uploadingFile) => (
+            <div
+              key={uploadingFile.id}
+              className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+            >
+              {/* 文件图标 */}
+              <div className="flex-shrink-0">
+                {uploadingFile.progress.status === 'failed' ? (
+                  <AlertCircle className="w-5 h-5 text-red-500" />
+                ) : uploadingFile.progress.status === 'completed' ? (
+                  <CheckCircle2 className="w-5 h-5 text-green-500" />
+                ) : (
+                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                )}
               </div>
-            )}
-          </div>
+
+              {/* 文件信息 */}
+              <div className="flex-grow min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
+                    {uploadingFile.file.name}
+                  </p>
+                  <span className="text-xs text-gray-500">
+                    {formatFileSize(uploadingFile.file.size)}
+                  </span>
+                </div>
+
+                {uploadingFile.error ? (
+                  <p className="text-xs text-red-500">{uploadingFile.error}</p>
+                ) : (
+                  <>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-1">
+                      <div
+                        className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${uploadingFile.progress.progress}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      {formatProgress(uploadingFile.progress)}
+                    </p>
+                  </>
+                )}
+              </div>
+
+              {/* 移除按钮 */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeUploadingFile(uploadingFile.id);
+                }}
+                className="flex-shrink-0 p-1 text-gray-400 hover:text-red-500 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* 预览 */}
-      {renderPreview()}
+      {/* 已完成文件列表 */}
+      {completedFiles.length > 0 && (
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            已完成 ({completedFiles.length})
+          </h4>
+          
+          {completedFiles.map((file) => (
+            <div
+              key={file.id}
+              className="flex items-center space-x-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg"
+            >
+              {/* 文件图标 */}
+              <div className="flex-shrink-0">
+                {getFileIcon(file.mimeType)}
+              </div>
+
+              {/* 文件信息 */}
+              <div className="flex-grow min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
+                    {file.originalName}
+                  </p>
+                  <span className="text-xs text-gray-500">
+                    {formatFileSize(file.size)}
+                  </span>
+                </div>
+                <p className="text-xs text-green-600 dark:text-green-400">
+                  上传成功 • {new Date(file.uploadTime).toLocaleTimeString()}
+                </p>
+              </div>
+
+              {/* 移除按钮 */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeCompletedFile(file.id);
+                }}
+                className="flex-shrink-0 p-1 text-gray-400 hover:text-red-500 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 统计信息 */}
+      {mode === 'detailed' && (completedFiles.length > 0 || uploadingFiles.length > 0) && (
+        <div className="flex justify-between items-center text-sm text-gray-500 pt-2 border-t border-gray-200 dark:border-gray-700">
+          <span>
+            总计: {completedFiles.length + uploadingFiles.length} 文件
+          </span>
+                     <span>
+             大小: {formatFileSize(
+               [
+                 ...completedFiles.map(f => f.size),
+                 ...uploadingFiles.map(f => f.file.size)
+               ].reduce((total, size) => total + size, 0)
+             )}
+           </span>
+        </div>
+      )}
     </div>
   );
-} 
+};
+
+export default UniversalFileUploader; 
