@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { AuthProvider, useAuth, UserMenu, CustomMenuItem, LoginModal } from '@/modules/auth';
+import { Settings, Calendar, List, Cog } from 'lucide-react';
 import { 
   CalendarViewType, 
   EventColor,
@@ -46,6 +48,12 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [editingEvent, setEditingEvent] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'calendar' | 'events' | 'settings'>('calendar');
+  
+  // 登录相关状态
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  
+  // 使用认证上下文
+  const { user, isAuthenticated, logout } = useAuth();
   
   // 日历设置状态
   const [calendarSettings, setCalendarSettings] = useState<CalendarSettingsType | null>(null);
@@ -222,6 +230,10 @@ export default function CalendarPage() {
 
   // 处理日期点击事件
   const handleDateClick = (date: Date) => {
+    if (!isAuthenticated) {
+      setIsLoginModalOpen(true);
+      return;
+    }
     setSelectedDate(date);
     setEditingEvent(null);
     setIsEventModalOpen(true);
@@ -230,6 +242,10 @@ export default function CalendarPage() {
   // 处理事件点击（用于编辑）
   const handleEventClick = (event: any, e: React.MouseEvent) => {
     e.stopPropagation(); // 阻止冒泡到日期点击
+    if (!isAuthenticated) {
+      setIsLoginModalOpen(true);
+      return;
+    }
     setEditingEvent(event);
     setSelectedDate(null);
     setIsEventModalOpen(true);
@@ -237,6 +253,11 @@ export default function CalendarPage() {
 
   // 处理事件保存（创建或更新）
   const handleEventSave = async (eventData: CreateEventRequest | UpdateEventRequest) => {
+    if (!isAuthenticated) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+    
     try {
       // 确保必需字段存在
       if (!eventData.title || !eventData.startTime || !eventData.endTime) {
@@ -280,6 +301,11 @@ export default function CalendarPage() {
 
   // 处理事件删除
   const handleEventDelete = async (eventId: number) => {
+    if (!isAuthenticated) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+    
     try {
       await deleteEvent(eventId);
       setIsEventModalOpen(false);
@@ -291,6 +317,11 @@ export default function CalendarPage() {
 
   // 处理批量删除事件
   const handleBatchDelete = async (eventIds: number[]) => {
+    if (!isAuthenticated) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+    
     try {
       await batchDeleteEvents(eventIds);
     } catch (error) {
@@ -307,6 +338,10 @@ export default function CalendarPage() {
 
   // 处理事件列表中的事件编辑
   const handleEventListEdit = (event: any) => {
+    if (!isAuthenticated) {
+      setIsLoginModalOpen(true);
+      return;
+    }
     setEditingEvent(event);
     setIsEventModalOpen(true);
   };
@@ -329,6 +364,20 @@ export default function CalendarPage() {
     setCalendarSettings(newSettings);
     console.log('📝 日历设置已更新:', newSettings);
     // 这里可以应用设置到日历显示
+  };
+
+  // 登录相关处理函数
+  const handleLoginSuccess = () => {
+    setIsLoginModalOpen(false);
+    console.log('用户登录成功');
+  };
+
+  const handleLoginClose = () => {
+    setIsLoginModalOpen(false);
+  };
+
+  const handleShowLogin = () => {
+    setIsLoginModalOpen(true);
   };
 
   // 渲染不同的日历视图
@@ -706,10 +755,37 @@ export default function CalendarPage() {
       <div className="max-w-7xl mx-auto p-4 lg:p-6">
         {/* 页面标题和Tab导航 */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">日历管理</h1>
-          <p className="text-gray-600 mb-4">
-            功能完整的日历应用，支持事件管理、提醒、重复事件等功能
-          </p>
+           <div className="flex justify-between items-start mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">日历管理</h1>
+              <p className="text-gray-600">
+                功能完整的日历应用，支持事件管理、提醒、重复事件等功能
+              </p>
+            </div>
+            
+            {/* 用户认证区域 */}
+            <div className="flex items-center gap-3">
+              {isAuthenticated ? (
+                <UserMenu
+                  customMenuItems={[
+                    {
+                      id: 'settings',
+                      label: '个人设置',
+                      icon: Settings,
+                      onClick: () => console.log('个人设置')
+                    }
+                  ]}
+                />
+              ) : (
+                <button
+                  onClick={handleShowLogin}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  登录
+                </button>
+              )}
+            </div>
+          </div>
           
           {/* Tab 导航 */}
           <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit">
@@ -784,6 +860,11 @@ export default function CalendarPage() {
                   <h3 className="text-sm font-medium text-blue-800">功能说明</h3>
                   <p className="mt-1 text-sm text-blue-700">
                     点击日历上的任意日期可以创建新事件。当前已支持完整的事件管理功能，包括创建、编辑、删除等操作。
+                    {!isAuthenticated && (
+                      <span className="block mt-2 text-orange-700 font-medium">
+                        💡 提示：请先登录以使用完整的事件管理功能
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>
@@ -988,6 +1069,13 @@ export default function CalendarPage() {
         onDelete={editingEvent ? handleEventDelete : undefined}
         event={editingEvent}
         initialDate={selectedDate || undefined}
+      />
+
+      {/* 登录模态框 */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={handleLoginClose}
+        onSuccess={handleLoginSuccess}
       />
     </div>
   );
