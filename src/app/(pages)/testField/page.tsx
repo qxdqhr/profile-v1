@@ -1,7 +1,7 @@
 /**
- * 实验田页面 - 使用新的模块化组件
+ * 实验田页面 - 使用新的模块化组件，带认证
  */
 
-import { TestFieldPage } from '@/modules/testField';
+import { TestFieldPageWithAuth } from '@/modules/testField';
 
-export default TestFieldPage;
+export default TestFieldPageWithAuth;

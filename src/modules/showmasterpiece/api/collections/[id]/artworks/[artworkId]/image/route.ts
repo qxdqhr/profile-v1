@@ -69,12 +69,9 @@ export async function GET(
     if (artwork.fileId) {
       try {
         // 通过通用文件服务获取图片
-        const { UniversalFileService } = await import('@/services/universalFile/UniversalFileService');
-        const { createFileServiceConfig } = await import('@/services/universalFile/config');
+        const { createUniversalFileServiceWithConfigManager } = await import('@/services/universalFile/UniversalFileService');
         
-        const config = createFileServiceConfig();
-        const fileService = new UniversalFileService(config.getConfig());
-        await fileService.initialize();
+        const fileService = await createUniversalFileServiceWithConfigManager();
         
         const imageUrl = await fileService.getFileUrl(artwork.fileId);
         

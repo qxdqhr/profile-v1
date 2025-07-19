@@ -160,6 +160,30 @@ export class ConfigDbService {
   }
 
   /**
+   * 获取所有配置项（不分页）
+   */
+  async getAllConfigItems(): Promise<ConfigItem[]> {
+    return await db
+      .select()
+      .from(configItems)
+      .where(eq(configItems.isActive, true))
+      .orderBy(asc(configItems.sortOrder), asc(configItems.displayName));
+  }
+
+  /**
+   * 根据键更新配置项
+   */
+  async updateConfigItemByKey(key: string, updates: Partial<ConfigItem>): Promise<ConfigItem | null> {
+    const [updatedItem] = await db
+      .update(configItems)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(configItems.key, key))
+      .returning();
+    
+    return updatedItem || null;
+  }
+
+  /**
    * 创建配置项
    */
   async createConfigItem(item: Omit<ConfigItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<ConfigItem> {

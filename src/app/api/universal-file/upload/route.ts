@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { UniversalFileService } from '@/services/universalFile/UniversalFileService';
-import { createFileServiceConfig } from '@/services/universalFile/config';
+import { createUniversalFileServiceWithConfigManager } from '@/services/universalFile/UniversalFileService';
 import { validateApiAuth } from '@/modules/auth/server';
 
 /**
@@ -65,9 +64,7 @@ export async function POST(request: NextRequest) {
     });
 
     // 初始化文件服务
-    const config = createFileServiceConfig();
-    const fileService = new UniversalFileService(config.getConfig());
-    await fileService.initialize();
+    const fileService = await createUniversalFileServiceWithConfigManager();
 
     // 构建上传信息
     const uploadInfo = {

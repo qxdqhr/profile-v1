@@ -4,17 +4,17 @@
  * 为ShowMasterpiece模块提供特定的文件服务配置和帮助函数
  */
 
-import { createFileServiceConfig } from '@/services/universalFile/config';
+import { createFileServiceConfig, createFileServiceConfigWithConfigManager } from '@/services/universalFile/config';
 
 // 缓存ConfigManager实例，避免重复创建
-let cachedConfigManager: ReturnType<typeof createFileServiceConfig> | null = null;
+let cachedConfigManager: Awaited<ReturnType<typeof createFileServiceConfigWithConfigManager>> | null = null;
 
 /**
  * 获取缓存的ConfigManager实例
  */
-function getCachedConfigManager() {
+async function getCachedConfigManager() {
   if (!cachedConfigManager) {
-    cachedConfigManager = createFileServiceConfig();
+    cachedConfigManager = await createFileServiceConfigWithConfigManager();
   }
   return cachedConfigManager;
 }
@@ -22,8 +22,8 @@ function getCachedConfigManager() {
 /**
  * 获取ShowMasterpiece模块的文件服务配置
  */
-export function getShowMasterpieceFileConfig() {
-  const configManager = getCachedConfigManager();
+export async function getShowMasterpieceFileConfig() {
+  const configManager = await getCachedConfigManager();
   
   // 检查是否有OSS配置，如果有则优先使用OSS
   const config = configManager.getConfig();
@@ -112,9 +112,9 @@ export async function getArtworkImageUrl(fileId: string): Promise<string> {
  * 2. 如果只有本地存储，可以选择使用文件服务进行统一管理
  * 3. 兼容旧的Base64存储方式
  */
-export function shouldUseUniversalFileService(): boolean {
+export async function shouldUseUniversalFileService(): Promise<boolean> {
   try {
-    const configManager = getCachedConfigManager();
+    const configManager = await getCachedConfigManager();
     
     const config = configManager.getConfig();
     const ossConfig = config.storageProviders['aliyun-oss'];
@@ -137,9 +137,10 @@ export function shouldUseUniversalFileService(): boolean {
 /**
  * 获取存储模式显示名称
  */
-export function getStorageModeDisplayName(): string {
-  if (shouldUseUniversalFileService()) {
-    const configManager = getCachedConfigManager();
+export async function getStorageModeDisplayName(): Promise<string> {
+  const shouldUse = await shouldUseUniversalFileService();
+  if (shouldUse) {
+    const configManager = await getCachedConfigManager();
     
     const config = configManager.getConfig();
     const ossConfig = config.storageProviders['aliyun-oss'];

@@ -14,6 +14,9 @@ export type {
 
 // 导出组件
 export { default as TestFieldPage } from './pages/TestFieldPage';
+export { TestFieldPageWithAuth } from './pages/TestFieldPageWithAuth';
+export { UserInfoBar } from './components/UserInfoBar';
+export { PermissionGuard } from './components/PermissionGuard';
 
 // 导出工具函数
 export {

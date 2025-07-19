@@ -21,6 +21,7 @@ import {
   SortModeToggle,
   DraggableExperimentGrid
 } from '../components';
+import { UserInfoBar } from '../components/UserInfoBar';
 
 // 从本地存储中获取用户自定义排序
 const getUserOrderFromStorage = (): Record<string, number> => {
@@ -138,6 +139,9 @@ export default function TestFieldPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* 用户信息栏 */}
+      <UserInfoBar />
+      
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* 页面头部 */}
         <PageHeader counts={counts} />

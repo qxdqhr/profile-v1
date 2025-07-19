@@ -19,29 +19,51 @@ async function initializeConfigManager() {
       isActive: true
     });
 
-    // 2. 创建数据库配置分类
-    console.log('🗄️ 创建数据库配置分类...');
-    const dbCategory = await configDbService.createCategory({
-      name: 'database',
-      displayName: '数据库配置',
-      description: '数据库连接配置',
-      icon: 'fas fa-database',
+    // 2. 创建CDN配置分类
+    console.log('🌐 创建CDN配置分类...');
+    const cdnCategory = await configDbService.createCategory({
+      name: 'cdn',
+      displayName: '阿里云CDN配置',
+      description: '阿里云内容分发网络配置',
+      icon: 'fas fa-globe',
       sortOrder: 2,
       isActive: true
     });
 
-    // 3. 创建应用配置分类
+    // 3. 创建七牛云配置分类
+    console.log('☁️ 创建七牛云配置分类...');
+    const qiniuCategory = await configDbService.createCategory({
+      name: 'qiniu',
+      displayName: '七牛云配置',
+      description: '七牛云对象存储配置',
+      icon: 'fas fa-cloud-upload-alt',
+      sortOrder: 3,
+      isActive: true
+    });
+
+    // 4. 创建数据库配置分类（仅用于数据库相关配置，不包含连接字符串）
+    console.log('🗄️ 创建数据库配置分类...');
+    const dbCategory = await configDbService.createCategory({
+      name: 'database',
+      displayName: '数据库配置',
+      description: '数据库相关配置（连接字符串除外）',
+      icon: 'fas fa-database',
+      sortOrder: 4,
+      isActive: true
+    });
+
+    // 5. 创建应用配置分类
     console.log('⚙️ 创建应用配置分类...');
     const appCategory = await configDbService.createCategory({
       name: 'application',
       displayName: '应用配置',
       description: '应用程序基础配置',
       icon: 'fas fa-cog',
-      sortOrder: 3,
+      sortOrder: 5,
       isActive: true
     });
 
-    // 4. 创建OSS配置项
+    // 6. 创建OSS配置项
     console.log('📝 创建OSS配置项...');
     const ossConfigItems = [
       {
@@ -138,20 +160,154 @@ async function initializeConfigManager() {
       });
     }
 
-    // 5. 创建数据库配置项
+    // 7. 创建CDN配置项
+    console.log('📝 创建CDN配置项...');
+    const cdnConfigItems = [
+      {
+        categoryId: cdnCategory.id,
+        key: 'ALIYUN_CDN_DOMAIN',
+        displayName: 'CDN域名',
+        description: '阿里云CDN加速域名',
+        value: '',
+        defaultValue: '',
+        type: 'string' as const,
+        isRequired: false,
+        isSensitive: false,
+        sortOrder: 1
+      },
+      {
+        categoryId: cdnCategory.id,
+        key: 'ALIYUN_CDN_ACCESS_KEY_ID',
+        displayName: 'CDN AccessKey ID',
+        description: '阿里云CDN AccessKey ID',
+        value: '',
+        defaultValue: '',
+        type: 'string' as const,
+        isRequired: false,
+        isSensitive: true,
+        sortOrder: 2
+      },
+      {
+        categoryId: cdnCategory.id,
+        key: 'ALIYUN_CDN_ACCESS_KEY_SECRET',
+        displayName: 'CDN AccessKey Secret',
+        description: '阿里云CDN AccessKey Secret',
+        value: '',
+        defaultValue: '',
+        type: 'password' as const,
+        isRequired: false,
+        isSensitive: true,
+        sortOrder: 3
+      }
+    ];
+
+    for (const item of cdnConfigItems) {
+      await configDbService.createConfigItem({
+        ...item,
+        isActive: true,
+        validation: null
+      });
+    }
+
+    // 8. 创建七牛云配置项
+    console.log('📝 创建七牛云配置项...');
+    const qiniuConfigItems = [
+      {
+        categoryId: qiniuCategory.id,
+        key: 'QINIU_ACCESS_KEY',
+        displayName: '七牛云AccessKey',
+        description: '七牛云AccessKey',
+        value: '',
+        defaultValue: '',
+        type: 'string' as const,
+        isRequired: false,
+        isSensitive: true,
+        sortOrder: 1
+      },
+      {
+        categoryId: qiniuCategory.id,
+        key: 'QINIU_SECRET_KEY',
+        displayName: '七牛云SecretKey',
+        description: '七牛云SecretKey',
+        value: '',
+        defaultValue: '',
+        type: 'password' as const,
+        isRequired: false,
+        isSensitive: true,
+        sortOrder: 2
+      },
+      {
+        categoryId: qiniuCategory.id,
+        key: 'QINIU_BUCKET_NAME',
+        displayName: '七牛云存储空间',
+        description: '七牛云存储空间名称',
+        value: '',
+        defaultValue: '',
+        type: 'string' as const,
+        isRequired: false,
+        isSensitive: false,
+        sortOrder: 3
+      },
+      {
+        categoryId: qiniuCategory.id,
+        key: 'QINIU_DOMAIN',
+        displayName: '七牛云外链域名',
+        description: '七牛云外链默认域名',
+        value: '',
+        defaultValue: '',
+        type: 'string' as const,
+        isRequired: false,
+        isSensitive: false,
+        sortOrder: 4
+      }
+    ];
+
+    for (const item of qiniuConfigItems) {
+      await configDbService.createConfigItem({
+        ...item,
+        isActive: true,
+        validation: null
+      });
+    }
+
+    // 9. 创建数据库配置项（不包含连接字符串）
     console.log('📝 创建数据库配置项...');
     const dbConfigItems = [
       {
         categoryId: dbCategory.id,
-        key: 'DATABASE_URL',
-        displayName: '数据库连接URL',
-        description: 'PostgreSQL数据库连接字符串',
-        value: '',
-        defaultValue: 'postgresql://username:password@localhost:5432/database_name',
-        type: 'string' as const,
-        isRequired: true,
-        isSensitive: true,
+        key: 'DATABASE_POOL_SIZE',
+        displayName: '数据库连接池大小',
+        description: '数据库连接池的最大连接数',
+        value: '10',
+        defaultValue: '10',
+        type: 'number' as const,
+        isRequired: false,
+        isSensitive: false,
         sortOrder: 1
+      },
+      {
+        categoryId: dbCategory.id,
+        key: 'DATABASE_TIMEOUT',
+        displayName: '数据库连接超时',
+        description: '数据库连接超时时间（毫秒）',
+        value: '5000',
+        defaultValue: '5000',
+        type: 'number' as const,
+        isRequired: false,
+        isSensitive: false,
+        sortOrder: 2
+      },
+      {
+        categoryId: dbCategory.id,
+        key: 'DATABASE_SSL_MODE',
+        displayName: '数据库SSL模式',
+        description: '数据库连接SSL模式（require, prefer, allow, disable）',
+        value: 'prefer',
+        defaultValue: 'prefer',
+        type: 'string' as const,
+        isRequired: false,
+        isSensitive: false,
+        sortOrder: 3
       }
     ];
 
@@ -163,7 +319,7 @@ async function initializeConfigManager() {
       });
     }
 
-    // 6. 创建应用配置项
+    // 10. 创建应用配置项
     console.log('📝 创建应用配置项...');
     const appConfigItems = [
       {
@@ -214,8 +370,10 @@ async function initializeConfigManager() {
 
     console.log('✅ 配置管理模块初始化完成！');
     console.log('📊 创建了以下内容：');
-    console.log(`  - 3个配置分类`);
+    console.log(`  - 5个配置分类`);
     console.log(`  - ${ossConfigItems.length}个OSS配置项`);
+    console.log(`  - ${cdnConfigItems.length}个CDN配置项`);
+    console.log(`  - ${qiniuConfigItems.length}个七牛云配置项`);
     console.log(`  - ${dbConfigItems.length}个数据库配置项`);
     console.log(`  - ${appConfigItems.length}个应用配置项`);
 

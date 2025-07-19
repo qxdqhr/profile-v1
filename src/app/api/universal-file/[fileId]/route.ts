@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { UniversalFileService } from '@/services/universalFile/UniversalFileService';
-import { createFileServiceConfig } from '@/services/universalFile/config';
+import { createUniversalFileServiceWithConfigManager } from '@/services/universalFile/UniversalFileService';
 
 /**
  * 通用文件获取API端点
@@ -25,9 +24,7 @@ export async function GET(
     }
 
     // 初始化文件服务
-    const config = createFileServiceConfig();
-    const fileService = new UniversalFileService(config.getConfig());
-    await fileService.initialize();
+    const fileService = await createUniversalFileServiceWithConfigManager();
 
     // 生成访问URL
     const accessUrl = await fileService.getFileUrl(fileId);

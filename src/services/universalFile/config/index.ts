@@ -220,8 +220,6 @@ export class FileServiceConfigManager {
       internal: process.env.ALIYUN_OSS_INTERNAL === 'true'
     };
 
-
-
     // 检查必需的配置项
     console.log('🔍 [ConfigManager] 阿里云OSS配置:', config);
     if (config.region && config.bucket && config.accessKeyId && config.accessKeySecret) {
@@ -230,6 +228,49 @@ export class FileServiceConfigManager {
       console.log('✅ [ConfigManager] 从环境变量加载阿里云OSS配置成功');
     } else {
       console.warn('⚠️ [ConfigManager] 阿里云OSS环境变量配置不完整');
+    }
+  }
+
+  /**
+   * 从配置管理模块加载阿里云OSS配置
+   */
+  async loadAliyunOSSFromConfigManager(): Promise<void> {
+    try {
+      // 在服务器端运行时，从配置管理模块加载配置
+      if (typeof window === 'undefined') {
+        const { EnvConfigService } = await import('@/modules/configManager/services/envConfigService');
+        const service = EnvConfigService.getInstance();
+        
+        // 先加载配置到缓存
+        await service.loadConfigFromDatabase();
+        const config = service.getCachedConfig();
+        console.log('🔍 [ConfigManager] 从配置管理模块加载阿里云OSS配置:', config);
+        const ossConfig: Partial<AliyunOSSConfig> = {
+          region: config.ALIYUN_OSS_REGION,
+          bucket: config.ALIYUN_OSS_BUCKET,
+          accessKeyId: config.ALIYUN_OSS_ACCESS_KEY_ID,
+          accessKeySecret: config.ALIYUN_OSS_ACCESS_KEY_SECRET,
+          secure: config.ALIYUN_OSS_SECURE === 'true',
+          internal: config.ALIYUN_OSS_INTERNAL === 'true'
+        };
+
+        console.log('🔍 [ConfigManager] 从配置管理模块加载阿里云OSS配置:', {
+          region: ossConfig.region,
+          bucket: ossConfig.bucket,
+          accessKeyId: ossConfig.accessKeyId ? '***' : '未设置',
+          accessKeySecret: ossConfig.accessKeySecret ? '***' : '未设置'
+        });
+
+        if (ossConfig.region && ossConfig.bucket && ossConfig.accessKeyId && ossConfig.accessKeySecret) {
+          this.enableStorageProvider('aliyun-oss', ossConfig);
+          this.config.defaultStorage = 'aliyun-oss';
+          console.log('✅ [ConfigManager] 从配置管理模块加载阿里云OSS配置成功');
+        } else {
+          console.warn('⚠️ [ConfigManager] 配置管理模块中的阿里云OSS配置不完整');
+        }
+      }
+    } catch (error) {
+      console.warn('⚠️ [ConfigManager] 从配置管理模块加载阿里云OSS配置失败:', error);
     }
   }
 
@@ -316,6 +357,26 @@ export function createFileServiceConfig(customConfig?: Partial<UniversalFileServ
   
   // 尝试从环境变量加载云服务配置
   configManager.loadAliyunOSSFromEnv();
+  configManager.loadAliyunCDNFromEnv();
+  configManager.loadAliyunOSSFromConfigManager();
+  return configManager;
+}
+
+/**
+ * 创建配置管理器（优先从配置管理模块加载）
+ */
+export async function createFileServiceConfigWithConfigManager(customConfig?: Partial<UniversalFileServiceConfig>): Promise<FileServiceConfigManager> {
+  const configManager = new FileServiceConfigManager(customConfig);
+  
+  // 优先从配置管理模块加载配置
+  await configManager.loadAliyunOSSFromConfigManager();
+  
+  // 如果配置管理模块没有配置，则从环境变量加载
+  const ossConfig = configManager.getStorageConfig('aliyun-oss');
+  if (!ossConfig || !ossConfig.enabled) {
+    configManager.loadAliyunOSSFromEnv();
+  }
+  
   configManager.loadAliyunCDNFromEnv();
   
   return configManager;
