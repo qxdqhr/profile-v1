@@ -64,7 +64,21 @@ export async function POST(request: NextRequest) {
     });
 
     // 初始化文件服务
-    const fileService = await createUniversalFileServiceWithConfigManager();
+    console.log('🔧 [通用文件服务] 开始初始化文件服务...');
+    let fileService;
+    try {
+      fileService = await createUniversalFileServiceWithConfigManager();
+      console.log('✅ [通用文件服务] 文件服务初始化成功');
+    } catch (initError) {
+      console.error('❌ [通用文件服务] 文件服务初始化失败:', initError);
+      return NextResponse.json(
+        { 
+          error: '文件服务初始化失败',
+          details: initError instanceof Error ? initError.message : '未知错误'
+        },
+        { status: 500 }
+      );
+    }
 
     // 构建上传信息
     const uploadInfo = {
@@ -88,16 +102,34 @@ export async function POST(request: NextRequest) {
       } : undefined
     };
 
+    console.log('📦 [通用文件服务] 上传信息构建完成:', {
+      moduleId: uploadInfo.moduleId,
+      businessId: uploadInfo.businessId,
+      customPath: uploadInfo.customPath,
+      needsProcessing: uploadInfo.needsProcessing
+    });
+
     // 执行文件上传
     console.log('🚀 [通用文件服务] 开始文件上传...');
-    const uploadResult = await fileService.uploadFile(uploadInfo);
-
-    console.log('✅ [通用文件服务] 文件上传成功:', {
-      fileId: uploadResult.id,
-      storagePath: uploadResult.storagePath,
-      cdnUrl: uploadResult.cdnUrl,
-      size: uploadResult.size
-    });
+    let uploadResult;
+    try {
+      uploadResult = await fileService.uploadFile(uploadInfo);
+      console.log('✅ [通用文件服务] 文件上传成功:', {
+        fileId: uploadResult.id,
+        storagePath: uploadResult.storagePath,
+        cdnUrl: uploadResult.cdnUrl,
+        size: uploadResult.size
+      });
+    } catch (uploadError) {
+      console.error('❌ [通用文件服务] 文件上传执行失败:', uploadError);
+      return NextResponse.json(
+        { 
+          error: '文件上传执行失败',
+          details: uploadError instanceof Error ? uploadError.message : '未知错误'
+        },
+        { status: 500 }
+      );
+    }
 
     // 返回结果
     return NextResponse.json({
@@ -120,8 +152,16 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('❌ [通用文件服务] 文件上传失败:', error);
     
-    // 处理特定错误类型
+    // 记录详细的错误信息
     if (error instanceof Error) {
+      console.error('❌ [通用文件服务] 错误详情:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        cause: error.cause
+      });
+      
+      // 处理特定错误类型
       if (error.message.includes('文件大小超过限制')) {
         return NextResponse.json(
           { error: '文件大小超过限制，请选择更小的文件' },
@@ -133,6 +173,20 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           { error: '不支持的文件类型' },
           { status: 400 }
+        );
+      }
+
+      if (error.message.includes('存储提供者不存在')) {
+        return NextResponse.json(
+          { error: '存储服务配置错误' },
+          { status: 500 }
+        );
+      }
+
+      if (error.message.includes('数据库')) {
+        return NextResponse.json(
+          { error: '数据库操作失败' },
+          { status: 500 }
         );
       }
     }
