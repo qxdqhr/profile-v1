@@ -53,6 +53,15 @@ export { CollectionOrderManagerV2 as CollectionOrderManager } from './components
 /** 作品顺序管理器 - 基于通用组件的作品排序组件 */
 export { ArtworkOrderManagerV2 as ArtworkOrderManager } from './components/ArtworkOrderManagerV2';
 
+/** 预订弹窗组件 - 提供画集预订功能 */
+export { BookingModal } from './components/BookingModal';
+
+/** 预订页面组件 - 完整的预订流程页面 */
+export { BookingPage } from './components/BookingPage';
+
+/** 画集列表组件 - 用于预订页面展示画集 */
+export { CollectionList } from './components/CollectionList';
+
 
 // ===== 页面组件导出 =====
 // 完整的页面组件，可以直接用作路由页面
@@ -71,6 +80,9 @@ export { useMasterpieces } from './hooks/useMasterpieces';
 
 /** 美术作品配置管理Hook - 提供配置管理的状态和操作方法 */
 export { useMasterpiecesConfig } from './hooks/useMasterpiecesConfig';
+
+/** 预订功能Hook - 提供预订相关的状态管理和业务逻辑 */
+export { useBooking, useBookingForm } from './hooks/useBooking';
 
 // ===== 客户端服务导出 =====
 // 客户端API调用服务，封装了与后端的通信逻辑
@@ -114,6 +126,20 @@ export {
   getCollectionsOverview // 获取画集概览数据
 } from './services/masterpiecesConfigService';
 
+/** 
+ * 预订服务函数集
+ * 包含所有与预订相关的API调用方法
+ */
+export { 
+  BookingService,
+  createBooking,        // 创建预订
+  getBookings,         // 获取预订列表
+  getBooking,          // 获取单个预订
+  updateBooking,       // 更新预订
+  deleteBooking,       // 删除预订
+  getBookableCollections // 获取可预订画集列表
+} from './services/bookingService';
+
 // ===== 类型导出 =====
 // TypeScript类型定义，确保类型安全
 
@@ -130,6 +156,20 @@ export type {
   MasterpiecesState,   // 画集浏览状态类型
   MasterpiecesActions  // 画集浏览操作类型
 } from './types';
+
+/** 
+ * 导出预订功能相关的TypeScript类型定义
+ */
+export type {
+  Booking,              // 预订数据类型
+  BookingStatus,        // 预订状态枚举
+  CreateBookingRequest, // 创建预订请求类型
+  UpdateBookingRequest, // 更新预订请求类型
+  BookingListParams,    // 预订列表查询参数类型
+  BookingListResponse,  // 预订列表响应类型
+  BookingFormData,      // 预订表单数据类型
+  CollectionSummary     // 画集简略信息类型
+} from './types/booking';
 
 // ===== 模块信息 =====
 /** 模块版本号 */

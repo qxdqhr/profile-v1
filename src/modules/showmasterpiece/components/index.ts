@@ -159,4 +159,44 @@ export { CoverImageUpload } from './CoverImageUpload';
  */
 export { UniversalImageUpload } from './UniversalImageUpload';
 
+/**
+ * 预订弹窗组件
+ * 
+ * 使用现有的Modal组件包装预订页面，提供弹窗形式的预订功能。
+ * 支持响应式设计，适配桌面端和移动端。
+ * 
+ * 主要功能：
+ * - 弹窗形式的预订界面
+ * - 画集选择和预订表单
+ * - 完整的预订流程
+ */
+export { BookingModal } from './BookingModal';
+
+/**
+ * 预订页面组件
+ * 
+ * 完整的预订流程页面，包含画集选择和预订表单。
+ * 支持步骤式操作，用户体验友好。
+ * 
+ * 主要功能：
+ * - 画集列表展示和选择
+ * - 预订表单（QQ号、数量、备注）
+ * - 提交和状态管理
+ */
+export { BookingPage } from './BookingPage';
+
+/**
+ * 画集列表组件
+ * 
+ * 用于预订页面展示画集简略信息，包括封面、标题、艺术家和价格。
+ * 支持选择和加载状态。
+ * 
+ * 主要功能：
+ * - 画集卡片展示
+ * - 价格显示
+ * - 选择功能
+ * - 加载和空状态处理
+ */
+export { CollectionList } from './CollectionList';
+
  

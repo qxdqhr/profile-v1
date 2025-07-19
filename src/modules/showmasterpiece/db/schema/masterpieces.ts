@@ -205,6 +205,9 @@ export const comicUniverseCollections = pgTable('comic_universe_collections', {
   /** 显示顺序（数字越小越靠前） */
   displayOrder: integer('display_order').default(0),
   
+  /** 画集价格（单位：元，null表示免费或价格待定） */
+  price: integer('price'),
+  
   /** 访问次数统计 */
   viewCount: integer('view_count').notNull().default(0),
   

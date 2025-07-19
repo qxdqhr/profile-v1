@@ -23,11 +23,11 @@
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { ArrowLeft, Settings } from 'lucide-react';
+import { ArrowLeft, Settings, ShoppingCart } from 'lucide-react';
 import { useMasterpieces } from '../hooks/useMasterpieces';
 import { getConfig } from '../services/masterpiecesConfigService';
 import { MasterpiecesConfig } from '../types';
-import { CollectionCard, ArtworkViewer, ThumbnailSidebar } from '../components';
+import { CollectionCard, ArtworkViewer, ThumbnailSidebar, BookingModal } from '../components';
 import { AuthProvider, useAuth, UserMenu, CustomMenuItem } from '@/modules/auth';
 import styles from './ShowMasterPieces.module.css';
 
@@ -67,6 +67,9 @@ function ShowMasterPiecesContent() {
   
   /** 系统配置状态 */
   const [config, setConfig] = useState<MasterpiecesConfig | null>(null);
+  
+  /** 预订弹窗状态 */
+  const [bookingModalOpen, setBookingModalOpen] = useState(false);
 
   // ===== 配置加载 =====
   
@@ -102,7 +105,7 @@ function ShowMasterPiecesContent() {
     }
     
     // 基于用户角色或手机号判断
-    return user.role === 'admin' || user.phone === '15663733877';
+    return user.role === 'admin';
   }, [isAuthenticated, user]);
 
   // ===== 事件处理 =====
@@ -124,6 +127,15 @@ function ShowMasterPiecesContent() {
       console.log('❌ [ShowMasterPieces] 用户未认证，需要先登录');
       alert('请先登录后访问配置页面');
     }
+  };
+
+  /**
+   * 处理预订按钮点击
+   * 
+   * 打开预订弹窗
+   */
+  const handleBookingClick = () => {
+    setBookingModalOpen(true);
   };
 
   // ===== 自定义菜单配置 =====
@@ -271,6 +283,15 @@ function ShowMasterPiecesContent() {
               <p>{config?.heroSubtitle || '精选世界各地艺术大师的经典作品，每一页都是一次艺术的沉浸体验'}</p>
             </div>
             
+            {/* 预订按钮 */}
+            <button
+              onClick={handleBookingClick}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            >
+              <ShoppingCart size={16} />
+              <span>预订画集</span>
+            </button>
+            
             {/* 用户菜单 */}
             <UserMenu customMenuItems={customMenuItems} />
           </div>
@@ -303,6 +324,13 @@ function ShowMasterPiecesContent() {
           </button>
         </div>
       )}
+      
+      {/* 预订弹窗 */}
+      <BookingModal
+        isOpen={bookingModalOpen}
+        onClose={() => setBookingModalOpen(false)}
+        title="预订画集"
+      />
     </div>
   );
 }
