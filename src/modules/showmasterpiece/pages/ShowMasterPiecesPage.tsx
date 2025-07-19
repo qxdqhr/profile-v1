@@ -317,8 +317,8 @@ function ShowMasterPiecesContent() {
  */
 export default function ShowMasterPieces() {
   return (
-    <AuthProvider>
+    // <AuthProvider>
       <ShowMasterPiecesContent />
-    </AuthProvider>
+    // </AuthProvider>
   );
 }
