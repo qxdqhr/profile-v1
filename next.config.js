@@ -48,9 +48,11 @@ const nextConfig = {
             },
         ]
     },
-    api: {
-        bodyParser: {
-            sizeLimit: '10mb' // 增加允许的请求体大小
+    serverRuntimeConfig: {
+        api: {
+            bodyParser: {
+                sizeLimit: '10mb' // 增加允许的请求体大小
+            }
         }
     }
 }

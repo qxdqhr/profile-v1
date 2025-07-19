@@ -65,9 +65,18 @@ export async function POST(
     console.log('📄 作品数据接收:', {
       title: artworkData.title,
       artist: artworkData.artist,
-      imageSize: artworkData.image ? `${artworkData.image.length} chars` : 'null',
+      fileId: artworkData.fileId || 'null',
       description: artworkData.description?.substring(0, 50) + '...'
     });
+    
+    // 强制使用通用文件服务，不再支持Base64图片
+    if (!artworkData.fileId) {
+      console.error('❌ 缺少fileId，必须使用通用文件服务上传图片');
+      return NextResponse.json(
+        { error: '必须使用文件服务上传图片，不支持Base64图片' },
+        { status: 400 }
+      );
+    }
     
     console.log('💾 开始保存作品到数据库...');
     const artwork = await artworksDbService.addArtworkToCollection(collectionId, artworkData);

@@ -192,9 +192,9 @@ export class CollectionsDbService {
    * ✅ 延长缓存时间 - 从2分钟增加到10分钟
    * ⚠️ 需要优化 - 数据库索引、分页加载、图片懒加载
    */
-  async getAllCollections(useCache: boolean = true, includeImages: boolean = false): Promise<ArtCollection[]> {
+  async getAllCollections(useCache: boolean = true): Promise<ArtCollection[]> {
     // 检查缓存 - 首次访问时缓存为空，必须执行完整查询
-    if (useCache && this.collectionsCache && !includeImages) {
+    if (useCache && this.collectionsCache) {
       const cacheAge = Date.now() - this.collectionsCacheTime;
       
       // 如果在有效期内，直接返回缓存
@@ -212,13 +212,11 @@ export class CollectionsDbService {
 
     try {
       // 执行完整查询
-      const result = await this.fetchAllCollectionsFromDb(includeImages);
+      const result = await this.fetchAllCollectionsFromDb();
       
-      // 更新缓存（仅当不包含图片时缓存，避免缓存大数据）
-      if (!includeImages) {
-        this.collectionsCache = result;
-        this.collectionsCacheTime = Date.now();
-      }
+      // 更新缓存
+      this.collectionsCache = result;
+      this.collectionsCacheTime = Date.now();
 
       return result;
 
@@ -226,7 +224,7 @@ export class CollectionsDbService {
       console.error('获取画集数据失败:', error);
       
       // 如果查询失败但有过期缓存，返回过期缓存
-      if (this.collectionsCache && !includeImages) {
+      if (this.collectionsCache) {
         console.warn('数据库查询失败，返回过期缓存数据');
         return this.collectionsCache;
       }
@@ -307,8 +305,9 @@ export class CollectionsDbService {
 
   /**
    * 从数据库获取完整画集数据
+   * 优化版本：不再返回Base64图片数据，只返回fileId和imageUrl
    */
-  private async fetchAllCollectionsFromDb(includeImages: boolean = false): Promise<ArtCollection[]> {
+  private async fetchAllCollectionsFromDb(): Promise<ArtCollection[]> {
     // 1. 首先获取画集基本信息（不包含作品）
     // 潜在问题：如果画集数量很多，这个查询本身也会变慢
     const collections = await db
@@ -375,20 +374,17 @@ export class CollectionsDbService {
           )
         ),
 
-      // 🚀 关键优化：只获取作品核心信息，进一步精简字段
+      // 🚀 关键优化：只获取作品核心信息，不再包含Base64图片数据
       db
         .select({
           collectionId: comicUniverseArtworks.collectionId,
           id: comicUniverseArtworks.id,
           title: comicUniverseArtworks.title,
           artist: comicUniverseArtworks.artist,
-          // 根据参数决定是否包含图片数据
-          ...(includeImages ? { 
-            image: comicUniverseArtworks.image,
-            description: comicUniverseArtworks.description,
-            createdTime: comicUniverseArtworks.createdTime,
-            theme: comicUniverseArtworks.theme,
-          } : {}),
+          fileId: comicUniverseArtworks.fileId, // 只查询fileId，不查询Base64图片
+          description: comicUniverseArtworks.description,
+          createdTime: comicUniverseArtworks.createdTime,
+          theme: comicUniverseArtworks.theme,
           pageOrder: comicUniverseArtworks.pageOrder, // 保留排序必需字段
         })
         .from(comicUniverseArtworks)
@@ -419,25 +415,18 @@ export class CollectionsDbService {
         artworksMap.set(artwork.collectionId, []);
       }
       
-      // 创建基础作品对象
+      // 创建基础作品对象，统一使用fileId和imageUrl
       const artworkPage: ArtworkPage = {
         id: artwork.id,
         title: artwork.title || '',
         artist: artwork.artist || '',
-        image: '', // 默认为空
+        image: '', // 不再使用Base64图片
         imageUrl: `/api/masterpieces/collections/${artwork.collectionId}/artworks/${artwork.id}/image`,
-        description: '',
-        createdTime: '',
-        theme: '',
+        fileId: artwork.fileId || undefined, // 添加fileId支持
+        description: artwork.description || '',
+        createdTime: artwork.createdTime || '',
+        theme: artwork.theme || '',
       };
-      
-      // 如果包含图片数据，则填充相应字段
-      if (includeImages) {
-        artworkPage.image = (artwork as any).image || '';
-        artworkPage.description = (artwork as any).description || '';
-        artworkPage.createdTime = (artwork as any).createdTime || '';
-        artworkPage.theme = (artwork as any).theme || '';
-      }
       
       artworksMap.get(artwork.collectionId)!.push(artworkPage);
     });
@@ -940,7 +929,7 @@ export class ArtworksDbService {
     const newOrder = (maxOrder[0]?.maxOrder || -1) + 1;
     console.log('📊 [数据库] 计算新的页面顺序:', newOrder);
 
-    // 准备插入数据 - 支持新旧两种图片存储方式
+    // 准备插入数据 - 只支持通用文件服务
     const insertData: any = {
       collectionId,
       title: artworkData.title,
@@ -951,17 +940,14 @@ export class ArtworksDbService {
       pageOrder: newOrder,
     };
 
-    // 如果是fileId（新架构），优先使用
-    if (artworkData.fileId) {
-      insertData.fileId = artworkData.fileId;
-      insertData.migrationStatus = 'completed';
-      console.log('📁 [数据库] 使用通用文件服务ID:', artworkData.fileId);
-    } else if (artworkData.image) {
-      // 兼容旧架构的Base64图片
-      insertData.image = artworkData.image;
-      insertData.migrationStatus = 'pending';
-      console.log('🖼️ [数据库] 使用Base64图片数据');
+    // 必须提供fileId
+    if (!artworkData.fileId) {
+      throw new Error('必须提供文件ID，请先上传图片');
     }
+    
+    insertData.fileId = artworkData.fileId;
+    insertData.migrationStatus = 'completed';
+    console.log('📁 [数据库] 使用通用文件服务ID:', artworkData.fileId);
 
     const newArtwork = await db.insert(comicUniverseArtworks).values(insertData).returning();
 
@@ -1008,7 +994,7 @@ export class ArtworksDbService {
       throw new Error(`作品不存在或不属于指定画集 (作品ID: ${artworkId}, 画集ID: ${collectionId})`);
     }
 
-    // 准备更新数据 - 支持新旧两种图片存储方式
+    // 准备更新数据 - 只支持通用文件服务
     const updateData: any = {
       title: artworkData.title,
       artist: artworkData.artist,
@@ -1018,18 +1004,13 @@ export class ArtworksDbService {
       updatedAt: new Date(),
     };
 
-    // 如果是fileId（新架构），优先使用
+    // 如果提供了新的fileId，则更新
     if (artworkData.fileId) {
       updateData.fileId = artworkData.fileId;
       updateData.migrationStatus = 'completed';
       // 清空旧的image字段
       updateData.image = null;
-    } else if (artworkData.image) {
-      // 兼容旧架构的Base64图片
-      updateData.image = artworkData.image;
-      updateData.migrationStatus = 'pending';
-      // 清空fileId
-      updateData.fileId = null;
+      console.log('📁 [数据库] 更新通用文件服务ID:', artworkData.fileId);
     }
 
     const updatedArtwork = await db.update(comicUniverseArtworks)
@@ -1311,7 +1292,7 @@ export class ArtworksDbService {
           id: comicUniverseArtworks.id,
           title: comicUniverseArtworks.title,
           artist: comicUniverseArtworks.artist,
-          image: comicUniverseArtworks.image,
+          fileId: comicUniverseArtworks.fileId, // 只查询fileId，不查询Base64图片
           description: comicUniverseArtworks.description,
           createdTime: comicUniverseArtworks.createdTime,
           theme: comicUniverseArtworks.theme,
@@ -1345,7 +1326,7 @@ export class ArtworksDbService {
             id: comicUniverseArtworks.id,
             title: comicUniverseArtworks.title,
             artist: comicUniverseArtworks.artist,
-            image: comicUniverseArtworks.image,
+            fileId: comicUniverseArtworks.fileId, // 只查询fileId，不查询Base64图片
             description: comicUniverseArtworks.description,
             createdTime: comicUniverseArtworks.createdTime,
             theme: comicUniverseArtworks.theme,
@@ -1362,7 +1343,9 @@ export class ArtworksDbService {
           id: artwork.id,
           title: artwork.title,
           artist: artwork.artist,
-          image: artwork.image,
+          image: '', // 不再使用Base64图片
+          imageUrl: `/api/masterpieces/collections/${collectionId}/artworks/${artwork.id}/image`,
+          fileId: artwork.fileId || undefined,
           description: artwork.description || '',
           createdTime: artwork.createdTime || '',
           theme: artwork.theme || '',
@@ -1374,7 +1357,9 @@ export class ArtworksDbService {
         id: artwork.id,
         title: artwork.title,
         artist: artwork.artist,
-        image: artwork.image,
+        image: '', // 不再使用Base64图片
+        imageUrl: `/api/masterpieces/collections/${collectionId}/artworks/${artwork.id}/image`,
+        fileId: artwork.fileId || undefined,
         description: artwork.description || '',
         createdTime: artwork.createdTime || '',
         theme: artwork.theme || '',

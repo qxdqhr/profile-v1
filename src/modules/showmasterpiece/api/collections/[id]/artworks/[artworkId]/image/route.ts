@@ -31,10 +31,11 @@ export async function GET(
       );
     }
 
-    // 查询图片数据
+    // 查询图片数据，优先使用fileId
     const result = await db
       .select({
-        image: comicUniverseArtworks.image,
+        fileId: comicUniverseArtworks.fileId,
+        image: comicUniverseArtworks.image, // 保留向后兼容
         updatedAt: comicUniverseArtworks.updatedAt,
       })
       .from(comicUniverseArtworks)
@@ -64,7 +65,36 @@ export async function GET(
       return new NextResponse(null, { status: 304 });
     }
 
-    // 判断图片类型并设置相应的响应
+    // 优先使用fileId获取图片，如果不存在则回退到Base64（向后兼容）
+    if (artwork.fileId) {
+      try {
+        // 通过通用文件服务获取图片
+        const { UniversalFileService } = await import('@/services/universalFile/UniversalFileService');
+        const { createFileServiceConfig } = await import('@/services/universalFile/config');
+        
+        const config = createFileServiceConfig();
+        const fileService = new UniversalFileService(config.getConfig());
+        await fileService.initialize();
+        
+        const imageUrl = await fileService.getFileUrl(artwork.fileId);
+        
+        if (imageUrl) {
+          // 检查URL是否为绝对URL（以http或https开头）
+          if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+            return NextResponse.redirect(imageUrl, 302);
+          } else {
+            // 如果是相对路径，构建完整的URL
+            const baseUrl = request.nextUrl.origin;
+            const fullUrl = `${baseUrl}${imageUrl}`;
+            return NextResponse.redirect(fullUrl, 302);
+          }
+        }
+      } catch (error) {
+        console.error('通过fileId获取图片失败，回退到Base64:', error);
+      }
+    }
+    
+    // 回退到Base64图片数据（向后兼容）
     const imageData = artwork.image;
     
     if (!imageData) {

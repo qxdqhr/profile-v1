@@ -2,6 +2,15 @@
  * 通用文件服务配置管理
  */
 
+// 手动加载环境变量
+if (typeof window === 'undefined') {
+  try {
+    require('dotenv').config({ path: require('path').join(process.cwd(), '.env.local') });
+  } catch (error) {
+    console.warn('⚠️ [ConfigManager] 无法加载.env.local文件:', error);
+  }
+}
+
 import type {
   UniversalFileServiceConfig,
   StorageType,
@@ -207,12 +216,14 @@ export class FileServiceConfigManager {
       bucket: process.env.ALIYUN_OSS_BUCKET,
       accessKeyId: process.env.ALIYUN_OSS_ACCESS_KEY_ID,
       accessKeySecret: process.env.ALIYUN_OSS_ACCESS_KEY_SECRET,
-      customDomain: process.env.ALIYUN_OSS_CUSTOM_DOMAIN,
       secure: process.env.ALIYUN_OSS_SECURE === 'true',
       internal: process.env.ALIYUN_OSS_INTERNAL === 'true'
     };
 
+
+
     // 检查必需的配置项
+    console.log('🔍 [ConfigManager] 阿里云OSS配置:', config);
     if (config.region && config.bucket && config.accessKeyId && config.accessKeySecret) {
       this.enableStorageProvider('aliyun-oss', config);
       this.config.defaultStorage = 'aliyun-oss';
@@ -238,7 +249,8 @@ export class FileServiceConfigManager {
       this.enableCDNProvider('aliyun-cdn', config);
       console.log('✅ [ConfigManager] 从环境变量加载阿里云CDN配置成功');
     } else {
-      console.warn('⚠️ [ConfigManager] 阿里云CDN环境变量配置不完整');
+      // CDN配置是可选的，不输出警告
+      console.log('ℹ️ [ConfigManager] 阿里云CDN未配置，将使用默认存储方式');
     }
   }
 

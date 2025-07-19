@@ -20,7 +20,12 @@
     "prodb:verify": "dotenv -e .env.production -- npx tsx scripts/verify-prod-data.ts",
     "devdb:createusers": "dotenv -e .env.development -- npx tsx scripts/create-test-user-accounts.ts",
     "prodb:createusers": "dotenv -e .env.production -- npx tsx scripts/create-test-user-accounts.ts",
-    "migration:artwork": "dotenv -e .env.development -- npx tsx src/modules/showmasterpiece/migration/runMigration.ts"
+    "migration:artwork": "dotenv -e .env.development -- npx tsx src/modules/showmasterpiece/migration/runMigration.ts",
+    "migration:oss": "dotenv -e .env.development -- npx tsx src/modules/showmasterpiece/migration/migrateToOSS.ts",
+    "migration:oss:dry": "dotenv -e .env.development -- npx tsx src/modules/showmasterpiece/migration/migrateToOSS.ts --dry-run",
+    "migration:oss:verify": "dotenv -e .env.development -- npx tsx src/modules/showmasterpiece/migration/migrateToOSS.ts --verify",
+    "test:oss": "node scripts/test-oss-config.js",
+    "test:upload": "dotenv -e .env.development -- npx tsx scripts/test-upload.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

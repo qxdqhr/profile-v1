@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     
     // 完整的画集数据（包含所有作品）
     // 这种模式适用于详情页、编辑页等需要完整数据的场景
-    const collections = await collectionsDbService.getAllCollections(!nocache, includeImages); // 传递缓存和图片参数
+    const collections = await collectionsDbService.getAllCollections(!nocache); // 传递缓存参数
     
     // 设置不缓存的响应头
     const response = NextResponse.json(collections);

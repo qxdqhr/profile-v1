@@ -825,14 +825,11 @@ function ConfigPageContent() {
                     image: data.image,
                     fileId: data.fileId
                   }))}
-                  placeholder="输入作品图片URL或上传本地图片"
-                  forceUniversalMode={useUniversalService}
+                  placeholder="上传作品图片"
                 />
-                {useUniversalService && (
-                  <div className="mt-2 text-xs text-blue-600">
-                    当前存储模式: {storageModeDisplay}
-                  </div>
-                )}
+                <div className="mt-2 text-xs text-blue-600">
+                  图片将自动上传到阿里云OSS，享受CDN加速
+                </div>
               </div>
               <div className={styles.formGroup}>
                 <label>描述</label>

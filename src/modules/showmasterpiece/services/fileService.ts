@@ -6,15 +6,24 @@
 
 import { createFileServiceConfig } from '@/services/universalFile/config';
 
+// 缓存ConfigManager实例，避免重复创建
+let cachedConfigManager: ReturnType<typeof createFileServiceConfig> | null = null;
+
+/**
+ * 获取缓存的ConfigManager实例
+ */
+function getCachedConfigManager() {
+  if (!cachedConfigManager) {
+    cachedConfigManager = createFileServiceConfig();
+  }
+  return cachedConfigManager;
+}
+
 /**
  * 获取ShowMasterpiece模块的文件服务配置
  */
 export function getShowMasterpieceFileConfig() {
-  const configManager = createFileServiceConfig();
-  
-  // 尝试从环境变量加载OSS配置
-  configManager.loadAliyunOSSFromEnv();
-  configManager.loadAliyunCDNFromEnv();
+  const configManager = getCachedConfigManager();
   
   // 检查是否有OSS配置，如果有则优先使用OSS
   const config = configManager.getConfig();
@@ -105,8 +114,7 @@ export async function getArtworkImageUrl(fileId: string): Promise<string> {
  */
 export function shouldUseUniversalFileService(): boolean {
   try {
-    const configManager = createFileServiceConfig();
-    configManager.loadAliyunOSSFromEnv();
+    const configManager = getCachedConfigManager();
     
     const config = configManager.getConfig();
     const ossConfig = config.storageProviders['aliyun-oss'];
@@ -131,8 +139,7 @@ export function shouldUseUniversalFileService(): boolean {
  */
 export function getStorageModeDisplayName(): string {
   if (shouldUseUniversalFileService()) {
-    const configManager = createFileServiceConfig();
-    configManager.loadAliyunOSSFromEnv();
+    const configManager = getCachedConfigManager();
     
     const config = configManager.getConfig();
     const ossConfig = config.storageProviders['aliyun-oss'];
