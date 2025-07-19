@@ -17,11 +17,9 @@ import { validateApiAuth } from '@/modules/auth/server';
  */
 export async function GET(request: NextRequest) {
   try {
-    // 验证用户权限
+    // 尝试验证用户权限，但不强制要求
     const user = await validateApiAuth(request);
-    if (!user) {
-      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
-    }
+    console.log('🔐 [collections] 用户认证状态:', user ? '已登录' : '未登录');
 
     const searchParams = request.nextUrl.searchParams;
     const overview = searchParams.get('overview') === 'true';
