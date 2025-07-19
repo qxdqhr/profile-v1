@@ -327,6 +327,7 @@ export class LocalStorageProvider implements IStorageProvider {
    * 生成访问URL
    */
   private generateAccessUrl(relativePath: string): string {
+    console.log(`qhr1111133333`);
     if (!this.config) {
       throw new StorageProviderError('存储提供者未初始化');
     }

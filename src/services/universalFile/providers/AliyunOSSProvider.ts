@@ -433,21 +433,26 @@ export class AliyunOSSProvider implements IStorageProvider {
    * 生成公开访问URL
    */
   private generateAccessUrl(filePath: string): string {
+    console.log(`qhr111112222`);
     if (!this.config) {
       throw new StorageProviderError('OSS配置为空');
     }
 
     // 确保文件路径不以斜杠开头
     const normalizedPath = filePath.startsWith('/') ? filePath.substring(1) : filePath;
-
+    console.log(`🔗 [AliyunOSSProvider] 使用自定义域名: ${this.config.customDomain}`);
     if (this.config.customDomain) {
       // 使用自定义域名
       const protocol = this.config.secure !== false ? 'https' : 'http';
-      return `${protocol}://${this.config.customDomain}/${normalizedPath}`;
+      const url = `${protocol}://${this.config.customDomain}/${normalizedPath}`;
+      console.log(`🔗 [AliyunOSSProvider] 使用自定义域名: ${url}`);
+      return url;
     } else {
       // 使用默认OSS域名
       const protocol = this.config.secure !== false ? 'https' : 'http';
-      return `${protocol}://${this.config.bucket}.${this.config.region}.aliyuncs.com/${normalizedPath}`;
+      const url = `${protocol}://${this.config.bucket}.${this.config.region}.aliyuncs.com/${normalizedPath}`;
+      console.log(`🔗 [AliyunOSSProvider] 使用默认OSS域名: ${url}`);
+      return url;
     }
   }
 

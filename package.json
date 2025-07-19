@@ -25,7 +25,9 @@
     "migration:oss:dry": "dotenv -e .env.development -- npx tsx src/modules/showmasterpiece/migration/migrateToOSS.ts --dry-run",
     "migration:oss:verify": "dotenv -e .env.development -- npx tsx src/modules/showmasterpiece/migration/migrateToOSS.ts --verify",
     "test:oss": "node scripts/test-oss-config.js",
-    "test:upload": "dotenv -e .env.development -- npx tsx scripts/test-upload.ts"
+    "test:upload": "dotenv -e .env.development -- npx tsx scripts/test-upload.ts",
+    "fix:storage-provider": "dotenv -e .env.development -- npx tsx scripts/fix-default-storage-provider.ts",
+    "fix:storage-provider:prod": "dotenv -e .env.production -- npx tsx scripts/fix-default-storage-provider.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

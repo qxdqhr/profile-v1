@@ -26,17 +26,17 @@ import type {
  * 默认配置
  */
 const DEFAULT_CONFIG: UniversalFileServiceConfig = {
-  defaultStorage: 'local',
+  defaultStorage: 'aliyun-oss', // 修改默认存储为OSS
   storageProviders: {
     'local': {
       type: 'local',
-      enabled: true,
+      enabled: false, // 默认禁用本地存储
       rootPath: process.env.FILE_STORAGE_PATH || 'uploads',
       baseUrl: process.env.FILE_BASE_URL || '/uploads'
     } as LocalStorageConfig,
     'aliyun-oss': {
       type: 'aliyun-oss',
-      enabled: false,
+      enabled: true, // 默认启用OSS
       region: '',
       bucket: '',
       accessKeyId: '',
@@ -384,6 +384,24 @@ export async function createFileServiceConfigWithConfigManager(customConfig?: Pa
   const ossConfig = configManager.getStorageConfig('aliyun-oss');
   if (!ossConfig || !ossConfig.enabled) {
     configManager.loadAliyunOSSFromEnv();
+  }
+  
+  // 检查OSS配置是否有效
+  const finalOssConfig = configManager.getStorageConfig('aliyun-oss');
+  if (!finalOssConfig || !finalOssConfig.enabled || !validateAliyunOSSConfig(finalOssConfig as AliyunOSSConfig)) {
+    console.warn('⚠️ [ConfigManager] OSS配置无效或未启用，启用本地存储作为备用方案');
+    // 启用本地存储作为备用
+    configManager.enableStorageProvider('local');
+    configManager.updateConfig({ defaultStorage: 'local' });
+    console.log('ℹ️ [ConfigManager] 已启用本地存储作为备用方案');
+  } else {
+    // OSS配置有效，确保使用OSS作为默认存储
+    configManager.updateConfig({ defaultStorage: 'aliyun-oss' });
+    console.log('✅ [ConfigManager] 使用阿里云OSS作为默认存储');
+    
+    // 同时启用本地存储作为备用
+    configManager.enableStorageProvider('local');
+    console.log('ℹ️ [ConfigManager] 同时启用本地存储作为备用方案');
   }
   
   configManager.loadAliyunCDNFromEnv();

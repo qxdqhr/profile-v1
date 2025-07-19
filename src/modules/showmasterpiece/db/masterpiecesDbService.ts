@@ -308,143 +308,198 @@ export class CollectionsDbService {
    * 优化版本：不再返回Base64图片数据，只返回fileId和imageUrl
    */
   private async fetchAllCollectionsFromDb(): Promise<ArtCollection[]> {
-    // 1. 首先获取画集基本信息（不包含作品）
-    // 潜在问题：如果画集数量很多，这个查询本身也会变慢
-    const collections = await db
-      .select({
-        id: comicUniverseCollections.id,
-        title: comicUniverseCollections.title,
-        artist: comicUniverseCollections.artist,
-        coverImage: comicUniverseCollections.coverImage, // 封面图片仍然加载，用于列表展示
-        coverImageFileId: comicUniverseCollections.coverImageFileId, // 新增：封面图片文件ID
-        description: comicUniverseCollections.description,
-        isPublished: comicUniverseCollections.isPublished,
-        displayOrder: comicUniverseCollections.displayOrder, // 需要索引优化
-        createdAt: comicUniverseCollections.createdAt,
-        categoryId: comicUniverseCollections.categoryId,
-      })
-      .from(comicUniverseCollections)
-      .where(eq(comicUniverseCollections.isPublished, true)) // 需要isPublished字段索引
-      .orderBy(
-        desc(comicUniverseCollections.displayOrder), // 需要displayOrder字段索引
-        desc(comicUniverseCollections.createdAt)
-      );
+    try {
+      // 1. 获取画集基本信息
+      const collections = await db
+        .select({
+          id: comicUniverseCollections.id,
+          title: comicUniverseCollections.title,
+          artist: comicUniverseCollections.artist,
+          coverImage: comicUniverseCollections.coverImage,
+          coverImageFileId: comicUniverseCollections.coverImageFileId, // 新增：封面图片文件ID
+          description: comicUniverseCollections.description,
+          isPublished: comicUniverseCollections.isPublished,
+          displayOrder: comicUniverseCollections.displayOrder,
+          createdAt: comicUniverseCollections.createdAt,
+          categoryId: comicUniverseCollections.categoryId,
+        })
+        .from(comicUniverseCollections)
+        .where(eq(comicUniverseCollections.isPublished, true))
+        .orderBy(
+          desc(comicUniverseCollections.displayOrder),
+          desc(comicUniverseCollections.createdAt)
+        );
 
-    if (collections.length === 0) {
-      return [];
-    }
+      if (collections.length === 0) {
+        return [];
+      }
 
-    const collectionIds = collections.map(c => c.id);
-    // 🚀 优化：只获取当前画集实际使用的分类ID
-    const usedCategoryIds = [...new Set(collections.map(c => c.categoryId).filter(id => id !== null))] as number[];
+      const collectionIds = collections.map(c => c.id);
 
-    // 2. 并行获取分类、标签和作品基本信息（不包含图片数据）
-    // 🚀 性能优化：移除图片数据查询，减少90%的数据传输量
-    const [categories, tags, artworks] = await Promise.all([
-      // 🚀 优化：只获取当前画集实际使用的分类信息，而不是所有分类
-      usedCategoryIds.length > 0 
-        ? db
-            .select({
-              id: comicUniverseCategories.id,
-              name: comicUniverseCategories.name,
-            })
-            .from(comicUniverseCategories)
-            .where(
-              and(
-                inArray(comicUniverseCategories.id, usedCategoryIds),
-                eq(comicUniverseCategories.isActive, true)
-              )
+      // 2. 并行获取分类、标签和作品数据
+      const [categories, tags, artworks] = await Promise.all([
+        // 获取分类信息
+        db
+          .select({
+            id: comicUniverseCategories.id,
+            name: comicUniverseCategories.name,
+          })
+          .from(comicUniverseCategories)
+          .where(eq(comicUniverseCategories.isActive, true)),
+
+        // 获取标签信息
+        db
+          .select({
+            collectionId: comicUniverseCollectionTags.collectionId,
+            tagName: comicUniverseTags.name,
+          })
+          .from(comicUniverseCollectionTags)
+          .innerJoin(
+            comicUniverseTags,
+            eq(comicUniverseCollectionTags.tagId, comicUniverseTags.id)
+          )
+          .where(
+            and(
+              inArray(comicUniverseCollectionTags.collectionId, collectionIds),
+              eq(comicUniverseTags.isActive, true)
             )
-        : Promise.resolve([]), // 如果没有使用分类，直接返回空数组
+          ),
 
-      // 获取标签信息 - 相对轻量，但涉及JOIN
-      db
-        .select({
-          collectionId: comicUniverseCollectionTags.collectionId,
-          tagName: comicUniverseTags.name,
-        })
-        .from(comicUniverseCollectionTags)
-        .innerJoin(
-          comicUniverseTags,
-          eq(comicUniverseCollectionTags.tagId, comicUniverseTags.id)
-        )
-        .where(
-          and(
-            inArray(comicUniverseCollectionTags.collectionId, collectionIds), // 需要复合索引
-            eq(comicUniverseTags.isActive, true)
+        // 获取作品数据（只查询fileId，不查询Base64图片）
+        db
+          .select({
+            collectionId: comicUniverseArtworks.collectionId,
+            id: comicUniverseArtworks.id,
+            title: comicUniverseArtworks.title,
+            artist: comicUniverseArtworks.artist,
+            fileId: comicUniverseArtworks.fileId, // 只查询fileId，不查询Base64图片
+            description: comicUniverseArtworks.description,
+            createdTime: comicUniverseArtworks.createdTime,
+            theme: comicUniverseArtworks.theme,
+            pageOrder: comicUniverseArtworks.pageOrder,
+          })
+          .from(comicUniverseArtworks)
+          .where(
+            and(
+              inArray(comicUniverseArtworks.collectionId, collectionIds),
+              eq(comicUniverseArtworks.isActive, true)
+            )
           )
-        ),
+          .orderBy(asc(comicUniverseArtworks.pageOrder))
+      ]);
 
-      // 🚀 关键优化：只获取作品核心信息，不再包含Base64图片数据
-      db
-        .select({
-          collectionId: comicUniverseArtworks.collectionId,
-          id: comicUniverseArtworks.id,
-          title: comicUniverseArtworks.title,
-          artist: comicUniverseArtworks.artist,
-          fileId: comicUniverseArtworks.fileId, // 只查询fileId，不查询Base64图片
-          description: comicUniverseArtworks.description,
-          createdTime: comicUniverseArtworks.createdTime,
-          theme: comicUniverseArtworks.theme,
-          pageOrder: comicUniverseArtworks.pageOrder, // 保留排序必需字段
-        })
-        .from(comicUniverseArtworks)
-        .where(
-          and(
-            inArray(comicUniverseArtworks.collectionId, collectionIds), // 需要复合索引
-            eq(comicUniverseArtworks.isActive, true) // 需要isActive字段索引
-          )
-        )
-        .orderBy(asc(comicUniverseArtworks.pageOrder)) // 需要pageOrder字段索引
-    ]);
-
-    // 3. 构建映射表以提高查找效率
-    // 优化：使用Map而不是数组查找，时间复杂度从O(n)降到O(1)
-    const categoriesMap = new Map(categories.map(cat => [cat.id, cat.name]));
-    
-    const tagsMap = new Map<number, string[]>();
-    tags.forEach(tag => {
-      if (!tagsMap.has(tag.collectionId)) {
-        tagsMap.set(tag.collectionId, []);
-      }
-      tagsMap.get(tag.collectionId)!.push(tag.tagName);
-    });
-
-    const artworksMap = new Map<number, ArtworkPage[]>();
-    artworks.forEach(artwork => {
-      if (!artworksMap.has(artwork.collectionId)) {
-        artworksMap.set(artwork.collectionId, []);
-      }
+      // 3. 构建映射表
+      const categoriesMap = new Map(categories.map(cat => [cat.id, cat.name]));
       
-      // 创建基础作品对象，统一使用fileId和imageUrl
-      const artworkPage: ArtworkPage = {
-        id: artwork.id,
-        title: artwork.title || '',
-        artist: artwork.artist || '',
-        image: '', // 不再使用Base64图片
-        imageUrl: `/api/masterpieces/collections/${artwork.collectionId}/artworks/${artwork.id}/image`,
-        fileId: artwork.fileId || undefined, // 添加fileId支持
-        description: artwork.description || '',
-        createdTime: artwork.createdTime || '',
-        theme: artwork.theme || '',
-      };
-      
-      artworksMap.get(artwork.collectionId)!.push(artworkPage);
-    });
+      const tagsMap = new Map<number, string[]>();
+      tags.forEach(tag => {
+        if (!tagsMap.has(tag.collectionId)) {
+          tagsMap.set(tag.collectionId, []);
+        }
+        tagsMap.get(tag.collectionId)!.push(tag.tagName);
+      });
 
-    // 4. 构建最终结果
-    return collections.map(collection => ({
-      id: collection.id,
-      title: collection.title,
-      artist: collection.artist,
-      coverImage: collection.coverImage, // 封面图片保留，用于列表展示
-      coverImageFileId: collection.coverImageFileId || undefined, // 新增：封面图片文件ID
-      description: collection.description || '',
-      category: collection.categoryId ? (categoriesMap.get(collection.categoryId) || '') : '',
-      tags: tagsMap.get(collection.id) || [],
-      isPublished: collection.isPublished,
-      pages: artworksMap.get(collection.id) || [], // 🚀 作品数据精简，大幅减少传输量
-    }));
+      // 4. 批量获取文件URL（包括封面图片）
+      const fileIdToUrlMap = new Map<string, string>();
+      const allFileIds = [
+        ...collections.filter(c => c.coverImageFileId).map(c => c.coverImageFileId!),
+        ...artworks.filter(a => a.fileId).map(a => a.fileId!)
+      ];
+      
+      if (allFileIds.length > 0) {
+        try {
+          const { createUniversalFileServiceWithConfigManager } = await import('@/services/universalFile/UniversalFileService');
+          const fileService = await createUniversalFileServiceWithConfigManager();
+          
+          // 并行获取所有文件URL
+          const urlPromises = allFileIds.map(async (fileId) => {
+            try {
+              const fileUrl = await fileService.getFileUrl(fileId);
+              return { fileId, url: fileUrl };
+            } catch (error) {
+              console.warn(`⚠️ 获取文件URL失败: ${fileId}`, error);
+              return { fileId, url: null };
+            }
+          });
+          
+          const urlResults = await Promise.all(urlPromises);
+          urlResults.forEach(result => {
+            if (result.url) {
+              fileIdToUrlMap.set(result.fileId, result.url);
+            }
+          });
+        } catch (error) {
+          console.warn('⚠️ 批量获取文件URL失败:', error);
+        }
+      }
+
+      // 5. 构建作品映射表
+      const artworksMap = new Map<number, ArtworkPage[]>();
+      
+      artworks.forEach(artwork => {
+        if (!artworksMap.has(artwork.collectionId)) {
+          artworksMap.set(artwork.collectionId, []);
+        }
+        
+        // 创建基础作品对象，优先使用OSS URL，回退到API路径
+        let imageUrl: string;
+        if (artwork.fileId && fileIdToUrlMap.has(artwork.fileId)) {
+          imageUrl = fileIdToUrlMap.get(artwork.fileId)!;
+        } else {
+          // 如果没有fileId或获取URL失败，使用API路径
+          imageUrl = `/api/masterpieces/collections/${artwork.collectionId}/artworks/${artwork.id}/image`;
+        }
+        
+        const artworkPage: ArtworkPage = {
+          id: artwork.id,
+          title: artwork.title || '',
+          artist: artwork.artist || '',
+          image: '', // 不再使用Base64图片
+          imageUrl: imageUrl,
+          fileId: artwork.fileId || undefined, // 添加fileId支持
+          description: artwork.description || '',
+          createdTime: artwork.createdTime || '',
+          theme: artwork.theme || '',
+        };
+        
+        artworksMap.get(artwork.collectionId)!.push(artworkPage);
+      });
+
+      // 6. 构建最终结果
+      return collections.map(collection => {
+        // 处理封面图片URL
+        let coverImageUrl: string;
+        if (collection.coverImageFileId && fileIdToUrlMap.has(collection.coverImageFileId)) {
+          // 优先使用OSS URL
+          coverImageUrl = fileIdToUrlMap.get(collection.coverImageFileId)!;
+          console.log(`🔗 [CollectionsDbService] 使用OSS URL: ${coverImageUrl}`);
+        } else if (collection.coverImage) {
+          // 回退到原始路径
+          coverImageUrl = collection.coverImage;
+          console.log(`🔗 [CollectionsDbService] 使用原始路径: ${coverImageUrl}`);
+        } else {
+          // 没有封面图片
+          coverImageUrl = '';
+          console.log(`🔗 [CollectionsDbService] 无封面图片`);
+        }
+
+        return {
+          id: collection.id,
+          title: collection.title,
+          artist: collection.artist,
+          coverImage: coverImageUrl, // ✅ 使用处理后的URL
+          coverImageFileId: collection.coverImageFileId || undefined,
+          description: collection.description || '',
+          category: collection.categoryId ? (categoriesMap.get(collection.categoryId) || '') : '',
+          tags: tagsMap.get(collection.id) || [],
+          isPublished: collection.isPublished,
+          pages: artworksMap.get(collection.id) || [], // 🚀 作品数据精简，大幅减少传输量
+        };
+      });
+    } catch (error) {
+      console.error('获取画集列表失败:', error);
+      throw error;
+    }
   }
 
   /**
@@ -537,19 +592,62 @@ export class CollectionsDbService {
 
       const artworkCountsMap = new Map(artworkCounts.map(ac => [ac.collectionId, ac.count]));
 
-      // 4. 构建结果（包含作品数量而不是具体作品）
-      return collections.map(collection => ({
-        id: collection.id,
-        title: collection.title,
-        artist: collection.artist,
-        coverImage: collection.coverImage,
-        coverImageFileId: collection.coverImageFileId || undefined, // 新增：封面图片文件ID
-        description: collection.description || '',
-        category: collection.categoryId ? (categoriesMap.get(collection.categoryId) || '') : '',
-        tags: tagsMap.get(collection.id) || [],
-        isPublished: collection.isPublished,
-        artworkCount: artworkCountsMap.get(collection.id) || 0,
-      }));
+      // 4. 批量获取封面图片URL
+      const fileIdToUrlMap = new Map<string, string>();
+      const coverImageFileIds = collections.filter(c => c.coverImageFileId).map(c => c.coverImageFileId!);
+      
+      if (coverImageFileIds.length > 0) {
+        try {
+          const { createUniversalFileServiceWithConfigManager } = await import('@/services/universalFile/UniversalFileService');
+          const fileService = await createUniversalFileServiceWithConfigManager();
+          
+          // 并行获取所有封面图片URL
+          const urlPromises = coverImageFileIds.map(async (fileId) => {
+            try {
+              const fileUrl = await fileService.getFileUrl(fileId);
+              return { fileId, url: fileUrl };
+            } catch (error) {
+              console.warn(`⚠️ [CollectionsDbService] 获取封面图片URL失败: ${fileId}`, error);
+              return { fileId, url: null };
+            }
+          });
+          
+          const urlResults = await Promise.all(urlPromises);
+          urlResults.forEach(result => {
+            if (result.url) {
+              fileIdToUrlMap.set(result.fileId, result.url);
+            }
+          });
+        } catch (error) {
+          console.warn('⚠️ [CollectionsDbService] 批量获取封面图片URL失败:', error);
+        }
+      }
+
+      // 5. 构建结果（包含作品数量而不是具体作品）
+      return collections.map(collection => {
+        // 处理封面图片URL，优先使用OSS URL，回退到原始路径
+        let coverImageUrl: string;
+        if (collection.coverImageFileId && fileIdToUrlMap.has(collection.coverImageFileId)) {
+          coverImageUrl = fileIdToUrlMap.get(collection.coverImageFileId)!;
+        } else {
+          // 如果没有fileId或获取URL失败，使用原始路径
+          coverImageUrl = collection.coverImage || '';
+        }
+        console.log(`🔗 [CollectionsDbService] 1封面图片URL: ${coverImageUrl}`);
+
+        return {
+          id: collection.id,
+          title: collection.title,
+          artist: collection.artist,
+          coverImage: coverImageUrl, // 使用处理后的封面图片URL
+          coverImageFileId: collection.coverImageFileId || undefined, // 新增：封面图片文件ID
+          description: collection.description || '',
+          category: collection.categoryId ? (categoriesMap.get(collection.categoryId) || '') : '',
+          tags: tagsMap.get(collection.id) || [],
+          isPublished: collection.isPublished,
+          artworkCount: artworkCountsMap.get(collection.id) || 0,
+        };
+      });
 
     } catch (error) {
       console.error('获取画集概览失败:', error);
@@ -1345,36 +1443,72 @@ export class ArtworksDbService {
           ))
           .orderBy(asc(comicUniverseArtworks.pageOrder));
           
-        return fixedArtworks.map(artwork => ({
-          id: artwork.id,
-          title: artwork.title,
-          artist: artwork.artist,
-          image: '', // 不再使用Base64图片
-          imageUrl: `/api/masterpieces/collections/${collectionId}/artworks/${artwork.id}/image`,
-          fileId: artwork.fileId || undefined,
-          description: artwork.description || '',
-          createdTime: artwork.createdTime || '',
-          theme: artwork.theme || '',
-          pageOrder: artwork.pageOrder,
-        }));
+        return await this.buildArtworkPagesWithUrls(fixedArtworks, collectionId);
       }
 
-      return artworks.map(artwork => ({
+      return await this.buildArtworkPagesWithUrls(artworks, collectionId);
+    } catch (error) {
+      console.error('获取作品列表失败:', error);
+      throw error;
+    }
+  }
+
+  // 构建作品页面数据，包含正确的图片URL
+  private async buildArtworkPagesWithUrls(artworks: any[], collectionId: number): Promise<(ArtworkPage & { pageOrder: number })[]> {
+    // 批量获取文件URL以提高性能
+    const fileIdToUrlMap = new Map<string, string>();
+    const artworksWithFileId = artworks.filter(artwork => artwork.fileId);
+    
+    if (artworksWithFileId.length > 0) {
+      try {
+        const { createUniversalFileServiceWithConfigManager } = await import('@/services/universalFile/UniversalFileService');
+        const fileService = await createUniversalFileServiceWithConfigManager();
+        
+        // 并行获取所有文件URL
+        const urlPromises = artworksWithFileId.map(async (artwork) => {
+          try {
+            const fileUrl = await fileService.getFileUrl(artwork.fileId);
+            return { fileId: artwork.fileId, url: fileUrl };
+          } catch (error) {
+            console.warn(`⚠️ [ArtworksDbService] 获取文件URL失败: ${artwork.fileId}`, error);
+            return { fileId: artwork.fileId, url: null };
+          }
+        });
+        
+        const urlResults = await Promise.all(urlPromises);
+        urlResults.forEach(result => {
+          if (result.url) {
+            fileIdToUrlMap.set(result.fileId, result.url);
+          }
+        });
+      } catch (error) {
+        console.warn('⚠️ [ArtworksDbService] 批量获取文件URL失败:', error);
+      }
+    }
+    
+    return artworks.map(artwork => {
+      // 构建图片URL，优先使用OSS URL，回退到API路径
+      let imageUrl: string;
+      if (artwork.fileId && fileIdToUrlMap.has(artwork.fileId)) {
+        imageUrl = fileIdToUrlMap.get(artwork.fileId)!;
+      } else {
+        // 如果没有fileId或获取URL失败，使用API路径
+        imageUrl = `/api/masterpieces/collections/${collectionId}/artworks/${artwork.id}/image`;
+      }
+      
+      return {
         id: artwork.id,
         title: artwork.title,
         artist: artwork.artist,
         image: '', // 不再使用Base64图片
-        imageUrl: `/api/masterpieces/collections/${collectionId}/artworks/${artwork.id}/image`,
+        imageUrl: imageUrl,
         fileId: artwork.fileId || undefined,
         description: artwork.description || '',
         createdTime: artwork.createdTime || '',
         theme: artwork.theme || '',
         pageOrder: artwork.pageOrder,
-      }));
-    } catch (error) {
-      console.error('获取作品列表失败:', error);
-      throw error;
-    }
+      };
+    });
   }
 }
 

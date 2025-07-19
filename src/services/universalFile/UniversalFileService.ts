@@ -178,10 +178,22 @@ export class UniversalFileService extends EventEmitter {
 
       // 选择存储提供者
       const selectedStorageType = storageType || this.config.defaultStorage;
-      const storageProvider = this.storageProviders.get(selectedStorageType);
+      let storageProvider = this.storageProviders.get(selectedStorageType);
+      
+      // 如果指定的存储提供者不可用，优先尝试OSS
+      if (!storageProvider) {
+        console.log(`⚠️ [UniversalFileService] 存储提供者 ${selectedStorageType} 不可用，尝试使用OSS`);
+        storageProvider = this.storageProviders.get('aliyun-oss');
+        
+        // 如果OSS也不可用，回退到本地存储
+        if (!storageProvider) {
+          console.log(`⚠️ [UniversalFileService] OSS不可用，回退到本地存储`);
+          storageProvider = this.storageProviders.get('local');
+        }
+      }
       
       if (!storageProvider) {
-        throw new StorageProviderError(`存储提供者不存在: ${selectedStorageType}`);
+        throw new StorageProviderError(`没有可用的存储提供者`);
       }
 
       // 生成存储路径
@@ -363,6 +375,7 @@ export class UniversalFileService extends EventEmitter {
    */
   async getFileUrl(fileId: string, userId?: string, expiresIn?: number): Promise<string> {
     // 检查缓存
+
     const cacheKey = `${fileId}_${userId || 'public'}_${expiresIn || 0}`;
     const cached = this.urlCache.get(cacheKey);
     
@@ -387,6 +400,8 @@ export class UniversalFileService extends EventEmitter {
       url = metadata.cdnUrl;
     } else {
       // 获取存储提供者访问URL
+      console.log(`🔗 qhr222 ${metadata.storagePath} fileID ${fileId} metadata.storageProvider ${metadata.storageProvider}`);
+
       const storageProvider = this.storageProviders.get(metadata.storageProvider);
       
       if (!storageProvider) {
@@ -399,6 +414,7 @@ export class UniversalFileService extends EventEmitter {
     // 缓存URL
     const cacheExpires = Date.now() + (this.config.cache.urlTTL * 1000);
     this.urlCache.set(cacheKey, { url, expires: cacheExpires });
+    console.log(`🔗 qhr ${url}`);
 
     return url;
   }
@@ -506,12 +522,7 @@ export class UniversalFileService extends EventEmitter {
   private async registerDefaultStorageProviders(): Promise<void> {
     console.log('📦 [UniversalFileService] 注册默认存储提供者...');
     
-    // 注册本地存储提供者
-    const { LocalStorageProvider } = await import('./providers/LocalStorageProvider');
-    const localProvider = new LocalStorageProvider();
-    this.registerStorageProvider(localProvider);
-    
-    // 如果配置了阿里云OSS，注册OSS提供者
+    // 优先注册OSS提供者
     const ossConfig = this.config.storageProviders['aliyun-oss'];
     if (ossConfig && ossConfig.enabled) {
       try {
@@ -521,11 +532,33 @@ export class UniversalFileService extends EventEmitter {
         console.log('✅ [UniversalFileService] 阿里云OSS提供者注册成功');
       } catch (error) {
         console.warn('⚠️ [UniversalFileService] 阿里云OSS提供者注册失败:', error);
-        // 如果OSS注册失败，确保至少有一个可用的存储提供者
-        if (this.storageProviders.size === 0) {
-          console.warn('⚠️ [UniversalFileService] 没有可用的存储提供者，将使用本地存储');
-          this.config.defaultStorage = 'local';
-        }
+      }
+    }
+    
+    // 注册本地存储提供者作为备用
+    const localConfig = this.config.storageProviders['local'];
+    if (localConfig && localConfig.enabled) {
+      try {
+        const { LocalStorageProvider } = await import('./providers/LocalStorageProvider');
+        const localProvider = new LocalStorageProvider();
+        this.registerStorageProvider(localProvider);
+        console.log('✅ [UniversalFileService] 本地存储提供者注册成功');
+      } catch (error) {
+        console.warn('⚠️ [UniversalFileService] 本地存储提供者注册失败:', error);
+      }
+    }
+    
+    // 确保至少有一个可用的存储提供者
+    if (this.storageProviders.size === 0) {
+      console.warn('⚠️ [UniversalFileService] 没有可用的存储提供者，尝试注册本地存储作为备用');
+      try {
+        const { LocalStorageProvider } = await import('./providers/LocalStorageProvider');
+        const localProvider = new LocalStorageProvider();
+        this.registerStorageProvider(localProvider);
+        console.log('✅ [UniversalFileService] 本地存储提供者注册成功（备用）');
+      } catch (error) {
+        console.error('❌ [UniversalFileService] 无法注册任何存储提供者:', error);
+        throw new Error('无法初始化存储提供者');
       }
     }
   }
@@ -710,44 +743,86 @@ export class UniversalFileService extends EventEmitter {
       const { fileMetadata } = await import('./db/schema');
       const { eq } = await import('drizzle-orm');
       
-      // 获取默认存储提供者ID
+      // 根据metadata中的storageProvider字段获取对应的存储提供者ID
       const { fileStorageProviders } = await import('./db/schema');
-      const [defaultProvider] = await db
+      const [storageProvider] = await db
         .select()
         .from(fileStorageProviders)
-        .where(eq(fileStorageProviders.isDefault, true))
+        .where(eq(fileStorageProviders.type, metadata.storageProvider))
         .limit(1);
       
-      if (!defaultProvider) {
-        throw new Error('未找到默认存储提供者');
+      if (!storageProvider) {
+        console.warn(`⚠️ [UniversalFileService] 存储提供者 ${metadata.storageProvider} 不存在，尝试使用默认提供者`);
+        
+        // 回退到默认存储提供者
+        const [defaultProvider] = await db
+          .select()
+          .from(fileStorageProviders)
+          .where(eq(fileStorageProviders.isDefault, true))
+          .limit(1);
+        
+        if (!defaultProvider) {
+          throw new Error('未找到可用的存储提供者');
+        }
+        
+        console.log(`✅ [UniversalFileService] 使用默认存储提供者: ${defaultProvider.name} (${defaultProvider.type})`);
+        
+        // 保存到数据库
+        await db.insert(fileMetadata).values({
+          id: metadata.id,
+          originalName: metadata.originalName,
+          storedName: metadata.storageName,
+          extension: metadata.extension,
+          mimeType: metadata.mimeType,
+          size: metadata.size,
+          md5Hash: metadata.hash?.substring(0, 32) || '',
+          sha256Hash: metadata.hash || '',
+          storageProviderId: defaultProvider.id,
+          storagePath: metadata.storagePath,
+          cdnUrl: metadata.cdnUrl,
+          moduleId: metadata.moduleId,
+          businessId: metadata.businessId,
+          tags: [],
+          metadata: metadata.metadata,
+          isTemporary: false,
+          isDeleted: false,
+          accessCount: metadata.accessCount,
+          downloadCount: 0,
+          uploaderId: metadata.uploaderId || 'system',
+          uploadTime: metadata.uploadTime,
+          lastAccessTime: metadata.lastAccessTime,
+          expiresAt: metadata.expiresAt
+        });
+      } else {
+        console.log(`✅ [UniversalFileService] 使用存储提供者: ${storageProvider.name} (${storageProvider.type})`);
+        
+        // 保存到数据库
+        await db.insert(fileMetadata).values({
+          id: metadata.id,
+          originalName: metadata.originalName,
+          storedName: metadata.storageName,
+          extension: metadata.extension,
+          mimeType: metadata.mimeType,
+          size: metadata.size,
+          md5Hash: metadata.hash?.substring(0, 32) || '',
+          sha256Hash: metadata.hash || '',
+          storageProviderId: storageProvider.id,
+          storagePath: metadata.storagePath,
+          cdnUrl: metadata.cdnUrl,
+          moduleId: metadata.moduleId,
+          businessId: metadata.businessId,
+          tags: [],
+          metadata: metadata.metadata,
+          isTemporary: false,
+          isDeleted: false,
+          accessCount: metadata.accessCount,
+          downloadCount: 0,
+          uploaderId: metadata.uploaderId || 'system',
+          uploadTime: metadata.uploadTime,
+          lastAccessTime: metadata.lastAccessTime,
+          expiresAt: metadata.expiresAt
+        });
       }
-
-      // 保存到数据库
-      await db.insert(fileMetadata).values({
-        id: metadata.id,
-        originalName: metadata.originalName,
-        storedName: metadata.storageName,
-        extension: metadata.extension,
-        mimeType: metadata.mimeType,
-        size: metadata.size,
-        md5Hash: metadata.hash?.substring(0, 32) || '',
-        sha256Hash: metadata.hash || '',
-        storageProviderId: defaultProvider.id,
-        storagePath: metadata.storagePath,
-        cdnUrl: metadata.cdnUrl,
-        moduleId: metadata.moduleId,
-        businessId: metadata.businessId,
-        tags: [],
-        metadata: metadata.metadata,
-        isTemporary: false,
-        isDeleted: false,
-        accessCount: metadata.accessCount,
-        downloadCount: 0,
-        uploaderId: metadata.uploaderId || 'system',
-        uploadTime: metadata.uploadTime,
-        lastAccessTime: metadata.lastAccessTime,
-        expiresAt: metadata.expiresAt
-      });
 
       console.log('💾 [UniversalFileService] 文件元数据保存成功:', metadata.id);
     } catch (error) {
