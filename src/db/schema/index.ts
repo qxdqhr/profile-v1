@@ -28,6 +28,9 @@ export * from '@/modules/mikutap/db/schema';
 // 导出通用文件服务相关的表
 export * from '@/services/universalFile/db/schema';
 
+// 导出配置管理相关的表
+export * from '@/modules/configManager/db/schema';
+
 // 考试类型表
 export const examTypes = pgTable('exam_types', {
   id: text('id').primaryKey(), // 如 "default", "arknights"
