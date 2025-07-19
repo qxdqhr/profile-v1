@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import { MMDViewer } from '../components/MMDViewer';
 import MMDSettingsModal from '../components/MMDSettingsModal';
-import { UniversalFileUploader } from '@/components/UniversalFileUploader';
 import { Modal } from '@/components/PopWindow';
+import { FileText } from 'lucide-react';
 
 // 本地文件数据接口
 interface LocalFileData {
@@ -356,24 +356,19 @@ export function MMDViewerPage() {
           </div>
 
           <div className="space-y-4">
-            <UniversalFileUploader
-              onChange={(value) => {
-                // URL模式下的简单处理
-                if (value && typeof value === 'string' && value.startsWith('http')) {
-                  setSelectedModelId(value);
-                  setIsImportModalOpen(false);
-                }
-              }}
-              accept=".pmd,.pmx,.vmd"
-              maxFileSize={100 * 1024 * 1024} // 100MB
-              placeholder="选择MMD模型文件(.pmd/.pmx)或动画文件(.vmd)"
-              label="MMD文件"
-              fileType="model"
-              // 注释掉服务器上传端点，仅支持本地文件处理
-              // uploadEndpoint="/api/mmd/upload/models?type=model"
-              onSuccess={handleImportSuccess}
-              onError={handleImportError}
-            />
+            <div className="text-center p-8 border-2 border-dashed border-gray-300 rounded-lg">
+              <div className="text-gray-500 mb-4">
+                <FileText className="w-12 h-12 mx-auto mb-2" />
+                <p>文件上传功能正在开发中</p>
+                <p className="text-sm">请使用预设的模型文件</p>
+              </div>
+              <button
+                onClick={() => setIsImportModalOpen(false)}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+              >
+                关闭
+              </button>
+            </div>
 
             {/* 纹理文件上传区域 */}
             <div className="border-t border-gray-200 pt-4">

@@ -67,6 +67,13 @@ export async function GET(
     // 判断图片类型并设置相应的响应
     const imageData = artwork.image;
     
+    if (!imageData) {
+      return NextResponse.json(
+        { error: '图片数据不存在' },
+        { status: 404 }
+      );
+    }
+    
     if (imageData.startsWith('data:')) {
       // Base64 图片数据
       const [mimeType, base64Data] = imageData.split(',');

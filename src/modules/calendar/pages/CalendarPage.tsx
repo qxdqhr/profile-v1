@@ -32,16 +32,14 @@ import DraggableMonthView from '../components/DraggableMonthView';
 // import WeekdayDebug from '../debug/WeekdayDebug'; // 调试完成，已移除
 import CalendarSettings from '../components/CalendarSettings';
 import type { CalendarSettings as CalendarSettingsType } from '../components/CalendarSettings';
-import { AuthProvider, useAuth, UserMenu } from '@/modules/auth';
-import { ArrowLeft, Calendar, Users, Clock, Settings, Lock, Shield, Sparkles, Zap } from 'lucide-react';
 
 /**
- * 日历页面内容组件
+ * 基础日历页面组件
  * 
- * 需要在AuthProvider包装器内使用，以便访问认证状态
+ * 这是一个简化版本的日历页面，用于在实验田中展示基本功能
+ * 包含了基本的月历视图和事件显示
  */
-function CalendarPageContent() {
-  const { isAuthenticated, user } = useAuth();
+export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState<CalendarViewType>(CalendarViewType.MONTH);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
@@ -84,24 +82,22 @@ function CalendarPageContent() {
 
   // 加载当前月份的事件（包含月视图中显示的相邻月份日期）
   useEffect(() => {
-    if (isAuthenticated) {
-      // 获取月视图显示的所有日期范围（包括上月末和下月初）
-      const viewDates = getMonthViewDates(currentDate);
-      const viewStart = viewDates[0]; // 第一个日期
-      const viewEnd = viewDates[viewDates.length - 1]; // 最后一个日期
-      
-      console.log('📅 加载月视图事件范围:', {
-        currentMonth: `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}`,
-        viewStart: formatDate(viewStart),
-        viewEnd: formatDate(viewEnd),
-        totalDays: viewDates.length
-      });
-      
-      fetchEvents(viewStart, viewEnd).catch(err => {
-        console.error('加载事件失败:', err);
-      });
-    }
-  }, [currentDate, fetchEvents, isAuthenticated]);
+    // 获取月视图显示的所有日期范围（包括上月末和下月初）
+    const viewDates = getMonthViewDates(currentDate);
+    const viewStart = viewDates[0]; // 第一个日期
+    const viewEnd = viewDates[viewDates.length - 1]; // 最后一个日期
+    
+    console.log('📅 加载月视图事件范围:', {
+      currentMonth: `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}`,
+      viewStart: formatDate(viewStart),
+      viewEnd: formatDate(viewEnd),
+      totalDays: viewDates.length
+    });
+    
+    fetchEvents(viewStart, viewEnd).catch(err => {
+      console.error('加载事件失败:', err);
+    });
+  }, [currentDate, fetchEvents]);
 
   // 示例事件数据 - 当没有实际事件时显示
   const sampleEvents = useMemo(() => [
@@ -210,44 +206,75 @@ function CalendarPageContent() {
   // 获取事件颜色类名
   const getEventColorClass = (color: string) => {
     const colorMap: Record<string, string> = {
-      blue: 'bg-blue-500',
-      green: 'bg-green-500',
-      red: 'bg-red-500',
-      purple: 'bg-purple-500',
-      yellow: 'bg-yellow-500',
-      pink: 'bg-pink-500',
-      indigo: 'bg-indigo-500',
-      gray: 'bg-gray-500',
+      blue: 'bg-blue-100 text-blue-800 border-blue-200',
+      green: 'bg-green-100 text-green-800 border-green-200',
+      red: 'bg-red-100 text-red-800 border-red-200',
+      purple: 'bg-purple-100 text-purple-800 border-purple-200',
+      yellow: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      '#3B82F6': 'bg-blue-100 text-blue-800 border-blue-200',
+      '#10B981': 'bg-green-100 text-green-800 border-green-200',
+      '#EF4444': 'bg-red-100 text-red-800 border-red-200',
+      '#8B5CF6': 'bg-purple-100 text-purple-800 border-purple-200',
+      '#F59E0B': 'bg-yellow-100 text-yellow-800 border-yellow-200',
     };
-    return colorMap[color] || 'bg-blue-500';
+    return colorMap[color] || 'bg-gray-100 text-gray-800 border-gray-200';
   };
 
-  // 处理日期点击
+  // 处理日期点击事件
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
     setEditingEvent(null);
     setIsEventModalOpen(true);
   };
 
-  // 处理事件点击
+  // 处理事件点击（用于编辑）
   const handleEventClick = (event: any, e: React.MouseEvent) => {
-    e.stopPropagation();
+    e.stopPropagation(); // 阻止冒泡到日期点击
     setEditingEvent(event);
+    setSelectedDate(null);
     setIsEventModalOpen(true);
   };
 
-
-
-  // 处理创建增强事件
-  const handleCreateEnhancedEvent = async (eventData: EventData) => {
+  // 处理事件保存（创建或更新）
+  const handleEventSave = async (eventData: CreateEventRequest | UpdateEventRequest) => {
     try {
-      console.log('📝 创建增强事件:', eventData);
-      await createEnhancedEvent(eventData);
+      // 确保必需字段存在
+      if (!eventData.title || !eventData.startTime || !eventData.endTime) {
+        throw new Error('缺少必需的事件信息');
+      }
+      
+      if (editingEvent) {
+        // 更新现有事件
+        await updateEvent(editingEvent.id, {
+          title: eventData.title,
+          description: eventData.description,
+          startTime: new Date(eventData.startTime),
+          endTime: new Date(eventData.endTime),
+          allDay: eventData.allDay || false,
+          location: eventData.location,
+          color: eventData.color || EventColor.BLUE,
+          priority: eventData.priority || EventPriority.NORMAL,
+        });
+      } else {
+        // 创建新事件
+        await createEvent({
+          title: eventData.title,
+          description: eventData.description,
+          startTime: new Date(eventData.startTime),
+          endTime: new Date(eventData.endTime),
+          allDay: eventData.allDay || false,
+          location: eventData.location,
+          color: eventData.color || EventColor.BLUE,
+          priority: eventData.priority || EventPriority.NORMAL,
+        });
+      }
+      
       setIsEventModalOpen(false);
-      setEditingEvent(null);
       setSelectedDate(null);
+      setEditingEvent(null);
     } catch (error) {
-      console.error('创建增强事件失败:', error);
+      console.error(editingEvent ? '更新事件失败:' : '创建事件失败:', error);
+      // 可以在这里显示错误提示
     }
   };
 
@@ -262,22 +289,23 @@ function CalendarPageContent() {
     }
   };
 
-  // 处理批量删除
+  // 处理批量删除事件
   const handleBatchDelete = async (eventIds: number[]) => {
     try {
       await batchDeleteEvents(eventIds);
     } catch (error) {
-      console.error('批量删除失败:', error);
+      console.error('批量删除事件失败:', error);
+      throw error; // 重新抛出错误，让EventList组件处理
     }
   };
 
-  // 处理事件列表点击
+  // 处理事件列表中的事件点击
   const handleEventListClick = (event: any) => {
     setEditingEvent(event);
     setIsEventModalOpen(true);
   };
 
-  // 处理事件列表编辑
+  // 处理事件列表中的事件编辑
   const handleEventListEdit = (event: any) => {
     setEditingEvent(event);
     setIsEventModalOpen(true);
@@ -288,104 +316,20 @@ function CalendarPageContent() {
     setEventListConfig(config);
   };
 
-  // 处理模态框关闭
+  // 关闭模态框
   const handleModalClose = () => {
     setIsEventModalOpen(false);
-    setEditingEvent(null);
     setSelectedDate(null);
+    setEditingEvent(null);
+    clearError();
   };
 
   // 处理设置变更
   const handleSettingsChange = (newSettings: CalendarSettingsType) => {
     setCalendarSettings(newSettings);
+    console.log('📝 日历设置已更新:', newSettings);
+    // 这里可以应用设置到日历显示
   };
-
-  // 未登录状态渲染 - Apple Design
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-        {/* 顶部导航栏 - 毛玻璃效果 */}
-        <header className="backdrop-blur-xl bg-white/70 border-b border-white/20 sticky top-0 z-50">
-          <div className="max-w-6xl mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              <button
-                onClick={() => window.history.back()}
-                className="flex items-center gap-2 text-slate-600 hover:text-slate-900 px-4 py-3 rounded-full hover:bg-white/50 transition-all duration-200 backdrop-blur-sm"
-              >
-                <ArrowLeft size={20} />
-                <span className="hidden sm:inline font-medium">返回</span>
-              </button>
-              
-              <div className="text-center">
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent">
-                  日历管理
-                </h1>
-              </div>
-              
-              <UserMenu />
-            </div>
-          </div>
-        </header>
-
-        {/* 主内容区域 */}
-        <main className="max-w-6xl mx-auto px-6 py-16 space-y-16">
-          {/* 功能特性展示 */}
-          <div className="text-center space-y-8">
-            <div className="space-y-4">
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent">
-                智能日历管理系统
-              </h2>
-              <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-                现代化的日历应用，提供完整的事件管理、智能提醒和多视图展示功能
-              </p>
-            </div>
-
-            {/* 功能特性卡片 */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-              <div className="bg-white/60 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-xl shadow-slate-200/50 hover:scale-105 transition-all duration-300">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-6 shadow-lg shadow-blue-500/25">
-                  <Calendar className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">多视图展示</h3>
-                <p className="text-slate-600 leading-relaxed">支持月视图、周视图、日视图和议程视图，满足不同场景的查看需求。</p>
-              </div>
-
-              <div className="bg-white/60 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-xl shadow-slate-200/50 hover:scale-105 transition-all duration-300">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl mb-6 shadow-lg shadow-green-500/25">
-                  <Clock className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">智能提醒</h3>
-                <p className="text-slate-600 leading-relaxed">多种提醒方式和时间配置，确保重要事件不被遗漏。</p>
-              </div>
-
-              <div className="bg-white/60 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-xl shadow-slate-200/50 hover:scale-105 transition-all duration-300">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-violet-600 rounded-2xl mb-6 shadow-lg shadow-purple-500/25">
-                  <Users className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">协作共享</h3>
-                <p className="text-slate-600 leading-relaxed">支持事件分享和团队协作，让团队日程管理更加高效。</p>
-              </div>
-            </div>
-          </div>
-
-          {/* 登录卡片 - 优雅的行动引导 */}
-          <div className="bg-white/80 backdrop-blur-2xl rounded-3xl shadow-2xl shadow-slate-200/50 p-12 text-center border border-white/30">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mb-8 shadow-xl shadow-blue-500/30">
-              <Lock className="w-10 h-10 text-white" />
-            </div>
-            <h3 className="text-3xl font-bold text-slate-900 mb-4">开启您的日历之旅</h3>
-            <p className="text-lg text-slate-600 mb-8 max-w-md mx-auto leading-relaxed">
-              登录您的账户，解锁完整的日历管理功能，体验高效的时间管理。
-            </p>
-            <div className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium rounded-full shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300">
-              <Lock size={20} />
-              <span>点击右上角登录按钮开始</span>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
 
   // 渲染不同的日历视图
   const renderCalendarView = () => {
@@ -427,75 +371,107 @@ function CalendarPageContent() {
 
   // 渲染月视图
   const renderMonthView = () => {
-    const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-    
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        {/* 星期标题 */}
-        <div className="grid grid-cols-7 bg-gray-50 border-b border-gray-200">
-          {weekdays.map((day, index) => (
-            <div
-              key={index}
-              className="px-3 py-2 text-sm font-medium text-gray-700 text-center"
-            >
-              {day}
-            </div>
-          ))}
-        </div>
-        
-        {/* 日期网格 */}
-        <div className="grid grid-cols-7 gap-0">
-          {monthDates.map((date, index) => {
-            const dateEvents = getEventsForDate(date);
-            const isCurrentMonth = isSameMonth(date, currentDate);
-            const todayClass = isToday(date) ? 'bg-blue-50 border-blue-200' : '';
-            
-            return (
-              <div
-                key={index}
-                className={`
-                  min-h-[120px] border-r border-b border-gray-200 p-2 cursor-pointer
-                  hover:bg-gray-50 transition-colors duration-200
-                  ${!isCurrentMonth ? 'bg-gray-50 text-gray-400' : ''}
-                  ${todayClass}
-                `}
-                onClick={() => handleDateClick(date)}
-              >
-                {/* 日期数字 */}
-                <div className={`
-                  text-sm font-medium mb-1
-                  ${isToday(date) ? 'text-blue-600' : ''}
-                  ${!isCurrentMonth ? 'text-gray-400' : 'text-gray-900'}
-                `}>
-                  {date.getDate()}
-                </div>
-                
-                {/* 事件列表 */}
-                <div className="space-y-1">
-                  {dateEvents.slice(0, 3).map((event, eventIndex) => (
-                    <div
-                      key={eventIndex}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+        {/* 使用表格布局确保正确的行列对齐 */}
+        <table className="w-full table-fixed">
+          {/* 星期标题 */}
+          <thead>
+            <tr className="bg-gray-50">
+              {monthDates.slice(0, 7).map((date, index) => {
+                const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                return (
+                  <th 
+                    key={index} 
+                    className={`p-3 text-center text-sm font-semibold border-b border-gray-200 ${
+                      index < 6 ? 'border-r border-gray-200' : ''
+                    } ${
+                      isWeekend ? 'text-red-600' : 'text-gray-700'
+                    }`}
+                  >
+                    {getWeekdayName(date, 'zh-CN', 'short')}
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          
+          {/* 日期网格 */}
+          <tbody>
+            {Array.from({ length: 6 }, (_, weekIndex) => (
+              <tr key={weekIndex}>
+                {Array.from({ length: 7 }, (_, dayIndex) => {
+                  const dateIndex = weekIndex * 7 + dayIndex;
+                  const date = monthDates[dateIndex];
+                  
+                  if (!date) return <td key={dayIndex} className="h-24 border-b border-gray-200"></td>;
+                  
+                  const isCurrentMonth = isSameMonth(date, currentDate);
+                  const isTodayDate = isToday(date);
+                  const dayEvents = getEventsForDate(date);
+                  const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                  
+                  return (
+                    <td
+                      key={dayIndex}
+                      onClick={() => isCurrentMonth && handleDateClick(date)}
                       className={`
-                        px-2 py-1 rounded text-xs text-white truncate cursor-pointer
-                        ${getEventColorClass(event.color)}
-                        ${event.isRealEvent ? 'hover:opacity-80' : 'opacity-60'}
+                        h-24 border-b border-gray-200 relative
+                        ${dayIndex < 6 ? 'border-r border-gray-200' : ''}
+                        hover:bg-gray-50 transition-colors
+                        ${isCurrentMonth ? 'cursor-pointer' : 'cursor-default'}
+                        ${!isCurrentMonth ? 'bg-gray-50' : 'bg-white'}
+                        ${isTodayDate ? 'bg-blue-50' : ''}
                       `}
-                      onClick={(e) => event.isRealEvent && handleEventClick(event, e)}
-                      title={event.title}
                     >
-                      {event.title}
-                    </div>
-                  ))}
-                  {dateEvents.length > 3 && (
-                    <div className="text-xs text-gray-500 px-2">
-                      +{dateEvents.length - 3} 更多
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                      <div className="h-full flex flex-col items-center p-2">
+                        {/* 日期数字 */}
+                        <div className="flex justify-center mb-2">
+                          <span
+                            className={`
+                              inline-flex items-center justify-center text-sm font-medium w-6 h-6
+                              ${!isCurrentMonth ? 'text-gray-400' : 'text-gray-900'}
+                              ${isWeekend && isCurrentMonth ? 'text-red-600' : ''}
+                              ${isTodayDate ? 'bg-blue-600 text-white rounded-full' : ''}
+                            `}
+                          >
+                            {date.getDate()}
+                          </span>
+                        </div>
+                        
+                        {/* 事件列表 */}
+                        {isCurrentMonth && dayEvents.length > 0 && (
+                          <div className="space-y-1 px-1">
+                            {dayEvents.slice(0, 2).map((event, eventIndex) => (
+                              <div
+                                key={eventIndex}
+                                onClick={(e) => event.isRealEvent && event.id ? handleEventClick(events.find(e => e.id === event.id), e) : undefined}
+                                className={`
+                                  text-xs px-1 py-0.5 rounded text-center font-medium truncate
+                                  ${event.isRealEvent ? 'cursor-pointer hover:opacity-80' : 'cursor-default'}
+                                  transition-opacity
+                                  ${getEventColorClass(event.color)}
+                                `}
+                                title={event.title}
+                              >
+                                {event.title}
+                              </div>
+                            ))}
+                            {dayEvents.length > 2 && (
+                              <div className="text-xs text-gray-500 text-center">
+                                +{dayEvents.length - 2} 更多
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     );
   };
@@ -503,73 +479,130 @@ function CalendarPageContent() {
   // 渲染周视图
   const renderWeekView = () => {
     const weekDates = getWeekViewDates(currentDate);
-    const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
     
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        {/* 星期标题 */}
-        <div className="grid grid-cols-7 bg-gray-50 border-b border-gray-200">
-          {weekdays.map((day, index) => {
-            const date = weekDates[index];
-            const isCurrentDay = isToday(date);
-            
-            return (
-              <div
-                key={index}
-                className={`
-                  px-3 py-4 text-center border-r border-gray-200 last:border-r-0
-                  ${isCurrentDay ? 'bg-blue-50 border-blue-200' : ''}
-                `}
-              >
-                <div className="text-sm font-medium text-gray-700">{day}</div>
-                <div className={`
-                  text-lg font-semibold mt-1
-                  ${isCurrentDay ? 'text-blue-600' : 'text-gray-900'}
-                `}>
-                  {date.getDate()}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        
-        {/* 时间槽和事件 */}
-        <div className="grid grid-cols-7 gap-0 min-h-[600px]">
-          {weekDates.map((date, index) => {
-            const dateEvents = getEventsForDate(date);
-            const isCurrentDay = isToday(date);
-            
-            return (
-              <div
-                key={index}
-                className={`
-                  border-r border-gray-200 last:border-r-0 p-2 cursor-pointer
-                  hover:bg-gray-50 transition-colors duration-200
-                  ${isCurrentDay ? 'bg-blue-50/30' : ''}
-                `}
-                onClick={() => handleDateClick(date)}
-              >
-                {/* 事件列表 */}
-                <div className="space-y-1">
-                  {dateEvents.map((event, eventIndex) => (
-                    <div
-                      key={eventIndex}
-                      className={`
-                        px-2 py-1 rounded text-xs text-white truncate cursor-pointer
-                        ${getEventColorClass(event.color)}
-                        ${event.isRealEvent ? 'hover:opacity-80' : 'opacity-60'}
-                      `}
-                      onClick={(e) => event.isRealEvent && handleEventClick(event, e)}
-                      title={event.title}
-                    >
-                      {event.title}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+        <table className="w-full table-fixed">
+          {/* 星期标题 */}
+          <thead>
+            <tr className="bg-gray-50">
+              {weekDates.map((date, index) => {
+                const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                
+                return (
+                  <th 
+                    key={index} 
+                    className={`p-3 text-center border-b border-gray-200 ${
+                      index < 6 ? 'border-r border-gray-200' : ''
+                    }`}
+                  >
+                    <div className={`text-sm font-medium ${
+                      isWeekend ? 'text-red-600' : 'text-gray-700'
+                    }`}>
+                      {getWeekdayName(date, 'zh-CN', 'short')}
                     </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          
+          {/* 日期网格 */}
+          <tbody>
+            <tr>
+              {weekDates.map((date, index) => {
+                const dayEvents = getEventsForDate(date);
+                const isTodayDate = isToday(date);
+                const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                
+                return (
+                  <td
+                    key={index}
+                    onClick={() => handleDateClick(date)}
+                    className={`
+                      h-56 border-b border-gray-200 relative cursor-pointer
+                      ${index < 6 ? 'border-r border-gray-200' : ''}
+                      hover:bg-gray-50 transition-colors
+                      ${isTodayDate ? 'bg-blue-50' : 'bg-white'}
+                    `}
+                  >
+                    <div className="flex flex-col h-full p-3">
+                      {/* 日期显示区域 - 居中对齐 */}
+                      <div className="flex flex-col items-center mb-3">
+                        <div className={`flex items-center justify-center text-lg font-bold w-10 h-10 rounded-full ${
+                          isTodayDate ? 'bg-blue-600 text-white shadow-md' : 
+                          isWeekend ? 'text-red-600 bg-red-50' : 'text-gray-900 hover:bg-gray-100'
+                        } transition-colors`}>
+                          {date.getDate()}
+                        </div>
+                        {/* 月份信息（仅在月份变化时显示） */}
+                        {(index === 0 || date.getDate() === 1) && (
+                          <div className="text-xs text-gray-500 mt-1 font-medium">
+                            {date.getMonth() + 1}月
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* 事件统计和列表 */}
+                      <div className="flex-1 flex flex-col">
+                        {dayEvents.length > 0 ? (
+                          <>
+                            {/* 事件数量标识 - 居中显示 */}
+                            <div className="text-center mb-2">
+                              <span className={`inline-flex items-center justify-center w-6 h-6 text-xs font-bold rounded-full ${
+                                dayEvents.length > 5 ? 'bg-red-100 text-red-700' :
+                                dayEvents.length > 2 ? 'bg-yellow-100 text-yellow-700' :
+                                'bg-green-100 text-green-700'
+                              }`}>
+                                {dayEvents.length}
+                              </span>
+                            </div>
+                            
+                            {/* 事件列表 */}
+                            <div className="space-y-1 overflow-hidden">
+                              {dayEvents.slice(0, 4).map((event, eventIndex) => (
+                                <div
+                                  key={eventIndex}
+                                  onClick={(e) => event.isRealEvent && event.id ? handleEventClick(events.find(e => e.id === event.id), e) : undefined}
+                                  className={`
+                                    text-xs px-2 py-1 rounded font-medium truncate text-center
+                                    ${event.isRealEvent ? 'cursor-pointer hover:opacity-80 hover:shadow-sm' : 'cursor-default'}
+                                    transition-all duration-200
+                                    ${getEventColorClass(event.color)}
+                                  `}
+                                  title={event.title}
+                                >
+                                  {event.title}
+                                </div>
+                              ))}
+                              {dayEvents.length > 4 && (
+                                <div className="text-xs text-gray-500 text-center py-1 bg-gray-100 rounded">
+                                  +{dayEvents.length - 4} 更多
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        ) : (
+                          /* 无事件时的占位符 */
+                          <div className="flex-1 flex items-center justify-center">
+                            <div className="text-center">
+                              <div className="w-4 h-4 mx-auto mb-1 opacity-30">
+                                <svg fill="currentColor" viewBox="0 0 20 20" className="text-gray-400">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                                </svg>
+                              </div>
+                              <div className="text-xs text-gray-400">无事件</div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                );
+              })}
+            </tr>
+          </tbody>
+        </table>
       </div>
     );
   };
@@ -577,284 +610,375 @@ function CalendarPageContent() {
   // 渲染日视图
   const renderDayView = () => {
     const dayEvents = getEventsForDate(currentDate);
-    const hours = Array.from({ length: 24 }, (_, i) => i);
+    const isTodayDate = isToday(currentDate);
     
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
         {/* 日期标题 */}
-        <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                {currentDate.toLocaleDateString('zh-CN', { 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}
-              </h3>
-              <p className="text-sm text-gray-600">
-                {currentDate.toLocaleDateString('zh-CN', { weekday: 'long' })}
-              </p>
+        <div className="bg-gray-50 p-4 border-b border-gray-200">
+          <div className="text-center">
+            <div className="text-sm text-gray-600 mb-1">
+              {currentDate.toLocaleDateString('zh-CN', { weekday: 'long' })}
             </div>
-            <button
-              onClick={() => handleDateClick(currentDate)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-            >
-              添加事件
-            </button>
+            <div className={`text-2xl font-bold ${
+              isTodayDate ? 'text-blue-600' : 'text-gray-900'
+            }`}>
+              {currentDate.getDate()}日
+            </div>
+            <div className="text-sm text-gray-600">
+              {currentDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' })}
+            </div>
           </div>
         </div>
-        
-        {/* 时间轴 */}
-        <div className="max-h-[600px] overflow-y-auto">
-          {hours.map((hour) => (
-            <div key={hour} className="flex border-b border-gray-100 hover:bg-gray-50">
-              <div className="w-16 px-3 py-2 text-sm text-gray-500 text-right border-r border-gray-200">
-                {hour.toString().padStart(2, '0')}:00
-              </div>
-              <div className="flex-1 p-2 min-h-[60px] cursor-pointer">
-                {/* 这里可以添加该时间段的事件 */}
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        {/* 全天事件 */}
-        {dayEvents.length > 0 && (
-          <div className="border-t border-gray-200 p-4">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">全天事件</h4>
-            <div className="space-y-1">
-              {dayEvents.map((event, index) => (
+
+        {/* 时间槽和事件 */}
+        <div className="p-4">
+          {/* 创建事件按钮 */}
+          <button
+            onClick={() => handleDateClick(currentDate)}
+            className="w-full mb-4 p-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-colors"
+          >
+            + 在此日期创建事件
+          </button>
+
+          {/* 事件列表 */}
+          {dayEvents.length > 0 ? (
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                今日事件 ({dayEvents.length})
+              </h3>
+              {dayEvents.map((event, eventIndex) => (
                 <div
-                  key={index}
+                  key={eventIndex}
+                  onClick={(e) => event.isRealEvent && event.id ? handleEventClick(events.find(e => e.id === event.id), e) : undefined}
                   className={`
-                    px-3 py-2 rounded text-sm text-white cursor-pointer
+                    p-3 rounded-lg border-l-4 bg-gray-50
+                    ${event.isRealEvent ? 'cursor-pointer hover:shadow-md' : 'cursor-default'}
+                    transition-shadow
                     ${getEventColorClass(event.color)}
-                    ${event.isRealEvent ? 'hover:opacity-80' : 'opacity-60'}
                   `}
-                  onClick={(e) => event.isRealEvent && handleEventClick(event, e)}
                 >
-                  {event.title}
+                  <div className="font-medium text-sm mb-1">{event.title}</div>
+                  {event.isRealEvent && event.id && (
+                    <div className="text-xs text-gray-600">
+                      点击编辑事件
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p>今日暂无事件</p>
+              <p className="text-xs mt-1">点击上方按钮创建事件</p>
+            </div>
+          )}
+        </div>
       </div>
     );
   };
 
-  // 已登录状态渲染
+  // 处理增强事件创建
+  const handleCreateEnhancedEvent = useCallback(async (eventData: EventData) => {
+    try {
+      const createdEvents = await createEnhancedEvent(eventData);
+      setIsEventModalOpen(false);
+      setSelectedDate(null);
+      
+      // 显示成功消息
+      const eventCount = createdEvents.length;
+      if (eventCount > 1) {
+        alert(`成功创建 ${eventCount} 个事件！`);
+      } else {
+        alert('事件创建成功！');
+      }
+    } catch (error) {
+      console.error('创建增强事件失败:', error);
+      alert('创建事件失败，请重试');
+    }
+  }, [createEnhancedEvent]);
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 顶部导航栏 */}
-      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+      <div className="max-w-7xl mx-auto p-4 lg:p-6">
+        {/* 页面标题和Tab导航 */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">日历管理</h1>
+          <p className="text-gray-600 mb-4">
+            功能完整的日历应用，支持事件管理、提醒、重复事件等功能
+          </p>
+          
+          {/* Tab 导航 */}
+          <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit">
             <button
-              onClick={() => window.history.back()}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+              onClick={() => setActiveTab('calendar')}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                activeTab === 'calendar'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
             >
-              <ArrowLeft size={20} />
-              <span className="hidden sm:inline font-medium">返回</span>
+              📅 日历视图
             </button>
-            
-            <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900">日历管理</h1>
-              <p className="text-sm text-gray-600">
-                欢迎回来，{user?.name || user?.phone}！
-              </p>
-            </div>
-            
-            <UserMenu />
+            <button
+              onClick={() => setActiveTab('events')}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                activeTab === 'events'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              📋 事件列表
+            </button>
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                activeTab === 'settings'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              ⚙️ 设置
+            </button>
           </div>
         </div>
-      </header>
 
-      {/* 主内容区域 */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        {/* Tab导航 */}
-        <div className="mb-8">
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
-              {[
-                { id: 'calendar', label: '日历视图', icon: Calendar },
-                { id: 'events', label: '事件列表', icon: Users },
-                { id: 'settings', label: '设置', icon: Settings }
-              ].map(({ id, label, icon: Icon }) => (
+        {/* 错误提示 */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">操作失败</h3>
+                <p className="mt-1 text-sm text-red-700">{error}</p>
                 <button
-                  key={id}
-                  onClick={() => setActiveTab(id as any)}
-                  className={`
-                    flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm
-                    ${activeTab === id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }
-                  `}
+                  onClick={clearError}
+                  className="mt-2 text-sm text-red-600 hover:text-red-800 font-medium"
                 >
-                  <Icon size={16} />
-                  {label}
+                  关闭
                 </button>
-              ))}
-            </nav>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* 日历Tab */}
+        {/* Tab内容区域 */}
         {activeTab === 'calendar' && (
           <>
-            {/* 日历控制栏 */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-              <div className="flex items-center justify-between">
-                {/* 导航控制 */}
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={goToPrevious}
-                    className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-                  >
-                    <ArrowLeft size={20} />
-                  </button>
-                  
-                  <h2 className="text-lg font-semibold text-gray-900 min-w-[200px]">
-                    {getViewTitle()}
-                  </h2>
-                  
-                  <button
-                    onClick={goToNext}
-                    className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-                  >
-                    <ArrowLeft size={20} className="rotate-180" />
-                  </button>
-                  
-                  <button
-                    onClick={goToToday}
-                    className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-                  >
-                    今天
-                  </button>
+            {/* 功能状态提示 */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-blue-400 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
                 </div>
-                
-                {/* 视图切换 */}
-                <div className="flex items-center gap-2">
-                  {[
-                    { type: CalendarViewType.MONTH, label: '月' },
-                    { type: CalendarViewType.WEEK, label: '周' },
-                    { type: CalendarViewType.DAY, label: '日' }
-                  ].map(({ type, label }) => (
-                    <button
-                      key={type}
-                      onClick={() => setViewType(type)}
-                      className={`
-                        px-3 py-2 text-sm rounded-lg transition-colors duration-200
-                        ${viewType === type
-                          ? 'bg-blue-100 text-blue-700 border border-blue-300'
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                        }
-                      `}
-                    >
-                      {label}
-                    </button>
-                  ))}
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-blue-800">功能说明</h3>
+                  <p className="mt-1 text-sm text-blue-700">
+                    点击日历上的任意日期可以创建新事件。当前已支持完整的事件管理功能，包括创建、编辑、删除等操作。
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* 错误提示 */}
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                <div className="flex justify-between items-center">
-                  <p className="text-red-800">{error}</p>
-                  <button 
-                    onClick={clearError}
-                    className="text-red-600 hover:bg-red-100 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200"
+        {/* 日历控制栏 */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* 导航 */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={goToPrevious}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="向前"
+              >
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              
+              <h2 className="text-xl font-semibold text-gray-900 min-w-[160px] text-center">
+                {getViewTitle()}
+              </h2>
+              
+              <button
+                onClick={goToNext}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="向后"
+              >
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+
+            {/* 操作按钮 */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={goToToday}
+                className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+              >
+                今天
+              </button>
+              
+              <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                {(['month', 'week', 'day'] as const).map((view) => (
+                  <button
+                    key={view}
+                    onClick={() => setViewType(CalendarViewType[view.toUpperCase() as keyof typeof CalendarViewType])}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                      viewType === CalendarViewType[view.toUpperCase() as keyof typeof CalendarViewType]
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
                   >
-                    ×
+                    {view === 'month' ? '月' : view === 'week' ? '周' : '日'}
                   </button>
-                </div>
-              </div>
-            )}
-
-            {/* 加载状态 */}
-            {loading && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                <div className="flex items-center justify-center">
-                  <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                  <span className="ml-3 text-gray-600">加载中...</span>
-                </div>
-              </div>
-            )}
-
-            {/* 日历视图 */}
-            {!loading && renderCalendarView()}
-
-            {/* 功能说明 */}
-            <div className="mt-8 bg-blue-50 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-blue-900 mb-4">📋 功能说明</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
-                <div className="flex items-center text-sm text-blue-700">
-                  <svg className="w-4 h-4 text-blue-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  多视图支持（月/周/日）
-                </div>
-                <div className="flex items-center text-sm text-blue-700">
-                  <svg className="w-4 h-4 text-blue-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  智能事件管理
-                </div>
-                <div className="flex items-center text-sm text-blue-700">
-                  <svg className="w-4 h-4 text-blue-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  重复事件支持
-                </div>
-                <div className="flex items-center text-sm text-blue-700">
-                  <svg className="w-4 h-4 text-blue-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  拖拽事件管理
-                </div>
-                <div className="flex items-center text-sm text-blue-700">
-                  <svg className="w-4 h-4 text-blue-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  响应式设计
-                </div>
-                <div className="flex items-center text-sm text-blue-700">
-                  <svg className="w-4 h-4 text-blue-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  数据库持久化
-                </div>
+                ))}
               </div>
             </div>
-          </>
-        )}
+          </div>
+        </div>
 
-        {/* 事件列表Tab */}
-        {activeTab === 'events' && (
-          <EventList
-            events={events}
-            config={eventListConfig}
-            onConfigChange={handleEventListConfigChange}
-            onEventClick={handleEventListClick}
-            onEventEdit={handleEventListEdit}
-            onEventDelete={handleEventDelete}
-            onBatchDelete={handleBatchDelete}
-            enableBatchActions={true}
-            loading={loading}
-          />
-        )}
+        {/* 调试组件已移除 - 星期匹配问题已修复 */}
+        
+        {/* 日历视图 */}
+        {renderCalendarView()}
 
-        {/* 设置Tab */}
-        {activeTab === 'settings' && (
-          <CalendarSettings
-            onSettingsChange={handleSettingsChange}
-          />
-        )}
-      </main>
+        {/* 功能预览卡片 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+          {/* 事件管理 */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center mb-4">
+              <div className="bg-blue-100 p-3 rounded-lg">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="ml-3 text-lg font-semibold text-gray-900">事件管理</h3>
+            </div>
+            <p className="text-gray-600 text-sm mb-4">
+              创建、编辑、删除日历事件，支持拖拽调整时间，多种颜色标识。
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                开发中
+              </span>
+              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                了解更多 →
+              </button>
+            </div>
+          </div>
+
+          {/* 重复事件 */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center mb-4">
+              <div className="bg-green-100 p-3 rounded-lg">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </div>
+              <h3 className="ml-3 text-lg font-semibold text-gray-900">重复事件</h3>
+            </div>
+            <p className="text-gray-600 text-sm mb-4">
+              支持日、周、月、年重复模式，灵活的重复规则配置。
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                开发中
+              </span>
+              <button className="text-green-600 hover:text-green-800 text-sm font-medium">
+                了解更多 →
+              </button>
+            </div>
+          </div>
+
+          {/* 提醒功能 */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center mb-4">
+              <div className="bg-purple-100 p-3 rounded-lg">
+                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4 7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V7z" />
+                </svg>
+              </div>
+              <h3 className="ml-3 text-lg font-semibold text-gray-900">智能提醒</h3>
+            </div>
+            <p className="text-gray-600 text-sm mb-4">
+              邮件、通知、短信多种提醒方式，自定义提醒时间。
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                开发中
+              </span>
+              <button className="text-purple-600 hover:text-purple-800 text-sm font-medium">
+                了解更多 →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 技术特性 */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">技术特性</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-center text-sm text-gray-600">
+              <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              完整的TypeScript类型定义
+            </div>
+            <div className="flex items-center text-sm text-gray-600">
+              <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              响应式设计 (TailwindCSS)
+            </div>
+            <div className="flex items-center text-sm text-gray-600">
+              <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              Drizzle ORM + PostgreSQL
+            </div>
+            <div className="flex items-center text-sm text-gray-600">
+              <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              模块化架构设计
+            </div>
+          </div>
+        </div>
+        </>
+      )}
+
+      {/* 事件列表Tab */}
+      {activeTab === 'events' && (
+        <EventList
+          events={events}
+          config={eventListConfig}
+          onConfigChange={handleEventListConfigChange}
+          onEventClick={handleEventListClick}
+          onEventEdit={handleEventListEdit}
+          onEventDelete={handleEventDelete}
+          onBatchDelete={handleBatchDelete}
+          enableBatchActions={true}
+          loading={loading}
+        />
+      )}
+
+      {/* 设置Tab */}
+      {activeTab === 'settings' && (
+        <CalendarSettings
+          onSettingsChange={handleSettingsChange}
+        />
+      )}
+      </div>
 
       {/* 事件创建/编辑模态框 */}
       <ImprovedEventModal
@@ -866,18 +990,5 @@ function CalendarPageContent() {
         initialDate={selectedDate || undefined}
       />
     </div>
-  );
-}
-
-/**
- * 日历页面主组件（带认证包装器）
- * 
- * 这是对外导出的主组件，包装了AuthProvider以提供认证上下文
- */
-export default function CalendarPage() {
-  return (
-    <AuthProvider>
-      <CalendarPageContent />
-    </AuthProvider>
   );
 } 

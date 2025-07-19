@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Modal } from '@/components/PopWindow';
-import { UniversalFileUploader } from '@/components/UniversalFileUploader';
+import { FileText } from 'lucide-react';
 
 interface MMDSettingsModalProps {
   isOpen: boolean;
@@ -35,38 +35,12 @@ const MMDSettingsModal: React.FC<MMDSettingsModalProps> = ({
 }) => {
   // Tab状态管理
   const [activeTab, setActiveTab] = useState<'models' | 'animations' | 'controls'>('models');
-  // 上传状态管理
-  const [showModelUploader, setShowModelUploader] = useState(false);
-  const [showAnimationUploader, setShowAnimationUploader] = useState(false);
-  const [showAudioUploader, setShowAudioUploader] = useState(false);
 
   const handleControlChange = (key: keyof typeof controlSettings) => {
     onControlSettingsChange({
       ...controlSettings,
       [key]: !controlSettings[key],
     });
-  };
-
-  // 处理文件上传成功
-  const handleUploadSuccess = (result: any, fileType: 'model' | 'animation' | 'audio') => {
-    console.log(`${fileType} 上传成功:`, result);
-    
-    // 根据文件类型处理上传结果
-    if (fileType === 'model' && result.id) {
-      onModelSelect(result.id);
-      setShowModelUploader(false);
-    } else if (fileType === 'animation' && result.id) {
-      onAnimationSelect(result.id);
-      setShowAnimationUploader(false);
-    }
-    
-    // 可以在这里添加通知或更新模型/动画列表
-  };
-
-  // 处理文件上传错误
-  const handleUploadError = (error: string) => {
-    console.error('文件上传错误:', error);
-    // 可以在这里添加错误通知
   };
 
   return (
@@ -179,49 +153,12 @@ const MMDSettingsModal: React.FC<MMDSettingsModalProps> = ({
                 </button>
 
                 {/* 上传新模型区域 */}
-                <div className="space-y-4">
-                  {!showModelUploader ? (
-                    <button 
-                      className="flex items-center gap-4 w-full p-4 border-2 border-dashed border-gray-300 rounded-lg transition-all text-left hover:border-blue-400 hover:bg-blue-50"
-                      onClick={() => setShowModelUploader(true)}
-                    >
-                      <div className="text-4xl w-16 h-16 flex items-center justify-center bg-gray-50 rounded-xl flex-shrink-0">📁</div>
-                      <div className="flex-1">
-                        <div className="text-base font-semibold text-gray-600">上传新模型</div>
-                        <div className="text-sm text-gray-500 mt-1">支持 .pmd、.pmx 格式，最大50MB</div>
-                      </div>
-                      <div className="text-gray-400 text-2xl">+</div>
-                    </button>
-                  ) : (
-                    <div className="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                      <div className="flex justify-between items-center mb-4">
-                        <h4 className="text-lg font-semibold text-gray-800">上传3D模型文件</h4>
-                        <button
-                          onClick={() => setShowModelUploader(false)}
-                          className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
-                        >
-                          ×
-                        </button>
-                      </div>
-                      <UniversalFileUploader
-                        onChange={(value) => {
-                          // URL模式下的简单处理
-                          if (value && typeof value === 'string' && value.startsWith('http')) {
-                            onModelSelect(value);
-                            setShowModelUploader(false);
-                          }
-                        }}
-                        accept=".pmd,.pmx"
-                        maxFileSize={50 * 1024 * 1024} // 50MB
-                        placeholder="输入模型文件URL或上传本地文件"
-                        label="3D模型文件"
-                        fileType="model"
-                        uploadEndpoint="/api/mmd/upload/models?type=model"
-                        onSuccess={(result) => handleUploadSuccess(result, 'model')}
-                        onError={handleUploadError}
-                      />
-                    </div>
-                  )}
+                <div className="text-center p-8 border-2 border-dashed border-gray-300 rounded-lg">
+                  <div className="text-gray-500 mb-4">
+                    <FileText className="w-12 h-12 mx-auto mb-2" />
+                    <p>文件上传功能正在开发中</p>
+                    <p className="text-sm">请使用预设的模型文件</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -299,53 +236,12 @@ const MMDSettingsModal: React.FC<MMDSettingsModalProps> = ({
                 </button>
 
                 {/* 上传新动画区域 */}
-                <div className="space-y-4">
-                  {!showAnimationUploader ? (
-                    <button 
-                      className="w-full px-4 py-4 border-2 border-dashed border-gray-300 rounded-lg transition-all text-left hover:border-green-400 hover:bg-green-50"
-                      onClick={() => setShowAnimationUploader(true)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">📁</span>
-                          <div>
-                            <div className="font-semibold text-gray-600">上传新动画</div>
-                            <div className="text-sm text-gray-500">支持 .vmd 格式，最大50MB</div>
-                          </div>
-                        </div>
-                        <span className="text-gray-400 text-2xl">+</span>
-                      </div>
-                    </button>
-                  ) : (
-                    <div className="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                      <div className="flex justify-between items-center mb-4">
-                        <h4 className="text-lg font-semibold text-gray-800">上传动画文件</h4>
-                        <button
-                          onClick={() => setShowAnimationUploader(false)}
-                          className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
-                        >
-                          ×
-                        </button>
-                      </div>
-                      <UniversalFileUploader
-                        onChange={(value) => {
-                          // URL模式下的简单处理
-                          if (value && typeof value === 'string' && value.startsWith('http')) {
-                            onAnimationSelect(value);
-                            setShowAnimationUploader(false);
-                          }
-                        }}
-                        accept=".vmd"
-                        maxFileSize={50 * 1024 * 1024} // 50MB
-                        placeholder="输入动画文件URL或上传本地文件"
-                        label="VMD动画文件"
-                        fileType="any"
-                        uploadEndpoint="/api/mmd/upload/models?type=animation"
-                        onSuccess={(result) => handleUploadSuccess(result, 'animation')}
-                        onError={handleUploadError}
-                      />
-                    </div>
-                  )}
+                <div className="text-center p-8 border-2 border-dashed border-gray-300 rounded-lg">
+                  <div className="text-gray-500 mb-4">
+                    <FileText className="w-12 h-12 mx-auto mb-2" />
+                    <p>文件上传功能正在开发中</p>
+                    <p className="text-sm">请使用预设的动画文件</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -407,59 +303,6 @@ const MMDSettingsModal: React.FC<MMDSettingsModalProps> = ({
                     className="w-6 h-6 accent-purple-500 scale-125"
                   />
                 </label>
-
-                {/* 音频上传区域 */}
-                <div className="border-t border-gray-200 pt-4">
-                  <h4 className="text-lg font-semibold text-gray-800 mb-4">背景音乐</h4>
-                  
-                  {!showAudioUploader ? (
-                    <button 
-                      className="w-full px-4 py-4 border-2 border-dashed border-gray-300 rounded-lg transition-all text-left hover:border-purple-400 hover:bg-purple-50"
-                      onClick={() => setShowAudioUploader(true)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">🎵</span>
-                          <div>
-                            <div className="font-semibold text-gray-600">添加背景音乐</div>
-                            <div className="text-sm text-gray-500">支持 .mp3、.wav、.ogg 格式</div>
-                          </div>
-                        </div>
-                        <span className="text-gray-400 text-2xl">+</span>
-                      </div>
-                    </button>
-                  ) : (
-                    <div className="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                      <div className="flex justify-between items-center mb-4">
-                        <h4 className="text-lg font-semibold text-gray-800">上传音频文件</h4>
-                        <button
-                          onClick={() => setShowAudioUploader(false)}
-                          className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
-                        >
-                          ×
-                        </button>
-                      </div>
-                      <UniversalFileUploader
-                        onChange={(value) => {
-                          // URL模式下的简单处理
-                          if (value && typeof value === 'string' && value.startsWith('http')) {
-                            // 这里可以处理音频URL，比如传递给音频播放器
-                            console.log('音频URL:', value);
-                            setShowAudioUploader(false);
-                          }
-                        }}
-                        accept=".mp3,.wav,.ogg"
-                        maxFileSize={20 * 1024 * 1024} // 20MB
-                        placeholder="输入音频文件URL或上传本地文件"
-                        label="背景音乐文件"
-                        fileType="audio"
-                        uploadEndpoint="/api/mmd/upload/models?type=audio"
-                        onSuccess={(result) => handleUploadSuccess(result, 'audio')}
-                        onError={handleUploadError}
-                      />
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
           )}
@@ -487,4 +330,4 @@ const MMDSettingsModal: React.FC<MMDSettingsModalProps> = ({
   );
 };
 
-export default MMDSettingsModal; 
+export default MMDSettingsModal;

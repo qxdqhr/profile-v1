@@ -74,8 +74,7 @@ export async function POST(request: NextRequest) {
       file,
       moduleId,
       businessId: businessId || 'default',
-      folderPath: folderPath || `${moduleId}/${businessId || 'default'}`,
-      tags: [moduleId, businessId].filter(Boolean),
+      customPath: folderPath || `${moduleId}/${businessId || 'default'}`,
       metadata: {
         uploadedBy: user.id || 'anonymous',
         uploadedAt: new Date().toISOString(),
@@ -83,14 +82,12 @@ export async function POST(request: NextRequest) {
       },
       needsProcessing,
       processingOptions: needsProcessing ? {
-        image: {
-          generateThumbnails: true,
-          thumbnailSizes: [
-            { width: 150, height: 150, quality: 80, type: 'thumbnail' },
-            { width: 800, height: 600, quality: 90, type: 'preview' }
-          ],
-          optimizeForWeb: true
-        }
+        type: 'image' as const,
+        quality: 90,
+        width: 800,
+        height: 600,
+        format: 'webp' as const,
+        watermark: false
       } : undefined
     };
 
@@ -111,7 +108,7 @@ export async function POST(request: NextRequest) {
       data: {
         fileId: uploadResult.id,
         originalName: uploadResult.originalName,
-        storedName: uploadResult.storedName,
+        storedName: uploadResult.storageName,
         size: uploadResult.size,
         mimeType: uploadResult.mimeType,
         storagePath: uploadResult.storagePath,
@@ -119,7 +116,6 @@ export async function POST(request: NextRequest) {
         accessUrl: uploadResult.cdnUrl || `/uploads/${uploadResult.storagePath}`,
         moduleId: uploadResult.moduleId,
         businessId: uploadResult.businessId,
-        tags: uploadResult.tags,
         createdAt: uploadResult.uploadTime
       }
     });
@@ -152,4 +148,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

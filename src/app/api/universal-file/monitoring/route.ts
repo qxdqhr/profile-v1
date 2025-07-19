@@ -195,8 +195,11 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           { 
             success: false, 
-            error: 'Invalid action',
-            validActions: ['clearCache', 'resetPerformanceStats', 'resetDatabaseStats', 'cleanupOldData', 'warmupCache', 'generateReport']
+            error: {
+              code: 'VALIDATION_ERROR',
+              message: 'Invalid action',
+              details: { validActions: ['clearCache', 'resetPerformanceStats', 'resetDatabaseStats', 'cleanupOldData', 'warmupCache', 'generateReport'] }
+            }
           } as ApiResponse,
           { status: 400 }
         );
@@ -205,7 +208,9 @@ export async function POST(request: NextRequest) {
     const response: ApiResponse = {
       success: true,
       data: result,
-      timestamp: new Date().toISOString()
+      meta: {
+        timestamp: new Date().toISOString()
+      }
     };
 
     return NextResponse.json(response);
@@ -215,8 +220,13 @@ export async function POST(request: NextRequest) {
     
     const response: ApiResponse = {
       success: false,
-      error: error instanceof Error ? error.message : '监控操作执行失败',
-      timestamp: new Date().toISOString()
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: error instanceof Error ? error.message : '监控操作执行失败'
+      },
+      meta: {
+        timestamp: new Date().toISOString()
+      }
     };
 
     return NextResponse.json(response, { status: 500 });
