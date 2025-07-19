@@ -65,16 +65,9 @@ const ThumbnailItem: React.FC<ThumbnailItemProps> = ({ page, index, isActive, on
           return;
         }
 
-        // 否则通过懒加载API获取图片
+        // 否则直接使用imageUrl
         if (page.imageUrl) {
-          const response = await fetch(page.imageUrl);
-          if (response.ok) {
-            const blob = await response.blob();
-            const imageUrl = URL.createObjectURL(blob);
-            setImageSrc(imageUrl);
-          } else {
-            throw new Error(`HTTP ${response.status}`);
-          }
+          setImageSrc(page.imageUrl);
         } else {
           throw new Error('无图片数据');
         }
@@ -88,11 +81,9 @@ const ThumbnailItem: React.FC<ThumbnailItemProps> = ({ page, index, isActive, on
 
     loadThumbnail();
 
-    // 清理函数
+    // 清理函数 - 不再需要清理blob URL
     return () => {
-      if (imageSrc && imageSrc.startsWith('blob:')) {
-        URL.revokeObjectURL(imageSrc);
-      }
+      // 不再使用blob URL，无需清理
     };
   }, [isVisible, page.id, page.image, page.imageUrl]);
 

@@ -220,6 +220,7 @@ function ShowMasterPiecesContent() {
             {currentArtwork && (
               <ArtworkViewer
                 artwork={currentArtwork}
+                collectionId={selectedCollection.id}
                 onNext={nextPage}
                 onPrev={prevPage}
                 canGoNext={canGoNext}

@@ -474,12 +474,57 @@ export class UniversalFileService extends EventEmitter {
   // ============= 私有方法 =============
 
   private async initializeStorageProviders(): Promise<void> {
+    console.log('📦 [UniversalFileService] 开始初始化存储提供者...');
+    
+    // 如果还没有注册任何存储提供者，先注册默认的
+    if (this.storageProviders.size === 0) {
+      await this.registerDefaultStorageProviders();
+    }
+    
     for (const [type, config] of Object.entries(this.config.storageProviders)) {
       if (config.enabled) {
         const provider = this.storageProviders.get(type as StorageType);
         if (provider) {
-          await provider.initialize(config);
-          console.log(`✅ [UniversalFileService] 存储提供者初始化完成: ${type}`);
+          try {
+            await provider.initialize(config);
+            console.log(`✅ [UniversalFileService] 存储提供者初始化完成: ${type}`);
+          } catch (error) {
+            console.warn(`⚠️ [UniversalFileService] 存储提供者初始化失败: ${type}:`, error);
+            // 如果默认存储提供者初始化失败，切换到本地存储
+            // if (type === this.config.defaultStorage) {
+            //   console.warn(`⚠️ [UniversalFileService] 默认存储提供者 ${type} 初始化失败，切换到本地存储`);
+            //   this.config.defaultStorage = 'local';
+            // }
+          }
+        } else {
+          console.warn(`⚠️ [UniversalFileService] 存储提供者未注册: ${type}`);
+        }
+      }
+    }
+  }
+
+  private async registerDefaultStorageProviders(): Promise<void> {
+    console.log('📦 [UniversalFileService] 注册默认存储提供者...');
+    
+    // 注册本地存储提供者
+    const { LocalStorageProvider } = await import('./providers/LocalStorageProvider');
+    const localProvider = new LocalStorageProvider();
+    this.registerStorageProvider(localProvider);
+    
+    // 如果配置了阿里云OSS，注册OSS提供者
+    const ossConfig = this.config.storageProviders['aliyun-oss'];
+    if (ossConfig && ossConfig.enabled) {
+      try {
+        const { AliyunOSSProvider } = await import('./providers/AliyunOSSProvider');
+        const ossProvider = new AliyunOSSProvider();
+        this.registerStorageProvider(ossProvider);
+        console.log('✅ [UniversalFileService] 阿里云OSS提供者注册成功');
+      } catch (error) {
+        console.warn('⚠️ [UniversalFileService] 阿里云OSS提供者注册失败:', error);
+        // 如果OSS注册失败，确保至少有一个可用的存储提供者
+        if (this.storageProviders.size === 0) {
+          console.warn('⚠️ [UniversalFileService] 没有可用的存储提供者，将使用本地存储');
+          this.config.defaultStorage = 'local';
         }
       }
     }
@@ -536,7 +581,7 @@ export class UniversalFileService extends EventEmitter {
       hash,
       uploadTime: now,
       permission: fileInfo.permission || 'private',
-      uploaderId: '', // 需要从认证上下文获取
+      uploaderId: fileInfo.metadata?.uploadedBy || 'system',
       moduleId: fileInfo.moduleId,
       businessId: fileInfo.businessId,
       storageProvider: this.config.defaultStorage,
@@ -656,11 +701,59 @@ export class UniversalFileService extends EventEmitter {
     this.emit('*', event); // 通用事件监听
   }
 
-  // ============= 需要实现的数据库操作方法 =============
+  // ============= 数据库操作方法 =============
 
   private async saveFileMetadata(metadata: FileMetadata): Promise<void> {
-    // TODO: 实现数据库保存逻辑
-    console.log('💾 [UniversalFileService] 保存文件元数据:', metadata.id);
+    try {
+      // 导入数据库相关模块
+      const { db } = await import('@/db/index');
+      const { fileMetadata } = await import('./db/schema');
+      const { eq } = await import('drizzle-orm');
+      
+      // 获取默认存储提供者ID
+      const { fileStorageProviders } = await import('./db/schema');
+      const [defaultProvider] = await db
+        .select()
+        .from(fileStorageProviders)
+        .where(eq(fileStorageProviders.isDefault, true))
+        .limit(1);
+      
+      if (!defaultProvider) {
+        throw new Error('未找到默认存储提供者');
+      }
+
+      // 保存到数据库
+      await db.insert(fileMetadata).values({
+        id: metadata.id,
+        originalName: metadata.originalName,
+        storedName: metadata.storageName,
+        extension: metadata.extension,
+        mimeType: metadata.mimeType,
+        size: metadata.size,
+        md5Hash: metadata.hash?.substring(0, 32) || '',
+        sha256Hash: metadata.hash || '',
+        storageProviderId: defaultProvider.id,
+        storagePath: metadata.storagePath,
+        cdnUrl: metadata.cdnUrl,
+        moduleId: metadata.moduleId,
+        businessId: metadata.businessId,
+        tags: [],
+        metadata: metadata.metadata,
+        isTemporary: false,
+        isDeleted: false,
+        accessCount: metadata.accessCount,
+        downloadCount: 0,
+        uploaderId: metadata.uploaderId || 'system',
+        uploadTime: metadata.uploadTime,
+        lastAccessTime: metadata.lastAccessTime,
+        expiresAt: metadata.expiresAt
+      });
+
+      console.log('💾 [UniversalFileService] 文件元数据保存成功:', metadata.id);
+    } catch (error) {
+      console.error('❌ [UniversalFileService] 保存文件元数据失败:', error);
+      throw new FileUploadError(`保存文件元数据失败: ${error instanceof Error ? error.message : '未知错误'}`);
+    }
   }
 
   private async getFileMetadata(fileId: string): Promise<FileMetadata | null> {
@@ -670,23 +763,127 @@ export class UniversalFileService extends EventEmitter {
       return cached.data;
     }
 
-    // TODO: 实现数据库查询逻辑
-    console.log('🔍 [UniversalFileService] 查询文件元数据:', fileId);
-    return null;
+    try {
+      // 导入数据库相关模块
+      const { db } = await import('@/db/index');
+      const { fileMetadata, fileStorageProviders } = await import('./db/schema');
+      const { eq } = await import('drizzle-orm');
+
+      // 查询数据库
+      const [record] = await db
+        .select()
+        .from(fileMetadata)
+        .where(eq(fileMetadata.id, fileId))
+        .limit(1);
+
+      if (!record) {
+        console.log('🔍 [UniversalFileService] 文件元数据不存在:', fileId);
+        return null;
+      }
+
+      // 查询存储提供者信息
+      const [provider] = await db
+        .select()
+        .from(fileStorageProviders)
+        .where(eq(fileStorageProviders.id, record.storageProviderId))
+        .limit(1);
+
+      if (!provider) {
+        console.log('🔍 [UniversalFileService] 存储提供者不存在:', record.storageProviderId);
+        return null;
+      }
+
+      // 转换为FileMetadata格式
+      const metadata: FileMetadata = {
+        id: record.id,
+        originalName: record.originalName,
+        storageName: record.storedName,
+        size: record.size,
+        mimeType: record.mimeType,
+        extension: record.extension || '',
+        hash: record.md5Hash,
+        uploadTime: record.uploadTime,
+        permission: 'public' as const, // 默认公开
+        uploaderId: record.uploaderId,
+        moduleId: record.moduleId || '',
+        businessId: record.businessId || undefined,
+        storageProvider: provider.type as StorageType, // 使用数据库中的存储提供者类型
+        storagePath: record.storagePath,
+        cdnUrl: record.cdnUrl || undefined,
+        accessCount: record.accessCount,
+        lastAccessTime: record.lastAccessTime || undefined,
+        expiresAt: record.expiresAt || undefined,
+        metadata: record.metadata || {}
+      };
+
+      // 缓存结果
+      this.cacheMetadata(metadata);
+
+      console.log('🔍 [UniversalFileService] 文件元数据查询成功:', fileId);
+      return metadata;
+    } catch (error) {
+      console.error('❌ [UniversalFileService] 查询文件元数据失败:', error);
+      return null;
+    }
   }
 
   private async deleteFileMetadata(fileId: string): Promise<void> {
-    // TODO: 实现数据库删除逻辑
-    console.log('🗑️ [UniversalFileService] 删除文件元数据:', fileId);
+    try {
+      // 导入数据库相关模块
+      const { db } = await import('@/db/index');
+      const { fileMetadata } = await import('./db/schema');
+      const { eq } = await import('drizzle-orm');
+
+      // 软删除：标记为已删除
+      await db
+        .update(fileMetadata)
+        .set({ 
+          isDeleted: true, 
+          deletedAt: new Date(),
+          updatedAt: new Date()
+        })
+        .where(eq(fileMetadata.id, fileId));
+
+      // 清除缓存
+      this.clearMetadataCache(fileId);
+
+      console.log('🗑️ [UniversalFileService] 文件元数据删除成功:', fileId);
+    } catch (error) {
+      console.error('❌ [UniversalFileService] 删除文件元数据失败:', error);
+      throw new FileUploadError(`删除文件元数据失败: ${error instanceof Error ? error.message : '未知错误'}`);
+    }
   }
 
   private async updateAccessStats(fileId: string): Promise<void> {
-    // TODO: 实现访问统计更新逻辑
-    console.log('📊 [UniversalFileService] 更新访问统计:', fileId);
+    try {
+      // 导入数据库相关模块
+      const { db } = await import('@/db/index');
+      const { fileMetadata } = await import('./db/schema');
+      const { eq, sql } = await import('drizzle-orm');
+
+      // 更新访问统计
+      await db
+        .update(fileMetadata)
+        .set({ 
+          accessCount: sql`${fileMetadata.accessCount} + 1`,
+          lastAccessTime: new Date(),
+          updatedAt: new Date()
+        })
+        .where(eq(fileMetadata.id, fileId));
+
+      console.log('📊 [UniversalFileService] 访问统计更新成功:', fileId);
+    } catch (error) {
+      console.error('❌ [UniversalFileService] 更新访问统计失败:', error);
+    }
   }
 
   private async checkFileAccess(metadata: FileMetadata, userId?: string): Promise<void> {
-    // TODO: 实现权限检查逻辑
+    // 如果文件是公开的，允许访问
+    if (metadata.permission === 'public') {
+      return;
+    }
+    
+    // 如果是私有文件，检查用户权限
     if (metadata.permission === 'private' && metadata.uploaderId !== userId) {
       throw new FileUploadError('无权限访问此文件');
     }

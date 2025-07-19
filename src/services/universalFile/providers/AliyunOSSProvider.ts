@@ -36,7 +36,7 @@ export class AliyunOSSProvider implements IStorageProvider {
 
     this.config = config as AliyunOSSConfig;
     
-    console.log(`☁️ [AliyunOSSProvider] 初始化阿里云OSS，区域: ${this.config.region}, 存储桶: ${this.config.bucket}`);
+    console.log(`☁️ [AliyunOSSProvider] 初始化阿里云OSS: ${this.config},config ${JSON.stringify(this.config)}`);
 
     try {
       // 验证必需的配置项
@@ -95,7 +95,8 @@ export class AliyunOSSProvider implements IStorageProvider {
           moduleId: fileInfo.moduleId,
           businessId: fileInfo.businessId || '',
           uploadTime: new Date().toISOString(),
-          ...fileInfo.metadata
+          // 对元数据进行编码处理，避免中文字符问题
+          ...this.encodeMetadata(fileInfo.metadata || {})
         }
       };
 
@@ -254,19 +255,23 @@ export class AliyunOSSProvider implements IStorageProvider {
     this.ensureInitialized();
     
     try {
-      // 如果使用自定义域名，直接返回公开URL
-      if (this.config!.customDomain) {
-        return this.generateAccessUrl(filePath);
-      }
-
-      // 生成带过期时间的签名URL
-      const expires = expiresIn || 3600; // 默认1小时
-      const signedUrl = this.client.signatureUrl(filePath, {
-        expires,
-        method: 'GET'
-      });
+      // 对于图片文件，直接返回公开URL，避免CORS问题
+      // 对于其他文件，使用签名URL
+      const isImage = /\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)$/i.test(filePath);
       
-      return signedUrl;
+      if (isImage) {
+        // 图片文件使用公开URL
+        return this.generateAccessUrl(filePath);
+      } else {
+        // 其他文件使用签名URL
+        const expires = expiresIn || 3600; // 默认1小时
+        const signedUrl = this.client.signatureUrl(filePath, {
+          expires,
+          method: 'GET'
+        });
+        
+        return signedUrl;
+      }
 
     } catch (error) {
       console.error(`❌ [AliyunOSSProvider] 生成访问URL失败: ${filePath}:`, error);
@@ -580,5 +585,22 @@ export class AliyunOSSProvider implements IStorageProvider {
         error: this.formatOSSError(error)
       };
     }
+  }
+
+  /**
+   * 编码元数据，避免中文字符在HTTP头部中的问题
+   */
+  private encodeMetadata(metadata: Record<string, any>): Record<string, string> {
+    const encoded: Record<string, string> = {};
+    
+    for (const [key, value] of Object.entries(metadata)) {
+      if (value !== null && value !== undefined) {
+        // 将值转换为字符串并进行URL编码
+        const stringValue = String(value);
+        encoded[key] = encodeURIComponent(stringValue);
+      }
+    }
+    
+    return encoded;
   }
 } 

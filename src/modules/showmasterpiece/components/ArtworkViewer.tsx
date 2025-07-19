@@ -5,6 +5,7 @@ import styles from './ArtworkViewer.module.css';
 
 interface ArtworkViewerProps {
   artwork: ArtworkPage;
+  collectionId: number; // 添加collectionId
   onNext: () => void;
   onPrev: () => void;
   canGoNext: boolean;
@@ -13,6 +14,7 @@ interface ArtworkViewerProps {
 
 export const ArtworkViewer: React.FC<ArtworkViewerProps> = ({
   artwork,
+  collectionId,
   onNext,
   onPrev,
   canGoNext,
@@ -22,34 +24,30 @@ export const ArtworkViewer: React.FC<ArtworkViewerProps> = ({
   const [imageError, setImageError] = useState(false);
   const [imageSrc, setImageSrc] = useState<string>('');
 
-  // 🚀 图片懒加载逻辑
+  // 🚀 图片加载逻辑 - 优先使用imageUrl，不再支持Base64
   useEffect(() => {
     const loadImage = async () => {
       setImageLoading(true);
       setImageError(false);
       
       try {
-        // 如果已有图片数据，直接使用
-        if (artwork.image && artwork.image.trim() !== '') {
-          setImageSrc(artwork.image);
+        // 优先使用imageUrl（通过通用文件服务或API获取）
+        if (artwork.imageUrl) {
+          // 直接使用imageUrl，不再需要转换为blob
+          setImageSrc(artwork.imageUrl);
           setImageLoading(false);
           return;
         }
         
-        // 否则通过懒加载API获取图片
-        if (artwork.imageUrl) {
-          const response = await fetch(artwork.imageUrl);
-          if (response.ok) {
-            // 对于base64图片，API返回的是图片流，需要转换为blob URL
-            const blob = await response.blob();
-            const imageUrl = URL.createObjectURL(blob);
-            setImageSrc(imageUrl);
-          } else {
-            throw new Error(`HTTP ${response.status}`);
-          }
-        } else {
-          throw new Error('无图片数据');
+        // 如果没有imageUrl，尝试使用fileId构建URL
+        if (artwork.fileId) {
+          const imageUrl = `/api/masterpieces/collections/${collectionId}/artworks/${artwork.id}/image`;
+          setImageSrc(imageUrl);
+          setImageLoading(false);
+          return;
         }
+        
+        throw new Error('无图片数据');
       } catch (error) {
         console.error('图片加载失败:', error);
         setImageError(true);
@@ -59,14 +57,7 @@ export const ArtworkViewer: React.FC<ArtworkViewerProps> = ({
     };
 
     loadImage();
-
-    // 清理函数：释放blob URL
-    return () => {
-      if (imageSrc && imageSrc.startsWith('blob:')) {
-        URL.revokeObjectURL(imageSrc);
-      }
-    };
-  }, [artwork.id, artwork.image, artwork.imageUrl]); // 当作品ID或图片数据变化时重新加载
+  }, [artwork.id, artwork.imageUrl, artwork.fileId]); // 当作品ID或图片URL变化时重新加载
 
   const handleImageLoad = () => {
     setImageLoading(false);
