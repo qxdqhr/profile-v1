@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown } from 'lucide-react';
 import { useMasterpiecesConfig } from '../../hooks/useMasterpiecesConfig';
 import { ConfigFormData, CollectionFormData, ArtworkFormData } from '../../types';
-import { ImageUpload } from '@/components/ImageUpload';
+import { CoverImageUpload } from '../../components/CoverImageUpload';
 import { ArtworkImageUpload } from '../../components/ArtworkImageUpload';
 import { shouldUseUniversalFileService, getStorageModeDisplayName } from '../../services/fileService';
 import { AuthGuard, AuthProvider } from '@/modules/auth';
@@ -65,6 +65,7 @@ function ConfigPageContent() {
     title: '',
     artist: '',
     coverImage: '',
+    coverImageFileId: undefined,
     description: '',
     category: '',
     tags: [],
@@ -179,6 +180,7 @@ function ConfigPageContent() {
         title: '',
         artist: '',
         coverImage: '',
+        coverImageFileId: undefined,
         description: '',
         category: '',
         tags: [],
@@ -256,6 +258,7 @@ function ConfigPageContent() {
       title: collection.title,
       artist: collection.artist,
       coverImage: collection.coverImage,
+      coverImageFileId: collection.coverImageFileId || undefined,
       description: collection.description,
       category: collection.category || '',
       tags: collection.tags || [],
@@ -729,11 +732,16 @@ function ConfigPageContent() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <ImageUpload
+                <CoverImageUpload
                   label="封面图片"
                   value={collectionForm.coverImage}
-                  onChange={(value) => setCollectionForm(prev => ({ ...prev, coverImage: value }))}
-                  placeholder="输入封面图片URL或上传本地图片"
+                  fileId={collectionForm.coverImageFileId}
+                  onChange={(data) => setCollectionForm(prev => ({ 
+                    ...prev, 
+                    coverImage: data.image || '',
+                    coverImageFileId: data.fileId
+                  }))}
+                  placeholder="上传封面图片"
                 />
               </div>
               <div className={styles.formGroup}>

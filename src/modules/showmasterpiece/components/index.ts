@@ -117,4 +117,18 @@ export { ArtworkOrderManagerV2 } from './ArtworkOrderManagerV2';
 
 export { ArtworkImageUpload } from './ArtworkImageUpload';
 
+/**
+ * 画集封面图片上传组件
+ * 
+ * 使用通用文件服务，支持阿里云OSS存储。
+ * 专门用于画集封面图片的上传和管理。
+ * 
+ * 主要功能：
+ * - 拖拽上传和点击选择
+ * - 自动上传到云存储
+ * - 图片预览和删除
+ * - 支持多种图片格式
+ */
+export { CoverImageUpload } from './CoverImageUpload';
+
  

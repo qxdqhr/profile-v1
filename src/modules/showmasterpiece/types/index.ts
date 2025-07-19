@@ -214,6 +214,7 @@ export interface ConfigFormData {
  * 
  * 用于画集创建和编辑表单的数据绑定。
  * 包含画集的基本信息，但不包含作品列表（作品单独管理）。
+ * 支持新的通用文件服务架构和旧的Base64图片存储方式。
  */
 export interface CollectionFormData {
   /** 画集标题 */
@@ -222,8 +223,11 @@ export interface CollectionFormData {
   /** 艺术家姓名 */
   artist: string;
   
-  /** 画集封面图片路径 */
+  /** 画集封面图片路径（兼容旧架构） */
   coverImage: string;
+  
+  /** 通用文件服务的封面图片文件ID（新架构，可选） */
+  coverImageFileId?: string;
   
   /** 画集描述 */
   description: string;
