@@ -115,6 +115,18 @@ export { CollectionOrderManagerV2 } from './CollectionOrderManagerV2';
  */
 export { ArtworkOrderManagerV2 } from './ArtworkOrderManagerV2';
 
+/**
+ * 作品图片上传组件
+ * 
+ * 使用通用文件服务，支持阿里云OSS存储。
+ * 专门用于作品图片的上传和管理。
+ * 
+ * 主要功能：
+ * - 拖拽上传和点击选择
+ * - 自动上传到云存储
+ * - 图片预览和删除
+ * - 支持多种图片格式
+ */
 export { ArtworkImageUpload } from './ArtworkImageUpload';
 
 /**
@@ -130,5 +142,21 @@ export { ArtworkImageUpload } from './ArtworkImageUpload';
  * - 支持多种图片格式
  */
 export { CoverImageUpload } from './CoverImageUpload';
+
+/**
+ * 通用图片上传组件
+ * 
+ * 使用通用文件服务，支持阿里云OSS存储。
+ * 可在画集封面和作品图片之间复用，提供统一的用户体验。
+ * 
+ * 主要功能：
+ * - 支持封面和作品两种业务类型
+ * - 拖拽上传和点击选择
+ * - 自动上传到云存储
+ * - 图片预览和删除
+ * - 支持多种图片格式
+ * - 可配置的调试信息和测试按钮
+ */
+export { UniversalImageUpload } from './UniversalImageUpload';
 
  

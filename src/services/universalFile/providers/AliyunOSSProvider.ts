@@ -437,14 +437,17 @@ export class AliyunOSSProvider implements IStorageProvider {
       throw new StorageProviderError('OSS配置为空');
     }
 
+    // 确保文件路径不以斜杠开头
+    const normalizedPath = filePath.startsWith('/') ? filePath.substring(1) : filePath;
+
     if (this.config.customDomain) {
       // 使用自定义域名
       const protocol = this.config.secure !== false ? 'https' : 'http';
-      return `${protocol}://${this.config.customDomain}/${filePath}`;
+      return `${protocol}://${this.config.customDomain}/${normalizedPath}`;
     } else {
       // 使用默认OSS域名
       const protocol = this.config.secure !== false ? 'https' : 'http';
-      return `${protocol}://${this.config.bucket}.${this.config.region}.aliyuncs.com/${filePath}`;
+      return `${protocol}://${this.config.bucket}.${this.config.region}.aliyuncs.com/${normalizedPath}`;
     }
   }
 

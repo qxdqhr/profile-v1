@@ -187,6 +187,9 @@ export const comicUniverseCollections = pgTable('comic_universe_collections', {
   /** 封面图片（支持URL或base64编码） */
   coverImage: text('cover_image').notNull(),
   
+  /** 通用文件服务的封面图片文件ID（新架构） */
+  coverImageFileId: uuid('cover_image_file_id'),
+  
   /** 画集描述 */
   description: text('description'),
   
@@ -225,6 +228,9 @@ export const comicUniverseCollections = pgTable('comic_universe_collections', {
   
   /** 已发布画集按创建时间排序的复合索引（优化时间线查询） */
   publishedCreatedIndex: index('collections_published_created_idx').on(table.isPublished, table.createdAt),
+  
+  /** 封面图片文件ID查询索引（新架构） */
+  coverImageFileIdIndex: index('collections_cover_image_file_id_idx').on(table.coverImageFileId),
 }));
 
 /**

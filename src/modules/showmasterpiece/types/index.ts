@@ -65,6 +65,9 @@ export interface ArtCollection {
   /** 画集封面图片路径 */
   coverImage: string;
   
+  /** 通用文件服务的封面图片文件ID（新架构，可选） */
+  coverImageFileId?: string;
+  
   /** 画集描述 */
   description: string;
   

@@ -211,6 +211,13 @@
       "when": 1752921411787,
       "tag": "0029_magical_magneto",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1752937486283,
+      "tag": "0030_lethal_ultimatum",
+      "breakpoints": true
     }
   ]
 }

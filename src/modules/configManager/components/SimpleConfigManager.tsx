@@ -7,7 +7,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Save, Edit, Eye, EyeOff, CheckCircle, AlertTriangle, Loader, RefreshCw, Database, Server } from 'lucide-react';
+import { Save, Edit, Eye, EyeOff, CheckCircle, AlertTriangle, Loader, RefreshCw, Database, Server, Trash2, Plus } from 'lucide-react';
+import { DeleteConfirmDialog } from './DeleteConfirmDialog';
+import { AddConfigItemDialog } from './AddConfigItemDialog';
 
 interface ConfigItem {
   id: string;
@@ -32,12 +34,29 @@ export const SimpleConfigManager: React.FC = () => {
   const [configItems, setConfigItems] = useState<ConfigItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<{ [key: string]: string }>({});
   const [showSensitive, setShowSensitive] = useState<{ [key: string]: boolean }>({});
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentEnvironment, setCurrentEnvironment] = useState<Environment>('development');
+  
+  // 删除确认对话框状态
+  const [deleteDialog, setDeleteDialog] = useState<{
+    isOpen: boolean;
+    item: ConfigItem | null;
+  }>({
+    isOpen: false,
+    item: null
+  });
+
+  // 新增配置项对话框状态
+  const [addDialog, setAddDialog] = useState<{
+    isOpen: boolean;
+  }>({
+    isOpen: false
+  });
 
   // 加载配置项
   const loadConfigItems = async (environment?: Environment) => {
@@ -133,6 +152,81 @@ export const SimpleConfigManager: React.FC = () => {
     }
   };
 
+  // 删除配置项
+  const deleteConfigItem = async (item: ConfigItem) => {
+    setDeleting(item.id);
+    try {
+      const response = await fetch(`/api/configManager/items/${item.id}?environment=${currentEnvironment}`, {
+        method: 'DELETE',
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        // 从本地状态中移除
+        setConfigItems(prev => prev.filter(config => config.id !== item.id));
+        
+        setMessage({
+          type: 'success',
+          text: `${item.displayName} 删除成功`
+        });
+        
+        // 关闭删除对话框
+        setDeleteDialog({ isOpen: false, item: null });
+      } else {
+        setMessage({
+          type: 'error',
+          text: `删除失败: ${result.error}`
+        });
+      }
+    } catch (error) {
+      console.error('删除配置项失败:', error);
+      setMessage({
+        type: 'error',
+        text: '删除时发生网络错误'
+      });
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  // 打开删除确认对话框
+  const openDeleteDialog = (item: ConfigItem) => {
+    setDeleteDialog({ isOpen: true, item });
+  };
+
+  // 关闭删除确认对话框
+  const closeDeleteDialog = () => {
+    setDeleteDialog({ isOpen: false, item: null });
+  };
+
+  // 确认删除
+  const confirmDelete = () => {
+    if (deleteDialog.item) {
+      deleteConfigItem(deleteDialog.item);
+    }
+  };
+
+  // 打开新增配置项对话框
+  const openAddDialog = () => {
+    setAddDialog({ isOpen: true });
+  };
+
+  // 关闭新增配置项对话框
+  const closeAddDialog = () => {
+    setAddDialog({ isOpen: false });
+  };
+
+  // 新增配置项成功回调
+  const handleAddSuccess = () => {
+    // 重新加载配置项列表
+    loadConfigItems();
+    setMessage({
+      type: 'success',
+      text: '配置项创建成功，列表已刷新'
+    });
+  };
+
   // 切换敏感信息显示
   const toggleSensitive = (itemId: string) => {
     setShowSensitive(prev => ({
@@ -174,18 +268,27 @@ export const SimpleConfigManager: React.FC = () => {
           <h2 className="text-xl font-semibold text-gray-900">配置管理</h2>
           <span className="text-sm text-gray-500">({configItems.length} 个配置项)</span>
         </div>
-        <button
-          onClick={() => loadConfigItems()}
-          disabled={loading}
-          className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-        >
-          {loading ? (
-            <Loader className="w-4 h-4 mr-2 animate-spin" />
-          ) : (
-            <RefreshCw className="w-4 h-4 mr-2" />
-          )}
-          刷新
-        </button>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={openAddDialog}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            新增配置项
+          </button>
+          <button
+            onClick={() => loadConfigItems()}
+            disabled={loading}
+            className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+          >
+            {loading ? (
+              <Loader className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4 mr-2" />
+            )}
+            刷新
+          </button>
+        </div>
       </div>
 
       {/* 消息提示 */}
@@ -212,41 +315,40 @@ export const SimpleConfigManager: React.FC = () => {
           <nav className="-mb-px flex space-x-8">
             <button
               onClick={() => handleEnvironmentChange('development')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 currentEnvironment === 'development'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              <Database className="w-4 h-4" />
-              <span>测试环境</span>
+              <div className="flex items-center space-x-2">
+                <Database className="w-4 h-4" />
+                <span>测试环境</span>
+              </div>
             </button>
             <button
               onClick={() => handleEnvironmentChange('production')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 currentEnvironment === 'production'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              <Server className="w-4 h-4" />
-              <span>生产环境</span>
+              <div className="flex items-center space-x-2">
+                <Server className="w-4 h-4" />
+                <span>生产环境</span>
+              </div>
             </button>
           </nav>
         </div>
-        
-        {/* 环境信息 */}
-        <div className="mt-2 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">当前环境：</span>
-            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-              currentEnvironment === 'development'
-                ? 'bg-green-100 text-green-800'
-                : 'bg-red-100 text-red-800'
-            }`}>
-              {currentEnvironment === 'development' ? '测试环境' : '生产环境'}
-            </span>
-          </div>
+        <div className="mt-2 flex items-center space-x-2">
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            currentEnvironment === 'development'
+              ? 'bg-green-100 text-green-800'
+              : 'bg-red-100 text-red-800'
+          }`}>
+            {currentEnvironment === 'development' ? '测试环境' : '生产环境'}
+          </span>
           <div className="text-xs text-gray-500">
             {currentEnvironment === 'development' ? '用于开发和测试' : '用于生产部署'}
           </div>
@@ -332,13 +434,29 @@ export const SimpleConfigManager: React.FC = () => {
                       </button>
                     </>
                   ) : (
-                    <button
-                      onClick={() => startEdit(item)}
-                      className="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded"
-                    >
-                      <Edit className="w-4 h-4 mr-1" />
-                      编辑
-                    </button>
+                    <>
+                      <button
+                        onClick={() => startEdit(item)}
+                        className="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded"
+                      >
+                        <Edit className="w-4 h-4 mr-1" />
+                        编辑
+                      </button>
+                      {!item.isRequired && (
+                        <button
+                          onClick={() => openDeleteDialog(item)}
+                          disabled={deleting === item.id}
+                          className="inline-flex items-center px-3 py-1 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded disabled:opacity-50"
+                        >
+                          {deleting === item.id ? (
+                            <Loader className="w-4 h-4 mr-1 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4 mr-1" />
+                          )}
+                          删除
+                        </button>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -439,6 +557,25 @@ export const SimpleConfigManager: React.FC = () => {
           {searchTerm ? '没有找到匹配的配置项' : '暂无配置项'}
         </div>
       )}
+
+      {/* 删除确认对话框 */}
+      <DeleteConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={closeDeleteDialog}
+        onConfirm={confirmDelete}
+        title="删除配置项"
+        message="确定要删除这个配置项吗？此操作不可撤销。"
+        itemName={deleteDialog.item?.displayName}
+        loading={deleting === deleteDialog.item?.id}
+      />
+
+      {/* 新增配置项对话框 */}
+      <AddConfigItemDialog
+        isOpen={addDialog.isOpen}
+        onClose={closeAddDialog}
+        onSuccess={handleAddSuccess}
+        environment={currentEnvironment}
+      />
     </div>
   );
 }; 

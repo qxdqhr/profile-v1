@@ -1,14 +1,14 @@
 /**
- * 画集封面图片上传组件
+ * 通用图片上传组件
  * 使用通用文件服务，支持阿里云OSS存储
- * 复用作品上传组件的成功实现
+ * 可在画集封面和作品图片之间复用
  */
 
 'use client';
 
 import React, { useState, useEffect } from 'react';
 
-interface CoverImageUploadProps {
+interface UniversalImageUploadProps {
   /** 当前图片值（URL） */
   value?: string;
   /** 通用文件服务的文件ID */
@@ -21,41 +21,54 @@ interface CoverImageUploadProps {
   label?: string;
   /** 是否禁用 */
   disabled?: boolean;
+  /** 业务类型：cover(封面) 或 artwork(作品) */
+  businessType?: 'cover' | 'artwork';
+  /** 是否显示调试信息 */
+  showDebugInfo?: boolean;
+  /** 是否显示测试按钮 */
+  showTestButton?: boolean;
+  /** 自定义样式类名 */
+  className?: string;
 }
 
-export const CoverImageUpload: React.FC<CoverImageUploadProps> = ({
+export const UniversalImageUpload: React.FC<UniversalImageUploadProps> = ({
   value,
   fileId,
   onChange,
-  placeholder = "上传封面图片",
-  label = "封面图片",
-  disabled = false
+  placeholder = "上传图片",
+  label = "图片",
+  disabled = false,
+  businessType = 'cover',
+  showDebugInfo = false,
+  showTestButton = false,
+  className = ''
 }) => {
   const [uploading, setUploading] = useState(false);
-  const [inputId] = useState(() => `cover-upload-${Math.random().toString(36).substr(2, 9)}`);
+  const [inputId] = useState(() => `universal-image-upload-${Math.random().toString(36).substr(2, 9)}`);
 
   // 检查input元素是否存在
   useEffect(() => {
     const input = document.getElementById(inputId) as HTMLInputElement;
-    console.log('🔍 [CoverImageUpload] 组件挂载，检查input元素:', {
+    console.log(`🔍 [UniversalImageUpload-${businessType}] 组件挂载，检查input元素:`, {
       inputId,
       inputExists: !!input,
       inputType: input?.type,
-      inputDisabled: input?.disabled
+      inputDisabled: input?.disabled,
+      businessType
     });
-  }, [inputId]);
+  }, [inputId, businessType]);
 
   // 处理通用文件服务上传
   const handleUniversalUpload = async (file: File) => {
     setUploading(true);
     try {
-      console.log('🚀 [CoverImageUpload] 开始通用文件服务上传:', file.name);
+      console.log(`🚀 [UniversalImageUpload-${businessType}] 开始通用文件服务上传:`, file.name);
       
       // 创建FormData
       const formData = new FormData();
       formData.append('file', file);
       formData.append('moduleId', 'showmasterpiece');
-      formData.append('businessId', 'cover');
+      formData.append('businessId', businessType);
       formData.append('needsProcessing', 'true');
       
       // 调用通用文件上传API
@@ -75,7 +88,7 @@ export const CoverImageUpload: React.FC<CoverImageUploadProps> = ({
         throw new Error(result.error || '上传失败');
       }
       
-      console.log('✅ [CoverImageUpload] 通用文件服务上传成功:', {
+      console.log(`✅ [UniversalImageUpload-${businessType}] 通用文件服务上传成功:`, {
         fileId: result.data.fileId,
         accessUrl: result.data.accessUrl
       });
@@ -87,7 +100,7 @@ export const CoverImageUpload: React.FC<CoverImageUploadProps> = ({
       });
       
     } catch (error) {
-      console.error('❌ [CoverImageUpload] 通用文件服务上传失败:', error);
+      console.error(`❌ [UniversalImageUpload-${businessType}] 通用文件服务上传失败:`, error);
       
       // 上传失败时的友好提示
       alert(`文件上传失败: ${error instanceof Error ? error.message : '未知错误'}`);
@@ -100,7 +113,7 @@ export const CoverImageUpload: React.FC<CoverImageUploadProps> = ({
 
   // 处理文件选择
   const handleFileSelect = async (file: File) => {
-    console.log('🎯 [CoverImageUpload] 文件选择事件触发:', {
+    console.log(`🎯 [UniversalImageUpload-${businessType}] 文件选择事件触发:`, {
       fileName: file.name,
       fileSize: file.size,
       fileType: file.type
@@ -111,7 +124,7 @@ export const CoverImageUpload: React.FC<CoverImageUploadProps> = ({
   // 渲染文件上传界面
   const renderUploadArea = () => {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      console.log('🎯 [CoverImageUpload] input change事件触发:', e.target.files);
+      console.log(`🎯 [UniversalImageUpload-${businessType}] input change事件触发:`, e.target.files);
       const file = e.target.files?.[0];
       if (file) {
         handleFileSelect(file);
@@ -119,25 +132,25 @@ export const CoverImageUpload: React.FC<CoverImageUploadProps> = ({
     };
 
     const handleTestClick = (e: React.MouseEvent) => {
-      console.log('🎯 [CoverImageUpload] 测试按钮点击事件触发');
+      console.log(`🎯 [UniversalImageUpload-${businessType}] 测试按钮点击事件触发`);
       e.preventDefault();
       e.stopPropagation();
       const input = document.getElementById(inputId) as HTMLInputElement;
       if (input) {
-        console.log('🎯 [CoverImageUpload] 找到input元素，触发click');
+        console.log(`🎯 [UniversalImageUpload-${businessType}] 找到input元素，触发click`);
         input.click();
       } else {
-        console.error('❌ [CoverImageUpload] 未找到input元素');
+        console.error(`❌ [UniversalImageUpload-${businessType}] 未找到input元素`);
       }
     };
 
     const handleDivClick = (e: React.MouseEvent) => {
-      console.log('🎯 [CoverImageUpload] div点击事件触发');
+      console.log(`🎯 [UniversalImageUpload-${businessType}] div点击事件触发`);
     };
 
     return (
       <div 
-        className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors"
+        className={`border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors ${className}`}
         onClick={handleDivClick}
         style={{ position: 'relative', zIndex: 1 }}
       >
@@ -172,7 +185,7 @@ export const CoverImageUpload: React.FC<CoverImageUploadProps> = ({
               <svg className="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
               </svg>
-              <p className="text-lg font-medium">点击选择封面图片</p>
+              <p className="text-lg font-medium">{placeholder}</p>
               <p className="text-sm">支持 JPG、PNG、GIF、WebP 格式</p>
               <p className="text-xs text-blue-600 mt-2">
                 自动上传到阿里云OSS，享受CDN加速
@@ -182,14 +195,16 @@ export const CoverImageUpload: React.FC<CoverImageUploadProps> = ({
         </div>
         
         {/* 测试按钮 */}
-        <button
-          type="button"
-          onClick={handleTestClick}
-          className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-          style={{ position: 'relative', zIndex: 20 }}
-        >
-          测试：直接触发文件选择器
-        </button>
+        {showTestButton && (
+          <button
+            type="button"
+            onClick={handleTestClick}
+            className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            style={{ position: 'relative', zIndex: 20 }}
+          >
+            测试：直接触发文件选择器
+          </button>
+        )}
       </div>
     );
   };
@@ -207,7 +222,7 @@ export const CoverImageUpload: React.FC<CoverImageUploadProps> = ({
         <div className="relative inline-block">
           <img
             src={imageUrl}
-            alt="封面预览"
+            alt={`${businessType === 'cover' ? '封面' : '作品'}预览`}
             className="max-w-full h-auto max-h-48 rounded-lg border"
             onError={(e) => {
               console.error('图片加载失败:', imageUrl);
@@ -248,9 +263,11 @@ export const CoverImageUpload: React.FC<CoverImageUploadProps> = ({
       )}
       
       {/* 调试信息 */}
-      <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700">
-        🔍 调试信息: inputId = {inputId}, disabled = {disabled.toString()}, uploading = {uploading.toString()}
-      </div>
+      {showDebugInfo && (
+        <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700">
+          🔍 调试信息: inputId = {inputId}, businessType = {businessType}, disabled = {disabled.toString()}, uploading = {uploading.toString()}
+        </div>
+      )}
       
       {/* 上传区域 */}
       {renderUploadArea()}
@@ -260,7 +277,7 @@ export const CoverImageUpload: React.FC<CoverImageUploadProps> = ({
       
       {/* 说明文字 */}
       <div className="mt-2 text-xs text-gray-500">
-        封面图片将自动上传到阿里云OSS并通过CDN分发，提供更好的性能和用户体验
+        {businessType === 'cover' ? '封面图片' : '作品图片'}将自动上传到阿里云OSS并通过CDN分发，提供更好的性能和用户体验
       </div>
       
       {/* 当前值显示 */}

@@ -580,7 +580,7 @@ export class UniversalFileService extends EventEmitter {
       extension,
       hash,
       uploadTime: now,
-      permission: fileInfo.permission || 'private',
+      permission: fileInfo.permission || 'public',
       uploaderId: fileInfo.metadata?.uploadedBy || 'system',
       moduleId: fileInfo.moduleId,
       businessId: fileInfo.businessId,

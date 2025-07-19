@@ -110,6 +110,75 @@ export async function PUT(
   }
 }
 
+// DELETE /api/configManager/items/[id] - 删除配置项
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+    const { searchParams } = new URL(request.url);
+    const environment = searchParams.get('environment') || 'development';
+
+    console.log(`删除 ${environment} 环境的配置项 ${id}`);
+
+    const db = getDatabase();
+
+    // 检查配置项是否存在
+    const existingItem = await db
+      .select()
+      .from(configItems)
+      .where(eq(configItems.id, id))
+      .limit(1);
+
+    if (existingItem.length === 0) {
+      return NextResponse.json(
+        { success: false, error: '配置项不存在' },
+        { status: 404 }
+      );
+    }
+
+    // 检查是否为必需配置项
+    if (existingItem[0].isRequired) {
+      return NextResponse.json(
+        { success: false, error: '不能删除必需配置项' },
+        { status: 400 }
+      );
+    }
+
+    // 删除配置项
+    await db
+      .delete(configItems)
+      .where(eq(configItems.id, id));
+
+    return NextResponse.json({
+      success: true,
+      message: `配置项删除成功 (${environment}环境)`,
+      environment
+    });
+
+  } catch (error: any) {
+    console.error('删除配置项失败:', error);
+    
+    // 如果是数据库连接错误，返回特定的错误信息
+    if (error.code === 'ECONNRESET' || error.message?.includes('TLS')) {
+      return NextResponse.json(
+        { 
+          success: false,
+          error: '数据库连接失败，请检查数据库服务是否正常运行',
+          details: 'SSL/TLS连接问题，请检查数据库配置'
+        },
+        { status: 503 }
+      );
+    }
+    
+    return NextResponse.json(
+      { success: false, error: '删除配置项失败', details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
 // GET /api/configManager/items/[id] - 获取单个配置项
 export async function GET(
   request: NextRequest,

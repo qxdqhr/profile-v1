@@ -131,6 +131,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 获取访问URL
+    let accessUrl: string;
+    if (uploadResult.cdnUrl) {
+      accessUrl = uploadResult.cdnUrl;
+    } else {
+      // 如果没有CDN URL，尝试从存储提供者获取访问URL
+      try {
+        // 传递用户ID以通过权限检查
+        accessUrl = await fileService.getFileUrl(uploadResult.id, user.id?.toString());
+      } catch (error) {
+        console.warn('⚠️ [通用文件服务] 获取文件访问URL失败，使用默认路径:', error);
+        accessUrl = `/uploads/${uploadResult.storagePath}`;
+      }
+    }
+
     // 返回结果
     return NextResponse.json({
       success: true,
@@ -142,7 +157,7 @@ export async function POST(request: NextRequest) {
         mimeType: uploadResult.mimeType,
         storagePath: uploadResult.storagePath,
         cdnUrl: uploadResult.cdnUrl,
-        accessUrl: uploadResult.cdnUrl || `/uploads/${uploadResult.storagePath}`,
+        accessUrl: accessUrl,
         moduleId: uploadResult.moduleId,
         businessId: uploadResult.businessId,
         createdAt: uploadResult.uploadTime

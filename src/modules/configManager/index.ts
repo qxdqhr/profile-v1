@@ -3,13 +3,16 @@
 
 export { ConfigManagerPage } from './pages/ConfigManagerPage';
 export { ConfigManagerPageWithAuth } from './pages/ConfigManagerPageWithAuth';
-export { ConfigCategoryList } from './components/ConfigCategoryList';
-export { ConfigItemList } from './components/ConfigItemList';
-export { ConfigItemForm } from './components/ConfigItemForm';
-export { ConfigCategoryForm } from './components/ConfigCategoryForm';
+export { SimpleConfigManager } from './components/SimpleConfigManager';
+export { DeleteConfirmDialog } from './components/DeleteConfirmDialog';
+export { AddConfigItemDialog } from './components/AddConfigItemDialog';
 export { EnvConfigManager } from './components/EnvConfigManager';
-export { UserInfoBar } from './components/UserInfoBar';
-export { PermissionGuard } from './components/PermissionGuard';
+
+// ===== 服务端导出 =====
+// 这些只能在服务端使用（数据库服务、API等）
+
+export { configDbService } from './db/configDbService';
+export { EnvConfigService } from './services/envConfigService';
 
 // 重新导出类型，方便客户端使用
 export type {

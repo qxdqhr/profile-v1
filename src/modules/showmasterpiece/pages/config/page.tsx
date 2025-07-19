@@ -4,8 +4,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown } from 'lucide-react';
 import { useMasterpiecesConfig } from '../../hooks/useMasterpiecesConfig';
 import { ConfigFormData, CollectionFormData, ArtworkFormData } from '../../types';
-import { CoverImageUpload } from '../../components/CoverImageUpload';
-import { ArtworkImageUpload } from '../../components/ArtworkImageUpload';
+import { UniversalImageUpload } from '../../components/UniversalImageUpload';
 import { shouldUseUniversalFileService, getStorageModeDisplayName } from '../../services/fileService';
 import { AuthGuard, AuthProvider } from '@/modules/auth';
 import { CollectionOrderManagerV2 as CollectionOrderManager } from '../../components/CollectionOrderManagerV2';
@@ -732,16 +731,19 @@ function ConfigPageContent() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <CoverImageUpload
+                <UniversalImageUpload
                   label="封面图片"
                   value={collectionForm.coverImage}
                   fileId={collectionForm.coverImageFileId}
-                  onChange={(data) => setCollectionForm(prev => ({ 
+                  onChange={(data: { image?: string; fileId?: string }) => setCollectionForm(prev => ({ 
                     ...prev, 
                     coverImage: data.image || '',
                     coverImageFileId: data.fileId
                   }))}
                   placeholder="上传封面图片"
+                  businessType="cover"
+                  showDebugInfo={true}
+                  showTestButton={true}
                 />
               </div>
               <div className={styles.formGroup}>
@@ -824,20 +826,20 @@ function ConfigPageContent() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <ArtworkImageUpload
+                <UniversalImageUpload
                   label="作品图片"
                   value={artworkForm.image}
                   fileId={artworkForm.fileId}
-                  onChange={(data) => setArtworkForm(prev => ({ 
+                  onChange={(data: { image?: string; fileId?: string }) => setArtworkForm(prev => ({ 
                     ...prev, 
                     image: data.image,
                     fileId: data.fileId
                   }))}
                   placeholder="上传作品图片"
+                  businessType="artwork"
+                  showDebugInfo={true}
+                  showTestButton={true}
                 />
-                <div className="mt-2 text-xs text-blue-600">
-                  图片将自动上传到阿里云OSS，享受CDN加速
-                </div>
               </div>
               <div className={styles.formGroup}>
                 <label>描述</label>

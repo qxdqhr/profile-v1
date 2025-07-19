@@ -316,6 +316,7 @@ export class CollectionsDbService {
         title: comicUniverseCollections.title,
         artist: comicUniverseCollections.artist,
         coverImage: comicUniverseCollections.coverImage, // 封面图片仍然加载，用于列表展示
+        coverImageFileId: comicUniverseCollections.coverImageFileId, // 新增：封面图片文件ID
         description: comicUniverseCollections.description,
         isPublished: comicUniverseCollections.isPublished,
         displayOrder: comicUniverseCollections.displayOrder, // 需要索引优化
@@ -437,6 +438,7 @@ export class CollectionsDbService {
       title: collection.title,
       artist: collection.artist,
       coverImage: collection.coverImage, // 封面图片保留，用于列表展示
+      coverImageFileId: collection.coverImageFileId || undefined, // 新增：封面图片文件ID
       description: collection.description || '',
       category: collection.categoryId ? (categoriesMap.get(collection.categoryId) || '') : '',
       tags: tagsMap.get(collection.id) || [],
@@ -457,6 +459,7 @@ export class CollectionsDbService {
           title: comicUniverseCollections.title,
           artist: comicUniverseCollections.artist,
           coverImage: comicUniverseCollections.coverImage,
+          coverImageFileId: comicUniverseCollections.coverImageFileId, // 新增：封面图片文件ID
           description: comicUniverseCollections.description,
           isPublished: comicUniverseCollections.isPublished,
           displayOrder: comicUniverseCollections.displayOrder,
@@ -540,6 +543,7 @@ export class CollectionsDbService {
         title: collection.title,
         artist: collection.artist,
         coverImage: collection.coverImage,
+        coverImageFileId: collection.coverImageFileId || undefined, // 新增：封面图片文件ID
         description: collection.description || '',
         category: collection.categoryId ? (categoriesMap.get(collection.categoryId) || '') : '',
         tags: tagsMap.get(collection.id) || [],
@@ -586,6 +590,7 @@ export class CollectionsDbService {
       title: collectionData.title,
       artist: collectionData.artist,
       coverImage: collectionData.coverImage,
+      coverImageFileId: collectionData.coverImageFileId || null,
       description: collectionData.description,
       categoryId,
       isPublished: collectionData.isPublished,
@@ -631,6 +636,7 @@ export class CollectionsDbService {
         title: collectionData.title,
         artist: collectionData.artist,
         coverImage: collectionData.coverImage,
+        coverImageFileId: collectionData.coverImageFileId || null,
         description: collectionData.description,
         categoryId,
         isPublished: collectionData.isPublished,

@@ -216,12 +216,19 @@ export class FileServiceConfigManager {
       bucket: process.env.ALIYUN_OSS_BUCKET,
       accessKeyId: process.env.ALIYUN_OSS_ACCESS_KEY_ID,
       accessKeySecret: process.env.ALIYUN_OSS_ACCESS_KEY_SECRET,
+      customDomain: process.env.ALIYUN_OSS_CUSTOM_DOMAIN,
       secure: process.env.ALIYUN_OSS_SECURE === 'true',
       internal: process.env.ALIYUN_OSS_INTERNAL === 'true'
     };
 
     // 检查必需的配置项
-    console.log('🔍 [ConfigManager] 阿里云OSS配置:', config);
+    console.log('🔍 [ConfigManager] 阿里云OSS配置:', {
+      region: config.region,
+      bucket: config.bucket,
+      accessKeyId: config.accessKeyId ? '***' : '未设置',
+      accessKeySecret: config.accessKeySecret ? '***' : '未设置',
+      customDomain: config.customDomain || '未设置'
+    });
     if (config.region && config.bucket && config.accessKeyId && config.accessKeySecret) {
       this.enableStorageProvider('aliyun-oss', config);
       this.config.defaultStorage = 'aliyun-oss';
@@ -250,6 +257,7 @@ export class FileServiceConfigManager {
           bucket: config.ALIYUN_OSS_BUCKET,
           accessKeyId: config.ALIYUN_OSS_ACCESS_KEY_ID,
           accessKeySecret: config.ALIYUN_OSS_ACCESS_KEY_SECRET,
+          customDomain: config.ALIYUN_OSS_CUSTOM_DOMAIN,
           secure: config.ALIYUN_OSS_SECURE === 'true',
           internal: config.ALIYUN_OSS_INTERNAL === 'true'
         };
@@ -258,7 +266,8 @@ export class FileServiceConfigManager {
           region: ossConfig.region,
           bucket: ossConfig.bucket,
           accessKeyId: ossConfig.accessKeyId ? '***' : '未设置',
-          accessKeySecret: ossConfig.accessKeySecret ? '***' : '未设置'
+          accessKeySecret: ossConfig.accessKeySecret ? '***' : '未设置',
+          customDomain: ossConfig.customDomain || '未设置'
         });
 
         if (ossConfig.region && ossConfig.bucket && ossConfig.accessKeyId && ossConfig.accessKeySecret) {
