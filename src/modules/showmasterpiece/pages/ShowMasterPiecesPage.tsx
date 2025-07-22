@@ -1,5 +1,5 @@
 /**
- * ShowMasterpiece 主页面组件
+ * ShowMasterpiece 主页面组件 - Tailwind CSS 版本
  * 
  * 这是ShowMasterpiece模块的主要页面组件，提供完整的画集浏览体验。
  * 支持两种视图模式：画集列表视图和作品详情视图。
@@ -16,6 +16,7 @@
  * - 集成认证系统，支持权限控制
  * - 动态配置加载，支持个性化设置
  * - 性能优化：使用useMemo缓存计算结果
+ * - 使用 Tailwind CSS 进行样式管理
  * 
  * @component
  */
@@ -23,13 +24,13 @@
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { ArrowLeft, Settings, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Settings } from 'lucide-react';
 import { useMasterpieces } from '../hooks/useMasterpieces';
 import { getConfig } from '../services/masterpiecesConfigService';
-import { MasterpiecesConfig } from '../types';
-import { CollectionCard, ArtworkViewer, ThumbnailSidebar, BookingModal } from '../components';
+import { MasterpiecesConfig, CollectionCategory, CollectionCategoryType } from '../types';
+import { CollectionCard, ArtworkViewer, ThumbnailSidebar, CartModal, CartButton } from '../components';
+import { CartProvider } from '../contexts/CartContext';
 import { AuthProvider, useAuth, UserMenu, CustomMenuItem } from '@/modules/auth';
-import styles from './ShowMasterPieces.module.css';
 
 /**
  * ShowMasterpiece 内容组件
@@ -68,8 +69,11 @@ function ShowMasterPiecesContent() {
   /** 系统配置状态 */
   const [config, setConfig] = useState<MasterpiecesConfig | null>(null);
   
-  /** 预订弹窗状态 */
-  const [bookingModalOpen, setBookingModalOpen] = useState(false);
+  /** 购物车弹窗状态 */
+  const [cartModalOpen, setCartModalOpen] = useState(false);
+  
+  /** 当前选中的分类 */
+  const [selectedCategory, setSelectedCategory] = useState<CollectionCategoryType | 'all'>('all');
 
   // ===== 配置加载 =====
   
@@ -89,6 +93,19 @@ function ShowMasterPiecesContent() {
     loadConfig();
   }, []);
 
+  // ===== 数据过滤 =====
+  
+  /**
+   * 根据选中的分类过滤画集
+   * 使用 useMemo 缓存过滤结果，避免重复计算
+   */
+  const filteredCollections = useMemo(() => {
+    if (selectedCategory === 'all') {
+      return collections;
+    }
+    return collections.filter(collection => collection.category === selectedCategory);
+  }, [collections, selectedCategory]);
+
   // ===== 权限控制 =====
   
   /**
@@ -97,256 +114,282 @@ function ShowMasterPiecesContent() {
    * 权限判断逻辑：
    * - 必须已登录
    * - 用户角色为admin，或者
-   * - 特定手机号用户（临时方案）
+   * - 用户ID为1（临时管理员）
    */
-  const hasConfigPermission = useMemo(() => {
-    if (!isAuthenticated || !user) {
-      return false;
-    }
-    
-    // 基于用户角色或手机号判断
-    return user.role === 'admin';
-  }, [isAuthenticated, user]);
+  const hasAdminAccess = useMemo(() => {
+    return isAuthenticated && (user?.role === 'admin' || user?.id === 1);
+  }, [isAuthenticated, user?.role, user?.id]);
 
-  // ===== 事件处理 =====
+  // ===== 事件处理函数 =====
   
   /**
-   * 处理配置页面访问请求
-   * 
-   * 检查用户权限，有权限则跳转到配置页面，
-   * 无权限则提示用户登录。
+   * 处理配置按钮点击事件
+   * 检查权限后跳转到配置页面
    */
   const handleConfigClick = () => {
-    console.log('🎯 [ShowMasterPieces] handleConfigClick 被调用');
-    console.log('🔐 [ShowMasterPieces] 当前认证状态:', { isAuthenticated, user });
-    
-    if (hasConfigPermission) {
-      console.log('✅ [ShowMasterPieces] 用户已认证，跳转到配置页面');
-      window.location.href = '/testField/ShowMasterPieces/config';
-    } else {
-      console.log('❌ [ShowMasterPieces] 用户未认证，需要先登录');
-      alert('请先登录后访问配置页面');
+    if (!hasAdminAccess) {
+      alert('需要管理员权限才能访问配置页面');
+      return;
     }
+    window.location.href = '/testField/ShowMasterPieces/config';
   };
 
   /**
-   * 处理预订按钮点击
-   * 
-   * 打开预订弹窗
+   * 处理购物车按钮点击事件
+   * 打开购物车弹窗
    */
-  const handleBookingClick = () => {
-    setBookingModalOpen(true);
+  const handleCartClick = () => {
+    setCartModalOpen(true);
   };
 
-  // ===== 自定义菜单配置 =====
+  // ===== 渲染函数 =====
   
   /**
-   * 自定义菜单项配置
-   * 只有有权限的用户才会显示配置菜单项
+   * 渲染加载状态
    */
-  const customMenuItems: CustomMenuItem[] = useMemo(() => {
-    if (!hasConfigPermission) {
-      return [];
-    }
-    
-    return [{
-      id: 'config',
-      label: '配置',
-      icon: Settings,
-      onClick: handleConfigClick,
-      requireAuth: true
-    }];
-  }, [hasConfigPermission]);
+  const renderLoading = () => (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 overflow-x-hidden">
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 p-4">
+        <div className="w-10 h-10 border-4 border-slate-200 border-t-blue-500 rounded-full animate-spin"></div>
+        <p className="text-slate-600">加载中...</p>
+      </div>
+    </div>
+  );
 
-  // ===== 渲染逻辑 =====
-  
   /**
-   * 加载状态渲染
-   * 显示loading spinner和提示文字
+   * 渲染错误状态
    */
+  const renderError = () => (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 overflow-x-hidden">
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 p-4 text-center">
+        <p className="text-red-600 text-lg">加载失败：{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors min-h-[44px]"
+        >
+          重试
+        </button>
+      </div>
+    </div>
+  );
+
+  /**
+   * 渲染空状态
+   */
+  const renderEmptyState = () => (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 overflow-x-hidden">
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 p-4 text-center">
+        <div className="text-slate-400 text-6xl mb-4">🎨</div>
+        <h3 className="text-xl font-semibold text-slate-800 mb-2">暂无可用画集</h3>
+        <p className="text-slate-600 mb-6">当前没有可预订的画集，请稍后再试</p>
+        {hasAdminAccess && (
+          <a
+            href="/testField/ShowMasterPieces/config"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
+            <Settings size={20} />
+            前往配置页面
+          </a>
+        )}
+      </div>
+    </div>
+  );
+
+  // ===== 主渲染逻辑 =====
+  
+  // 加载状态
   if (loading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loadingContainer}>
-          <div className={styles.loadingSpinner}></div>
-          <p>加载中...</p>
-        </div>
-      </div>
-    );
+    return renderLoading();
   }
 
-  /**
-   * 错误状态渲染
-   * 显示错误信息和重新加载按钮
-   */
+  // 错误状态
   if (error) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.errorContainer}>
-          <p>{error}</p>
-          <button onClick={() => window.location.reload()}>重新加载</button>
-        </div>
-      </div>
-    );
+    return renderError();
   }
 
-  /**
-   * 画集详情视图渲染
-   * 
-   * 当用户选择了某个画集时，显示该画集的详细内容，包括：
-   * - 顶部导航栏（返回按钮、画集标题、用户菜单）
-   * - 主要内容区域（作品查看器）
-   * - 侧边栏（缩略图导航）
-   */
-  if (selectedCollection) {
-    const currentArtwork = getCurrentArtwork();
-    
-    return (
-      <div className={styles.container}>
-        {/* 顶部导航栏 */}
-        <div className={styles.header}>
-          <div className={styles.headerContent}>
-            <div className={styles.headerNav}>
-              {/* 返回画集列表按钮 */}
-              <button onClick={backToGallery} className={styles.backButton}>
-                <ArrowLeft size={20} />
-                <span>返回画集</span>
-              </button>
-              
-              {/* 画集标题和作者信息 */}
-              <div className={styles.headerTitle}>
-                <h1>{selectedCollection.title}</h1>
-                <p>作者：{selectedCollection.artist}</p>
+  // 空状态
+  if (!collections || collections.length === 0) {
+    return renderEmptyState();
+  }
+
+  // 获取用户ID，临时默认为1（应该要求登录）
+  const userId = user?.id || 1;
+
+  return (
+    <CartProvider userId={userId}>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 overflow-x-hidden">
+        {/* 顶部导航 */}
+        <div className="bg-white shadow-md border-b border-slate-200 sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
+            <div className="flex items-center justify-between gap-2 sm:gap-4 min-h-[44px]">
+              {/* 左侧：返回按钮和标题 */}
+              <div className="flex items-center gap-4 sm:gap-8 min-w-0 flex-1">
+                {selectedCollection && (
+                  <button
+                    onClick={backToGallery}
+                    className="flex items-center gap-1 sm:gap-2 text-slate-500 bg-transparent border-none cursor-pointer text-base transition-colors hover:text-slate-800 p-1 sm:p-2 rounded-lg min-h-[44px] min-w-[44px] flex-shrink-0"
+                  >
+                    <ArrowLeft size={18} className="sm:w-5 sm:h-5" />
+                    <span className="hidden sm:inline">返回</span>
+                  </button>
+                )}
+                <div className="text-center sm:text-left min-w-0 flex-1">
+                  <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-800 m-0 truncate">
+                    {config?.heroTitle || '艺术画集展览'}
+                  </h1>
+                  <p className="text-xs sm:text-sm text-slate-500 m-0 hidden sm:block truncate">
+                    {config?.heroSubtitle || '探索精美的艺术作品，感受创作的魅力'}
+                  </p>
+                </div>
+              </div>
+
+              {/* 右侧：用户菜单和操作按钮 */}
+              <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
+                {/* 购物车按钮 */}
+                <CartButton 
+                  onClick={handleCartClick} 
+                  className="relative p-1 sm:p-2 text-slate-600 hover:text-slate-800 transition-colors" 
+                  userId={userId}
+                />
+                
+                {/* 配置按钮（仅管理员可见） */}
+                {hasAdminAccess && (
+                  <button
+                    onClick={handleConfigClick}
+                    className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors text-xs sm:text-sm"
+                  >
+                    <Settings size={14} className="sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">管理</span>
+                  </button>
+                )}
+                
+                {/* 用户菜单 */}
+                <UserMenu />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 主要内容区域 */}
+        <div className="max-w-7xl mx-auto p-3 sm:p-4 lg:p-6">
+          {selectedCollection ? (
+            /* 作品浏览视图 */
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
+              {/* 侧边栏：缩略图导航 */}
+              <div className="lg:col-span-1 order-2 lg:order-1">
+                <ThumbnailSidebar
+                  pages={selectedCollection.pages}
+                  currentPage={currentPage}
+                  onPageSelect={goToPage}
+                />
               </div>
               
-              {/* 用户菜单 */}
-              <UserMenu customMenuItems={customMenuItems} />
+              {/* 主内容区：作品查看器 */}
+              <div className="lg:col-span-3 order-1 lg:order-2">
+                {getCurrentArtwork() && (
+                  <ArtworkViewer
+                    artwork={getCurrentArtwork()!}
+                    collectionId={selectedCollection.id}
+                    onNext={nextPage}
+                    onPrev={prevPage}
+                    canGoNext={canGoNext}
+                    canGoPrev={canGoPrev}
+                  />
+                )}
+              </div>
             </div>
-          </div>
-        </div>
+          ) : (
+            /* 画集列表视图 */
+            <div className="space-y-6">
+              {/* 分类Tab栏 */}
+              <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-1">
+                <div className="flex space-x-1">
+                  <button
+                    onClick={() => setSelectedCategory('all')}
+                    className={`flex-1 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition-colors ${
+                      selectedCategory === 'all'
+                        ? 'bg-blue-600 text-white'
+                        : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span>全部</span>
+                    <span className="ml-1 text-xs opacity-90">({collections.length})</span>
+                  </button>
+                  <button
+                    onClick={() => setSelectedCategory(CollectionCategory.COLLECTION)}
+                    className={`flex-1 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition-colors ${
+                      selectedCategory === CollectionCategory.COLLECTION
+                        ? 'bg-blue-600 text-white'
+                        : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span>画集</span>
+                    <span className="ml-1 text-xs opacity-90">({collections.filter(c => c.category === CollectionCategory.COLLECTION).length})</span>
+                  </button>
+                  <button
+                    onClick={() => setSelectedCategory(CollectionCategory.PRODUCT)}
+                    className={`flex-1 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition-colors ${
+                      selectedCategory === CollectionCategory.PRODUCT
+                        ? 'bg-blue-600 text-white'
+                        : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span>商品</span>
+                    <span className="ml-1 text-xs opacity-90">({collections.filter(c => c.category === CollectionCategory.PRODUCT).length})</span>
+                  </button>
+                </div>
+              </div>
 
-        {/* 作品展示区域 */}
-        <div className={styles.artworkContainer}>
-          {/* 主要内容区域 - 作品查看器 */}
-          <div className={styles.artworkMain}>
-            {currentArtwork && (
-              <ArtworkViewer
-                artwork={currentArtwork}
-                collectionId={selectedCollection.id}
-                onNext={nextPage}
-                onPrev={prevPage}
-                canGoNext={canGoNext}
-                canGoPrev={canGoPrev}
-              />
-            )}
-          </div>
-          
-          {/* 侧边栏 - 缩略图导航 */}
-          <div className={styles.artworkSidebar}>
-            <ThumbnailSidebar
-              pages={selectedCollection.pages}
-              currentPage={currentPage}
-              onPageSelect={goToPage}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  /**
-   * 画集列表视图渲染
-   * 
-   * 显示所有可用的画集，以网格形式展示画集卡片，包括：
-   * - 顶部导航栏（返回按钮、页面标题、用户菜单）
-   * - 画集网格（使用CollectionCard组件）
-   * - 空状态处理（无画集时的提示）
-   */
-  return (
-    <div className={styles.container}>
-      {/* 顶部导航栏 */}
-      <div className={styles.header}>
-        <div className={styles.headerContent}>
-          <div className={styles.headerNav}>
-            {/* 返回上级页面按钮 */}
-            <button
-              onClick={() => window.history.back()}
-              className={styles.backButton}
-            >
-              <ArrowLeft size={20} />
-              <span>返回</span>
-            </button>
-            
-            {/* 页面标题和副标题（从配置中获取） */}
-            <div className={styles.headerTitle}>
-              <h1>{config?.heroTitle || '艺术画集展览馆'}</h1>
-              <p>{config?.heroSubtitle || '精选世界各地艺术大师的经典作品，每一页都是一次艺术的沉浸体验'}</p>
+              {/* 画集网格 */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                {filteredCollections.map((collection) => (
+                  <CollectionCard
+                    key={collection.id}
+                    collection={collection}
+                    userId={userId}
+                    onSelect={selectCollection}
+                  />
+                ))}
+              </div>
+              
+              {/* 空状态提示 */}
+              {filteredCollections.length === 0 && collections.length > 0 && (
+                <div className="text-center py-8 sm:py-12 px-4">
+                  <div className="text-slate-400 text-base sm:text-lg mb-2">
+                    当前分类暂无内容
+                  </div>
+                  <p className="text-slate-500 text-xs sm:text-sm">
+                    请尝试选择其他分类查看
+                  </p>
+                </div>
+              )}
             </div>
-            
-            {/* 预订按钮 */}
-            <button
-              onClick={handleBookingClick}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-            >
-              <ShoppingCart size={16} />
-              <span>预订画集</span>
-            </button>
-            
-            {/* 用户菜单 */}
-            <UserMenu customMenuItems={customMenuItems} />
-          </div>
+          )}
         </div>
-      </div>
 
-      {/* 画集网格容器 */}
-      <div className={styles.collectionsContainer}>
-        <div className={styles.collectionsGrid}>
-          {collections.map((collection) => (
-            <CollectionCard
-              key={collection.id}
-              collection={collection}
-              onSelect={selectCollection}
-            />
-          ))}
-        </div>
+        {/* 购物车弹窗 */}
+        <CartModal 
+          isOpen={cartModalOpen} 
+          onClose={() => setCartModalOpen(false)} 
+          title="购物车" 
+          userId={userId}
+        />
       </div>
-
-      {/* 空状态提示 */}
-      {collections.length === 0 && (
-        <div className={styles.emptyState}>
-          <h3>暂无画集</h3>
-          <p>请前往配置页面添加画集</p>
-          <button 
-            onClick={handleConfigClick}
-            className={styles.configLink}
-          >
-            {hasConfigPermission ? '前往配置' : '请先登录'}
-          </button>
-        </div>
-      )}
-      
-      {/* 预订弹窗 */}
-      <BookingModal
-        isOpen={bookingModalOpen}
-        onClose={() => setBookingModalOpen(false)}
-        title="预订画集"
-      />
-    </div>
+    </CartProvider>
   );
 }
 
 /**
- * ShowMasterpiece 主页面组件（带认证包装器）
+ * ShowMasterpiece 主组件
  * 
- * 这是对外导出的主组件，包装了AuthProvider以提供认证上下文。
- * 确保所有子组件都能访问用户认证状态和相关功能。
+ * 提供认证上下文包装器，确保组件能够访问用户认证状态。
  * 
- * @returns React函数组件（包含认证提供者）
+ * @returns React函数组件
  */
 export default function ShowMasterPieces() {
   return (
-    // <AuthProvider>
+    <AuthProvider>
       <ShowMasterPiecesContent />
-    // </AuthProvider>
+    </AuthProvider>
   );
-}
+} 

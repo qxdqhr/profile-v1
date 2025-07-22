@@ -79,9 +79,9 @@ export function ArtworkOrderManagerV2({ collectionId, onOrderChanged }: ArtworkO
           background: '#f9fafb',
           flexShrink: 0
         }}>
-          {artwork.image || artwork.imageUrl ? (
+          {artwork.image ? (
             <img
-              src={artwork.image || artwork.imageUrl}
+              src={artwork.image}
               alt={artwork.title}
               style={{
                 width: '100%',

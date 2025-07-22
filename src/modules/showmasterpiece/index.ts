@@ -53,14 +53,20 @@ export { CollectionOrderManagerV2 as CollectionOrderManager } from './components
 /** 作品顺序管理器 - 基于通用组件的作品排序组件 */
 export { ArtworkOrderManagerV2 as ArtworkOrderManager } from './components/ArtworkOrderManagerV2';
 
-/** 预订弹窗组件 - 提供画集预订功能 */
-export { BookingModal } from './components/BookingModal';
+/** 购物车弹窗组件 - 提供购物车功能 */
+export { CartModal } from './components/CartModal';
 
-/** 预订页面组件 - 完整的预订流程页面 */
-export { BookingPage } from './components/BookingPage';
+/** 购物车页面组件 - 完整的购物车页面 */
+export { CartPage } from './components/CartPage';
 
-/** 画集列表组件 - 用于预订页面展示画集 */
-export { CollectionList } from './components/CollectionList';
+/** 购物车按钮组件 - 显示购物车图标和数量 */
+export { CartButton } from './components/CartButton';
+
+/** 添加到购物车按钮组件 - 用于画集卡片 */
+export { AddToCartButton } from './components/AddToCartButton';
+
+/** 购物车管理面板组件 - 管理员查看所有用户购物车数据 */
+export { CartAdminPanel } from './components/CartAdminPanel';
 
 
 // ===== 页面组件导出 =====
@@ -81,8 +87,14 @@ export { useMasterpieces } from './hooks/useMasterpieces';
 /** 美术作品配置管理Hook - 提供配置管理的状态和操作方法 */
 export { useMasterpiecesConfig } from './hooks/useMasterpiecesConfig';
 
-/** 预订功能Hook - 提供预订相关的状态管理和业务逻辑 */
-export { useBooking, useBookingForm } from './hooks/useBooking';
+/** 购物车功能Hook - 提供购物车相关的状态管理和业务逻辑 */
+export { useCart } from './hooks/useCart';
+
+/** 购物车管理Hook - 提供购物车管理相关的状态管理和业务逻辑 */
+export { useCartAdmin } from './hooks/useCartAdmin';
+
+/** 购物车上下文 - 提供购物车状态的全局管理 */
+export { CartProvider, useCartContext } from './contexts/CartContext';
 
 // ===== 客户端服务导出 =====
 // 客户端API调用服务，封装了与后端的通信逻辑
@@ -127,18 +139,27 @@ export {
 } from './services/masterpiecesConfigService';
 
 /** 
- * 预订服务函数集
- * 包含所有与预订相关的API调用方法
+ * 购物车服务函数集
+ * 包含所有与购物车相关的API调用方法
  */
 export { 
-  BookingService,
-  createBooking,        // 创建预订
-  getBookings,         // 获取预订列表
-  getBooking,          // 获取单个预订
-  updateBooking,       // 更新预订
-  deleteBooking,       // 删除预订
-  getBookableCollections // 获取可预订画集列表
-} from './services/bookingService';
+  CartService,
+  getCart,             // 获取购物车
+  addToCart,           // 添加到购物车
+  updateCartItem,      // 更新购物车商品
+  removeFromCart,      // 从购物车移除
+  clearCart,           // 清空购物车
+  batchBooking         // 批量预订
+} from './services/cartService';
+
+/** 
+ * 购物车管理服务函数集
+ * 包含所有与购物车管理相关的API调用方法
+ */
+export { 
+  CartAdminService,
+  getAllCarts,         // 获取所有购物车数据
+} from './services/cartAdminService';
 
 // ===== 类型导出 =====
 // TypeScript类型定义，确保类型安全
@@ -153,23 +174,38 @@ export type {
   ArtworkPage,         // 作品页面数据类型
   CollectionFormData,  // 画集表单数据类型
   ArtworkFormData,     // 作品表单数据类型
-  MasterpiecesState,   // 画集浏览状态类型
-  MasterpiecesActions  // 画集浏览操作类型
+  CollectionCategory,  // 画集分类枚举
+  CollectionCategoryType, // 画集分类类型
+  getAvailableCategories, // 获取可用分类
+  getCategoryDisplayName, // 获取分类显示名称
+  isValidCategory,     // 验证分类
+  getCategoryDescription // 获取分类描述
 } from './types';
 
 /** 
- * 导出预订功能相关的TypeScript类型定义
+ * 导出购物车功能相关的TypeScript类型定义
  */
 export type {
-  Booking,              // 预订数据类型
-  BookingStatus,        // 预订状态枚举
-  CreateBookingRequest, // 创建预订请求类型
-  UpdateBookingRequest, // 更新预订请求类型
-  BookingListParams,    // 预订列表查询参数类型
-  BookingListResponse,  // 预订列表响应类型
-  BookingFormData,      // 预订表单数据类型
-  CollectionSummary     // 画集简略信息类型
-} from './types/booking';
+  Cart,                 // 购物车数据类型
+  CartItem,             // 购物车项数据类型
+  AddToCartRequest,     // 添加到购物车请求类型
+  UpdateCartItemRequest, // 更新购物车项请求类型
+  RemoveFromCartRequest, // 从购物车移除请求类型
+  ClearCartRequest,     // 清空购物车请求类型
+  CartAction,           // 购物车操作类型
+  CartState,            // 购物车状态类型
+  BatchBookingRequest,  // 批量预订请求类型
+  BatchBookingResponse  // 批量预订响应类型
+} from './types/cart';
+
+/** 
+ * 导出购物车管理功能相关的TypeScript类型定义
+ */
+export type {
+  CartAdminData,        // 购物车管理数据类型
+  CartAdminStats,       // 购物车统计信息类型
+  CartAdminResponse     // 购物车管理API响应类型
+} from './services/cartAdminService';
 
 // ===== 模块信息 =====
 /** 模块版本号 */

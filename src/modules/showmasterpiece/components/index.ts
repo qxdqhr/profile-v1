@@ -160,30 +160,55 @@ export { CoverImageUpload } from './CoverImageUpload';
 export { UniversalImageUpload } from './UniversalImageUpload';
 
 /**
- * 预订弹窗组件
+ * 购物车弹窗组件
  * 
- * 使用现有的Modal组件包装预订页面，提供弹窗形式的预订功能。
+ * 使用现有的Modal组件包装购物车页面，提供弹窗形式的购物车功能。
  * 支持响应式设计，适配桌面端和移动端。
  * 
  * 主要功能：
- * - 弹窗形式的预订界面
- * - 画集选择和预订表单
- * - 完整的预订流程
+ * - 弹窗形式的购物车界面
+ * - 商品列表管理和数量调整
+ * - 批量预订功能
  */
-export { BookingModal } from './BookingModal';
+export { CartModal } from './CartModal';
 
 /**
- * 预订页面组件
+ * 购物车页面组件
  * 
- * 完整的预订流程页面，包含画集选择和预订表单。
- * 支持步骤式操作，用户体验友好。
+ * 完整的购物车页面，包含商品列表、数量调整和批量预订功能。
+ * 支持商品管理和批量操作，用户体验友好。
  * 
  * 主要功能：
- * - 画集列表展示和选择
- * - 预订表单（QQ号、数量、备注）
- * - 提交和状态管理
+ * - 购物车商品列表展示
+ * - 商品数量调整和移除
+ * - 批量预订表单
  */
-export { BookingPage } from './BookingPage';
+export { CartPage } from './CartPage';
+
+/**
+ * 购物车按钮组件
+ * 
+ * 显示购物车图标和商品数量的按钮组件，点击可打开购物车弹窗。
+ * 支持徽章显示商品数量。
+ * 
+ * 主要功能：
+ * - 购物车图标和文字显示
+ * - 商品数量徽章
+ * - 点击打开购物车弹窗
+ */
+export { CartButton } from './CartButton';
+
+/**
+ * 添加到购物车按钮组件
+ * 
+ * 用于将画集添加到购物车的按钮组件，支持数量选择。
+ * 
+ * 主要功能：
+ * - 添加到购物车操作
+ * - 数量选择器（可选）
+ * - 添加成功状态反馈
+ */
+export { AddToCartButton } from './AddToCartButton';
 
 /**
  * 画集列表组件

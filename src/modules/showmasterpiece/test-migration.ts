@@ -57,7 +57,7 @@ async function testMigration() {
       if (sampleArtwork) {
         console.log(`📊 作品数据结构检查:`);
         console.log(`  - 有fileId: ${!!sampleArtwork.fileId}`);
-        console.log(`  - 有imageUrl: ${!!sampleArtwork.imageUrl}`);
+        console.log(`  - 有image: ${!!sampleArtwork.image}`);
         console.log(`  - image字段为空: ${!sampleArtwork.image || sampleArtwork.image.trim() === ''}`);
         console.log(`  - 作品标题: ${sampleArtwork.title}`);
       }

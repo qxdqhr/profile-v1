@@ -31,10 +31,10 @@ export const ArtworkViewer: React.FC<ArtworkViewerProps> = ({
       setImageError(false);
       
       try {
-        // 优先使用imageUrl（通过通用文件服务或API获取）
-        if (artwork.imageUrl) {
-          // 直接使用imageUrl，不再需要转换为blob
-          setImageSrc(artwork.imageUrl);
+        // 优先使用image（通过通用文件服务或API获取）
+        if (artwork.image) {
+          // 直接使用image，不再需要转换为blob
+          setImageSrc(artwork.image);
           setImageLoading(false);
           return;
         }
@@ -57,7 +57,7 @@ export const ArtworkViewer: React.FC<ArtworkViewerProps> = ({
     };
 
     loadImage();
-  }, [artwork.id, artwork.imageUrl, artwork.fileId]); // 当作品ID或图片URL变化时重新加载
+  }, [artwork.id, artwork.image, artwork.fileId]); // 当作品ID或图片URL变化时重新加载
 
   const handleImageLoad = () => {
     setImageLoading(false);

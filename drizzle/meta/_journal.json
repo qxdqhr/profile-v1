@@ -218,6 +218,13 @@
       "when": 1752937486283,
       "tag": "0030_lethal_ultimatum",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1753114881613,
+      "tag": "0031_unusual_supernaut",
+      "breakpoints": true
     }
   ]
 }

@@ -5,6 +5,8 @@ import { serial, text, timestamp, pgTable, json, integer, primaryKey } from 'dri
 export * from '@/modules/showmasterpiece/db/schema/masterpieces';
 // 导出画集预订相关的表
 export * from '@/modules/showmasterpiece/db/schema/bookings';
+// 导出购物车相关的表
+export * from '@/modules/showmasterpiece/db/schema/cart';
 // 导出认证相关的表
 export * from '@/modules/auth/db/schema';
 

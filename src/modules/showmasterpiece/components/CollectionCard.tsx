@@ -1,5 +1,5 @@
 /**
- * 画集卡片组件 (CollectionCard)
+ * 画集卡片组件 (CollectionCard) - Tailwind CSS 版本
  * 
  * 这是一个用于展示单个画集信息的卡片组件，主要用于画集列表页面。
  * 
@@ -12,7 +12,7 @@
  * 性能优化特性：
  * - 图片懒加载（Intersection Observer API）
  * - 加载状态和错误处理
- * - CSS Modules样式隔离
+ * - Tailwind CSS 样式
  * 
  * @component
  */
@@ -20,7 +20,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Book, Eye, ImageIcon } from 'lucide-react';
 import { ArtCollection } from '../types';
-import styles from './CollectionCard.module.css';
+import { AddToCartButton } from './AddToCartButton';
 
 /**
  * CollectionCard 组件的 Props 接口
@@ -28,6 +28,8 @@ import styles from './CollectionCard.module.css';
 interface CollectionCardProps {
   /** 要展示的画集数据 */
   collection: ArtCollection;
+  /** 用户ID */
+  userId: number;
   /** 用户选择画集时的回调函数 */
   onSelect: (collection: ArtCollection) => void;
 }
@@ -37,11 +39,13 @@ interface CollectionCardProps {
  * 
  * @param props - 组件属性
  * @param props.collection - 画集数据对象
+ * @param props.userId - 用户ID
  * @param props.onSelect - 选择画集的回调函数
  * @returns React函数组件
  */
 export const CollectionCard: React.FC<CollectionCardProps> = ({ 
   collection, 
+  userId,
   onSelect 
 }) => {
   // ===== 状态管理 =====
@@ -95,11 +99,11 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
     };
   }, []);
 
-  // ===== 图片加载事件处理 =====
+  // ===== 图片处理函数 =====
   
   /**
-   * 图片成功加载的处理函数
-   * 隐藏加载状态，清除错误状态
+   * 图片加载成功处理函数
+   * 隐藏加载状态，显示图片
    */
   const handleImageLoad = () => {
     setImageLoading(false);
@@ -107,7 +111,7 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
   };
 
   /**
-   * 图片加载失败的处理函数
+   * 图片加载失败处理函数
    * 隐藏加载状态，显示错误状态
    */
   const handleImageError = () => {
@@ -115,78 +119,143 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
     setImageError(true);
   };
 
-  // ===== 组件渲染 =====
+  // ===== 渲染函数 =====
   
+  /**
+   * 渲染图片加载状态
+   */
+  const renderImageLoading = () => (
+    <div className="absolute inset-0 flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-slate-200 border-t-blue-500 rounded-full animate-spin"></div>
+    </div>
+  );
+
+  /**
+   * 渲染图片错误状态
+   */
+  const renderImageError = () => (
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-500 text-sm text-center p-4">
+      <ImageIcon size={32} className="text-slate-400" />
+      <span>图片加载失败</span>
+    </div>
+  );
+
+  /**
+   * 渲染画集封面图片
+   */
+  const renderCoverImage = () => {
+    if (!shouldLoadImage) {
+      return renderImageLoading();
+    }
+
+    if (imageError) {
+      return renderImageError();
+    }
+
+    return (
+      <img
+        src={collection.coverImage}
+        alt={collection.title}
+        className={`w-full h-64 object-cover transition-opacity duration-300 ${
+          imageLoading ? 'opacity-0 absolute' : 'opacity-100'
+        }`}
+        onLoad={handleImageLoad}
+        onError={handleImageError}
+      />
+    );
+  };
+
+  /**
+   * 格式化价格显示
+   */
+  const formatPrice = (price?: number): string => {
+    if (price === undefined || price === null) {
+      return '价格待定';
+    }
+    if (price === 0) {
+      return '免费';
+    }
+    return `¥${price}`;
+  };
+
   return (
-    <div className={styles.collectionCard} ref={cardRef}>
-      {/* 图片容器区域 */}
-      <div className={styles.collectionImageContainer}>
+    <div
+      ref={cardRef}
+      className="bg-white rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 transform hover:-translate-y-2 hover:shadow-3xl w-full max-w-sm mx-auto cursor-pointer group"
+      onClick={() => onSelect(collection)}
+    >
+      {/* 图片容器 */}
+      <div className="relative h-64 bg-slate-50 flex items-center justify-center overflow-hidden">
+        {/* 图片覆盖层 */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         
-        {/* 图片加载中的状态显示 */}
-        {imageLoading && shouldLoadImage && (
-          <div className={styles.imageLoading}>
-            <div className={styles.loadingSpinner}></div>
-          </div>
-        )}
-
-        {/* 图片加载失败的状态显示 */}
-        {imageError && (
-          <div className={styles.imageError}>
-            <ImageIcon size={32} />
-            <span>图片加载失败</span>
-          </div>
-        )}
-
-        {/* 封面图片 - 懒加载实现 */}
-        {shouldLoadImage && (
-          <img
-            src={collection.coverImage}
-            alt={collection.title}
-            className={`${styles.collectionCover} ${imageLoading ? styles.hidden : ''} ${imageError ? styles.hidden : ''}`}
-            onLoad={handleImageLoad}
-            onError={handleImageError}
-            loading="lazy" // 浏览器原生懒加载作为备用
-          />
-        )}
-        
-        {/* 图片上的渐变遮罩层，提升文字可读性 */}
-        <div className={styles.collectionOverlay} />
-        
-        {/* 作品页数徽章 */}
-        <div className={styles.collectionBadge}>
-          <div className={styles.collectionBadgeContent}>
+        {/* 画集徽章 */}
+        <div className="absolute bottom-4 left-4 text-white z-10">
+          <div className="flex items-center gap-2 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1">
             <Book size={16} />
-            <span className={styles.collectionBadgeText}>
-              共 {collection.pages.length} 页
+            <span className="text-sm font-medium">
+              {collection.pages.length} 页
             </span>
           </div>
         </div>
+
+        {/* 封面图片 */}
+        {renderCoverImage()}
       </div>
-      
-      {/* 画集信息内容区域 */}
-      <div className={styles.collectionContent}>
-        {/* 画集标题 */}
-        <h3 className={styles.collectionTitle}>{collection.title}</h3>
+
+      {/* 内容区域 */}
+      <div className="p-6">
+        {/* 标题 */}
+        <h3 className="text-xl font-bold text-slate-800 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+          {collection.title}
+        </h3>
         
-        {/* 作者信息 */}
-        <p className={styles.collectionArtist}>作者：{collection.artist}</p>
+        {/* 作者 */}
+        <p className="text-slate-600 text-sm mb-1">
+          作者：{collection.artist}
+        </p>
         
-        {/* 分类信息（可选） */}
+        {/* 分类 */}
         {collection.category && (
-          <p className={styles.collectionCategory}>分类：{collection.category}</p>
+          <p className="text-slate-600 text-sm mb-1">
+            分类：{collection.category}
+          </p>
         )}
         
-        {/* 画集描述 */}
-        <p className={styles.collectionDescription}>{collection.description}</p>
+        {/* 价格 */}
+        <p className="text-slate-600 text-sm mb-2">
+          价格：{formatPrice(collection.price)}
+        </p>
         
-        {/* 浏览按钮 */}
-        <button
-          onClick={() => onSelect(collection)}
-          className={styles.collectionButton}
-        >
-          <Eye size={18} />
-          开始浏览
-        </button>
+        {/* 描述 */}
+        {collection.description && (
+          <p className="text-slate-500 text-sm mb-4 line-clamp-2">
+            {collection.description}
+          </p>
+        )}
+        
+        {/* 操作按钮 */}
+        <div className="flex gap-2">
+          {/* 查看按钮 */}
+          <button
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex-1 justify-center"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect(collection);
+            }}
+          >
+            <Eye size={16} />
+            查看画集
+          </button>
+          
+          {/* 加入购物车按钮 */}
+          <AddToCartButton
+            collection={collection}
+            userId={userId}
+            className="flex-1"
+            size="md"
+          />
+        </div>
       </div>
     </div>
   );

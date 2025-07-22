@@ -1,0 +1,339 @@
+/**
+ * ShowMasterpiece 模块 - 购物车页面组件
+ * 
+ * 完整的购物车页面，包含：
+ * - 购物车商品列表展示
+ * - 商品数量调整
+ * - 商品移除功能
+ * - 批量预订表单
+ * - 提交和状态管理
+ * 
+ * @fileoverview 购物车页面组件
+ */
+
+'use client';
+
+import React, { useState } from 'react';
+import { useCart } from '../hooks/useCart';
+import { CartItem } from '../types/cart';
+import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
+
+/**
+ * 购物车页面组件属性
+ */
+interface CartPageProps {
+  /** 用户ID */
+  userId: number;
+  
+  /** 关闭回调 */
+  onClose?: () => void;
+}
+
+/**
+ * 购物车页面组件
+ * 
+ * @param props 组件属性
+ * @returns React组件
+ */
+export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
+  // 使用购物车Hook
+  const {
+    cart,
+    loading,
+    error,
+    updateItemQuantity,
+    removeItemFromCart,
+    clearCartItems,
+    checkoutCart,
+    clearError,
+  } = useCart(userId);
+
+  // 本地状态
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [checkoutSuccess, setCheckoutSuccess] = useState(false);
+  const [formData, setFormData] = useState({
+    qqNumber: '',
+    notes: '',
+  });
+  const [formErrors, setFormErrors] = useState<{
+    qqNumber?: string;
+  }>({});
+
+  /**
+   * 处理表单字段更新
+   */
+  const handleFormChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // 清除对应字段的错误
+    if (formErrors[field as keyof typeof formErrors]) {
+      setFormErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  /**
+   * 验证表单
+   */
+  const validateForm = (): boolean => {
+    const errors: { qqNumber?: string } = {};
+
+    if (!formData.qqNumber.trim()) {
+      errors.qqNumber = '请输入QQ号';
+    } else if (!/^\d{5,11}$/.test(formData.qqNumber.trim())) {
+      errors.qqNumber = 'QQ号格式不正确';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  /**
+   * 处理批量预订提交
+   */
+  const handleCheckout = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsCheckingOut(true);
+    clearError();
+    
+    try {
+      const result = await checkoutCart(formData.qqNumber, formData.notes || undefined);
+      setCheckoutSuccess(true);
+    } catch (error) {
+      console.error('批量预订失败:', error);
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
+
+  /**
+   * 处理重新购物
+   */
+  const handleContinueShopping = () => {
+    setCheckoutSuccess(false);
+    setFormData({ qqNumber: '', notes: '' });
+    setFormErrors({});
+    if (onClose) {
+      onClose();
+    }
+  };
+
+  /**
+   * 成功状态渲染
+   */
+  if (checkoutSuccess) {
+    return (
+      <div className="max-w-2xl mx-auto p-6">
+        <div className="text-center">
+          <div className="text-green-500 text-6xl mb-4">✅</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">批量预订提交成功！</h2>
+          <p className="text-gray-600 mb-6">
+            您的批量预订已成功提交，我们会尽快与您联系确认。
+          </p>
+          <button
+            onClick={handleContinueShopping}
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            继续购物
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      {/* 页面标题 */}
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">购物车</h1>
+        <p className="text-gray-600">管理您选择的画集，确认后批量预订</p>
+      </div>
+
+      {/* 错误提示 */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="flex">
+            <div className="text-red-400 mr-3">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-red-800">操作失败</h3>
+              <p className="text-sm text-red-700 mt-1">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 购物车为空状态 */}
+      {cart.items.length === 0 && !loading && (
+        <div className="text-center py-12">
+          <ShoppingBag className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">购物车为空</h3>
+          <p className="text-gray-600 mb-6">您还没有添加任何画集到购物车</p>
+          <button
+            onClick={onClose}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            继续浏览画集
+          </button>
+        </div>
+      )}
+
+      {/* 购物车商品列表 */}
+      {cart.items.length > 0 && (
+        <div className="space-y-6">
+          {/* 商品列表 */}
+          <div className="bg-white rounded-lg shadow-sm border">
+            {cart.items.map((item: CartItem) => (
+              <div key={item.collectionId} className="flex items-center p-4 border-b last:border-b-0">
+                {/* 商品图片 */}
+                <img
+                  src={item.collection.coverImage}
+                  alt={item.collection.title}
+                  className="w-16 h-16 object-cover rounded-md mr-4"
+                />
+                
+                {/* 商品信息 */}
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900">{item.collection.title}</h3>
+                  <p className="text-sm text-gray-600">艺术家：{item.collection.artist}</p>
+                  <p className="text-sm text-gray-600">
+                    价格：{(item.collection as any).price ? `¥${(item.collection as any).price}` : '价格待定'}
+                  </p>
+                </div>
+                
+                {/* 数量控制 */}
+                <div className="flex items-center space-x-2 mr-4">
+                  <button
+                    onClick={() => updateItemQuantity(item.collectionId, item.quantity - 1)}
+                    disabled={loading}
+                    className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <span className="w-12 text-center font-medium">{item.quantity}</span>
+                  <button
+                    onClick={() => updateItemQuantity(item.collectionId, item.quantity + 1)}
+                    disabled={loading}
+                    className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+                
+                {/* 小计 */}
+                <div className="text-right mr-4">
+                  <p className="font-semibold text-gray-900">
+                    ¥{((item.collection as any).price || 0) * item.quantity}
+                  </p>
+                </div>
+                
+                {/* 删除按钮 */}
+                <button
+                  onClick={() => removeItemFromCart(item.collectionId)}
+                  disabled={loading}
+                  className="text-red-500 hover:text-red-700 disabled:opacity-50"
+                >
+                  <Trash2 size={20} />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* 购物车统计 */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-gray-600">商品总数：</span>
+              <span className="font-semibold">{cart.totalQuantity}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">总价格：</span>
+              <span className="text-xl font-bold text-blue-600">¥{cart.totalPrice}</span>
+            </div>
+          </div>
+
+          {/* 批量预订表单 */}
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">批量预订信息</h3>
+            
+            <form onSubmit={handleCheckout} className="space-y-4">
+              {/* QQ号输入 */}
+              <div>
+                <label htmlFor="qqNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                  QQ号 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="qqNumber"
+                  value={formData.qqNumber}
+                  onChange={(e) => handleFormChange('qqNumber', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    formErrors.qqNumber ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                  placeholder="请输入您的QQ号"
+                  disabled={isCheckingOut}
+                />
+                {formErrors.qqNumber && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.qqNumber}</p>
+                )}
+              </div>
+
+              {/* 备注信息 */}
+              <div>
+                <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
+                  备注信息
+                </label>
+                <textarea
+                  id="notes"
+                  value={formData.notes}
+                  onChange={(e) => handleFormChange('notes', e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="请输入备注信息（可选）"
+                  disabled={isCheckingOut}
+                />
+              </div>
+
+              {/* 操作按钮 */}
+              <div className="flex space-x-4 pt-4">
+                <button
+                  type="button"
+                  onClick={clearCartItems}
+                  disabled={loading || isCheckingOut}
+                  className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
+                >
+                  清空购物车
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading || isCheckingOut || cart.items.length === 0}
+                  className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+                    loading || isCheckingOut || cart.items.length === 0
+                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
+                >
+                  {isCheckingOut ? '提交中...' : '批量预订'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 加载状态 */}
+      {loading && (
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">加载中...</p>
+        </div>
+      )}
+    </div>
+  );
+}; 

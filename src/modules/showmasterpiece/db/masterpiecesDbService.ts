@@ -13,7 +13,8 @@ import type {
   ArtCollection, 
   ArtworkPage,
   CollectionFormData,
-  ArtworkFormData 
+  ArtworkFormData,
+  CollectionCategoryType
 } from '../types';
 
 // 配置相关服务
@@ -454,12 +455,12 @@ export class CollectionsDbService {
           id: artwork.id,
           title: artwork.title || '',
           artist: artwork.artist || '',
-          image: '', // 不再使用Base64图片
-          imageUrl: imageUrl,
+          image: imageUrl, // 使用处理后的图片URL
           fileId: artwork.fileId || undefined, // 添加fileId支持
           description: artwork.description || '',
           createdTime: artwork.createdTime || '',
           theme: artwork.theme || '',
+          pageOrder: artwork.pageOrder || 0, // 添加pageOrder字段
         };
         
         artworksMap.get(artwork.collectionId)!.push(artworkPage);
@@ -490,7 +491,7 @@ export class CollectionsDbService {
           coverImage: coverImageUrl, // ✅ 使用处理后的URL
           coverImageFileId: collection.coverImageFileId || undefined,
           description: collection.description || '',
-          category: collection.categoryId ? (categoriesMap.get(collection.categoryId) || '') : '',
+          category: collection.categoryId ? (categoriesMap.get(collection.categoryId) || '画集') as CollectionCategoryType : '画集' as CollectionCategoryType,
           tags: tagsMap.get(collection.id) || [],
           isPublished: collection.isPublished,
           pages: artworksMap.get(collection.id) || [], // 🚀 作品数据精简，大幅减少传输量
@@ -642,7 +643,7 @@ export class CollectionsDbService {
           coverImage: coverImageUrl, // 使用处理后的封面图片URL
           coverImageFileId: collection.coverImageFileId || undefined, // 新增：封面图片文件ID
           description: collection.description || '',
-          category: collection.categoryId ? (categoriesMap.get(collection.categoryId) || '') : '',
+          category: collection.categoryId ? (categoriesMap.get(collection.categoryId) || '画集') as CollectionCategoryType : '画集' as CollectionCategoryType,
           tags: tagsMap.get(collection.id) || [],
           isPublished: collection.isPublished,
           artworkCount: artworkCountsMap.get(collection.id) || 0,
@@ -1074,9 +1075,10 @@ export class ArtworksDbService {
       artist: newArtwork[0].artist,
       image: newArtwork[0].image || '',
       fileId: newArtwork[0].fileId || undefined,
-      description: newArtwork[0].description || undefined,
+      description: newArtwork[0].description || '',
       createdTime: newArtwork[0].createdTime || undefined,
       theme: newArtwork[0].theme || undefined,
+      pageOrder: newArtwork[0].pageOrder || 0,
     };
     
     console.log('📤 [数据库] 返回作品数据:', result);
@@ -1136,11 +1138,12 @@ export class ArtworksDbService {
       id: updatedArtwork[0].id,
       title: updatedArtwork[0].title,
       artist: updatedArtwork[0].artist,
-      image: updatedArtwork[0].image,
+      image: updatedArtwork[0].image || '',
       fileId: updatedArtwork[0].fileId || undefined,
-      description: updatedArtwork[0].description || undefined,
-      createdTime: updatedArtwork[0].createdTime || undefined,
-      theme: updatedArtwork[0].theme || undefined,
+      description: updatedArtwork[0].description || '',
+      createdTime: updatedArtwork[0].createdTime || '',
+      theme: updatedArtwork[0].theme || '',
+      pageOrder: updatedArtwork[0].pageOrder || 0,
     };
   }
 

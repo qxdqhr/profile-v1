@@ -65,9 +65,9 @@ const ThumbnailItem: React.FC<ThumbnailItemProps> = ({ page, index, isActive, on
           return;
         }
 
-        // 否则直接使用imageUrl
-        if (page.imageUrl) {
-          setImageSrc(page.imageUrl);
+        // 否则直接使用image
+        if (page.image) {
+          setImageSrc(page.image);
         } else {
           throw new Error('无图片数据');
         }
@@ -85,7 +85,7 @@ const ThumbnailItem: React.FC<ThumbnailItemProps> = ({ page, index, isActive, on
     return () => {
       // 不再使用blob URL，无需清理
     };
-  }, [isVisible, page.id, page.image, page.imageUrl]);
+  }, [isVisible, page.id, page.image]);
 
   const handleImageLoad = () => {
     setImageLoading(false);

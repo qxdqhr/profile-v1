@@ -97,6 +97,17 @@ export const experiments: ExperimentItem[] = [
     updatedAt: '2023-08-10'
   },
   {
+    id: "show-master-pieces-config",
+    title: "艺术画集管理后台",
+    description: "艺术画集展览的管理后台，包括画集管理、作品管理、购物车管理等功能，需要管理员权限",
+    path: "/testField/ShowMasterPieces/config",
+    tags: ["艺术", "画集", "管理", "后台", "购物车"],
+    category: "utility",
+    isCompleted: true,
+    createdAt: '2024-01-15',
+    updatedAt: '2024-01-15'
+  },
+  {
     id: "image-downloader",
     title: "图片下载器",
     description: "通过图片URL快速下载图片到本地，支持预览和自定义文件名",
