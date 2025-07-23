@@ -84,19 +84,12 @@ export function useCart(userId: number) {
   /**
    * 添加商品到购物车
    * 
-   * @param collection 画集信息
-   * @param quantity 数量
+   * @param request 添加商品请求数据
    */
-  const addItemToCart = useCallback(async (collection: any, quantity: number = 1) => {
+  const addItemToCart = useCallback(async (request: AddToCartRequest & { userId: number; collection?: any }) => {
     setState(prev => ({ ...prev, loading: true, error: undefined }));
     
     try {
-      const request: AddToCartRequest & { userId: number } = {
-        userId,
-        collectionId: collection.id,
-        quantity
-      };
-
       const updatedCart = await addToCart(request);
       setState(prev => ({ 
         ...prev, 
@@ -276,17 +269,6 @@ export function useCart(userId: number) {
     if (userId) {
       loadCart();
     }
-  }, [userId, loadCart]);
-
-  // 定期刷新购物车数据（每30秒）
-  useEffect(() => {
-    if (!userId) return;
-
-    const interval = setInterval(() => {
-      loadCart();
-    }, 30000); // 30秒刷新一次
-
-    return () => clearInterval(interval);
   }, [userId, loadCart]);
 
   return {

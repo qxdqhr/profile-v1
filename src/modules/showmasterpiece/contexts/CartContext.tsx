@@ -1,25 +1,35 @@
 /**
  * ShowMasterpiece 模块 - 购物车上下文
  * 
- * 提供购物车状态的全局管理，确保所有组件都能实时获取最新的购物车数据
+ * 提供购物车状态的全局管理，包括：
+ * - 购物车数据状态
+ * - 购物车数据刷新
+ * - 购物车更新通知
  * 
  * @fileoverview 购物车上下文
  */
 
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { Cart } from '../types/cart';
 import { getCart } from '../services/cartService';
 import { cartUpdateEvents, CART_UPDATE_EVENT } from '../hooks/useCart';
 
 /**
- * 购物车上下文状态类型
+ * 购物车上下文状态
  */
 interface CartContextState {
+  /** 购物车数据 */
   cart: Cart;
+  
+  /** 加载状态 */
   loading: boolean;
+  
+  /** 错误信息 */
   error: string | undefined;
+  
+  /** 刷新购物车数据 */
   refreshCart: () => Promise<void>;
 }
 
@@ -84,17 +94,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children, userId }) 
     refreshCart();
   }, [refreshCart]);
 
-  // 定期刷新购物车数据（每10秒）
-  useEffect(() => {
-    if (!userId) return;
-
-    const interval = setInterval(() => {
-      refreshCart();
-    }, 10000); // 10秒刷新一次
-
-    return () => clearInterval(interval);
-  }, [userId, refreshCart]);
-
   // 监听购物车更新事件
   useEffect(() => {
     const handleCartUpdate = () => {
@@ -121,7 +120,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children, userId }) 
 };
 
 /**
- * 使用购物车上下文的Hook
+ * 使用购物车上下文Hook
  * 
  * @returns 购物车上下文状态
  */

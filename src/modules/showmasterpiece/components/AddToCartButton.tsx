@@ -85,7 +85,12 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         await updateItemQuantity(collection.id, currentQuantity + quantity);
       } else {
         // 如果不在购物车中，添加新项
-        await addItemToCart(collection, quantity);
+        await addItemToCart({
+          userId,
+          collectionId: collection.id,
+          quantity,
+          collection // 传递完整的画集信息
+        });
       }
       setIsAdded(true);
     } catch (error) {
