@@ -52,6 +52,9 @@ export const comicUniverseBookings = pgTable('comic_universe_bookings', {
   /** 用户QQ号 */
   qqNumber: varchar('qq_number', { length: 20 }).notNull(),
   
+  /** 用户手机号 */
+  phoneNumber: varchar('phone_number', { length: 20 }),
+  
   /** 预订数量 */
   quantity: integer('quantity').notNull().default(1),
   
@@ -87,6 +90,9 @@ export const comicUniverseBookings = pgTable('comic_universe_bookings', {
   
   /** 按QQ号查询的索引 */
   qqNumberIndex: index('bookings_qq_number_idx').on(table.qqNumber),
+  
+  /** 按手机号查询的索引 */
+  phoneNumberIndex: index('bookings_phone_number_idx').on(table.phoneNumber),
   
   /** 按创建时间排序的索引 */
   createdAtIndex: index('bookings_created_at_idx').on(table.createdAt),

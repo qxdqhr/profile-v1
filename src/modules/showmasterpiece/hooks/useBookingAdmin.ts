@@ -16,6 +16,7 @@ import {
   BookingAdminStats, 
   BookingAdminResponse,
   getAllBookings,
+  getBookingStats,
   updateBookingStatus as updateBookingStatusService
 } from '../services/bookingAdminService';
 import { BookingStatus } from '../types/booking';
@@ -57,6 +58,9 @@ export const useBookingAdmin = (): UseBookingAdminReturn => {
     cancelledBookings: 0,
     totalQuantity: 0,
     totalRevenue: 0,
+    totalAmount: 0,
+    todayBookings: 0,
+    weekBookings: 0,
   });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | undefined>(undefined);
@@ -69,10 +73,13 @@ export const useBookingAdmin = (): UseBookingAdminReturn => {
       setLoading(true);
       setError(undefined);
       
-      const response: BookingAdminResponse = await getAllBookings();
+      const [bookingsData, statsData] = await Promise.all([
+        getAllBookings(),
+        getBookingStats()
+      ]);
       
-      setBookings(response.bookings);
-      setStats(response.stats);
+      setBookings(bookingsData);
+      setStats(statsData);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '获取预订数据失败';
       setError(errorMessage);

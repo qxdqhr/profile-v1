@@ -181,7 +181,7 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
   /**
    * 判断是否为商品类型
    */
-  const isProduct = collection.category === CollectionCategory.PRODUCT;
+  const isProduct = collection.category !== CollectionCategory.COLLECTION;
 
   return (
     <div

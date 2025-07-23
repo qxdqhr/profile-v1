@@ -71,6 +71,7 @@ export function useBooking() {
       const bookingData: CreateBookingRequest = {
         collectionId: formData.collectionId,
         qqNumber: formData.qqNumber,
+        phoneNumber: formData.phoneNumber.trim() || undefined,
         quantity: formData.quantity,
         notes: formData.notes || undefined,
       };
@@ -142,6 +143,7 @@ export function useBookingForm() {
   const [formData, setFormData] = useState<BookingFormData>({
     collectionId: 0,
     qqNumber: '',
+    phoneNumber: '',
     quantity: 1,
     notes: '',
   });
@@ -183,6 +185,14 @@ export function useBookingForm() {
       newErrors.qqNumber = 'QQ号格式不正确';
     }
 
+    // 验证手机号（如果提供）
+    if (formData.phoneNumber.trim()) {
+      const phoneRegex = /^1[3-9]\d{9}$/;
+      if (!phoneRegex.test(formData.phoneNumber.trim())) {
+        newErrors.phoneNumber = '手机号格式不正确';
+      }
+    }
+
     // 验证数量
     if (!formData.quantity || formData.quantity < 1) {
       newErrors.quantity = '预订数量必须大于0';
@@ -199,6 +209,7 @@ export function useBookingForm() {
     setFormData({
       collectionId: 0,
       qqNumber: '',
+      phoneNumber: '',
       quantity: 1,
       notes: '',
     });

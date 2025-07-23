@@ -73,7 +73,7 @@ function ShowMasterPiecesContent() {
   const [cartModalOpen, setCartModalOpen] = useState(false);
   
   /** 当前选中的分类 */
-  const [selectedCategory, setSelectedCategory] = useState<CollectionCategoryType | 'all'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<CollectionCategoryType>(CollectionCategory.COLLECTION);
 
   // ===== 配置加载 =====
   
@@ -100,9 +100,6 @@ function ShowMasterPiecesContent() {
    * 使用 useMemo 缓存过滤结果，避免重复计算
    */
   const filteredCollections = useMemo(() => {
-    if (selectedCategory === 'all') {
-      return collections;
-    }
     return collections.filter(collection => collection.category === selectedCategory);
   }, [collections, selectedCategory]);
 
@@ -244,7 +241,7 @@ function ShowMasterPiecesContent() {
               </div>
 
               {/* 右侧：用户菜单和操作按钮 */}
-              <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
+              <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
                 {/* 购物车按钮 */}
                 <CartButton 
                   onClick={handleCartClick} 
@@ -300,41 +297,144 @@ function ShowMasterPiecesContent() {
           ) : (
             /* 画集列表视图 */
             <div className="space-y-6">
-              {/* 分类Tab栏 */}
-              <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-1">
-                <div className="flex space-x-1">
-                  <button
-                    onClick={() => setSelectedCategory('all')}
-                    className={`flex-1 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition-colors ${
-                      selectedCategory === 'all'
-                        ? 'bg-blue-600 text-white'
-                        : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
-                    }`}
-                  >
-                    <span>全部</span>
-                    <span className="ml-1 text-xs opacity-90">({collections.length})</span>
-                  </button>
+              {/* 分类筛选网格 */}
+              <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+                <h3 className="text-lg font-semibold text-slate-800 mb-4">商品分类</h3>
+                <div className="grid grid-cols-3 gap-3">
                   <button
                     onClick={() => setSelectedCategory(CollectionCategory.COLLECTION)}
-                    className={`flex-1 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition-colors ${
+                    className={`px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
                       selectedCategory === CollectionCategory.COLLECTION
-                        ? 'bg-blue-600 text-white'
-                        : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
                     }`}
                   >
-                    <span>画集</span>
-                    <span className="ml-1 text-xs opacity-90">({collections.filter(c => c.category === CollectionCategory.COLLECTION).length})</span>
+                    <div className="text-center">
+                      <div className="font-semibold">画集</div>
+                      <div className="text-xs opacity-75 mt-1">
+                        ({collections.filter(c => c.category === CollectionCategory.COLLECTION).length})
+                      </div>
+                    </div>
                   </button>
                   <button
-                    onClick={() => setSelectedCategory(CollectionCategory.PRODUCT)}
-                    className={`flex-1 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition-colors ${
-                      selectedCategory === CollectionCategory.PRODUCT
-                        ? 'bg-blue-600 text-white'
-                        : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+                    onClick={() => setSelectedCategory(CollectionCategory.ACRYLIC)}
+                    className={`px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+                      selectedCategory === CollectionCategory.ACRYLIC
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
                     }`}
                   >
-                    <span>商品</span>
-                    <span className="ml-1 text-xs opacity-90">({collections.filter(c => c.category === CollectionCategory.PRODUCT).length})</span>
+                    <div className="text-center">
+                      <div className="font-semibold">亚克力</div>
+                      <div className="text-xs opacity-75 mt-1">
+                        ({collections.filter(c => c.category === CollectionCategory.ACRYLIC).length})
+                      </div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setSelectedCategory(CollectionCategory.BADGE)}
+                    className={`px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+                      selectedCategory === CollectionCategory.BADGE
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="font-semibold">吧唧</div>
+                      <div className="text-xs opacity-75 mt-1">
+                        ({collections.filter(c => c.category === CollectionCategory.BADGE).length})
+                      </div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setSelectedCategory(CollectionCategory.COLOR_PAPER)}
+                    className={`px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+                      selectedCategory === CollectionCategory.COLOR_PAPER
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="font-semibold">色纸</div>
+                      <div className="text-xs opacity-75 mt-1">
+                        ({collections.filter(c => c.category === CollectionCategory.COLOR_PAPER).length})
+                      </div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setSelectedCategory(CollectionCategory.POSTCARD)}
+                    className={`px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+                      selectedCategory === CollectionCategory.POSTCARD
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="font-semibold">明信片</div>
+                      <div className="text-xs opacity-75 mt-1">
+                        ({collections.filter(c => c.category === CollectionCategory.POSTCARD).length})
+                      </div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setSelectedCategory(CollectionCategory.LASER_TICKET)}
+                    className={`px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+                      selectedCategory === CollectionCategory.LASER_TICKET
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="font-semibold">镭射票</div>
+                      <div className="text-xs opacity-75 mt-1">
+                        ({collections.filter(c => c.category === CollectionCategory.LASER_TICKET).length})
+                      </div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setSelectedCategory(CollectionCategory.CANVAS_BAG)}
+                    className={`px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+                      selectedCategory === CollectionCategory.CANVAS_BAG
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="font-semibold">帆布包</div>
+                      <div className="text-xs opacity-75 mt-1">
+                        ({collections.filter(c => c.category === CollectionCategory.CANVAS_BAG).length})
+                      </div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setSelectedCategory(CollectionCategory.SUPPORT_STICK)}
+                    className={`px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+                      selectedCategory === CollectionCategory.SUPPORT_STICK
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="font-semibold">应援棒</div>
+                      <div className="text-xs opacity-75 mt-1">
+                        ({collections.filter(c => c.category === CollectionCategory.SUPPORT_STICK).length})
+                      </div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setSelectedCategory(CollectionCategory.OTHER)}
+                    className={`px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+                      selectedCategory === CollectionCategory.OTHER
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="font-semibold">其他</div>
+                      <div className="text-xs opacity-75 mt-1">
+                        ({collections.filter(c => c.category === CollectionCategory.OTHER).length})
+                      </div>
+                    </div>
                   </button>
                 </div>
               </div>

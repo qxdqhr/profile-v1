@@ -53,10 +53,12 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
   const [formData, setFormData] = useState({
     qqNumber: '',
+    phoneNumber: '',
     notes: '',
   });
   const [formErrors, setFormErrors] = useState<{
     qqNumber?: string;
+    phoneNumber?: string;
   }>({});
 
   /**
@@ -75,12 +77,20 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
    * 验证表单
    */
   const validateForm = (): boolean => {
-    const errors: { qqNumber?: string } = {};
+    const errors: { qqNumber?: string; phoneNumber?: string } = {};
 
     if (!formData.qqNumber.trim()) {
       errors.qqNumber = '请输入QQ号';
     } else if (!/^\d{5,11}$/.test(formData.qqNumber.trim())) {
       errors.qqNumber = 'QQ号格式不正确';
+    }
+
+    // 验证手机号（如果提供）
+    if (formData.phoneNumber.trim()) {
+      const phoneRegex = /^1[3-9]\d{9}$/;
+      if (!phoneRegex.test(formData.phoneNumber.trim())) {
+        errors.phoneNumber = '手机号格式不正确';
+      }
     }
 
     setFormErrors(errors);
@@ -115,7 +125,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
    */
   const handleContinueShopping = () => {
     setCheckoutSuccess(false);
-    setFormData({ qqNumber: '', notes: '' });
+    setFormData({ qqNumber: '', phoneNumber: '', notes: '' });
     setFormErrors({});
     if (onClose) {
       onClose();
@@ -284,6 +294,27 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
                 />
                 {formErrors.qqNumber && (
                   <p className="mt-1 text-sm text-red-600">{formErrors.qqNumber}</p>
+                )}
+              </div>
+
+              {/* 手机号输入 */}
+              <div>
+                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                  手机号
+                </label>
+                <input
+                  type="tel"
+                  id="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={(e) => handleFormChange('phoneNumber', e.target.value)}
+                  className={`w-full px-3 py-3 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base ${
+                    formErrors.phoneNumber ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                  placeholder="请输入您的手机号（可选）"
+                  disabled={isCheckingOut}
+                />
+                {formErrors.phoneNumber && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.phoneNumber}</p>
                 )}
               </div>
 

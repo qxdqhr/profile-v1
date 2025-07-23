@@ -67,6 +67,7 @@ async function GET(request: NextRequest) {
         id: comicUniverseBookings.id,
         collectionId: comicUniverseBookings.collectionId,
         qqNumber: comicUniverseBookings.qqNumber,
+        phoneNumber: comicUniverseBookings.phoneNumber,
         quantity: comicUniverseBookings.quantity,
         status: comicUniverseBookings.status,
         notes: comicUniverseBookings.notes,
@@ -94,6 +95,7 @@ async function GET(request: NextRequest) {
       id: booking.id,
       collectionId: booking.collectionId,
       qqNumber: booking.qqNumber,
+      phoneNumber: booking.phoneNumber,
       quantity: booking.quantity,
       status: booking.status,
       notes: booking.notes,
@@ -147,6 +149,17 @@ async function POST(request: NextRequest) {
       );
     }
 
+    // 验证手机号格式（如果提供）
+    if (body.phoneNumber) {
+      const phoneRegex = /^1[3-9]\d{9}$/;
+      if (!phoneRegex.test(body.phoneNumber)) {
+        return NextResponse.json(
+          { message: '手机号格式不正确' },
+          { status: 400 }
+        );
+      }
+    }
+
     if (body.quantity < 1) {
       return NextResponse.json(
         { message: '预订数量必须大于0' },
@@ -183,6 +196,7 @@ async function POST(request: NextRequest) {
       .values({
         collectionId: body.collectionId,
         qqNumber: body.qqNumber,
+        phoneNumber: body.phoneNumber || null,
         quantity: body.quantity,
         notes: body.notes || null,
         status: 'pending',
@@ -193,6 +207,7 @@ async function POST(request: NextRequest) {
       id: newBooking.id,
       collectionId: newBooking.collectionId,
       qqNumber: newBooking.qqNumber,
+      phoneNumber: newBooking.phoneNumber,
       quantity: newBooking.quantity,
       status: newBooking.status,
       notes: newBooking.notes,

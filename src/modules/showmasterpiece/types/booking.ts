@@ -50,6 +50,9 @@ export interface Booking {
   /** 用户QQ号 */
   qqNumber: string;
   
+  /** 用户手机号 */
+  phoneNumber?: string;
+  
   /** 预订数量 */
   quantity: number;
   
@@ -90,6 +93,9 @@ export interface CreateBookingRequest {
   
   /** 用户QQ号 */
   qqNumber: string;
+  
+  /** 用户手机号 */
+  phoneNumber?: string;
   
   /** 预订数量 */
   quantity: number;
@@ -158,6 +164,9 @@ export interface BookingFormData {
   
   /** 用户QQ号 */
   qqNumber: string;
+  
+  /** 用户手机号 */
+  phoneNumber: string;
   
   /** 预订数量 */
   quantity: number;

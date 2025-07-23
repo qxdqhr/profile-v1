@@ -111,51 +111,51 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
   return (
     <div className="space-y-6">
       {/* 统计卡片 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 sm:p-6">
           <div className="flex items-center">
             <div className="p-2 bg-blue-100 rounded-lg">
-              <Calendar size={24} className="text-blue-600" />
+              <Calendar size={20} className="text-blue-600 sm:w-6 sm:h-6" />
             </div>
-            <div className="ml-4">
-              <h3 className="text-2xl font-bold text-slate-800">{stats.totalBookings}</h3>
-              <p className="text-slate-600">总预订数</p>
+            <div className="ml-3 sm:ml-4">
+              <h3 className="text-lg sm:text-2xl font-bold text-slate-800">{stats.totalBookings}</h3>
+              <p className="text-xs sm:text-sm text-slate-600">总预订数</p>
             </div>
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 sm:p-6">
           <div className="flex items-center">
             <div className="p-2 bg-yellow-100 rounded-lg">
-              <Clock size={24} className="text-yellow-600" />
+              <Clock size={20} className="text-yellow-600 sm:w-6 sm:h-6" />
             </div>
-            <div className="ml-4">
-              <h3 className="text-2xl font-bold text-slate-800">{stats.pendingBookings}</h3>
-              <p className="text-slate-600">待确认</p>
+            <div className="ml-3 sm:ml-4">
+              <h3 className="text-lg sm:text-2xl font-bold text-slate-800">{stats.pendingBookings}</h3>
+              <p className="text-xs sm:text-sm text-slate-600">待确认</p>
             </div>
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 sm:p-6">
           <div className="flex items-center">
             <div className="p-2 bg-green-100 rounded-lg">
-              <CheckCircle size={24} className="text-green-600" />
+              <CheckCircle size={20} className="text-green-600 sm:w-6 sm:h-6" />
             </div>
-            <div className="ml-4">
-              <h3 className="text-2xl font-bold text-slate-800">{stats.completedBookings}</h3>
-              <p className="text-slate-600">已完成</p>
+            <div className="ml-3 sm:ml-4">
+              <h3 className="text-lg sm:text-2xl font-bold text-slate-800">{stats.completedBookings}</h3>
+              <p className="text-xs sm:text-sm text-slate-600">已完成</p>
             </div>
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 sm:p-6">
           <div className="flex items-center">
             <div className="p-2 bg-purple-100 rounded-lg">
-              <Package size={24} className="text-purple-600" />
+              <Package size={20} className="text-purple-600 sm:w-6 sm:h-6" />
             </div>
-            <div className="ml-4">
-              <h3 className="text-2xl font-bold text-slate-800">¥{stats.totalRevenue}</h3>
-              <p className="text-slate-600">总收入</p>
+            <div className="ml-3 sm:ml-4">
+              <h3 className="text-lg sm:text-2xl font-bold text-slate-800">¥{stats.totalRevenue}</h3>
+              <p className="text-xs sm:text-sm text-slate-600">总收入</p>
             </div>
           </div>
         </div>
@@ -163,10 +163,10 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
 
       {/* 操作栏 */}
       <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-wrap gap-2">
             <button
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-3 py-2 text-sm sm:text-base rounded-lg font-medium transition-colors ${
                 filterStatus === 'all' 
                   ? 'bg-blue-600 text-white' 
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -176,7 +176,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
               全部
             </button>
             <button
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-3 py-2 text-sm sm:text-base rounded-lg font-medium transition-colors ${
                 filterStatus === 'pending' 
                   ? 'bg-blue-600 text-white' 
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -186,7 +186,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
               待确认
             </button>
             <button
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-3 py-2 text-sm sm:text-base rounded-lg font-medium transition-colors ${
                 filterStatus === 'confirmed' 
                   ? 'bg-blue-600 text-white' 
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -196,7 +196,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
               已确认
             </button>
             <button
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-3 py-2 text-sm sm:text-base rounded-lg font-medium transition-colors ${
                 filterStatus === 'completed' 
                   ? 'bg-blue-600 text-white' 
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -206,7 +206,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
               已完成
             </button>
             <button
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-3 py-2 text-sm sm:text-base rounded-lg font-medium transition-colors ${
                 filterStatus === 'cancelled' 
                   ? 'bg-blue-600 text-white' 
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -220,7 +220,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
           <button
             onClick={onRefresh}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 w-full sm:w-auto"
           >
             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
             刷新
@@ -232,12 +232,12 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex">
-            <div className="text-red-400 mr-3">
+            <div className="text-red-400 mr-3 flex-shrink-0">
               <XCircle size={20} />
             </div>
-            <div>
+            <div className="min-w-0 flex-1">
               <h3 className="text-sm font-medium text-red-800">加载失败</h3>
-              <p className="text-sm text-red-700 mt-1">{error}</p>
+              <p className="text-sm text-red-700 mt-1 break-words">{error}</p>
             </div>
           </div>
         </div>
@@ -246,10 +246,10 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
       {/* 预订列表 */}
       <div className="space-y-4">
         {filteredBookings.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-12 text-center">
-            <Calendar size={48} className="text-slate-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-slate-800 mb-2">暂无预订数据</h3>
-            <p className="text-slate-600">当前筛选条件下没有找到预订数据</p>
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 sm:p-12 text-center">
+            <Calendar size={40} className="text-slate-400 mx-auto mb-4 sm:w-12 sm:h-12" />
+            <h3 className="text-base sm:text-lg font-medium text-slate-800 mb-2">暂无预订数据</h3>
+            <p className="text-sm sm:text-base text-slate-600">当前筛选条件下没有找到预订数据</p>
           </div>
         ) : (
           filteredBookings.map((booking) => {
@@ -257,22 +257,25 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
             
             return (
               <div key={booking.id} className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-4">
+                <div className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+                    <div className="flex items-start gap-3 sm:gap-4">
                       <img
                         src={booking.collection.coverImage}
                         alt={booking.collection.title}
-                        className="w-16 h-16 object-cover rounded-lg"
+                        className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg flex-shrink-0"
                       />
-                      <div>
-                        <h3 className="text-lg font-semibold text-slate-800">{booking.collection.title}</h3>
-                        <p className="text-slate-600">艺术家：{booking.collection.artist}</p>
-                        <p className="text-slate-600">QQ号：{booking.qqNumber}</p>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-base sm:text-lg font-semibold text-slate-800 truncate">{booking.collection.title}</h3>
+                        <p className="text-sm text-slate-600">艺术家：{booking.collection.artist}</p>
+                        <p className="text-sm text-slate-600">QQ号：{booking.qqNumber}</p>
+                        {booking.phoneNumber && (
+                          <p className="text-sm text-slate-600">手机号：{booking.phoneNumber}</p>
+                        )}
                       </div>
                     </div>
                     
-                    <div className="text-right">
+                    <div className="text-left sm:text-right">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusInfo.color}`}>
                         {statusInfo.label}
                       </span>
@@ -280,29 +283,29 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-4">
                     <div>
-                      <p className="text-sm text-slate-500">预订数量</p>
-                      <p className="font-medium text-slate-800">{booking.quantity}</p>
+                      <p className="text-xs sm:text-sm text-slate-500">预订数量</p>
+                      <p className="text-sm sm:text-base font-medium text-slate-800">{booking.quantity}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-slate-500">总价格</p>
-                      <p className="font-medium text-slate-800">¥{booking.totalPrice}</p>
+                      <p className="text-xs sm:text-sm text-slate-500">总价格</p>
+                      <p className="text-sm sm:text-base font-medium text-slate-800">¥{booking.totalPrice}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-slate-500">预订时间</p>
-                      <p className="font-medium text-slate-800">{formatTime(booking.createdAt)}</p>
+                      <p className="text-xs sm:text-sm text-slate-500">预订时间</p>
+                      <p className="text-xs sm:text-sm font-medium text-slate-800">{formatTime(booking.createdAt)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-slate-500">更新时间</p>
-                      <p className="font-medium text-slate-800">{formatTime(booking.updatedAt)}</p>
+                      <p className="text-xs sm:text-sm text-slate-500">更新时间</p>
+                      <p className="text-xs sm:text-sm font-medium text-slate-800">{formatTime(booking.updatedAt)}</p>
                     </div>
                   </div>
                   
                   {booking.notes && (
                     <div className="mb-4">
                       <p className="text-sm text-slate-500">用户备注</p>
-                      <p className="text-slate-800 bg-slate-50 p-3 rounded-lg">{booking.notes}</p>
+                      <p className="text-sm text-slate-800 bg-slate-50 p-3 rounded-lg break-words">{booking.notes}</p>
                     </div>
                   )}
                   
@@ -331,17 +334,17 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                           placeholder="输入管理员备注（可选）"
                         />
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <button
                           onClick={handleSaveEdit}
-                          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                          className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
                         >
                           <Save size={16} />
                           保存
                         </button>
                         <button
                           onClick={handleCancelEdit}
-                          className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors"
+                          className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors"
                         >
                           <X size={16} />
                           取消
@@ -349,18 +352,18 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-between">
-                      <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <button
                           onClick={() => handleEditBooking(booking)}
-                          className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium hover:bg-blue-200 transition-colors"
+                          className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium hover:bg-blue-200 transition-colors"
                         >
                           <Edit size={16} />
                           编辑状态
                         </button>
                         <button
                           onClick={() => setSelectedBooking(booking)}
-                          className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors"
+                          className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors"
                         >
                           <Eye size={16} />
                           查看详情
@@ -368,9 +371,9 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                       </div>
                       
                       {booking.adminNotes && (
-                        <div className="text-right">
+                        <div className="text-left sm:text-right">
                           <p className="text-sm text-slate-500">管理员备注</p>
-                          <p className="text-slate-800 text-sm">{booking.adminNotes}</p>
+                          <p className="text-slate-800 text-sm break-words">{booking.adminNotes}</p>
                         </div>
                       )}
                     </div>
@@ -386,39 +389,39 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
       {selectedBooking && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b border-slate-200">
-              <h2 className="text-xl font-semibold text-slate-800">预订详情</h2>
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-200">
+              <h2 className="text-lg sm:text-xl font-semibold text-slate-800">预订详情</h2>
               <button
                 onClick={() => setSelectedBooking(null)}
-                className="text-slate-400 hover:text-slate-600 text-2xl font-bold leading-none"
+                className="text-slate-400 hover:text-slate-600 text-2xl font-bold leading-none p-1"
               >
                 ×
               </button>
             </div>
             
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+            <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
               <div className="space-y-6">
                 {/* 画集信息 */}
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-800 mb-3">画集信息</h3>
-                  <div className="flex items-center gap-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-3">画集信息</h3>
+                  <div className="flex items-start gap-3 sm:gap-4">
                     <img
                       src={selectedBooking.collection.coverImage}
                       alt={selectedBooking.collection.title}
-                      className="w-20 h-20 object-cover rounded-lg"
+                      className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0"
                     />
-                    <div>
-                      <h4 className="font-medium text-slate-800">{selectedBooking.collection.title}</h4>
-                      <p className="text-slate-600">艺术家：{selectedBooking.collection.artist}</p>
-                      <p className="text-slate-600">价格：¥{selectedBooking.collection.price || '待定'}</p>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-medium text-slate-800 truncate">{selectedBooking.collection.title}</h4>
+                      <p className="text-sm text-slate-600">艺术家：{selectedBooking.collection.artist}</p>
+                      <p className="text-sm text-slate-600">价格：¥{selectedBooking.collection.price || '待定'}</p>
                     </div>
                   </div>
                 </div>
                 
                 {/* 预订信息 */}
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-800 mb-3">预订信息</h3>
-                  <div className="grid grid-cols-2 gap-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-3">预订信息</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
                       <p className="text-sm text-slate-500">预订ID</p>
                       <p className="font-medium text-slate-800">#{selectedBooking.id}</p>
@@ -427,6 +430,12 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                       <p className="text-sm text-slate-500">QQ号</p>
                       <p className="font-medium text-slate-800">{selectedBooking.qqNumber}</p>
                     </div>
+                    {selectedBooking.phoneNumber && (
+                      <div>
+                        <p className="text-sm text-slate-500">手机号</p>
+                        <p className="font-medium text-slate-800">{selectedBooking.phoneNumber}</p>
+                      </div>
+                    )}
                     <div>
                       <p className="text-sm text-slate-500">预订数量</p>
                       <p className="font-medium text-slate-800">{selectedBooking.quantity}</p>
@@ -446,32 +455,32 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                 
                 {/* 时间信息 */}
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-800 mb-3">时间信息</h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-3">时间信息</h3>
                   <div className="space-y-2">
                     <div>
                       <p className="text-sm text-slate-500">预订时间</p>
-                      <p className="font-medium text-slate-800">{formatTime(selectedBooking.createdAt)}</p>
+                      <p className="text-sm font-medium text-slate-800">{formatTime(selectedBooking.createdAt)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-slate-500">更新时间</p>
-                      <p className="font-medium text-slate-800">{formatTime(selectedBooking.updatedAt)}</p>
+                      <p className="text-sm font-medium text-slate-800">{formatTime(selectedBooking.updatedAt)}</p>
                     </div>
                     {selectedBooking.confirmedAt && (
                       <div>
                         <p className="text-sm text-slate-500">确认时间</p>
-                        <p className="font-medium text-slate-800">{formatTime(selectedBooking.confirmedAt)}</p>
+                        <p className="text-sm font-medium text-slate-800">{formatTime(selectedBooking.confirmedAt)}</p>
                       </div>
                     )}
                     {selectedBooking.completedAt && (
                       <div>
                         <p className="text-sm text-slate-500">完成时间</p>
-                        <p className="font-medium text-slate-800">{formatTime(selectedBooking.completedAt)}</p>
+                        <p className="text-sm font-medium text-slate-800">{formatTime(selectedBooking.completedAt)}</p>
                       </div>
                     )}
                     {selectedBooking.cancelledAt && (
                       <div>
                         <p className="text-sm text-slate-500">取消时间</p>
-                        <p className="font-medium text-slate-800">{formatTime(selectedBooking.cancelledAt)}</p>
+                        <p className="text-sm font-medium text-slate-800">{formatTime(selectedBooking.cancelledAt)}</p>
                       </div>
                     )}
                   </div>
@@ -480,15 +489,15 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                 {/* 备注信息 */}
                 {selectedBooking.notes && (
                   <div>
-                    <h3 className="text-lg font-semibold text-slate-800 mb-3">用户备注</h3>
-                    <p className="text-slate-800 bg-slate-50 p-4 rounded-lg">{selectedBooking.notes}</p>
+                    <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-3">用户备注</h3>
+                    <p className="text-sm text-slate-800 bg-slate-50 p-4 rounded-lg break-words">{selectedBooking.notes}</p>
                   </div>
                 )}
                 
                 {selectedBooking.adminNotes && (
                   <div>
-                    <h3 className="text-lg font-semibold text-slate-800 mb-3">管理员备注</h3>
-                    <p className="text-slate-800 bg-slate-50 p-4 rounded-lg">{selectedBooking.adminNotes}</p>
+                    <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-3">管理员备注</h3>
+                    <p className="text-sm text-slate-800 bg-slate-50 p-4 rounded-lg break-words">{selectedBooking.adminNotes}</p>
                   </div>
                 )}
               </div>

@@ -255,6 +255,27 @@ export const BookingPage: React.FC<BookingPageProps> = ({ onClose }) => {
               )}
             </div>
 
+            {/* 手机号输入 */}
+            <div>
+              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                手机号
+              </label>
+              <input
+                type="tel"
+                id="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={(e) => updateField('phoneNumber', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.phoneNumber ? 'border-red-300' : 'border-gray-300'
+                }`}
+                placeholder="请输入您的手机号（可选）"
+                disabled={submitting}
+              />
+              {errors.phoneNumber && (
+                <p className="mt-1 text-sm text-red-600">{errors.phoneNumber}</p>
+              )}
+            </div>
+
             {/* 预订数量 */}
             <div>
               <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">

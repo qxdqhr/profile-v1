@@ -9,15 +9,36 @@
 /**
  * 画集分类枚举
  * 
- * 定义画集的两种主要分类：
+ * 定义画集的各种分类：
  * - COLLECTION: 画集 - 用于展示艺术作品
- * - PRODUCT: 商品 - 用于销售的商品
+ * - ACRYLIC: 亚克力 - 亚克力制品
+ * - BADGE: 吧唧 - 徽章类商品
+ * - COLOR_PAPER: 色纸 - 彩色纸张制品
+ * - POSTCARD: 明信片 - 明信片类商品
+ * - LASER_TICKET: 镭射票 - 镭射票类商品
+ * - CANVAS_BAG: 帆布包 - 帆布包类商品
+ * - SUPPORT_STICK: 应援棒 - 应援棒类商品
+ * - OTHER: 其他 - 其他类型商品
  */
 export enum CollectionCategory {
   /** 画集 - 用于展示艺术作品 */
   COLLECTION = '画集',
-  /** 商品 - 用于销售的商品 */
-  PRODUCT = '商品'
+  /** 亚克力 - 亚克力制品 */
+  ACRYLIC = '亚克力',
+  /** 吧唧 - 徽章类商品 */
+  BADGE = '吧唧',
+  /** 色纸 - 彩色纸张制品 */
+  COLOR_PAPER = '色纸',
+  /** 明信片 - 明信片类商品 */
+  POSTCARD = '明信片',
+  /** 镭射票 - 镭射票类商品 */
+  LASER_TICKET = '镭射票',
+  /** 帆布包 - 帆布包类商品 */
+  CANVAS_BAG = '帆布包',
+  /** 应援棒 - 应援棒类商品 */
+  SUPPORT_STICK = '应援棒',
+  /** 其他 - 其他类型商品 */
+  OTHER = '其他'
 }
 
 /**
@@ -310,8 +331,22 @@ export function getCategoryDescription(category: CollectionCategoryType): string
   switch (category) {
     case CollectionCategory.COLLECTION:
       return '用于展示艺术作品，包含多个作品页面的画集';
-    case CollectionCategory.PRODUCT:
-      return '用于销售的商品，可以设置价格和购买功能';
+    case CollectionCategory.ACRYLIC:
+      return '亚克力制品，如亚克力画框、亚克力摆件等';
+    case CollectionCategory.BADGE:
+      return '徽章类商品，如徽章、钥匙扣等';
+    case CollectionCategory.COLOR_PAPER:
+      return '彩色纸张制品，如彩色卡纸、彩色打印纸等';
+    case CollectionCategory.POSTCARD:
+      return '明信片类商品，如艺术明信片、纪念明信片等';
+    case CollectionCategory.LASER_TICKET:
+      return '镭射票类商品，如演唱会门票、电影票等';
+    case CollectionCategory.CANVAS_BAG:
+      return '帆布包类商品，如帆布袋、帆布背包等';
+    case CollectionCategory.SUPPORT_STICK:
+      return '应援棒类商品，如荧光棒、应援棒等';
+    case CollectionCategory.OTHER:
+      return '其他类型商品，如手办、模型、书籍等';
     default:
       return '未知分类';
   }
