@@ -99,9 +99,9 @@ export const experiments: ExperimentItem[] = [
   {
     id: "show-master-pieces-config",
     title: "艺术画集管理后台",
-    description: "艺术画集展览的管理后台，包括画集管理、作品管理、购物车管理等功能，需要管理员权限",
+    description: "艺术画集展览的管理后台，包括画集管理、作品管理、预订管理等功能，需要管理员权限",
     path: "/testField/ShowMasterPieces/config",
-    tags: ["艺术", "画集", "管理", "后台", "购物车"],
+    tags: ["艺术", "画集", "管理", "后台", "预订"],
     category: "utility",
     isCompleted: true,
     createdAt: '2024-01-15',
@@ -339,5 +339,16 @@ export const experiments: ExperimentItem[] = [
     tags: ["配置", "管理", "音效", "动画", "Lottie", "数据库", "持久化", "预设"],
     category: "utility",
     isCompleted: true
+  },
+  {
+    id: "purchase-game",
+    title: "购买挑战游戏",
+    description: "一个倒计时购买商品的小游戏，玩家需要在30秒内做出购买决策。每次购买都会影响生命值或源石锭，生命值为0时游戏结束并显示总积分。包含谋财/害命两种商品类型，支持响应式设计和动画效果",
+    path: "/purchaseGame",
+    tags: ["小游戏", "购买", "倒计时", "策略", "响应式", "动画"],
+    category: "leisure",
+    isCompleted: true,
+    createdAt: '2024-01-15',
+    updatedAt: '2024-01-15'
   }
 ];

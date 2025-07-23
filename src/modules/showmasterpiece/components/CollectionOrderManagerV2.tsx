@@ -12,9 +12,17 @@ import type { ArtCollection } from '../types';
 
 interface CollectionOrderManagerV2Props {
   onOrderChanged?: () => void;
+  moveCollectionUp?: (id: number) => Promise<void>;
+  moveCollectionDown?: (id: number) => Promise<void>;
+  updateCollectionOrder?: (orders: { id: number; displayOrder: number }[]) => Promise<void>;
 }
 
-export function CollectionOrderManagerV2({ onOrderChanged }: CollectionOrderManagerV2Props) {
+export function CollectionOrderManagerV2({ 
+  onOrderChanged, 
+  moveCollectionUp: propMoveCollectionUp,
+  moveCollectionDown: propMoveCollectionDown,
+  updateCollectionOrder: propUpdateCollectionOrder
+}: CollectionOrderManagerV2Props) {
   // 定义操作函数
   const operations = {
     loadItems: async (): Promise<ArtCollection[]> => {
@@ -29,12 +37,20 @@ export function CollectionOrderManagerV2({ onOrderChanged }: CollectionOrderMana
 
     moveItemUp: async (id: number): Promise<void> => {
       console.log('⬆️ [画集排序V2] 执行上移操作:', id);
-      await moveCollectionUp(id);
+      if (propMoveCollectionUp) {
+        await propMoveCollectionUp(id);
+      } else {
+        await moveCollectionUp(id);
+      }
     },
 
     moveItemDown: async (id: number): Promise<void> => {
       console.log('⬇️ [画集排序V2] 执行下移操作:', id);
-      await moveCollectionDown(id);
+      if (propMoveCollectionDown) {
+        await propMoveCollectionDown(id);
+      } else {
+        await moveCollectionDown(id);
+      }
     },
 
     updateItemOrder: async (orders: { id: number; order: number }[]): Promise<void> => {
@@ -43,7 +59,11 @@ export function CollectionOrderManagerV2({ onOrderChanged }: CollectionOrderMana
         id: order.id,
         displayOrder: order.order
       }));
-      await updateCollectionOrder(collectionOrders);
+      if (propUpdateCollectionOrder) {
+        await propUpdateCollectionOrder(collectionOrders);
+      } else {
+        await updateCollectionOrder(collectionOrders);
+      }
     }
   };
 

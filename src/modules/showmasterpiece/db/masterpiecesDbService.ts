@@ -321,6 +321,7 @@ export class CollectionsDbService {
           description: comicUniverseCollections.description,
           isPublished: comicUniverseCollections.isPublished,
           displayOrder: comicUniverseCollections.displayOrder,
+          price: comicUniverseCollections.price,
           createdAt: comicUniverseCollections.createdAt,
           categoryId: comicUniverseCollections.categoryId,
         })
@@ -494,6 +495,7 @@ export class CollectionsDbService {
           category: collection.categoryId ? (categoriesMap.get(collection.categoryId) || '画集') as CollectionCategoryType : '画集' as CollectionCategoryType,
           tags: tagsMap.get(collection.id) || [],
           isPublished: collection.isPublished,
+          price: collection.price || undefined,
           pages: artworksMap.get(collection.id) || [], // 🚀 作品数据精简，大幅减少传输量
         };
       });
@@ -519,6 +521,7 @@ export class CollectionsDbService {
           description: comicUniverseCollections.description,
           isPublished: comicUniverseCollections.isPublished,
           displayOrder: comicUniverseCollections.displayOrder,
+          price: comicUniverseCollections.price,
           createdAt: comicUniverseCollections.createdAt,
           categoryId: comicUniverseCollections.categoryId,
         })
@@ -646,6 +649,7 @@ export class CollectionsDbService {
           category: collection.categoryId ? (categoriesMap.get(collection.categoryId) || '画集') as CollectionCategoryType : '画集' as CollectionCategoryType,
           tags: tagsMap.get(collection.id) || [],
           isPublished: collection.isPublished,
+          price: collection.price || undefined,
           artworkCount: artworkCountsMap.get(collection.id) || 0,
         };
       });
@@ -694,6 +698,7 @@ export class CollectionsDbService {
       categoryId,
       isPublished: collectionData.isPublished,
       publishedAt: collectionData.isPublished ? new Date() : null,
+      price: collectionData.price || null,
     }).returning();
 
     // 处理标签
@@ -740,6 +745,7 @@ export class CollectionsDbService {
         categoryId,
         isPublished: collectionData.isPublished,
         publishedAt: collectionData.isPublished ? new Date() : null,
+        price: collectionData.price || null,
         updatedAt: new Date(),
       })
       .where(eq(comicUniverseCollections.id, id));
@@ -1503,8 +1509,7 @@ export class ArtworksDbService {
         id: artwork.id,
         title: artwork.title,
         artist: artwork.artist,
-        image: '', // 不再使用Base64图片
-        imageUrl: imageUrl,
+        image: imageUrl, // 使用OSS URL或API路径
         fileId: artwork.fileId || undefined,
         description: artwork.description || '',
         createdTime: artwork.createdTime || '',

@@ -1,0 +1,501 @@
+/**
+ * ShowMasterpiece 模块 - 预订管理面板组件
+ * 
+ * 管理员查看所有用户预订信息的面板组件
+ * 
+ * @fileoverview 预订管理面板组件
+ */
+
+'use client';
+
+import React, { useState } from 'react';
+import { Calendar, User, Package, Clock, CheckCircle, XCircle, RefreshCw, Eye, Edit, Save, X } from 'lucide-react';
+import { BookingAdminData, BookingAdminStats } from '../services/bookingAdminService';
+import { BookingStatus, BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS } from '../types/booking';
+
+/**
+ * 预订管理面板组件属性
+ */
+interface BookingAdminPanelProps {
+  /** 预订数据列表 */
+  bookings: BookingAdminData[];
+  /** 统计信息 */
+  stats: BookingAdminStats;
+  /** 加载状态 */
+  loading: boolean;
+  /** 错误信息 */
+  error?: string;
+  /** 刷新数据回调 */
+  onRefresh: () => void;
+  /** 更新预订状态回调 */
+  onUpdateStatus: (id: number, status: BookingStatus, adminNotes?: string) => Promise<void>;
+}
+
+/**
+ * 预订管理面板组件
+ * 
+ * @param props 组件属性
+ * @returns React组件
+ */
+export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
+  bookings,
+  stats,
+  loading,
+  error,
+  onRefresh,
+  onUpdateStatus,
+}) => {
+  const [selectedBooking, setSelectedBooking] = useState<BookingAdminData | null>(null);
+  const [filterStatus, setFilterStatus] = useState<BookingStatus | 'all'>('all');
+  const [editingBooking, setEditingBooking] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<{ status: BookingStatus; adminNotes: string }>({
+    status: 'pending',
+    adminNotes: '',
+  });
+
+  /**
+   * 获取状态显示信息
+   */
+  const getStatusInfo = (status: BookingStatus) => {
+    return {
+      label: BOOKING_STATUS_LABELS[status],
+      color: BOOKING_STATUS_COLORS[status],
+    };
+  };
+
+  /**
+   * 过滤预订数据
+   */
+  const filteredBookings = bookings.filter(booking => {
+    if (filterStatus === 'all') return true;
+    return booking.status === filterStatus;
+  });
+
+  /**
+   * 格式化时间
+   */
+  const formatTime = (timeString: string) => {
+    return new Date(timeString).toLocaleString('zh-CN');
+  };
+
+  /**
+   * 处理编辑预订
+   */
+  const handleEditBooking = (booking: BookingAdminData) => {
+    setEditingBooking(booking.id);
+    setEditForm({
+      status: booking.status,
+      adminNotes: booking.adminNotes || '',
+    });
+  };
+
+  /**
+   * 处理保存编辑
+   */
+  const handleSaveEdit = async () => {
+    if (editingBooking) {
+      await onUpdateStatus(editingBooking, editForm.status, editForm.adminNotes);
+      setEditingBooking(null);
+      setEditForm({ status: 'pending', adminNotes: '' });
+    }
+  };
+
+  /**
+   * 处理取消编辑
+   */
+  const handleCancelEdit = () => {
+    setEditingBooking(null);
+    setEditForm({ status: 'pending', adminNotes: '' });
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* 统计卡片 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+          <div className="flex items-center">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Calendar size={24} className="text-blue-600" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-2xl font-bold text-slate-800">{stats.totalBookings}</h3>
+              <p className="text-slate-600">总预订数</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+          <div className="flex items-center">
+            <div className="p-2 bg-yellow-100 rounded-lg">
+              <Clock size={24} className="text-yellow-600" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-2xl font-bold text-slate-800">{stats.pendingBookings}</h3>
+              <p className="text-slate-600">待确认</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+          <div className="flex items-center">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <CheckCircle size={24} className="text-green-600" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-2xl font-bold text-slate-800">{stats.completedBookings}</h3>
+              <p className="text-slate-600">已完成</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+          <div className="flex items-center">
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <Package size={24} className="text-purple-600" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-2xl font-bold text-slate-800">¥{stats.totalRevenue}</h3>
+              <p className="text-slate-600">总收入</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 操作栏 */}
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex gap-2">
+            <button
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filterStatus === 'all' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+              onClick={() => setFilterStatus('all')}
+            >
+              全部
+            </button>
+            <button
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filterStatus === 'pending' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+              onClick={() => setFilterStatus('pending')}
+            >
+              待确认
+            </button>
+            <button
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filterStatus === 'confirmed' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+              onClick={() => setFilterStatus('confirmed')}
+            >
+              已确认
+            </button>
+            <button
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filterStatus === 'completed' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+              onClick={() => setFilterStatus('completed')}
+            >
+              已完成
+            </button>
+            <button
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filterStatus === 'cancelled' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+              onClick={() => setFilterStatus('cancelled')}
+            >
+              已取消
+            </button>
+          </div>
+          
+          <button
+            onClick={onRefresh}
+            disabled={loading}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+            刷新
+          </button>
+        </div>
+      </div>
+
+      {/* 错误提示 */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex">
+            <div className="text-red-400 mr-3">
+              <XCircle size={20} />
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-red-800">加载失败</h3>
+              <p className="text-sm text-red-700 mt-1">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 预订列表 */}
+      <div className="space-y-4">
+        {filteredBookings.length === 0 ? (
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-12 text-center">
+            <Calendar size={48} className="text-slate-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-slate-800 mb-2">暂无预订数据</h3>
+            <p className="text-slate-600">当前筛选条件下没有找到预订数据</p>
+          </div>
+        ) : (
+          filteredBookings.map((booking) => {
+            const statusInfo = getStatusInfo(booking.status);
+            
+            return (
+              <div key={booking.id} className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={booking.collection.coverImage}
+                        alt={booking.collection.title}
+                        className="w-16 h-16 object-cover rounded-lg"
+                      />
+                      <div>
+                        <h3 className="text-lg font-semibold text-slate-800">{booking.collection.title}</h3>
+                        <p className="text-slate-600">艺术家：{booking.collection.artist}</p>
+                        <p className="text-slate-600">QQ号：{booking.qqNumber}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="text-right">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusInfo.color}`}>
+                        {statusInfo.label}
+                      </span>
+                      <p className="text-sm text-slate-500 mt-1"># {booking.id}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div>
+                      <p className="text-sm text-slate-500">预订数量</p>
+                      <p className="font-medium text-slate-800">{booking.quantity}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500">总价格</p>
+                      <p className="font-medium text-slate-800">¥{booking.totalPrice}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500">预订时间</p>
+                      <p className="font-medium text-slate-800">{formatTime(booking.createdAt)}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500">更新时间</p>
+                      <p className="font-medium text-slate-800">{formatTime(booking.updatedAt)}</p>
+                    </div>
+                  </div>
+                  
+                  {booking.notes && (
+                    <div className="mb-4">
+                      <p className="text-sm text-slate-500">用户备注</p>
+                      <p className="text-slate-800 bg-slate-50 p-3 rounded-lg">{booking.notes}</p>
+                    </div>
+                  )}
+                  
+                  {editingBooking === booking.id ? (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">状态</label>
+                        <select
+                          value={editForm.status}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, status: e.target.value as BookingStatus }))}
+                          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="pending">待确认</option>
+                          <option value="confirmed">已确认</option>
+                          <option value="completed">已完成</option>
+                          <option value="cancelled">已取消</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">管理员备注</label>
+                        <textarea
+                          value={editForm.adminNotes}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, adminNotes: e.target.value }))}
+                          rows={3}
+                          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="输入管理员备注（可选）"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleSaveEdit}
+                          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                        >
+                          <Save size={16} />
+                          保存
+                        </button>
+                        <button
+                          onClick={handleCancelEdit}
+                          className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors"
+                        >
+                          <X size={16} />
+                          取消
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEditBooking(booking)}
+                          className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium hover:bg-blue-200 transition-colors"
+                        >
+                          <Edit size={16} />
+                          编辑状态
+                        </button>
+                        <button
+                          onClick={() => setSelectedBooking(booking)}
+                          className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors"
+                        >
+                          <Eye size={16} />
+                          查看详情
+                        </button>
+                      </div>
+                      
+                      {booking.adminNotes && (
+                        <div className="text-right">
+                          <p className="text-sm text-slate-500">管理员备注</p>
+                          <p className="text-slate-800 text-sm">{booking.adminNotes}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* 预订详情弹窗 */}
+      {selectedBooking && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-slate-200">
+              <h2 className="text-xl font-semibold text-slate-800">预订详情</h2>
+              <button
+                onClick={() => setSelectedBooking(null)}
+                className="text-slate-400 hover:text-slate-600 text-2xl font-bold leading-none"
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+              <div className="space-y-6">
+                {/* 画集信息 */}
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-800 mb-3">画集信息</h3>
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={selectedBooking.collection.coverImage}
+                      alt={selectedBooking.collection.title}
+                      className="w-20 h-20 object-cover rounded-lg"
+                    />
+                    <div>
+                      <h4 className="font-medium text-slate-800">{selectedBooking.collection.title}</h4>
+                      <p className="text-slate-600">艺术家：{selectedBooking.collection.artist}</p>
+                      <p className="text-slate-600">价格：¥{selectedBooking.collection.price || '待定'}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* 预订信息 */}
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-800 mb-3">预订信息</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-slate-500">预订ID</p>
+                      <p className="font-medium text-slate-800">#{selectedBooking.id}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500">QQ号</p>
+                      <p className="font-medium text-slate-800">{selectedBooking.qqNumber}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500">预订数量</p>
+                      <p className="font-medium text-slate-800">{selectedBooking.quantity}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500">总价格</p>
+                      <p className="font-medium text-slate-800">¥{selectedBooking.totalPrice}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500">状态</p>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusInfo(selectedBooking.status).color}`}>
+                        {getStatusInfo(selectedBooking.status).label}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* 时间信息 */}
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-800 mb-3">时间信息</h3>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-sm text-slate-500">预订时间</p>
+                      <p className="font-medium text-slate-800">{formatTime(selectedBooking.createdAt)}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500">更新时间</p>
+                      <p className="font-medium text-slate-800">{formatTime(selectedBooking.updatedAt)}</p>
+                    </div>
+                    {selectedBooking.confirmedAt && (
+                      <div>
+                        <p className="text-sm text-slate-500">确认时间</p>
+                        <p className="font-medium text-slate-800">{formatTime(selectedBooking.confirmedAt)}</p>
+                      </div>
+                    )}
+                    {selectedBooking.completedAt && (
+                      <div>
+                        <p className="text-sm text-slate-500">完成时间</p>
+                        <p className="font-medium text-slate-800">{formatTime(selectedBooking.completedAt)}</p>
+                      </div>
+                    )}
+                    {selectedBooking.cancelledAt && (
+                      <div>
+                        <p className="text-sm text-slate-500">取消时间</p>
+                        <p className="font-medium text-slate-800">{formatTime(selectedBooking.cancelledAt)}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* 备注信息 */}
+                {selectedBooking.notes && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-800 mb-3">用户备注</h3>
+                    <p className="text-slate-800 bg-slate-50 p-4 rounded-lg">{selectedBooking.notes}</p>
+                  </div>
+                )}
+                
+                {selectedBooking.adminNotes && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-800 mb-3">管理员备注</h3>
+                    <p className="text-slate-800 bg-slate-50 p-4 rounded-lg">{selectedBooking.adminNotes}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}; 

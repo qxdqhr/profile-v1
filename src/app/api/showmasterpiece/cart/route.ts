@@ -49,8 +49,9 @@ async function GET(request: NextRequest) {
     
     cartItems.forEach(item => {
       totalQuantity += item.quantity;
-      // 这里可以根据实际需求计算价格
-      totalPrice += 0; // 暂时设为0，因为没有价格字段
+      // 计算价格：数量 × 画集价格（如果价格为null则按0计算）
+      const itemPrice = (item.collection.price || 0) * item.quantity;
+      totalPrice += itemPrice;
     });
 
     const cartData = {

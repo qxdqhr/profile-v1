@@ -54,11 +54,11 @@ export const CartModal: React.FC<CartModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title={title}
-      width={width}
-      height={height}
+      width="95vw"
+      height="95vh"
       maskClosable={false}
       showCloseButton={true}
-      className="max-w-6xl"
+      className="max-w-6xl sm:max-w-4xl"
       contentClassName="p-0 overflow-hidden"
     >
       <CartPage userId={userId} onClose={onClose} />

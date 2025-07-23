@@ -115,38 +115,12 @@ export { CollectionOrderManagerV2 } from './CollectionOrderManagerV2';
  */
 export { ArtworkOrderManagerV2 } from './ArtworkOrderManagerV2';
 
-/**
- * 作品图片上传组件
- * 
- * 使用通用文件服务，支持阿里云OSS存储。
- * 专门用于作品图片的上传和管理。
- * 
- * 主要功能：
- * - 拖拽上传和点击选择
- * - 自动上传到云存储
- * - 图片预览和删除
- * - 支持多种图片格式
- */
-export { ArtworkImageUpload } from './ArtworkImageUpload';
 
-/**
- * 画集封面图片上传组件
- * 
- * 使用通用文件服务，支持阿里云OSS存储。
- * 专门用于画集封面图片的上传和管理。
- * 
- * 主要功能：
- * - 拖拽上传和点击选择
- * - 自动上传到云存储
- * - 图片预览和删除
- * - 支持多种图片格式
- */
-export { CoverImageUpload } from './CoverImageUpload';
 
 /**
  * 通用图片上传组件
  * 
- * 使用通用文件服务，支持阿里云OSS存储。
+ * 使用通用文件服务，支持云存储。
  * 可在画集封面和作品图片之间复用，提供统一的用户体验。
  * 
  * 主要功能：
@@ -155,7 +129,7 @@ export { CoverImageUpload } from './CoverImageUpload';
  * - 自动上传到云存储
  * - 图片预览和删除
  * - 支持多种图片格式
- * - 可配置的调试信息和测试按钮
+ * - 现代化的UI设计
  */
 export { UniversalImageUpload } from './UniversalImageUpload';
 
@@ -223,5 +197,34 @@ export { AddToCartButton } from './AddToCartButton';
  * - 加载和空状态处理
  */
 export { CollectionList } from './CollectionList';
+
+/**
+ * 预订管理面板组件
+ * 
+ * 管理员查看所有用户预订信息的面板组件，替代原有的购物车管理功能。
+ * 提供预订数据的查看、筛选、状态更新等功能。
+ * 
+ * 主要功能：
+ * - 预订数据统计展示
+ * - 预订列表查看和筛选
+ * - 预订状态更新
+ * - 预订详情查看
+ * - 管理员备注功能
+ */
+export { BookingAdminPanel } from './BookingAdminPanel';
+
+/**
+ * 购物车管理面板组件
+ * 
+ * 管理员查看所有用户购物车数据的面板组件。
+ * 提供购物车数据的查看、筛选和统计功能。
+ * 
+ * 主要功能：
+ * - 购物车数据统计展示
+ * - 购物车列表查看和筛选
+ * - 购物车详情查看
+ * - 用户信息显示
+ */
+export { CartAdminPanel } from './CartAdminPanel';
 
  

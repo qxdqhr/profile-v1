@@ -252,19 +252,18 @@ function ShowMasterPiecesContent() {
                   userId={userId}
                 />
                 
-                {/* 配置按钮（仅管理员可见） */}
-                {hasAdminAccess && (
-                  <button
-                    onClick={handleConfigClick}
-                    className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors text-xs sm:text-sm"
-                  >
-                    <Settings size={14} className="sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline">管理</span>
-                  </button>
-                )}
-                
                 {/* 用户菜单 */}
-                <UserMenu />
+                <UserMenu 
+                  customMenuItems={hasAdminAccess ? [
+                    {
+                      id: 'showmasterpiece-admin',
+                      label: '画集管理',
+                      icon: Settings,
+                      onClick: handleConfigClick,
+                      requireAuth: true
+                    }
+                  ] : []}
+                />
               </div>
             </div>
           </div>

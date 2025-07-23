@@ -18,8 +18,8 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Book, Eye, ImageIcon } from 'lucide-react';
-import { ArtCollection } from '../types';
+import { Book, Eye, ImageIcon, ShoppingBag } from 'lucide-react';
+import { ArtCollection, CollectionCategory } from '../types';
 import { AddToCartButton } from './AddToCartButton';
 
 /**
@@ -178,11 +178,20 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
     return `¥${price}`;
   };
 
+  /**
+   * 判断是否为商品类型
+   */
+  const isProduct = collection.category === CollectionCategory.PRODUCT;
+
   return (
     <div
       ref={cardRef}
-      className="bg-white rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 transform hover:-translate-y-2 hover:shadow-3xl w-full max-w-sm mx-auto cursor-pointer group"
-      onClick={() => onSelect(collection)}
+      className={`bg-white rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 transform w-full max-w-sm mx-auto group ${
+        isProduct 
+          ? 'cursor-default' 
+          : 'cursor-pointer hover:-translate-y-2 hover:shadow-3xl'
+      }`}
+      onClick={isProduct ? undefined : () => onSelect(collection)}
     >
       {/* 图片容器 */}
       <div className="relative h-64 bg-slate-50 flex items-center justify-center overflow-hidden">
@@ -192,10 +201,19 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
         {/* 画集徽章 */}
         <div className="absolute bottom-4 left-4 text-white z-10">
           <div className="flex items-center gap-2 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1">
-            <Book size={16} />
-            <span className="text-sm font-medium">
-              {collection.pages.length} 页
-            </span>
+            {isProduct ? (
+              <>
+                <ShoppingBag size={16} />
+                <span className="text-sm font-medium">商品</span>
+              </>
+            ) : (
+              <>
+                <Book size={16} />
+                <span className="text-sm font-medium">
+                  {collection.pages.length} 页
+                </span>
+              </>
+            )}
           </div>
         </div>
 
@@ -236,23 +254,25 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
         
         {/* 操作按钮 */}
         <div className="flex gap-2">
-          {/* 查看按钮 */}
-          <button
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex-1 justify-center"
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelect(collection);
-            }}
-          >
-            <Eye size={16} />
-            查看画集
-          </button>
+          {/* 查看按钮 - 只在画集类型时显示 */}
+          {!isProduct && (
+            <button
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex-1 justify-center"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect(collection);
+              }}
+            >
+              <Eye size={16} />
+              查看画集
+            </button>
+          )}
           
-          {/* 加入购物车按钮 */}
+          {/* 加入购物车按钮 - 商品类型时占满宽度 */}
           <AddToCartButton
             collection={collection}
             userId={userId}
-            className="flex-1"
+            className={isProduct ? "w-full" : "flex-1"}
             size="md"
           />
         </div>

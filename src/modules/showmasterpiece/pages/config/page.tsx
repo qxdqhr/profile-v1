@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown, Calendar } from 'lucide-react';
 import { useMasterpiecesConfig } from '../../hooks/useMasterpiecesConfig';
 import { ConfigFormData, CollectionFormData, ArtworkFormData, CollectionCategory, CollectionCategoryType, getAvailableCategories, getCategoryDisplayName } from '../../types';
 import { UniversalImageUpload } from '../../components/UniversalImageUpload';
@@ -9,10 +9,10 @@ import { shouldUseUniversalFileService, getStorageModeDisplayName } from '../../
 import { AuthGuard, AuthProvider } from '@/modules/auth';
 import { CollectionOrderManagerV2 as CollectionOrderManager } from '../../components/CollectionOrderManagerV2';
 import { ArtworkOrderManagerV2 as ArtworkOrderManager } from '../../components/ArtworkOrderManagerV2';
-import { CartAdminPanel } from '../../components/CartAdminPanel';
-import { useCartAdmin } from '../../hooks/useCartAdmin';
+import { BookingAdminPanel } from '../../components/BookingAdminPanel';
+import { useBookingAdmin } from '../../hooks/useBookingAdmin';
 
-type TabType = 'general' | 'collections' | 'artworks' | 'carts';
+type TabType = 'general' | 'collections' | 'artworks' | 'bookings';
 
 function ConfigPageContent() {
   const {
@@ -30,6 +30,12 @@ function ConfigPageContent() {
     addArtworkToCollection,
     updateArtwork,
     deleteArtwork,
+    moveArtworkUp,
+    moveArtworkDown,
+    updateArtworkOrder,
+    moveCollectionUp,
+    moveCollectionDown,
+    updateCollectionOrder,
     refreshData,
   } = useMasterpiecesConfig();
 
@@ -42,14 +48,15 @@ function ConfigPageContent() {
   const [showArtworkOrder, setShowArtworkOrder] = useState(false);
   const [showCollectionOrder, setShowCollectionOrder] = useState(false);
 
-  // 购物车管理Hook
+  // 预订管理Hook
   const {
-    carts,
+    bookings,
     stats,
-    loading: cartLoading,
-    error: cartError,
-    refreshData: refreshCartData,
-  } = useCartAdmin();
+    loading: bookingLoading,
+    error: bookingError,
+    refreshData: refreshBookingData,
+    updateBookingStatus,
+  } = useBookingAdmin();
 
   // 检查是否使用通用文件服务
   const [useUniversalService, setUseUniversalService] = useState<boolean>(false);
@@ -318,11 +325,24 @@ function ConfigPageContent() {
       alert('请先选择一个画集');
       return;
     }
+    
+    // 如果当前是排序模式，关闭时需要重新加载数据
+    if (showArtworkOrder) {
+      console.log('🔄 [配置页面] 关闭作品排序，重新加载数据...');
+      await refreshData();
+    }
+    
     setShowArtworkOrder(!showArtworkOrder);
   };
 
   // 切换画集排序显示
   const handleToggleCollectionOrder = async () => {
+    // 如果当前是排序模式，关闭时需要重新加载数据
+    if (showCollectionOrder) {
+      console.log('🔄 [配置页面] 关闭画集排序，重新加载数据...');
+      await refreshData();
+    }
+    
     setShowCollectionOrder(!showCollectionOrder);
   };
 
@@ -414,14 +434,14 @@ function ConfigPageContent() {
           </button>
           <button
             className={`flex items-center gap-2 px-6 py-4 bg-transparent border-none cursor-pointer border-b-2 transition-colors ${
-              activeTab === 'carts' 
+              activeTab === 'bookings' 
                 ? 'border-blue-500 text-blue-600' 
                 : 'border-transparent text-slate-600 hover:text-slate-800'
             }`}
-            onClick={() => setActiveTab('carts')}
+            onClick={() => setActiveTab('bookings')}
           >
-            <ShoppingCart size={18} />
-            购物车管理
+            <Calendar size={18} />
+            预订管理
           </button>
         </div>
       </div>
@@ -619,8 +639,12 @@ function ConfigPageContent() {
                   </p>
                 </div>
                 <CollectionOrderManager
-                  onOrderChanged={() => {
-                    console.log('🔄 [配置页面] 画集顺序已更新（仅排序界面内更新）');
+                  moveCollectionUp={moveCollectionUp}
+                  moveCollectionDown={moveCollectionDown}
+                  updateCollectionOrder={updateCollectionOrder}
+                  onOrderChanged={async () => {
+                    console.log('🔄 [配置页面] 画集顺序已更新（排序组件内部已处理数据更新）');
+                    // 排序组件内部已经更新了数据，这里不需要额外操作
                   }}
                 />
               </div>
@@ -732,8 +756,12 @@ function ConfigPageContent() {
                 </div>
                 <ArtworkOrderManager
                   collectionId={selectedCollection}
-                  onOrderChanged={() => {
-                    console.log('🔄 [配置页面] 作品顺序已更新（仅排序界面内更新）');
+                  moveArtworkUp={moveArtworkUp}
+                  moveArtworkDown={moveArtworkDown}
+                  updateArtworkOrder={updateArtworkOrder}
+                  onOrderChanged={async () => {
+                    console.log('🔄 [配置页面] 作品顺序已更新（排序组件内部已处理数据更新）');
+                    // 排序组件内部已经更新了数据，这里不需要额外操作
                   }}
                 />
               </div>
@@ -788,19 +816,20 @@ function ConfigPageContent() {
           </div>
         )}
 
-        {/* 购物车管理标签页 */}
-        {activeTab === 'carts' && (
+        {/* 预订管理标签页 */}
+        {activeTab === 'bookings' && (
           <div>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-slate-800">购物车管理</h2>
-              <p className="text-slate-600">查看所有用户的购物车数据</p>
+              <h2 className="text-2xl font-bold text-slate-800">预订管理</h2>
+              <p className="text-slate-600">查看所有用户的预订信息</p>
             </div>
-            <CartAdminPanel 
-              carts={carts}
+            <BookingAdminPanel 
+              bookings={bookings}
               stats={stats}
-              loading={cartLoading}
-              error={cartError}
-              onRefresh={refreshCartData}
+              loading={bookingLoading}
+              error={bookingError}
+              onRefresh={refreshBookingData}
+              onUpdateStatus={updateBookingStatus}
             />
           </div>
         )}
@@ -853,8 +882,6 @@ function ConfigPageContent() {
                     }))}
                     placeholder="上传封面图片"
                     businessType="cover"
-                    showDebugInfo={true}
-                    showTestButton={true}
                   />
                 </div>
                 <div>
@@ -974,8 +1001,6 @@ function ConfigPageContent() {
                     }))}
                     placeholder="上传作品图片"
                     businessType="artwork"
-                    showDebugInfo={true}
-                    showTestButton={true}
                   />
                 </div>
                 <div>

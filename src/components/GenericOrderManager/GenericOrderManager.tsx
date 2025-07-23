@@ -98,11 +98,14 @@ export function GenericOrderManager<T extends OrderableItem>({
         return;
       }
       
-      // 只在本地状态中交换位置，与拖拽操作保持一致
-      const newItems = [...items];
-      const targetIndex = currentIndex - 1;
-      [newItems[currentIndex], newItems[targetIndex]] = [newItems[targetIndex], newItems[currentIndex]];
-      setItems(newItems);
+      // 调用后端API执行上移操作
+      await operations.moveItemUp(itemId);
+      
+      // 重新加载数据以确保顺序正确
+      await loadItems();
+      
+      // 通知父组件顺序已变更
+      onOrderChanged?.();
       
     } catch (err) {
       console.error('❌ [通用排序] 上移项目错误:', err);
@@ -125,11 +128,14 @@ export function GenericOrderManager<T extends OrderableItem>({
         return;
       }
       
-      // 只在本地状态中交换位置，与拖拽操作保持一致
-      const newItems = [...items];
-      const targetIndex = currentIndex + 1;
-      [newItems[currentIndex], newItems[targetIndex]] = [newItems[targetIndex], newItems[currentIndex]];
-      setItems(newItems);
+      // 调用后端API执行下移操作
+      await operations.moveItemDown(itemId);
+      
+      // 重新加载数据以确保顺序正确
+      await loadItems();
+      
+      // 通知父组件顺序已变更
+      onOrderChanged?.();
       
     } catch (err) {
       console.error('❌ [通用排序] 下移项目错误:', err);
@@ -150,7 +156,7 @@ export function GenericOrderManager<T extends OrderableItem>({
   };
 
   // 拖拽放置
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+  const handleDrop = async (e: React.DragEvent, dropIndex: number) => {
     e.preventDefault();
     
     if (draggedItem === null || draggedItem === dropIndex) {
@@ -158,19 +164,42 @@ export function GenericOrderManager<T extends OrderableItem>({
       return;
     }
 
-    const newItems = [...items];
-    const draggedItemData = newItems[draggedItem];
-    
-    // 移除拖拽的项目
-    newItems.splice(draggedItem, 1);
-    // 在新位置插入
-    newItems.splice(dropIndex, 0, draggedItemData);
-    
-    setItems(newItems);
-    setDraggedItem(null);
+    try {
+      setError(null);
+      
+      // 计算新的顺序
+      const newItems = [...items];
+      const draggedItemData = newItems[draggedItem];
+      
+      // 移除拖拽的项目
+      newItems.splice(draggedItem, 1);
+      // 在新位置插入
+      newItems.splice(dropIndex, 0, draggedItemData);
+      
+      // 生成新的显示顺序
+      const itemOrders = newItems.map((item, index) => ({
+        id: item.id,
+        order: index, // 使用索引作为顺序
+      }));
+      
+      // 调用后端API更新顺序
+      await operations.updateItemOrder(itemOrders);
+      
+      // 重新加载数据以确保顺序正确
+      await loadItems();
+      
+      // 通知父组件顺序已变更
+      onOrderChanged?.();
+      
+    } catch (err) {
+      console.error('❌ [通用排序] 拖拽排序错误:', err);
+      setError(err instanceof Error ? err.message : '排序失败');
+    } finally {
+      setDraggedItem(null);
+    }
   };
 
-  // 保存新顺序
+  // 保存新顺序（现在主要用于批量操作）
   const handleSaveOrder = async () => {
     try {
       setSaving(true);
@@ -179,7 +208,7 @@ export function GenericOrderManager<T extends OrderableItem>({
       // 生成新的显示顺序
       const itemOrders = items.map((item, index) => ({
         id: item.id,
-        order: items.length - index, // 从高到低排序
+        order: index, // 使用索引作为顺序
       }));
 
       await operations.updateItemOrder(itemOrders);

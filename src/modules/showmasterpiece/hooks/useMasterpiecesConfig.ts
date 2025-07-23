@@ -13,6 +13,10 @@ import {
   moveArtworkUp,
   moveArtworkDown,
   updateArtworkOrder,
+  moveCollectionUp,
+  moveCollectionDown,
+  updateCollectionOrder,
+  getArtworksByCollection,
   getCategories,
   getTags
 } from '../services/masterpiecesConfigService';
@@ -280,7 +284,8 @@ export const useMasterpiecesConfig = () => {
   const handleMoveArtworkUp = async (collectionId: number, artworkId: number) => {
     try {
       await moveArtworkUp(collectionId, artworkId);
-      await loadData(); // 重新加载数据以确保顺序正确
+      // 只更新特定画集的数据，避免重新加载所有数据
+      await updateCollectionArtworks(collectionId);
     } catch (err) {
       handleApiError(err, '上移作品');
     }
@@ -289,7 +294,8 @@ export const useMasterpiecesConfig = () => {
   const handleMoveArtworkDown = async (collectionId: number, artworkId: number) => {
     try {
       await moveArtworkDown(collectionId, artworkId);
-      await loadData(); // 重新加载数据以确保顺序正确
+      // 只更新特定画集的数据，避免重新加载所有数据
+      await updateCollectionArtworks(collectionId);
     } catch (err) {
       handleApiError(err, '下移作品');
     }
@@ -298,9 +304,72 @@ export const useMasterpiecesConfig = () => {
   const handleUpdateArtworkOrder = async (collectionId: number, artworkOrders: { id: number; pageOrder: number }[]) => {
     try {
       await updateArtworkOrder(collectionId, artworkOrders);
-      await loadData(); // 重新加载数据以确保顺序正确
+      // 只更新特定画集的数据，避免重新加载所有数据
+      await updateCollectionArtworks(collectionId);
     } catch (err) {
       handleApiError(err, '更新作品顺序');
+    }
+  };
+
+  // 更新特定画集的作品数据
+  const updateCollectionArtworks = async (collectionId: number) => {
+    try {
+      const updatedArtworks = await getArtworksByCollection(collectionId);
+      
+      setCollections(prevCollections => 
+        prevCollections.map(collection => 
+          collection.id === collectionId 
+            ? { ...collection, pages: updatedArtworks }
+            : collection
+        )
+      );
+    } catch (err) {
+      console.error('更新画集作品数据失败:', err);
+      // 如果更新失败，回退到重新加载所有数据
+      await loadData();
+    }
+  };
+
+  // 新增：画集排序管理
+  const handleMoveCollectionUp = async (collectionId: number) => {
+    try {
+      await moveCollectionUp(collectionId);
+      // 只更新画集数据，避免重新加载所有数据
+      await updateCollectionsData();
+    } catch (err) {
+      handleApiError(err, '上移画集');
+    }
+  };
+
+  const handleMoveCollectionDown = async (collectionId: number) => {
+    try {
+      await moveCollectionDown(collectionId);
+      // 只更新画集数据，避免重新加载所有数据
+      await updateCollectionsData();
+    } catch (err) {
+      handleApiError(err, '下移画集');
+    }
+  };
+
+  const handleUpdateCollectionOrder = async (collectionOrders: { id: number; displayOrder: number }[]) => {
+    try {
+      await updateCollectionOrder(collectionOrders);
+      // 只更新画集数据，避免重新加载所有数据
+      await updateCollectionsData();
+    } catch (err) {
+      handleApiError(err, '更新画集顺序');
+    }
+  };
+
+  // 更新画集数据
+  const updateCollectionsData = async () => {
+    try {
+      const updatedCollections = await getAllCollections();
+      setCollections(updatedCollections);
+    } catch (err) {
+      console.error('更新画集数据失败:', err);
+      // 如果更新失败，回退到重新加载所有数据
+      await loadData();
     }
   };
 
@@ -342,6 +411,11 @@ export const useMasterpiecesConfig = () => {
     moveArtworkUp: handleMoveArtworkUp,
     moveArtworkDown: handleMoveArtworkDown,
     updateArtworkOrder: handleUpdateArtworkOrder,
+    
+    // 新增：画集排序方法
+    moveCollectionUp: handleMoveCollectionUp,
+    moveCollectionDown: handleMoveCollectionDown,
+    updateCollectionOrder: handleUpdateCollectionOrder,
     
     refreshData: loadData,
   };

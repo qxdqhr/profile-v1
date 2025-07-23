@@ -129,15 +129,13 @@ const ThumbnailItem: React.FC<ThumbnailItemProps> = ({ page, index, isActive, on
             onError={handleImageError}
           />
         )}
-
-        {/* 页码指示器 */}
-        <div className={styles.pageNumber}>{index + 1}</div>
       </div>
       
-      <div className={styles.thumbnailInfo}>
+      {/* 隐藏作品名称和作者信息，只显示缩略图 */}
+       <div className={styles.thumbnailInfo}>
         <h4 className={styles.thumbnailTitle}>{page.title}</h4>
         <p className={styles.thumbnailArtist}>{page.artist}</p>
-      </div>
+      </div> 
     </button>
   );
 };

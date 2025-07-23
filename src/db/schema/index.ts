@@ -35,6 +35,9 @@ export * from '@/services/universalFile/db/schema';
 // 导出配置管理相关的表
 export * from '@/modules/configManager/db/schema';
 
+// 导出购买游戏相关的表
+export * from '@/modules/purchaseGame/db/schema';
+
 // 考试类型表
 export const examTypes = pgTable('exam_types', {
   id: text('id').primaryKey(), // 如 "default", "arknights"

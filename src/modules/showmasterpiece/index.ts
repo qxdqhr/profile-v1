@@ -68,6 +68,9 @@ export { AddToCartButton } from './components/AddToCartButton';
 /** 购物车管理面板组件 - 管理员查看所有用户购物车数据 */
 export { CartAdminPanel } from './components/CartAdminPanel';
 
+/** 预订管理面板组件 - 管理员查看所有用户预订信息 */
+export { BookingAdminPanel } from './components/BookingAdminPanel';
+
 
 // ===== 页面组件导出 =====
 // 完整的页面组件，可以直接用作路由页面
@@ -92,6 +95,9 @@ export { useCart } from './hooks/useCart';
 
 /** 购物车管理Hook - 提供购物车管理相关的状态管理和业务逻辑 */
 export { useCartAdmin } from './hooks/useCartAdmin';
+
+/** 预订管理Hook - 提供预订管理相关的状态管理和业务逻辑 */
+export { useBookingAdmin } from './hooks/useBookingAdmin';
 
 /** 购物车上下文 - 提供购物车状态的全局管理 */
 export { CartProvider, useCartContext } from './contexts/CartContext';
@@ -161,6 +167,16 @@ export {
   getAllCarts,         // 获取所有购物车数据
 } from './services/cartAdminService';
 
+/** 
+ * 预订管理服务函数集
+ * 包含所有与预订管理相关的API调用方法
+ */
+export { 
+  BookingAdminService,
+  getAllBookings,      // 获取所有预订数据
+  updateBookingStatus  // 更新预订状态
+} from './services/bookingAdminService';
+
 // ===== 类型导出 =====
 // TypeScript类型定义，确保类型安全
 
@@ -206,6 +222,15 @@ export type {
   CartAdminStats,       // 购物车统计信息类型
   CartAdminResponse     // 购物车管理API响应类型
 } from './services/cartAdminService';
+
+/** 
+ * 导出预订管理功能相关的TypeScript类型定义
+ */
+export type {
+  BookingAdminData,     // 预订管理数据类型
+  BookingAdminStats,    // 预订统计信息类型
+  BookingAdminResponse  // 预订管理API响应类型
+} from './services/bookingAdminService';
 
 // ===== 模块信息 =====
 /** 模块版本号 */

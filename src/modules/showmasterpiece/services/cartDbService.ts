@@ -108,6 +108,7 @@ export class CartDbService {
           description: comicUniverseCollections.description,
           categoryId: comicUniverseCollections.categoryId,
           isPublished: comicUniverseCollections.isPublished,
+          price: comicUniverseCollections.price,
           createdAt: comicUniverseCollections.createdAt,
           updatedAt: comicUniverseCollections.updatedAt,
         }
