@@ -114,11 +114,15 @@ export class BookingAdminService {
     try {
       // 添加时间戳参数防止缓存
       const timestamp = Date.now();
-      const response = await fetch(`/api/showmasterpiece/bookings/admin?t=${timestamp}`, {
+      const randomId = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/showmasterpiece/bookings/admin?t=${timestamp}&forceRefresh=${randomId}`, {
+        method: 'GET',
+        cache: 'no-store',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
-          'Expires': '0'
+          'Expires': '0',
+          'X-Requested-With': 'XMLHttpRequest'
         }
       });
       if (!response.ok) {
@@ -139,11 +143,15 @@ export class BookingAdminService {
     try {
       // 添加时间戳参数防止缓存
       const timestamp = Date.now();
-      const response = await fetch(`/api/showmasterpiece/bookings/admin?t=${timestamp}`, {
+      const randomId = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/showmasterpiece/bookings/admin?t=${timestamp}&forceRefresh=${randomId}`, {
+        method: 'GET',
+        cache: 'no-store',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
-          'Expires': '0'
+          'Expires': '0',
+          'X-Requested-With': 'XMLHttpRequest'
         }
       });
       if (!response.ok) {

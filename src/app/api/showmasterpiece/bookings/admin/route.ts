@@ -22,7 +22,22 @@ import { eq } from 'drizzle-orm';
  */
 async function GET(request: NextRequest) {
   try {
+    // 强制禁用Next.js缓存
+    let forceRefresh = null;
+    try {
+      const { searchParams } = new URL(request.url);
+      forceRefresh = searchParams.get('forceRefresh') || searchParams.get('t');
+    } catch (error) {
+      // 在构建时可能会出错，忽略这个错误
+      console.log('无法解析URL参数，可能是构建时调用');
+    }
+    
+    // 如果请求包含强制刷新参数，确保不使用缓存
+    if (forceRefresh) {
+      console.log('强制刷新预订数据:', { forceRefresh, timestamp: new Date().toISOString() });
+    }
     // 获取所有预订数据（包含画集信息）
+    console.log('开始查询预订数据...');
     const bookings = await db
       .select({
         id: comicUniverseBookings.id,
@@ -47,6 +62,8 @@ async function GET(request: NextRequest) {
       .from(comicUniverseBookings)
       .leftJoin(comicUniverseCollections, eq(comicUniverseBookings.collectionId, comicUniverseCollections.id))
       .orderBy(desc(comicUniverseBookings.createdAt));
+
+    console.log(`查询到 ${bookings.length} 条预订数据`);
 
     // 计算统计信息
     const stats = await db

@@ -73,10 +73,17 @@ export const useBookingAdmin = (): UseBookingAdminReturn => {
       setLoading(true);
       setError(undefined);
       
+      console.log('开始获取预订数据...');
       const [bookingsData, statsData] = await Promise.all([
         getAllBookings(),
         getBookingStats()
       ]);
+      
+      console.log('获取到预订数据:', { 
+        bookingsCount: bookingsData.length, 
+        stats: statsData,
+        timestamp: new Date().toISOString()
+      });
       
       setBookings(bookingsData);
       setStats(statsData);
