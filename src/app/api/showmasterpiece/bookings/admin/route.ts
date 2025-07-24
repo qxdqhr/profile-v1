@@ -160,4 +160,8 @@ async function GET(request: NextRequest) {
   }
 }
 
-export { GET }; 
+export { GET };
+
+// 强制API路由不缓存
+export const dynamic = 'force-dynamic';
+export const revalidate = 0; 

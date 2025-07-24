@@ -30,7 +30,7 @@ async function GET(request: NextRequest) {
     await forceRefreshDatabaseConnection();
     
     // 获取所有预订数据（包含画集信息）
-    console.log('开始查询预订数据...');
+    console.log('开始查询预订数据（强制刷新后）...');
     const bookings = await db
       .select({
         id: comicUniverseBookings.id,
@@ -149,4 +149,8 @@ async function GET(request: NextRequest) {
   }
 }
 
-export { GET }; 
+export { GET };
+
+// 强制API路由不缓存
+export const dynamic = 'force-dynamic';
+export const revalidate = 0; 

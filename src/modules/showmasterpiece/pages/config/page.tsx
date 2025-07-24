@@ -55,7 +55,6 @@ function ConfigPageContent() {
     loading: bookingLoading,
     error: bookingError,
     refreshData: refreshBookingData,
-    forceRefreshData: forceRefreshBookingData,
     updateBookingStatus,
   } = useBookingAdmin();
 
@@ -832,15 +831,7 @@ function ConfigPageContent() {
                   className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium hover:bg-blue-200 transition-colors disabled:opacity-50"
                 >
                   <RefreshCw size={16} className={bookingLoading ? 'animate-spin' : ''} />
-                  刷新
-                </button>
-                <button
-                  onClick={forceRefreshBookingData}
-                  disabled={bookingLoading}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg font-medium hover:bg-red-200 transition-colors disabled:opacity-50"
-                >
-                  <RefreshCw size={16} className={bookingLoading ? 'animate-spin' : ''} />
-                  强制刷新
+                  刷新数据
                 </button>
               </div>
             </div>
