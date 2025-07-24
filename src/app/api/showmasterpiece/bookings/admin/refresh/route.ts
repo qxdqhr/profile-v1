@@ -1,50 +1,33 @@
 /**
- * ShowMasterpiece 模块 - 预订管理API路由
+ * ShowMasterpiece 模块 - 预订管理强制刷新API路由
  * 
- * 管理员专用的预订管理API，提供：
- * - GET: 获取所有预订数据和统计信息
+ * 专门用于强制刷新预订数据的API，绕过所有缓存机制
  * 
- * @fileoverview 预订管理API路由
+ * @fileoverview 预订管理强制刷新API路由
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { comicUniverseBookings, comicUniverseCollections } from '@/db/schema';
 import { desc, sql } from 'drizzle-orm';
-import { BookingStatus } from '@/modules/showmasterpiece/types/booking';
 import { eq } from 'drizzle-orm';
 
 /**
- * 获取所有预订数据和统计信息（管理员专用）
+ * 强制刷新获取所有预订数据和统计信息（管理员专用）
  * 
  * @param request Next.js请求对象
  * @returns 所有预订数据和统计信息
  */
 async function GET(request: NextRequest) {
   try {
-    // 强制禁用Next.js缓存
-    let forceRefresh = null;
-    try {
-      const { searchParams } = new URL(request.url);
-      forceRefresh = searchParams.get('forceRefresh') || searchParams.get('t');
-    } catch (error) {
-      // 在构建时可能会出错，忽略这个错误
-      console.log('无法解析URL参数，可能是构建时调用');
-    }
-    
-    // 如果请求包含强制刷新参数，确保不使用缓存
-    if (forceRefresh) {
-      console.log('强制刷新预订数据:', { forceRefresh, timestamp: new Date().toISOString() });
-    }
-    // 获取所有预订数据（包含画集信息）
-    console.log('开始查询预订数据...');
+    console.log('🔄 强制刷新预订数据 - 开始执行...');
     
     // 强制刷新：先执行一个简单的查询来确保连接是最新的
-    if (forceRefresh) {
-      console.log('执行强制刷新查询...');
-      await db.execute(sql`SELECT 1 as refresh_check`);
-    }
+    console.log('执行强制刷新查询...');
+    await db.execute(sql`SELECT 1 as refresh_check`);
     
+    // 获取所有预订数据（包含画集信息）
+    console.log('开始查询预订数据...');
     const bookings = await db
       .select({
         id: comicUniverseBookings.id,
@@ -123,38 +106,41 @@ async function GET(request: NextRequest) {
     };
 
     // 强制刷新数据库连接，确保获取最新数据
-    console.log('API响应数据:', {
+    console.log('🔄 强制刷新API响应数据:', {
       bookingsCount: formattedBookings.length,
       stats: formattedStats,
       timestamp: new Date().toISOString(),
-      forceRefresh: forceRefresh
+      refreshType: 'FORCE_REFRESH'
     });
 
     const response = NextResponse.json({
       bookings: formattedBookings,
       stats: formattedStats,
-      _timestamp: Date.now(), // 添加时间戳到响应体
-      _cacheBuster: Math.random().toString(36).substring(7) // 添加随机字符串
+      _timestamp: Date.now(),
+      _cacheBuster: Math.random().toString(36).substring(7),
+      _refreshType: 'FORCE_REFRESH'
     });
 
-    // 添加更强的缓存控制头，彻底防止缓存
-    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+    // 添加最强的缓存控制头，彻底防止缓存
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0, private');
     response.headers.set('Pragma', 'no-cache');
     response.headers.set('Expires', '0');
     response.headers.set('Surrogate-Control', 'no-store');
     response.headers.set('X-Accel-Buffering', 'no');
     response.headers.set('X-No-Cache', 'true');
+    response.headers.set('X-Refresh-Type', 'FORCE_REFRESH');
     
     // 添加时间戳确保每次响应都不同
     response.headers.set('Last-Modified', new Date().toUTCString());
-    response.headers.set('ETag', `"${Date.now()}-${Math.random()}"`);
+    response.headers.set('ETag', `"force-refresh-${Date.now()}-${Math.random()}"`);
 
+    console.log('🔄 强制刷新预订数据 - 完成');
     return response;
 
   } catch (error) {
-    console.error('获取预订管理数据失败:', error);
+    console.error('强制刷新获取预订管理数据失败:', error);
     return NextResponse.json(
-      { message: '获取预订管理数据失败' },
+      { message: '强制刷新获取预订管理数据失败', error: error instanceof Error ? error.message : '未知错误' },
       { status: 500 }
     );
   }

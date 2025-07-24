@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown, Calendar } from 'lucide-react';
+import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown, Calendar, RefreshCw } from 'lucide-react';
 import { useMasterpiecesConfig } from '../../hooks/useMasterpiecesConfig';
 import { ConfigFormData, CollectionFormData, ArtworkFormData, CollectionCategory, CollectionCategoryType, getAvailableCategories, getCategoryDisplayName } from '../../types';
 import { UniversalImageUpload } from '../../components/UniversalImageUpload';
@@ -55,6 +55,7 @@ function ConfigPageContent() {
     loading: bookingLoading,
     error: bookingError,
     refreshData: refreshBookingData,
+    forceRefreshData: forceRefreshBookingData,
     updateBookingStatus,
   } = useBookingAdmin();
 
@@ -820,8 +821,28 @@ function ConfigPageContent() {
         {activeTab === 'bookings' && (
           <div>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-slate-800">预订管理</h2>
-              <p className="text-slate-600">查看所有用户的预订信息</p>
+              <div>
+                <h2 className="text-2xl font-bold text-slate-800">预订管理</h2>
+                <p className="text-slate-600">查看所有用户的预订信息</p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={refreshBookingData}
+                  disabled={bookingLoading}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium hover:bg-blue-200 transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw size={16} className={bookingLoading ? 'animate-spin' : ''} />
+                  刷新
+                </button>
+                <button
+                  onClick={forceRefreshBookingData}
+                  disabled={bookingLoading}
+                  className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg font-medium hover:bg-red-200 transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw size={16} className={bookingLoading ? 'animate-spin' : ''} />
+                  强制刷新
+                </button>
+              </div>
             </div>
             <BookingAdminPanel 
               bookings={bookings}

@@ -137,6 +137,41 @@ export class BookingAdminService {
   }
 
   /**
+   * 强制刷新获取所有预订数据（绕过所有缓存）
+   */
+  static async forceRefreshAllBookings(): Promise<BookingAdminData[]> {
+    try {
+      console.log('🔄 使用强制刷新API获取预订数据...');
+      const timestamp = Date.now();
+      const randomId = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/showmasterpiece/bookings/admin/refresh?t=${timestamp}&forceRefresh=${randomId}`, {
+        method: 'GET',
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-Force-Refresh': 'true'
+        }
+      });
+      if (!response.ok) {
+        throw new Error('强制刷新获取预订数据失败');
+      }
+      const data = await response.json();
+      console.log('🔄 强制刷新API响应:', { 
+        bookingsCount: data.bookings?.length || 0,
+        timestamp: data._timestamp,
+        refreshType: data._refreshType
+      });
+      return data.bookings || [];
+    } catch (error) {
+      console.error('强制刷新获取预订数据失败:', error);
+      throw error;
+    }
+  }
+
+  /**
    * 获取预订统计信息
    */
   static async getBookingStats(): Promise<BookingAdminStats> {
@@ -172,6 +207,52 @@ export class BookingAdminService {
       };
     } catch (error) {
       console.error('获取统计信息失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 强制刷新获取预订统计信息（绕过所有缓存）
+   */
+  static async forceRefreshBookingStats(): Promise<BookingAdminStats> {
+    try {
+      console.log('🔄 使用强制刷新API获取统计信息...');
+      const timestamp = Date.now();
+      const randomId = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/showmasterpiece/bookings/admin/refresh?t=${timestamp}&forceRefresh=${randomId}`, {
+        method: 'GET',
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-Force-Refresh': 'true'
+        }
+      });
+      if (!response.ok) {
+        throw new Error('强制刷新获取统计信息失败');
+      }
+      const data = await response.json();
+      console.log('🔄 强制刷新统计信息响应:', { 
+        stats: data.stats,
+        timestamp: data._timestamp,
+        refreshType: data._refreshType
+      });
+      return data.stats || {
+        totalBookings: 0,
+        pendingBookings: 0,
+        confirmedBookings: 0,
+        completedBookings: 0,
+        cancelledBookings: 0,
+        totalQuantity: 0,
+        totalRevenue: 0,
+        totalAmount: 0,
+        todayBookings: 0,
+        weekBookings: 0,
+      };
+    } catch (error) {
+      console.error('强制刷新获取统计信息失败:', error);
       throw error;
     }
   }
@@ -240,6 +321,8 @@ export class BookingAdminService {
 // 导出单独的函数，方便直接导入使用
 export const getAllBookings = BookingAdminService.getAllBookings;
 export const getBookingStats = BookingAdminService.getBookingStats;
+export const forceRefreshAllBookings = BookingAdminService.forceRefreshAllBookings;
+export const forceRefreshBookingStats = BookingAdminService.forceRefreshBookingStats;
 export const updateBookingStatus = BookingAdminService.updateBookingStatus;
 export const deleteBooking = BookingAdminService.deleteBooking;
 export const exportBookings = BookingAdminService.exportBookings; 

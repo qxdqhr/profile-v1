@@ -17,6 +17,8 @@ import {
   BookingAdminResponse,
   getAllBookings,
   getBookingStats,
+  forceRefreshAllBookings,
+  forceRefreshBookingStats,
   updateBookingStatus as updateBookingStatusService
 } from '../services/bookingAdminService';
 import { BookingStatus } from '../types/booking';
@@ -35,6 +37,8 @@ interface UseBookingAdminReturn {
   error?: string;
   /** 刷新数据 */
   refreshData: () => Promise<void>;
+  /** 强制刷新数据（绕过所有缓存） */
+  forceRefreshData: () => Promise<void>;
   /** 更新预订状态 */
   updateBookingStatus: (id: number, status: BookingStatus, adminNotes?: string) => Promise<void>;
   /** 清除错误 */
@@ -129,6 +133,37 @@ export const useBookingAdmin = (): UseBookingAdminReturn => {
   }, [fetchBookings]);
 
   /**
+   * 强制刷新数据（绕过所有缓存）
+   */
+  const forceRefreshData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(undefined);
+      
+      console.log('🔄 开始强制刷新预订数据...');
+      const [bookingsData, statsData] = await Promise.all([
+        forceRefreshAllBookings(),
+        forceRefreshBookingStats()
+      ]);
+      
+      console.log('🔄 强制刷新获取到预订数据:', { 
+        bookingsCount: bookingsData.length, 
+        stats: statsData,
+        timestamp: new Date().toISOString()
+      });
+      
+      setBookings(bookingsData);
+      setStats(statsData);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '强制刷新预订数据失败';
+      setError(errorMessage);
+      console.error('强制刷新预订数据失败:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
    * 清除错误
    */
   const clearError = useCallback(() => {
@@ -148,6 +183,7 @@ export const useBookingAdmin = (): UseBookingAdminReturn => {
     loading,
     error,
     refreshData,
+    forceRefreshData,
     updateBookingStatus,
     clearError,
   };
