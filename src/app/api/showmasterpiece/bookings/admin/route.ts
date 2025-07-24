@@ -98,10 +98,17 @@ async function GET(request: NextRequest) {
       totalRevenue: stats[0]?.totalRevenue || 0,
     };
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       bookings: formattedBookings,
       stats: formattedStats,
     });
+
+    // 添加缓存控制头，防止缓存
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+
+    return response;
 
   } catch (error) {
     console.error('获取预订管理数据失败:', error);
