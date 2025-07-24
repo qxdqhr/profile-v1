@@ -66,6 +66,18 @@ const postgresConfig = {
   // 添加连接重试配置
   connection: {
     application_name: 'profile-v1-app'
+  },
+  // 设置事务隔离级别为 READ COMMITTED，确保读取最新提交的数据
+  onnotice: () => {}, // 忽略通知
+  // 强制设置事务隔离级别
+  afterConnect: async (connection: any) => {
+    try {
+      await connection.query('SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED');
+      await connection.query('SET SESSION synchronous_commit = on');
+      console.log('数据库连接已设置事务隔离级别为 READ COMMITTED');
+    } catch (error) {
+      console.warn('设置事务隔离级别失败:', error);
+    }
   }
 };
 
@@ -74,6 +86,46 @@ const client = postgres(dbConfig.url, postgresConfig);
 
 // 创建Drizzle实例
 export const db = drizzle(client, { schema });
+
+/**
+ * 强制刷新数据库连接
+ * 用于确保获取最新数据
+ */
+export async function forceRefreshDatabaseConnection() {
+  try {
+    console.log('🔄 强制刷新数据库连接...');
+    
+    // 执行一个简单的查询来刷新连接
+    await client`SELECT 1 as connection_check`;
+    
+    // 设置事务隔离级别
+    await client`SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED`;
+    await client`SET SESSION synchronous_commit = on`;
+    
+    console.log('✅ 数据库连接刷新完成');
+  } catch (error) {
+    console.error('❌ 数据库连接刷新失败:', error);
+    throw error;
+  }
+}
+
+/**
+ * 获取数据库连接状态
+ */
+export async function getDatabaseConnectionStatus() {
+  try {
+    const result = await client`SELECT version(), current_database(), current_user, inet_server_addr() as server_ip`;
+    return {
+      success: true,
+      data: result[0]
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : '未知错误'
+    };
+  }
+}
 
 // 导出数据库配置（用于调试）
 export { dbConfig }; 

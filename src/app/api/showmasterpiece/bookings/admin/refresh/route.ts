@@ -7,7 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/db';
+import { db, forceRefreshDatabaseConnection, getDatabaseConnectionStatus } from '@/db';
 import { comicUniverseBookings, comicUniverseCollections } from '@/db/schema';
 import { desc, sql } from 'drizzle-orm';
 import { eq } from 'drizzle-orm';
@@ -22,9 +22,12 @@ async function GET(request: NextRequest) {
   try {
     console.log('🔄 强制刷新预订数据 - 开始执行...');
     
-    // 强制刷新：先执行一个简单的查询来确保连接是最新的
-    console.log('执行强制刷新查询...');
-    await db.execute(sql`SELECT 1 as refresh_check`);
+    // 检查数据库连接状态
+    const connectionStatus = await getDatabaseConnectionStatus();
+    console.log('数据库连接状态:', connectionStatus);
+    
+    // 强制刷新数据库连接
+    await forceRefreshDatabaseConnection();
     
     // 获取所有预订数据（包含画集信息）
     console.log('开始查询预订数据...');
