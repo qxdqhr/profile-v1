@@ -103,10 +103,16 @@ async function GET(request: NextRequest) {
       stats: formattedStats,
     });
 
-    // 添加缓存控制头，防止缓存
-    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    // 添加更强的缓存控制头，彻底防止缓存
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
     response.headers.set('Pragma', 'no-cache');
     response.headers.set('Expires', '0');
+    response.headers.set('Surrogate-Control', 'no-store');
+    response.headers.set('X-Accel-Buffering', 'no');
+    
+    // 添加时间戳确保每次响应都不同
+    response.headers.set('Last-Modified', new Date().toUTCString());
+    response.headers.set('ETag', `"${Date.now()}"`);
 
     return response;
 

@@ -112,7 +112,15 @@ export class BookingAdminService {
    */
   static async getAllBookings(): Promise<BookingAdminData[]> {
     try {
-      const response = await fetch('/api/showmasterpiece/bookings/admin');
+      // 添加时间戳参数防止缓存
+      const timestamp = Date.now();
+      const response = await fetch(`/api/showmasterpiece/bookings/admin?t=${timestamp}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
       if (!response.ok) {
         throw new Error('获取预订数据失败');
       }
@@ -129,7 +137,15 @@ export class BookingAdminService {
    */
   static async getBookingStats(): Promise<BookingAdminStats> {
     try {
-      const response = await fetch('/api/showmasterpiece/bookings/admin');
+      // 添加时间戳参数防止缓存
+      const timestamp = Date.now();
+      const response = await fetch(`/api/showmasterpiece/bookings/admin?t=${timestamp}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
       if (!response.ok) {
         throw new Error('获取统计信息失败');
       }

@@ -190,7 +190,11 @@ async function POST(request: NextRequest) {
 
     // 检查是否已存在相同的预订（QQ号+手机号+画集ID）
     const existingBooking = await db
-      .select({ id: comicUniverseBookings.id })
+      .select({ 
+        id: comicUniverseBookings.id,
+        quantity: comicUniverseBookings.quantity,
+        notes: comicUniverseBookings.notes
+      })
       .from(comicUniverseBookings)
       .where(
         and(
@@ -201,36 +205,62 @@ async function POST(request: NextRequest) {
       )
       .limit(1);
 
+    let resultBooking;
+
     if (existingBooking.length > 0) {
-      return NextResponse.json(
-        { message: '您已经预订过这个画集了' },
-        { status: 409 }
-      );
+      // 如果已存在，累加数量而不是创建新预订
+      const existing = existingBooking[0];
+      const newQuantity = existing.quantity + body.quantity;
+      
+      // 合并备注信息
+      const combinedNotes = existing.notes 
+        ? `${existing.notes}; 新增预订: ${body.notes || '无备注'}`
+        : body.notes || null;
+
+      const [updatedBooking] = await db
+        .update(comicUniverseBookings)
+        .set({
+          quantity: newQuantity,
+          notes: combinedNotes,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(comicUniverseBookings.qqNumber, body.qqNumber),
+            eq(comicUniverseBookings.phoneNumber, body.phoneNumber),
+            eq(comicUniverseBookings.collectionId, body.collectionId)
+          )
+        )
+        .returning();
+
+      resultBooking = updatedBooking;
+    } else {
+      // 如果不存在，创建新预订
+      const [newBooking] = await db
+        .insert(comicUniverseBookings)
+        .values({
+          collectionId: body.collectionId,
+          qqNumber: body.qqNumber,
+          phoneNumber: body.phoneNumber,
+          quantity: body.quantity,
+          notes: body.notes || null,
+          status: 'pending',
+        })
+        .returning();
+
+      resultBooking = newBooking;
     }
 
-    // 创建预订
-    const [newBooking] = await db
-      .insert(comicUniverseBookings)
-      .values({
-        collectionId: body.collectionId,
-        qqNumber: body.qqNumber,
-        phoneNumber: body.phoneNumber,
-        quantity: body.quantity,
-        notes: body.notes || null,
-        status: 'pending',
-      })
-      .returning();
-
     return NextResponse.json({
-      id: newBooking.id,
-      collectionId: newBooking.collectionId,
-      qqNumber: newBooking.qqNumber,
-      phoneNumber: newBooking.phoneNumber,
-      quantity: newBooking.quantity,
-      status: newBooking.status,
-      notes: newBooking.notes,
-      createdAt: newBooking.createdAt?.toISOString(),
-      updatedAt: newBooking.updatedAt?.toISOString(),
+      id: resultBooking.id,
+      collectionId: resultBooking.collectionId,
+      qqNumber: resultBooking.qqNumber,
+      phoneNumber: resultBooking.phoneNumber,
+      quantity: resultBooking.quantity,
+      status: resultBooking.status,
+      notes: resultBooking.notes,
+      createdAt: resultBooking.createdAt instanceof Date ? resultBooking.createdAt.toISOString() : resultBooking.createdAt,
+      updatedAt: resultBooking.updatedAt instanceof Date ? resultBooking.updatedAt.toISOString() : resultBooking.updatedAt,
     }, { status: 201 });
 
   } catch (error) {

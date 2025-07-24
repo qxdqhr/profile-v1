@@ -37,6 +37,28 @@ const nextConfig = {
                     },
                 ],
             },
+            // 为预订管理API添加缓存控制
+            {
+                source: '/api/showmasterpiece/bookings/admin',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'no-cache, no-store, must-revalidate, max-age=0'
+                    },
+                    {
+                        key: 'Pragma',
+                        value: 'no-cache'
+                    },
+                    {
+                        key: 'Expires',
+                        value: '0'
+                    },
+                    {
+                        key: 'Surrogate-Control',
+                        value: 'no-store'
+                    },
+                ],
+            },
         ]
     },
     // 配置子应用的代理（如需要）
