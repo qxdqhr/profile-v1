@@ -104,6 +104,7 @@ async function PUT(
       id: updatedBooking.id,
       collectionId: updatedBooking.collectionId,
       qqNumber: updatedBooking.qqNumber,
+      phoneNumber: updatedBooking.phoneNumber,
       quantity: updatedBooking.quantity,
       status: updatedBooking.status,
       notes: updatedBooking.notes,

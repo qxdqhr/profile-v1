@@ -12,6 +12,7 @@
  * - 针对查询场景的索引优化
  * - 支持预订状态管理
  * - 记录用户联系信息和预订详情
+ * - QQ号+手机号作为复合主键，确保每个用户的预订唯一性
  * 
  * @fileoverview 数据库表结构 - 画集预订功能
  */
@@ -25,7 +26,8 @@ import {
   integer, 
   boolean,
   varchar,
-  index
+  index,
+  primaryKey
 } from 'drizzle-orm/pg-core';
 import { comicUniverseCollections } from './masterpieces';
 
@@ -37,14 +39,15 @@ import { comicUniverseCollections } from './masterpieces';
  * 
  * 主要功能：
  * - 记录用户预订的画集和数量
- * - 存储用户联系方式（QQ号）
+ * - 存储用户联系方式（QQ号+手机号）
  * - 预订状态管理（待确认、已确认、已完成、已取消）
  * - 预订时间记录和备注信息
  * - 支持管理员处理预订
+ * - QQ号+手机号作为复合主键，确保每个用户的预订唯一性
  */
 export const comicUniverseBookings = pgTable('comic_universe_bookings', {
-  /** 主键ID */
-  id: serial('id').primaryKey(),
+  /** 自增ID（用于内部管理） */
+  id: serial('id'),
   
   /** 预订的画集ID（外键，级联删除） */
   collectionId: integer('collection_id').notNull().references(() => comicUniverseCollections.id, { onDelete: 'cascade' }),
@@ -53,7 +56,7 @@ export const comicUniverseBookings = pgTable('comic_universe_bookings', {
   qqNumber: varchar('qq_number', { length: 20 }).notNull(),
   
   /** 用户手机号 */
-  phoneNumber: varchar('phone_number', { length: 20 }),
+  phoneNumber: varchar('phone_number', { length: 20 }).notNull(),
   
   /** 预订数量 */
   quantity: integer('quantity').notNull().default(1),
@@ -82,6 +85,9 @@ export const comicUniverseBookings = pgTable('comic_universe_bookings', {
   /** 取消时间 */
   cancelledAt: timestamp('cancelled_at'),
 }, (table) => ({
+  /** QQ号+手机号+画集ID的复合主键，确保每个用户对每个画集的预订唯一性 */
+  userCollectionPk: primaryKey({ columns: [table.qqNumber, table.phoneNumber, table.collectionId] }),
+  
   /** 按画集查询预订的索引 */
   collectionIdIndex: index('bookings_collection_id_idx').on(table.collectionId),
   
@@ -102,6 +108,12 @@ export const comicUniverseBookings = pgTable('comic_universe_bookings', {
   
   /** QQ号和状态的复合索引（优化用户预订查询） */
   qqStatusIndex: index('bookings_qq_status_idx').on(table.qqNumber, table.status),
+  
+  /** QQ号+手机号的复合索引（优化用户查询） */
+  userIndex: index('bookings_user_idx').on(table.qqNumber, table.phoneNumber),
+  
+  /** QQ号+手机号+状态的复合索引（优化用户状态查询） */
+  userStatusIndex: index('bookings_user_status_idx').on(table.qqNumber, table.phoneNumber, table.status),
 }));
 
 // ===== 关系定义 =====

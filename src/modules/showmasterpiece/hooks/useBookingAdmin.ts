@@ -99,29 +99,18 @@ export const useBookingAdmin = (): UseBookingAdminReturn => {
   ) => {
     try {
       setError(undefined);
+      console.log('开始更新预订状态:', { id, status, adminNotes });
       
       await updateBookingStatusService(id, status, adminNotes);
+      console.log('预订状态更新成功');
       
-      // 更新本地数据
-      setBookings(prevBookings => 
-        prevBookings.map(booking => 
-          booking.id === id 
-            ? { 
-                ...booking, 
-                status, 
-                adminNotes: adminNotes || booking.adminNotes,
-                updatedAt: new Date().toISOString()
-              }
-            : booking
-        )
-      );
-      
-      // 重新获取统计数据
+      // 重新获取所有数据以确保数据一致性
       await fetchBookings();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '更新预订状态失败';
       setError(errorMessage);
       console.error('更新预订状态失败:', err);
+      throw err; // 重新抛出错误，让调用者知道更新失败
     }
   }, [fetchBookings]);
 

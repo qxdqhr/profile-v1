@@ -246,6 +246,20 @@
       "when": 1753294459637,
       "tag": "0034_parched_kabuki",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1753367730565,
+      "tag": "0035_solid_thundra",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1753368056740,
+      "tag": "0036_curious_dragon_lord",
+      "breakpoints": true
     }
   ]
 }

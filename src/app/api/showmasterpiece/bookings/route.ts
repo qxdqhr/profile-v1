@@ -142,22 +142,20 @@ async function POST(request: NextRequest) {
     const body: CreateBookingRequest = await request.json();
 
     // 数据验证
-    if (!body.collectionId || !body.qqNumber || !body.quantity) {
+    if (!body.collectionId || !body.qqNumber || !body.phoneNumber || !body.quantity) {
       return NextResponse.json(
-        { message: '缺少必要参数：画集ID、QQ号、预订数量' },
+        { message: '缺少必要参数：画集ID、QQ号、手机号、预订数量' },
         { status: 400 }
       );
     }
 
-    // 验证手机号格式（如果提供）
-    if (body.phoneNumber) {
-      const phoneRegex = /^1[3-9]\d{9}$/;
-      if (!phoneRegex.test(body.phoneNumber)) {
-        return NextResponse.json(
-          { message: '手机号格式不正确' },
-          { status: 400 }
-        );
-      }
+    // 验证手机号格式
+    const phoneRegex = /^1[3-9]\d{9}$/;
+    if (!phoneRegex.test(body.phoneNumber)) {
+      return NextResponse.json(
+        { message: '手机号格式不正确' },
+        { status: 400 }
+      );
     }
 
     if (body.quantity < 1) {
@@ -190,13 +188,33 @@ async function POST(request: NextRequest) {
       );
     }
 
+    // 检查是否已存在相同的预订（QQ号+手机号+画集ID）
+    const existingBooking = await db
+      .select({ id: comicUniverseBookings.id })
+      .from(comicUniverseBookings)
+      .where(
+        and(
+          eq(comicUniverseBookings.qqNumber, body.qqNumber),
+          eq(comicUniverseBookings.phoneNumber, body.phoneNumber),
+          eq(comicUniverseBookings.collectionId, body.collectionId)
+        )
+      )
+      .limit(1);
+
+    if (existingBooking.length > 0) {
+      return NextResponse.json(
+        { message: '您已经预订过这个画集了' },
+        { status: 409 }
+      );
+    }
+
     // 创建预订
     const [newBooking] = await db
       .insert(comicUniverseBookings)
       .values({
         collectionId: body.collectionId,
         qqNumber: body.qqNumber,
-        phoneNumber: body.phoneNumber || null,
+        phoneNumber: body.phoneNumber,
         quantity: body.quantity,
         notes: body.notes || null,
         status: 'pending',

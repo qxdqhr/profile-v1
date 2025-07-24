@@ -208,14 +208,16 @@ export function useCart(userId: number) {
    * 批量预订购物车中的商品
    * 
    * @param qqNumber QQ号
+   * @param phoneNumber 手机号
    * @param notes 备注
    */
-  const checkoutCart = useCallback(async (qqNumber: string, notes?: string): Promise<BatchBookingResponse> => {
+  const checkoutCart = useCallback(async (qqNumber: string, phoneNumber: string, notes?: string): Promise<BatchBookingResponse> => {
     setState(prev => ({ ...prev, loading: true, error: undefined }));
     
     try {
       const request: BatchBookingRequest = {
         qqNumber,
+        phoneNumber,
         items: state.cart.items.map(item => ({
           collectionId: item.collectionId,
           quantity: item.quantity

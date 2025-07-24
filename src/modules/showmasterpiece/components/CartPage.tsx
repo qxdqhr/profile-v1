@@ -85,8 +85,10 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
       errors.qqNumber = 'QQ号格式不正确';
     }
 
-    // 验证手机号（如果提供）
-    if (formData.phoneNumber.trim()) {
+    // 验证手机号（必填）
+    if (!formData.phoneNumber.trim()) {
+      errors.phoneNumber = '请输入手机号';
+    } else {
       const phoneRegex = /^1[3-9]\d{9}$/;
       if (!phoneRegex.test(formData.phoneNumber.trim())) {
         errors.phoneNumber = '手机号格式不正确';
@@ -111,7 +113,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
     clearError();
     
     try {
-      const result = await checkoutCart(formData.qqNumber, formData.notes || undefined);
+      const result = await checkoutCart(formData.qqNumber, formData.phoneNumber, formData.notes || undefined);
       setCheckoutSuccess(true);
     } catch (error) {
       console.error('批量预订失败:', error);
@@ -300,7 +302,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
               {/* 手机号输入 */}
               <div>
                 <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
-                  手机号
+                  手机号 <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
@@ -310,7 +312,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
                   className={`w-full px-3 py-3 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base ${
                     formErrors.phoneNumber ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="请输入您的手机号（可选）"
+                  placeholder="请输入您的手机号"
                   disabled={isCheckingOut}
                 />
                 {formErrors.phoneNumber && (

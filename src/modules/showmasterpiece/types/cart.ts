@@ -114,6 +114,9 @@ export interface BatchBookingRequest {
   /** 用户QQ号 */
   qqNumber: string;
   
+  /** 用户手机号 */
+  phoneNumber: string;
+  
   /** 预订项列表 */
   items: {
     /** 画集ID */

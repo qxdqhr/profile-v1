@@ -95,7 +95,7 @@ export interface CreateBookingRequest {
   qqNumber: string;
   
   /** 用户手机号 */
-  phoneNumber?: string;
+  phoneNumber: string;
   
   /** 预订数量 */
   quantity: number;

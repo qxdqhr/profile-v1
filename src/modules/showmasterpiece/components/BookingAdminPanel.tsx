@@ -94,9 +94,16 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
    */
   const handleSaveEdit = async () => {
     if (editingBooking) {
-      await onUpdateStatus(editingBooking, editForm.status, editForm.adminNotes);
-      setEditingBooking(null);
-      setEditForm({ status: 'pending', adminNotes: '' });
+      try {
+        console.log('保存编辑:', { bookingId: editingBooking, status: editForm.status, adminNotes: editForm.adminNotes });
+        await onUpdateStatus(editingBooking, editForm.status, editForm.adminNotes);
+        console.log('编辑保存成功');
+        setEditingBooking(null);
+        setEditForm({ status: 'pending', adminNotes: '' });
+      } catch (error) {
+        console.error('保存编辑失败:', error);
+        // 保持编辑状态，让用户看到错误
+      }
     }
   };
 

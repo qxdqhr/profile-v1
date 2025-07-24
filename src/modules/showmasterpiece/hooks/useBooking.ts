@@ -71,7 +71,7 @@ export function useBooking() {
       const bookingData: CreateBookingRequest = {
         collectionId: formData.collectionId,
         qqNumber: formData.qqNumber,
-        phoneNumber: formData.phoneNumber.trim() || undefined,
+        phoneNumber: formData.phoneNumber.trim(),
         quantity: formData.quantity,
         notes: formData.notes || undefined,
       };

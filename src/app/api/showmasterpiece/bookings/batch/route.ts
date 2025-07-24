@@ -9,7 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { comicUniverseBookings, comicUniverseCollections } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 /**
  * 批量预订
@@ -20,12 +20,12 @@ import { eq } from 'drizzle-orm';
 async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { qqNumber, items, notes } = body;
+    const { qqNumber, phoneNumber, items, notes } = body;
 
     // 数据验证
-    if (!qqNumber || !items || !Array.isArray(items) || items.length === 0) {
+    if (!qqNumber || !phoneNumber || !items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
-        { message: '缺少必要参数：QQ号、预订项列表' },
+        { message: '缺少必要参数：QQ号、手机号、预订项列表' },
         { status: 400 }
       );
     }
@@ -35,6 +35,15 @@ async function POST(request: NextRequest) {
     if (!qqRegex.test(qqNumber)) {
       return NextResponse.json(
         { message: 'QQ号格式不正确' },
+        { status: 400 }
+      );
+    }
+
+    // 验证手机号格式
+    const phoneRegex = /^1[3-9]\d{9}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+      return NextResponse.json(
+        { message: '手机号格式不正确' },
         { status: 400 }
       );
     }
@@ -82,20 +91,56 @@ async function POST(request: NextRequest) {
           continue;
         }
 
-        // 创建预订
-        const [newBooking] = await db
-          .insert(comicUniverseBookings)
-          .values({
-            collectionId: item.collectionId,
-            qqNumber,
-            quantity: item.quantity,
-            notes: notes || null,
-            status: 'pending',
-          })
-          .returning();
+        // 检查是否已存在相同的预订（QQ号+手机号+画集ID）
+        const existingBooking = await db
+          .select({ id: comicUniverseBookings.id })
+          .from(comicUniverseBookings)
+          .where(
+            and(
+              eq(comicUniverseBookings.qqNumber, qqNumber),
+              eq(comicUniverseBookings.phoneNumber, phoneNumber),
+              eq(comicUniverseBookings.collectionId, item.collectionId)
+            )
+          )
+          .limit(1);
 
-        bookingIds.push(newBooking.id);
-        successCount++;
+        if (existingBooking.length > 0) {
+          // 如果已存在，更新数量而不是创建新预订
+          const [updatedBooking] = await db
+            .update(comicUniverseBookings)
+            .set({
+              quantity: item.quantity,
+              notes: notes || null,
+              updatedAt: new Date(),
+            })
+            .where(
+              and(
+                eq(comicUniverseBookings.qqNumber, qqNumber),
+                eq(comicUniverseBookings.phoneNumber, phoneNumber),
+                eq(comicUniverseBookings.collectionId, item.collectionId)
+              )
+            )
+            .returning();
+
+          bookingIds.push(updatedBooking.id);
+          successCount++;
+        } else {
+          // 如果不存在，创建新预订
+          const [newBooking] = await db
+            .insert(comicUniverseBookings)
+            .values({
+              collectionId: item.collectionId,
+              qqNumber,
+              phoneNumber,
+              quantity: item.quantity,
+              notes: notes || null,
+              status: 'pending',
+            })
+            .returning();
+
+          bookingIds.push(newBooking.id);
+          successCount++;
+        }
       } catch (error) {
         console.error(`创建预订失败 (collectionId: ${item.collectionId}):`, error);
         failures.push({
