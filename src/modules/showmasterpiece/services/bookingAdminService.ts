@@ -28,16 +28,16 @@ export interface BookingAdminData {
   collectionId: number;
   /** 画集标题 */
   collectionTitle: string;
-  /** 画集艺术家 */
-  collectionArtist: string;
+  /** 画集编号 */
+  collectionNumber: string;
   /** 画集信息 */
   collection: {
     /** 画集ID */
     id: number;
     /** 画集标题 */
     title: string;
-    /** 画集艺术家 */
-    artist: string;
+    /** 画集编号 */
+    number: string;
     /** 封面图片 */
     coverImage: string;
     /** 价格 */
@@ -290,11 +290,17 @@ export class BookingAdminService {
     try {
       const response = await fetch(`/api/showmasterpiece/bookings/admin/${bookingId}`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
       
       if (!response.ok) {
-        throw new Error('删除预订失败');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || '删除预订失败');
       }
+      
+      console.log('✅ 预订删除成功:', { bookingId });
     } catch (error) {
       console.error('删除预订失败:', error);
       throw error;

@@ -9,7 +9,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Calendar, User, Package, Clock, CheckCircle, XCircle, RefreshCw, Eye, Edit, Save, X } from 'lucide-react';
+import { Calendar, User, Package, Clock, CheckCircle, XCircle, RefreshCw, Eye, Edit, Save, X, Trash2, Download } from 'lucide-react';
 import { BookingAdminData, BookingAdminStats } from '../services/bookingAdminService';
 import { BookingStatus, BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS } from '../types/booking';
 
@@ -29,6 +29,10 @@ interface BookingAdminPanelProps {
   onRefresh: () => void;
   /** 更新预订状态回调 */
   onUpdateStatus: (id: number, status: BookingStatus, adminNotes?: string) => Promise<void>;
+  /** 删除预订回调 */
+  onDeleteBooking: (id: number) => Promise<void>;
+  /** 导出预订数据回调 */
+  onExportBookings: (format?: 'csv' | 'excel') => Promise<void>;
 }
 
 /**
@@ -44,6 +48,8 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
   error,
   onRefresh,
   onUpdateStatus,
+  onDeleteBooking,
+  onExportBookings,
 }) => {
   const [selectedBooking, setSelectedBooking] = useState<BookingAdminData | null>(null);
   const [filterStatus, setFilterStatus] = useState<BookingStatus | 'all'>('all');
@@ -113,6 +119,34 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
   const handleCancelEdit = () => {
     setEditingBooking(null);
     setEditForm({ status: 'pending', adminNotes: '' });
+  };
+
+  /**
+   * 处理删除预订
+   */
+  const handleDeleteBooking = async (bookingId: number) => {
+    if (confirm('确定要删除这个预订吗？此操作不可撤销。')) {
+      try {
+        await onDeleteBooking(bookingId);
+        console.log('预订删除成功');
+      } catch (error) {
+        console.error('删除预订失败:', error);
+        // 错误已经在hook中处理，这里不需要额外处理
+      }
+    }
+  };
+
+  /**
+   * 处理导出预订数据
+   */
+  const handleExportBookings = async () => {
+    try {
+      await onExportBookings('csv');
+      console.log('预订数据导出成功');
+    } catch (error) {
+      console.error('导出预订数据失败:', error);
+      // 错误已经在hook中处理，这里不需要额外处理
+    }
   };
 
   return (
@@ -224,14 +258,24 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
             </button>
           </div>
           
-          <button
-            onClick={onRefresh}
-            disabled={loading}
-            className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 w-full sm:w-auto"
-          >
-            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-            刷新
-          </button>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button
+              onClick={onRefresh}
+              disabled={loading}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+              刷新
+            </button>
+            <button
+              onClick={handleExportBookings}
+              disabled={loading}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50"
+            >
+              <Download size={16} />
+              导出CSV
+            </button>
+          </div>
         </div>
       </div>
 
@@ -274,7 +318,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                       />
                       <div className="min-w-0 flex-1">
                         <h3 className="text-base sm:text-lg font-semibold text-slate-800 truncate">{booking.collection.title}</h3>
-                        <p className="text-sm text-slate-600">艺术家：{booking.collection.artist}</p>
+                        <p className="text-sm text-slate-600">编号：{booking.collection.number}</p>
                         <p className="text-sm text-slate-600">QQ号：{booking.qqNumber}</p>
                         {booking.phoneNumber && (
                           <p className="text-sm text-slate-600">手机号：{booking.phoneNumber}</p>
@@ -375,6 +419,13 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                           <Eye size={16} />
                           查看详情
                         </button>
+                        <button
+                          onClick={() => handleDeleteBooking(booking.id)}
+                          className="flex items-center justify-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg font-medium hover:bg-red-200 transition-colors"
+                        >
+                          <Trash2 size={16} />
+                          删除
+                        </button>
                       </div>
                       
                       {booking.adminNotes && (
@@ -419,7 +470,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                     />
                     <div className="min-w-0 flex-1">
                       <h4 className="font-medium text-slate-800 truncate">{selectedBooking.collection.title}</h4>
-                      <p className="text-sm text-slate-600">艺术家：{selectedBooking.collection.artist}</p>
+                      <p className="text-sm text-slate-600">编号：{selectedBooking.collection.number}</p>
                       <p className="text-sm text-slate-600">价格：¥{selectedBooking.collection.price || '待定'}</p>
                     </div>
                   </div>

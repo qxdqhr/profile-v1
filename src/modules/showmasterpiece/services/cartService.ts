@@ -20,6 +20,7 @@ import {
   BatchBookingRequest,
   BatchBookingResponse
 } from '../types/cart';
+import { saveCartHistory } from './cartHistoryService';
 
 /**
  * 购物车本地存储键名
@@ -245,9 +246,10 @@ export class CartService {
    * 批量预订购物车中的商品
    * 
    * @param data 批量预订数据
+   * @param cart 当前购物车数据（用于保存历史记录）
    * @returns 预订结果
    */
-  static async batchBooking(data: BatchBookingRequest): Promise<BatchBookingResponse> {
+  static async batchBooking(data: BatchBookingRequest, cart?: Cart): Promise<BatchBookingResponse> {
     const response = await fetch(this.BOOKING_URL, {
       method: 'POST',
       headers: {
@@ -261,7 +263,29 @@ export class CartService {
       throw new Error(error.message || '批量预订失败');
     }
 
-    return response.json();
+    const result = await response.json();
+
+    // 如果预订成功且有购物车数据，保存历史记录
+    if (result.successCount > 0 && cart) {
+      try {
+        await saveCartHistory({
+          qqNumber: data.qqNumber,
+          phoneNumber: data.phoneNumber,
+          items: cart.items,
+          totalQuantity: cart.totalQuantity,
+          totalPrice: cart.totalPrice,
+          notes: data.notes,
+          status: 'pending',
+          bookingIds: result.bookingIds,
+          submittedAt: new Date()
+        });
+      } catch (error) {
+        console.error('保存购物车历史记录失败:', error);
+        // 不影响预订流程，只记录错误
+      }
+    }
+
+    return result;
   }
 }
 
@@ -325,8 +349,9 @@ export const clearCart = (userId: number): Promise<Cart> => {
  * 批量预订购物车中的商品
  * 
  * @param data 批量预订数据
+ * @param cart 当前购物车数据（用于保存历史记录）
  * @returns 预订结果
  */
-export const batchBooking = (data: BatchBookingRequest): Promise<BatchBookingResponse> => {
-  return CartService.batchBooking(data);
+export const batchBooking = (data: BatchBookingRequest, cart?: Cart): Promise<BatchBookingResponse> => {
+  return CartService.batchBooking(data, cart);
 }; 

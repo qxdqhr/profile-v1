@@ -44,6 +44,52 @@ export interface Cart {
 }
 
 /**
+ * 用户购物车历史记录项
+ */
+export interface CartHistoryItem {
+  /** 历史记录ID */
+  id: string;
+  
+  /** 提交时间 */
+  submittedAt: Date;
+  
+  /** 用户QQ号 */
+  qqNumber: string;
+  
+  /** 用户手机号 */
+  phoneNumber: string;
+  
+  /** 购物车项列表 */
+  items: CartItem[];
+  
+  /** 总数量 */
+  totalQuantity: number;
+  
+  /** 总价格 */
+  totalPrice: number;
+  
+  /** 用户备注 */
+  notes?: string;
+  
+  /** 预订状态 */
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  
+  /** 预订ID列表 */
+  bookingIds?: number[];
+}
+
+/**
+ * 用户购物车历史记录
+ */
+export interface CartHistory {
+  /** 历史记录列表 */
+  records: CartHistoryItem[];
+  
+  /** 总记录数 */
+  totalRecords: number;
+}
+
+/**
  * 添加到购物车请求数据
  */
 export interface AddToCartRequest {

@@ -24,7 +24,8 @@
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { ArrowLeft, Settings } from 'lucide-react';
+import { ArrowLeft, Settings, History } from 'lucide-react';
+import Link from 'next/link';
 import { useMasterpieces } from '../hooks/useMasterpieces';
 import { getConfig } from '../services/masterpiecesConfigService';
 import { MasterpiecesConfig, CollectionCategory, CollectionCategoryType } from '../types';
@@ -242,6 +243,16 @@ function ShowMasterPiecesContent() {
 
               {/* 右侧：用户菜单和操作按钮 */}
               <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+                {/* 历史记录链接 */}
+                <Link
+                  href="/testField/ShowMasterPieces/history"
+                  className="flex items-center gap-1 sm:gap-2 text-slate-600 hover:text-slate-800 transition-colors p-1 sm:p-2 rounded-lg min-h-[44px] min-w-[44px] flex-shrink-0"
+                  title="查看预订历史"
+                >
+                  <History size={18} className="sm:w-5 sm:h-5" />
+                  <span className="hidden sm:inline">历史记录</span>
+                </Link>
+                
                 {/* 购物车按钮 */}
                 <CartButton 
                   onClick={handleCartClick} 

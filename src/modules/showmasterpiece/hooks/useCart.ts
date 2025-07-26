@@ -225,7 +225,7 @@ export function useCart(userId: number) {
         notes
       };
 
-      const result = await batchBooking(request);
+      const result = await batchBooking(request, state.cart);
       
       // 预订成功后清空购物车
       if (result.successCount > 0) {

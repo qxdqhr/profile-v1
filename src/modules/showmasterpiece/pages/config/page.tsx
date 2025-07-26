@@ -56,6 +56,8 @@ function ConfigPageContent() {
     error: bookingError,
     refreshData: refreshBookingData,
     updateBookingStatus,
+    deleteBooking,
+    exportBookings,
   } = useBookingAdmin();
 
   // 检查是否使用通用文件服务
@@ -842,6 +844,8 @@ function ConfigPageContent() {
               error={bookingError}
               onRefresh={refreshBookingData}
               onUpdateStatus={updateBookingStatus}
+              onDeleteBooking={deleteBooking}
+              onExportBookings={exportBookings}
             />
           </div>
         )}

@@ -19,7 +19,9 @@ import {
   getBookingStats,
   forceRefreshAllBookings,
   forceRefreshBookingStats,
-  updateBookingStatus as updateBookingStatusService
+  updateBookingStatus as updateBookingStatusService,
+  deleteBooking as deleteBookingService,
+  exportBookings as exportBookingsService
 } from '../services/bookingAdminService';
 import { BookingStatus } from '../types/booking';
 
@@ -39,6 +41,10 @@ interface UseBookingAdminReturn {
   refreshData: () => Promise<void>;
   /** 更新预订状态 */
   updateBookingStatus: (id: number, status: BookingStatus, adminNotes?: string) => Promise<void>;
+  /** 删除预订 */
+  deleteBooking: (id: number) => Promise<void>;
+  /** 导出预订数据 */
+  exportBookings: (format?: 'csv' | 'excel') => Promise<void>;
   /** 清除错误 */
   clearError: () => void;
 }
@@ -124,6 +130,56 @@ export const useBookingAdmin = (): UseBookingAdminReturn => {
   }, [fetchBookings]);
 
   /**
+   * 删除预订
+   */
+  const deleteBooking = useCallback(async (id: number) => {
+    try {
+      setError(undefined);
+      console.log('开始删除预订:', { id });
+      
+      await deleteBookingService(id);
+      console.log('预订删除成功');
+      
+      // 重新获取所有数据以确保数据一致性
+      await fetchBookings();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '删除预订失败';
+      setError(errorMessage);
+      console.error('删除预订失败:', err);
+      throw err; // 重新抛出错误，让调用者知道删除失败
+    }
+  }, [fetchBookings]);
+
+  /**
+   * 导出预订数据
+   */
+  const exportBookings = useCallback(async (format: 'csv' | 'excel' = 'csv') => {
+    try {
+      setError(undefined);
+      console.log('开始导出预订数据:', { format });
+      
+      const blob = await exportBookingsService(format);
+      
+      // 创建下载链接
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `预订信息_${new Date().toISOString().split('T')[0]}.${format}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      console.log('预订数据导出成功');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '导出预订数据失败';
+      setError(errorMessage);
+      console.error('导出预订数据失败:', err);
+      throw err; // 重新抛出错误，让调用者知道导出失败
+    }
+  }, []);
+
+  /**
    * 刷新数据
    */
   const refreshData = useCallback(async () => {
@@ -153,6 +209,8 @@ export const useBookingAdmin = (): UseBookingAdminReturn => {
     error,
     refreshData,
     updateBookingStatus,
+    deleteBooking,
+    exportBookings,
     clearError,
   };
 }; 
