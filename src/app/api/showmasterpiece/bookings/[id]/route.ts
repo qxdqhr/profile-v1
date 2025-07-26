@@ -54,7 +54,7 @@ async function GET(
         cancelledAt: comicUniverseBookings.cancelledAt,
         // 画集信息
         collectionTitle: comicUniverseCollections.title,
-        collectionArtist: comicUniverseCollections.artist,
+        collectionNumber: comicUniverseCollections.number,
         collectionCoverImage: comicUniverseCollections.coverImage,
         collectionPrice: comicUniverseCollections.price,
         collectionDescription: comicUniverseCollections.description,
@@ -91,7 +91,7 @@ async function GET(
       collection: {
         id: booking.collectionId,
         title: booking.collectionTitle,
-        artist: booking.collectionArtist,
+        number: booking.collectionNumber,
         coverImage: booking.collectionCoverImage,
         price: booking.collectionPrice,
         description: booking.collectionDescription,

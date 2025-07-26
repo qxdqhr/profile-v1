@@ -315,7 +315,7 @@ export class CollectionsDbService {
         .select({
           id: comicUniverseCollections.id,
           title: comicUniverseCollections.title,
-          artist: comicUniverseCollections.artist,
+          number: comicUniverseCollections.number,
           coverImage: comicUniverseCollections.coverImage,
           coverImageFileId: comicUniverseCollections.coverImageFileId, // 新增：封面图片文件ID
           description: comicUniverseCollections.description,
@@ -373,7 +373,7 @@ export class CollectionsDbService {
             collectionId: comicUniverseArtworks.collectionId,
             id: comicUniverseArtworks.id,
             title: comicUniverseArtworks.title,
-            artist: comicUniverseArtworks.artist,
+            number: comicUniverseArtworks.number,
             fileId: comicUniverseArtworks.fileId, // 只查询fileId，不查询Base64图片
             description: comicUniverseArtworks.description,
             createdTime: comicUniverseArtworks.createdTime,
@@ -455,7 +455,7 @@ export class CollectionsDbService {
         const artworkPage: ArtworkPage = {
           id: artwork.id,
           title: artwork.title || '',
-          artist: artwork.artist || '',
+          number: artwork.number || '',
           image: imageUrl, // 使用处理后的图片URL
           fileId: artwork.fileId || undefined, // 添加fileId支持
           description: artwork.description || '',
@@ -488,7 +488,7 @@ export class CollectionsDbService {
         return {
           id: collection.id,
           title: collection.title,
-          artist: collection.artist,
+          number: collection.number,
           coverImage: coverImageUrl, // ✅ 使用处理后的URL
           coverImageFileId: collection.coverImageFileId || undefined,
           description: collection.description || '',
@@ -515,7 +515,7 @@ export class CollectionsDbService {
         .select({
           id: comicUniverseCollections.id,
           title: comicUniverseCollections.title,
-          artist: comicUniverseCollections.artist,
+          number: comicUniverseCollections.number,
           coverImage: comicUniverseCollections.coverImage,
           coverImageFileId: comicUniverseCollections.coverImageFileId, // 新增：封面图片文件ID
           description: comicUniverseCollections.description,
@@ -642,7 +642,7 @@ export class CollectionsDbService {
         return {
           id: collection.id,
           title: collection.title,
-          artist: collection.artist,
+          number: collection.number,
           coverImage: coverImageUrl, // 使用处理后的封面图片URL
           coverImageFileId: collection.coverImageFileId || undefined, // 新增：封面图片文件ID
           description: collection.description || '',
@@ -691,7 +691,7 @@ export class CollectionsDbService {
     // 创建画集
     const newCollection = await db.insert(comicUniverseCollections).values({
       title: collectionData.title,
-      artist: collectionData.artist,
+      number: collectionData.number,
       coverImage: collectionData.coverImage,
       coverImageFileId: collectionData.coverImageFileId || null,
       description: collectionData.description,
@@ -738,7 +738,7 @@ export class CollectionsDbService {
     await db.update(comicUniverseCollections)
       .set({
         title: collectionData.title,
-        artist: collectionData.artist,
+        number: collectionData.number,
         coverImage: collectionData.coverImage,
         coverImageFileId: collectionData.coverImageFileId || null,
         description: collectionData.description,
@@ -1027,7 +1027,7 @@ export class ArtworksDbService {
     console.log('🗃️ [数据库] 开始添加作品到画集:', {
       collectionId,
       title: artworkData.title,
-      artist: artworkData.artist
+      number: artworkData.number
     });
     
     // 获取当前画集中作品的最大顺序号
@@ -1044,7 +1044,7 @@ export class ArtworksDbService {
     const insertData: any = {
       collectionId,
       title: artworkData.title,
-      artist: artworkData.artist,
+      number: artworkData.number,
       description: artworkData.description,
       createdTime: artworkData.createdTime,
       theme: artworkData.theme,
@@ -1078,7 +1078,7 @@ export class ArtworksDbService {
     const result = {
       id: newArtwork[0].id,
       title: newArtwork[0].title,
-      artist: newArtwork[0].artist,
+      number: newArtwork[0].number,
       image: newArtwork[0].image || '',
       fileId: newArtwork[0].fileId || undefined,
       description: newArtwork[0].description || '',
@@ -1109,7 +1109,7 @@ export class ArtworksDbService {
     // 准备更新数据 - 只支持通用文件服务
     const updateData: any = {
       title: artworkData.title,
-      artist: artworkData.artist,
+      number: artworkData.number,
       description: artworkData.description,
       createdTime: artworkData.createdTime,
       theme: artworkData.theme,
@@ -1143,7 +1143,7 @@ export class ArtworksDbService {
     return {
       id: updatedArtwork[0].id,
       title: updatedArtwork[0].title,
-      artist: updatedArtwork[0].artist,
+      number: updatedArtwork[0].number,
       image: updatedArtwork[0].image || '',
       fileId: updatedArtwork[0].fileId || undefined,
       description: updatedArtwork[0].description || '',
@@ -1404,7 +1404,7 @@ export class ArtworksDbService {
         .select({
           id: comicUniverseArtworks.id,
           title: comicUniverseArtworks.title,
-          artist: comicUniverseArtworks.artist,
+          number: comicUniverseArtworks.number,
           fileId: comicUniverseArtworks.fileId, // 只查询fileId，不查询Base64图片
           description: comicUniverseArtworks.description,
           createdTime: comicUniverseArtworks.createdTime,
@@ -1438,7 +1438,7 @@ export class ArtworksDbService {
           .select({
             id: comicUniverseArtworks.id,
             title: comicUniverseArtworks.title,
-            artist: comicUniverseArtworks.artist,
+            number: comicUniverseArtworks.number,
             fileId: comicUniverseArtworks.fileId, // 只查询fileId，不查询Base64图片
             description: comicUniverseArtworks.description,
             createdTime: comicUniverseArtworks.createdTime,
@@ -1508,7 +1508,7 @@ export class ArtworksDbService {
       return {
         id: artwork.id,
         title: artwork.title,
-        artist: artwork.artist,
+        number: artwork.number,
         image: imageUrl, // 使用OSS URL或API路径
         fileId: artwork.fileId || undefined,
         description: artwork.description || '',

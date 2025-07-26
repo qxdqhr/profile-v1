@@ -96,7 +96,7 @@ function ConfigPageContent() {
   // 画集表单状态
   const [collectionForm, setCollectionForm] = useState<CollectionFormData>({
     title: '',
-    artist: '',
+    number: '',
     coverImage: '',
     coverImageFileId: undefined,
     description: '',
@@ -109,7 +109,7 @@ function ConfigPageContent() {
   // 作品表单状态
   const [artworkForm, setArtworkForm] = useState<ArtworkFormData>({
     title: '',
-    artist: '',
+    number: '',
     image: '',
     description: '',
     createdTime: '',
@@ -212,7 +212,7 @@ function ConfigPageContent() {
       setShowCollectionForm(false);
       setCollectionForm({
         title: '',
-        artist: '',
+        number: '',
         coverImage: '',
         coverImageFileId: undefined,
         description: '',
@@ -235,7 +235,7 @@ function ConfigPageContent() {
       isEditing: !!editingArtwork,
       selectedCollection,
       title: artworkForm.title,
-      artist: artworkForm.artist,
+      number: artworkForm.number,
       imagePresent: !!artworkForm.image,
       imageSize: artworkForm.image ? `${artworkForm.image.length} chars` : 'null'
     });
@@ -261,7 +261,7 @@ function ConfigPageContent() {
       setShowArtworkForm(false);
       setArtworkForm({
         title: '',
-        artist: '',
+        number: '',
         image: '',
         fileId: undefined,
         description: '',
@@ -291,7 +291,7 @@ function ConfigPageContent() {
   const handleEditCollection = (collection: any) => {
     setCollectionForm({
       title: collection.title,
-      artist: collection.artist,
+      number: collection.number,
       coverImage: collection.coverImage,
       coverImageFileId: collection.coverImageFileId || undefined,
       description: collection.description,
@@ -308,7 +308,7 @@ function ConfigPageContent() {
   const handleEditArtwork = (collectionId: number, artwork: any) => {
     setArtworkForm({
       title: artwork.title,
-      artist: artwork.artist,
+      number: artwork.number,
       image: artwork.image,
       fileId: artwork.fileId,
       description: artwork.description,
@@ -604,7 +604,7 @@ function ConfigPageContent() {
                   onClick={() => {
                     setCollectionForm({
                       title: '',
-                      artist: '',
+                      number: '',
                       coverImage: '',
                       description: '',
                       category: CollectionCategory.COLLECTION,
@@ -663,7 +663,7 @@ function ConfigPageContent() {
                     </div>
                     <div className="p-4">
                       <h3 className="text-lg font-semibold text-slate-800 mb-2">{collection.title}</h3>
-                      <p className="text-slate-600 text-sm mb-1">作者：{collection.artist}</p>
+                      <p className="text-slate-600 text-sm mb-1">编号：{collection.number}</p>
                       <p className="text-slate-600 text-sm mb-1">分类：{collection.category}</p>
                       <p className="text-slate-600 text-sm mb-1">价格：{collection.price ? `¥${collection.price}` : '免费'}</p>
                       <p className="text-slate-600 text-sm mb-1">作品数量：{collection.pages.length}</p>
@@ -720,7 +720,7 @@ function ConfigPageContent() {
                       onClick={() => {
                         setArtworkForm({
                           title: '',
-                          artist: '',
+                          number: '',
                           image: '',
                           description: '',
                           createdTime: '',
@@ -784,7 +784,7 @@ function ConfigPageContent() {
                       </div>
                       <div className="p-4">
                         <h4 className="text-lg font-semibold text-slate-800 mb-2">{artwork.title}</h4>
-                        <p className="text-slate-600 text-sm mb-1">作者：{artwork.artist}</p>
+                        <p className="text-slate-600 text-sm mb-1">编号：{artwork.number}</p>
                         <p className="text-slate-600 text-sm mb-1">创作时间：{artwork.createdTime}</p>
                         <p className="text-slate-600 text-sm mb-1">主题：{artwork.theme}</p>
                         <p className="text-slate-600 text-sm mb-3 line-clamp-2">{artwork.description}</p>
@@ -873,12 +873,12 @@ function ConfigPageContent() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">作者</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">编号</label>
                   <input
                     type="text"
-                    value={collectionForm.artist}
-                    onChange={(e) => setCollectionForm(prev => ({ ...prev, artist: e.target.value }))}
-                    placeholder="输入作者名称"
+                    value={collectionForm.number}
+                    onChange={(e) => setCollectionForm(prev => ({ ...prev, number: e.target.value }))}
+                    placeholder="输入编号"
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -992,12 +992,12 @@ function ConfigPageContent() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">作者</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">编号</label>
                   <input
                     type="text"
-                    value={artworkForm.artist}
-                    onChange={(e) => setArtworkForm(prev => ({ ...prev, artist: e.target.value }))}
-                    placeholder="输入作者名称"
+                    value={artworkForm.number}
+                    onChange={(e) => setArtworkForm(prev => ({ ...prev, number: e.target.value }))}
+                    placeholder="输入编号"
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>

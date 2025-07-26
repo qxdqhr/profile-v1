@@ -159,7 +159,7 @@ export const CollectionList: React.FC<CollectionListProps> = ({
               {collection.title}
             </h3>
             <p className="text-sm text-gray-600 mb-2">
-              艺术家：{collection.artist}
+              编号：{collection.number}
             </p>
             {collection.description && (
               <p className="text-sm text-gray-500 line-clamp-2">

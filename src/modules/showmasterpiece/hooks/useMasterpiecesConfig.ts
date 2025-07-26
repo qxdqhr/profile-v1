@@ -192,7 +192,7 @@ export const useMasterpiecesConfig = () => {
     console.log('🎯 [Hook] 开始添加作品到画集:', {
       collectionId,
       title: artworkData.title,
-      artist: artworkData.artist,
+              number: artworkData.number,
       imageSize: artworkData.image ? `${artworkData.image.length} chars` : 'null',
       description: artworkData.description?.substring(0, 50) + (artworkData.description && artworkData.description.length > 50 ? '...' : '')
     });
@@ -203,7 +203,7 @@ export const useMasterpiecesConfig = () => {
       console.log('✅ [Hook] API调用成功，返回作品:', {
         id: newArtwork.id,
         title: newArtwork.title,
-        artist: newArtwork.artist
+        number: newArtwork.number
       });
       
       console.log('🔄 [Hook] 重新加载数据以确保与数据库完全同步...');

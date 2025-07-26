@@ -165,7 +165,7 @@ export function ArtworkOrderManagerV2({
             overflow: 'hidden',
             textOverflow: 'ellipsis'
           }}>
-            作者：{artwork.artist}
+            编号：{artwork.number}
           </p>
           {artwork.createdTime && (
             <p style={{ 

@@ -232,7 +232,7 @@ export const addArtworkToCollection = async (collectionId: number, artworkData: 
   console.log('🌐 [服务] 开始发送作品创建请求:', {
     collectionId,
     title: artworkData.title,
-    artist: artworkData.artist,
+            number: artworkData.number,
     imageSize: artworkData.image ? `${artworkData.image.length} chars` : 'null'
   });
   
@@ -275,7 +275,7 @@ export const addArtworkToCollection = async (collectionId: number, artworkData: 
     console.log('✅ [服务] 作品创建成功:', {
       id: result.id,
       title: result.title,
-      artist: result.artist
+              number: result.number
     });
     
     return result;

@@ -94,15 +94,15 @@ export function CollectionOrderManagerV2({
           }}>
             {collection.title}
           </h4>
-          <p style={{ 
-            margin: '0 0 4px 0', 
-            color: '#6b7280', 
-            fontSize: '14px',
+          <p style={{
+            fontSize: 13,
+            color: '#64748b',
+            marginBottom: 2,
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis'
           }}>
-            {collection.artist}
+            编号：{collection.number}
           </p>
           {collection.category && (
             <span style={{

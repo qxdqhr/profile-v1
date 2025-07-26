@@ -48,7 +48,7 @@ async function GET(request: NextRequest) {
         cancelledAt: comicUniverseBookings.cancelledAt,
         // 画集信息
         collectionTitle: comicUniverseCollections.title,
-        collectionArtist: comicUniverseCollections.artist,
+        collectionNumber: comicUniverseCollections.number,
         collectionCoverImage: comicUniverseCollections.coverImage,
         collectionPrice: comicUniverseCollections.price,
       })
@@ -90,7 +90,7 @@ async function GET(request: NextRequest) {
       collection: {
         id: booking.collectionId,
         title: booking.collectionTitle || '未知画集',
-        artist: booking.collectionArtist || '未知艺术家',
+        number: booking.collectionNumber || '未知编号',
         coverImage: booking.collectionCoverImage || '',
         price: booking.collectionPrice || 0,
       },

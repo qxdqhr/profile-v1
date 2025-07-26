@@ -5,7 +5,7 @@
  * 
  * 主要功能：
  * - 画集封面图片展示（支持懒加载）
- * - 画集基本信息显示（标题、作者、分类、描述等）
+ * - 画集基本信息显示（标题、编号、分类、描述等）
  * - 作品页数统计显示
  * - 点击进入画集浏览
  * 
@@ -228,9 +228,9 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
           {collection.title}
         </h3>
         
-        {/* 作者 */}
+        {/* 编号 */}
         <p className="text-slate-600 text-sm mb-1">
-          作者：{collection.artist}
+          编号：{collection.number}
         </p>
         
         {/* 分类 */}

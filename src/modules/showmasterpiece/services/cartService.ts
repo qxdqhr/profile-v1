@@ -134,7 +134,7 @@ export class CartService {
           collection: {
             id: collectionId,
             title: `画集${collectionId}`, // 临时标题，实际应该从画集数据中获取
-            artist: '未知作者',
+            number: '未知编号',
             coverImage: '',
             description: '',
             pages: [],

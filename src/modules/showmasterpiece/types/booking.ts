@@ -185,8 +185,8 @@ export interface CollectionSummary {
   /** 画集标题 */
   title: string;
   
-  /** 艺术家/作者 */
-  artist: string;
+  /** 编号 */
+  number: string;
   
   /** 封面图片 */
   coverImage: string;

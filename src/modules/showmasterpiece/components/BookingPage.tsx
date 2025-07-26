@@ -223,7 +223,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({ onClose }) => {
                 />
                 <div>
                   <h3 className="font-semibold text-gray-900">{selectedCollection.title}</h3>
-                  <p className="text-sm text-gray-600">艺术家：{selectedCollection.artist}</p>
+                  <p className="text-sm text-gray-600">编号：{selectedCollection.number}</p>
                   <p className="text-sm text-gray-600">
                     价格：{selectedCollection.price ? `¥${selectedCollection.price}` : '价格待定'}
                   </p>

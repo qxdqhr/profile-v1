@@ -55,7 +55,7 @@ async function GET(request: NextRequest) {
       .select({
         id: comicUniverseCollections.id,
         title: comicUniverseCollections.title,
-        artist: comicUniverseCollections.artist,
+        number: comicUniverseCollections.number,
         coverImage: comicUniverseCollections.coverImage,
         price: comicUniverseCollections.price,
         description: comicUniverseCollections.description,
@@ -71,7 +71,7 @@ async function GET(request: NextRequest) {
     const formattedCollections = collections.map(collection => ({
       id: collection.id,
       title: collection.title,
-      artist: collection.artist,
+      number: collection.number,
       coverImage: collection.coverImage,
       price: collection.price,
       description: collection.description,

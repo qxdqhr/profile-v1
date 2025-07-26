@@ -138,7 +138,7 @@ export class MasterpiecesService {
     
     return collections.filter((collection: ArtCollection) => 
       collection.title.toLowerCase().includes(searchTerm) ||
-      collection.artist.toLowerCase().includes(searchTerm) ||
+              collection.number.toLowerCase().includes(searchTerm) ||
       collection.description.toLowerCase().includes(searchTerm) ||
       (collection.category && collection.category.toLowerCase().includes(searchTerm)) ||
       (collection.tags && collection.tags.some((tag: string) => tag.toLowerCase().includes(searchTerm)))

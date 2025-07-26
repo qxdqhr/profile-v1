@@ -64,7 +64,7 @@ export async function POST(
     const artworkData = await request.json();
     console.log('📄 作品数据接收:', {
       title: artworkData.title,
-      artist: artworkData.artist,
+              number: artworkData.number,
       fileId: artworkData.fileId || 'null',
       description: artworkData.description?.substring(0, 50) + '...'
     });
@@ -84,7 +84,7 @@ export async function POST(
     console.log('✅ 作品保存成功:', {
       id: artwork.id,
       title: artwork.title,
-      artist: artwork.artist
+              number: artwork.number
     });
     
     return NextResponse.json(artwork);

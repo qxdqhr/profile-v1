@@ -131,10 +131,10 @@ const ThumbnailItem: React.FC<ThumbnailItemProps> = ({ page, index, isActive, on
         )}
       </div>
       
-      {/* 隐藏作品名称和作者信息，只显示缩略图 */}
+              {/* 隐藏作品名称和编号信息，只显示缩略图 */}
        <div className={styles.thumbnailInfo}>
         <h4 className={styles.thumbnailTitle}>{page.title}</h4>
-        <p className={styles.thumbnailArtist}>{page.artist}</p>
+        <p className={styles.thumbnailArtist}>{page.number}</p>
       </div> 
     </button>
   );

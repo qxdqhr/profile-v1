@@ -62,8 +62,8 @@ export interface ArtworkPage {
   /** 作品标题 */
   title: string;
   
-  /** 艺术家姓名 */
-  artist: string;
+  /** 编号 */
+  number: string;
   
   /** 作品图片（支持URL或base64编码） */
   image: string;
@@ -115,8 +115,8 @@ export interface ArtCollection {
   /** 画集标题 */
   title: string;
   
-  /** 艺术家姓名 */
-  artist: string;
+  /** 编号 */
+  number: string;
   
   /** 画集封面图片路径 */
   coverImage: string;
@@ -200,8 +200,8 @@ export interface CollectionFormData {
   /** 画集标题 */
   title: string;
   
-  /** 艺术家姓名 */
-  artist: string;
+  /** 编号 */
+  number: string;
   
   /** 封面图片 */
   coverImage: string;
@@ -234,8 +234,8 @@ export interface ArtworkFormData {
   /** 作品标题 */
   title: string;
   
-  /** 艺术家姓名 */
-  artist: string;
+  /** 编号 */
+  number: string;
   
   /** 作品图片 */
   image?: string;

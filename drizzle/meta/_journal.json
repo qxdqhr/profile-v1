@@ -260,6 +260,13 @@
       "when": 1753368056740,
       "tag": "0036_curious_dragon_lord",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1753552175075,
+      "tag": "0037_medical_shinko_yamashiro",
+      "breakpoints": true
     }
   ]
 }

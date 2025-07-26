@@ -181,8 +181,8 @@ export const comicUniverseCollections = pgTable('comic_universe_collections', {
   /** 画集标题 */
   title: varchar('title', { length: 255 }).notNull(),
   
-  /** 艺术家/作者姓名 */
-  artist: varchar('artist', { length: 255 }).notNull(),
+  /** 编号 */
+  number: varchar('number', { length: 255 }).notNull(),
   
   /** 封面图片（支持URL或base64编码） */
   coverImage: text('cover_image').notNull(),
@@ -288,8 +288,8 @@ export const comicUniverseArtworks = pgTable('comic_universe_artworks', {
   /** 作品标题 */
   title: varchar('title', { length: 255 }).notNull(),
   
-  /** 艺术家/作者姓名 */
-  artist: varchar('artist', { length: 255 }).notNull(),
+  /** 编号 */
+  number: varchar('number', { length: 255 }).notNull(),
   
   /** 作品图片（支持URL或base64编码，兼容旧数据） */
   image: text('image'),

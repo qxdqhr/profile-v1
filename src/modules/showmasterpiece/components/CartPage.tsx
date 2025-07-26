@@ -214,7 +214,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
                 {/* 商品信息 */}
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-gray-900 text-sm sm:text-base line-clamp-2">{item.collection.title}</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">艺术家：{item.collection.artist}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">编号：{item.collection.number}</p>
                   <p className="text-xs sm:text-sm text-gray-600">
                     价格：{(item.collection as any).price ? `¥${(item.collection as any).price}` : '价格待定'}
                   </p>
