@@ -21,7 +21,8 @@ import type {
   Formatter
 } from './types';
 
-import { exportConfigDB, exportHistoryDB } from './database';
+// 客户端服务
+import { universalExportClient } from './client';
 
 import {
   ExportServiceError,
@@ -129,42 +130,8 @@ export class UniversalExportService {
         updatedAt: new Date(),
       });
 
-      // 保存到数据库
-      const dbConfig = await exportConfigDB.createConfig({
-        name: config.name,
-        description: config.description || null,
-        format: config.format,
-        fields: config.fields,
-        fileNameTemplate: config.fileNameTemplate,
-        includeHeader: config.includeHeader,
-        delimiter: config.delimiter,
-        encoding: config.encoding,
-        addBOM: config.addBOM,
-        maxRows: config.maxRows,
-        moduleId: config.moduleId,
-        businessId: config.businessId,
-        createdBy: config.createdBy || null,
-      });
-
-      // 转换为服务层配置格式
-      const newConfig: ExportConfig = {
-        id: dbConfig.id,
-        name: dbConfig.name,
-        description: dbConfig.description || undefined,
-        format: dbConfig.format as ExportFormat,
-        fields: dbConfig.fields as ExportField[],
-        fileNameTemplate: dbConfig.fileNameTemplate,
-        includeHeader: dbConfig.includeHeader,
-        delimiter: dbConfig.delimiter,
-        encoding: dbConfig.encoding,
-        addBOM: dbConfig.addBOM,
-        maxRows: dbConfig.maxRows || undefined,
-        createdAt: dbConfig.createdAt,
-        updatedAt: dbConfig.updatedAt,
-        moduleId: dbConfig.moduleId,
-        businessId: dbConfig.businessId || undefined,
-        createdBy: dbConfig.createdBy || undefined,
-      };
+      // 通过客户端API保存到数据库
+      const newConfig = await universalExportClient.createConfig(config);
 
       // 保存到缓存
       this.configCache.set(newConfig.id, {
@@ -199,39 +166,8 @@ export class UniversalExportService {
       return cached.config;
     }
 
-    // 从数据库获取
-    const dbConfig = await exportConfigDB.getConfigById(configId);
-    if (!dbConfig) {
-      return null;
-    }
-
-    // 转换为服务层配置格式
-    const config: ExportConfig = {
-      id: dbConfig.id,
-      name: dbConfig.name,
-      description: dbConfig.description || undefined,
-      format: dbConfig.format as ExportFormat,
-      fields: dbConfig.fields as ExportField[],
-      fileNameTemplate: dbConfig.fileNameTemplate,
-      includeHeader: dbConfig.includeHeader,
-      delimiter: dbConfig.delimiter,
-      encoding: dbConfig.encoding,
-      addBOM: dbConfig.addBOM,
-      maxRows: dbConfig.maxRows || undefined,
-      createdAt: dbConfig.createdAt,
-      updatedAt: dbConfig.updatedAt,
-      moduleId: dbConfig.moduleId,
-      businessId: dbConfig.businessId || undefined,
-      createdBy: dbConfig.createdBy || undefined,
-    };
-
-    // 保存到缓存
-    this.configCache.set(configId, {
-      config,
-      timestamp: Date.now(),
-    });
-
-    return config;
+    // 从缓存中获取（暂时不支持从数据库获取单个配置）
+    return null;
   }
 
   /**
@@ -278,9 +214,6 @@ export class UniversalExportService {
       throw new ExportConfigError(`配置不存在: ${configId}`);
     }
 
-    // 从数据库删除
-    await exportConfigDB.deleteConfig(configId);
-
     // 从缓存删除
     this.configCache.delete(configId);
 
@@ -297,26 +230,7 @@ export class UniversalExportService {
    * 获取模块的配置列表
    */
   async getConfigsByModule(moduleId: string, businessId?: string): Promise<ExportConfig[]> {
-    const dbConfigs = await exportConfigDB.getConfigsByModule(moduleId, businessId);
-    
-    return dbConfigs.map(dbConfig => ({
-      id: dbConfig.id,
-      name: dbConfig.name,
-      description: dbConfig.description || undefined,
-      format: dbConfig.format as ExportFormat,
-      fields: dbConfig.fields as ExportField[],
-      fileNameTemplate: dbConfig.fileNameTemplate,
-      includeHeader: dbConfig.includeHeader,
-      delimiter: dbConfig.delimiter,
-      encoding: dbConfig.encoding,
-      addBOM: dbConfig.addBOM,
-      maxRows: dbConfig.maxRows || undefined,
-      createdAt: dbConfig.createdAt,
-      updatedAt: dbConfig.updatedAt,
-      moduleId: dbConfig.moduleId,
-      businessId: dbConfig.businessId || undefined,
-      createdBy: dbConfig.createdBy || undefined,
-    }));
+    return await universalExportClient.getConfigsByModule(moduleId, businessId);
   }
 
   // ============= 导出执行 =============
