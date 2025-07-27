@@ -73,29 +73,26 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
     });
 
     const mappedData = bookings.map(booking => {
+      // 根据实际API返回的数据结构进行映射
       const mapped = {
         id: booking.id,
-        userId: booking.userId,
-        userName: booking.userName,
-        userPhone: booking.userPhone,
-        qqNumber: booking.qqNumber,
-        phoneNumber: booking.phoneNumber,
         collectionId: booking.collectionId,
-        collectionTitle: booking.collectionTitle,
-        collectionNumber: booking.collectionNumber,
-        collectionPrice: booking.collection.price,
+        qqNumber: booking.qqNumber || '',
+        phoneNumber: booking.phoneNumber || '',
+        collectionTitle: booking.collection?.title || '未知画集',
+        collectionNumber: booking.collection?.number || '未知编号',
+        collectionPrice: booking.collection?.price || 0,
         status: booking.status,
         quantity: booking.quantity,
-        price: booking.price,
-        totalPrice: booking.totalPrice,
-        notes: booking.notes,
-        adminNotes: booking.adminNotes,
-        bookingTime: booking.bookingTime,
+        price: booking.collection?.price || 0, // 使用画集价格作为单价
+        totalPrice: booking.totalPrice || (booking.collection?.price || 0) * booking.quantity,
+        notes: booking.notes || '',
+        adminNotes: booking.adminNotes || '',
         createdAt: booking.createdAt,
         updatedAt: booking.updatedAt,
-        confirmedAt: booking.confirmedAt,
-        completedAt: booking.completedAt,
-        cancelledAt: booking.cancelledAt,
+        confirmedAt: booking.confirmedAt || '',
+        completedAt: booking.completedAt || '',
+        cancelledAt: booking.cancelledAt || '',
       };
 
       if (bookings.indexOf(booking) === 0) {

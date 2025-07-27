@@ -665,6 +665,19 @@ export class UniversalExportService {
   }
 
   /**
+   * 过滤掉所有行都为空值的字段
+   */
+  private filterEmptyFields(data: any[], fields: ExportField[]): ExportField[] {
+    return fields.filter(field => {
+      // 检查所有数据行，如果至少有一行该字段有值，则保留该字段
+      return data.some(item => {
+        const value = this.getNestedValue(item, field.key);
+        return value !== null && value !== undefined && value !== '';
+      });
+    });
+  }
+
+  /**
    * 生成文件
    */
   private async generateFile(
@@ -767,9 +780,17 @@ export class UniversalExportService {
       console.log('📝 [UniversalExportService] 添加BOM');
     }
 
+    // 过滤掉所有行都为空值的字段
+    const nonEmptyFields = this.filterEmptyFields(data, fields);
+    console.log('📊 [UniversalExportService] 过滤空字段:', {
+      originalFieldsCount: fields.length,
+      nonEmptyFieldsCount: nonEmptyFields.length,
+      removedFields: fields.filter((f: ExportField) => !nonEmptyFields.includes(f)).map((f: ExportField) => f.key),
+    });
+
     // 添加表头
     if (config.includeHeader) {
-      const headers = fields.map(f => this.escapeCSVField(f.label));
+      const headers = nonEmptyFields.map(f => this.escapeCSVField(f.label));
       lines.push(headers.join(config.delimiter));
       console.log('📋 [UniversalExportService] 添加表头:', headers);
     }
@@ -782,7 +803,7 @@ export class UniversalExportService {
         console.log('📊 [UniversalExportService] 第一行数据示例:', item);
       }
       
-      const row = fields.map(field => {
+      const row = nonEmptyFields.map(field => {
         let value = this.getNestedValue(item, field.key);
         
         // 应用格式化器

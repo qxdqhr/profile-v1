@@ -20,31 +20,13 @@ export const BOOKING_EXPORT_FIELDS: ExportField[] = [
     alignment: 'center',
   },
   {
-    key: 'userId',
-    label: '用户ID',
+    key: 'collectionId',
+    label: '画集ID',
     type: 'number',
     enabled: true,
     required: true,
-    description: '用户的唯一标识',
+    description: '画集的唯一标识',
     alignment: 'center',
-  },
-  {
-    key: 'userName',
-    label: '用户名',
-    type: 'string',
-    enabled: true,
-    required: true,
-    description: '用户的名称',
-    alignment: 'left',
-  },
-  {
-    key: 'userPhone',
-    label: '用户手机号',
-    type: 'string',
-    enabled: true,
-    required: true,
-    description: '用户的主要手机号码',
-    alignment: 'left',
   },
   {
     key: 'qqNumber',
@@ -61,18 +43,10 @@ export const BOOKING_EXPORT_FIELDS: ExportField[] = [
     type: 'string',
     enabled: true,
     required: false,
-    description: '用户的备用手机号码',
+    description: '用户的手机号码',
     alignment: 'left',
   },
-  {
-    key: 'collectionId',
-    label: '画集ID',
-    type: 'number',
-    enabled: true,
-    required: true,
-    description: '预订的画集ID',
-    alignment: 'center',
-  },
+
   {
     key: 'collectionTitle',
     label: '画集标题',
@@ -166,20 +140,7 @@ export const BOOKING_EXPORT_FIELDS: ExportField[] = [
     description: '管理员添加的备注信息',
     alignment: 'left',
   },
-  {
-    key: 'bookingTime',
-    label: '预订时间',
-    type: 'date',
-    enabled: true,
-    required: true,
-    description: '预订的时间',
-    alignment: 'center',
-    formatter: (value) => {
-      if (!value) return '';
-      const date = new Date(value);
-      return date.toLocaleString('zh-CN');
-    },
-  },
+
   {
     key: 'createdAt',
     label: '创建时间',
