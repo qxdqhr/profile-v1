@@ -127,7 +127,15 @@ export const UniversalExportButton: React.FC<UniversalExportButtonProps> = ({
   // ============= 导出处理 =============
 
   const handleExport = useCallback(async (config: ExportConfig) => {
+    console.log('🚀 [UniversalExportButton] 开始导出:', {
+      configId: config.id,
+      configName: config.name,
+      format: config.format,
+      fieldsCount: config.fields.length,
+    });
+
     if (!exportService) {
+      console.error('❌ [UniversalExportButton] 导出服务未初始化');
       onExportError?.('导出服务未初始化');
       return;
     }
@@ -141,14 +149,21 @@ export const UniversalExportButton: React.FC<UniversalExportButtonProps> = ({
         dataSource,
         callbacks: {
           onProgress: (progress) => {
+            console.log('📊 [UniversalExportButton] 导出进度:', progress);
             setExportProgress(progress);
           },
           onSuccess: (result) => {
+            console.log('✅ [UniversalExportButton] 导出成功:', {
+              fileName: result.fileName,
+              fileSize: result.fileSize,
+              exportedRows: result.exportedRows,
+            });
             setIsExporting(false);
             setExportProgress(null);
             
             // 下载文件
             if (result.fileBlob) {
+              console.log('📥 [UniversalExportButton] 开始下载文件...');
               const url = window.URL.createObjectURL(result.fileBlob);
               const link = document.createElement('a');
               link.href = url;
@@ -157,11 +172,13 @@ export const UniversalExportButton: React.FC<UniversalExportButtonProps> = ({
               link.click();
               document.body.removeChild(link);
               window.URL.revokeObjectURL(url);
+              console.log('✅ [UniversalExportButton] 文件下载完成');
             }
             
             onExportSuccess?.(result);
           },
           onError: (error) => {
+            console.error('❌ [UniversalExportButton] 导出失败:', error);
             setIsExporting(false);
             setExportProgress(null);
             onExportError?.(error.message);
@@ -169,8 +186,10 @@ export const UniversalExportButton: React.FC<UniversalExportButtonProps> = ({
         },
       };
 
+      console.log('📞 [UniversalExportButton] 调用导出服务...');
       await exportService.export(request);
     } catch (error) {
+      console.error('❌ [UniversalExportButton] 导出异常:', error);
       setIsExporting(false);
       setExportProgress(null);
       onExportError?.(error instanceof Error ? error.message : '导出失败');

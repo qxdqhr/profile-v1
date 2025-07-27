@@ -67,30 +67,53 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
 
   // 数据源函数
   const dataSource = useMemo(() => async () => {
-    return bookings.map(booking => ({
-      id: booking.id,
-      userId: booking.userId,
-      userName: booking.userName,
-      userPhone: booking.userPhone,
-      qqNumber: booking.qqNumber,
-      phoneNumber: booking.phoneNumber,
-      collectionId: booking.collectionId,
-      collectionTitle: booking.collectionTitle,
-      collectionNumber: booking.collectionNumber,
-      collectionPrice: booking.collection.price,
-      status: booking.status,
-      quantity: booking.quantity,
-      price: booking.price,
-      totalPrice: booking.totalPrice,
-      notes: booking.notes,
-      adminNotes: booking.adminNotes,
-      bookingTime: booking.bookingTime,
-      createdAt: booking.createdAt,
-      updatedAt: booking.updatedAt,
-      confirmedAt: booking.confirmedAt,
-      completedAt: booking.completedAt,
-      cancelledAt: booking.cancelledAt,
-    }));
+    console.log('📊 [BookingAdminPanel] dataSource 开始执行:', {
+      bookingsLength: bookings.length,
+      bookingsKeys: bookings.length > 0 ? Object.keys(bookings[0]) : [],
+    });
+
+    const mappedData = bookings.map(booking => {
+      const mapped = {
+        id: booking.id,
+        userId: booking.userId,
+        userName: booking.userName,
+        userPhone: booking.userPhone,
+        qqNumber: booking.qqNumber,
+        phoneNumber: booking.phoneNumber,
+        collectionId: booking.collectionId,
+        collectionTitle: booking.collectionTitle,
+        collectionNumber: booking.collectionNumber,
+        collectionPrice: booking.collection.price,
+        status: booking.status,
+        quantity: booking.quantity,
+        price: booking.price,
+        totalPrice: booking.totalPrice,
+        notes: booking.notes,
+        adminNotes: booking.adminNotes,
+        bookingTime: booking.bookingTime,
+        createdAt: booking.createdAt,
+        updatedAt: booking.updatedAt,
+        confirmedAt: booking.confirmedAt,
+        completedAt: booking.completedAt,
+        cancelledAt: booking.cancelledAt,
+      };
+
+      if (bookings.indexOf(booking) === 0) {
+        console.log('📊 [BookingAdminPanel] 第一行数据映射示例:', {
+          original: booking,
+          mapped: mapped,
+        });
+      }
+
+      return mapped;
+    });
+
+    console.log('✅ [BookingAdminPanel] dataSource 执行完成:', {
+      mappedDataLength: mappedData.length,
+      mappedDataKeys: mappedData.length > 0 ? Object.keys(mappedData[0]) : [],
+    });
+
+    return mappedData;
   }, [bookings]);
 
   /**

@@ -242,19 +242,37 @@ export class UniversalExportService {
     const exportId = this.generateId();
     const startTime = new Date();
 
+    console.log('🚀 [UniversalExportService] 开始导出:', {
+      exportId,
+      configId: request.configId,
+      hasDataSource: !!request.dataSource,
+      hasCallbacks: !!request.callbacks,
+    });
+
     try {
       // 获取配置 - 支持直接传入配置对象或从缓存获取
       let config: ExportConfig;
       if (typeof request.configId === 'object' && request.configId !== null) {
         // 直接传入配置对象
         config = request.configId as ExportConfig;
+        console.log('📋 [UniversalExportService] 使用直接传入的配置:', {
+          configId: config.id,
+          configName: config.name,
+          format: config.format,
+          fieldsCount: config.fields.length,
+        });
       } else {
         // 从缓存获取配置
+        console.log('🔍 [UniversalExportService] 从缓存获取配置:', request.configId);
         const cachedConfig = await this.getConfig(request.configId as string);
         if (!cachedConfig) {
           throw new ExportConfigError(`导出配置不存在: ${request.configId}`);
         }
         config = cachedConfig;
+        console.log('✅ [UniversalExportService] 成功获取缓存配置:', {
+          configId: config.id,
+          configName: config.name,
+        });
       }
 
       // 创建进度对象
@@ -277,21 +295,66 @@ export class UniversalExportService {
         data: { config, request },
       });
 
+      // 调用进度回调
+      if (request.callbacks?.onProgress) {
+        console.log('📞 [UniversalExportService] 调用 onProgress 回调 - 开始');
+        request.callbacks.onProgress(progress);
+      }
+
+      console.log('📊 [UniversalExportService] 开始获取数据...');
+      
       // 获取数据
       const data = await this.getData(request);
+      console.log('✅ [UniversalExportService] 数据获取成功:', {
+        dataLength: data.length,
+        firstItem: data[0] ? Object.keys(data[0]) : [],
+        sampleData: data.slice(0, 2),
+      });
+      
       progress.totalRows = data.length;
       progress.status = 'processing';
 
+      // 更新进度回调
+      if (request.callbacks?.onProgress) {
+        console.log('📞 [UniversalExportService] 调用 onProgress 回调 - 数据处理');
+        progress.progress = 30;
+        request.callbacks.onProgress(progress);
+      }
+
       // 过滤和排序数据
+      console.log('🔄 [UniversalExportService] 开始处理数据...');
       const processedData = await this.processData(data, request, config);
+      console.log('✅ [UniversalExportService] 数据处理完成:', {
+        originalLength: data.length,
+        processedLength: processedData.length,
+      });
+
+      // 更新进度回调
+      if (request.callbacks?.onProgress) {
+        console.log('📞 [UniversalExportService] 调用 onProgress 回调 - 数据完成');
+        progress.progress = 60;
+        request.callbacks.onProgress(progress);
+      }
 
       // 生成文件
+      console.log('📄 [UniversalExportService] 开始生成文件...');
       const result = await this.generateFile(processedData, config, request, exportId);
+      console.log('✅ [UniversalExportService] 文件生成成功:', {
+        fileName: result.fileName,
+        fileSize: result.fileSize,
+        exportedRows: result.exportedRows,
+      });
 
       // 更新进度
       progress.status = 'completed';
       progress.progress = 100;
       progress.processedRows = data.length;
+
+      // 调用成功回调
+      if (request.callbacks?.onSuccess) {
+        console.log('📞 [UniversalExportService] 调用 onSuccess 回调');
+        request.callbacks.onSuccess(result);
+      }
 
       // 触发完成事件
       this.emitEvent({
@@ -326,6 +389,12 @@ export class UniversalExportService {
         progress.status = 'failed';
         progress.error = errorObj.message;
         this.activeExports.delete(exportId);
+      }
+
+      // 调用错误回调
+      if (request.callbacks?.onError) {
+        console.log('📞 [UniversalExportService] 调用 onError 回调');
+        request.callbacks.onError(errorObj);
       }
 
       // 触发错误事件
@@ -434,14 +503,24 @@ export class UniversalExportService {
    * 获取数据
    */
   private async getData(request: ExportRequest): Promise<any[]> {
+    console.log('🔍 [UniversalExportService] getData 开始执行...');
     try {
       if (typeof request.dataSource === 'function') {
-        return await request.dataSource();
+        console.log('📞 [UniversalExportService] 调用数据源函数...');
+        const data = await request.dataSource();
+        console.log('✅ [UniversalExportService] 数据源函数执行成功:', {
+          dataType: typeof data,
+          isArray: Array.isArray(data),
+          length: Array.isArray(data) ? data.length : 'N/A',
+        });
+        return data;
       } else {
         // 这里可以扩展支持从API获取数据
+        console.error('❌ [UniversalExportService] 数据源不是函数:', typeof request.dataSource);
         throw new ExportDataError('暂不支持字符串数据源');
       }
     } catch (error) {
+      console.error('❌ [UniversalExportService] 获取数据失败:', error);
       throw new ExportDataError(
         `获取数据失败: ${error instanceof Error ? error.message : '未知错误'}`,
         { originalError: error }
@@ -457,30 +536,63 @@ export class UniversalExportService {
     request: ExportRequest,
     config: ExportConfig
   ): Promise<any[]> {
+    console.log('🔄 [UniversalExportService] processData 开始执行:', {
+      dataLength: data.length,
+      hasFilters: !!(request.filters && request.filters.length > 0),
+      hasSortBy: !!(request.sortBy && request.sortBy.length > 0),
+      hasPagination: !!request.pagination,
+      maxRows: config.maxRows,
+    });
+
     let processedData = [...data];
 
     // 应用过滤器
     if (request.filters && request.filters.length > 0) {
+      console.log('🔍 [UniversalExportService] 应用过滤器...');
       processedData = this.applyFilters(processedData, request.filters);
+      console.log('✅ [UniversalExportService] 过滤器应用完成:', {
+        beforeLength: data.length,
+        afterLength: processedData.length,
+      });
     }
 
     // 应用排序
     if (request.sortBy && request.sortBy.length > 0) {
+      console.log('📊 [UniversalExportService] 应用排序...');
       processedData = this.applySorting(processedData, request.sortBy);
+      console.log('✅ [UniversalExportService] 排序应用完成');
     }
 
     // 应用分页
     if (request.pagination) {
+      console.log('📄 [UniversalExportService] 应用分页...');
       const { page, pageSize } = request.pagination;
       const start = (page - 1) * pageSize;
       const end = start + pageSize;
       processedData = processedData.slice(start, end);
+      console.log('✅ [UniversalExportService] 分页应用完成:', {
+        page,
+        pageSize,
+        start,
+        end,
+        resultLength: processedData.length,
+      });
     }
 
     // 限制行数
     if (config.maxRows && processedData.length > config.maxRows) {
+      console.log('📏 [UniversalExportService] 应用行数限制...');
       processedData = processedData.slice(0, config.maxRows);
+      console.log('✅ [UniversalExportService] 行数限制应用完成:', {
+        maxRows: config.maxRows,
+        resultLength: processedData.length,
+      });
     }
+
+    console.log('✅ [UniversalExportService] processData 执行完成:', {
+      originalLength: data.length,
+      finalLength: processedData.length,
+    });
 
     return processedData;
   }
@@ -564,20 +676,38 @@ export class UniversalExportService {
     const startTime = new Date();
     const enabledFields = config.fields.filter(f => f.enabled);
 
+    console.log('📄 [UniversalExportService] generateFile 开始执行:', {
+      dataLength: data.length,
+      enabledFieldsCount: enabledFields.length,
+      format: config.format,
+      enabledFields: enabledFields.map(f => ({ key: f.key, label: f.label })),
+    });
+
     try {
       let content: string;
       let fileName: string;
 
       switch (config.format) {
         case 'csv':
+          console.log('📊 [UniversalExportService] 生成CSV格式...');
           content = this.generateCSV(data, enabledFields, config);
           fileName = this.generateFileName(request.customFileName || config.fileNameTemplate, 'csv');
+          console.log('✅ [UniversalExportService] CSV生成完成:', {
+            contentLength: content.length,
+            fileName,
+          });
           break;
         case 'json':
+          console.log('📄 [UniversalExportService] 生成JSON格式...');
           content = this.generateJSON(data, enabledFields);
           fileName = this.generateFileName(request.customFileName || config.fileNameTemplate, 'json');
+          console.log('✅ [UniversalExportService] JSON生成完成:', {
+            contentLength: content.length,
+            fileName,
+          });
           break;
         default:
+          console.error('❌ [UniversalExportService] 不支持的格式:', config.format);
           throw new ExportFileError(`不支持的导出格式: ${config.format}`);
       }
 
@@ -621,21 +751,37 @@ export class UniversalExportService {
    * 生成CSV内容
    */
   private generateCSV(data: any[], fields: ExportField[], config: ExportConfig): string {
+    console.log('📊 [UniversalExportService] generateCSV 开始执行:', {
+      dataLength: data.length,
+      fieldsCount: fields.length,
+      includeHeader: config.includeHeader,
+      delimiter: config.delimiter,
+      addBOM: config.addBOM,
+    });
+
     const lines: string[] = [];
 
     // 添加BOM
     if (config.addBOM) {
       lines.push('\uFEFF');
+      console.log('📝 [UniversalExportService] 添加BOM');
     }
 
     // 添加表头
     if (config.includeHeader) {
       const headers = fields.map(f => this.escapeCSVField(f.label));
       lines.push(headers.join(config.delimiter));
+      console.log('📋 [UniversalExportService] 添加表头:', headers);
     }
 
     // 添加数据行
-    for (const item of data) {
+    console.log('📊 [UniversalExportService] 开始处理数据行...');
+    for (let i = 0; i < data.length; i++) {
+      const item = data[i];
+      if (i === 0) {
+        console.log('📊 [UniversalExportService] 第一行数据示例:', item);
+      }
+      
       const row = fields.map(field => {
         let value = this.getNestedValue(item, field.key);
         
@@ -652,9 +798,18 @@ export class UniversalExportService {
       });
       
       lines.push(row.join(config.delimiter));
+      
+      if (i === 0) {
+        console.log('📊 [UniversalExportService] 第一行处理结果:', row);
+      }
     }
 
-    return lines.join('\n');
+    const result = lines.join('\n');
+    console.log('✅ [UniversalExportService] CSV生成完成:', {
+      totalLines: lines.length,
+      resultLength: result.length,
+    });
+    return result;
   }
 
   /**
