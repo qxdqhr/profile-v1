@@ -69,6 +69,9 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
   const dataSource = useMemo(() => async () => {
     return bookings.map(booking => ({
       id: booking.id,
+      userId: booking.userId,
+      userName: booking.userName,
+      userPhone: booking.userPhone,
       qqNumber: booking.qqNumber,
       phoneNumber: booking.phoneNumber,
       collectionId: booking.collectionId,
@@ -77,8 +80,11 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
       collectionPrice: booking.collection.price,
       status: booking.status,
       quantity: booking.quantity,
+      price: booking.price,
+      totalPrice: booking.totalPrice,
       notes: booking.notes,
       adminNotes: booking.adminNotes,
+      bookingTime: booking.bookingTime,
       createdAt: booking.createdAt,
       updatedAt: booking.updatedAt,
       confirmedAt: booking.confirmedAt,
