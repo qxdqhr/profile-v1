@@ -78,6 +78,8 @@ export interface ExportConfig {
   moduleId: string;
   /** 业务标识 */
   businessId?: string;
+  /** 创建者ID */
+  createdBy?: string;
 }
 
 /** 导出请求 */

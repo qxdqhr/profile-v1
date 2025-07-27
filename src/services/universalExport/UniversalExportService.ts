@@ -21,6 +21,8 @@ import type {
   Formatter
 } from './types';
 
+import { exportConfigDB, exportHistoryDB } from './database';
+
 import {
   ExportServiceError,
   ExportConfigError,
@@ -119,15 +121,50 @@ export class UniversalExportService {
    */
   async createConfig(config: Omit<ExportConfig, 'id' | 'createdAt' | 'updatedAt'>): Promise<ExportConfig> {
     try {
-      const newConfig: ExportConfig = {
+      // 验证配置
+      this.validateConfig({
         ...config,
-        id: this.generateId(),
+        id: 'temp',
         createdAt: new Date(),
         updatedAt: new Date(),
-      };
+      });
 
-      // 验证配置
-      this.validateConfig(newConfig);
+      // 保存到数据库
+      const dbConfig = await exportConfigDB.createConfig({
+        name: config.name,
+        description: config.description || null,
+        format: config.format,
+        fields: config.fields,
+        fileNameTemplate: config.fileNameTemplate,
+        includeHeader: config.includeHeader,
+        delimiter: config.delimiter,
+        encoding: config.encoding,
+        addBOM: config.addBOM,
+        maxRows: config.maxRows,
+        moduleId: config.moduleId,
+        businessId: config.businessId,
+        createdBy: config.createdBy || null,
+      });
+
+      // 转换为服务层配置格式
+      const newConfig: ExportConfig = {
+        id: dbConfig.id,
+        name: dbConfig.name,
+        description: dbConfig.description || undefined,
+        format: dbConfig.format as ExportFormat,
+        fields: dbConfig.fields as ExportField[],
+        fileNameTemplate: dbConfig.fileNameTemplate,
+        includeHeader: dbConfig.includeHeader,
+        delimiter: dbConfig.delimiter,
+        encoding: dbConfig.encoding,
+        addBOM: dbConfig.addBOM,
+        maxRows: dbConfig.maxRows || undefined,
+        createdAt: dbConfig.createdAt,
+        updatedAt: dbConfig.updatedAt,
+        moduleId: dbConfig.moduleId,
+        businessId: dbConfig.businessId || undefined,
+        createdBy: dbConfig.createdBy || undefined,
+      };
 
       // 保存到缓存
       this.configCache.set(newConfig.id, {
@@ -156,11 +193,45 @@ export class UniversalExportService {
    * 获取导出配置
    */
   async getConfig(configId: string): Promise<ExportConfig | null> {
+    // 先从缓存获取
     const cached = this.configCache.get(configId);
     if (cached && Date.now() - cached.timestamp < this.config.cache.configTTL * 1000) {
       return cached.config;
     }
-    return null;
+
+    // 从数据库获取
+    const dbConfig = await exportConfigDB.getConfigById(configId);
+    if (!dbConfig) {
+      return null;
+    }
+
+    // 转换为服务层配置格式
+    const config: ExportConfig = {
+      id: dbConfig.id,
+      name: dbConfig.name,
+      description: dbConfig.description || undefined,
+      format: dbConfig.format as ExportFormat,
+      fields: dbConfig.fields as ExportField[],
+      fileNameTemplate: dbConfig.fileNameTemplate,
+      includeHeader: dbConfig.includeHeader,
+      delimiter: dbConfig.delimiter,
+      encoding: dbConfig.encoding,
+      addBOM: dbConfig.addBOM,
+      maxRows: dbConfig.maxRows || undefined,
+      createdAt: dbConfig.createdAt,
+      updatedAt: dbConfig.updatedAt,
+      moduleId: dbConfig.moduleId,
+      businessId: dbConfig.businessId || undefined,
+      createdBy: dbConfig.createdBy || undefined,
+    };
+
+    // 保存到缓存
+    this.configCache.set(configId, {
+      config,
+      timestamp: Date.now(),
+    });
+
+    return config;
   }
 
   /**
@@ -207,6 +278,10 @@ export class UniversalExportService {
       throw new ExportConfigError(`配置不存在: ${configId}`);
     }
 
+    // 从数据库删除
+    await exportConfigDB.deleteConfig(configId);
+
+    // 从缓存删除
     this.configCache.delete(configId);
 
     // 触发事件
@@ -216,6 +291,32 @@ export class UniversalExportService {
       timestamp: new Date(),
       data: { configId },
     });
+  }
+
+  /**
+   * 获取模块的配置列表
+   */
+  async getConfigsByModule(moduleId: string, businessId?: string): Promise<ExportConfig[]> {
+    const dbConfigs = await exportConfigDB.getConfigsByModule(moduleId, businessId);
+    
+    return dbConfigs.map(dbConfig => ({
+      id: dbConfig.id,
+      name: dbConfig.name,
+      description: dbConfig.description || undefined,
+      format: dbConfig.format as ExportFormat,
+      fields: dbConfig.fields as ExportField[],
+      fileNameTemplate: dbConfig.fileNameTemplate,
+      includeHeader: dbConfig.includeHeader,
+      delimiter: dbConfig.delimiter,
+      encoding: dbConfig.encoding,
+      addBOM: dbConfig.addBOM,
+      maxRows: dbConfig.maxRows || undefined,
+      createdAt: dbConfig.createdAt,
+      updatedAt: dbConfig.updatedAt,
+      moduleId: dbConfig.moduleId,
+      businessId: dbConfig.businessId || undefined,
+      createdBy: dbConfig.createdBy || undefined,
+    }));
   }
 
   // ============= 导出执行 =============

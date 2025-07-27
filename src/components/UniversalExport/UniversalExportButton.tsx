@@ -107,6 +107,23 @@ export const UniversalExportButton: React.FC<UniversalExportButtonProps> = ({
   const [exportProgress, setExportProgress] = useState<ExportProgress | null>(null);
   const [savedConfigs, setSavedConfigs] = useState<ExportConfig[]>([]);
 
+  // 加载保存的配置
+  const loadSavedConfigs = useCallback(async () => {
+    try {
+      if (exportService) {
+        const configs = await exportService.getConfigsByModule(moduleId, businessId);
+        setSavedConfigs(configs);
+      }
+    } catch (error) {
+      console.error('加载保存的配置失败:', error);
+    }
+  }, [exportService, moduleId, businessId]);
+
+  // 组件挂载时加载配置
+  React.useEffect(() => {
+    loadSavedConfigs();
+  }, [loadSavedConfigs]);
+
   // ============= 导出处理 =============
 
   const handleExport = useCallback(async (config: ExportConfig) => {
@@ -196,14 +213,15 @@ export const UniversalExportButton: React.FC<UniversalExportButtonProps> = ({
     try {
       if (exportService) {
         const savedConfig = await exportService.createConfig(config);
-        setSavedConfigs(prev => [...prev, savedConfig]);
+        // 重新加载配置列表
+        await loadSavedConfigs();
         onConfigSave?.(savedConfig);
       }
       setShowConfigEditor(false);
     } catch (error) {
       onExportError?.(error instanceof Error ? error.message : '保存配置失败');
     }
-  }, [exportService, onConfigSave, onExportError]);
+  }, [exportService, onConfigSave, onExportError, loadSavedConfigs]);
 
   // ============= 渲染进度 =============
 
