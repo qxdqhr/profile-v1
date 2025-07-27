@@ -8,10 +8,13 @@
 
 'use client';
 
-import React, { useState } from 'react';
-import { Calendar, User, Package, Clock, CheckCircle, XCircle, RefreshCw, Eye, Edit, Save, X, Trash2, Download } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Calendar, User, Package, Clock, CheckCircle, XCircle, RefreshCw, Eye, Edit, Save, X, Trash2, Download, Settings } from 'lucide-react';
 import { BookingAdminData, BookingAdminStats } from '../services/bookingAdminService';
 import { BookingStatus, BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS } from '../types/booking';
+import { UniversalExportButton } from '../../../components/UniversalExport';
+import { UniversalExportService } from '../../../services/universalExport';
+import { BOOKING_EXPORT_FIELDS, DEFAULT_BOOKING_EXPORT_CONFIG } from '../services/exportConfig';
 
 /**
  * 预订管理面板组件属性
@@ -58,6 +61,31 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
     status: 'pending',
     adminNotes: '',
   });
+
+  // 创建导出服务实例
+  const exportService = useMemo(() => new UniversalExportService(), []);
+
+  // 数据源函数
+  const dataSource = useMemo(() => async () => {
+    return bookings.map(booking => ({
+      id: booking.id,
+      qqNumber: booking.qqNumber,
+      phoneNumber: booking.phoneNumber,
+      collectionId: booking.collectionId,
+      collectionTitle: booking.collectionTitle,
+      collectionNumber: booking.collectionNumber,
+      collectionPrice: booking.collection.price,
+      status: booking.status,
+      quantity: booking.quantity,
+      notes: booking.notes,
+      adminNotes: booking.adminNotes,
+      createdAt: booking.createdAt,
+      updatedAt: booking.updatedAt,
+      confirmedAt: booking.confirmedAt,
+      completedAt: booking.completedAt,
+      cancelledAt: booking.cancelledAt,
+    }));
+  }, [bookings]);
 
   /**
    * 获取状态显示信息
@@ -267,14 +295,24 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
               <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
               刷新
             </button>
-            <button
-              onClick={handleExportBookings}
-              disabled={loading}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50"
-            >
-              <Download size={16} />
-              导出CSV
-            </button>
+                    <UniversalExportButton
+          exportService={exportService}
+          moduleId="showmasterpiece"
+          businessId="bookings"
+          availableFields={BOOKING_EXPORT_FIELDS}
+          dataSource={dataSource}
+          defaultConfig={DEFAULT_BOOKING_EXPORT_CONFIG}
+          buttonText="导出数据"
+          variant="primary"
+          size="md"
+          disabled={loading}
+          onExportSuccess={(result) => {
+            console.log('导出成功:', result);
+          }}
+          onExportError={(error) => {
+            console.error('导出失败:', error);
+          }}
+        />
           </div>
         </div>
       </div>
