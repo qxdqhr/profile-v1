@@ -54,13 +54,18 @@ async function GET(request: NextRequest) {
       .leftJoin(comicUniverseCollections, eq(comicUniverseBookings.collectionId, comicUniverseCollections.id))
       .orderBy(comicUniverseBookings.createdAt);
 
+    console.log('数据库查询成功，预订数量:', bookings.length);
+
     // 生成CSV内容
     const csvContent = generateCSV(bookings);
     
     // 设置响应头
     const headers = new Headers();
     headers.set('Content-Type', 'text/csv; charset=utf-8');
-    headers.set('Content-Disposition', `attachment; filename="预订信息_${new Date().toISOString().split('T')[0]}.csv"`);
+    
+    // 使用英文文件名避免字符编码问题
+    const fileName = `bookings_${new Date().toISOString().split('T')[0]}.csv`;
+    headers.set('Content-Disposition', `attachment; filename="${fileName}"`);
     
     console.log('✅ 预订数据导出成功:', { 
       bookingCount: bookings.length,
@@ -75,8 +80,24 @@ async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('导出预订数据失败:', error);
+    
+    // 更详细的错误信息
+    let errorMessage = '导出预订数据失败';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      console.error('错误详情:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
+    }
+    
     return NextResponse.json(
-      { message: '导出预订数据失败', error: error instanceof Error ? error.message : '未知错误' },
+      { 
+        message: '导出预订数据失败', 
+        error: errorMessage,
+        details: error instanceof Error ? error.stack : '未知错误'
+      },
       { status: 500 }
     );
   }
