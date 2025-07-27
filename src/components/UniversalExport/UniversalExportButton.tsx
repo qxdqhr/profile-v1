@@ -120,7 +120,7 @@ export const UniversalExportButton: React.FC<UniversalExportButtonProps> = ({
 
     try {
       const request: ExportRequest = {
-        configId: config.id,
+        configId: config,
         dataSource,
         callbacks: {
           onProgress: (progress) => {

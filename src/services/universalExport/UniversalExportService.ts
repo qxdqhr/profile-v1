@@ -228,10 +228,18 @@ export class UniversalExportService {
     const startTime = new Date();
 
     try {
-      // 获取配置
-      const config = await this.getConfig(request.configId);
-      if (!config) {
-        throw new ExportConfigError(`导出配置不存在: ${request.configId}`);
+      // 获取配置 - 支持直接传入配置对象或从缓存获取
+      let config: ExportConfig;
+      if (typeof request.configId === 'object' && request.configId !== null) {
+        // 直接传入配置对象
+        config = request.configId as ExportConfig;
+      } else {
+        // 从缓存获取配置
+        const cachedConfig = await this.getConfig(request.configId as string);
+        if (!cachedConfig) {
+          throw new ExportConfigError(`导出配置不存在: ${request.configId}`);
+        }
+        config = cachedConfig;
       }
 
       // 创建进度对象

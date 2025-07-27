@@ -82,8 +82,8 @@ export interface ExportConfig {
 
 /** 导出请求 */
 export interface ExportRequest {
-  /** 导出配置ID */
-  configId: string;
+  /** 导出配置ID或配置对象 */
+  configId: string | ExportConfig;
   /** 数据源 */
   dataSource: string | (() => Promise<any[]>);
   /** 查询参数 */
