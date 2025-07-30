@@ -6,6 +6,7 @@
  * - 预订统计信息
  * - 状态更新
  * - 加载和错误状态管理
+ * - 用户搜索功能
  * 
  * @fileoverview 预订管理Hook
  */
@@ -15,6 +16,7 @@ import {
   BookingAdminData, 
   BookingAdminStats, 
   BookingAdminResponse,
+  BookingAdminQueryParams,
   getAllBookings,
   getBookingStats,
   forceRefreshAllBookings,
@@ -37,8 +39,14 @@ interface UseBookingAdminReturn {
   loading: boolean;
   /** 错误信息 */
   error?: string;
+  /** 搜索参数 */
+  searchParams: BookingAdminQueryParams;
   /** 刷新数据 */
   refreshData: () => Promise<void>;
+  /** 搜索预订数据 */
+  searchBookings: (params: BookingAdminQueryParams) => Promise<void>;
+  /** 清除搜索条件 */
+  clearSearch: () => void;
   /** 更新预订状态 */
   updateBookingStatus: (id: number, status: BookingStatus, adminNotes?: string) => Promise<void>;
   /** 删除预订 */
@@ -72,24 +80,28 @@ export const useBookingAdmin = (): UseBookingAdminReturn => {
   });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | undefined>(undefined);
+  const [searchParams, setSearchParams] = useState<BookingAdminQueryParams>({});
 
   /**
    * 获取预订数据
    */
-  const fetchBookings = useCallback(async () => {
+  const fetchBookings = useCallback(async (params?: BookingAdminQueryParams) => {
     try {
       setLoading(true);
       setError(undefined);
       
-      console.log('🔄 开始获取预订数据（使用强制刷新API）...');
+      const queryParams = params || searchParams;
+      console.log('🔄 开始获取预订数据（使用强制刷新API）...', queryParams);
+      
       const [bookingsData, statsData] = await Promise.all([
-        forceRefreshAllBookings(),
-        forceRefreshBookingStats()
+        forceRefreshAllBookings(queryParams),
+        forceRefreshBookingStats(queryParams)
       ]);
       
       console.log('✅ 获取到预订数据:', { 
         bookingsCount: bookingsData.length, 
         stats: statsData,
+        searchParams: queryParams,
         timestamp: new Date().toISOString()
       });
       
@@ -102,7 +114,24 @@ export const useBookingAdmin = (): UseBookingAdminReturn => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [searchParams]);
+
+  /**
+   * 搜索预订数据
+   */
+  const searchBookings = useCallback(async (params: BookingAdminQueryParams) => {
+    setSearchParams(params);
+    await fetchBookings(params);
+  }, [fetchBookings]);
+
+  /**
+   * 清除搜索条件
+   */
+  const clearSearch = useCallback(async () => {
+    const emptyParams: BookingAdminQueryParams = {};
+    setSearchParams(emptyParams);
+    await fetchBookings(emptyParams);
+  }, [fetchBookings]);
 
   /**
    * 更新预订状态
@@ -186,8 +215,6 @@ export const useBookingAdmin = (): UseBookingAdminReturn => {
     await fetchBookings();
   }, [fetchBookings]);
 
-
-
   /**
    * 清除错误
    */
@@ -207,7 +234,10 @@ export const useBookingAdmin = (): UseBookingAdminReturn => {
     stats,
     loading,
     error,
+    searchParams,
     refreshData,
+    searchBookings,
+    clearSearch,
     updateBookingStatus,
     deleteBooking,
     exportBookings,

@@ -28,6 +28,7 @@ async function GET(request: NextRequest) {
     const params: BookingListParams = {
       collectionId: searchParams.get('collectionId') ? parseInt(searchParams.get('collectionId')!) : undefined,
       qqNumber: searchParams.get('qqNumber') || undefined,
+      phoneNumber: searchParams.get('phoneNumber') || undefined,
       status: searchParams.get('status') as any || undefined,
       page: searchParams.get('page') ? parseInt(searchParams.get('page')!) : 1,
       limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 20,
@@ -42,6 +43,10 @@ async function GET(request: NextRequest) {
     
     if (params.qqNumber) {
       conditions.push(like(comicUniverseBookings.qqNumber, `%${params.qqNumber}%`));
+    }
+    
+    if (params.phoneNumber) {
+      conditions.push(like(comicUniverseBookings.phoneNumber, `%${params.phoneNumber}%`));
     }
     
     if (params.status) {

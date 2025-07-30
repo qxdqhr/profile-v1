@@ -10,9 +10,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { comicUniverseBookings, comicUniverseCollections } from '@/db/schema';
-import { desc, sql } from 'drizzle-orm';
+import { desc, sql, eq, and, like } from 'drizzle-orm';
 import { BookingStatus } from '@/modules/showmasterpiece/types/booking';
-import { eq } from 'drizzle-orm';
 
 /**
  * 获取所有预订数据和统计信息（管理员专用）
@@ -24,25 +23,49 @@ async function GET(request: NextRequest) {
   try {
     // 强制禁用Next.js缓存
     let forceRefresh = null;
+    let searchParams = new URLSearchParams();
     try {
-      const { searchParams } = new URL(request.url);
+      const url = new URL(request.url);
+      searchParams = url.searchParams;
       forceRefresh = searchParams.get('forceRefresh') || searchParams.get('t');
     } catch (error) {
       // 在构建时可能会出错，忽略这个错误
       console.log('无法解析URL参数，可能是构建时调用');
     }
     
+    // 获取搜索参数
+    const qqNumber = searchParams.get('qqNumber');
+    const phoneNumber = searchParams.get('phoneNumber');
+    const statusParam = searchParams.get('status');
+    const status = statusParam && statusParam !== 'all' ? statusParam as BookingStatus : null;
+    
     // 如果请求包含强制刷新参数，确保不使用缓存
     if (forceRefresh) {
       console.log('强制刷新预订数据:', { forceRefresh, timestamp: new Date().toISOString() });
     }
+    
     // 获取所有预订数据（包含画集信息）
-    console.log('开始查询预订数据...');
+    console.log('开始查询预订数据...', { qqNumber, phoneNumber, status });
     
     // 强制刷新：先执行一个简单的查询来确保连接是最新的
     if (forceRefresh) {
       console.log('执行强制刷新查询...');
       await db.execute(sql`SELECT 1 as refresh_check`);
+    }
+    
+    // 构建查询条件
+    const conditions = [];
+    
+    if (qqNumber) {
+      conditions.push(like(comicUniverseBookings.qqNumber, `%${qqNumber}%`));
+    }
+    
+    if (phoneNumber) {
+      conditions.push(like(comicUniverseBookings.phoneNumber, `%${phoneNumber}%`));
+    }
+    
+    if (status) {
+      conditions.push(eq(comicUniverseBookings.status, status));
     }
     
     const bookings = await db
@@ -68,6 +91,7 @@ async function GET(request: NextRequest) {
       })
       .from(comicUniverseBookings)
       .leftJoin(comicUniverseCollections, eq(comicUniverseBookings.collectionId, comicUniverseCollections.id))
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(comicUniverseBookings.createdAt));
 
     console.log(`查询到 ${bookings.length} 条预订数据`);
@@ -127,7 +151,8 @@ async function GET(request: NextRequest) {
       bookingsCount: formattedBookings.length,
       stats: formattedStats,
       timestamp: new Date().toISOString(),
-      forceRefresh: forceRefresh
+      forceRefresh: forceRefresh,
+      searchParams: { qqNumber, phoneNumber, status }
     });
 
     const response = NextResponse.json({

@@ -54,7 +54,10 @@ function ConfigPageContent() {
     stats,
     loading: bookingLoading,
     error: bookingError,
+    searchParams,
     refreshData: refreshBookingData,
+    searchBookings,
+    clearSearch,
     updateBookingStatus,
     deleteBooking,
     exportBookings,
@@ -842,7 +845,10 @@ function ConfigPageContent() {
               stats={stats}
               loading={bookingLoading}
               error={bookingError}
+              searchParams={searchParams}
               onRefresh={refreshBookingData}
+              onSearch={searchBookings}
+              onClearSearch={clearSearch}
               onUpdateStatus={updateBookingStatus}
               onDeleteBooking={deleteBooking}
               onExportBookings={exportBookings}

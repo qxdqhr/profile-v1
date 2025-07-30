@@ -9,8 +9,8 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Calendar, User, Package, Clock, CheckCircle, XCircle, RefreshCw, Eye, Edit, Save, X, Trash2, Download, Settings } from 'lucide-react';
-import { BookingAdminData, BookingAdminStats } from '../services/bookingAdminService';
+import { Calendar, User, Package, Clock, CheckCircle, XCircle, RefreshCw, Eye, Edit, Save, X, Trash2, Download, Settings, Search } from 'lucide-react';
+import { BookingAdminData, BookingAdminStats, BookingAdminQueryParams } from '../services/bookingAdminService';
 import { BookingStatus, BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS } from '../types/booking';
 import { UniversalExportButton } from '../../../components/UniversalExport';
 import { UniversalExportService } from '../../../services/universalExport';
@@ -28,8 +28,14 @@ interface BookingAdminPanelProps {
   loading: boolean;
   /** 错误信息 */
   error?: string;
+  /** 搜索参数 */
+  searchParams: BookingAdminQueryParams;
   /** 刷新数据回调 */
   onRefresh: () => void;
+  /** 搜索预订数据回调 */
+  onSearch: (params: BookingAdminQueryParams) => Promise<void>;
+  /** 清除搜索条件回调 */
+  onClearSearch: () => void;
   /** 更新预订状态回调 */
   onUpdateStatus: (id: number, status: BookingStatus, adminNotes?: string) => Promise<void>;
   /** 删除预订回调 */
@@ -49,7 +55,10 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
   stats,
   loading,
   error,
+  searchParams,
   onRefresh,
+  onSearch,
+  onClearSearch,
   onUpdateStatus,
   onDeleteBooking,
   onExportBookings,
@@ -60,6 +69,13 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
   const [editForm, setEditForm] = useState<{ status: BookingStatus; adminNotes: string }>({
     status: 'pending',
     adminNotes: '',
+  });
+  
+  // 搜索表单状态
+  const [searchForm, setSearchForm] = useState<BookingAdminQueryParams>({
+    qqNumber: searchParams.qqNumber || '',
+    phoneNumber: searchParams.phoneNumber || '',
+    status: searchParams.status || 'all'
   });
 
   // 创建导出服务实例
@@ -98,23 +114,23 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
       if (bookings.indexOf(booking) === 0) {
         console.log('📊 [BookingAdminPanel] 第一行数据映射示例:', {
           original: booking,
-          mapped: mapped,
+          mapped: mapped
         });
       }
 
       return mapped;
     });
 
-    console.log('✅ [BookingAdminPanel] dataSource 执行完成:', {
-      mappedDataLength: mappedData.length,
-      mappedDataKeys: mappedData.length > 0 ? Object.keys(mappedData[0]) : [],
+    console.log('📊 [BookingAdminPanel] 数据映射完成:', {
+      totalRows: mappedData.length,
+      sampleRow: mappedData[0]
     });
 
     return mappedData;
   }, [bookings]);
 
   /**
-   * 获取状态显示信息
+   * 获取状态信息
    */
   const getStatusInfo = (status: BookingStatus) => {
     return {
@@ -203,6 +219,38 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
     }
   };
 
+  /**
+   * 处理搜索表单提交
+   */
+  const handleSearchSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const params: BookingAdminQueryParams = {};
+    
+    if (searchForm.qqNumber?.trim()) {
+      params.qqNumber = searchForm.qqNumber.trim();
+    }
+    if (searchForm.phoneNumber?.trim()) {
+      params.phoneNumber = searchForm.phoneNumber.trim();
+    }
+    if (searchForm.status && searchForm.status !== 'all') {
+      params.status = searchForm.status;
+    }
+    
+    await onSearch(params);
+  };
+
+  /**
+   * 处理清除搜索
+   */
+  const handleClearSearch = async () => {
+    setSearchForm({
+      qqNumber: '',
+      phoneNumber: '',
+      status: 'all'
+    });
+    await onClearSearch();
+  };
+
   return (
     <div className="space-y-6">
       {/* 统计卡片 */}
@@ -254,6 +302,83 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* 搜索栏 */}
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+        <form onSubmit={handleSearchSubmit} className="space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* QQ号搜索 */}
+            <div className="flex-1">
+              <label htmlFor="searchQqNumber" className="block text-sm font-medium text-slate-700 mb-2">
+                QQ号搜索
+              </label>
+              <input
+                type="text"
+                id="searchQqNumber"
+                value={searchForm.qqNumber}
+                onChange={(e) => setSearchForm(prev => ({ ...prev, qqNumber: e.target.value }))}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="输入QQ号进行搜索"
+              />
+            </div>
+            
+            {/* 手机号搜索 */}
+            <div className="flex-1">
+              <label htmlFor="searchPhoneNumber" className="block text-sm font-medium text-slate-700 mb-2">
+                手机号搜索
+              </label>
+              <input
+                type="tel"
+                id="searchPhoneNumber"
+                value={searchForm.phoneNumber}
+                onChange={(e) => setSearchForm(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="输入手机号进行搜索"
+              />
+            </div>
+            
+            {/* 状态过滤 */}
+            <div className="flex-1">
+              <label htmlFor="searchStatus" className="block text-sm font-medium text-slate-700 mb-2">
+                状态过滤
+              </label>
+              <select
+                id="searchStatus"
+                value={searchForm.status}
+                onChange={(e) => setSearchForm(prev => ({ ...prev, status: e.target.value as BookingStatus | 'all' }))}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">全部状态</option>
+                <option value="pending">待确认</option>
+                <option value="confirmed">已确认</option>
+                <option value="completed">已完成</option>
+                <option value="cancelled">已取消</option>
+              </select>
+            </div>
+          </div>
+          
+          {/* 搜索按钮 */}
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              <Search size={16} />
+              搜索
+            </button>
+            <button
+              type="button"
+              onClick={handleClearSearch}
+              disabled={loading}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors disabled:opacity-50"
+            >
+              <X size={16} />
+              清除
+            </button>
+          </div>
+        </form>
       </div>
 
       {/* 操作栏 */}
@@ -321,24 +446,24 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
               <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
               刷新
             </button>
-                    <UniversalExportButton
-          exportService={exportService}
-          moduleId="showmasterpiece"
-          businessId="bookings"
-          availableFields={BOOKING_EXPORT_FIELDS}
-          dataSource={dataSource}
-          defaultConfig={DEFAULT_BOOKING_EXPORT_CONFIG}
-          buttonText="导出数据"
-          variant="primary"
-          size="md"
-          disabled={loading}
-          onExportSuccess={(result) => {
-            console.log('导出成功:', result);
-          }}
-          onExportError={(error) => {
-            console.error('导出失败:', error);
-          }}
-        />
+            <UniversalExportButton
+              exportService={exportService}
+              moduleId="showmasterpiece"
+              businessId="bookings"
+              availableFields={BOOKING_EXPORT_FIELDS}
+              dataSource={dataSource}
+              defaultConfig={DEFAULT_BOOKING_EXPORT_CONFIG}
+              buttonText="导出数据"
+              variant="primary"
+              size="md"
+              disabled={loading}
+              onExportSuccess={(result) => {
+                console.log('导出成功:', result);
+              }}
+              onExportError={(error) => {
+                console.error('导出失败:', error);
+              }}
+            />
           </div>
         </div>
       </div>
@@ -398,61 +523,65 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
                     <div>
-                      <p className="text-xs sm:text-sm text-slate-500">预订数量</p>
-                      <p className="text-sm sm:text-base font-medium text-slate-800">{booking.quantity}</p>
+                      <p className="text-xs text-slate-500">数量</p>
+                      <p className="text-sm font-medium text-slate-800">{booking.quantity}</p>
                     </div>
                     <div>
-                      <p className="text-xs sm:text-sm text-slate-500">总价格</p>
-                      <p className="text-sm sm:text-base font-medium text-slate-800">¥{booking.totalPrice}</p>
+                      <p className="text-xs text-slate-500">单价</p>
+                      <p className="text-sm font-medium text-slate-800">¥{booking.collection.price}</p>
                     </div>
                     <div>
-                      <p className="text-xs sm:text-sm text-slate-500">预订时间</p>
-                      <p className="text-xs sm:text-sm font-medium text-slate-800">{formatTime(booking.createdAt)}</p>
+                      <p className="text-xs text-slate-500">总价</p>
+                      <p className="text-sm font-medium text-slate-800">¥{booking.totalPrice}</p>
                     </div>
                     <div>
-                      <p className="text-xs sm:text-sm text-slate-500">更新时间</p>
-                      <p className="text-xs sm:text-sm font-medium text-slate-800">{formatTime(booking.updatedAt)}</p>
+                      <p className="text-xs text-slate-500">预订时间</p>
+                      <p className="text-sm font-medium text-slate-800">{formatTime(booking.createdAt)}</p>
                     </div>
                   </div>
                   
-                  {booking.notes && (
+                  {(booking.notes || booking.adminNotes) && (
                     <div className="mb-4">
-                      <p className="text-sm text-slate-500">用户备注</p>
-                      <p className="text-sm text-slate-800 bg-slate-50 p-3 rounded-lg break-words">{booking.notes}</p>
+                      {booking.notes && (
+                        <div className="mb-2">
+                          <p className="text-xs text-slate-500">用户备注</p>
+                          <p className="text-sm text-slate-700">{booking.notes}</p>
+                        </div>
+                      )}
+                      {booking.adminNotes && (
+                        <div>
+                          <p className="text-xs text-slate-500">管理员备注</p>
+                          <p className="text-sm text-slate-700">{booking.adminNotes}</p>
+                        </div>
+                      )}
                     </div>
                   )}
                   
-                  {editingBooking === booking.id ? (
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">状态</label>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    {editingBooking === booking.id ? (
+                      <>
                         <select
                           value={editForm.status}
                           onChange={(e) => setEditForm(prev => ({ ...prev, status: e.target.value as BookingStatus }))}
-                          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                           <option value="pending">待确认</option>
                           <option value="confirmed">已确认</option>
                           <option value="completed">已完成</option>
                           <option value="cancelled">已取消</option>
                         </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">管理员备注</label>
-                        <textarea
+                        <input
+                          type="text"
                           value={editForm.adminNotes}
                           onChange={(e) => setEditForm(prev => ({ ...prev, adminNotes: e.target.value }))}
-                          rows={3}
-                          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="输入管理员备注（可选）"
+                          placeholder="管理员备注"
+                          className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-                      </div>
-                      <div className="flex flex-col sm:flex-row gap-2">
                         <button
                           onClick={handleSaveEdit}
-                          className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                          className="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
                         >
                           <Save size={16} />
                           保存
@@ -464,42 +593,26 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                           <X size={16} />
                           取消
                         </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                      <div className="flex flex-col sm:flex-row gap-2">
+                      </>
+                    ) : (
+                      <>
                         <button
                           onClick={() => handleEditBooking(booking)}
-                          className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium hover:bg-blue-200 transition-colors"
+                          className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
                         >
                           <Edit size={16} />
-                          编辑状态
-                        </button>
-                        <button
-                          onClick={() => setSelectedBooking(booking)}
-                          className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors"
-                        >
-                          <Eye size={16} />
-                          查看详情
+                          编辑
                         </button>
                         <button
                           onClick={() => handleDeleteBooking(booking.id)}
-                          className="flex items-center justify-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg font-medium hover:bg-red-200 transition-colors"
+                          className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
                         >
                           <Trash2 size={16} />
                           删除
                         </button>
-                      </div>
-                      
-                      {booking.adminNotes && (
-                        <div className="text-left sm:text-right">
-                          <p className="text-sm text-slate-500">管理员备注</p>
-                          <p className="text-slate-800 text-sm break-words">{booking.adminNotes}</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             );

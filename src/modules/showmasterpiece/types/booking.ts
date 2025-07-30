@@ -125,6 +125,9 @@ export interface BookingListParams {
   /** QQ号过滤 */
   qqNumber?: string;
   
+  /** 手机号过滤 */
+  phoneNumber?: string;
+  
   /** 状态过滤 */
   status?: BookingStatus;
   

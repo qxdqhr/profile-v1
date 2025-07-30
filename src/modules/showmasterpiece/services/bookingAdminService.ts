@@ -104,18 +104,46 @@ export interface BookingAdminResponse {
 }
 
 /**
+ * 预订管理查询参数
+ */
+export interface BookingAdminQueryParams {
+  /** QQ号搜索 */
+  qqNumber?: string;
+  /** 手机号搜索 */
+  phoneNumber?: string;
+  /** 状态过滤 */
+  status?: BookingStatus | 'all';
+}
+
+/**
  * 预订管理服务类
  */
 export class BookingAdminService {
   /**
    * 获取所有预订数据
    */
-  static async getAllBookings(): Promise<BookingAdminData[]> {
+  static async getAllBookings(params?: BookingAdminQueryParams): Promise<BookingAdminData[]> {
     try {
       // 添加时间戳参数防止缓存
       const timestamp = Date.now();
       const randomId = Math.random().toString(36).substring(7);
-      const response = await fetch(`/api/showmasterpiece/bookings/admin?t=${timestamp}&forceRefresh=${randomId}`, {
+      
+      // 构建查询参数
+      const searchParams = new URLSearchParams();
+      searchParams.append('t', timestamp.toString());
+      searchParams.append('forceRefresh', randomId);
+      
+      if (params?.qqNumber) {
+        searchParams.append('qqNumber', params.qqNumber);
+      }
+      if (params?.phoneNumber) {
+        searchParams.append('phoneNumber', params.phoneNumber);
+      }
+      if (params?.status && params.status !== 'all') {
+        searchParams.append('status', params.status);
+      }
+      
+      const response = await fetch(`/api/showmasterpiece/bookings/admin?${searchParams.toString()}`, {
         method: 'GET',
         cache: 'no-store',
         headers: {
@@ -139,12 +167,28 @@ export class BookingAdminService {
   /**
    * 强制刷新获取所有预订数据（绕过所有缓存）
    */
-  static async forceRefreshAllBookings(): Promise<BookingAdminData[]> {
+  static async forceRefreshAllBookings(params?: BookingAdminQueryParams): Promise<BookingAdminData[]> {
     try {
       console.log('🔄 使用强制刷新API获取预订数据...');
       const timestamp = Date.now();
       const randomId = Math.random().toString(36).substring(7);
-      const response = await fetch(`/api/showmasterpiece/bookings/admin/refresh?t=${timestamp}&forceRefresh=${randomId}`, {
+      
+      // 构建查询参数
+      const searchParams = new URLSearchParams();
+      searchParams.append('t', timestamp.toString());
+      searchParams.append('forceRefresh', randomId);
+      
+      if (params?.qqNumber) {
+        searchParams.append('qqNumber', params.qqNumber);
+      }
+      if (params?.phoneNumber) {
+        searchParams.append('phoneNumber', params.phoneNumber);
+      }
+      if (params?.status && params.status !== 'all') {
+        searchParams.append('status', params.status);
+      }
+      
+      const response = await fetch(`/api/showmasterpiece/bookings/admin/refresh?${searchParams.toString()}`, {
         method: 'GET',
         cache: 'no-store',
         headers: {
@@ -174,12 +218,28 @@ export class BookingAdminService {
   /**
    * 获取预订统计信息
    */
-  static async getBookingStats(): Promise<BookingAdminStats> {
+  static async getBookingStats(params?: BookingAdminQueryParams): Promise<BookingAdminStats> {
     try {
       // 添加时间戳参数防止缓存
       const timestamp = Date.now();
       const randomId = Math.random().toString(36).substring(7);
-      const response = await fetch(`/api/showmasterpiece/bookings/admin?t=${timestamp}&forceRefresh=${randomId}`, {
+      
+      // 构建查询参数
+      const searchParams = new URLSearchParams();
+      searchParams.append('t', timestamp.toString());
+      searchParams.append('forceRefresh', randomId);
+      
+      if (params?.qqNumber) {
+        searchParams.append('qqNumber', params.qqNumber);
+      }
+      if (params?.phoneNumber) {
+        searchParams.append('phoneNumber', params.phoneNumber);
+      }
+      if (params?.status && params.status !== 'all') {
+        searchParams.append('status', params.status);
+      }
+      
+      const response = await fetch(`/api/showmasterpiece/bookings/admin?${searchParams.toString()}`, {
         method: 'GET',
         cache: 'no-store',
         headers: {
@@ -214,12 +274,28 @@ export class BookingAdminService {
   /**
    * 强制刷新获取预订统计信息（绕过所有缓存）
    */
-  static async forceRefreshBookingStats(): Promise<BookingAdminStats> {
+  static async forceRefreshBookingStats(params?: BookingAdminQueryParams): Promise<BookingAdminStats> {
     try {
       console.log('🔄 使用强制刷新API获取统计信息...');
       const timestamp = Date.now();
       const randomId = Math.random().toString(36).substring(7);
-      const response = await fetch(`/api/showmasterpiece/bookings/admin/refresh?t=${timestamp}&forceRefresh=${randomId}`, {
+      
+      // 构建查询参数
+      const searchParams = new URLSearchParams();
+      searchParams.append('t', timestamp.toString());
+      searchParams.append('forceRefresh', randomId);
+      
+      if (params?.qqNumber) {
+        searchParams.append('qqNumber', params.qqNumber);
+      }
+      if (params?.phoneNumber) {
+        searchParams.append('phoneNumber', params.phoneNumber);
+      }
+      if (params?.status && params.status !== 'all') {
+        searchParams.append('status', params.status);
+      }
+      
+      const response = await fetch(`/api/showmasterpiece/bookings/admin/refresh?${searchParams.toString()}`, {
         method: 'GET',
         cache: 'no-store',
         headers: {

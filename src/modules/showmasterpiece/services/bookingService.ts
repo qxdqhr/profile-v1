@@ -65,6 +65,9 @@ export class BookingService {
     if (params.qqNumber) {
       searchParams.append('qqNumber', params.qqNumber);
     }
+    if (params.phoneNumber) {
+      searchParams.append('phoneNumber', params.phoneNumber);
+    }
     if (params.status) {
       searchParams.append('status', params.status);
     }

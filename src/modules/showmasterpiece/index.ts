@@ -215,7 +215,8 @@ export type {
 export type {
   BookingAdminData,     // 预订管理数据类型
   BookingAdminStats,    // 预订统计信息类型
-  BookingAdminResponse  // 预订管理API响应类型
+  BookingAdminResponse, // 预订管理API响应类型
+  BookingAdminQueryParams // 预订管理查询参数类型
 } from './services/bookingAdminService';
 
 // ===== 模块信息 =====
