@@ -156,7 +156,7 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
       <img
         src={collection.coverImage}
         alt={collection.title}
-        className={`w-full h-64 object-cover transition-opacity duration-300 ${
+        className={`w-full h-full object-contain transition-opacity duration-300 ${
           imageLoading ? 'opacity-0 absolute' : 'opacity-100'
         }`}
         onLoad={handleImageLoad}
@@ -193,8 +193,8 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
       }`}
       onClick={isProduct ? undefined : () => onSelect(collection)}
     >
-      {/* 图片容器 */}
-      <div className="relative h-64 bg-slate-50 flex items-center justify-center overflow-hidden">
+      {/* 图片容器 - B5尺寸适配 */}
+      <div className="relative w-full bg-slate-50 flex items-center justify-center overflow-hidden aspect-[1/1.414]">
         {/* 图片覆盖层 */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         
