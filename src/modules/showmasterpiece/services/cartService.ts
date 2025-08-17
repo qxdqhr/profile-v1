@@ -275,6 +275,7 @@ export class CartService {
           totalQuantity: cart.totalQuantity,
           totalPrice: cart.totalPrice,
           notes: data.notes,
+          isPickupOnSite: data.isPickupOnSite,
           status: 'pending',
           bookingIds: result.bookingIds,
           submittedAt: new Date()

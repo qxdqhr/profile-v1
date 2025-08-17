@@ -336,7 +336,7 @@ function ShowMasterPiecesContent() {
                     }`}
                   >
                     <div className="text-center">
-                      <div className="font-semibold">亚克力</div>
+                      <div className="font-semibold">立牌</div>
                       <div className="text-xs opacity-75 mt-1">
                         ({collections.filter(c => c.category === CollectionCategory.ACRYLIC).length})
                       </div>
@@ -441,7 +441,7 @@ function ShowMasterPiecesContent() {
                     }`}
                   >
                     <div className="text-center">
-                      <div className="font-semibold">其他</div>
+                      <div className="font-semibold">挂件/钥匙扣</div>
                       <div className="text-xs opacity-75 mt-1">
                         ({collections.filter(c => c.category === CollectionCategory.OTHER).length})
                       </div>
