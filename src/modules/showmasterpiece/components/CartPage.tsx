@@ -55,6 +55,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
     qqNumber: '',
     phoneNumber: '',
     notes: '',
+    isPickupOnSite: false,
   });
   const [formErrors, setFormErrors] = useState<{
     qqNumber?: string;
@@ -64,7 +65,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
   /**
    * 处理表单字段更新
    */
-  const handleFormChange = (field: string, value: string) => {
+  const handleFormChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
     // 清除对应字段的错误
@@ -113,7 +114,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
     clearError();
     
     try {
-      const result = await checkoutCart(formData.qqNumber, formData.phoneNumber, formData.notes || undefined);
+      const result = await checkoutCart(formData.qqNumber, formData.phoneNumber, formData.notes || undefined, formData.isPickupOnSite);
       setCheckoutSuccess(true);
     } catch (error) {
       console.error('批量预订失败:', error);
@@ -127,7 +128,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
    */
   const handleContinueShopping = () => {
     setCheckoutSuccess(false);
-    setFormData({ qqNumber: '', phoneNumber: '', notes: '' });
+    setFormData({ qqNumber: '', phoneNumber: '', notes: '', isPickupOnSite: false });
     setFormErrors({});
     if (onClose) {
       onClose();
@@ -329,8 +330,8 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
                   id="notes"
                   value={formData.notes}
                   onChange={(e) => handleFormChange('notes', e.target.value)}
-                  rows={6}
-                  className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[120px]"
+                  rows={8}
+                  className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[160px] sm:min-h-[140px]"
                   placeholder={`您在葱韵环京的哪个群（方便我们联系您）
 （1）葱韵环京ComicUniverse
 （2）葱韵环京外星开拓群
@@ -339,6 +340,21 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
 （5）葱韵环京天津群`}
                   disabled={isCheckingOut}
                 />
+              </div>
+
+              {/* 现场领取选项 */}
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="isPickupOnSite"
+                  checked={formData.isPickupOnSite}
+                  onChange={(e) => handleFormChange('isPickupOnSite', e.target.checked)}
+                  className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                  disabled={isCheckingOut}
+                />
+                <label htmlFor="isPickupOnSite" className="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                  是否到9.13北京场现场领取（天津/南京场暂不设置现场领取点）
+                </label>
               </div>
 
               {/* 操作按钮 */}

@@ -20,7 +20,7 @@ import { eq, and } from 'drizzle-orm';
 async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { qqNumber, phoneNumber, items, notes } = body;
+    const { qqNumber, phoneNumber, items, notes, isPickupOnSite } = body;
 
     // 数据验证
     if (!qqNumber || !phoneNumber || !items || !Array.isArray(items) || items.length === 0) {
@@ -111,6 +111,7 @@ async function POST(request: NextRequest) {
             .set({
               quantity: item.quantity,
               notes: notes || null,
+              isPickupOnSite: isPickupOnSite || false,
               updatedAt: new Date(),
             })
             .where(
@@ -134,6 +135,7 @@ async function POST(request: NextRequest) {
               phoneNumber,
               quantity: item.quantity,
               notes: notes || null,
+              isPickupOnSite: isPickupOnSite || false,
               status: 'pending',
             })
             .returning();

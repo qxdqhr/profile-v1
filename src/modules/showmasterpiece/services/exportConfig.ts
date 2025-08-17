@@ -132,6 +132,16 @@ export const BOOKING_EXPORT_FIELDS: ExportField[] = [
     alignment: 'left',
   },
   {
+    key: 'isPickupOnSite',
+    label: '现场领取',
+    type: 'boolean',
+    enabled: true,
+    required: false,
+    description: '是否选择现场领取',
+    alignment: 'center',
+    formatter: (value) => value ? '是' : '否',
+  },
+  {
     key: 'adminNotes',
     label: '管理员备注',
     type: 'string',
