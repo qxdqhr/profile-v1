@@ -60,6 +60,8 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
   const [formErrors, setFormErrors] = useState<{
     qqNumber?: string;
     phoneNumber?: string;
+    notes?: string;
+    isPickupOnSite?: string;
   }>({});
 
   /**
@@ -78,8 +80,9 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
    * 验证表单
    */
   const validateForm = (): boolean => {
-    const errors: { qqNumber?: string; phoneNumber?: string } = {};
+    const errors: { qqNumber?: string; phoneNumber?: string; notes?: string; isPickupOnSite?: string } = {};
 
+    // 验证QQ号（必填）
     if (!formData.qqNumber.trim()) {
       errors.qqNumber = '请输入QQ号';
     } else if (!/^\d{5,11}$/.test(formData.qqNumber.trim())) {
@@ -95,6 +98,16 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
         errors.phoneNumber = '手机号格式不正确';
       }
     }
+
+    // 验证备注信息（必填）
+    if (!formData.notes.trim()) {
+      errors.notes = '请填写备注信息';
+    }
+
+    // 验证现场领取选项（这里我们要求用户主动选择）
+    // 注意：由于这是boolean值，我们检查是否已经做出选择
+    // 可以考虑要求用户明确选择，但通常boolean默认false是可接受的
+    // 如果您希望强制用户做出选择，可以添加一个"未选择"的状态
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -324,14 +337,16 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
               {/* 备注信息 */}
               <div>
                 <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
-                  备注信息
+                  备注信息 <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   id="notes"
                   value={formData.notes}
                   onChange={(e) => handleFormChange('notes', e.target.value)}
                   rows={8}
-                  className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[160px] sm:min-h-[140px]"
+                  className={`w-full px-3 py-3 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[160px] sm:min-h-[140px] ${
+                    formErrors.notes ? 'border-red-300' : 'border-gray-300'
+                  }`}
                   placeholder={`您在葱韵环京的哪个群（方便我们联系您）
 （1）葱韵环京ComicUniverse
 （2）葱韵环京外星开拓群
@@ -340,6 +355,9 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
 （5）葱韵环京天津群`}
                   disabled={isCheckingOut}
                 />
+                {formErrors.notes && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.notes}</p>
+                )}
               </div>
 
               {/* 现场领取选项 */}
