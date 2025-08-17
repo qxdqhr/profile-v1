@@ -329,9 +329,14 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
                   id="notes"
                   value={formData.notes}
                   onChange={(e) => handleFormChange('notes', e.target.value)}
-                  rows={3}
-                  className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
-                  placeholder="请输入备注信息（可选）"
+                  rows={6}
+                  className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[120px]"
+                  placeholder={`您在葱韵环京的哪个群（方便我们联系您）
+（1）葱韵环京ComicUniverse
+（2）葱韵环京外星开拓群
+（3）葱韵环京比邻星
+（4）葱韵环京华东群
+（5）葱韵环京天津群`}
                   disabled={isCheckingOut}
                 />
               </div>
