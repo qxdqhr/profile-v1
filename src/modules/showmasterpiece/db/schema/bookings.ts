@@ -67,8 +67,8 @@ export const comicUniverseBookings = pgTable('comic_universe_bookings', {
   /** 预订备注信息 */
   notes: text('notes'),
   
-  /** 是否现场领取 */
-  isPickupOnSite: boolean('is_pickup_on_site').notNull().default(false),
+  /** 领取方式 */
+  pickupMethod: text('pickup_method'),
   
   /** 管理员处理备注 */
   adminNotes: text('admin_notes'),

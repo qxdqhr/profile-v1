@@ -55,13 +55,13 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
     qqNumber: '',
     phoneNumber: '',
     notes: '',
-    isPickupOnSite: false,
+    pickupMethod: '',
   });
   const [formErrors, setFormErrors] = useState<{
     qqNumber?: string;
     phoneNumber?: string;
     notes?: string;
-    isPickupOnSite?: string;
+    pickupMethod?: string;
   }>({});
 
   /**
@@ -80,7 +80,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
    * 验证表单
    */
   const validateForm = (): boolean => {
-    const errors: { qqNumber?: string; phoneNumber?: string; notes?: string; isPickupOnSite?: string } = {};
+    const errors: { qqNumber?: string; phoneNumber?: string; notes?: string; pickupMethod?: string } = {};
 
     // 验证QQ号（必填）
     if (!formData.qqNumber.trim()) {
@@ -104,10 +104,10 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
       errors.notes = '请填写备注信息';
     }
 
-    // 验证现场领取选项（这里我们要求用户主动选择）
-    // 注意：由于这是boolean值，我们检查是否已经做出选择
-    // 可以考虑要求用户明确选择，但通常boolean默认false是可接受的
-    // 如果您希望强制用户做出选择，可以添加一个"未选择"的状态
+    // 验证领取方式（必填）
+    if (!formData.pickupMethod.trim()) {
+      errors.pickupMethod = '请填写领取方式';
+    }
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -127,7 +127,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
     clearError();
     
     try {
-      const result = await checkoutCart(formData.qqNumber, formData.phoneNumber, formData.notes || undefined, formData.isPickupOnSite);
+      const result = await checkoutCart(formData.qqNumber, formData.phoneNumber, formData.notes || undefined, formData.pickupMethod);
       setCheckoutSuccess(true);
     } catch (error) {
       console.error('批量预订失败:', error);
@@ -141,7 +141,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
    */
   const handleContinueShopping = () => {
     setCheckoutSuccess(false);
-    setFormData({ qqNumber: '', phoneNumber: '', notes: '', isPickupOnSite: false });
+    setFormData({ qqNumber: '', phoneNumber: '', notes: '', pickupMethod: '' });
     setFormErrors({});
     if (onClose) {
       onClose();
@@ -360,19 +360,27 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
                 )}
               </div>
 
-              {/* 现场领取选项 */}
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="isPickupOnSite"
-                  checked={formData.isPickupOnSite}
-                  onChange={(e) => handleFormChange('isPickupOnSite', e.target.checked)}
-                  className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+              {/* 领取方式 */}
+              <div>
+                <label htmlFor="pickupMethod" className="block text-sm font-medium text-gray-700 mb-2">
+                  领取方式 <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  id="pickupMethod"
+                  value={formData.pickupMethod}
+                  onChange={(e) => handleFormChange('pickupMethod', e.target.value)}
+                  rows={4}
+                  className={`w-full px-3 py-3 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[120px] ${
+                    formErrors.pickupMethod ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                  placeholder={`是否到9.13北京场现场领取（天津/南京场暂不设置现场领取点）
+【1】是（现场领）
+【2】否（邮寄）`}
                   disabled={isCheckingOut}
                 />
-                <label htmlFor="isPickupOnSite" className="text-sm font-medium text-gray-700 cursor-pointer select-none">
-                  是否到9.13北京场现场领取（天津/南京场暂不设置现场领取点）
-                </label>
+                {formErrors.pickupMethod && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.pickupMethod}</p>
+                )}
               </div>
 
               {/* 操作按钮 */}

@@ -210,9 +210,9 @@ export function useCart(userId: number) {
    * @param qqNumber QQ号
    * @param phoneNumber 手机号
    * @param notes 备注
-   * @param isPickupOnSite 是否现场领取
+   * @param pickupMethod 领取方式
    */
-  const checkoutCart = useCallback(async (qqNumber: string, phoneNumber: string, notes?: string, isPickupOnSite: boolean = false): Promise<BatchBookingResponse> => {
+  const checkoutCart = useCallback(async (qqNumber: string, phoneNumber: string, notes?: string, pickupMethod: string = ''): Promise<BatchBookingResponse> => {
     setState(prev => ({ ...prev, loading: true, error: undefined }));
     
     try {
@@ -224,7 +224,7 @@ export function useCart(userId: number) {
           quantity: item.quantity
         })),
         notes,
-        isPickupOnSite
+        pickupMethod
       };
 
       const result = await batchBooking(request, state.cart);

@@ -71,8 +71,8 @@ export interface CartHistoryItem {
   /** 用户备注 */
   notes?: string;
   
-  /** 是否现场领取 */
-  isPickupOnSite: boolean;
+  /** 领取方式 */
+  pickupMethod: string;
   
   /** 预订状态 */
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
@@ -178,8 +178,8 @@ export interface BatchBookingRequest {
   /** 备注信息 */
   notes?: string;
   
-  /** 是否现场领取 */
-  isPickupOnSite: boolean;
+  /** 领取方式 */
+  pickupMethod: string;
 }
 
 /**
