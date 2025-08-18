@@ -176,7 +176,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
       {/* 页面标题 */}
       <div className="text-center mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">购物车</h1>
-        <p className="text-sm sm:text-base text-gray-600">管理您选择的画集，确认后批量预订</p>
+        <p className="text-sm sm:text-base text-gray-600">管理您选择的谷子，确认后批量预订</p>
       </div>
 
       {/* 错误提示 */}
@@ -201,12 +201,12 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
         <div className="text-center py-8 sm:py-12">
           <ShoppingBag className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">购物车为空</h3>
-          <p className="text-sm sm:text-base text-gray-600 mb-6">您还没有添加任何画集到购物车</p>
+          <p className="text-sm sm:text-base text-gray-600 mb-6">您还没有添加任何谷子到购物车</p>
           <button
             onClick={onClose}
             className="bg-blue-600 text-white px-4 py-3 sm:py-2 rounded-lg hover:bg-blue-700 transition-colors text-base"
           >
-            继续浏览画集
+            继续浏览谷子
           </button>
         </div>
       )}

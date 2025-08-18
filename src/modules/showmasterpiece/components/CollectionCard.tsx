@@ -187,11 +187,11 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
     <div
       ref={cardRef}
       className={`bg-white rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 transform w-full max-w-sm mx-auto group ${
-        isProduct 
+        !(collection.pages && collection.pages.length > 0) 
           ? 'cursor-default' 
           : 'cursor-pointer hover:-translate-y-2 hover:shadow-3xl'
       }`}
-      onClick={isProduct ? undefined : () => onSelect(collection)}
+      onClick={(collection.pages && collection.pages.length > 0) ? () => onSelect(collection) : undefined}
     >
       {/* 图片容器 - B5尺寸适配 */}
       <div className="relative w-full bg-slate-50 flex items-center justify-center overflow-hidden aspect-[1/1.414]">
@@ -254,8 +254,8 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
         
         {/* 操作按钮 */}
         <div className="flex gap-2">
-          {/* 查看按钮 - 只在画集类型时显示 */}
-          {!isProduct && (
+          {/* 查看按钮 - 有作品内容时显示 */}
+          {collection.pages && collection.pages.length > 0 && (
             <button
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex-1 justify-center"
               onClick={(e) => {
@@ -264,15 +264,15 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
               }}
             >
               <Eye size={16} />
-              查看画集
+              查看详情
             </button>
           )}
           
-          {/* 加入购物车按钮 - 商品类型时占满宽度 */}
+          {/* 加入购物车按钮 - 没有作品内容时占满宽度 */}
           <AddToCartButton
             collection={collection}
             userId={userId}
-            className={isProduct ? "w-full" : "flex-1"}
+            className={!(collection.pages && collection.pages.length > 0) ? "w-full" : "flex-1"}
             size="md"
           />
         </div>
