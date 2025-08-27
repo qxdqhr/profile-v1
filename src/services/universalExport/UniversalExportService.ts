@@ -1,7 +1,7 @@
 /**
- * 通用CSV导出服务
+ * 通用导出服务
  * 
- * 提供统一的CSV导出功能，支持配置化字段选择和格式化
+ * 提供统一的导出功能，支持配置化字段选择、格式化和分组
  */
 
 import type {
@@ -18,8 +18,15 @@ import type {
   FieldMapper,
   DataTransformer,
   Validator,
-  Formatter
+  Formatter,
+  GroupingConfig,
+  GroupingField,
+  GroupingMode,
+  GroupValueProcessing
 } from './types';
+
+// Excel导出依赖
+import * as XLSX from 'xlsx';
 
 // 客户端服务
 import { universalExportClient } from './client';
@@ -541,6 +548,7 @@ export class UniversalExportService {
       hasFilters: !!(request.filters && request.filters.length > 0),
       hasSortBy: !!(request.sortBy && request.sortBy.length > 0),
       hasPagination: !!request.pagination,
+      hasGrouping: !!(config.grouping && config.grouping.enabled),
       maxRows: config.maxRows,
     });
 
@@ -561,6 +569,16 @@ export class UniversalExportService {
       console.log('📊 [UniversalExportService] 应用排序...');
       processedData = this.applySorting(processedData, request.sortBy);
       console.log('✅ [UniversalExportService] 排序应用完成');
+    }
+
+    // 应用分组
+    if (config.grouping && config.grouping.enabled) {
+      console.log('📊 [UniversalExportService] 应用分组...');
+      processedData = this.applyGrouping(processedData, config.grouping);
+      console.log('✅ [UniversalExportService] 分组应用完成:', {
+        groupsCount: this.countGroups(processedData),
+        resultLength: processedData.length,
+      });
     }
 
     // 应用分页
@@ -710,6 +728,34 @@ export class UniversalExportService {
             fileName,
           });
           break;
+        case 'excel':
+          console.log('📊 [UniversalExportService] 生成Excel格式...');
+          const excelBuffer = this.generateExcel(data, enabledFields, config);
+          fileName = this.generateFileName(request.customFileName || config.fileNameTemplate, 'xlsx');
+          console.log('✅ [UniversalExportService] Excel生成完成:', {
+            bufferLength: excelBuffer.byteLength,
+            fileName,
+          });
+          // 创建Excel Blob
+          const excelBlob = new Blob([excelBuffer], { type: this.getMimeType(config.format) });
+          const endTime = new Date();
+          const duration = endTime.getTime() - startTime.getTime();
+          return {
+            exportId,
+            fileName,
+            fileSize: excelBlob.size,
+            fileBlob: excelBlob,
+            exportedRows: data.length,
+            startTime,
+            endTime,
+            duration,
+            statistics: {
+              totalRows: data.length,
+              filteredRows: data.length,
+              exportedRows: data.length,
+              skippedRows: 0,
+            },
+          };
         case 'json':
           console.log('📄 [UniversalExportService] 生成JSON格式...');
           content = this.generateJSON(data, enabledFields);
@@ -804,6 +850,11 @@ export class UniversalExportService {
       }
       
       const row = nonEmptyFields.map(field => {
+        // 处理分组头行
+        if (item.__isGroupHeader) {
+          return this.escapeCSVField(item[field.key] || '');
+        }
+
         let value = this.getNestedValue(item, field.key);
         
         // 应用格式化器
@@ -914,5 +965,323 @@ export class UniversalExportService {
         }
       });
     }
+  }
+
+  // ============= 分组相关方法 =============
+
+  /**
+   * 应用分组
+   */
+  private applyGrouping(data: any[], groupingConfig: GroupingConfig): any[] {
+    console.log('📊 [UniversalExportService] applyGrouping 开始执行:', {
+      dataLength: data.length,
+      groupingFields: groupingConfig.fields.map(f => f.key),
+      preserveOrder: groupingConfig.preserveOrder,
+    });
+
+    if (!groupingConfig.fields || groupingConfig.fields.length === 0) {
+      return data;
+    }
+
+    // 按分组字段对数据进行分组
+    const grouped = this.groupDataByFields(data, groupingConfig);
+    
+    // 处理分组后的数据
+    const result = this.processGroupedData(grouped, groupingConfig);
+
+    console.log('✅ [UniversalExportService] applyGrouping 执行完成:', {
+      originalLength: data.length,
+      groupedLength: result.length,
+    });
+
+    return result;
+  }
+
+  /**
+   * 按字段分组数据
+   */
+  private groupDataByFields(data: any[], groupingConfig: GroupingConfig): Map<string, any[]> {
+    const groups = new Map<string, any[]>();
+    
+    for (const item of data) {
+      // 生成分组键
+      const groupKey = this.generateGroupKey(item, groupingConfig.fields);
+      
+      if (!groups.has(groupKey)) {
+        groups.set(groupKey, []);
+      }
+      groups.get(groupKey)!.push(item);
+    }
+
+    return groups;
+  }
+
+  /**
+   * 生成分组键
+   */
+  private generateGroupKey(item: any, groupingFields: GroupingField[]): string {
+    const keyParts = groupingFields.map(field => {
+      const value = this.getNestedValue(item, field.key);
+      
+      // 处理空值
+      if (value === null || value === undefined || value === '') {
+        return '__NULL__';
+      }
+      
+      return String(value);
+    });
+
+    return keyParts.join('|');
+  }
+
+  /**
+   * 处理分组后的数据
+   */
+  private processGroupedData(groups: Map<string, any[]>, groupingConfig: GroupingConfig): any[] {
+    const result: any[] = [];
+    
+    for (const [groupKey, groupItems] of groups) {
+      if (groupItems.length === 0) continue;
+
+      // 解析分组键
+      const groupValues = groupKey.split('|');
+      
+      // 处理分组
+      const processedGroup = this.processGroup(groupItems, groupingConfig, groupValues);
+      result.push(...processedGroup);
+    }
+
+    return result;
+  }
+
+  /**
+   * 处理单个分组
+   */
+  private processGroup(groupItems: any[], groupingConfig: GroupingConfig, groupValues: string[]): any[] {
+    const result: any[] = [];
+    
+    // 添加分组头行（如果需要）
+    const showGroupHeader = groupingConfig.fields.some(f => f.showGroupHeader);
+    if (showGroupHeader) {
+      const groupHeader = this.createGroupHeader(groupValues, groupingConfig.fields);
+      result.push(groupHeader);
+    }
+
+    // 处理分组模式
+    const primaryGroupField = groupingConfig.fields[0];
+    
+    switch (primaryGroupField.mode) {
+      case 'merge':
+        // 合并模式：第一行显示分组值，其他行为空
+        result.push(...this.processMergeMode(groupItems, primaryGroupField));
+        break;
+      case 'separate':
+        // 分离模式：每个分组独立显示
+        result.push(...groupItems);
+        break;
+      case 'nested':
+        // 嵌套模式：支持多级分组
+        result.push(...this.processNestedMode(groupItems, groupingConfig));
+        break;
+      default:
+        result.push(...groupItems);
+    }
+
+    return result;
+  }
+
+  /**
+   * 创建分组头行
+   */
+  private createGroupHeader(groupValues: string[], groupingFields: GroupingField[]): any {
+    const header: any = { __isGroupHeader: true };
+    
+    groupingFields.forEach((field, index) => {
+      const value = groupValues[index] === '__NULL__' ? '' : groupValues[index];
+      const template = field.groupHeaderTemplate || `${field.label}: {value}`;
+      header[field.key] = template.replace('{value}', value);
+    });
+
+    return header;
+  }
+
+  /**
+   * 处理合并模式
+   */
+  private processMergeMode(groupItems: any[], groupField: GroupingField): any[] {
+    if (groupItems.length === 0) return [];
+
+    const result: any[] = [];
+    
+    // 第一行保持原样
+    const firstItem = { ...groupItems[0] };
+    firstItem.__groupSize = groupItems.length;
+    firstItem.__isGroupFirst = true;
+    result.push(firstItem);
+
+    // 其他行的分组字段设置为空，用于合并单元格
+    for (let i = 1; i < groupItems.length; i++) {
+      const item = { ...groupItems[i] };
+      item[groupField.key] = ''; // 空值表示需要合并
+      item.__isGroupChild = true;
+      item.__groupIndex = i;
+      result.push(item);
+    }
+
+    return result;
+  }
+
+  /**
+   * 处理嵌套模式
+   */
+  private processNestedMode(groupItems: any[], groupingConfig: GroupingConfig): any[] {
+    // 如果只有一个分组字段，按merge模式处理
+    if (groupingConfig.fields.length === 1) {
+      return this.processMergeMode(groupItems, groupingConfig.fields[0]);
+    }
+
+    // 多级分组：递归处理下一级
+    const subGroupingConfig: GroupingConfig = {
+      ...groupingConfig,
+      fields: groupingConfig.fields.slice(1),
+    };
+
+    return this.applyGrouping(groupItems, subGroupingConfig);
+  }
+
+  /**
+   * 统计分组数量
+   */
+  private countGroups(data: any[]): number {
+    const groupHeaders = data.filter(item => item.__isGroupHeader);
+    const groupFirsts = data.filter(item => item.__isGroupFirst);
+    return Math.max(groupHeaders.length, groupFirsts.length);
+  }
+
+  /**
+   * 生成Excel文件
+   */
+  private generateExcel(data: any[], fields: ExportField[], config: ExportConfig): ArrayBuffer {
+    console.log('📊 [UniversalExportService] generateExcel 开始执行:', {
+      dataLength: data.length,
+      fieldsCount: fields.length,
+      hasGrouping: !!(config.grouping && config.grouping.enabled),
+    });
+
+    // 创建工作簿
+    const workbook = XLSX.utils.book_new();
+    
+    // 准备数据
+    const worksheetData = this.prepareExcelData(data, fields, config);
+    
+    // 创建工作表
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+    
+    // 应用分组和合并单元格
+    if (config.grouping && config.grouping.enabled) {
+      this.applyExcelGrouping(worksheet, data, fields, config.grouping);
+    }
+
+    // 设置列宽
+    this.setExcelColumnWidths(worksheet, fields);
+    
+    // 添加工作表到工作簿
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+    
+    // 生成文件
+    const excelBuffer = XLSX.write(workbook, { 
+      bookType: 'xlsx', 
+      type: 'array',
+      cellStyles: true 
+    });
+
+    console.log('✅ [UniversalExportService] generateExcel 执行完成');
+    return excelBuffer;
+  }
+
+  /**
+   * 准备Excel数据
+   */
+  private prepareExcelData(data: any[], fields: ExportField[], config: ExportConfig): any[][] {
+    const result: any[][] = [];
+
+    // 添加表头
+    if (config.includeHeader) {
+      const headers = fields.map(field => field.label);
+      result.push(headers);
+    }
+
+    // 添加数据行
+    for (const item of data) {
+      const row = fields.map(field => {
+        // 跳过分组头行的处理
+        if (item.__isGroupHeader) {
+          return item[field.key] || '';
+        }
+
+        let value = this.getNestedValue(item, field.key);
+        
+        // 应用格式化器
+        if (field.formatter) {
+          value = field.formatter(value);
+        } else if (DEFAULT_FORMATTERS[field.type]) {
+          value = DEFAULT_FORMATTERS[field.type](value);
+        } else {
+          value = String(value || '');
+        }
+        
+        return value;
+      });
+      
+      result.push(row);
+    }
+
+    return result;
+  }
+
+  /**
+   * 应用Excel分组和合并单元格
+   */
+  private applyExcelGrouping(worksheet: XLSX.WorkSheet, data: any[], fields: ExportField[], groupingConfig: GroupingConfig): void {
+    if (!worksheet['!merges']) {
+      worksheet['!merges'] = [];
+    }
+
+    const headerOffset = groupingConfig.enabled ? 1 : 0; // 是否有表头
+    let currentRow = headerOffset;
+
+    for (let i = 0; i < data.length; i++) {
+      const item = data[i];
+      
+      if (item.__isGroupFirst && item.__groupSize > 1) {
+        // 找到需要合并的分组字段
+        groupingConfig.fields.forEach(groupField => {
+          if (groupField.mergeCells) {
+            const fieldIndex = fields.findIndex(f => f.key === groupField.key);
+            if (fieldIndex >= 0) {
+              // 创建合并区域
+              const mergeRange = {
+                s: { r: currentRow, c: fieldIndex },  // 开始行列
+                e: { r: currentRow + item.__groupSize - 1, c: fieldIndex }  // 结束行列
+              };
+              worksheet['!merges']!.push(mergeRange);
+            }
+          }
+        });
+      }
+      
+      currentRow++;
+    }
+  }
+
+  /**
+   * 设置Excel列宽
+   */
+  private setExcelColumnWidths(worksheet: XLSX.WorkSheet, fields: ExportField[]): void {
+    const colWidths = fields.map(field => ({
+      wch: field.width || 15  // 默认宽度15字符
+    }));
+    
+    worksheet['!cols'] = colWidths;
   }
 } 

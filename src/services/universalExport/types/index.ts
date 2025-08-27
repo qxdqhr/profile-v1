@@ -18,6 +18,12 @@ export type FieldAlignment = 'left' | 'center' | 'right';
 /** 导出状态 */
 export type ExportStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
 
+/** 分组模式 */
+export type GroupingMode = 'merge' | 'separate' | 'nested';
+
+/** 分组处理类型 */
+export type GroupValueProcessing = 'first' | 'last' | 'concat' | 'sum' | 'count' | 'custom';
+
 // ============= 字段定义接口 =============
 
 /** 导出字段定义 */
@@ -46,6 +52,40 @@ export interface ExportField {
   style?: Record<string, any>;
 }
 
+/** 分组字段配置 */
+export interface GroupingField {
+  /** 分组字段键名 */
+  key: string;
+  /** 分组字段显示名称 */
+  label: string;
+  /** 分组模式 */
+  mode: GroupingMode;
+  /** 其他字段的值处理方式 */
+  valueProcessing: GroupValueProcessing;
+  /** 自定义处理函数 */
+  customProcessor?: (values: any[]) => any;
+  /** 是否显示分组行 */
+  showGroupHeader: boolean;
+  /** 分组行模板 */
+  groupHeaderTemplate?: string;
+  /** 是否合并单元格（仅Excel格式支持） */
+  mergeCells: boolean;
+}
+
+/** 分组配置 */
+export interface GroupingConfig {
+  /** 是否启用分组 */
+  enabled: boolean;
+  /** 分组字段列表（支持多级分组） */
+  fields: GroupingField[];
+  /** 分组后是否保持原始顺序 */
+  preserveOrder: boolean;
+  /** 空值处理方式 */
+  nullValueHandling: 'skip' | 'group' | 'separate';
+  /** 空值分组名称 */
+  nullGroupName?: string;
+}
+
 /** 导出配置 */
 export interface ExportConfig {
   /** 配置ID */
@@ -58,6 +98,8 @@ export interface ExportConfig {
   format: ExportFormat;
   /** 字段定义 */
   fields: ExportField[];
+  /** 分组配置 */
+  grouping?: GroupingConfig;
   /** 文件名模板 */
   fileNameTemplate: string;
   /** 是否包含表头 */
