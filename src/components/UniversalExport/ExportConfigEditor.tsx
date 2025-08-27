@@ -196,6 +196,43 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [activeTab, setActiveTab] = useState<'basic' | 'fields' | 'grouping'>('basic');
 
+  // 阻止背景滚动
+  useEffect(() => {
+    if (visible) {
+      // 保存当前滚动位置
+      const scrollY = window.scrollY;
+      
+      // 阻止背景滚动
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.overflow = 'hidden';
+      
+      // 添加键盘事件监听器
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          onCancel?.();
+        }
+      };
+      
+      document.addEventListener('keydown', handleKeyDown);
+      
+      return () => {
+        // 恢复滚动
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.overflow = '';
+        window.scrollTo(0, scrollY);
+        
+        // 移除事件监听器
+        document.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [visible, onCancel]);
+
   // ============= 字段管理 =============
 
   const toggleFieldEnabled = useCallback((fieldKey: string) => {
@@ -678,9 +715,25 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
     },
   ];
 
+  const handleModalClick = (e: React.MouseEvent) => {
+    // 阻止点击模态窗口内部时关闭
+    e.stopPropagation();
+  };
+
+  const handleOverlayClick = () => {
+    // 点击遮罩层关闭模态窗口
+    onCancel?.();
+  };
+
   return (
-    <div className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 ${className}`}>
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[95vh] flex flex-col">
+    <div 
+      className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 ${className}`}
+      onClick={handleOverlayClick}
+    >
+      <div 
+        className="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col"
+        onClick={handleModalClick}
+      >
         {/* 头部 */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b flex-shrink-0">
           <div className="flex items-center gap-3 min-w-0">
@@ -726,18 +779,25 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
         </div>
 
         {/* Tab内容 */}
-        <div className="flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto">
-            {/* 当前Tab的内容描述 */}
-            <div className="bg-blue-50 border-b border-blue-100 p-4">
-              <div className="flex items-center gap-2 text-blue-800">
-                {tabs.find(t => t.id === activeTab)?.icon}
-                <span className="text-sm font-medium">
-                  {tabs.find(t => t.id === activeTab)?.description}
-                </span>
-              </div>
+        <div className="flex-1 overflow-hidden flex flex-col">
+          {/* 当前Tab的内容描述 */}
+          <div className="bg-blue-50 border-b border-blue-100 p-4 flex-shrink-0">
+            <div className="flex items-center gap-2 text-blue-800">
+              {tabs.find(t => t.id === activeTab)?.icon}
+              <span className="text-sm font-medium">
+                {tabs.find(t => t.id === activeTab)?.description}
+              </span>
             </div>
+          </div>
 
+          {/* 滚动内容区域 */}
+          <div 
+            className="flex-1 overflow-y-auto"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#CBD5E0 #F7FAFC'
+            }}
+          >
             <div className="p-4 sm:p-6">
               {/* 基本配置Tab */}
               {activeTab === 'basic' && (
