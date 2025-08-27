@@ -1067,24 +1067,30 @@ export class UniversalExportService {
       result.push(groupHeader);
     }
 
-    // 处理分组模式
-    const primaryGroupField = groupingConfig.fields[0];
-    
-    switch (primaryGroupField.mode) {
-      case 'merge':
-        // 合并模式：第一行显示分组值，其他行为空
-        result.push(...this.processMergeMode(groupItems, primaryGroupField));
-        break;
-      case 'separate':
-        // 分离模式：每个分组独立显示
-        result.push(...groupItems);
-        break;
-      case 'nested':
-        // 嵌套模式：支持多级分组
-        result.push(...this.processNestedMode(groupItems, groupingConfig));
-        break;
-      default:
-        result.push(...groupItems);
+    // 处理分组模式 - 对于多字段分组，使用特殊处理
+    if (groupingConfig.fields.length > 1) {
+      // 多字段合并模式
+      result.push(...this.processMultiFieldMergeMode(groupItems, groupingConfig.fields));
+    } else {
+      // 单字段分组
+      const primaryGroupField = groupingConfig.fields[0];
+      
+      switch (primaryGroupField.mode) {
+        case 'merge':
+          // 合并模式：第一行显示分组值，其他行为空
+          result.push(...this.processMergeMode(groupItems, primaryGroupField));
+          break;
+        case 'separate':
+          // 分离模式：每个分组独立显示
+          result.push(...groupItems);
+          break;
+        case 'nested':
+          // 嵌套模式：支持多级分组
+          result.push(...this.processNestedMode(groupItems, groupingConfig));
+          break;
+        default:
+          result.push(...groupItems);
+      }
     }
 
     return result;
@@ -1123,6 +1129,50 @@ export class UniversalExportService {
     for (let i = 1; i < groupItems.length; i++) {
       const item = { ...groupItems[i] };
       item[groupField.key] = ''; // 空值表示需要合并
+      item.__isGroupChild = true;
+      item.__groupIndex = i;
+      result.push(item);
+    }
+
+    return result;
+  }
+
+  /**
+   * 处理多字段合并模式
+   */
+  private processMultiFieldMergeMode(groupItems: any[], groupFields: GroupingField[]): any[] {
+    if (groupItems.length === 0) return [];
+
+    const result: any[] = [];
+    
+    // 第一行保持原样，添加分组标记
+    const firstItem = { ...groupItems[0] };
+    firstItem.__groupSize = groupItems.length;
+    firstItem.__isGroupFirst = true;
+    
+    // 为每个分组字段标记
+    groupFields.forEach(field => {
+      firstItem[`__${field.key}_groupSize`] = groupItems.length;
+      firstItem[`__${field.key}_isGroupFirst`] = true;
+    });
+    
+    result.push(firstItem);
+
+    console.log('🔗 [UniversalExportService] 处理多字段合并模式:', {
+      groupItemsLength: groupItems.length,
+      groupFields: groupFields.map(f => f.key),
+      firstItem: firstItem,
+    });
+
+    // 其他行的所有分组字段设置为空，用于合并单元格
+    for (let i = 1; i < groupItems.length; i++) {
+      const item = { ...groupItems[i] };
+      
+      // 清空所有分组字段的值，用于单元格合并
+      groupFields.forEach(field => {
+        item[field.key] = ''; // 空值表示需要合并
+      });
+      
       item.__isGroupChild = true;
       item.__groupIndex = i;
       result.push(item);
@@ -1297,16 +1347,22 @@ export class UniversalExportService {
           if (groupField.mergeCells) {
             const fieldIndex = fields.findIndex(f => f.key === groupField.key);
             if (fieldIndex >= 0) {
+              // 获取分组大小 - 优先使用字段特定的分组大小
+              const groupSize = item[`__${groupField.key}_groupSize`] || item.__groupSize;
+              
               // 创建合并区域
               const mergeRange = {
                 s: { r: currentRow, c: fieldIndex },  // 开始行列
-                e: { r: currentRow + item.__groupSize - 1, c: fieldIndex }  // 结束行列
+                e: { r: currentRow + groupSize - 1, c: fieldIndex }  // 结束行列
               };
+              
               console.log('📊 [UniversalExportService] 添加合并区域:', {
                 field: groupField.key,
                 fieldIndex,
+                groupSize,
                 mergeRange,
               });
+              
               worksheet['!merges']!.push(mergeRange);
               
               // 为合并单元格添加样式
