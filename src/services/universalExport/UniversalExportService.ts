@@ -1171,19 +1171,25 @@ export class UniversalExportService {
     // 创建工作簿
     const workbook = XLSX.utils.book_new();
     
+    // 过滤掉所有行都为空值的字段
+    const nonEmptyFields = this.filterEmptyFields(data, fields);
+    
     // 准备数据
-    const worksheetData = this.prepareExcelData(data, fields, config);
+    const worksheetData = this.prepareExcelData(data, nonEmptyFields, config);
     
     // 创建工作表
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
     
     // 应用分组和合并单元格
     if (config.grouping && config.grouping.enabled) {
-      this.applyExcelGrouping(worksheet, data, fields, config.grouping);
+      this.applyExcelGrouping(worksheet, data, nonEmptyFields, config.grouping, config.includeHeader);
     }
 
-    // 设置列宽
-    this.setExcelColumnWidths(worksheet, fields);
+    // 设置列宽和样式
+    this.setExcelColumnWidths(worksheet, nonEmptyFields);
+    
+    // 为所有数据单元格添加边框
+    this.applyExcelDataStyles(worksheet, config.includeHeader);
     
     // 添加工作表到工作簿
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
@@ -1205,14 +1211,24 @@ export class UniversalExportService {
   private prepareExcelData(data: any[], fields: ExportField[], config: ExportConfig): any[][] {
     const result: any[][] = [];
 
+    console.log('📊 [UniversalExportService] 准备Excel数据:', {
+      dataLength: data.length,
+      fieldsCount: fields.length,
+      includeHeader: config.includeHeader,
+      hasGrouping: !!(config.grouping && config.grouping.enabled),
+    });
+
     // 添加表头
     if (config.includeHeader) {
       const headers = fields.map(field => field.label);
       result.push(headers);
+      console.log('📋 [UniversalExportService] 添加表头:', headers);
     }
 
     // 添加数据行
-    for (const item of data) {
+    for (let i = 0; i < data.length; i++) {
+      const item = data[i];
+      
       const row = fields.map(field => {
         // 跳过分组头行的处理
         if (item.__isGroupHeader) {
@@ -1234,7 +1250,17 @@ export class UniversalExportService {
       });
       
       result.push(row);
+      
+      if (i === 0) {
+        console.log('📊 [UniversalExportService] 第一行数据示例:', row);
+      }
     }
+
+    console.log('✅ [UniversalExportService] Excel数据准备完成:', {
+      totalRows: result.length,
+      headerRows: config.includeHeader ? 1 : 0,
+      dataRows: result.length - (config.includeHeader ? 1 : 0),
+    });
 
     return result;
   }
@@ -1242,18 +1268,30 @@ export class UniversalExportService {
   /**
    * 应用Excel分组和合并单元格
    */
-  private applyExcelGrouping(worksheet: XLSX.WorkSheet, data: any[], fields: ExportField[], groupingConfig: GroupingConfig): void {
+  private applyExcelGrouping(worksheet: XLSX.WorkSheet, data: any[], fields: ExportField[], groupingConfig: GroupingConfig, includeHeader: boolean = true): void {
     if (!worksheet['!merges']) {
       worksheet['!merges'] = [];
     }
 
-    const headerOffset = groupingConfig.enabled ? 1 : 0; // 是否有表头
+    const headerOffset = includeHeader ? 1 : 0; // 是否有表头
     let currentRow = headerOffset;
+
+    console.log('📊 [UniversalExportService] 开始处理Excel分组和合并单元格:', {
+      dataLength: data.length,
+      headerOffset,
+      groupingFields: groupingConfig.fields.map(f => ({ key: f.key, mergeCells: f.mergeCells })),
+    });
 
     for (let i = 0; i < data.length; i++) {
       const item = data[i];
       
       if (item.__isGroupFirst && item.__groupSize > 1) {
+        console.log('🔗 [UniversalExportService] 处理分组合并:', {
+          row: currentRow,
+          groupSize: item.__groupSize,
+          item: item,
+        });
+        
         // 找到需要合并的分组字段
         groupingConfig.fields.forEach(groupField => {
           if (groupField.mergeCells) {
@@ -1264,7 +1302,28 @@ export class UniversalExportService {
                 s: { r: currentRow, c: fieldIndex },  // 开始行列
                 e: { r: currentRow + item.__groupSize - 1, c: fieldIndex }  // 结束行列
               };
+              console.log('📊 [UniversalExportService] 添加合并区域:', {
+                field: groupField.key,
+                fieldIndex,
+                mergeRange,
+              });
               worksheet['!merges']!.push(mergeRange);
+              
+              // 为合并单元格添加样式
+              const startCellAddress = XLSX.utils.encode_cell(mergeRange.s);
+              if (worksheet[startCellAddress]) {
+                worksheet[startCellAddress].s = {
+                  ...worksheet[startCellAddress].s,
+                  alignment: { horizontal: 'center', vertical: 'middle' },
+                  fill: { fgColor: { rgb: 'F2F2F2' } },
+                  border: {
+                    top: { style: 'thin', color: { rgb: '000000' } },
+                    bottom: { style: 'thin', color: { rgb: '000000' } },
+                    left: { style: 'thin', color: { rgb: '000000' } },
+                    right: { style: 'thin', color: { rgb: '000000' } }
+                  }
+                };
+              }
             }
           }
         });
@@ -1272,10 +1331,14 @@ export class UniversalExportService {
       
       currentRow++;
     }
+
+    console.log('✅ [UniversalExportService] Excel分组和合并单元格处理完成:', {
+      totalMerges: worksheet['!merges']?.length || 0,
+    });
   }
 
   /**
-   * 设置Excel列宽
+   * 设置Excel列宽和样式
    */
   private setExcelColumnWidths(worksheet: XLSX.WorkSheet, fields: ExportField[]): void {
     const colWidths = fields.map(field => ({
@@ -1283,5 +1346,75 @@ export class UniversalExportService {
     }));
     
     worksheet['!cols'] = colWidths;
+    
+    // 设置表头样式
+    if (worksheet['!ref']) {
+      const range = XLSX.utils.decode_range(worksheet['!ref']);
+      for (let col = range.s.c; col <= range.e.c; col++) {
+        const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+        if (worksheet[cellAddress]) {
+          // 为表头添加样式
+          worksheet[cellAddress].s = {
+            font: { bold: true, color: { rgb: 'FFFFFF' } },
+            fill: { fgColor: { rgb: '4472C4' } },
+            alignment: { horizontal: 'center', vertical: 'center' },
+            border: {
+              top: { style: 'thin', color: { rgb: '000000' } },
+              bottom: { style: 'thin', color: { rgb: '000000' } },
+              left: { style: 'thin', color: { rgb: '000000' } },
+              right: { style: 'thin', color: { rgb: '000000' } }
+            }
+          };
+        }
+      }
+    }
+    
+    console.log('✅ [UniversalExportService] Excel列宽和样式设置完成:', {
+      columnsCount: colWidths.length,
+      columnWidths: colWidths.map((col, index) => ({ field: fields[index]?.key, width: col.wch })),
+    });
+  }
+
+  /**
+   * 为Excel数据单元格应用样式
+   */
+  private applyExcelDataStyles(worksheet: XLSX.WorkSheet, includeHeader: boolean = true): void {
+    if (!worksheet['!ref']) return;
+
+    const range = XLSX.utils.decode_range(worksheet['!ref']);
+    const startRow = includeHeader ? 1 : 0; // 跳过表头
+
+    console.log('🎨 [UniversalExportService] 开始应用Excel数据样式:', {
+      totalRows: range.e.r + 1,
+      totalCols: range.e.c + 1,
+      startRow,
+    });
+
+    // 为数据单元格添加边框和对齐
+    for (let row = startRow; row <= range.e.r; row++) {
+      for (let col = range.s.c; col <= range.e.c; col++) {
+        const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+        if (worksheet[cellAddress]) {
+          // 保留已有样式（如合并单元格的样式）
+          const existingStyle = worksheet[cellAddress].s || {};
+          
+          worksheet[cellAddress].s = {
+            ...existingStyle,
+            border: {
+              top: { style: 'thin', color: { rgb: 'CCCCCC' } },
+              bottom: { style: 'thin', color: { rgb: 'CCCCCC' } },
+              left: { style: 'thin', color: { rgb: 'CCCCCC' } },
+              right: { style: 'thin', color: { rgb: 'CCCCCC' } }
+            },
+            alignment: {
+              ...existingStyle.alignment,
+              vertical: 'center'
+            }
+          };
+        }
+      }
+    }
+
+    console.log('✅ [UniversalExportService] Excel数据样式应用完成');
   }
 } 

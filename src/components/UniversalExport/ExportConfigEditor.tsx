@@ -31,7 +31,9 @@ import {
   Group,
   GitMerge,
   Layers,
-  ArrowUpDown
+  ArrowUpDown,
+  FileSpreadsheet,
+  Database
 } from 'lucide-react';
 
 import type { 
@@ -128,6 +130,18 @@ const GROUPING_MODE_ICONS: Record<GroupingMode, React.ReactNode> = {
   nested: <ArrowUpDown className="w-4 h-4" />,
 };
 
+const FORMAT_ICONS: Record<ExportFormat, React.ReactNode> = {
+  csv: <FileText className="w-4 h-4" />,
+  excel: <FileSpreadsheet className="w-4 h-4" />,
+  json: <Database className="w-4 h-4" />,
+};
+
+const FORMAT_DESCRIPTIONS: Record<ExportFormat, string> = {
+  csv: '逗号分隔值文件，兼容性最好',
+  excel: 'Excel表格文件，支持格式化和单元格合并',
+  json: 'JSON数据文件，适合开发者使用',
+};
+
 // ============= 主组件 =============
 
 export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
@@ -180,6 +194,7 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
 
   const [editingField, setEditingField] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [activeTab, setActiveTab] = useState<'basic' | 'fields' | 'grouping'>('basic');
 
   // ============= 字段管理 =============
 
@@ -256,22 +271,12 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
     }));
   }, []);
 
-  const updateGroupingConfig = useCallback((updates: Partial<GroupingConfig>) => {
-    setConfig(prev => ({
-      ...prev,
-      grouping: {
-        ...prev.grouping!,
-        ...updates,
-      },
-    }));
-  }, []);
-
   const addGroupingField = useCallback((fieldKey: string) => {
     const field = config.fields.find(f => f.key === fieldKey);
     if (!field) return;
 
-    const groupingField: GroupingField = {
-      key: fieldKey,
+    const groupField: GroupingField = {
+      key: field.key,
       label: field.label,
       mode: 'merge',
       valueProcessing: 'first',
@@ -283,7 +288,7 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
       ...prev,
       grouping: {
         ...prev.grouping!,
-        fields: [...prev.grouping!.fields, groupingField],
+        fields: [...prev.grouping!.fields, groupField],
       },
     }));
   }, [config.fields]);
@@ -331,6 +336,16 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
         },
       };
     });
+  }, []);
+
+  const updateGroupingConfig = useCallback((updates: Partial<GroupingConfig>) => {
+    setConfig(prev => ({
+      ...prev,
+      grouping: {
+        ...prev.grouping!,
+        ...updates,
+      },
+    }));
   }, []);
 
   // ============= 保存配置 =============
@@ -641,9 +656,31 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
     return null;
   }
 
+  // Tab定义
+  const tabs = [
+    { 
+      id: 'basic' as const, 
+      label: '基本配置', 
+      icon: <Settings className="w-4 h-4" />,
+      description: '配置名称、格式和基本选项'
+    },
+    { 
+      id: 'fields' as const, 
+      label: '字段设置', 
+      icon: <Type className="w-4 h-4" />,
+      description: '选择和配置导出字段'
+    },
+    { 
+      id: 'grouping' as const, 
+      label: '分组设置', 
+      icon: <Group className="w-4 h-4" />,
+      description: '配置数据分组和合并选项'
+    },
+  ];
+
   return (
     <div className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 ${className}`}>
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[95vh] flex flex-col">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[95vh] flex flex-col">
         {/* 头部 */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b flex-shrink-0">
           <div className="flex items-center gap-3 min-w-0">
@@ -665,294 +702,345 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
           </button>
         </div>
 
-        {/* 内容 */}
-        <div className="flex-1 overflow-hidden p-4 sm:p-6">
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 h-full">
-            {/* 左侧：基本配置 */}
-            <div className="space-y-4 sm:space-y-6 overflow-y-auto">
-              {/* 基本信息 */}
-              <div className="space-y-3 sm:space-y-4">
-                <h3 className="text-base sm:text-lg font-medium text-gray-900">基本信息</h3>
-                
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      配置名称 *
-                    </label>
-                    <input
-                      type="text"
-                      value={config.name}
-                      onChange={(e) => setConfig(prev => ({ ...prev, name: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="输入配置名称"
-                    />
-                  </div>
+        {/* Tab导航 */}
+        <div className="border-b bg-gray-50 flex-shrink-0">
+          <nav className="flex space-x-1 p-2">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`
+                  flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-lg transition-colors
+                  ${activeTab === tab.id 
+                    ? 'bg-white text-blue-600 shadow-sm border border-gray-200' 
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                  }
+                `}
+              >
+                {tab.icon}
+                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sm:hidden">{tab.label.split('')[0]}</span>
+              </button>
+            ))}
+          </nav>
+        </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      描述
-                    </label>
-                    <textarea
-                      value={config.description}
-                      onChange={(e) => setConfig(prev => ({ ...prev, description: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      rows={3}
-                      placeholder="输入配置描述"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      导出格式
-                    </label>
-                    <select
-                      value={config.format}
-                      onChange={(e) => setConfig(prev => ({ ...prev, format: e.target.value as ExportFormat }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="csv">CSV</option>
-                      <option value="json">JSON</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* 高级选项 */}
-              <div className="space-y-3 sm:space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base sm:text-lg font-medium text-gray-900">高级选项</h3>
-                  <button
-                    onClick={() => setShowAdvanced(!showAdvanced)}
-                    className="text-sm text-blue-600 hover:text-blue-700"
-                  >
-                    {showAdvanced ? '隐藏' : '显示'}
-                  </button>
-                </div>
-
-                {showAdvanced && (
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        文件名模板
-                      </label>
-                      <input
-                        type="text"
-                        value={config.fileNameTemplate}
-                        onChange={(e) => setConfig(prev => ({ ...prev, fileNameTemplate: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="例如：导出数据_{date}"
-                      />
-                      <p className="text-xs text-gray-500 mt-1">
-                        支持变量：{' '}
-                        <code className="bg-gray-100 px-1 rounded">{'{date}'}</code>
-                        {' '}
-                        <code className="bg-gray-100 px-1 rounded">{'{time}'}</code>
-                        {' '}
-                        <code className="bg-gray-100 px-1 rounded">{'{timestamp}'}</code>
-                      </p>
-                    </div>
-
-                    {config.format === 'csv' && (
-                      <>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            分隔符
-                          </label>
-                          <input
-                            type="text"
-                            value={config.delimiter}
-                            onChange={(e) => setConfig(prev => ({ ...prev, delimiter: e.target.value }))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder=","
-                          />
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              checked={config.includeHeader}
-                              onChange={(e) => setConfig(prev => ({ ...prev, includeHeader: e.target.checked }))}
-                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-sm text-gray-700">包含表头</span>
-                          </label>
-
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              checked={config.addBOM}
-                              onChange={(e) => setConfig(prev => ({ ...prev, addBOM: e.target.checked }))}
-                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-sm text-gray-700">添加BOM</span>
-                          </label>
-                        </div>
-                      </>
-                    )}
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        最大行数限制
-                      </label>
-                      <input
-                        type="number"
-                        value={config.maxRows || ''}
-                        onChange={(e) => setConfig(prev => ({ ...prev, maxRows: e.target.value ? Number(e.target.value) : undefined }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="不限制"
-                        min="1"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* 分组配置 */}
-              <div className="space-y-3 sm:space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base sm:text-lg font-medium text-gray-900 flex items-center gap-2">
-                    <Group className="w-5 h-5 text-blue-600" />
-                    分组配置
-                  </h3>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.grouping?.enabled || false}
-                      onChange={(e) => toggleGrouping(e.target.checked)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-sm text-gray-700">启用分组</span>
-                  </label>
-                </div>
-
-                {config.grouping?.enabled && (
-                  <div className="space-y-4">
-                    {/* 分组字段列表 */}
-                    {config.grouping.fields.length > 0 && (
-                      <div className="space-y-3">
-                        <div className="text-sm font-medium text-gray-700">
-                          分组字段 ({config.grouping.fields.length})
-                        </div>
-                        <div className="space-y-3 max-h-60 overflow-y-auto">
-                          {config.grouping.fields.map((groupField, index) => 
-                            renderGroupingField(groupField, index)
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* 添加分组字段 */}
-                    <div className="space-y-3">
-                      <div className="text-sm font-medium text-gray-700">添加分组字段</div>
-                      <select
-                        onChange={(e) => {
-                          if (e.target.value) {
-                            addGroupingField(e.target.value);
-                            e.target.value = '';
-                          }
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">选择要分组的字段...</option>
-                        {config.fields
-                          .filter(field => field.enabled && !config.grouping?.fields.some(gf => gf.key === field.key))
-                          .map(field => (
-                            <option key={field.key} value={field.key}>
-                              {field.label} ({field.key})
-                            </option>
-                          ))
-                        }
-                      </select>
-                    </div>
-
-                    {/* 分组全局配置 */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          空值处理
-                        </label>
-                        <select
-                          value={config.grouping.nullValueHandling}
-                          onChange={(e) => updateGroupingConfig({ nullValueHandling: e.target.value as any })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                        >
-                          <option value="skip">跳过空值</option>
-                          <option value="group">空值归为一组</option>
-                          <option value="separate">空值单独分组</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          空值分组名称
-                        </label>
-                        <input
-                          type="text"
-                          value={config.grouping.nullGroupName || ''}
-                          onChange={(e) => updateGroupingConfig({ nullGroupName: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                          placeholder="未分组"
-                        />
-                      </div>
-
-                      <div className="sm:col-span-2">
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            checked={config.grouping.preserveOrder}
-                            onChange={(e) => updateGroupingConfig({ preserveOrder: e.target.checked })}
-                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span className="text-sm text-gray-700">保持原始顺序</span>
-                        </label>
-                      </div>
-                    </div>
-
-                    {/* 分组提示 */}
-                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                      <div className="flex items-start gap-2">
-                        <GitMerge className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                        <div className="text-sm text-blue-800">
-                          <div className="font-medium mb-1">分组功能说明</div>
-                          <ul className="text-xs space-y-1 text-blue-700">
-                            <li>• <strong>合并模式</strong>：同组数据的分组字段合并显示，Excel支持单元格合并</li>
-                            <li>• <strong>分离模式</strong>：每个分组独立显示，可添加分组头</li>
-                            <li>• <strong>Excel格式</strong>：推荐使用Excel格式以获得最佳的分组效果</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
+        {/* Tab内容 */}
+        <div className="flex-1 overflow-hidden">
+          <div className="h-full overflow-y-auto">
+            {/* 当前Tab的内容描述 */}
+            <div className="bg-blue-50 border-b border-blue-100 p-4">
+              <div className="flex items-center gap-2 text-blue-800">
+                {tabs.find(t => t.id === activeTab)?.icon}
+                <span className="text-sm font-medium">
+                  {tabs.find(t => t.id === activeTab)?.description}
+                </span>
               </div>
             </div>
 
-            {/* 右侧：字段配置 */}
-            <div className="space-y-3 sm:space-y-4 flex flex-col h-full">
-              <div className="flex items-center justify-between flex-shrink-0">
-                <h3 className="text-base sm:text-lg font-medium text-gray-900">字段配置</h3>
-                <div className="text-sm text-gray-500">
-                  已启用 {config.fields.filter(f => f.enabled).length} / {config.fields.length} 个字段
-                </div>
-              </div>
+            <div className="p-4 sm:p-6">
+              {/* 基本配置Tab */}
+              {activeTab === 'basic' && (
+                <div className="max-w-2xl mx-auto space-y-6">
+                  {/* 基本信息 */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium text-gray-900">基本信息</h3>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          配置名称 *
+                        </label>
+                        <input
+                          type="text"
+                          value={config.name}
+                          onChange={(e) => setConfig(prev => ({ ...prev, name: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="输入配置名称"
+                        />
+                      </div>
 
-              {/* 字段列表 */}
-              <div className="flex-1 overflow-y-auto space-y-2 pr-2">
-                {config.fields.map((field, index) => renderFieldItem(field, index))}
-              </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          描述
+                        </label>
+                        <textarea
+                          value={config.description}
+                          onChange={(e) => setConfig(prev => ({ ...prev, description: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          rows={3}
+                          placeholder="输入配置描述"
+                        />
+                      </div>
 
-              {/* 添加字段 */}
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 sm:p-4 flex-shrink-0">
-                <div className="text-center">
-                  <p className="text-sm text-gray-500 mb-2">
-                    所有可用字段已添加
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    如需添加新字段，请先在数据源中定义
-                  </p>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          导出格式
+                        </label>
+                        <div className="space-y-3">
+                          {(['csv', 'excel', 'json'] as ExportFormat[]).map((format) => (
+                            <label key={format} className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg hover:border-blue-300 cursor-pointer">
+                              <input
+                                type="radio"
+                                name="format"
+                                value={format}
+                                checked={config.format === format}
+                                onChange={(e) => setConfig(prev => ({ ...prev, format: e.target.value as ExportFormat }))}
+                                className="mt-1 text-blue-600 focus:ring-blue-500"
+                              />
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  {FORMAT_ICONS[format]}
+                                  <span className="font-medium text-gray-900">
+                                    {format === 'csv' && 'CSV 文件'}
+                                    {format === 'excel' && 'Excel 文件 (XLSX)'}
+                                    {format === 'json' && 'JSON 文件'}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {FORMAT_DESCRIPTIONS[format]}
+                                </p>
+                              </div>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 高级选项 */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-medium text-gray-900">高级选项</h3>
+                      <button
+                        onClick={() => setShowAdvanced(!showAdvanced)}
+                        className="text-sm text-blue-600 hover:text-blue-700"
+                      >
+                        {showAdvanced ? '隐藏' : '显示'}
+                      </button>
+                    </div>
+
+                    {showAdvanced && (
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            文件名模板
+                          </label>
+                          <input
+                            type="text"
+                            value={config.fileNameTemplate}
+                            onChange={(e) => setConfig(prev => ({ ...prev, fileNameTemplate: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="例如：导出数据_{date}"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            支持变量：{' '}
+                            <code className="bg-gray-100 px-1 rounded">{'{date}'}</code>
+                            {' '}
+                            <code className="bg-gray-100 px-1 rounded">{'{time}'}</code>
+                            {' '}
+                            <code className="bg-gray-100 px-1 rounded">{'{timestamp}'}</code>
+                          </p>
+                        </div>
+
+                        {config.format === 'csv' && (
+                          <>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                分隔符
+                              </label>
+                              <input
+                                type="text"
+                                value={config.delimiter}
+                                onChange={(e) => setConfig(prev => ({ ...prev, delimiter: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder=","
+                              />
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={config.includeHeader}
+                                  onChange={(e) => setConfig(prev => ({ ...prev, includeHeader: e.target.checked }))}
+                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                <span className="text-sm text-gray-700">包含表头</span>
+                              </label>
+
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={config.addBOM}
+                                  onChange={(e) => setConfig(prev => ({ ...prev, addBOM: e.target.checked }))}
+                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                <span className="text-sm text-gray-700">添加BOM</span>
+                              </label>
+                            </div>
+                          </>
+                        )}
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            最大行数限制
+                          </label>
+                          <input
+                            type="number"
+                            value={config.maxRows || ''}
+                            onChange={(e) => setConfig(prev => ({ ...prev, maxRows: e.target.value ? Number(e.target.value) : undefined }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="不限制"
+                            min="1"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* 字段配置Tab */}
+              {activeTab === 'fields' && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-medium text-gray-900">字段配置</h3>
+                    <div className="text-sm text-gray-500">
+                      已启用 {config.fields.filter(f => f.enabled).length} / {config.fields.length} 个字段
+                    </div>
+                  </div>
+
+                  {/* 字段列表 */}
+                  <div className="space-y-3">
+                    {config.fields.map((field, index) => renderFieldItem(field, index))}
+                  </div>
+                </div>
+              )}
+
+              {/* 分组配置Tab */}
+              {activeTab === 'grouping' && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
+                      <Group className="w-5 h-5 text-blue-600" />
+                      分组配置
+                    </h3>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={config.grouping?.enabled || false}
+                        onChange={(e) => toggleGrouping(e.target.checked)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">启用分组</span>
+                    </label>
+                  </div>
+
+                  {config.grouping?.enabled && (
+                    <div className="space-y-6">
+                      {/* 分组字段列表 */}
+                      {config.grouping.fields.length > 0 && (
+                        <div className="space-y-4">
+                          <div className="text-sm font-medium text-gray-700">
+                            分组字段 ({config.grouping.fields.length})
+                          </div>
+                          <div className="space-y-3">
+                            {config.grouping.fields.map((groupField, index) => 
+                              renderGroupingField(groupField, index)
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 添加分组字段 */}
+                      <div className="space-y-3">
+                        <div className="text-sm font-medium text-gray-700">添加分组字段</div>
+                        <select
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              addGroupingField(e.target.value);
+                              e.target.value = '';
+                            }
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="">选择要分组的字段...</option>
+                          {config.fields
+                            .filter(field => field.enabled && !config.grouping?.fields.some(gf => gf.key === field.key))
+                            .map(field => (
+                              <option key={field.key} value={field.key}>
+                                {field.label} ({field.key})
+                              </option>
+                            ))
+                          }
+                        </select>
+                      </div>
+
+                      {/* 分组选项 */}
+                      <div className="space-y-4">
+                        <div className="text-sm font-medium text-gray-700">分组选项</div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              空值处理
+                            </label>
+                            <select
+                              value={config.grouping.nullValueHandling}
+                              onChange={(e) => updateGroupingConfig({ nullValueHandling: e.target.value as 'skip' | 'group' | 'separate' })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                            >
+                              <option value="skip">跳过空值</option>
+                              <option value="group">空值分组</option>
+                              <option value="separate">单独显示</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              空值分组名称
+                            </label>
+                            <input
+                              type="text"
+                              value={config.grouping.nullGroupName || ''}
+                              onChange={(e) => updateGroupingConfig({ nullGroupName: e.target.value })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                              placeholder="未分组"
+                            />
+                          </div>
+
+                          <div className="sm:col-span-2">
+                            <label className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={config.grouping.preserveOrder}
+                                onChange={(e) => updateGroupingConfig({ preserveOrder: e.target.checked })}
+                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              />
+                              <span className="text-sm text-gray-700">保持原始顺序</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* 分组提示 */}
+                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                          <div className="flex items-start gap-2">
+                            <GitMerge className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                            <div className="text-sm text-blue-800">
+                              <div className="font-medium mb-1">分组功能说明</div>
+                              <ul className="text-xs space-y-1 text-blue-700">
+                                <li>• <strong>合并模式</strong>：同组数据的分组字段合并显示，Excel支持单元格合并</li>
+                                <li>• <strong>分离模式</strong>：每个分组独立显示，可添加分组头</li>
+                                <li>• <strong>Excel格式</strong>：推荐使用Excel格式以获得最佳的分组效果</li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -961,13 +1049,13 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
         <div className="flex items-center justify-end gap-3 p-4 sm:p-6 border-t bg-gray-50 flex-shrink-0">
           <button
             onClick={onCancel}
-            className="px-3 sm:px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
             取消
           </button>
           <button
             onClick={handleSave}
-            className="px-3 sm:px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
           >
             <Save className="w-4 h-4" />
             保存配置
@@ -976,4 +1064,4 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
       </div>
     </div>
   );
-}; 
+};
