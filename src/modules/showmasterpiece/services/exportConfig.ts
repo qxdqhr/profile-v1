@@ -228,9 +228,32 @@ export const BOOKING_EXPORT_FIELDS: ExportField[] = [
 export const DEFAULT_BOOKING_EXPORT_CONFIG = {
   id: 'default_booking_export',
   name: '预订信息导出',
-  description: '导出所有预订信息为CSV格式',
-  format: 'csv' as const,
+  description: '导出所有预订信息为Excel格式，支持QQ号和手机号合并单元格',
+  format: 'excel' as const,
   fields: BOOKING_EXPORT_FIELDS,
+  grouping: {
+    enabled: true,
+    fields: [
+      {
+        key: 'phoneNumber',
+        label: '手机号',
+        mode: 'merge' as const,
+        valueProcessing: 'first' as const,
+        showGroupHeader: false,
+        mergeCells: true
+      },
+      {
+        key: 'qqNumber',
+        label: 'QQ号',
+        mode: 'merge' as const,
+        valueProcessing: 'first' as const,
+        showGroupHeader: false,
+        mergeCells: true
+      }
+    ],
+    preserveOrder: true,
+    nullValueHandling: 'separate' as const,
+  },
   fileNameTemplate: '预订信息_{date}',
   includeHeader: true,
   delimiter: ',',
