@@ -1,0 +1,8 @@
+#!/usr/bin/expect
+set timeout 30
+spawn pnpm devdb:push
+expect "Do you still want to push changes?"
+send "\033\[B"
+sleep 0.5
+send "\r"
+expect eof
