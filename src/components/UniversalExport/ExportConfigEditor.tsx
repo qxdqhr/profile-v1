@@ -27,7 +27,11 @@ import {
   Type,
   AlignLeft,
   AlignCenter,
-  AlignRight
+  AlignRight,
+  Group,
+  GitMerge,
+  Layers,
+  ArrowUpDown
 } from 'lucide-react';
 
 import type { 
@@ -35,7 +39,11 @@ import type {
   ExportField, 
   FieldType, 
   FieldAlignment,
-  ExportFormat 
+  ExportFormat,
+  GroupingConfig,
+  GroupingField,
+  GroupingMode,
+  GroupValueProcessing
 } from '../../services/universalExport';
 
 // ============= 类型定义 =============
@@ -91,6 +99,35 @@ const ALIGNMENT_LABELS: Record<FieldAlignment, string> = {
   right: '右对齐',
 };
 
+// ============= 分组相关标签 =============
+
+const GROUPING_MODE_LABELS: Record<GroupingMode, string> = {
+  merge: '合并模式',
+  separate: '分离模式',
+  nested: '嵌套模式',
+};
+
+const GROUPING_MODE_DESCRIPTIONS: Record<GroupingMode, string> = {
+  merge: '同组数据合并显示，Excel支持单元格合并',
+  separate: '每个分组独立显示，可添加分组头',
+  nested: '支持多级嵌套分组',
+};
+
+const VALUE_PROCESSING_LABELS: Record<GroupValueProcessing, string> = {
+  first: '取第一个值',
+  last: '取最后一个值',
+  concat: '连接所有值',
+  sum: '求和',
+  count: '计数',
+  custom: '自定义处理',
+};
+
+const GROUPING_MODE_ICONS: Record<GroupingMode, React.ReactNode> = {
+  merge: <GitMerge className="w-4 h-4" />,
+  separate: <Layers className="w-4 h-4" />,
+  nested: <ArrowUpDown className="w-4 h-4" />,
+};
+
 // ============= 主组件 =============
 
 export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
@@ -121,6 +158,13 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
         enabled: true,
         sortOrder: index,
       })),
+      grouping: {
+        enabled: false,
+        fields: [],
+        preserveOrder: true,
+        nullValueHandling: 'separate',
+        nullGroupName: '未分组'
+      },
       fileNameTemplate: '导出数据_{date}',
       includeHeader: true,
       delimiter: ',',
@@ -198,6 +242,95 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
       ...prev,
       fields: prev.fields.filter(f => f.key !== fieldKey),
     }));
+  }, []);
+
+  // ============= 分组配置管理 =============
+
+  const toggleGrouping = useCallback((enabled: boolean) => {
+    setConfig(prev => ({
+      ...prev,
+      grouping: {
+        ...prev.grouping!,
+        enabled,
+      },
+    }));
+  }, []);
+
+  const updateGroupingConfig = useCallback((updates: Partial<GroupingConfig>) => {
+    setConfig(prev => ({
+      ...prev,
+      grouping: {
+        ...prev.grouping!,
+        ...updates,
+      },
+    }));
+  }, []);
+
+  const addGroupingField = useCallback((fieldKey: string) => {
+    const field = config.fields.find(f => f.key === fieldKey);
+    if (!field) return;
+
+    const groupingField: GroupingField = {
+      key: fieldKey,
+      label: field.label,
+      mode: 'merge',
+      valueProcessing: 'first',
+      showGroupHeader: false,
+      mergeCells: true,
+    };
+
+    setConfig(prev => ({
+      ...prev,
+      grouping: {
+        ...prev.grouping!,
+        fields: [...prev.grouping!.fields, groupingField],
+      },
+    }));
+  }, [config.fields]);
+
+  const removeGroupingField = useCallback((fieldKey: string) => {
+    setConfig(prev => ({
+      ...prev,
+      grouping: {
+        ...prev.grouping!,
+        fields: prev.grouping!.fields.filter(f => f.key !== fieldKey),
+      },
+    }));
+  }, []);
+
+  const updateGroupingField = useCallback((fieldKey: string, updates: Partial<GroupingField>) => {
+    setConfig(prev => ({
+      ...prev,
+      grouping: {
+        ...prev.grouping!,
+        fields: prev.grouping!.fields.map(field =>
+          field.key === fieldKey
+            ? { ...field, ...updates }
+            : field
+        ),
+      },
+    }));
+  }, []);
+
+  const moveGroupingField = useCallback((fieldKey: string, direction: 'up' | 'down') => {
+    setConfig(prev => {
+      const fields = [...prev.grouping!.fields];
+      const index = fields.findIndex(f => f.key === fieldKey);
+      
+      if (direction === 'up' && index > 0) {
+        [fields[index], fields[index - 1]] = [fields[index - 1], fields[index]];
+      } else if (direction === 'down' && index < fields.length - 1) {
+        [fields[index], fields[index + 1]] = [fields[index + 1], fields[index]];
+      }
+      
+      return {
+        ...prev,
+        grouping: {
+          ...prev.grouping!,
+          fields,
+        },
+      };
+    });
   }, []);
 
   // ============= 保存配置 =============
@@ -348,6 +481,154 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
                 title="字段宽度"
               />
             </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // ============= 渲染分组配置 =============
+
+  const renderGroupingField = (groupField: GroupingField, index: number) => {
+    const isFirst = index === 0;
+    const isLast = index === (config.grouping?.fields.length || 1) - 1;
+
+    return (
+      <div
+        key={groupField.key}
+        className="flex flex-col gap-3 p-4 border rounded-lg bg-blue-50 border-blue-200"
+      >
+        {/* 分组字段头部 */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Group className="w-4 h-4 text-blue-600" />
+            <span className="font-medium text-blue-900">
+              {groupField.label}
+            </span>
+            <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">
+              {groupField.key}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            {/* 上移 */}
+            <button
+              onClick={() => moveGroupingField(groupField.key, 'up')}
+              disabled={isFirst}
+              className={`p-1 rounded transition-colors ${
+                isFirst 
+                  ? 'text-gray-300 cursor-not-allowed' 
+                  : 'text-blue-600 hover:bg-blue-100'
+              }`}
+              title="上移"
+            >
+              <MoveUp className="w-4 h-4" />
+            </button>
+
+            {/* 下移 */}
+            <button
+              onClick={() => moveGroupingField(groupField.key, 'down')}
+              disabled={isLast}
+              className={`p-1 rounded transition-colors ${
+                isLast 
+                  ? 'text-gray-300 cursor-not-allowed' 
+                  : 'text-blue-600 hover:bg-blue-100'
+              }`}
+              title="下移"
+            >
+              <MoveDown className="w-4 h-4" />
+            </button>
+
+            {/* 删除 */}
+            <button
+              onClick={() => removeGroupingField(groupField.key)}
+              className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
+              title="删除分组字段"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* 分组配置选项 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {/* 分组模式 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              分组模式
+            </label>
+            <select
+              value={groupField.mode}
+              onChange={(e) => updateGroupingField(groupField.key, { mode: e.target.value as GroupingMode })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            >
+              {Object.entries(GROUPING_MODE_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500 mt-1">
+              {GROUPING_MODE_DESCRIPTIONS[groupField.mode]}
+            </p>
+          </div>
+
+          {/* 值处理方式 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              值处理方式
+            </label>
+            <select
+              value={groupField.valueProcessing}
+              onChange={(e) => updateGroupingField(groupField.key, { valueProcessing: e.target.value as GroupValueProcessing })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            >
+              {Object.entries(VALUE_PROCESSING_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* 其他选项 */}
+        <div className="flex flex-wrap gap-4">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={groupField.showGroupHeader}
+              onChange={(e) => updateGroupingField(groupField.key, { showGroupHeader: e.target.checked })}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-700">显示分组头</span>
+          </label>
+
+          {config.format === 'excel' && (
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={groupField.mergeCells}
+                onChange={(e) => updateGroupingField(groupField.key, { mergeCells: e.target.checked })}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700">合并单元格</span>
+            </label>
+          )}
+        </div>
+
+        {/* 分组头模板 */}
+        {groupField.showGroupHeader && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              分组头模板
+            </label>
+            <input
+              type="text"
+              value={groupField.groupHeaderTemplate || ''}
+              onChange={(e) => updateGroupingField(groupField.key, { groupHeaderTemplate: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              placeholder="使用 {value} 表示分组值，如：用户: {value}"
+            />
           </div>
         )}
       </div>
@@ -522,6 +803,125 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
                         placeholder="不限制"
                         min="1"
                       />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 分组配置 */}
+              <div className="space-y-3 sm:space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base sm:text-lg font-medium text-gray-900 flex items-center gap-2">
+                    <Group className="w-5 h-5 text-blue-600" />
+                    分组配置
+                  </h3>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={config.grouping?.enabled || false}
+                      onChange={(e) => toggleGrouping(e.target.checked)}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">启用分组</span>
+                  </label>
+                </div>
+
+                {config.grouping?.enabled && (
+                  <div className="space-y-4">
+                    {/* 分组字段列表 */}
+                    {config.grouping.fields.length > 0 && (
+                      <div className="space-y-3">
+                        <div className="text-sm font-medium text-gray-700">
+                          分组字段 ({config.grouping.fields.length})
+                        </div>
+                        <div className="space-y-3 max-h-60 overflow-y-auto">
+                          {config.grouping.fields.map((groupField, index) => 
+                            renderGroupingField(groupField, index)
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 添加分组字段 */}
+                    <div className="space-y-3">
+                      <div className="text-sm font-medium text-gray-700">添加分组字段</div>
+                      <select
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            addGroupingField(e.target.value);
+                            e.target.value = '';
+                          }
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">选择要分组的字段...</option>
+                        {config.fields
+                          .filter(field => field.enabled && !config.grouping?.fields.some(gf => gf.key === field.key))
+                          .map(field => (
+                            <option key={field.key} value={field.key}>
+                              {field.label} ({field.key})
+                            </option>
+                          ))
+                        }
+                      </select>
+                    </div>
+
+                    {/* 分组全局配置 */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          空值处理
+                        </label>
+                        <select
+                          value={config.grouping.nullValueHandling}
+                          onChange={(e) => updateGroupingConfig({ nullValueHandling: e.target.value as any })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                        >
+                          <option value="skip">跳过空值</option>
+                          <option value="group">空值归为一组</option>
+                          <option value="separate">空值单独分组</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          空值分组名称
+                        </label>
+                        <input
+                          type="text"
+                          value={config.grouping.nullGroupName || ''}
+                          onChange={(e) => updateGroupingConfig({ nullGroupName: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                          placeholder="未分组"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={config.grouping.preserveOrder}
+                            onChange={(e) => updateGroupingConfig({ preserveOrder: e.target.checked })}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-700">保持原始顺序</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* 分组提示 */}
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-start gap-2">
+                        <GitMerge className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <div className="text-sm text-blue-800">
+                          <div className="font-medium mb-1">分组功能说明</div>
+                          <ul className="text-xs space-y-1 text-blue-700">
+                            <li>• <strong>合并模式</strong>：同组数据的分组字段合并显示，Excel支持单元格合并</li>
+                            <li>• <strong>分离模式</strong>：每个分组独立显示，可添加分组头</li>
+                            <li>• <strong>Excel格式</strong>：推荐使用Excel格式以获得最佳的分组效果</li>
+                          </ul>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}

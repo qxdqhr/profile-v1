@@ -6,6 +6,9 @@
 export { UniversalExportButton } from './UniversalExportButton';
 export { ExportConfigEditor } from './ExportConfigEditor';
 
+// 导出示例组件
+export { default as GroupingExportExample } from './examples/GroupingExportExample';
+
 // 导出类型
 export type { UniversalExportButtonProps } from './UniversalExportButton';
 export type { ExportConfigEditorProps } from './ExportConfigEditor'; 
