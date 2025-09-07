@@ -267,6 +267,10 @@ export class UniversalExportService {
           configName: config.name,
           format: config.format,
           fieldsCount: config.fields.length,
+          hasGrouping: !!config.grouping,
+          groupingEnabled: config.grouping?.enabled,
+          groupingFieldsCount: config.grouping?.fields?.length || 0,
+          groupingFields: config.grouping?.fields?.map(f => ({ key: f.key, mergeCells: f.mergeCells })) || [],
         });
       } else {
         // 从缓存获取配置
@@ -552,6 +556,15 @@ export class UniversalExportService {
       maxRows: config.maxRows,
     });
 
+    // 🔍 详细调试分组配置
+    console.log('🔍 [UniversalExportService] 详细分组配置检查:', {
+      configGrouping: config.grouping,
+      groupingExists: !!config.grouping,
+      groupingEnabled: config.grouping?.enabled,
+      groupingFields: config.grouping?.fields,
+      groupingFieldsLength: config.grouping?.fields?.length,
+    });
+
     let processedData = [...data];
 
     // 应用过滤器
@@ -686,13 +699,35 @@ export class UniversalExportService {
    * 过滤掉所有行都为空值的字段
    */
   private filterEmptyFields(data: any[], fields: ExportField[]): ExportField[] {
-    return fields.filter(field => {
+    const filteredFields = fields.filter(field => {
+      // 特殊处理：强制保留某些重要字段，即使所有行都为空值
+      const forceKeepFields = ['pickupMethod', 'notes', 'adminNotes'];
+      if (forceKeepFields.includes(field.key)) {
+        console.log(`🔧 [UniversalExportService] 强制保留字段 "${field.key}" (${field.label})`);
+        return true;
+      }
+      
       // 检查所有数据行，如果至少有一行该字段有值，则保留该字段
-      return data.some(item => {
+      const hasValue = data.some(item => {
         const value = this.getNestedValue(item, field.key);
         return value !== null && value !== undefined && value !== '';
       });
+      
+      if (!hasValue) {
+        console.log(`🔍 [UniversalExportService] 字段 "${field.key}" (${field.label}) 被过滤掉 - 所有行都为空值`);
+      }
+      
+      return hasValue;
     });
+    
+    console.log('📊 [UniversalExportService] 字段过滤结果:', {
+      原始字段数: fields.length,
+      过滤后字段数: filteredFields.length,
+      被过滤的字段: fields.filter(f => !filteredFields.includes(f)).map(f => f.key),
+      保留的字段: filteredFields.map(f => f.key),
+    });
+    
+    return filteredFields;
   }
 
   /**

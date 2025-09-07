@@ -86,6 +86,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
     console.log('📊 [BookingAdminPanel] dataSource 开始执行:', {
       bookingsLength: bookings.length,
       bookingsKeys: bookings.length > 0 ? Object.keys(bookings[0]) : [],
+      firstBookingPickupMethod: bookings.length > 0 ? bookings[0].pickupMethod : '无数据',
     });
 
     const mappedData = bookings.map(booking => {
@@ -103,6 +104,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
         price: booking.collection?.price || 0, // 使用画集价格作为单价
         totalPrice: booking.totalPrice || (booking.collection?.price || 0) * booking.quantity,
         notes: booking.notes || '',
+        pickupMethod: booking.pickupMethod || '', // 添加领取方式字段
         adminNotes: booking.adminNotes || '',
         createdAt: booking.createdAt,
         updatedAt: booking.updatedAt,
@@ -114,7 +116,9 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
       if (bookings.indexOf(booking) === 0) {
         console.log('📊 [BookingAdminPanel] 第一行数据映射示例:', {
           original: booking,
-          mapped: mapped
+          mapped: mapped,
+          pickupMethodValue: booking.pickupMethod,
+          mappedPickupMethod: mapped.pickupMethod
         });
       }
 
@@ -123,7 +127,13 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
 
     console.log('📊 [BookingAdminPanel] 数据映射完成:', {
       totalRows: mappedData.length,
-      sampleRow: mappedData[0]
+      sampleRow: mappedData[0],
+      pickupMethodSamples: mappedData.slice(0, 3).map((row, idx) => ({
+        index: idx,
+        id: row.id,
+        pickupMethod: row.pickupMethod,
+        originalPickupMethod: bookings[idx]?.pickupMethod,
+      }))
     });
 
     return mappedData;
@@ -452,7 +462,16 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
               businessId="bookings"
               availableFields={BOOKING_EXPORT_FIELDS}
               dataSource={dataSource}
-              defaultConfig={DEFAULT_BOOKING_EXPORT_CONFIG}
+              defaultConfig={(() => {
+                console.log('🔍 [BookingAdminPanel] 传递的默认配置:', {
+                  id: DEFAULT_BOOKING_EXPORT_CONFIG.id,
+                  format: DEFAULT_BOOKING_EXPORT_CONFIG.format,
+                  hasGrouping: !!DEFAULT_BOOKING_EXPORT_CONFIG.grouping,
+                  groupingEnabled: DEFAULT_BOOKING_EXPORT_CONFIG.grouping?.enabled,
+                  groupingFields: DEFAULT_BOOKING_EXPORT_CONFIG.grouping?.fields?.map(f => ({ key: f.key, mergeCells: f.mergeCells })) || [],
+                });
+                return DEFAULT_BOOKING_EXPORT_CONFIG;
+              })()}
               buttonText="导出数据"
               variant="primary"
               size="md"

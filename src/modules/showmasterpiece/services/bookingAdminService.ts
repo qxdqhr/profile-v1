@@ -55,6 +55,8 @@ export interface BookingAdminData {
   adminNotes?: string;
   /** 用户备注 */
   notes?: string;
+  /** 领取方式 */
+  pickupMethod?: string;
   /** 数量 */
   quantity: number;
   /** 价格 */

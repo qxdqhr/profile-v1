@@ -40,6 +40,7 @@ async function GET(request: NextRequest) {
         quantity: comicUniverseBookings.quantity,
         status: comicUniverseBookings.status,
         notes: comicUniverseBookings.notes,
+        pickupMethod: comicUniverseBookings.pickupMethod,
         adminNotes: comicUniverseBookings.adminNotes,
         createdAt: comicUniverseBookings.createdAt,
         updatedAt: comicUniverseBookings.updatedAt,
@@ -57,6 +58,22 @@ async function GET(request: NextRequest) {
       .orderBy(desc(comicUniverseBookings.createdAt));
 
     console.log(`查询到 ${bookings.length} 条预订数据`);
+    
+    // 🔍 调试：打印原始查询结果
+    console.log('🔍 [API/Refresh] 预订数据查询结果预览:');
+    console.log(`📊 [API/Refresh] 查询到 ${bookings.length} 条预订记录`);
+    if (bookings.length > 0) {
+      const firstBooking = bookings[0];
+      console.log('🔍 [API/Refresh] 第一条预订记录的原始数据:', {
+        id: firstBooking.id,
+        qqNumber: firstBooking.qqNumber,
+        phoneNumber: firstBooking.phoneNumber,
+        pickupMethod: firstBooking.pickupMethod,
+        pickupMethodType: typeof firstBooking.pickupMethod,
+        notes: firstBooking.notes,
+        allKeys: Object.keys(firstBooking)
+      });
+    }
 
     // 计算统计信息
     const stats = await db
@@ -81,6 +98,7 @@ async function GET(request: NextRequest) {
       quantity: booking.quantity,
       status: booking.status,
       notes: booking.notes,
+      pickupMethod: booking.pickupMethod,
       adminNotes: booking.adminNotes,
       createdAt: booking.createdAt instanceof Date ? booking.createdAt.toISOString() : booking.createdAt,
       updatedAt: booking.updatedAt instanceof Date ? booking.updatedAt.toISOString() : booking.updatedAt,

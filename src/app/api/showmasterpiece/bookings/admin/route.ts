@@ -77,6 +77,7 @@ async function GET(request: NextRequest) {
         quantity: comicUniverseBookings.quantity,
         status: comicUniverseBookings.status,
         notes: comicUniverseBookings.notes,
+        pickupMethod: comicUniverseBookings.pickupMethod,
         adminNotes: comicUniverseBookings.adminNotes,
         createdAt: comicUniverseBookings.createdAt,
         updatedAt: comicUniverseBookings.updatedAt,
@@ -95,6 +96,22 @@ async function GET(request: NextRequest) {
       .orderBy(desc(comicUniverseBookings.createdAt));
 
     console.log(`查询到 ${bookings.length} 条预订数据`);
+    
+    // 🔍 调试：打印原始查询结果
+    console.log('🔍 [API] 预订数据查询结果预览:');
+    console.log(`📊 [API] 查询到 ${bookings.length} 条预订记录`);
+    if (bookings.length > 0) {
+      const firstBooking = bookings[0];
+      console.log('🔍 [API] 第一条预订记录的原始数据:', {
+        id: firstBooking.id,
+        qqNumber: firstBooking.qqNumber,
+        phoneNumber: firstBooking.phoneNumber,
+        pickupMethod: firstBooking.pickupMethod,
+        pickupMethodType: typeof firstBooking.pickupMethod,
+        notes: firstBooking.notes,
+        allKeys: Object.keys(firstBooking)
+      });
+    }
 
     // 计算统计信息
     const stats = await db
@@ -111,20 +128,22 @@ async function GET(request: NextRequest) {
       .leftJoin(comicUniverseCollections, eq(comicUniverseBookings.collectionId, comicUniverseCollections.id));
 
     // 格式化预订数据
-    const formattedBookings = bookings.map(booking => ({
-      id: booking.id,
-      collectionId: booking.collectionId,
-      qqNumber: booking.qqNumber,
-      phoneNumber: booking.phoneNumber,
-      quantity: booking.quantity,
-      status: booking.status,
-      notes: booking.notes,
-      adminNotes: booking.adminNotes,
-      createdAt: booking.createdAt instanceof Date ? booking.createdAt.toISOString() : booking.createdAt,
-      updatedAt: booking.updatedAt instanceof Date ? booking.updatedAt.toISOString() : booking.updatedAt,
-      confirmedAt: booking.confirmedAt instanceof Date ? booking.confirmedAt.toISOString() : booking.confirmedAt,
-      completedAt: booking.completedAt instanceof Date ? booking.completedAt.toISOString() : booking.completedAt,
-      cancelledAt: booking.cancelledAt instanceof Date ? booking.cancelledAt.toISOString() : booking.cancelledAt,
+    const formattedBookings = bookings.map((booking, index) => {
+      const formatted = {
+        id: booking.id,
+        collectionId: booking.collectionId,
+        qqNumber: booking.qqNumber,
+        phoneNumber: booking.phoneNumber,
+        quantity: booking.quantity,
+        status: booking.status,
+        notes: booking.notes,
+        pickupMethod: booking.pickupMethod, // 添加领取方式字段
+        adminNotes: booking.adminNotes,
+        createdAt: booking.createdAt instanceof Date ? booking.createdAt.toISOString() : booking.createdAt,
+        updatedAt: booking.updatedAt instanceof Date ? booking.updatedAt.toISOString() : booking.updatedAt,
+        confirmedAt: booking.confirmedAt instanceof Date ? booking.confirmedAt.toISOString() : booking.confirmedAt,
+        completedAt: booking.completedAt instanceof Date ? booking.completedAt.toISOString() : booking.completedAt,
+        cancelledAt: booking.cancelledAt instanceof Date ? booking.cancelledAt.toISOString() : booking.cancelledAt,
       collection: {
         id: booking.collectionId,
         title: booking.collectionTitle || '未知画集',
@@ -133,7 +152,19 @@ async function GET(request: NextRequest) {
         price: booking.collectionPrice || 0,
       },
       totalPrice: (booking.collectionPrice || 0) * booking.quantity,
-    }));
+    };
+
+    // 添加调试信息，查看前几条记录的pickupMethod
+    if (index < 3) {
+      console.log(`🔍 [API] 预订记录 ${index + 1} (ID: ${booking.id}) pickupMethod 处理:`, {
+        原始值: booking.pickupMethod,
+        格式化后: formatted.pickupMethod,
+        类型: typeof booking.pickupMethod,
+      });
+    }
+
+    return formatted;
+  });
 
     // 格式化统计信息
     const formattedStats = {
