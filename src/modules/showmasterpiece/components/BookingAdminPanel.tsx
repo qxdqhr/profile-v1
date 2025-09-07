@@ -71,6 +71,10 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
     adminNotes: '',
   });
   
+  // 分页状态
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10); // 每页显示数量
+  
   // 搜索表单状态
   const [searchForm, setSearchForm] = useState<BookingAdminQueryParams>({
     qqNumber: searchParams.qqNumber || '',
@@ -156,6 +160,30 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
     if (filterStatus === 'all') return true;
     return booking.status === filterStatus;
   });
+
+  /**
+   * 分页计算
+   */
+  const totalItems = filteredBookings.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedBookings = filteredBookings.slice(startIndex, endIndex);
+
+  /**
+   * 处理页码变化
+   */
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  /**
+   * 处理页面大小变化
+   */
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1); // 重置到第一页
+  };
 
   /**
    * 格式化时间
@@ -252,6 +280,9 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
       timestamp: new Date().toISOString()
     });
     
+    // 重置分页到第一页
+    setCurrentPage(1);
+    
     await onSearch(params);
   };
 
@@ -265,6 +296,8 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
       status: 'all'
     });
     setFilterStatus('all');
+    // 重置分页到第一页
+    setCurrentPage(1);
     await onClearSearch();
   };
 
@@ -274,6 +307,9 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
   const handleStatusFilter = async (status: BookingStatus | 'all') => {
     setFilterStatus(status);
     setSearchForm(prev => ({ ...prev, status }));
+    
+    // 重置分页到第一页
+    setCurrentPage(1);
     
     // 保持当前的QQ号和手机号搜索条件，只更新状态过滤
     const params: BookingAdminQueryParams = {};
@@ -534,14 +570,16 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
 
       {/* 预订列表 */}
       <div className="space-y-4">
-        {filteredBookings.length === 0 ? (
+        {paginatedBookings.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 sm:p-12 text-center">
             <Calendar size={40} className="text-slate-400 mx-auto mb-4 sm:w-12 sm:h-12" />
             <h3 className="text-base sm:text-lg font-medium text-slate-800 mb-2">暂无预订数据</h3>
-            <p className="text-sm sm:text-base text-slate-600">当前筛选条件下没有找到预订数据</p>
+            <p className="text-sm sm:text-base text-slate-600">
+              {totalItems === 0 ? '当前筛选条件下没有找到预订数据' : '当前页无数据'}
+            </p>
           </div>
         ) : (
-          filteredBookings.map((booking) => {
+          paginatedBookings.map((booking) => {
             const statusInfo = getStatusInfo(booking.status);
             
             return (
@@ -717,6 +755,140 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
           })
         )}
       </div>
+
+      {/* 分页组件 */}
+      {totalItems > 0 && (
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* 分页信息 */}
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-slate-600">
+                共 {totalItems} 条记录，第 {currentPage} / {totalPages} 页
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-slate-600">每页显示</span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                  className="px-2 py-1 border border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
+                <span className="text-sm text-slate-600">条</span>
+              </div>
+            </div>
+
+            {/* 分页按钮 */}
+            <div className="flex items-center gap-2">
+              {/* 上一页 */}
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 text-sm border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
+              >
+                上一页
+              </button>
+
+              {/* 页码 */}
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(totalPages, 7) }, (_, index) => {
+                  let pageNum;
+                  
+                  if (totalPages <= 7) {
+                    // 总页数小于等于7，显示所有页码
+                    pageNum = index + 1;
+                  } else {
+                    // 总页数大于7，显示部分页码
+                    if (currentPage <= 4) {
+                      // 当前页在前4页
+                      if (index < 5) {
+                        pageNum = index + 1;
+                      } else if (index === 5) {
+                        return <span key={index} className="px-2 text-slate-400">...</span>;
+                      } else {
+                        pageNum = totalPages;
+                      }
+                    } else if (currentPage >= totalPages - 3) {
+                      // 当前页在后4页
+                      if (index === 0) {
+                        pageNum = 1;
+                      } else if (index === 1) {
+                        return <span key={index} className="px-2 text-slate-400">...</span>;
+                      } else {
+                        pageNum = totalPages - 5 + index;
+                      }
+                    } else {
+                      // 当前页在中间
+                      if (index === 0) {
+                        pageNum = 1;
+                      } else if (index === 1) {
+                        return <span key={index} className="px-2 text-slate-400">...</span>;
+                      } else if (index >= 2 && index <= 4) {
+                        pageNum = currentPage - 3 + index;
+                      } else if (index === 5) {
+                        return <span key={index} className="px-2 text-slate-400">...</span>;
+                      } else {
+                        pageNum = totalPages;
+                      }
+                    }
+                  }
+
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`px-3 py-1 text-sm border rounded ${
+                        pageNum === currentPage
+                          ? 'bg-blue-500 text-white border-blue-500'
+                          : 'border-slate-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* 下一页 */}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 text-sm border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
+              >
+                下一页
+              </button>
+            </div>
+          </div>
+
+          {/* 移动端简化分页 */}
+          <div className="sm:hidden">
+            <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-slate-100 rounded hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-slate-100"
+              >
+                上一页
+              </button>
+              
+              <span className="text-sm text-slate-600">
+                {currentPage} / {totalPages}
+              </span>
+              
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-slate-100 rounded hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-slate-100"
+              >
+                下一页
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 预订详情弹窗 */}
       {selectedBooking && (
