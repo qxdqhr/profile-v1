@@ -288,6 +288,20 @@
       "when": 1755494286271,
       "tag": "0040_robust_wild_pack",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1757211294324,
+      "tag": "0041_fine_bullseye",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1757216335707,
+      "tag": "0042_dapper_earthquake",
+      "breakpoints": true
     }
   ]
 }

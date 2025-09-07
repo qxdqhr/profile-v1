@@ -64,7 +64,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
   onExportBookings,
 }) => {
   const [selectedBooking, setSelectedBooking] = useState<BookingAdminData | null>(null);
-  const [filterStatus, setFilterStatus] = useState<BookingStatus | 'all'>('all');
+  const [filterStatus, setFilterStatus] = useState<BookingStatus | 'all'>(searchParams.status || 'all');
   const [editingBooking, setEditingBooking] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<{ status: BookingStatus; adminNotes: string }>({
     status: 'pending',
@@ -246,6 +246,12 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
       params.status = searchForm.status;
     }
     
+    console.log('🔍 [BookingAdminPanel] 提交搜索参数:', {
+      searchForm,
+      params,
+      timestamp: new Date().toISOString()
+    });
+    
     await onSearch(params);
   };
 
@@ -258,7 +264,31 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
       phoneNumber: '',
       status: 'all'
     });
+    setFilterStatus('all');
     await onClearSearch();
+  };
+
+  /**
+   * 处理状态过滤
+   */
+  const handleStatusFilter = async (status: BookingStatus | 'all') => {
+    setFilterStatus(status);
+    setSearchForm(prev => ({ ...prev, status }));
+    
+    // 保持当前的QQ号和手机号搜索条件，只更新状态过滤
+    const params: BookingAdminQueryParams = {};
+    
+    if (searchForm.qqNumber?.trim()) {
+      params.qqNumber = searchForm.qqNumber.trim();
+    }
+    if (searchForm.phoneNumber?.trim()) {
+      params.phoneNumber = searchForm.phoneNumber.trim();
+    }
+    if (status && status !== 'all') {
+      params.status = status;
+    }
+    
+    await onSearch(params);
   };
 
   return (
@@ -401,7 +431,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                   ? 'bg-blue-600 text-white' 
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
-              onClick={() => setFilterStatus('all')}
+              onClick={() => handleStatusFilter('all')}
             >
               全部
             </button>
@@ -411,7 +441,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                   ? 'bg-blue-600 text-white' 
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
-              onClick={() => setFilterStatus('pending')}
+              onClick={() => handleStatusFilter('pending')}
             >
               待确认
             </button>
@@ -421,7 +451,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                   ? 'bg-blue-600 text-white' 
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
-              onClick={() => setFilterStatus('confirmed')}
+              onClick={() => handleStatusFilter('confirmed')}
             >
               已确认
             </button>
@@ -431,7 +461,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                   ? 'bg-blue-600 text-white' 
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
-              onClick={() => setFilterStatus('completed')}
+              onClick={() => handleStatusFilter('completed')}
             >
               已完成
             </button>
@@ -441,7 +471,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                   ? 'bg-blue-600 text-white' 
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
-              onClick={() => setFilterStatus('cancelled')}
+              onClick={() => handleStatusFilter('cancelled')}
             >
               已取消
             </button>
@@ -561,11 +591,60 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                     </div>
                   </div>
                   
-                  {(booking.notes || booking.adminNotes) && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
+                    <div>
+                      <p className="text-xs text-slate-500">QQ号</p>
+                      <p className="text-sm font-medium text-slate-800">{booking.qqNumber}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500">手机号</p>
+                      <p className="text-sm font-medium text-slate-800">{booking.phoneNumber}</p>
+                    </div>
+                  </div>
+                  
+                  {/* 时间字段 */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
+                    {booking.confirmedAt && (
+                      <div>
+                        <p className="text-xs text-slate-500">确认时间</p>
+                        <p className="text-sm font-medium text-green-800">{formatTime(booking.confirmedAt)}</p>
+                      </div>
+                    )}
+                    {booking.completedAt && (
+                      <div>
+                        <p className="text-xs text-slate-500">完成时间</p>
+                        <p className="text-sm font-medium text-blue-800">{formatTime(booking.completedAt)}</p>
+                      </div>
+                    )}
+                    {booking.cancelledAt && (
+                      <div>
+                        <p className="text-xs text-slate-500">取消时间</p>
+                        <p className="text-sm font-medium text-red-800">{formatTime(booking.cancelledAt)}</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {(booking.notes || booking.adminNotes ||booking.pickupMethod) && (
                     <div className="mb-4">
+                      {booking.pickupMethod && (
+                        <div className="mb-2">
+                          <p className="text-xs text-slate-500">领取方式
+                          是否到9.13北京场现场领取（天津/南京场暂不设置现场领取点）
+                          （1）是（现场领）
+                          （2）否（邮寄）
+                          </p>
+                          <p className="text-sm text-slate-700">{booking.pickupMethod}</p>
+                        </div>
+                      )}
                       {booking.notes && (
                         <div className="mb-2">
-                          <p className="text-xs text-slate-500">用户备注</p>
+                          <p className="text-xs text-slate-500">用户备注：
+                            （1）葱韵环京ComicUniverse
+                            （2）葱韵环京外星开拓群
+                            （3）葱韵环京比邻星
+                            （4）葱韵环京华东群
+                            （5）葱韵环京天津群
+                          </p>
                           <p className="text-sm text-slate-700">{booking.notes}</p>
                         </div>
                       )}

@@ -9,7 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { comicUniverseBookings, comicUniverseCollections } from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
 /**
  * 批量预订
@@ -21,6 +21,20 @@ async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { qqNumber, phoneNumber, items, notes, pickupMethod } = body;
+    
+    console.log('🛒 [BatchBooking] 收到批量预订请求:', {
+      qqNumber,
+      phoneNumber,
+      itemsCount: items?.length || 0,
+      notes,
+      pickupMethod
+    });
+
+    // 查看当前数据库中的预订记录总数
+    const currentBookingsCount = await db
+      .select({ count: comicUniverseBookings.id })
+      .from(comicUniverseBookings);
+    console.log('📊 [BatchBooking] 当前数据库预订记录总数:', currentBookingsCount.length);
 
     // 数据验证
     if (!qqNumber || !phoneNumber || !items || !Array.isArray(items) || items.length === 0) {
@@ -91,58 +105,30 @@ async function POST(request: NextRequest) {
           continue;
         }
 
-        // 检查是否已存在相同的预订（QQ号+手机号+画集ID）
-        const existingBooking = await db
-          .select({ id: comicUniverseBookings.id })
-          .from(comicUniverseBookings)
-          .where(
-            and(
-              eq(comicUniverseBookings.qqNumber, qqNumber),
-              eq(comicUniverseBookings.phoneNumber, phoneNumber),
-              eq(comicUniverseBookings.collectionId, item.collectionId)
-            )
-          )
-          .limit(1);
+        // 直接创建新预订，不检查重复
+        const [newBooking] = await db
+          .insert(comicUniverseBookings)
+          .values({
+            collectionId: item.collectionId,
+            qqNumber,
+            phoneNumber,
+            quantity: item.quantity,
+            notes: notes || null,
+            pickupMethod: pickupMethod || null,
+            status: 'pending',
+          })
+          .returning();
 
-        if (existingBooking.length > 0) {
-          // 如果已存在，更新数量而不是创建新预订
-          const [updatedBooking] = await db
-            .update(comicUniverseBookings)
-            .set({
-              quantity: item.quantity,
-              notes: notes || null,
-              pickupMethod: pickupMethod || null,
-              updatedAt: new Date(),
-            })
-            .where(
-              and(
-                eq(comicUniverseBookings.qqNumber, qqNumber),
-                eq(comicUniverseBookings.phoneNumber, phoneNumber),
-                eq(comicUniverseBookings.collectionId, item.collectionId)
-              )
-            )
-            .returning();
-
-          bookingIds.push(updatedBooking.id);
-          successCount++;
-        } else {
-          // 如果不存在，创建新预订
-          const [newBooking] = await db
-            .insert(comicUniverseBookings)
-            .values({
-              collectionId: item.collectionId,
-              qqNumber,
-              phoneNumber,
-              quantity: item.quantity,
-              notes: notes || null,
-              pickupMethod: pickupMethod || null,
-              status: 'pending',
-            })
-            .returning();
-
-          bookingIds.push(newBooking.id);
-          successCount++;
-        }
+        bookingIds.push(newBooking.id);
+        successCount++;
+        console.log('✅ [BatchBooking] 创建新预订成功:', {
+          bookingId: newBooking.id,
+          collectionId: item.collectionId,
+          qqNumber,
+          phoneNumber,
+          quantity: item.quantity,
+          pickupMethod: pickupMethod || null
+        });
       } catch (error) {
         console.error(`创建预订失败 (collectionId: ${item.collectionId}):`, error);
         failures.push({
@@ -153,12 +139,22 @@ async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    const result = {
       bookingIds,
       successCount,
       failCount,
       failures: failures.length > 0 ? failures : undefined
-    }, { status: 201 });
+    };
+    
+    // 查看处理后数据库中的预订记录总数
+    const finalBookingsCount = await db
+      .select({ count: comicUniverseBookings.id })
+      .from(comicUniverseBookings);
+    console.log('📊 [BatchBooking] 处理后数据库预订记录总数:', finalBookingsCount.length);
+    
+    console.log('🛒 [BatchBooking] 批量预订完成:', result);
+    
+    return NextResponse.json(result, { status: 201 });
 
   } catch (error) {
     console.error('批量预订失败:', error);

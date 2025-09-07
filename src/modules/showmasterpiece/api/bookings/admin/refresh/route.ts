@@ -9,8 +9,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db, forceRefreshDatabaseConnection, getDatabaseConnectionStatus } from '@/db';
 import { comicUniverseBookings, comicUniverseCollections } from '@/db/schema';
-import { desc, sql } from 'drizzle-orm';
-import { eq } from 'drizzle-orm';
+import { desc, sql, eq, and, like } from 'drizzle-orm';
+import { BookingStatus } from '@/modules/showmasterpiece/types/booking';
 
 /**
  * 强制刷新获取所有预订数据和统计信息（管理员专用）
@@ -22,12 +22,53 @@ async function GET(request: NextRequest) {
   try {
     console.log('🔄 强制刷新预订数据 - 开始执行...');
     
+    // 获取搜索参数
+    let searchParams = new URLSearchParams();
+    try {
+      const url = new URL(request.url);
+      searchParams = url.searchParams;
+    } catch (error) {
+      console.log('无法解析URL参数，可能是构建时调用');
+    }
+    
+    const qqNumber = searchParams.get('qqNumber');
+    const phoneNumber = searchParams.get('phoneNumber');
+    const statusParam = searchParams.get('status');
+    const status = statusParam && statusParam !== 'all' ? statusParam as BookingStatus : null;
+    
+    console.log('🔍 [API/Refresh] 收到搜索请求参数:', {
+      allParams: Object.fromEntries(searchParams.entries()),
+      extractedParams: { qqNumber, phoneNumber, status, statusParam },
+      url: request.url,
+      timestamp: new Date().toISOString()
+    });
+    
     // 检查数据库连接状态
     const connectionStatus = await getDatabaseConnectionStatus();
     console.log('数据库连接状态:', connectionStatus);
     
     // 强制刷新数据库连接
     await forceRefreshDatabaseConnection();
+    
+    // 构建查询条件
+    const conditions = [];
+    
+    if (qqNumber) {
+      conditions.push(like(comicUniverseBookings.qqNumber, `%${qqNumber}%`));
+      console.log('🔍 [API/Refresh] 添加QQ号搜索条件:', `%${qqNumber}%`);
+    }
+    
+    if (phoneNumber) {
+      conditions.push(like(comicUniverseBookings.phoneNumber, `%${phoneNumber}%`));
+      console.log('🔍 [API/Refresh] 添加手机号搜索条件:', `%${phoneNumber}%`);
+    }
+    
+    if (status) {
+      conditions.push(eq(comicUniverseBookings.status, status));
+      console.log('🔍 [API/Refresh] 添加状态过滤条件:', status);
+    }
+    
+    console.log('🔍 [API/Refresh] 总查询条件数量:', conditions.length);
     
     // 获取所有预订数据（包含画集信息）
     console.log('开始查询预订数据（强制刷新后）...');
@@ -55,6 +96,7 @@ async function GET(request: NextRequest) {
       })
       .from(comicUniverseBookings)
       .leftJoin(comicUniverseCollections, eq(comicUniverseBookings.collectionId, comicUniverseCollections.id))
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(comicUniverseBookings.createdAt));
 
     console.log(`查询到 ${bookings.length} 条预订数据`);

@@ -20,6 +20,7 @@ export const exportConfigs = pgTable('export_configs', {
   encoding: text('encoding').notNull().default('utf-8'),
   addBOM: boolean('add_bom').notNull().default(true),
   maxRows: integer('max_rows'),
+  grouping: jsonb('grouping'), // GroupingConfig
   moduleId: text('module_id').notNull(),
   businessId: text('business_id'),
   createdBy: text('created_by'), // 用户ID

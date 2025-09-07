@@ -39,6 +39,13 @@ async function GET(request: NextRequest) {
     const statusParam = searchParams.get('status');
     const status = statusParam && statusParam !== 'all' ? statusParam as BookingStatus : null;
     
+    console.log('🔍 [API/Admin] 收到搜索请求参数:', {
+      allParams: Object.fromEntries(searchParams.entries()),
+      extractedParams: { qqNumber, phoneNumber, status, statusParam },
+      url: request.url,
+      timestamp: new Date().toISOString()
+    });
+    
     // 如果请求包含强制刷新参数，确保不使用缓存
     if (forceRefresh) {
       console.log('强制刷新预订数据:', { forceRefresh, timestamp: new Date().toISOString() });
@@ -58,15 +65,20 @@ async function GET(request: NextRequest) {
     
     if (qqNumber) {
       conditions.push(like(comicUniverseBookings.qqNumber, `%${qqNumber}%`));
+      console.log('🔍 [API/Admin] 添加QQ号搜索条件:', `%${qqNumber}%`);
     }
     
     if (phoneNumber) {
       conditions.push(like(comicUniverseBookings.phoneNumber, `%${phoneNumber}%`));
+      console.log('🔍 [API/Admin] 添加手机号搜索条件:', `%${phoneNumber}%`);
     }
     
     if (status) {
       conditions.push(eq(comicUniverseBookings.status, status));
+      console.log('🔍 [API/Admin] 添加状态过滤条件:', status);
     }
+    
+    console.log('🔍 [API/Admin] 总查询条件数量:', conditions.length);
     
     const bookings = await db
       .select({

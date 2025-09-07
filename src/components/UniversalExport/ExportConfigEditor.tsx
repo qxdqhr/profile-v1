@@ -67,6 +67,8 @@ export interface ExportConfigEditorProps {
   visible?: boolean;
   /** 自定义样式类名 */
   className?: string;
+  /** 配置变化回调(新增/删除/更新) */
+  onConfigChange?: () => void;
 }
 
 // ============= 字段类型图标映射 =============
@@ -153,6 +155,7 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
   onCancel,
   visible = false,
   className = '',
+  onConfigChange,
 }) => {
   // ============= 状态管理 =============
   
@@ -194,7 +197,71 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
 
   const [editingField, setEditingField] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [activeTab, setActiveTab] = useState<'basic' | 'fields' | 'grouping'>('basic');
+  const [activeTab, setActiveTab] = useState<'basic' | 'fields' | 'grouping' | 'manage'>('basic');
+  
+  // 配置管理相关状态
+  const [savedConfigs, setSavedConfigs] = useState<ExportConfig[]>([]);
+  const [loadingConfigs, setLoadingConfigs] = useState(false);
+  const [deletingConfigId, setDeletingConfigId] = useState<string | null>(null);
+
+  // 加载已保存的配置
+  const loadSavedConfigs = useCallback(async () => {
+    if (!visible || activeTab !== 'manage') return;
+    
+    setLoadingConfigs(true);
+    try {
+      const params = new URLSearchParams({ moduleId });
+      if (businessId) {
+        params.set('businessId', businessId);
+      }
+      
+      const response = await fetch(`/api/universal-export/configs?${params.toString()}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSavedConfigs(data.configs || []);
+        console.log('🔍 [ExportConfigEditor] 加载配置成功:', data.configs?.length || 0, '个配置');
+      } else {
+        console.error('🔍 [ExportConfigEditor] 加载配置失败:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('🔍 [ExportConfigEditor] 加载配置异常:', error);
+    } finally {
+      setLoadingConfigs(false);
+    }
+  }, [visible, activeTab, moduleId, businessId]);
+
+  // 删除配置
+  const deleteConfig = useCallback(async (configId: string) => {
+    setDeletingConfigId(configId);
+    try {
+      const response = await fetch(`/api/universal-export/configs/${configId}`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        setSavedConfigs(prev => prev.filter(cfg => cfg.id !== configId));
+        // 通知外部组件配置已变化
+        onConfigChange?.();
+        console.log('🔄 [ExportConfigEditor] 配置删除成功，通知外部组件刷新');
+      }
+    } catch (error) {
+      console.error('删除配置失败:', error);
+    } finally {
+      setDeletingConfigId(null);
+    }
+  }, [onConfigChange]);
+
+  // 加载配置到编辑器
+  const loadConfigToEditor = useCallback((config: ExportConfig) => {
+    setConfig(config);
+    setActiveTab('basic');
+  }, []);
+
+  // 当切换到管理tab时加载配置
+  useEffect(() => {
+    if (activeTab === 'manage') {
+      loadSavedConfigs();
+    }
+  }, [activeTab, loadSavedConfigs]);
 
   // 阻止背景滚动
   useEffect(() => {
@@ -405,7 +472,11 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
     };
 
     onSave?.(updatedConfig);
-  }, [config, onSave]);
+    
+    // 通知外部组件配置已变化
+    onConfigChange?.();
+    console.log('🔄 [ExportConfigEditor] 配置保存成功，通知外部组件刷新');
+  }, [config, onSave, onConfigChange]);
 
   // ============= 渲染字段项 =============
 
@@ -712,6 +783,12 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
       label: '分组设置', 
       icon: <Group className="w-4 h-4" />,
       description: '配置数据分组和合并选项'
+    },
+    { 
+      id: 'manage' as const, 
+      label: '配置管理', 
+      icon: <Database className="w-4 h-4" />,
+      description: '管理已保存的导出配置'
     },
   ];
 
@@ -1101,6 +1178,94 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
                   )}
                 </div>
               )}
+
+              {/* 配置管理Tab */}
+              {activeTab === 'manage' && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
+                      <Database className="w-5 h-5 text-blue-600" />
+                      配置管理
+                    </h3>
+                    <button
+                      onClick={loadSavedConfigs}
+                      disabled={loadingConfigs}
+                      className="px-3 py-1.5 text-sm text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50"
+                    >
+                      {loadingConfigs ? '加载中...' : '刷新'}
+                    </button>
+                  </div>
+
+                  {loadingConfigs ? (
+                    <div className="flex items-center justify-center py-12">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    </div>
+                  ) : savedConfigs.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Database className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                      <p className="text-gray-500 mb-2">暂无已保存的配置</p>
+                      <p className="text-sm text-gray-400">创建并保存配置后，可以在这里管理</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {savedConfigs.map((savedConfig) => (
+                        <div
+                          key={savedConfig.id}
+                          className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h4 className="font-medium text-gray-900 truncate">
+                                  {savedConfig.name}
+                                </h4>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                  {savedConfig.format}
+                                </span>
+                              </div>
+                              
+                              {savedConfig.description && (
+                                <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                                  {savedConfig.description}
+                                </p>
+                              )}
+                              
+                              <div className="flex items-center gap-4 text-xs text-gray-500">
+                                <span>字段数: {savedConfig.fields.length}</span>
+                                {savedConfig.grouping?.enabled && (
+                                  <span className="flex items-center gap-1">
+                                    <Group className="w-3 h-3" />
+                                    分组: {savedConfig.grouping.fields?.length || 0}个
+                                  </span>
+                                )}
+                                <span>创建时间: {savedConfig.createdAt ? new Date(savedConfig.createdAt).toLocaleDateString() : '未知'}</span>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 ml-4">
+                              <button
+                                onClick={() => loadConfigToEditor(savedConfig)}
+                                className="px-3 py-1.5 text-sm text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                                title="编辑此配置"
+                              >
+                                编辑
+                              </button>
+                              <button
+                                onClick={() => deleteConfig(savedConfig.id)}
+                                disabled={deletingConfigId === savedConfig.id}
+                                className="px-3 py-1.5 text-sm text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
+                                title="删除此配置"
+                              >
+                                {deletingConfigId === savedConfig.id ? '删除中...' : '删除'}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1111,15 +1276,17 @@ export const ExportConfigEditor: React.FC<ExportConfigEditorProps> = ({
             onClick={onCancel}
             className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
-            取消
+            {activeTab === 'manage' ? '关闭' : '取消'}
           </button>
-          <button
-            onClick={handleSave}
-            className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-          >
-            <Save className="w-4 h-4" />
-            保存配置
-          </button>
+          {activeTab !== 'manage' && (
+            <button
+              onClick={handleSave}
+              className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            >
+              <Save className="w-4 h-4" />
+              保存配置
+            </button>
+          )}
         </div>
       </div>
     </div>

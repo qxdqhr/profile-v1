@@ -368,6 +368,7 @@ export const UniversalExportButton: React.FC<UniversalExportButtonProps> = ({
         onSave={handleConfigSave}
         onCancel={() => setShowConfigEditor(false)}
         visible={showConfigEditor}
+        onConfigChange={loadSavedConfigs}
       />
 
       {/* 点击外部关闭下拉菜单 */}

@@ -31,9 +31,9 @@ export class CartHistoryService {
   /**
    * 生成唯一ID
    */
-  private static generateId(): string {
-    return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
+  // static generateId(): string {
+  //   return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  // }
 
   /**
    * 获取用户购物车历史记录
@@ -88,9 +88,12 @@ export class CartHistoryService {
    */
   static async saveCartHistory(historyItem: Omit<CartHistoryItem, 'id'>): Promise<CartHistoryItem> {
     try {
+      // 直接在函数内生成ID，避免this上下文问题
+      const generateId = () => `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
       const newHistoryItem: CartHistoryItem = {
         ...historyItem,
-        id: this.generateId(),
+        id: generateId(),
         submittedAt: new Date()
       };
 
@@ -302,9 +305,43 @@ export class CartHistoryService {
 
 // 导出单独的函数，方便直接导入使用
 export const getCartHistory = CartHistoryService.getCartHistory;
-export const saveCartHistory = CartHistoryService.saveCartHistory;
 export const updateBookingStatus = CartHistoryService.updateBookingStatus;
 export const deleteHistoryRecord = CartHistoryService.deleteHistoryRecord;
 export const clearUserHistory = CartHistoryService.clearUserHistory;
 export const getAllHistory = CartHistoryService.getAllHistory;
-export const getStatistics = CartHistoryService.getStatistics; 
+export const getStatistics = CartHistoryService.getStatistics;
+
+// 独立的saveCartHistory函数，避免类方法绑定问题
+export const saveCartHistory = async (historyItem: Omit<CartHistoryItem, 'id'>): Promise<CartHistoryItem> => {
+  try {
+    // 生成唯一ID
+    const generateId = () => `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    const newHistoryItem: CartHistoryItem = {
+      ...historyItem,
+      id: generateId(),
+      submittedAt: new Date()
+    };
+
+    // 获取现有历史记录
+    const existingData = localStorage.getItem(CART_HISTORY_STORAGE_KEY);
+    const allHistory: CartHistoryItem[] = existingData ? JSON.parse(existingData) : [];
+
+    // 添加新记录
+    allHistory.push(newHistoryItem);
+
+    // 保存到本地存储
+    localStorage.setItem(CART_HISTORY_STORAGE_KEY, JSON.stringify(allHistory));
+
+    console.log('✅ 购物车历史记录保存成功:', { 
+      id: newHistoryItem.id,
+      qqNumber: newHistoryItem.qqNumber,
+      itemCount: newHistoryItem.items.length
+    });
+
+    return newHistoryItem;
+  } catch (error) {
+    console.error('保存购物车历史记录失败:', error);
+    throw new Error('保存购物车历史记录失败');
+  }
+}; 

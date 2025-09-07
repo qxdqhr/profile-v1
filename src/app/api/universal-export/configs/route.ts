@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
       encoding: body.encoding,
       addBOM: body.addBOM,
       maxRows: body.maxRows,
+      grouping: body.grouping || null,
       moduleId: body.moduleId,
       businessId: body.businessId,
       createdBy: body.createdBy || null,

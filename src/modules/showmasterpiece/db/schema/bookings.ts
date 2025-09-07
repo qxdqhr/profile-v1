@@ -12,7 +12,7 @@
  * - 针对查询场景的索引优化
  * - 支持预订状态管理
  * - 记录用户联系信息和预订详情
- * - QQ号+手机号作为复合主键，确保每个用户的预订唯一性
+ * - 支持用户对同一画集进行多次预订
  * 
  * @fileoverview 数据库表结构 - 画集预订功能
  */
@@ -43,7 +43,7 @@ import { comicUniverseCollections } from './masterpieces';
  * - 预订状态管理（待确认、已确认、已完成、已取消）
  * - 预订时间记录和备注信息
  * - 支持管理员处理预订
- * - QQ号+手机号作为复合主键，确保每个用户的预订唯一性
+ * - 支持对同一画集的多次预订
  */
 export const comicUniverseBookings = pgTable('comic_universe_bookings', {
   /** 自增ID（用于内部管理） */
@@ -88,8 +88,8 @@ export const comicUniverseBookings = pgTable('comic_universe_bookings', {
   /** 取消时间 */
   cancelledAt: timestamp('cancelled_at'),
 }, (table) => ({
-  /** QQ号+手机号+画集ID的复合主键，确保每个用户对每个画集的预订唯一性 */
-  userCollectionPk: primaryKey({ columns: [table.qqNumber, table.phoneNumber, table.collectionId] }),
+  // 移除复合主键约束，允许用户对同一画集进行多次预订
+  // userCollectionPk: primaryKey({ columns: [table.qqNumber, table.phoneNumber, table.collectionId] }),
   
   /** 按画集查询预订的索引 */
   collectionIdIndex: index('bookings_collection_id_idx').on(table.collectionId),
