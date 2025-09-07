@@ -13,7 +13,7 @@ import { EXAM_TYPE_MAP } from '@/app/(pages)/testField/(utility)/experiment/conf
 // 创建一个内部组件来使用 useSearchParams
 function ExperimentContent() {
   const searchParams = useSearchParams();
-  const examType = searchParams.get('type') || 'default';
+  const examType = searchParams?.get('type') || 'default';
   
   const [isLoading, setIsLoading] = useState(true);
   const [questions, setQuestions] = useState<Question[]>(mockQuestions);

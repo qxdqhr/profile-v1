@@ -25,7 +25,7 @@ type NavigationTab = 'config' | 'management';
 function ConfigContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const examType = searchParams.get('type') || 'default';
+  const examType = searchParams?.get('type') || 'default';
   
   // 导航状态
   const [navTab, setNavTab] = useState<NavigationTab>('config');
