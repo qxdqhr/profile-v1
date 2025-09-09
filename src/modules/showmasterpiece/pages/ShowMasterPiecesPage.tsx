@@ -32,6 +32,8 @@ import { MasterpiecesConfig, CollectionCategory, CollectionCategoryType } from '
 import { CollectionCard, ArtworkViewer, ThumbnailSidebar, CartModal, CartButton } from '../components';
 import { CartProvider } from '../contexts/CartContext';
 import { AuthProvider, useAuth, UserMenu, CustomMenuItem } from '@/modules/auth';
+import { useDeadlinePopup } from '../hooks/useDeadlinePopup';
+import { DeadlinePopupManager } from '../components/DeadlinePopup';
 
 /**
  * ShowMasterpiece 内容组件
@@ -76,6 +78,18 @@ function ShowMasterPiecesContent() {
   /** 当前选中的分类 */
   const [selectedCategory, setSelectedCategory] = useState<CollectionCategoryType>(CollectionCategory.COLLECTION);
 
+  /** 主页弹窗管理 */
+  const {
+    configs: popupConfigs,
+    hasPopup,
+    loading: popupLoading,
+    error: popupError,
+    triggerCheck,
+    closePopup,
+    confirmPopup,
+    cancelPopup,
+  } = useDeadlinePopup('showmasterpiece', 'homepage_visit');
+
   // ===== 配置加载 =====
   
   /**
@@ -93,6 +107,24 @@ function ShowMasterPiecesContent() {
     };
     loadConfig();
   }, []);
+
+  /**
+   * 组件挂载时检查是否需要显示主页弹窗
+   */
+  useEffect(() => {
+    const checkHomepagePopups = async () => {
+      try {
+        console.log('🔔 [ShowMasterPieces] 检查主页弹窗...');
+        await triggerCheck();
+      } catch (err) {
+        console.error('❌ [ShowMasterPieces] 检查主页弹窗失败:', err);
+      }
+    };
+
+    // 延迟检查，确保页面完全加载
+    const timer = setTimeout(checkHomepagePopups, 1000);
+    return () => clearTimeout(timer);
+  }, [triggerCheck]);
 
   // ===== 数据过滤 =====
   
@@ -138,6 +170,24 @@ function ShowMasterPiecesContent() {
    */
   const handleCartClick = () => {
     setCartModalOpen(true);
+  };
+
+  // ===== 弹窗处理函数 =====
+  
+  /**
+   * 处理主页弹窗确认
+   */
+  const handleHomepagePopupConfirm = (configId: string) => {
+    console.log('✅ [ShowMasterPieces] 用户确认主页弹窗:', configId);
+    confirmPopup(configId);
+  };
+
+  /**
+   * 处理主页弹窗取消
+   */
+  const handleHomepagePopupCancel = (configId: string) => {
+    console.log('❌ [ShowMasterPieces] 用户取消主页弹窗:', configId);
+    cancelPopup(configId);
   };
 
   // ===== 渲染函数 =====
@@ -484,6 +534,16 @@ function ShowMasterPiecesContent() {
           title="购物车" 
           userId={userId}
         />
+
+        {/* 主页限时弹窗管理器 */}
+        {hasPopup && (
+          <DeadlinePopupManager
+            configs={popupConfigs}
+            onClose={closePopup}
+            onConfirm={handleHomepagePopupConfirm}
+            onCancel={handleHomepagePopupCancel}
+          />
+        )}
       </div>
     </CartProvider>
   );

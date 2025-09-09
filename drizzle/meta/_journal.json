@@ -302,6 +302,20 @@
       "when": 1757216335707,
       "tag": "0042_dapper_earthquake",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1757347683035,
+      "tag": "0043_naive_winter_soldier",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1757428171107,
+      "tag": "0044_unknown_namorita",
+      "breakpoints": true
     }
   ]
 }

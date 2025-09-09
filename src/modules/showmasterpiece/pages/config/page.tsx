@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown, Calendar, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown, Calendar, RefreshCw, Bell } from 'lucide-react';
 import { useMasterpiecesConfig } from '../../hooks/useMasterpiecesConfig';
 import { ConfigFormData, CollectionFormData, ArtworkFormData, CollectionCategory, CollectionCategoryType, getAvailableCategories, getCategoryDisplayName } from '../../types';
 import { UniversalImageUpload } from '../../components/UniversalImageUpload';
@@ -11,8 +11,9 @@ import { CollectionOrderManagerV2 as CollectionOrderManager } from '../../compon
 import { ArtworkOrderManagerV2 as ArtworkOrderManager } from '../../components/ArtworkOrderManagerV2';
 import { BookingAdminPanel } from '../../components/BookingAdminPanel';
 import { useBookingAdmin } from '../../hooks/useBookingAdmin';
+import { PopupConfigManagement } from '../../components/PopupConfigManagement';
 
-type TabType = 'general' | 'collections' | 'artworks' | 'bookings';
+type TabType = 'general' | 'collections' | 'artworks' | 'bookings' | 'popup';
 
 function ConfigPageContent() {
   const {
@@ -448,6 +449,17 @@ function ConfigPageContent() {
             <Calendar size={18} />
             预订管理
           </button>
+          <button
+            className={`flex items-center gap-2 px-6 py-4 bg-transparent border-none cursor-pointer border-b-2 transition-colors ${
+              activeTab === 'popup' 
+                ? 'border-blue-500 text-blue-600' 
+                : 'border-transparent text-slate-600 hover:text-slate-800'
+            }`}
+            onClick={() => setActiveTab('popup')}
+          >
+            <Bell size={18} />
+            弹窗配置
+          </button>
         </div>
       </div>
 
@@ -853,6 +865,17 @@ function ConfigPageContent() {
               onDeleteBooking={deleteBooking}
               onExportBookings={exportBookings}
             />
+          </div>
+        )}
+
+        {/* 弹窗配置标签页 */}
+        {activeTab === 'popup' && (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">弹窗配置</h2>
+              <p className="text-slate-600">管理购物车提交时的限时提醒弹窗设置</p>
+            </div>
+            <PopupConfigManagement />
           </div>
         )}
       </div>

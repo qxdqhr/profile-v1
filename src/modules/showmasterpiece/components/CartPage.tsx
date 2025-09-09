@@ -17,6 +17,8 @@ import React, { useState } from 'react';
 import { useCart } from '../hooks/useCart';
 import { CartItem } from '../types/cart';
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
+import { useDeadlinePopup } from '../hooks/useDeadlinePopup';
+import { DeadlinePopupManager } from './DeadlinePopup';
 
 /**
  * 购物车页面组件属性
@@ -47,6 +49,18 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
     checkoutCart,
     clearError,
   } = useCart(userId);
+
+  // 使用限时弹窗Hook
+  const {
+    configs: popupConfigs,
+    hasPopup,
+    loading: popupLoading,
+    closePopup,
+    confirmPopup,
+    cancelPopup,
+    temporaryClosePopup,
+    triggerCheck,
+  } = useDeadlinePopup('showmasterpiece', 'cart_checkout');
 
   // 本地状态
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -123,16 +137,86 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
       return;
     }
 
+    // 每次提交都重新检查弹窗（重要：不依赖缓存状态）
+    console.log('🔔 [CartPage] 检查限时弹窗...');
+    const triggeredPopups = await triggerCheck();
+    
+    if (triggeredPopups.length > 0) {
+      console.log(`🔔 [CartPage] 检测到 ${triggeredPopups.length} 个需要显示的弹窗，暂停提交`);
+      
+      // 检查是否有阻断类型的弹窗
+      const hasBlockingPopup = triggeredPopups.some(popup => popup.blockProcess);
+      if (hasBlockingPopup) {
+        console.log('🚫 [CartPage] 检测到阻断类型弹窗，必须处理后才能继续');
+      }
+      return; // 停止提交，让用户查看弹窗
+    }
+
+    console.log('✅ [CartPage] 无弹窗需要显示，继续提交');
+    await performCheckout();
+  };
+
+  /**
+   * 执行实际的购物车提交
+   */
+  const performCheckout = async () => {
     setIsCheckingOut(true);
     clearError();
     
     try {
       const result = await checkoutCart(formData.qqNumber, formData.phoneNumber, formData.notes || undefined, formData.pickupMethod);
       setCheckoutSuccess(true);
+      console.log('✅ [CartPage] 批量预订提交成功');
     } catch (error) {
-      console.error('批量预订失败:', error);
+      console.error('❌ [CartPage] 批量预订失败:', error);
     } finally {
       setIsCheckingOut(false);
+    }
+  };
+
+  /**
+   * 处理弹窗确认后继续提交
+   */
+  const handlePopupConfirm = async (configId: string) => {
+    console.log('✅ [CartPage] 用户确认弹窗:', configId);
+    
+    // 查找对应的弹窗配置
+    const popupConfig = popupConfigs.find(config => config.id === configId);
+    
+    if (popupConfig?.blockProcess) {
+      // 如果是阻断流程的弹窗，确认后停止提交
+      console.log('🚫 [CartPage] 阻断类型弹窗，确认后停止提交');
+      // 对于阻断弹窗，只临时关闭当前显示，不添加到dismissedPopups中
+      // 这样下次提交时还会重新检查阻断条件
+      temporaryClosePopup(configId);
+      return;
+    } else {
+      // 如果是非阻断流程的弹窗，确认后可以继续提交
+      console.log('✅ [CartPage] 提醒类型弹窗，确认后继续提交');
+      confirmPopup(configId);
+      
+      // 如果所有弹窗都已处理，继续提交
+      if (popupConfigs.length === 1) {
+        await performCheckout();
+      }
+    }
+  };
+
+  /**
+   * 处理弹窗取消
+   */
+  const handlePopupCancel = (configId: string) => {
+    console.log('❌ [CartPage] 用户取消弹窗，停止提交:', configId);
+    
+    // 查找对应的弹窗配置
+    const popupConfig = popupConfigs.find(config => config.id === configId);
+    
+    if (popupConfig?.blockProcess) {
+      // 对于阻断弹窗，临时关闭不影响下次检查
+      temporaryClosePopup(configId);
+    } else {
+      // 对于提醒弹窗，正常取消
+      cancelPopup(configId);
     }
   };
 
@@ -416,6 +500,16 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-sm sm:text-base text-gray-600">加载中...</p>
         </div>
+      )}
+
+      {/* 限时弹窗管理器 */}
+      {hasPopup && (
+        <DeadlinePopupManager
+          configs={popupConfigs}
+          onClose={closePopup}
+          onConfirm={handlePopupConfirm}
+          onCancel={handlePopupCancel}
+        />
       )}
     </div>
   );
