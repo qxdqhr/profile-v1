@@ -5,6 +5,6 @@
  */
 
 export {
-  GET,
+  // GET,
   POST
 } from '@/modules/showmasterpiece/api/popup-configs/check/route';
