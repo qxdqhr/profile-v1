@@ -78,6 +78,7 @@ export async function PUT(
     if ('description' in body) updateData.description = body.description;
     if ('type' in body) updateData.type = body.type;
     if ('enabled' in body) updateData.enabled = body.enabled;
+    if ('blockProcess' in body) updateData.blockProcess = body.blockProcess;  // 添加 blockProcess 字段
     if ('triggerConfig' in body) updateData.triggerConfig = body.triggerConfig;
     if ('contentConfig' in body) updateData.contentConfig = body.contentConfig;
     if ('displayConfig' in body) updateData.displayConfig = body.displayConfig;

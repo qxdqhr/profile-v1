@@ -89,6 +89,7 @@ export async function POST(request: NextRequest) {
       description: body.description,
       type: body.type || 'deadline',
       enabled: body.enabled ?? false,
+      blockProcess: body.blockProcess ?? false,  // 添加 blockProcess 字段
       triggerConfig: body.triggerConfig,
       contentConfig: body.contentConfig,
       displayConfig: body.displayConfig,
