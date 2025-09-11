@@ -26,14 +26,12 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { ArrowLeft, Settings, History } from 'lucide-react';
 import Link from 'next/link';
-import { useMasterpieces } from '../hooks/useMasterpieces';
-import { getConfig } from '../services/masterpiecesConfigService';
+import { useMasterpieces, useDeadlinePopup } from '../hooks';
+import { getConfig } from '../services';
 import { MasterpiecesConfig, CollectionCategory, CollectionCategoryType } from '../types';
-import { CollectionCard, ArtworkViewer, ThumbnailSidebar, CartModal, CartButton } from '../components';
+import { CollectionCard, ArtworkViewer, ThumbnailSidebar, CartModal, CartButton, DeadlinePopupManager} from '../components';
 import { CartProvider } from '../contexts/CartContext';
 import { AuthProvider, useAuth, UserMenu, CustomMenuItem } from '@/modules/auth';
-import { useDeadlinePopup } from '../hooks/useDeadlinePopup';
-import { DeadlinePopupManager } from '../components/DeadlinePopup';
 
 /**
  * ShowMasterpiece 内容组件

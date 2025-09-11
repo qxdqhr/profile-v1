@@ -10,7 +10,7 @@
 
 import React from 'react';
 import { Modal } from '@/components/PopWindow';
-import { BookingPage } from './BookingPage';
+import { BookingPage } from './';
 
 /**
  * 预订弹窗组件属性

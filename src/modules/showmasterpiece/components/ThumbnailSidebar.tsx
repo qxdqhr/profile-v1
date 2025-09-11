@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ImageIcon } from 'lucide-react';
 import { ArtworkPage } from '../types';
-import styles from './ThumbnailSidebar.module.css';
 
 interface ThumbnailSidebarProps {
   pages: ArtworkPage[];
@@ -101,20 +100,20 @@ const ThumbnailItem: React.FC<ThumbnailItemProps> = ({ page, index, isActive, on
     <button
       id={`thumbnail-${page.id}`}
       onClick={onSelect}
-      className={`${styles.thumbnailItem} ${isActive ? styles.active : ''}`}
+      className={`w-full p-2 border-2 border-slate-200 rounded-lg bg-slate-50 cursor-pointer transition-all duration-200 min-h-[44px] flex items-center justify-center hover:border-slate-300 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 lg:flex-shrink-0 lg:min-w-[220px] lg:max-w-[220px] lg:p-3.5 md:min-w-[200px] md:max-w-[200px] md:p-3 md:min-h-12 sm:min-w-[180px] sm:max-w-[180px] sm:p-2.5 sm:rounded-md ${isActive ? 'border-blue-500 bg-blue-50' : ''}`}
       aria-label={`查看第 ${index + 1} 页：${page.title}`}
     >
-      <div className={styles.thumbnailImageContainer}>
+      <div className="relative w-16 h-20 flex items-center justify-center bg-slate-100 rounded border overflow-hidden flex-shrink-0 lg:w-11 lg:h-15 md:w-10 md:h-14 sm:w-9 sm:h-13 sm:rounded-sm">
         {/* 加载状态 */}
         {imageLoading && (
-          <div className={styles.thumbnailLoading}>
-            <div className={styles.loadingSpinner}></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+            <div className="w-4 h-4 border border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
           </div>
         )}
 
         {/* 错误状态 */}
         {imageError && (
-          <div className={styles.thumbnailError}>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-gray-400 text-xs">
             <ImageIcon size={20} />
           </div>
         )}
@@ -124,17 +123,17 @@ const ThumbnailItem: React.FC<ThumbnailItemProps> = ({ page, index, isActive, on
           <img
             src={imageSrc}
             alt={page.title}
-            className={`${styles.thumbnailImage} ${imageLoading ? styles.hidden : ''}`}
+            className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoading ? 'opacity-0 absolute' : ''}`}
             onLoad={handleImageLoad}
             onError={handleImageError}
           />
         )}
       </div>
       
-              {/* 隐藏作品名称和编号信息，只显示缩略图 */}
-       <div className={styles.thumbnailInfo}>
-        <h4 className={styles.thumbnailTitle}>{page.title}</h4>
-        <p className={styles.thumbnailArtist}>{page.number}</p>
+      {/* 作品名称和编号信息 */}
+      <div className="text-left flex-1 min-w-0 lg:flex lg:flex-col lg:gap-1 lg:ml-3.5 md:ml-3 sm:ml-2.5">
+        <h4 className="font-medium text-sm text-slate-800 mb-1 overflow-hidden text-ellipsis whitespace-nowrap leading-tight lg:text-xs md:text-xs sm:text-xs sm:mb-0.5">{page.title}</h4>
+        <p className="text-xs text-slate-500 mb-0 overflow-hidden text-ellipsis whitespace-nowrap lg:text-xs md:text-xs sm:text-xs">{page.number}</p>
       </div> 
     </button>
   );
@@ -146,15 +145,15 @@ export const ThumbnailSidebar: React.FC<ThumbnailSidebarProps> = ({
   onPageSelect
 }) => {
   return (
-    <div className={styles.thumbnailSidebar}>
-      <div className={styles.thumbnailHeader}>
-        <h3>作品列表</h3>
-        <span className={styles.pageIndicator}>
+    <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-full box-border mb-0 lg:p-5 lg:mb-4 md:p-4 md:mb-4 md:rounded-xl sm:p-3.5 sm:rounded-xl">
+      <div className="flex justify-between items-center mb-4 lg:mb-3.5 md:mb-3 sm:mb-2.5">
+        <h3 className="text-lg font-semibold text-slate-800 mb-0 leading-tight lg:text-base md:text-base sm:text-sm">作品列表</h3>
+        <span className="text-sm text-slate-500 font-medium lg:text-sm md:text-sm sm:text-xs">
           {currentPage + 1} / {pages.length}
         </span>
       </div>
       
-      <div className={styles.thumbnailList}>
+      <div className="flex flex-col gap-3 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 lg:flex-row lg:gap-4 lg:max-h-none lg:overflow-x-auto lg:overflow-y-hidden lg:pb-2.5 lg:scroll-snap-x lg:scroll-smooth md:gap-3.5 md:pb-2 sm:gap-2.5 sm:pb-1.5">
         {pages.map((page, index) => (
           <ThumbnailItem
             key={page.id}

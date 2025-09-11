@@ -11,7 +11,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Package, Clock, CheckCircle, XCircle, Trash2, RefreshCw, Eye } from 'lucide-react';
 import { Booking } from '../types/booking';
-import { BookingService } from '../services/bookingService';
+import { BookingService } from '../services';
 
 /**
  * 用户预订历史记录页面组件属性

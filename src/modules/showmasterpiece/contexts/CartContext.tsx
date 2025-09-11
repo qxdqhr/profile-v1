@@ -11,32 +11,16 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { Cart } from '../types/cart';
-import { getCart } from '../services/cartService';
-import { cartUpdateEvents, CART_UPDATE_EVENT } from '../hooks/useCart';
-
-/**
- * 购物车上下文状态
- */
-interface CartContextState {
-  /** 购物车数据 */
-  cart: Cart;
-  
-  /** 加载状态 */
-  loading: boolean;
-  
-  /** 错误信息 */
-  error: string | undefined;
-  
-  /** 刷新购物车数据 */
-  refreshCart: () => Promise<void>;
-}
+import { getCart } from '../services';
+import { cartUpdateEvents, CART_UPDATE_EVENT } from '../hooks';
+import type { CartContextState } from '../types/context';
 
 /**
  * 购物车上下文类型
  */
-const CartContext = createContext<CartContextState | undefined>(undefined);
+export const CartContext = createContext<CartContextState | undefined>(undefined);
 
 /**
  * 购物车上下文提供者属性
@@ -118,16 +102,3 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children, userId }) 
     </CartContext.Provider>
   );
 };
-
-/**
- * 使用购物车上下文Hook
- * 
- * @returns 购物车上下文状态
- */
-export const useCartContext = (): CartContextState => {
-  const context = useContext(CartContext);
-  if (context === undefined) {
-    throw new Error('useCartContext must be used within a CartProvider');
-  }
-  return context;
-}; 

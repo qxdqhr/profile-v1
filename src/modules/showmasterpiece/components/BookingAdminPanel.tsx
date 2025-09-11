@@ -10,11 +10,10 @@
 
 import React, { useState, useMemo } from 'react';
 import { Calendar, User, Package, Clock, CheckCircle, XCircle, RefreshCw, Eye, Edit, Save, X, Trash2, Download, Settings, Search } from 'lucide-react';
-import { BookingAdminData, BookingAdminStats, BookingAdminQueryParams } from '../services/bookingAdminService';
+import { BookingAdminData, BookingAdminStats, BookingAdminQueryParams, BOOKING_EXPORT_FIELDS, DEFAULT_BOOKING_EXPORT_CONFIG } from '../services';
 import { BookingStatus, BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS } from '../types/booking';
 import { UniversalExportButton } from '../../../components/UniversalExport';
 import { UniversalExportService } from '../../../services/universalExport';
-import { BOOKING_EXPORT_FIELDS, DEFAULT_BOOKING_EXPORT_CONFIG } from '../services/exportConfig';
 
 /**
  * 预订管理面板组件属性

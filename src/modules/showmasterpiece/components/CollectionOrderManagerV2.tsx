@@ -7,7 +7,7 @@ import {
   updateCollectionOrder,
   moveCollectionUp,
   moveCollectionDown
-} from '../services/masterpiecesConfigService';
+} from '../services';
 import type { ArtCollection } from '../types';
 
 interface CollectionOrderManagerV2Props {

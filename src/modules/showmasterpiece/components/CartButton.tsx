@@ -10,7 +10,7 @@
 
 import React from 'react';
 import { ShoppingCart } from 'lucide-react';
-import { useCartContext } from '../contexts/CartContext';
+import { useCartContext } from '../hooks';
 
 /**
  * 购物车按钮组件属性

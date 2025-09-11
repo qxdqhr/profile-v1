@@ -19,7 +19,7 @@ import {
   getArtworksByCollection,
   getCategories,
   getTags
-} from '../services/masterpiecesConfigService';
+} from '../services';
 import type { 
   MasterpiecesConfig, 
   ArtCollection, 

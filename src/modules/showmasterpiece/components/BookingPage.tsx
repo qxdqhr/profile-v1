@@ -13,7 +13,7 @@
 
 import React, { useState } from 'react';
 import { CollectionList } from './CollectionList';
-import { useBooking, useBookingForm } from '../hooks/useBooking';
+import { useBooking, useBookingForm } from '../hooks';
 import { CollectionSummary } from '../types/booking';
 
 /**

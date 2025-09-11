@@ -85,7 +85,7 @@ export {
   getCategories,         // 获取所有可用分类
   getTags,              // 获取所有可用标签
   getCollectionsOverview // 获取画集概览统计数据
-} from './services/masterpiecesConfigService';
+} from './services';
 
 /**
  * 类型定义重新导出

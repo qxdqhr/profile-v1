@@ -21,10 +21,10 @@ import {
   getBookingStats,
   forceRefreshAllBookings,
   forceRefreshBookingStats,
-  updateBookingStatus as updateBookingStatusService,
-  deleteBooking as deleteBookingService,
+  updateBookingAdminStatus as updateBookingStatusService,
+  deleteBookingAdmin as deleteBookingService,
   exportBookings as exportBookingsService
-} from '../services/bookingAdminService';
+} from '../services';
 import { BookingStatus } from '../types/booking';
 
 /**

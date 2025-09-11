@@ -350,4 +350,7 @@ export function getCategoryDescription(category: CollectionCategoryType): string
     default:
       return '未知分类';
   }
-} 
+}
+
+// ===== 上下文类型导出 =====
+export type { CartContextState } from './context'; 

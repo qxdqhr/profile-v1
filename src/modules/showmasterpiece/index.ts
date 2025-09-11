@@ -20,16 +20,28 @@
  */
 
 // ===== 客户端组件导出 =====
-// 这些组件用于构建用户界面，可以在客户端组件中使用
+// 所有组件通过 components/index.ts 统一导出，保持模块化和封装性
 
-/** 画集卡片组件 - 用于展示画集封面和基本信息 */
-export { CollectionCard } from './components/CollectionCard';
-
-/** 作品查看器 - 用于展示单个作品的详细内容 */
-export { ArtworkViewer } from './components/ArtworkViewer';
-
-/** 缩略图侧边栏 - 用于展示作品集的缩略图导航 */
-export { ThumbnailSidebar } from './components/ThumbnailSidebar';
+/** 
+ * ShowMasterpiece 模块所有组件的统一导出
+ * 
+ * 包含以下组件类别：
+ * - 展示组件：CollectionCard, ArtworkViewer, ThumbnailSidebar
+ * - 管理组件：CollectionOrderManager, ArtworkOrderManager  
+ * - 购物车组件：CartModal, CartPage, CartButton, AddToCartButton
+ * - 预订组件：BookingModal, BookingPage, CollectionList, BookingAdminPanel
+ * - 配置组件：SystemConfigManager, PopupConfigManagement
+ * - 对话框组件：AddConfigItemDialog, DeleteConfirmDialog
+ * - 弹窗组件：DeadlinePopup, DeadlinePopupManager
+ * - 历史组件：CartHistoryPage
+ * - 上传组件：UniversalImageUpload
+ * 
+ * 使用方式：
+ * ```typescript
+ * import { CollectionCard, ArtworkViewer } from '@/modules/showmasterpiece';
+ * ```
+ */
+export * from './components';
 
 /**
  * 通用顺序管理器组件
@@ -47,30 +59,6 @@ export { ThumbnailSidebar } from './components/ThumbnailSidebar';
  */
 export { GenericOrderManager } from '@/components/GenericOrderManager';
 
-/** 画集顺序管理器 - 基于通用组件的画集排序组件 */
-export { CollectionOrderManagerV2 as CollectionOrderManager } from './components/CollectionOrderManagerV2';
-
-/** 作品顺序管理器 - 基于通用组件的作品排序组件 */
-export { ArtworkOrderManagerV2 as ArtworkOrderManager } from './components/ArtworkOrderManagerV2';
-
-/** 购物车弹窗组件 - 提供购物车功能 */
-export { CartModal } from './components/CartModal';
-
-/** 购物车页面组件 - 完整的购物车页面 */
-export { CartPage } from './components/CartPage';
-
-/** 购物车按钮组件 - 显示购物车图标和数量 */
-export { CartButton } from './components/CartButton';
-
-/** 添加到购物车按钮组件 - 用于画集卡片 */
-export { AddToCartButton } from './components/AddToCartButton';
-
-/** 购物车管理面板组件 - 管理员查看所有用户购物车数据 */
-
-
-/** 预订管理面板组件 - 管理员查看所有用户预订信息 */
-export { BookingAdminPanel } from './components/BookingAdminPanel';
-
 
 // ===== 页面组件导出 =====
 // 完整的页面组件，可以直接用作路由页面
@@ -82,93 +70,57 @@ export { default as ShowMasterPiecesPage } from './pages/ShowMasterPiecesPage';
 export { default as ShowMasterPiecesConfigPage } from './pages/config/page';
 
 // ===== Hook导出 =====
-// 自定义React Hooks，提供状态管理和业务逻辑封装
+// 所有自定义React Hooks通过 hooks/index.ts 统一导出
 
-/** 美术作品数据管理Hook - 提供画集浏览的状态管理 */
-export { useMasterpieces } from './hooks/useMasterpieces';
+/** 
+ * ShowMasterpiece 模块所有Hooks的统一导出
+ * 
+ * 包含以下Hook类别：
+ * - 数据管理Hook：useMasterpieces, useMasterpiecesConfig
+ * - 业务逻辑Hook：useCart, useBooking, useBookingForm, useBookingAdmin
+ * - 工具类Hook：useDeadlinePopup
+ * - 事件和常量：cartUpdateEvents, CART_UPDATE_EVENT, notifyCartUpdate
+ * 
+ * 使用方式：
+ * ```typescript
+ * import { useMasterpieces, useCart } from '@/modules/showmasterpiece';
+ * ```
+ */
+export * from './hooks';
 
-/** 美术作品配置管理Hook - 提供配置管理的状态和操作方法 */
-export { useMasterpiecesConfig } from './hooks/useMasterpiecesConfig';
+/** 购物车上下文提供者 - 提供购物车状态的全局管理 */
+export { CartProvider } from './contexts/CartContext';
 
-/** 购物车功能Hook - 提供购物车相关的状态管理和业务逻辑 */
-export { useCart } from './hooks/useCart';
-
-/** 购物车管理Hook - 提供购物车管理相关的状态管理和业务逻辑 */
-
-
-/** 预订管理Hook - 提供预订管理相关的状态管理和业务逻辑 */
-export { useBookingAdmin } from './hooks/useBookingAdmin';
-
-/** 购物车上下文 - 提供购物车状态的全局管理 */
-export { CartProvider, useCartContext } from './contexts/CartContext';
+/** 
+ * 注意：useCartContext Hook 现已通过 hooks 统一导出
+ * 可以通过以下方式导入：
+ * import { useCartContext } from '@/modules/showmasterpiece';
+ */
 
 // ===== 客户端服务导出 =====
-// 客户端API调用服务，封装了与后端的通信逻辑
-
-/** 美术作品服务类 - 提供面向对象的API调用接口 */
-export { MasterpiecesService } from './services/masterpiecesService';
+// 所有客户端API调用服务通过 services/index.ts 统一导出
 
 /** 
- * 美术作品配置服务函数集
- * 包含所有与美术作品相关的CRUD操作和配置管理
+ * ShowMasterpiece 模块所有服务的统一导出
+ * 
+ * 包含以下服务类别：
+ * - 数据服务：MasterpiecesService, masterpiecesConfigService 函数集
+ * - 业务服务：CartService, BookingService, BookingAdminService, CartHistoryService
+ * - 工具服务：fileService 函数集
+ * - 配置服务：exportConfig 配置
+ * - 类型定义：BookingAdminData, BookingAdminStats 等
+ * 
+ * 使用方式：
+ * ```typescript
+ * import { 
+ *   MasterpiecesService, 
+ *   getConfig, 
+ *   CartService,
+ *   BookingAdminService 
+ * } from '@/modules/showmasterpiece';
+ * ```
  */
-export { 
-  // 配置管理
-  getConfig,        // 获取系统配置
-  updateConfig,     // 更新系统配置
-  resetConfig,      // 重置配置为默认值
-  
-  // 画集管理
-  getAllCollections,      // 获取所有画集
-  createCollection,       // 创建新画集
-  updateCollection,       // 更新画集信息
-  deleteCollection,       // 删除画集
-  updateCollectionOrder,  // 批量更新画集顺序
-  moveCollection,         // 移动画集到指定位置
-  moveCollectionUp,       // 向上移动画集
-  moveCollectionDown,     // 向下移动画集
-  
-  // 作品管理
-  addArtworkToCollection, // 向画集添加作品
-  updateArtwork,         // 更新作品信息
-  deleteArtwork,         // 删除作品
-  getArtworksByCollection, // 获取画集中的所有作品
-  updateArtworkOrder,    // 批量更新作品顺序
-  moveArtwork,           // 移动作品到指定位置
-  moveArtworkUp,         // 向上移动作品
-  moveArtworkDown,       // 向下移动作品
-  
-  // 分类和标签
-  getCategories,         // 获取所有分类
-  getTags,              // 获取所有标签
-  getCollectionsOverview // 获取画集概览数据
-} from './services/masterpiecesConfigService';
-
-/** 
- * 购物车服务函数集
- * 包含所有与购物车相关的API调用方法
- */
-export { 
-  CartService,
-  getCart,             // 获取购物车
-  addToCart,           // 添加到购物车
-  updateCartItem,      // 更新购物车商品
-  removeFromCart,      // 从购物车移除
-  clearCart,           // 清空购物车
-  batchBooking         // 批量预订
-} from './services/cartService';
-
-
-
-/** 
- * 预订管理服务函数集
- * 包含所有与预订管理相关的API调用方法
- */
-export { 
-  BookingAdminService,
-  getAllBookings,      // 获取所有预订数据
-  updateBookingStatus  // 更新预订状态
-} from './services/bookingAdminService';
+export * from './services';
 
 // ===== 类型导出 =====
 // TypeScript类型定义，确保类型安全
@@ -210,14 +162,9 @@ export type {
 
 
 /** 
- * 导出预订管理功能相关的TypeScript类型定义
+ * 注意：预订管理相关的TypeScript类型定义现已通过 services 统一导出
+ * 包括：BookingAdminData, BookingAdminStats, BookingAdminResponse, BookingAdminQueryParams
  */
-export type {
-  BookingAdminData,     // 预订管理数据类型
-  BookingAdminStats,    // 预订统计信息类型
-  BookingAdminResponse, // 预订管理API响应类型
-  BookingAdminQueryParams // 预订管理查询参数类型
-} from './services/bookingAdminService';
 
 // ===== 模块信息 =====
 /** 模块版本号 */

@@ -8,7 +8,7 @@ import {
   updateArtworkOrder,
   moveArtworkUp,
   moveArtworkDown
-} from '../services/masterpiecesConfigService';
+} from '../services';
 import type { ArtworkPage } from '../types';
 
 interface ArtworkOrderManagerV2Props {

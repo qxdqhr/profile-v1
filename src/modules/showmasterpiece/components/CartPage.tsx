@@ -14,11 +14,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useCart } from '../hooks/useCart';
+import { useCart, useDeadlinePopup } from '../hooks';
 import { CartItem } from '../types/cart';
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
-import { useDeadlinePopup } from '../hooks/useDeadlinePopup';
-import { DeadlinePopupManager } from './DeadlinePopup';
+import { DeadlinePopupManager } from './';
 
 /**
  * 购物车页面组件属性

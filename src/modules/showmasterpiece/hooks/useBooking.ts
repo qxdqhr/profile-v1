@@ -17,7 +17,7 @@ import {
   BookingPageState,
   CreateBookingRequest 
 } from '../types/booking';
-import { getBookableCollections, createBooking } from '../services/bookingService';
+import { getBookableCollections, createBooking } from '../services';
 
 /**
  * 预订页面Hook

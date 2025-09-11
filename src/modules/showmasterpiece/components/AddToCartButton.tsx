@@ -10,8 +10,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Plus, Minus, Check } from 'lucide-react';
-import { useCartContext } from '../contexts/CartContext';
-import { useCart } from '../hooks/useCart';
+import { useCartContext } from '../hooks';
+import { useCart } from '../hooks';
 import { ArtCollection } from '../types';
 
 /**

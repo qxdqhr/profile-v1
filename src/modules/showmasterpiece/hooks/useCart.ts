@@ -28,7 +28,7 @@ import {
   removeFromCart, 
   clearCart, 
   batchBooking 
-} from '../services/cartService';
+} from '../services';
 
 // 创建一个全局事件系统来通知购物车更新
 export const cartUpdateEvents = new EventTarget();

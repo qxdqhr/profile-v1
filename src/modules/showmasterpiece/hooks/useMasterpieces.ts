@@ -34,7 +34,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { ArtCollection } from '../types';
-import { MasterpiecesService } from '../services/masterpiecesService';
+import { MasterpiecesService } from '../services';
 
 // ===== 数据缓存配置 =====
 

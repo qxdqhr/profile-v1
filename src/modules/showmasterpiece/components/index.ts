@@ -214,17 +214,108 @@ export { CollectionList } from './CollectionList';
 export { BookingAdminPanel } from './BookingAdminPanel';
 
 /**
- * 购物车管理面板组件
+ * 预订弹窗组件
  * 
- * 管理员查看所有用户购物车数据的面板组件。
- * 提供购物车数据的查看、筛选和统计功能。
+ * 用于包装预订页面的弹窗组件，提供弹窗形式的预订界面。
+ * 支持响应式设计，适配桌面端和移动端。
  * 
  * 主要功能：
- * - 购物车数据统计展示
- * - 购物车列表查看和筛选
- * - 购物车详情查看
- * - 用户信息显示
+ * - 弹窗形式的预订界面
+ * - 响应式设计
+ * - 自动关闭功能
  */
+export { BookingModal } from './BookingModal';
 
+/**
+ * 预订页面组件
+ * 
+ * 完整的预订页面，包含画集选择、用户信息填写和预订确认功能。
+ * 支持多画集预订和用户体验优化。
+ * 
+ * 主要功能：
+ * - 画集选择和预览
+ * - 用户信息表单
+ * - 预订确认和提交
+ */
+export { BookingPage } from './BookingPage';
 
- 
+/**
+ * 购物车历史页面组件
+ * 
+ * 用户查看自己购物车历史记录的页面组件。
+ * 支持历史记录查看、筛选和状态管理。
+ * 
+ * 主要功能：
+ * - 购物车历史记录展示
+ * - 记录状态筛选
+ * - 详情查看
+ */
+export { CartHistoryPage } from './CartHistoryPage';
+
+/**
+ * 截止日期弹窗组件
+ * 
+ * 用于显示重要截止日期提醒的弹窗组件。
+ * 支持倒计时显示、确认操作和自动关闭。
+ * 
+ * 主要功能：
+ * - 截止日期倒计时
+ * - 重要通知显示
+ * - 用户确认操作
+ * - 弹窗管理器集成
+ */
+export { DeadlinePopup, DeadlinePopupManager } from './DeadlinePopup';
+
+/**
+ * 弹窗配置管理组件
+ * 
+ * 管理员管理系统弹窗配置的组件。
+ * 支持弹窗的创建、编辑、删除和状态管理。
+ * 
+ * 主要功能：
+ * - 弹窗配置列表管理
+ * - 弹窗内容编辑
+ * - 弹窗状态控制
+ * - 弹窗预览功能
+ */
+export { PopupConfigManagement } from './PopupConfigManagement';
+
+/**
+ * 系统配置管理组件
+ * 
+ * 管理员管理ShowMasterpiece模块系统配置的组件。
+ * 支持配置项的增删改查和分类管理。
+ * 
+ * 主要功能：
+ * - 配置项列表管理
+ * - 配置值编辑
+ * - 配置分类管理
+ * - 配置历史记录
+ */
+export { SystemConfigManager } from './SystemConfigManager';
+
+/**
+ * 添加配置项对话框组件
+ * 
+ * 用于添加新配置项的对话框组件。
+ * 支持配置项信息输入和验证。
+ * 
+ * 主要功能：
+ * - 配置项信息表单
+ * - 输入验证
+ * - 表单提交
+ */
+export { AddConfigItemDialog } from './AddConfigItemDialog';
+
+/**
+ * 删除确认对话框组件
+ * 
+ * 用于确认删除操作的对话框组件。
+ * 提供安全的删除确认流程。
+ * 
+ * 主要功能：
+ * - 删除确认提示
+ * - 危险操作警告
+ * - 确认/取消操作
+ */
+export { DeleteConfirmDialog } from './DeleteConfirmDialog';

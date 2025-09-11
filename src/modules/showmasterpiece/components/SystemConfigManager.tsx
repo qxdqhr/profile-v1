@@ -9,8 +9,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Save, Edit, Eye, EyeOff, CheckCircle, AlertTriangle, Loader, RefreshCw, Database, Server, Trash2, Plus } from 'lucide-react';
-import { DeleteConfirmDialog } from './DeleteConfirmDialog';
-import { AddConfigItemDialog } from './AddConfigItemDialog';
+import { DeleteConfirmDialog, AddConfigItemDialog } from './';
 
 interface ConfigItem {
   id: string;

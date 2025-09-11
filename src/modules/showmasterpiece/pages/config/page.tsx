@@ -2,17 +2,18 @@
 
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown, Calendar, RefreshCw, Bell, Cog } from 'lucide-react';
-import { useMasterpiecesConfig } from '../../hooks/useMasterpiecesConfig';
+import { useMasterpiecesConfig, useBookingAdmin } from '../../hooks';
 import { ConfigFormData, CollectionFormData, ArtworkFormData, CollectionCategory, CollectionCategoryType, getAvailableCategories, getCategoryDisplayName } from '../../types';
-import { UniversalImageUpload } from '../../components/UniversalImageUpload';
-import { shouldUseUniversalFileService, getStorageModeDisplayName } from '../../services/fileService';
+import { 
+  UniversalImageUpload, 
+  CollectionOrderManagerV2 as CollectionOrderManager,
+  ArtworkOrderManagerV2 as ArtworkOrderManager,
+  BookingAdminPanel,
+  PopupConfigManagement,
+  SystemConfigManager
+} from '../../components';
+import { shouldUseUniversalFileService, getStorageModeDisplayName } from '../../services';
 import { AuthGuard, AuthProvider } from '@/modules/auth';
-import { CollectionOrderManagerV2 as CollectionOrderManager } from '../../components/CollectionOrderManagerV2';
-import { ArtworkOrderManagerV2 as ArtworkOrderManager } from '../../components/ArtworkOrderManagerV2';
-import { BookingAdminPanel } from '../../components/BookingAdminPanel';
-import { useBookingAdmin } from '../../hooks/useBookingAdmin';
-import { PopupConfigManagement } from '../../components/PopupConfigManagement';
-import { SystemConfigManager } from '../../components/SystemConfigManager';
 
 type TabType = 'general' | 'collections' | 'artworks' | 'bookings' | 'popup' | 'system';
 
