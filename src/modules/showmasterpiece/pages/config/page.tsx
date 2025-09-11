@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown, Calendar, RefreshCw, Bell } from 'lucide-react';
+import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown, Calendar, RefreshCw, Bell, Cog } from 'lucide-react';
 import { useMasterpiecesConfig } from '../../hooks/useMasterpiecesConfig';
 import { ConfigFormData, CollectionFormData, ArtworkFormData, CollectionCategory, CollectionCategoryType, getAvailableCategories, getCategoryDisplayName } from '../../types';
 import { UniversalImageUpload } from '../../components/UniversalImageUpload';
@@ -12,8 +12,9 @@ import { ArtworkOrderManagerV2 as ArtworkOrderManager } from '../../components/A
 import { BookingAdminPanel } from '../../components/BookingAdminPanel';
 import { useBookingAdmin } from '../../hooks/useBookingAdmin';
 import { PopupConfigManagement } from '../../components/PopupConfigManagement';
+import { SystemConfigManager } from '../../components/SystemConfigManager';
 
-type TabType = 'general' | 'collections' | 'artworks' | 'bookings' | 'popup';
+type TabType = 'general' | 'collections' | 'artworks' | 'bookings' | 'popup' | 'system';
 
 function ConfigPageContent() {
   const {
@@ -460,6 +461,17 @@ function ConfigPageContent() {
             <Bell size={18} />
             弹窗配置
           </button>
+          <button
+            className={`flex items-center gap-2 px-6 py-4 bg-transparent border-none cursor-pointer border-b-2 transition-colors ${
+              activeTab === 'system' 
+                ? 'border-blue-500 text-blue-600' 
+                : 'border-transparent text-slate-600 hover:text-slate-800'
+            }`}
+            onClick={() => setActiveTab('system')}
+          >
+            <Cog size={18} />
+            系统配置
+          </button>
         </div>
       </div>
 
@@ -876,6 +888,32 @@ function ConfigPageContent() {
               <p className="text-slate-600">管理购物车提交时的限时提醒弹窗设置</p>
             </div>
             <PopupConfigManagement />
+          </div>
+        )}
+
+        {/* 系统配置标签页 */}
+        {activeTab === 'system' && (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">系统配置</h2>
+              <p className="text-slate-600">管理ShowMasterPieces模块的系统级配置项，为模块独立化做准备</p>
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <Cog className="text-blue-600 mt-0.5" size={20} />
+                  <div>
+                    <h3 className="font-semibold text-blue-900">配置说明</h3>
+                    <p className="text-blue-800 text-sm mt-1">
+                      这里的配置项将用于ShowMasterPieces模块的独立运行。
+                      新创建的配置项会自动添加<code className="bg-blue-100 px-1 rounded">SHOWMASTER_</code>前缀。
+                    </p>
+                    <p className="text-blue-700 text-xs mt-2">
+                      💡 提示：这些配置独立于全局配置，便于模块打包和部署。
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <SystemConfigManager />
           </div>
         )}
       </div>

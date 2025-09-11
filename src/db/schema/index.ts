@@ -7,6 +7,8 @@ export * from '@/modules/showmasterpiece/db/schema/masterpieces';
 export * from '@/modules/showmasterpiece/db/schema/bookings';
 // 导出弹窗配置相关的表
 export * from '@/modules/showmasterpiece/db/schema/popupConfig';
+// 导出ShowMasterPieces配置管理相关的表
+export * from '@/modules/showmasterpiece/db/schema/config';
 // 导出认证相关的表
 export * from '@/modules/auth/db/schema';
 
