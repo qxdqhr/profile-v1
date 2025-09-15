@@ -6,15 +6,218 @@
 
 import { createFileServiceConfig, createFileServiceConfigWithConfigManager } from '@/services/universalFile/config';
 
+import type { LocalStorageConfig, AliyunOSSConfig, StorageConfig } from '@/services/universalFile/types';
+
 // 缓存ConfigManager实例，避免重复创建
 let cachedConfigManager: Awaited<ReturnType<typeof createFileServiceConfigWithConfigManager>> | null = null;
+
+/**
+ * 从showmasterpiece独立配置获取OSS配置
+ */
+async function getShowmasterpieceOSSConfig() {
+  try {
+    console.log('🎨 [ShowMasterpiece] 尝试从独立配置读取OSS配置...');
+    
+    const environment = process.env.NODE_ENV === 'production' ? 'production' : 'development';
+    console.log(`🎨 [ShowMasterpiece] 当前环境: ${environment}`);
+    
+    // 检查是否在服务器端环境
+    if (typeof window !== 'undefined') {
+      // 客户端环境：通过API读取配置
+      console.log('🌐 [ShowMasterpiece] 客户端环境，通过API读取配置');
+      
+      const configKeys = 'ALIYUN_OSS_REGION,ALIYUN_OSS_BUCKET,ALIYUN_OSS_ACCESS_KEY_ID,ALIYUN_OSS_ACCESS_KEY_SECRET,ALIYUN_OSS_CUSTOM_DOMAIN,ALIYUN_OSS_SECURE,ALIYUN_OSS_INTERNAL';
+      const response = await fetch(`/api/showmasterpiece/config/items?environment=${environment}&keys=${configKeys}`);
+      
+      if (!response.ok) {
+        console.warn('⚠️ [ShowMasterpiece] 读取独立配置API失败:', response.status);
+        return null;
+      }
+      
+      const data = await response.json();
+      if (!data.success || !data.items) {
+        console.warn('⚠️ [ShowMasterpiece] 独立配置API响应异常:', data);
+        return null;
+      }
+
+      // 将配置项数组转换为对象
+      const configMap: Record<string, string> = {};
+      data.items.forEach((item: any) => {
+        if (item.value) {
+          configMap[item.key] = item.value;
+        }
+      });
+
+      const ossConfig = {
+        region: configMap['ALIYUN_OSS_REGION'],
+        bucket: configMap['ALIYUN_OSS_BUCKET'],
+        accessKeyId: configMap['ALIYUN_OSS_ACCESS_KEY_ID'],
+        accessKeySecret: configMap['ALIYUN_OSS_ACCESS_KEY_SECRET'],
+        customDomain: configMap['ALIYUN_OSS_CUSTOM_DOMAIN'],
+        secure: configMap['ALIYUN_OSS_SECURE'] === 'true',
+        internal: configMap['ALIYUN_OSS_INTERNAL'] === 'true'
+      };
+
+      console.log('🎨 [ShowMasterpiece] 独立配置读取结果:', {
+        region: ossConfig.region || '未配置',
+        bucket: ossConfig.bucket || '未配置',
+        accessKeyId: ossConfig.accessKeyId ? '***' : '未配置',
+        accessKeySecret: ossConfig.accessKeySecret ? '***' : '未配置',
+        customDomain: ossConfig.customDomain || '未配置',
+        secure: ossConfig.secure,
+        internal: ossConfig.internal
+      });
+
+      // 检查必要配置是否完整
+      if (ossConfig.region && ossConfig.bucket && ossConfig.accessKeyId && ossConfig.accessKeySecret) {
+        console.log('✅ [ShowMasterpiece] 独立配置完整，将使用独立OSS配置');
+        return ossConfig;
+      } else {
+        console.log('⚠️ [ShowMasterpiece] 独立配置不完整，将回退到公共配置');
+        console.log('🔍 [ShowMasterpiece] 缺失配置项:', {
+          region: !ossConfig.region,
+          bucket: !ossConfig.bucket,
+          accessKeyId: !ossConfig.accessKeyId,
+          accessKeySecret: !ossConfig.accessKeySecret
+        });
+        return null;
+      }
+    } else {
+      // 服务器端环境：直接读取数据库
+      console.log('🖥️ [ShowMasterpiece] 服务器端环境，直接读取数据库');
+      
+      // 动态导入服务器端模块
+      const { showmasterConfigService } = await import('../db/services/configService');
+      
+      const configKeys = [
+        'ALIYUN_OSS_REGION',
+        'ALIYUN_OSS_BUCKET', 
+        'ALIYUN_OSS_ACCESS_KEY_ID',
+        'ALIYUN_OSS_ACCESS_KEY_SECRET',
+        'ALIYUN_OSS_CUSTOM_DOMAIN',
+        'ALIYUN_OSS_SECURE',
+        'ALIYUN_OSS_INTERNAL'
+      ];
+
+      // 并行读取所有配置项
+      const configPromises = configKeys.map(key => 
+        showmasterConfigService.getConfigItemByKey(key, environment)
+      );
+      
+      const configResults = await Promise.all(configPromises);
+      
+      // 将配置项数组转换为对象
+      const configMap: Record<string, string> = {};
+      configResults.forEach((item, index) => {
+        if (item && item.value) {
+          configMap[configKeys[index]] = item.value;
+        }
+      });
+
+      const ossConfig = {
+        region: configMap['ALIYUN_OSS_REGION'],
+        bucket: configMap['ALIYUN_OSS_BUCKET'],
+        accessKeyId: configMap['ALIYUN_OSS_ACCESS_KEY_ID'],
+        accessKeySecret: configMap['ALIYUN_OSS_ACCESS_KEY_SECRET'],
+        customDomain: configMap['ALIYUN_OSS_CUSTOM_DOMAIN'],
+        secure: configMap['ALIYUN_OSS_SECURE'] === 'true',
+        internal: configMap['ALIYUN_OSS_INTERNAL'] === 'true'
+      };
+
+      console.log('🎨 [ShowMasterpiece] 独立配置读取结果:', {
+        region: ossConfig.region || '未配置',
+        bucket: ossConfig.bucket || '未配置',
+        accessKeyId: ossConfig.accessKeyId ? '***' : '未配置',
+        accessKeySecret: ossConfig.accessKeySecret ? '***' : '未配置',
+        customDomain: ossConfig.customDomain || '未配置',
+        secure: ossConfig.secure,
+        internal: ossConfig.internal
+      });
+
+      // 检查必要配置是否完整
+      if (ossConfig.region && ossConfig.bucket && ossConfig.accessKeyId && ossConfig.accessKeySecret) {
+        console.log('✅ [ShowMasterpiece] 独立配置完整，将使用独立OSS配置');
+        return ossConfig;
+      } else {
+        console.log('⚠️ [ShowMasterpiece] 独立配置不完整，将回退到公共配置');
+        console.log('🔍 [ShowMasterpiece] 缺失配置项:', {
+          region: !ossConfig.region,
+          bucket: !ossConfig.bucket,
+          accessKeyId: !ossConfig.accessKeyId,
+          accessKeySecret: !ossConfig.accessKeySecret
+        });
+        return null;
+      }
+    }
+  } catch (error) {
+    console.warn('⚠️ [ShowMasterpiece] 读取独立配置失败:', error);
+    return null;
+  }
+}
 
 /**
  * 获取缓存的ConfigManager实例
  */
 async function getCachedConfigManager() {
   if (!cachedConfigManager) {
-    cachedConfigManager = await createFileServiceConfigWithConfigManager();
+    // 尝试从showmasterpiece独立配置创建配置管理器
+    const showmasterpieceOSSConfig = await getShowmasterpieceOSSConfig();
+    
+    if (showmasterpieceOSSConfig) {
+      console.log('🎨 [ShowMasterpiece] 使用独立OSS配置创建配置管理器');
+      
+      // 使用独立配置创建配置管理器
+      cachedConfigManager = createFileServiceConfig({
+        defaultStorage: 'aliyun-oss',
+        storageProviders: {
+          'local': {
+            type: 'local',
+            enabled: false,
+            rootPath: 'uploads',
+            baseUrl: '/uploads'
+          } as LocalStorageConfig,
+          'aliyun-oss': {
+            type: 'aliyun-oss',
+            enabled: true,
+            ...showmasterpieceOSSConfig
+          } as AliyunOSSConfig,
+          'aws-s3': {
+            type: 'aws-s3',
+            enabled: false
+          } as StorageConfig,
+          'qcloud-cos': {
+            type: 'qcloud-cos',
+            enabled: false
+          } as StorageConfig
+        }
+      });
+    } else {
+      console.log('🎨 [ShowMasterpiece] 独立配置不完整，使用默认配置');
+      // 使用默认配置（主要从环境变量读取）
+      cachedConfigManager = createFileServiceConfig({
+        defaultStorage: 'local', // 默认使用本地存储
+        storageProviders: {
+          'local': {
+            type: 'local',
+            enabled: true,
+            rootPath: 'uploads',
+            baseUrl: '/uploads'
+          } as LocalStorageConfig,
+          'aliyun-oss': {
+            type: 'aliyun-oss',
+            enabled: false // 如果独立配置失败，禁用OSS
+          } as AliyunOSSConfig,
+          'aws-s3': {
+            type: 'aws-s3',
+            enabled: false
+          } as StorageConfig,
+          'qcloud-cos': {
+            type: 'qcloud-cos',
+            enabled: false
+          } as StorageConfig
+        }
+      });
+    }
   }
   return cachedConfigManager;
 }
@@ -146,11 +349,55 @@ export async function getStorageModeDisplayName(): Promise<string> {
     const ossConfig = config.storageProviders['aliyun-oss'];
     
     if (ossConfig && ossConfig.enabled) {
-      return '阿里云OSS + CDN';
+      return '阿里云OSS + CDN (独立配置)';
     } else {
       return '本地存储 + 文件服务';
     }
   } else {
     return 'Base64数据库存储';
   }
+}
+
+/**
+ * 清除配置缓存
+ * 
+ * 当配置更新后调用此函数，强制重新读取配置
+ */
+export function clearConfigCache(): void {
+  console.log('🧹 [ShowMasterpiece] 清除配置缓存');
+  cachedConfigManager = null;
+}
+
+/**
+ * 强制刷新配置
+ * 
+ * 清除缓存并重新获取配置
+ */
+export async function refreshFileServiceConfig() {
+  console.log('🔄 [ShowMasterpiece] 强制刷新文件服务配置');
+  clearConfigCache();
+  const configManager = await getCachedConfigManager();
+  
+  // 如果是使用独立配置，确保重新初始化Provider（仅在服务器端）
+  if (typeof window === 'undefined') {
+    try {
+      const config = configManager.getConfig();
+      const ossConfig = config.storageProviders['aliyun-oss'];
+      
+      if (ossConfig && ossConfig.enabled) {
+        console.log('🔄 [ShowMasterpiece] 重新初始化OSS Provider以应用新配置');
+        // 创建新的文件服务实例以确保Provider使用最新配置
+        const { UniversalFileService } = await import('@/services/universalFile/UniversalFileService');
+        const fileService = new UniversalFileService(config);
+        await fileService.initialize();
+        
+        // 重新初始化Provider
+        await fileService.reinitializeStorageProviders();
+      }
+    } catch (error) {
+      console.warn('⚠️ [ShowMasterpiece] 重新初始化Provider失败:', error);
+    }
+  }
+  
+  return configManager;
 } 

@@ -80,6 +80,23 @@ export class ShowmasterConfigService {
   }
 
   /**
+   * 根据名称获取配置分类
+   */
+  async getCategoryByName(name: string): Promise<ShowmasterConfigCategory | null> {
+    console.log('🎨 [ShowmasterConfigService] 根据名称获取配置分类:', name);
+    
+    const [category] = await db
+      .select()
+      .from(showmasterConfigCategories)
+      .where(and(
+        eq(showmasterConfigCategories.name, name),
+        eq(showmasterConfigCategories.isActive, true)
+      ));
+    
+    return category || null;
+  }
+
+  /**
    * 创建配置分类
    */
   async createCategory(data: Omit<NewShowmasterConfigCategory, 'id' | 'createdAt' | 'updatedAt'>): Promise<ShowmasterConfigCategory> {

@@ -284,7 +284,9 @@ export {
   uploadArtworkImage,
   getArtworkImageUrl,
   shouldUseUniversalFileService,
-  getStorageModeDisplayName
+  getStorageModeDisplayName,
+  clearConfigCache,
+  refreshFileServiceConfig
 } from './fileService';
 
 /** 

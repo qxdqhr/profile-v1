@@ -30,13 +30,40 @@ export class AliyunOSSProvider implements IStorageProvider {
    * 初始化存储提供者
    */
   async initialize(config: StorageConfig): Promise<void> {
+    return this.reinitialize(config);
+  }
+
+  /**
+   * 重新初始化存储提供者（支持配置热更新）
+   */
+  async reinitialize(config: StorageConfig): Promise<void> {
     if (config.type !== 'aliyun-oss') {
       throw new StorageProviderError('配置类型不匹配：期望 aliyun-oss');
     }
 
-    this.config = config as AliyunOSSConfig;
+    const newConfig = config as AliyunOSSConfig;
     
-    console.log(`☁️ [AliyunOSSProvider] 初始化阿里云OSS: ${this.config},config ${JSON.stringify(this.config)}`);
+    // 检查配置是否发生变化
+    const configChanged = !this.config || 
+      this.config.region !== newConfig.region ||
+      this.config.bucket !== newConfig.bucket ||
+      this.config.accessKeyId !== newConfig.accessKeyId ||
+      this.config.accessKeySecret !== newConfig.accessKeySecret ||
+      this.config.customDomain !== newConfig.customDomain ||
+      this.config.secure !== newConfig.secure ||
+      this.config.internal !== newConfig.internal;
+
+    if (configChanged) {
+      console.log('🔄 [AliyunOSSProvider] 检测到配置变化，重新初始化OSS客户端');
+      console.log(`☁️ [AliyunOSSProvider] 新配置: bucket=${newConfig.bucket}, region=${newConfig.region}`);
+    } else if (this.isInitialized) {
+      console.log('ℹ️ [AliyunOSSProvider] 配置未变化，跳过重新初始化');
+      return;
+    }
+
+    this.config = newConfig;
+    
+    console.log(`☁️ [AliyunOSSProvider] ${this.isInitialized ? '重新' : ''}初始化阿里云OSS`);
 
     try {
       // 验证必需的配置项
@@ -59,7 +86,7 @@ export class AliyunOSSProvider implements IStorageProvider {
       await this.testConnection();
       
       this.isInitialized = true;
-      console.log('✅ [AliyunOSSProvider] 阿里云OSS初始化完成');
+      console.log(`✅ [AliyunOSSProvider] 阿里云OSS${configChanged ? '重新' : ''}初始化完成`);
       
     } catch (error) {
       console.error('❌ [AliyunOSSProvider] 阿里云OSS初始化失败:', error);

@@ -117,6 +117,30 @@ export class UniversalFileService extends EventEmitter {
   }
 
   /**
+   * 重新初始化存储提供者（支持配置热更新）
+   */
+  async reinitializeStorageProviders(): Promise<void> {
+    console.log('🔄 [UniversalFileService] 重新初始化存储提供者...');
+    
+    try {
+      // 重新初始化OSS提供者
+      const ossConfig = this.config.storageProviders['aliyun-oss'];
+      if (ossConfig && ossConfig.enabled) {
+        const ossProvider = this.storageProviders.get('aliyun-oss');
+        if (ossProvider && 'reinitialize' in ossProvider) {
+          console.log('🔄 [UniversalFileService] 重新初始化阿里云OSS提供者...');
+          await (ossProvider as any).reinitialize(ossConfig);
+        }
+      }
+      
+      console.log('✅ [UniversalFileService] 存储提供者重新初始化完成');
+    } catch (error) {
+      console.error('❌ [UniversalFileService] 存储提供者重新初始化失败:', error);
+      throw error;
+    }
+  }
+
+  /**
    * 注册存储提供者
    */
   registerStorageProvider(provider: IStorageProvider): void {

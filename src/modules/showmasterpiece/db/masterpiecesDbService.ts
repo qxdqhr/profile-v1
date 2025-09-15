@@ -410,8 +410,13 @@ export class CollectionsDbService {
       
       if (allFileIds.length > 0) {
         try {
-          const { createUniversalFileServiceWithConfigManager } = await import('@/services/universalFile/UniversalFileService');
-          const fileService = await createUniversalFileServiceWithConfigManager();
+          // 使用ShowMasterpiece的独立文件服务配置
+          const { getShowMasterpieceFileConfig } = await import('../services/fileService');
+          const configManager = await getShowMasterpieceFileConfig();
+          const { UniversalFileService } = await import('@/services/universalFile/UniversalFileService');
+          
+          const fileService = new UniversalFileService(configManager.getConfig());
+          await fileService.initialize();
           
           // 并行获取所有文件URL
           const urlPromises = allFileIds.map(async (fileId) => {
@@ -602,8 +607,13 @@ export class CollectionsDbService {
       
       if (coverImageFileIds.length > 0) {
         try {
-          const { createUniversalFileServiceWithConfigManager } = await import('@/services/universalFile/UniversalFileService');
-          const fileService = await createUniversalFileServiceWithConfigManager();
+          // 使用ShowMasterpiece的独立文件服务配置
+          const { getShowMasterpieceFileConfig } = await import('../services/fileService');
+          const configManager = await getShowMasterpieceFileConfig();
+          const { UniversalFileService } = await import('@/services/universalFile/UniversalFileService');
+          
+          const fileService = new UniversalFileService(configManager.getConfig());
+          await fileService.initialize();
           
           // 并行获取所有封面图片URL
           const urlPromises = coverImageFileIds.map(async (fileId) => {
@@ -1470,8 +1480,13 @@ export class ArtworksDbService {
     
     if (artworksWithFileId.length > 0) {
       try {
-        const { createUniversalFileServiceWithConfigManager } = await import('@/services/universalFile/UniversalFileService');
-        const fileService = await createUniversalFileServiceWithConfigManager();
+        // 使用ShowMasterpiece的独立文件服务配置
+        const { getShowMasterpieceFileConfig } = await import('../services/fileService');
+        const configManager = await getShowMasterpieceFileConfig();
+        const { UniversalFileService } = await import('@/services/universalFile/UniversalFileService');
+        
+        const fileService = new UniversalFileService(configManager.getConfig());
+        await fileService.initialize();
         
         // 并行获取所有文件URL
         const urlPromises = artworksWithFileId.map(async (artwork) => {

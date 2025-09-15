@@ -17,8 +17,33 @@ async function getConfigItems(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const pageSize = parseInt(searchParams.get('pageSize') || '50'); // 默认显示更多项
     const environment = searchParams.get('environment') || 'development';
+    const keys = searchParams.get('keys'); // 新增：支持按键名筛选
 
     console.log(`🎨 [ShowMasterpiece Config] 获取 ${environment} 环境的配置项`);
+
+    // 如果指定了keys，直接查询这些配置项
+    if (keys) {
+      const keyList = keys.split(',').map(k => k.trim());
+      console.log(`🎨 [ShowMasterpiece Config] 按键名筛选: ${keyList.join(', ')}`);
+      
+      const items = await Promise.all(
+        keyList.map(key => showmasterConfigService.getConfigItemByKey(key, environment))
+      );
+      
+      // 过滤掉null结果
+      const validItems = items.filter(item => item !== null);
+      
+      return NextResponse.json({
+        success: true,
+        items: validItems,
+        total: validItems.length,
+        page: 1,
+        pageSize: validItems.length,
+        totalPages: 1,
+        environment,
+        module: 'showmasterpiece'
+      });
+    }
 
     // 使用专用的showmasterpiece配置服务
     const params = {

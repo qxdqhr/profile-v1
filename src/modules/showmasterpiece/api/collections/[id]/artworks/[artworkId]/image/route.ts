@@ -68,10 +68,15 @@ export async function GET(
     // 优先使用fileId获取图片，如果不存在则回退到Base64（向后兼容）
     if (artwork.fileId) {
       try {
-        // 通过通用文件服务获取图片
-        const { createUniversalFileServiceWithConfigManager } = await import('@/services/universalFile/UniversalFileService');
+        // 通过ShowMasterpiece的独立文件服务获取图片
+        const { getShowMasterpieceFileConfig } = await import('../../../../../../services/fileService');
         
-        const fileService = await createUniversalFileServiceWithConfigManager();
+        const configManager = await getShowMasterpieceFileConfig();
+        const { UniversalFileService } = await import('@/services/universalFile/UniversalFileService');
+        
+        // 使用ShowMasterpiece的独立配置创建文件服务
+        const fileService = new UniversalFileService(configManager.getConfig());
+        await fileService.initialize();
         
         const imageUrl = await fileService.getFileUrl(artwork.fileId);
         

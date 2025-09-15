@@ -10,6 +10,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Edit, Eye, EyeOff, CheckCircle, AlertTriangle, Loader, RefreshCw, Database, Server, Trash2, Plus } from 'lucide-react';
 import { DeleteConfirmDialog, AddConfigItemDialog } from './';
+import { clearConfigCache } from '../services';
 
 interface ConfigItem {
   id: string;
@@ -150,6 +151,12 @@ export const SystemConfigManager: React.FC = () => {
             ? { ...config, value: newValue }
             : config
         ));
+        
+        // 如果是OSS相关配置，清除文件服务缓存
+        if (item.key.includes('ALIYUN_OSS')) {
+          console.log('🧹 [SystemConfigManager] OSS配置已更新，清除文件服务缓存');
+          clearConfigCache();
+        }
         
         setEditingItem(null);
         setEditValues({});
