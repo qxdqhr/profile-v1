@@ -22,6 +22,9 @@ import { CollectionSummary } from '../types/booking';
 interface BookingPageProps {
   /** 关闭回调 */
   onClose?: () => void;
+  
+  /** 活动参数，用于画集列表过滤 */
+  eventParam?: string;
 }
 
 /**
@@ -30,7 +33,7 @@ interface BookingPageProps {
  * @param props 组件属性
  * @returns React组件
  */
-export const BookingPage: React.FC<BookingPageProps> = ({ onClose }) => {
+export const BookingPage: React.FC<BookingPageProps> = ({ onClose, eventParam }) => {
   // 使用自定义Hook
   const {
     collections,
@@ -41,7 +44,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({ onClose }) => {
     submitBooking,
     resetSubmission,
     clearError,
-  } = useBooking();
+  } = useBooking({ eventParam });
 
   const {
     formData,

@@ -30,7 +30,8 @@ interface PopupDisplayState {
  */
 export function useDeadlinePopup(
   businessModule: string = 'showmasterpiece',
-  businessScene: string = 'cart_checkout'
+  businessScene: string = 'cart_checkout',
+  eventParam?: string
 ) {
   const [state, setState] = useState<PopupDisplayState>({
     configs: [],
@@ -57,6 +58,7 @@ export function useDeadlinePopup(
           businessModule,
           businessScene,
           currentTime: (currentTime || new Date()).toISOString(),
+          eventParam,
         }),
       });
 
@@ -91,7 +93,7 @@ export function useDeadlinePopup(
       }));
       return [];
     }
-  }, [businessModule, businessScene, dismissedPopups]);
+  }, [businessModule, businessScene, dismissedPopups, eventParam]);
 
   /**
    * 关闭弹窗
@@ -167,6 +169,7 @@ export function useDeadlinePopup(
           businessModule,
           businessScene,
           currentTime: (currentTime || new Date()).toISOString(),
+          eventParam,
         }),
       });
 
@@ -211,7 +214,7 @@ export function useDeadlinePopup(
       }));
       return [];
     }
-  }, [businessModule, businessScene, dismissedPopups]);
+  }, [businessModule, businessScene, dismissedPopups, eventParam]);
 
   return {
     ...state,

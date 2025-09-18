@@ -319,3 +319,45 @@ export { AddConfigItemDialog } from './AddConfigItemDialog';
  * - 确认/取消操作
  */
 export { DeleteConfirmDialog } from './DeleteConfirmDialog';
+
+/**
+ * 活动选择器组件
+ * 
+ * 提供活动切换功能的下拉选择组件。
+ * 支持活动状态显示和快速切换。
+ * 
+ * 主要功能：
+ * - 活动下拉选择
+ * - 活动状态显示
+ * - 标签页模式
+ * - 默认活动标识
+ */
+export { EventSelector } from './EventManagement/EventSelector';
+
+/**
+ * 活动创建器组件
+ * 
+ * 提供创建新活动的表单界面。
+ * 支持基本信息填写和数据克隆选项。
+ * 
+ * 主要功能：
+ * - 活动信息表单
+ * - 数据克隆选项
+ * - 表单验证
+ * - 创建确认
+ */
+export { EventCreator } from './EventManagement/EventCreator';
+
+/**
+ * 多活动管理总览组件
+ * 
+ * 提供所有活动的管理界面。
+ * 支持活动列表、创建、编辑、删除等功能。
+ * 
+ * 主要功能：
+ * - 活动列表展示
+ * - 活动状态管理
+ * - 活动统计信息
+ * - 活动操作面板
+ */
+export { MultiEventOverview } from './EventManagement/MultiEventOverview';

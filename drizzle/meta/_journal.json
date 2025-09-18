@@ -330,6 +330,20 @@
       "when": 1757601486113,
       "tag": "0046_fancy_the_santerians",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1758038503553,
+      "tag": "0047_tricky_chronomancer",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1758042645296,
+      "tag": "0048_abandoned_rictor",
+      "breakpoints": true
     }
   ]
 }

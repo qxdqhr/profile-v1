@@ -7,7 +7,7 @@
  */
 
 import { db } from '@/db';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, isNull } from 'drizzle-orm';
 import { popupConfigs, PopupConfig, NewPopupConfig } from '../schema/popupConfig';
 
 export class PopupConfigService {
@@ -64,19 +64,28 @@ export class PopupConfigService {
    */
   async getEnabledPopupConfigs(
     businessModule: string = 'showmasterpiece',
-    businessScene: string = 'cart_checkout'
+    businessScene: string = 'cart_checkout',
+    eventId?: number | null
   ): Promise<PopupConfig[]> {
     try {
+      // 构建查询条件
+      const conditions = [
+        eq(popupConfigs.enabled, true),
+        eq(popupConfigs.businessModule, businessModule),
+        eq(popupConfigs.businessScene, businessScene)
+      ];
+      
+      // 总是添加活动过滤条件，支持eventId为null的情况
+      if (eventId === null || eventId === undefined) {
+        conditions.push(isNull(popupConfigs.eventId));
+      } else {
+        conditions.push(eq(popupConfigs.eventId, eventId));
+      }
+      
       const configs = await db
         .select()
         .from(popupConfigs)
-        .where(
-          and(
-            eq(popupConfigs.enabled, true),
-            eq(popupConfigs.businessModule, businessModule),
-            eq(popupConfigs.businessScene, businessScene)
-          )
-        )
+        .where(and(...conditions))
         .orderBy(desc(popupConfigs.sortOrder), desc(popupConfigs.createdAt));
 
       console.log(`📊 [PopupConfigService] 获取到 ${configs.length} 个启用的弹窗配置`);
@@ -90,13 +99,34 @@ export class PopupConfigService {
   /**
    * 获取所有弹窗配置
    */
-  async getAllPopupConfigs(): Promise<PopupConfig[]> {
+  async getAllPopupConfigs(eventId?: number | null): Promise<PopupConfig[]> {
     try {
-      const configs = await db
-        .select()
-        .from(popupConfigs)
-        .orderBy(desc(popupConfigs.createdAt));
+      const conditions = [];
+      
+      // 如果提供了eventId，按活动过滤，包括null值
+      if (eventId !== undefined) {
+        if (eventId === null) {
+          conditions.push(isNull(popupConfigs.eventId));
+        } else {
+          conditions.push(eq(popupConfigs.eventId, eventId));
+        }
+      }
+      
+      let configs;
+      if (conditions.length > 0) {
+        configs = await db
+          .select()
+          .from(popupConfigs)
+          .where(and(...conditions))
+          .orderBy(desc(popupConfigs.createdAt));
+      } else {
+        configs = await db
+          .select()
+          .from(popupConfigs)
+          .orderBy(desc(popupConfigs.createdAt));
+      }
 
+      console.log(`📊 [PopupConfigService] 获取弹窗配置: eventId=${eventId}, 返回${configs.length}个配置`);
       return configs;
     } catch (error) {
       console.error('❌ [PopupConfigService] 获取所有弹窗配置失败:', error);
@@ -179,10 +209,11 @@ export class PopupConfigService {
   async shouldShowPopup(
     businessModule: string = 'showmasterpiece',
     businessScene: string = 'cart_checkout',
-    currentTime: Date = new Date()
+    currentTime: Date = new Date(),
+    eventId?: number | null
   ): Promise<PopupConfig[]> {
     try {
-      const enabledConfigs = await this.getEnabledPopupConfigs(businessModule, businessScene);
+      const enabledConfigs = await this.getEnabledPopupConfigs(businessModule, businessScene, eventId);
       const triggeredConfigs: PopupConfig[] = [];
 
       for (const config of enabledConfigs) {

@@ -18,9 +18,25 @@ import {
 } from '../types/cart';
 
 /**
- * 购物车历史记录本地存储键名
+ * 购物车历史记录本地存储键名基础
  */
-const CART_HISTORY_STORAGE_KEY = 'showmasterpiece_cart_history';
+const CART_HISTORY_STORAGE_KEY_BASE = 'showmasterpiece_cart_history';
+
+/**
+ * 默认的购物车历史记录存储键（向后兼容）
+ */
+const CART_HISTORY_STORAGE_KEY = CART_HISTORY_STORAGE_KEY_BASE;
+
+/**
+ * 生成活动感知的存储键
+ * @param eventParam 活动参数
+ * @returns 包含活动信息的存储键
+ */
+const getStorageKey = (eventParam?: string): string => {
+  return eventParam 
+    ? `${CART_HISTORY_STORAGE_KEY_BASE}_${eventParam}`
+    : CART_HISTORY_STORAGE_KEY_BASE;
+};
 
 /**
  * 购物车历史记录服务类

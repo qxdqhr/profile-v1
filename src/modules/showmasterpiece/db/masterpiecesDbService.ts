@@ -7,7 +7,7 @@ import {
   comicUniverseCollectionTags,
   comicUniverseArtworks
 } from './schema/masterpieces';
-import { eq, desc, asc, and, sql, inArray } from 'drizzle-orm';
+import { eq, desc, asc, and, sql, inArray, isNull } from 'drizzle-orm';
 import type { 
   MasterpiecesConfig, 
   ArtCollection, 
@@ -125,12 +125,24 @@ export class MasterpiecesConfigDbService {
 // 分类相关服务
 export class CategoriesDbService {
   // 获取所有分类
-  async getCategories(): Promise<string[]> {
+  async getCategories(eventId?: number | null): Promise<string[]> {
+    const conditions = [eq(comicUniverseCategories.isActive, true)];
+    
+    // 如果提供了eventId，按活动过滤
+    if (eventId !== undefined) {
+      if (eventId === null) {
+        conditions.push(isNull(comicUniverseCategories.eventId));
+      } else {
+        conditions.push(eq(comicUniverseCategories.eventId, eventId));
+      }
+    }
+    
     const categories = await db.select()
       .from(comicUniverseCategories)
-      .where(eq(comicUniverseCategories.isActive, true))
+      .where(and(...conditions))
       .orderBy(asc(comicUniverseCategories.displayOrder), asc(comicUniverseCategories.name));
     
+    console.log(`📊 [CategoriesDbService] 获取分类: eventId=${eventId}, 返回${categories.length}个分类`);
     return categories.map(cat => cat.name);
   }
 
@@ -146,12 +158,24 @@ export class CategoriesDbService {
 // 标签相关服务
 export class TagsDbService {
   // 获取所有标签
-  async getTags(): Promise<string[]> {
+  async getTags(eventId?: number | null): Promise<string[]> {
+    const conditions = [eq(comicUniverseTags.isActive, true)];
+    
+    // 如果提供了eventId，按活动过滤
+    if (eventId !== undefined) {
+      if (eventId === null) {
+        conditions.push(isNull(comicUniverseTags.eventId));
+      } else {
+        conditions.push(eq(comicUniverseTags.eventId, eventId));
+      }
+    }
+    
     const tags = await db.select()
       .from(comicUniverseTags)
-      .where(eq(comicUniverseTags.isActive, true))
+      .where(and(...conditions))
       .orderBy(asc(comicUniverseTags.name));
     
+    console.log(`📊 [TagsDbService] 获取标签: eventId=${eventId}, 返回${tags.length}个标签`);
     return tags.map(tag => tag.name);
   }
 
@@ -679,7 +703,7 @@ export class CollectionsDbService {
   }
 
   // 创建画集
-  async createCollection(collectionData: CollectionFormData): Promise<ArtCollection> {
+  async createCollection(collectionData: CollectionFormData, eventId?: number): Promise<ArtCollection> {
     // 获取或创建分类
     let categoryId: number | null = null;
     if (collectionData.category) {
@@ -709,6 +733,7 @@ export class CollectionsDbService {
       isPublished: collectionData.isPublished,
       publishedAt: collectionData.isPublished ? new Date() : null,
       price: collectionData.price || null,
+      eventId: eventId || null, // 设置活动ID
     }).returning();
 
     // 处理标签

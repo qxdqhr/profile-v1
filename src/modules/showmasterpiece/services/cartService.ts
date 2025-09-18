@@ -39,11 +39,17 @@ export class CartService {
    * 获取购物车数据
    * 
    * @param userId 用户ID
+   * @param eventParam 活动参数，用于购物车数据隔离
    * @returns 购物车数据
    */
-  static async getCart(userId: number): Promise<Cart> {
+  static async getCart(userId: number, eventParam?: string): Promise<Cart> {
     try {
-      const cartData = localStorage.getItem(`${CART_STORAGE_KEY}_${userId}`);
+      // 生成包含活动信息的存储键
+      const storageKey = eventParam 
+        ? `${CART_STORAGE_KEY}_${userId}_${eventParam}`
+        : `${CART_STORAGE_KEY}_${userId}`;
+        
+      const cartData = localStorage.getItem(storageKey);
       if (cartData) {
         const parsed = JSON.parse(cartData);
         // 将字符串日期转换为Date对象
@@ -72,10 +78,16 @@ export class CartService {
    * 
    * @param userId 用户ID
    * @param cart 购物车数据
+   * @param eventParam 活动参数，用于购物车数据隔离
    */
-  private static saveCart(userId: number, cart: Cart): void {
+  private static saveCart(userId: number, cart: Cart, eventParam?: string): void {
     try {
-      localStorage.setItem(`${CART_STORAGE_KEY}_${userId}`, JSON.stringify(cart));
+      // 生成包含活动信息的存储键
+      const storageKey = eventParam 
+        ? `${CART_STORAGE_KEY}_${userId}_${eventParam}`
+        : `${CART_STORAGE_KEY}_${userId}`;
+        
+      localStorage.setItem(storageKey, JSON.stringify(cart));
     } catch (error) {
       console.error('保存购物车数据失败:', error);
     }
@@ -104,13 +116,14 @@ export class CartService {
    * 添加商品到购物车
    * 
    * @param data 添加商品数据
+   * @param eventParam 活动参数，用于购物车数据隔离
    * @returns 更新后的购物车数据
    */
-  static async addToCart(data: AddToCartRequest & { userId: number; collection?: any }): Promise<Cart> {
+  static async addToCart(data: AddToCartRequest & { userId: number; collection?: any }, eventParam?: string): Promise<Cart> {
     const { userId, collectionId, quantity, collection } = data;
     
-    // 获取当前购物车
-    const cart = await this.getCart(userId);
+    // 获取当前购物车（包含活动参数）
+    const cart = await this.getCart(userId, eventParam);
     
     // 检查商品是否已在购物车中
     const existingItemIndex = cart.items.findIndex(item => item.collectionId === collectionId);
@@ -155,8 +168,8 @@ export class CartService {
     cart.totalQuantity = totalQuantity;
     cart.totalPrice = totalPrice;
     
-    // 保存到本地存储
-    this.saveCart(userId, cart);
+    // 保存到本地存储（包含活动参数）
+    this.saveCart(userId, cart, eventParam);
     
     return cart;
   }
@@ -165,13 +178,14 @@ export class CartService {
    * 更新购物车商品数量
    * 
    * @param data 更新商品数据
+   * @param eventParam 活动参数，用于购物车数据隔离
    * @returns 更新后的购物车数据
    */
-  static async updateCartItem(data: UpdateCartItemRequest & { userId: number }): Promise<Cart> {
+  static async updateCartItem(data: UpdateCartItemRequest & { userId: number }, eventParam?: string): Promise<Cart> {
     const { userId, collectionId, quantity } = data;
     
-    // 获取当前购物车
-    const cart = await this.getCart(userId);
+    // 获取当前购物车（包含活动参数）
+    const cart = await this.getCart(userId, eventParam);
     
     // 查找商品项
     const itemIndex = cart.items.findIndex(item => item.collectionId === collectionId);
@@ -190,8 +204,8 @@ export class CartService {
       cart.totalQuantity = totalQuantity;
       cart.totalPrice = totalPrice;
       
-      // 保存到本地存储
-      this.saveCart(userId, cart);
+      // 保存到本地存储（包含活动参数）
+      this.saveCart(userId, cart, eventParam);
     }
     
     return cart;
@@ -201,13 +215,14 @@ export class CartService {
    * 从购物车移除商品
    * 
    * @param data 移除商品数据
+   * @param eventParam 活动参数，用于购物车数据隔离
    * @returns 更新后的购物车数据
    */
-  static async removeFromCart(data: RemoveFromCartRequest & { userId: number }): Promise<Cart> {
+  static async removeFromCart(data: RemoveFromCartRequest & { userId: number }, eventParam?: string): Promise<Cart> {
     const { userId, collectionId } = data;
     
-    // 获取当前购物车
-    const cart = await this.getCart(userId);
+    // 获取当前购物车（包含活动参数）
+    const cart = await this.getCart(userId, eventParam);
     
     // 移除商品
     cart.items = cart.items.filter(item => item.collectionId !== collectionId);
@@ -217,8 +232,8 @@ export class CartService {
     cart.totalQuantity = totalQuantity;
     cart.totalPrice = totalPrice;
     
-    // 保存到本地存储
-    this.saveCart(userId, cart);
+    // 保存到本地存储（包含活动参数）
+    this.saveCart(userId, cart, eventParam);
     
     return cart;
   }
@@ -227,17 +242,18 @@ export class CartService {
    * 清空购物车
    * 
    * @param userId 用户ID
+   * @param eventParam 活动参数，用于购物车数据隔离
    * @returns 清空后的购物车数据
    */
-  static async clearCart(userId: number): Promise<Cart> {
+  static async clearCart(userId: number, eventParam?: string): Promise<Cart> {
     const emptyCart: Cart = {
       items: [],
       totalQuantity: 0,
       totalPrice: 0
     };
     
-    // 保存空的购物车到本地存储
-    this.saveCart(userId, emptyCart);
+    // 保存空的购物车到本地存储（包含活动参数）
+    this.saveCart(userId, emptyCart, eventParam);
     
     return emptyCart;
   }
@@ -247,15 +263,24 @@ export class CartService {
    * 
    * @param data 批量预订数据
    * @param cart 当前购物车数据（用于保存历史记录）
+   * @param eventParam 活动参数，用于预订数据隔离
    * @returns 预订结果
    */
-  static async batchBooking(data: BatchBookingRequest, cart?: Cart): Promise<BatchBookingResponse> {
+  static async batchBooking(data: BatchBookingRequest, cart?: Cart, eventParam?: string): Promise<BatchBookingResponse> {
+    // 将活动参数添加到请求数据中
+    const requestData = {
+      ...data,
+      eventParam
+    };
+    
+    console.log('🛒 [CartService] 批量预订 (活动感知):', { data, eventParam });
+    
     const response = await fetch(this.BOOKING_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(requestData),
     });
 
     if (!response.ok) {
@@ -300,50 +325,55 @@ export class CartService {
  * 获取购物车数据
  * 
  * @param userId 用户ID
+ * @param eventParam 活动参数，用于购物车数据隔离
  * @returns 购物车数据
  */
-export const getCart = (userId: number): Promise<Cart> => {
-  return CartService.getCart(userId);
+export const getCart = (userId: number, eventParam?: string): Promise<Cart> => {
+  return CartService.getCart(userId, eventParam);
 };
 
 /**
  * 添加商品到购物车
  * 
  * @param data 添加商品数据
+ * @param eventParam 活动参数，用于购物车数据隔离
  * @returns 更新后的购物车数据
  */
-export const addToCart = (data: AddToCartRequest & { userId: number }): Promise<Cart> => {
-  return CartService.addToCart(data);
+export const addToCart = (data: AddToCartRequest & { userId: number }, eventParam?: string): Promise<Cart> => {
+  return CartService.addToCart(data, eventParam);
 };
 
 /**
  * 更新购物车商品数量
  * 
  * @param data 更新商品数据
+ * @param eventParam 活动参数，用于购物车数据隔离
  * @returns 更新后的购物车数据
  */
-export const updateCartItem = (data: UpdateCartItemRequest & { userId: number }): Promise<Cart> => {
-  return CartService.updateCartItem(data);
+export const updateCartItem = (data: UpdateCartItemRequest & { userId: number }, eventParam?: string): Promise<Cart> => {
+  return CartService.updateCartItem(data, eventParam);
 };
 
 /**
  * 从购物车移除商品
  * 
  * @param data 移除商品数据
+ * @param eventParam 活动参数，用于购物车数据隔离
  * @returns 更新后的购物车数据
  */
-export const removeFromCart = (data: RemoveFromCartRequest & { userId: number }): Promise<Cart> => {
-  return CartService.removeFromCart(data);
+export const removeFromCart = (data: RemoveFromCartRequest & { userId: number }, eventParam?: string): Promise<Cart> => {
+  return CartService.removeFromCart(data, eventParam);
 };
 
 /**
  * 清空购物车
  * 
  * @param userId 用户ID
+ * @param eventParam 活动参数，用于购物车数据隔离
  * @returns 清空后的购物车数据
  */
-export const clearCart = (userId: number): Promise<Cart> => {
-  return CartService.clearCart(userId);
+export const clearCart = (userId: number, eventParam?: string): Promise<Cart> => {
+  return CartService.clearCart(userId, eventParam);
 };
 
 /**
@@ -351,8 +381,9 @@ export const clearCart = (userId: number): Promise<Cart> => {
  * 
  * @param data 批量预订数据
  * @param cart 当前购物车数据（用于保存历史记录）
+ * @param eventParam 活动参数，用于预订数据隔离
  * @returns 预订结果
  */
-export const batchBooking = (data: BatchBookingRequest, cart?: Cart): Promise<BatchBookingResponse> => {
-  return CartService.batchBooking(data, cart);
+export const batchBooking = (data: BatchBookingRequest, cart?: Cart, eventParam?: string): Promise<BatchBookingResponse> => {
+  return CartService.batchBooking(data, cart, eventParam);
 }; 

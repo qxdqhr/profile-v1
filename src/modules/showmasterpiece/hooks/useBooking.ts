@@ -20,13 +20,23 @@ import {
 import { getBookableCollections, createBooking } from '../services';
 
 /**
+ * 预订页面Hook属性
+ */
+interface UseBookingProps {
+  /** 活动参数，用于画集列表过滤 */
+  eventParam?: string;
+}
+
+/**
  * 预订页面Hook
  * 
  * 管理预订页面的状态和业务逻辑
  * 
+ * @param props Hook属性
  * @returns 预订页面状态和操作方法
  */
-export function useBooking() {
+export function useBooking(props: UseBookingProps = {}) {
+  const { eventParam } = props;
   // 状态管理
   const [state, setState] = useState<BookingPageState>({
     collections: [],
@@ -43,7 +53,8 @@ export function useBooking() {
     setState(prev => ({ ...prev, loading: true, error: undefined }));
     
     try {
-      const collections = await getBookableCollections();
+      console.log('🔄 [useBooking] 加载画集列表...', { eventParam });
+      const collections = await getBookableCollections(eventParam);
       setState(prev => ({ 
         ...prev, 
         collections, 
@@ -57,7 +68,7 @@ export function useBooking() {
         error: error instanceof Error ? error.message : '加载画集列表失败' 
       }));
     }
-  }, []);
+  }, [eventParam]);
 
   /**
    * 提交预订

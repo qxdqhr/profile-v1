@@ -34,6 +34,7 @@ import {
   uuid,
   index
 } from 'drizzle-orm/pg-core';
+import { showmasterEvents } from './events';
 
 /**
  * 系统配置表 (comic_universe_configs)
@@ -104,6 +105,9 @@ export const comicUniverseCategories = pgTable('comic_universe_categories', {
   /** 主键ID */
   id: serial('id').primaryKey(),
   
+  /** 关联的活动ID（外键，级联删除） */
+  eventId: integer('event_id').references(() => showmasterEvents.id, { onDelete: 'cascade' }),
+  
   /** 分类名称（唯一） */
   name: varchar('name', { length: 100 }).notNull().unique(),
   
@@ -127,6 +131,9 @@ export const comicUniverseCategories = pgTable('comic_universe_categories', {
   
   /** 按显示顺序排序的索引 */
   displayOrderIndex: index('categories_display_order_idx').on(table.displayOrder),
+  
+  /** 按活动ID查询的索引 */
+  eventIdIndex: index('categories_event_id_idx').on(table.eventId),
 }));
 
 /**
@@ -145,6 +152,9 @@ export const comicUniverseTags = pgTable('comic_universe_tags', {
   /** 主键ID */
   id: serial('id').primaryKey(),
   
+  /** 关联的活动ID（外键，级联删除） */
+  eventId: integer('event_id').references(() => showmasterEvents.id, { onDelete: 'cascade' }),
+  
   /** 标签名称（唯一） */
   name: varchar('name', { length: 50 }).notNull().unique(),
   
@@ -159,6 +169,9 @@ export const comicUniverseTags = pgTable('comic_universe_tags', {
 }, (table) => ({
   /** 按启用状态查询的索引 */
   isActiveIndex: index('tags_is_active_idx').on(table.isActive),
+  
+  /** 按活动ID查询的索引 */
+  eventIdIndex: index('tags_event_id_idx').on(table.eventId),
 }));
 
 /**
@@ -177,6 +190,9 @@ export const comicUniverseTags = pgTable('comic_universe_tags', {
 export const comicUniverseCollections = pgTable('comic_universe_collections', {
   /** 主键ID */
   id: serial('id').primaryKey(),
+  
+  /** 关联的活动ID（外键，级联删除） */
+  eventId: integer('event_id').references(() => showmasterEvents.id, { onDelete: 'cascade' }),
   
   /** 画集标题 */
   title: varchar('title', { length: 255 }).notNull(),
@@ -225,6 +241,12 @@ export const comicUniverseCollections = pgTable('comic_universe_collections', {
   
   /** 按分类查询的索引 */
   categoryIdIndex: index('collections_category_id_idx').on(table.categoryId),
+  
+  /** 按活动ID查询的索引 */
+  eventIdIndex: index('collections_event_id_idx').on(table.eventId),
+  
+  /** 活动内已发布画集按顺序排序的复合索引（优化首页查询） */
+  eventPublishedOrderIndex: index('collections_event_published_order_idx').on(table.eventId, table.isPublished, table.displayOrder),
   
   /** 已发布画集按顺序排序的复合索引（优化首页查询） */
   publishedOrderIndex: index('collections_published_order_idx').on(table.isPublished, table.displayOrder),
@@ -362,31 +384,49 @@ export const comicUniverseConfigsRelations = relations(comicUniverseConfigs, ({ 
 
 /**
  * 分类表关系
- * 一个分类可以包含多个画集
+ * 一个分类可以包含多个画集，并属于一个活动
  */
-export const comicUniverseCategoriesRelations = relations(comicUniverseCategories, ({ many }) => ({
+export const comicUniverseCategoriesRelations = relations(comicUniverseCategories, ({ one, many }) => ({
   /** 该分类下的所有画集 */
   collections: many(comicUniverseCollections),
+  
+  /** 所属活动 */
+  event: one(showmasterEvents, {
+    fields: [comicUniverseCategories.eventId],
+    references: [showmasterEvents.id],
+  }),
 }));
 
 /**
  * 标签表关系
- * 一个标签可以关联多个画集（通过关联表）
+ * 一个标签可以关联多个画集（通过关联表），并属于一个活动
  */
-export const comicUniverseTagsRelations = relations(comicUniverseTags, ({ many }) => ({
+export const comicUniverseTagsRelations = relations(comicUniverseTags, ({ one, many }) => ({
   /** 该标签的所有关联记录 */
   collectionTags: many(comicUniverseCollectionTags),
+  
+  /** 所属活动 */
+  event: one(showmasterEvents, {
+    fields: [comicUniverseTags.eventId],
+    references: [showmasterEvents.id],
+  }),
 }));
 
 /**
  * 画集表关系
- * 画集属于一个分类，包含多个作品，可以有多个标签
+ * 画集属于一个分类，包含多个作品，可以有多个标签，并属于一个活动
  */
 export const comicUniverseCollectionsRelations = relations(comicUniverseCollections, ({ one, many }) => ({
   /** 所属分类 */
   category: one(comicUniverseCategories, {
     fields: [comicUniverseCollections.categoryId],
     references: [comicUniverseCategories.id],
+  }),
+  
+  /** 所属活动 */
+  event: one(showmasterEvents, {
+    fields: [comicUniverseCollections.eventId],
+    references: [showmasterEvents.id],
   }),
   
   /** 包含的所有作品页面 */

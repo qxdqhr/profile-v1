@@ -33,6 +33,9 @@ interface CartModalProps {
   
   /** 弹窗高度 */
   height?: number | string;
+  
+  /** 活动参数，用于弹窗配置过滤 */
+  eventParam?: string;
 }
 
 /**
@@ -48,6 +51,7 @@ export const CartModal: React.FC<CartModalProps> = ({
   title = '购物车',
   width = '90vw',
   height = '90vh',
+  eventParam,
 }) => {
   return (
     <Modal
@@ -61,7 +65,7 @@ export const CartModal: React.FC<CartModalProps> = ({
       className="max-w-6xl sm:max-w-4xl"
       contentClassName="p-0 overflow-hidden"
     >
-      <CartPage userId={userId} onClose={onClose} />
+      <CartPage userId={userId} onClose={onClose} eventParam={eventParam} />
     </Modal>
   );
 }; 

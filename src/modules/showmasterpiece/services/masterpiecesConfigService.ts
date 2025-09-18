@@ -120,13 +120,17 @@ export const getAllCollections = async (): Promise<ArtCollection[]> => {
   }
 };
 
-export const createCollection = async (collectionData: CollectionFormData): Promise<ArtCollection> => {
+export const createCollection = async (collectionData: CollectionFormData, eventParam?: string): Promise<ArtCollection> => {
+  const requestBody = eventParam 
+    ? { ...collectionData, eventParam }
+    : collectionData;
+    
   const response = await fetch('/api/masterpieces/collections', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(collectionData),
+    body: JSON.stringify(requestBody),
   });
   
   if (!response.ok) {

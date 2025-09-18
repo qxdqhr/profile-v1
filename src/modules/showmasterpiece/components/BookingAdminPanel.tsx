@@ -41,6 +41,8 @@ interface BookingAdminPanelProps {
   onDeleteBooking: (id: number) => Promise<void>;
   /** 导出预订数据回调 */
   onExportBookings: (format?: 'csv' | 'excel') => Promise<void>;
+  /** 活动参数 (ID或slug) */
+  eventParam?: string;
 }
 
 /**
@@ -61,6 +63,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
   onUpdateStatus,
   onDeleteBooking,
   onExportBookings,
+  eventParam,
 }) => {
   const [selectedBooking, setSelectedBooking] = useState<BookingAdminData | null>(null);
   const [filterStatus, setFilterStatus] = useState<BookingStatus | 'all'>(searchParams.status || 'all');
@@ -273,9 +276,15 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
       params.status = searchForm.status;
     }
     
+    // 包含当前活动参数
+    if (eventParam) {
+      params.event = eventParam;
+    }
+    
     console.log('🔍 [BookingAdminPanel] 提交搜索参数:', {
       searchForm,
       params,
+      eventParam,
       timestamp: new Date().toISOString()
     });
     
@@ -321,6 +330,11 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
     }
     if (status && status !== 'all') {
       params.status = status;
+    }
+    
+    // 包含当前活动参数
+    if (eventParam) {
+      params.event = eventParam;
     }
     
     await onSearch(params);

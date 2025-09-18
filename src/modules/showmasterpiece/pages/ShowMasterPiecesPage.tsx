@@ -33,15 +33,21 @@ import { CollectionCard, ArtworkViewer, ThumbnailSidebar, CartModal, CartButton,
 import { CartProvider } from '../contexts/CartContext';
 import { AuthProvider, useAuth, UserMenu, CustomMenuItem } from '@/modules/auth';
 
+interface ShowMasterPiecesContentProps {
+  /** 活动参数，用于指定显示特定活动的数据 */
+  eventParam?: string;
+}
+
 /**
  * ShowMasterpiece 内容组件
  * 
  * 主要的业务逻辑组件，包含状态管理和视图渲染。
  * 需要在AuthProvider包装器内使用，以便访问认证状态。
  * 
+ * @param eventParam 活动参数，可以是活动ID或slug
  * @returns React函数组件
  */
-function ShowMasterPiecesContent() {
+function ShowMasterPiecesContent({ eventParam }: ShowMasterPiecesContentProps) {
   // ===== Hooks和状态管理 =====
   
   /**
@@ -62,7 +68,7 @@ function ShowMasterPiecesContent() {
     prevPage,           // 上一页方法
     goToPage,           // 跳转到指定页面的方法
     backToGallery,      // 返回画集列表的方法
-  } = useMasterpieces();
+  } = useMasterpieces(eventParam);
 
   /** 获取用户认证状态和信息 */
   const { isAuthenticated, user } = useAuth();
@@ -75,6 +81,9 @@ function ShowMasterPiecesContent() {
   
   /** 当前选中的分类 */
   const [selectedCategory, setSelectedCategory] = useState<CollectionCategoryType>(CollectionCategory.COLLECTION);
+  
+  /** 当前活动信息 */
+  const [currentEvent, setCurrentEvent] = useState<{ id: number; name: string; displayName: string; slug: string } | null>(null);
 
   /** 主页弹窗管理 */
   const {
@@ -86,7 +95,7 @@ function ShowMasterPiecesContent() {
     closePopup,
     confirmPopup,
     cancelPopup,
-  } = useDeadlinePopup('showmasterpiece', 'homepage_visit');
+  } = useDeadlinePopup('showmasterpiece', 'homepage_visit', eventParam);
 
   // ===== 配置加载 =====
   
@@ -105,24 +114,71 @@ function ShowMasterPiecesContent() {
     };
     loadConfig();
   }, []);
+  
+  /**
+   * 加载当前活动信息
+   */
+  useEffect(() => {
+    const loadEventInfo = async () => {
+      if (eventParam) {
+        try {
+          console.log('🎯 [用户端] 开始加载活动信息:', eventParam);
+          const response = await fetch('/api/showmasterpiece/events');
+          
+          if (response.ok) {
+            const { data: events } = await response.json();
+            
+            // 查找匹配的活动
+            const event = events.find((e: any) => 
+              e.slug === eventParam || e.id.toString() === eventParam
+            );
+            
+            if (event) {
+              setCurrentEvent({
+                id: event.id,
+                name: event.name,
+                displayName: event.displayName || event.name,
+                slug: event.slug
+              });
+              console.log('✅ [用户端] 活动信息加载成功:', event.displayName);
+            } else {
+              console.warn('⚠️ [用户端] 未找到匹配的活动:', eventParam);
+            }
+          }
+        } catch (err) {
+          console.error('❌ [用户端] 加载活动信息失败:', err);
+        }
+      } else {
+        console.log('🎯 [用户端] 未指定活动参数，使用默认活动');
+        setCurrentEvent(null);
+      }
+    };
+    
+    loadEventInfo();
+  }, [eventParam]);
 
   /**
    * 组件挂载时检查是否需要显示主页弹窗
+   * 在eventParam设置完成且currentEvent加载完成后进行检查
    */
   useEffect(() => {
     const checkHomepagePopups = async () => {
       try {
-        console.log('🔔 [ShowMasterPieces] 检查主页弹窗...');
+        console.log('🔔 [ShowMasterPieces] 检查主页弹窗...', { eventParam, currentEvent });
         await triggerCheck();
       } catch (err) {
         console.error('❌ [ShowMasterPieces] 检查主页弹窗失败:', err);
       }
     };
 
-    // 延迟检查，确保页面完全加载
-    const timer = setTimeout(checkHomepagePopups, 1000);
-    return () => clearTimeout(timer);
-  }, [triggerCheck]);
+    // 确保活动信息已经加载完成再检查弹窗
+    // eventParam为undefined表示默认活动，也是有效状态
+    if (currentEvent !== null || eventParam === undefined) {
+      // 延迟检查，确保页面完全加载
+      const timer = setTimeout(checkHomepagePopups, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [triggerCheck, currentEvent, eventParam]);
 
   // ===== 数据过滤 =====
   
@@ -262,7 +318,7 @@ function ShowMasterPiecesContent() {
   const userId = user?.id || 1;
 
   return (
-    <CartProvider userId={userId}>
+    <CartProvider userId={userId} eventParam={eventParam}>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 overflow-x-hidden">
         {/* 顶部导航 */}
         <div className="bg-white shadow-md border-b border-slate-200 sticky top-0 z-50">
@@ -280,11 +336,26 @@ function ShowMasterPiecesContent() {
                   </button>
                 )}
                 <div className="text-center sm:text-left min-w-0 flex-1">
-                  <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-800 m-0 truncate">
-                    {config?.heroTitle || '艺术画集展览'}
-                  </h1>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-800 m-0 truncate">
+                      {config?.heroTitle || '艺术画集展览'}
+                    </h1>
+                    {currentEvent && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-slate-400">·</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                          🎨 {currentEvent.displayName}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                   <p className="text-xs sm:text-sm text-slate-500 m-0 hidden sm:block truncate">
                     {config?.heroSubtitle || '探索精美的艺术作品，感受创作的魅力'}
+                    {currentEvent && !eventParam && (
+                      <span className="ml-2 text-blue-600">
+                        · 当前浏览默认活动
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>
@@ -531,6 +602,7 @@ function ShowMasterPiecesContent() {
           onClose={() => setCartModalOpen(false)} 
           title="购物车" 
           userId={userId}
+          eventParam={eventParam}
         />
 
         {/* 主页限时弹窗管理器 */}
@@ -547,17 +619,33 @@ function ShowMasterPiecesContent() {
   );
 }
 
+interface ShowMasterPiecesPageProps {
+  /** 活动参数，用于指定显示特定活动的数据 */
+  eventParam?: string;
+  /** Next.js 页面参数 */
+  params?: Record<string, string>;
+  /** Next.js 搜索参数 */
+  searchParams?: Record<string, string | string[] | undefined>;
+}
+
 /**
  * ShowMasterpiece 主组件
  * 
  * 提供认证上下文包装器，确保组件能够访问用户认证状态。
+ * 这是模块的对外接口组件。
  * 
+ * @param eventParam 活动参数，可以是活动ID或slug
  * @returns React函数组件
  */
-export default function ShowMasterPieces() {
+export default function ShowMasterPieces(props: ShowMasterPiecesPageProps = {}) {
+  const { eventParam } = props;
   return (
     <AuthProvider>
-      <ShowMasterPiecesContent />
+      <ShowMasterPiecesContent eventParam={eventParam} />
     </AuthProvider>
   );
-} 
+}
+
+// 导出组件和类型，供其他模块使用
+export { ShowMasterPieces as ShowMasterPiecesPage };
+export type { ShowMasterPiecesPageProps, ShowMasterPiecesContentProps }; 

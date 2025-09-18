@@ -115,6 +115,8 @@ export interface BookingAdminQueryParams {
   phoneNumber?: string;
   /** 状态过滤 */
   status?: BookingStatus | 'all';
+  /** 活动过滤 */
+  event?: string;
 }
 
 /**
@@ -143,6 +145,9 @@ export class BookingAdminService {
       }
       if (params?.status && params.status !== 'all') {
         searchParams.append('status', params.status);
+      }
+      if (params?.event) {
+        searchParams.append('event', params.event);
       }
       
       const response = await fetch(`/api/showmasterpiece/bookings/admin?${searchParams.toString()}`, {
@@ -188,6 +193,9 @@ export class BookingAdminService {
       }
       if (params?.status && params.status !== 'all') {
         searchParams.append('status', params.status);
+      }
+      if (params?.event) {
+        searchParams.append('event', params.event);
       }
       
       const response = await fetch(`/api/showmasterpiece/bookings/admin/refresh?${searchParams.toString()}`, {
@@ -239,6 +247,9 @@ export class BookingAdminService {
       }
       if (params?.status && params.status !== 'all') {
         searchParams.append('status', params.status);
+      }
+      if (params?.event) {
+        searchParams.append('event', params.event);
       }
       
       const response = await fetch(`/api/showmasterpiece/bookings/admin?${searchParams.toString()}`, {
@@ -295,6 +306,9 @@ export class BookingAdminService {
       }
       if (params?.status && params.status !== 'all') {
         searchParams.append('status', params.status);
+      }
+      if (params?.event) {
+        searchParams.append('event', params.event);
       }
       
       const response = await fetch(`/api/showmasterpiece/bookings/admin/refresh?${searchParams.toString()}`, {

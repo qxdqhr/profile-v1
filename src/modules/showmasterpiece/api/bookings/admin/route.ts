@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { comicUniverseBookings, comicUniverseCollections } from '@/db/schema';
+import { comicUniverseBookings, comicUniverseCollections, showmasterEvents } from '@/db/schema';
 import { desc, sql, eq, and, like } from 'drizzle-orm';
 import { BookingStatus } from '@/modules/showmasterpiece/types/booking';
 
@@ -38,10 +38,11 @@ async function GET(request: NextRequest) {
     const phoneNumber = searchParams.get('phoneNumber');
     const statusParam = searchParams.get('status');
     const status = statusParam && statusParam !== 'all' ? statusParam as BookingStatus : null;
+    const eventParam = searchParams.get('event') || undefined;
     
     console.log('🔍 [API/Admin] 收到搜索请求参数:', {
       allParams: Object.fromEntries(searchParams.entries()),
-      extractedParams: { qqNumber, phoneNumber, status, statusParam },
+      extractedParams: { qqNumber, phoneNumber, status, statusParam, eventParam },
       url: request.url,
       timestamp: new Date().toISOString()
     });
@@ -60,8 +61,27 @@ async function GET(request: NextRequest) {
       await db.execute(sql`SELECT 1 as refresh_check`);
     }
     
+    // 解析event参数 - 统一使用EventService进行解析
+    let eventId: number | null = null;
+    if (eventParam) {
+      try {
+        const { EventService } = await import('../../../services/eventService');
+        const { eventId: resolvedEventId } = await EventService.resolveEvent(eventParam);
+        eventId = resolvedEventId;
+        console.log('🎯 [API/Admin] 通过EventService解析活动:', { eventParam, eventId });
+      } catch (error) {
+        console.log('⚠️ [API/Admin] 未找到指定的活动:', eventParam, error instanceof Error ? error.message : String(error));
+      }
+    }
+
     // 构建查询条件
     const conditions = [];
+    
+    // Event-aware filtering
+    if (eventId) {
+      conditions.push(eq(comicUniverseBookings.eventId, eventId));
+      console.log('🔍 [API/Admin] 添加活动过滤条件:', eventId);
+    }
     
     if (qqNumber) {
       conditions.push(like(comicUniverseBookings.qqNumber, `%${qqNumber}%`));
@@ -125,8 +145,8 @@ async function GET(request: NextRequest) {
       });
     }
 
-    // 计算统计信息
-    const stats = await db
+    // 计算统计信息（应用相同的过滤条件）
+    const baseStatsQuery = db
       .select({
         totalBookings: sql<number>`count(*)`,
         pendingBookings: sql<number>`count(*) filter (where ${comicUniverseBookings.status} = 'pending')`,
@@ -138,6 +158,17 @@ async function GET(request: NextRequest) {
       })
       .from(comicUniverseBookings)
       .leftJoin(comicUniverseCollections, eq(comicUniverseBookings.collectionId, comicUniverseCollections.id));
+    
+    // 应用相同的过滤条件到统计查询
+    const statsQuery = conditions.length > 0 
+      ? baseStatsQuery.where(and(...conditions))
+      : baseStatsQuery;
+    
+    if (conditions.length > 0) {
+      console.log('🔍 [API/Admin] 对统计查询应用了过滤条件');
+    }
+    
+    const stats = await statsQuery;
 
     // 格式化预订数据
     const formattedBookings = bookings.map((booking, index) => {

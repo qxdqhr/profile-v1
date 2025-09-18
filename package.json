@@ -27,6 +27,8 @@
     "migration:oss": "dotenv -e .env.development -- npx tsx src/modules/showmasterpiece/migration/migrateToOSS.ts",
     "migration:oss:dry": "dotenv -e .env.development -- npx tsx src/modules/showmasterpiece/migration/migrateToOSS.ts --dry-run",
     "migration:oss:verify": "dotenv -e .env.development -- npx tsx src/modules/showmasterpiece/migration/migrateToOSS.ts --verify",
+    "migrate:multi-events": "dotenv -e .env.development -- npx tsx src/modules/showmasterpiece/scripts/migrate-to-multi-events.ts",
+    "migrate:multi-events:prod": "dotenv -e .env.production -- npx tsx src/modules/showmasterpiece/scripts/migrate-to-multi-events.ts",
     "test:oss": "node scripts/test-oss-config.js",
     "test:upload": "dotenv -e .env.development -- npx tsx scripts/test-upload.ts",
     "fix:storage-provider": "dotenv -e .env.development -- npx tsx scripts/fix-default-storage-provider.ts",

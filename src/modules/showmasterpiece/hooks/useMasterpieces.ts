@@ -34,15 +34,15 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { ArtCollection } from '../types';
-import { MasterpiecesService } from '../services';
+import { EventAwareMasterpiecesService } from '../services/eventAwareMasterpiecesService';
 
 // ===== 数据缓存配置 =====
 
-/** 画集数据缓存存储 */
-let collectionsCache: ArtCollection[] | null = null;
+/** 画集数据缓存存储，按活动分组 */
+const collectionsCache: Record<string, ArtCollection[]> = {};
 
-/** 缓存时间戳，用于判断缓存是否过期 */
-let collectionsCacheTime: number = 0;
+/** 缓存时间戳，用于判断缓存是否过期，按活动分组 */
+const collectionsCacheTime: Record<string, number> = {};
 
 /** 缓存持续时间：3分钟 */
 const COLLECTIONS_CACHE_DURATION = 3 * 60 * 1000; // 3分钟缓存
@@ -52,8 +52,10 @@ const COLLECTIONS_CACHE_DURATION = 3 * 60 * 1000; // 3分钟缓存
  * 
  * 提供画集数据管理和浏览状态管理的完整解决方案。
  * 包含状态管理、数据获取、缓存机制和用户交互功能。
+ * 
+ * @param eventParam 活动参数，用于获取指定活动的数据
  */
-export const useMasterpieces = () => {
+export const useMasterpieces = (eventParam?: string) => {
   // ===== 状态管理 =====
   
   /** 所有画集数据列表 */
@@ -83,20 +85,25 @@ export const useMasterpieces = () => {
    */
   const loadCollections = useCallback(async (forceRefresh = false) => {
     try {
+      // 使用活动参数作为缓存键，如果没有活动参数则使用'default'
+      const cacheKey = eventParam || 'default';
+      
       // 检查缓存是否有效
       const now = Date.now();
-      if (!forceRefresh && collectionsCache && (now - collectionsCacheTime) < COLLECTIONS_CACHE_DURATION) {
-        setCollections(collectionsCache);
+      if (!forceRefresh && collectionsCache[cacheKey] && (now - (collectionsCacheTime[cacheKey] || 0)) < COLLECTIONS_CACHE_DURATION) {
+        setCollections(collectionsCache[cacheKey]);
         return;
       }
 
       setLoading(true);
       setError(null);
-      const data = await MasterpiecesService.getAllCollections();
+      
+      // 调用服务获取数据，传入活动参数
+      const data = await EventAwareMasterpiecesService.getAllCollections(eventParam);
       
       // 更新缓存
-      collectionsCache = data;
-      collectionsCacheTime = now;
+      collectionsCache[cacheKey] = data;
+      collectionsCacheTime[cacheKey] = now;
       
       setCollections(data);
     } catch (err) {
@@ -105,7 +112,7 @@ export const useMasterpieces = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [eventParam]);
 
   // ===== 画集浏览操作 =====
   
@@ -184,7 +191,7 @@ export const useMasterpieces = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await MasterpiecesService.searchCollections(query);
+      const data = await EventAwareMasterpiecesService.searchCollections(query, eventParam);
       setCollections(data);
     } catch (err) {
       setError('搜索失败');
@@ -192,7 +199,7 @@ export const useMasterpieces = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [eventParam]);
 
   // ===== 辅助方法 =====
   

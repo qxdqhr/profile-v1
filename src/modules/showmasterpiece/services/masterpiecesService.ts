@@ -33,7 +33,7 @@ import type { ArtCollection } from '../types';
  * @deprecated 建议使用 MasterpiecesService.getAllCollections() 代替
  */
 export const getMasterpieces = async (): Promise<ArtCollection[]> => {
-  const response = await fetch('/api/masterpieces/collections');
+  const response = await fetch('/api/showmasterpiece/collections');
   if (!response.ok) {
     throw new Error('获取画集失败');
   }
@@ -79,7 +79,7 @@ export class MasterpiecesService {
    * ```
    */
   static async getAllCollections(): Promise<ArtCollection[]> {
-    const response = await fetch('/api/masterpieces/collections');
+    const response = await fetch('/api/showmasterpiece/collections');
     if (!response.ok) {
       throw new Error('获取画集失败');
     }
@@ -217,7 +217,7 @@ export class MasterpiecesService {
    * ```
    */
   static async getCategories(): Promise<string[]> {
-    const response = await fetch('/api/masterpieces/categories');
+    const response = await fetch('/api/showmasterpiece/categories');
     if (!response.ok) {
       throw new Error('获取分类失败');
     }
@@ -240,7 +240,7 @@ export class MasterpiecesService {
    * ```
    */
   static async getTags(): Promise<string[]> {
-    const response = await fetch('/api/masterpieces/tags');
+    const response = await fetch('/api/showmasterpiece/tags');
     if (!response.ok) {
       throw new Error('获取标签失败');
     }

@@ -30,6 +30,9 @@ interface BookingModalProps {
   
   /** 弹窗高度 */
   height?: number | string;
+  
+  /** 活动参数，用于画集列表过滤 */
+  eventParam?: string;
 }
 
 /**
@@ -44,6 +47,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   title = '预订画集',
   width = '90vw',
   height = '90vh',
+  eventParam,
 }) => {
   return (
     <Modal
@@ -57,7 +61,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
       className="max-w-6xl"
       contentClassName="p-0 overflow-hidden"
     >
-      <BookingPage onClose={onClose} />
+      <BookingPage onClose={onClose} eventParam={eventParam} />
     </Modal>
   );
 }; 

@@ -14,9 +14,17 @@ import Modal from '@/components/PopWindow/component/Modal';
 import { PopupConfig, NewPopupConfig } from '../db/schema/popupConfig';
 
 /**
+ * 弹窗配置管理组件属性
+ */
+interface PopupConfigManagementProps {
+  /** 当前活动的参数 */
+  eventParam?: string;
+}
+
+/**
  * 弹窗配置管理组件
  */
-export const PopupConfigManagement: React.FC = () => {
+export const PopupConfigManagement: React.FC<PopupConfigManagementProps> = ({ eventParam }) => {
   const [configs, setConfigs] = useState<PopupConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,11 +67,17 @@ export const PopupConfigManagement: React.FC = () => {
    */
   const loadConfigs = async () => {
     try {
-      console.log('🔄 [PopupConfigManagement] 开始加载弹窗配置...');
+      console.log('🔄 [PopupConfigManagement] 开始加载弹窗配置...', { eventParam });
       setLoading(true);
       setError(null);
 
-      const response = await fetch('/api/showmasterpiece/popup-configs');
+      // 构建API URL，包含活动参数
+      const url = eventParam 
+        ? `/api/showmasterpiece/popup-configs?event=${encodeURIComponent(eventParam)}`
+        : '/api/showmasterpiece/popup-configs';
+      
+      console.log('📡 [PopupConfigManagement] 请求URL:', url);
+      const response = await fetch(url);
       console.log('📡 [PopupConfigManagement] API响应状态:', response.status, response.statusText);
       
       const result = await response.json();
@@ -89,7 +103,7 @@ export const PopupConfigManagement: React.FC = () => {
    */
   useEffect(() => {
     loadConfigs();
-  }, []);
+  }, [eventParam]); // 当活动参数变化时重新加载
 
   /**
    * 重置表单
@@ -188,12 +202,20 @@ export const PopupConfigManagement: React.FC = () => {
       
       const method = editingConfig ? 'PUT' : 'POST';
 
+      // 准备请求数据，包含eventParam让API解析
+      const requestData = {
+        ...formData,
+        eventParam: eventParam, // 传递活动参数给API
+      };
+      
+      console.log('💾 [PopupConfigManagement] 保存弹窗配置:', { requestData, eventParam });
+
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(requestData),
       });
 
       const result = await response.json();

@@ -149,17 +149,38 @@ export class BookingService {
   /**
    * 获取可预订的画集列表
    * 
+   * @param eventParam 活动参数，用于过滤画集
    * @returns 画集简略信息列表
    */
-  static async getBookableCollections(): Promise<CollectionSummary[]> {
-    const response = await fetch(`${this.BASE_URL}/collections`);
+  static async getBookableCollections(eventParam?: string): Promise<CollectionSummary[]> {
+    const url = eventParam 
+      ? `${this.BASE_URL}/collections?event=${encodeURIComponent(eventParam)}`
+      : `${this.BASE_URL}/collections`;
+      
+    console.log('📡 [BookingService] 获取可预订画集:', { url, eventParam });
+    
+    const response = await fetch(url);
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: '获取画集列表失败' }));
       throw new Error(error.message || '获取画集列表失败');
     }
 
-    return response.json();
+    const data = await response.json();
+    
+    // 处理新的API响应格式
+    if (data.success && Array.isArray(data.data)) {
+      console.log(`✅ [BookingService] 获取到 ${data.data.length} 个可预订画集`);
+      return data.data;
+    }
+    
+    // 向下兼容旧格式
+    if (Array.isArray(data)) {
+      console.log(`✅ [BookingService] 获取到 ${data.length} 个可预订画集 (兼容格式)`);
+      return data;
+    }
+    
+    throw new Error('API响应格式错误');
   }
 }
 
@@ -222,8 +243,9 @@ export const deleteBooking = (id: number): Promise<void> => {
 /**
  * 获取可预订的画集列表
  * 
+ * @param eventParam 活动参数，用于过滤画集
  * @returns 画集简略信息列表
  */
-export const getBookableCollections = (): Promise<CollectionSummary[]> => {
-  return BookingService.getBookableCollections();
+export const getBookableCollections = (eventParam?: string): Promise<CollectionSummary[]> => {
+  return BookingService.getBookableCollections(eventParam);
 }; 

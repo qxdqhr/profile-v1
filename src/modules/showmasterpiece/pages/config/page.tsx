@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown, Calendar, RefreshCw, Bell, Cog } from 'lucide-react';
+import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown, Calendar, RefreshCw, Bell, Cog, Activity } from 'lucide-react';
 import { useMasterpiecesConfig, useBookingAdmin } from '../../hooks';
 import { ConfigFormData, CollectionFormData, ArtworkFormData, CollectionCategory, CollectionCategoryType, getAvailableCategories, getCategoryDisplayName } from '../../types';
 import { 
@@ -10,12 +10,14 @@ import {
   ArtworkOrderManagerV2 as ArtworkOrderManager,
   BookingAdminPanel,
   PopupConfigManagement,
-  SystemConfigManager
+  SystemConfigManager,
+  EventSelector,
+  MultiEventOverview
 } from '../../components';
 import { shouldUseUniversalFileService, getStorageModeDisplayName } from '../../services';
 import { AuthGuard, AuthProvider } from '@/modules/auth';
 
-type TabType = 'general' | 'collections' | 'artworks' | 'bookings' | 'popup' | 'system';
+type TabType = 'general' | 'collections' | 'artworks' | 'bookings' | 'popup' | 'system' | 'events';
 
 function ConfigPageContent() {
   const {
@@ -51,7 +53,16 @@ function ConfigPageContent() {
   const [showArtworkOrder, setShowArtworkOrder] = useState(false);
   const [showCollectionOrder, setShowCollectionOrder] = useState(false);
 
-  // 预订管理Hook
+  // 活动管理状态
+  const [availableEvents, setAvailableEvents] = useState<any[]>([]);
+  const [currentEvent, setCurrentEvent] = useState<any | null>(null);
+  const [eventsLoading, setEventsLoading] = useState(true);
+  
+  // Event-aware 画集数据状态
+  const [eventAwareCollections, setEventAwareCollections] = useState<any[]>([]);
+  const [eventAwareLoading, setEventAwareLoading] = useState(false);
+
+  // 预订管理Hook (传递当前活动参数)
   const {
     bookings,
     stats,
@@ -64,7 +75,7 @@ function ConfigPageContent() {
     updateBookingStatus,
     deleteBooking,
     exportBookings,
-  } = useBookingAdmin();
+  } = useBookingAdmin(currentEvent?.slug);
 
   // 检查是否使用通用文件服务
   const [useUniversalService, setUseUniversalService] = useState<boolean>(false);
@@ -86,6 +97,79 @@ function ConfigPageContent() {
     };
     loadFileServiceConfig();
   }, []);
+
+  // 加载活动列表
+  const loadEvents = async () => {
+    try {
+      setEventsLoading(true);
+      const response = await fetch('/api/showmasterpiece/events');
+      const result = await response.json();
+      
+      if (result.success) {
+        setAvailableEvents(result.data);
+        
+        // 设置当前活动（优先选择默认活动）
+        const defaultEvent = result.data.find((event: any) => event.isDefault);
+        const firstEvent = result.data[0];
+        setCurrentEvent(defaultEvent || firstEvent || null);
+      } else {
+        console.error('获取活动列表失败:', result.error);
+      }
+    } catch (error) {
+      console.error('加载活动列表失败:', error);
+    } finally {
+      setEventsLoading(false);
+    }
+  };
+
+  // 加载Event-aware画集数据
+  const loadEventAwareCollections = async (eventParam?: string) => {
+    try {
+      setEventAwareLoading(true);
+      const eventQuery = eventParam ? `?event=${encodeURIComponent(eventParam)}` : '';
+      const response = await fetch(`/api/showmasterpiece/collections${eventQuery}`);
+      const result = await response.json();
+      
+      if (result.success) {
+        setEventAwareCollections(result.data || []);
+        console.log('✅ [配置页面] Event-aware画集数据加载成功:', {
+          eventParam,
+          collectionsCount: (result.data || []).length,
+          collections: result.data
+        });
+      } else {
+        console.error('❌ [配置页面] 加载Event-aware画集失败:', result.error);
+        setEventAwareCollections([]);
+      }
+    } catch (error) {
+      console.error('❌ [配置页面] 加载Event-aware画集异常:', error);
+      setEventAwareCollections([]);
+    } finally {
+      setEventAwareLoading(false);
+    }
+  };
+
+  // 初始加载活动列表
+  useEffect(() => {
+    loadEvents();
+  }, []);
+
+  // 当当前活动变化时，重新加载event-aware的画集数据
+  useEffect(() => {
+    if (currentEvent) {
+      console.log('🔄 [配置页面] 当前活动变化，重新加载画集数据:', {
+        eventId: currentEvent.id,
+        eventSlug: currentEvent.slug,
+        eventName: currentEvent.displayName
+      });
+      loadEventAwareCollections(currentEvent.slug);
+    }
+  }, [currentEvent]);
+
+  // 预订管理包装函数（现在hook已自动处理活动参数）
+  const handleBookingSearch = searchBookings;
+  const handleBookingClearSearch = clearSearch;
+  const handleBookingRefresh = refreshBookingData;
 
   // 配置表单状态
   const [configForm, setConfigForm] = useState<ConfigFormData>({
@@ -144,9 +228,9 @@ function ConfigPageContent() {
 
   // 作品管理tab自动选择画集逻辑
   React.useEffect(() => {
-    if (activeTab === 'artworks' && collections.length > 0) {
+    if (activeTab === 'artworks' && eventAwareCollections.length > 0) {
       // 检查当前选择的画集是否还存在
-      if (selectedCollection && !collections.find(c => c.id === selectedCollection)) {
+      if (selectedCollection && !eventAwareCollections.find(c => c.id === selectedCollection)) {
         console.log('⚠️ [配置页面] 当前选择的画集已不存在，重置选择');
         setSelectedCollection(null);
         setShowArtworkOrder(false);
@@ -155,7 +239,7 @@ function ConfigPageContent() {
       }
       // 如果用户未选择画集，自动选择第一个
       else if (!selectedCollection) {
-        const firstCollection = collections[0];
+        const firstCollection = eventAwareCollections[0];
         console.log('🎯 [配置页面] 作品管理tab首次进入，自动选择第一个画集:', {
           selectedCollection: firstCollection.id,
           title: firstCollection.title
@@ -164,14 +248,14 @@ function ConfigPageContent() {
       }
       // 如果用户已选择且画集存在，保留用户选择
       else {
-        const currentCollection = collections.find(c => c.id === selectedCollection);
+        const currentCollection = eventAwareCollections.find(c => c.id === selectedCollection);
         console.log('✅ [配置页面] 保留用户选择的画集:', {
           selectedCollection: selectedCollection,
           title: currentCollection?.title
         });
       }
     }
-  }, [activeTab, collections, selectedCollection]);
+  }, [activeTab, eventAwareCollections, selectedCollection]);
 
   // 当离开作品管理tab时，重置相关UI状态但保留用户选择的画集
   React.useEffect(() => {
@@ -215,8 +299,14 @@ function ConfigPageContent() {
         await updateCollection(editingCollection, collectionForm);
         setEditingCollection(null);
       } else {
-        await createCollection(collectionForm);
+        await createCollection(collectionForm, currentEvent?.slug);
       }
+      
+      // 刷新Event-aware画集数据，确保新建/更新的画集立即显示
+      if (currentEvent) {
+        await loadEventAwareCollections(currentEvent.slug);
+      }
+      
       setShowCollectionForm(false);
       setCollectionForm({
         title: '',
@@ -404,6 +494,29 @@ function ConfigPageContent() {
         </div>
       </div>
 
+      {/* 活动选择器 */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800 mb-2">当前管理活动</h2>
+              <div className="max-w-md">
+                <EventSelector
+                  currentEvent={currentEvent}
+                  events={availableEvents}
+                  onEventChange={(event) => {
+                    setCurrentEvent(event);
+                    // 注意：预订数据会通过hook自动响应活动变化
+                  }}
+                  loading={eventsLoading}
+                  mode="dropdown"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* 标签页导航 */}
       <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto flex gap-0">
@@ -461,6 +574,17 @@ function ConfigPageContent() {
           >
             <Bell size={18} />
             弹窗配置
+          </button>
+          <button
+            className={`flex items-center gap-2 px-6 py-4 bg-transparent border-none cursor-pointer border-b-2 transition-colors ${
+              activeTab === 'events' 
+                ? 'border-blue-500 text-blue-600' 
+                : 'border-transparent text-slate-600 hover:text-slate-800'
+            }`}
+            onClick={() => setActiveTab('events')}
+          >
+            <Activity size={18} />
+            活动管理
           </button>
           <button
             className={`flex items-center gap-2 px-6 py-4 bg-transparent border-none cursor-pointer border-b-2 transition-colors ${
@@ -681,9 +805,23 @@ function ConfigPageContent() {
             )}
 
             {!showCollectionOrder && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {collections.map((collection) => (
-                  <div key={collection.id} className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow">
+              <div>
+                {/* 调试信息 */}
+                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-yellow-800 text-sm">
+                    🔍 调试信息: eventAwareCollections.length = {eventAwareCollections.length}
+                  </p>
+                  <p className="text-yellow-700 text-xs mt-1">
+                    加载状态: {eventAwareLoading ? '加载中...' : '已完成'}
+                  </p>
+                  <p className="text-yellow-700 text-xs">
+                    当前活动: {currentEvent?.displayName || '未选择'} (slug: {currentEvent?.slug || '无'})
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {eventAwareCollections.map((collection) => (
+                    <div key={collection.id} className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow">
                     <div className="h-48 bg-slate-100 overflow-hidden">
                       <img 
                         src={collection.coverImage} 
@@ -707,9 +845,13 @@ function ConfigPageContent() {
                           编辑
                         </button>
                         <button
-                          onClick={() => {
+                          onClick={async () => {
                             if (confirm('确定要删除这个画集吗？')) {
-                              deleteCollection(collection.id);
+                              await deleteCollection(collection.id);
+                              // 刷新Event-aware画集数据
+                              if (currentEvent) {
+                                await loadEventAwareCollections(currentEvent.slug);
+                              }
                             }
                           }}
                           className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 border border-red-200 rounded text-sm hover:bg-red-200 transition-colors"
@@ -721,6 +863,7 @@ function ConfigPageContent() {
                     </div>
                   </div>
                 ))}
+                </div>
               </div>
             )}
           </div>
@@ -738,7 +881,7 @@ function ConfigPageContent() {
                   className="px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">选择画集</option>
-                  {collections.map((collection) => (
+                  {eventAwareCollections.map((collection) => (
                     <option key={collection.id} value={collection.id}>
                       {collection.title}
                     </option>
@@ -799,9 +942,9 @@ function ConfigPageContent() {
 
             {selectedCollection && !showArtworkOrder && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {collections
+                {eventAwareCollections
                   .find(c => c.id === selectedCollection)
-                  ?.pages.map((artwork) => (
+                  ?.pages.map((artwork: any) => (
                     <div key={artwork.id} className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow">
                       <div className="h-48 bg-slate-100 overflow-hidden">
                         {artwork.image && (
@@ -871,12 +1014,13 @@ function ConfigPageContent() {
               loading={bookingLoading}
               error={bookingError}
               searchParams={searchParams}
-              onRefresh={refreshBookingData}
-              onSearch={searchBookings}
-              onClearSearch={clearSearch}
+              onRefresh={handleBookingRefresh}
+              onSearch={handleBookingSearch}
+              onClearSearch={handleBookingClearSearch}
               onUpdateStatus={updateBookingStatus}
               onDeleteBooking={deleteBooking}
               onExportBookings={exportBookings}
+              eventParam={currentEvent?.slug}
             />
           </div>
         )}
@@ -888,7 +1032,28 @@ function ConfigPageContent() {
               <h2 className="text-2xl font-bold text-slate-800 mb-2">弹窗配置</h2>
               <p className="text-slate-600">管理购物车提交时的限时提醒弹窗设置</p>
             </div>
-            <PopupConfigManagement />
+            <PopupConfigManagement eventParam={currentEvent?.slug} />
+          </div>
+        )}
+
+        {/* 活动管理标签页 */}
+        {activeTab === 'events' && (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">活动管理</h2>
+              <p className="text-slate-600">管理多期活动，创建新活动并配置活动参数</p>
+            </div>
+            <MultiEventOverview 
+              currentEvent={currentEvent}
+              onEventChange={(event) => {
+                setCurrentEvent(event);
+                // 当活动切换时，刷新相关数据
+                refreshData();
+                loadEventAwareCollections(event.slug);
+                // 注意：预订数据会在用户切换到预订管理tab时自动刷新
+              }}
+              hasAdminAccess={true}
+            />
           </div>
         )}
 
@@ -1136,7 +1301,7 @@ function ConfigPageContent() {
           </div>
         </div>
       )}
-    </div>
+      </div>
   );
 }
 

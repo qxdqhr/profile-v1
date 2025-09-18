@@ -7,7 +7,7 @@
  * @fileoverview 上下文类型定义
  */
 
-import { Cart } from './cart';
+import { Cart, AddToCartRequest, UpdateCartItemRequest, RemoveFromCartRequest, BatchBookingRequest, BatchBookingResponse } from './cart';
 
 /**
  * 购物车上下文状态接口
@@ -24,4 +24,19 @@ export interface CartContextState {
   
   /** 刷新购物车数据 */
   refreshCart: () => Promise<void>;
+  
+  /** 添加商品到购物车（活动感知） */
+  addToCart: (request: AddToCartRequest & { collection?: any }) => Promise<void>;
+  
+  /** 更新购物车商品数量（活动感知） */
+  updateCartItem: (request: UpdateCartItemRequest) => Promise<void>;
+  
+  /** 从购物车移除商品（活动感知） */
+  removeFromCart: (request: RemoveFromCartRequest) => Promise<void>;
+  
+  /** 批量预订购物车商品（活动感知） */
+  batchBooking: (request: BatchBookingRequest) => Promise<BatchBookingResponse>;
+  
+  /** 清空购物车（活动感知） */
+  clearCart: () => Promise<void>;
 }

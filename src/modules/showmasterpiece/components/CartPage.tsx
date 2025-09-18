@@ -14,7 +14,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useCart, useDeadlinePopup } from '../hooks';
+import { useCartContext, useDeadlinePopup } from '../hooks';
 import { CartItem } from '../types/cart';
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { DeadlinePopupManager } from './';
@@ -28,6 +28,9 @@ interface CartPageProps {
   
   /** 关闭回调 */
   onClose?: () => void;
+  
+  /** 活动参数，用于弹窗配置过滤 */
+  eventParam?: string;
 }
 
 /**
@@ -36,18 +39,18 @@ interface CartPageProps {
  * @param props 组件属性
  * @returns React组件
  */
-export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
-  // 使用购物车Hook
+export const CartPage: React.FC<CartPageProps> = ({ userId, onClose, eventParam }) => {
+  // 使用购物车Context（活动感知）
   const {
     cart,
     loading,
     error,
-    updateItemQuantity,
-    removeItemFromCart,
-    clearCartItems,
-    checkoutCart,
-    clearError,
-  } = useCart(userId);
+    updateCartItem,
+    removeFromCart,
+    batchBooking,
+    refreshCart,
+    clearCart,
+  } = useCartContext();
 
   // 使用限时弹窗Hook
   const {
@@ -59,7 +62,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
     cancelPopup,
     temporaryClosePopup,
     triggerCheck,
-  } = useDeadlinePopup('showmasterpiece', 'cart_checkout');
+  } = useDeadlinePopup('showmasterpiece', 'cart_checkout', eventParam);
 
   // 本地状态
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -127,6 +130,24 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
   };
 
   /**
+   * 填充测试数据（仅开发环境）
+   */
+  const handleFillTestData = () => {
+    if (process.env.NODE_ENV !== 'development') {
+      return;
+    }
+    
+    setFormData({
+      qqNumber: '123456789',
+      phoneNumber: '13800138000',
+      notes: '这是测试预订数据，请在开发测试中使用。\n(1) 测试QQ号: 123456789\n(2) 测试手机号: 13800138000\n(3) 测试备注信息',
+      pickupMethod: '现场到913北京场现场领取（天津南开现场不设置现场领取点）\n[1] 是（现场）\n[2] 否（邮寄）'
+    });
+    
+    console.log('🧪 [CartPage] 已填充测试数据');
+  };
+
+  /**
    * 处理批量预订提交
    */
   const handleCheckout = async (e: React.FormEvent) => {
@@ -160,12 +181,17 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
    */
   const performCheckout = async () => {
     setIsCheckingOut(true);
-    clearError();
     
     try {
-      const result = await checkoutCart(formData.qqNumber, formData.phoneNumber, formData.notes || undefined, formData.pickupMethod);
+      const result = await batchBooking({
+        qqNumber: formData.qqNumber,
+        phoneNumber: formData.phoneNumber,
+        items: cart.items,
+        notes: formData.notes || undefined,
+        pickupMethod: formData.pickupMethod
+      });
       setCheckoutSuccess(true);
-      console.log('✅ [CartPage] 批量预订提交成功');
+      console.log('✅ [CartPage] 批量预订提交成功:', result);
     } catch (error) {
       console.error('❌ [CartPage] 批量预订失败:', error);
     } finally {
@@ -322,7 +348,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
                   {/* 数量控制 */}
                   <div className="flex items-center space-x-2">
                     <button
-                      onClick={() => updateItemQuantity(item.collectionId, item.quantity - 1)}
+                      onClick={() => updateCartItem({ collectionId: item.collectionId, quantity: item.quantity - 1 })}
                       disabled={loading}
                       className="w-10 h-10 sm:w-8 sm:h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
                     >
@@ -330,7 +356,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
                     </button>
                     <span className="w-16 sm:w-12 text-center font-medium text-sm sm:text-base">{item.quantity}</span>
                     <button
-                      onClick={() => updateItemQuantity(item.collectionId, item.quantity + 1)}
+                      onClick={() => updateCartItem({ collectionId: item.collectionId, quantity: item.quantity + 1 })}
                       disabled={loading}
                       className="w-10 h-10 sm:w-8 sm:h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
                     >
@@ -348,7 +374,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
                 
                 {/* 删除按钮 */}
                 <button
-                  onClick={() => removeItemFromCart(item.collectionId)}
+                  onClick={() => removeFromCart({ collectionId: item.collectionId })}
                   disabled={loading}
                   className="text-red-500 hover:text-red-700 disabled:opacity-50 p-2 sm:p-1"
                 >
@@ -372,7 +398,19 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
 
           {/* 批量预订表单 */}
           <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">批量预订信息</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">批量预订信息</h3>
+              {/* 开发环境测试数据按钮 */}
+              {process.env.NODE_ENV === 'development' && (
+                <button
+                  type="button"
+                  onClick={handleFillTestData}
+                  className="px-3 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200 transition-colors"
+                >
+                  填充测试数据
+                </button>
+              )}
+            </div>
             
             <form onSubmit={handleCheckout} className="space-y-4">
               {/* QQ号输入 */}
@@ -470,7 +508,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose }) => {
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
                 <button
                   type="button"
-                  onClick={clearCartItems}
+                  onClick={clearCart}
                   disabled={loading || isCheckingOut}
                   className="flex-1 bg-gray-200 text-gray-800 py-3 sm:py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 text-base"
                 >

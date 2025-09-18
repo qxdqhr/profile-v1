@@ -20,14 +20,15 @@ import { eq } from 'drizzle-orm';
 async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { qqNumber, phoneNumber, items, notes, pickupMethod } = body;
+    const { qqNumber, phoneNumber, items, notes, pickupMethod, eventParam } = body;
     
     console.log('🛒 [BatchBooking] 收到批量预订请求:', {
       qqNumber,
       phoneNumber,
       itemsCount: items?.length || 0,
       notes,
-      pickupMethod
+      pickupMethod,
+      eventParam
     });
 
     // 查看当前数据库中的预订记录总数
@@ -35,6 +36,34 @@ async function POST(request: NextRequest) {
       .select({ count: comicUniverseBookings.id })
       .from(comicUniverseBookings);
     console.log('📊 [BatchBooking] 当前数据库预订记录总数:', currentBookingsCount.length);
+
+    // 解析活动参数，获取eventId
+    let eventId: number | null = null;
+    if (eventParam) {
+      try {
+        const { EventService } = await import('../../../services/eventService');
+        const { eventId: resolvedEventId } = await EventService.resolveEvent(eventParam);
+        eventId = resolvedEventId;
+        console.log('🎯 [BatchBooking] 解析活动:', { eventParam, eventId });
+      } catch (error) {
+        console.error('解析活动参数失败:', error);
+        return NextResponse.json(
+          { message: '无效的活动参数' },
+          { status: 400 }
+        );
+      }
+    } else {
+      // 如果没有提供活动参数，使用默认活动（第一期活动）
+      try {
+        const { EventService } = await import('../../../services/eventService');
+        const { eventId: defaultEventId } = await EventService.resolveEvent('event-1');
+        eventId = defaultEventId;
+        console.log('🎯 [BatchBooking] 使用默认活动:', { defaultEventParam: 'event-1', eventId });
+      } catch (error) {
+        console.warn('⚠️ [BatchBooking] 无法获取默认活动，预订将不关联活动:', error);
+        eventId = null;
+      }
+    }
 
     // 数据验证
     if (!qqNumber || !phoneNumber || !items || !Array.isArray(items) || items.length === 0) {
@@ -110,6 +139,7 @@ async function POST(request: NextRequest) {
           .insert(comicUniverseBookings)
           .values({
             collectionId: item.collectionId,
+            eventId: eventId, // 设置活动ID
             qqNumber,
             phoneNumber,
             quantity: item.quantity,

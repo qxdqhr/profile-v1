@@ -19,8 +19,6 @@ import {
   BookingAdminQueryParams,
   getAllBookings,
   getBookingStats,
-  forceRefreshAllBookings,
-  forceRefreshBookingStats,
   updateBookingAdminStatus as updateBookingStatusService,
   deleteBookingAdmin as deleteBookingService,
   exportBookings as exportBookingsService
@@ -62,9 +60,10 @@ interface UseBookingAdminReturn {
  * 
  * 提供预订管理功能的状态管理和数据获取逻辑
  * 
+ * @param eventParam 可选的活动参数，用于过滤特定活动的预订数据
  * @returns 预订管理Hook返回值
  */
-export const useBookingAdmin = (): UseBookingAdminReturn => {
+export const useBookingAdmin = (eventParam?: string): UseBookingAdminReturn => {
   const [bookings, setBookings] = useState<BookingAdminData[]>([]);
   const [stats, setStats] = useState<BookingAdminStats>({
     totalBookings: 0,
@@ -90,12 +89,22 @@ export const useBookingAdmin = (): UseBookingAdminReturn => {
       setLoading(true);
       setError(undefined);
       
-      const queryParams = params || searchParams;
-      console.log('🔄 开始获取预订数据（使用强制刷新API）...', queryParams);
+      // 合并参数，确保包含活动参数
+      const baseParams = params || searchParams;
+      const queryParams = {
+        ...baseParams,
+        ...(eventParam ? { event: eventParam } : {})
+      };
+      
+      console.log('🔄 开始获取预订数据...', { 
+        originalParams: baseParams, 
+        eventParam, 
+        finalParams: queryParams 
+      });
       
       const [bookingsData, statsData] = await Promise.all([
-        forceRefreshAllBookings(queryParams),
-        forceRefreshBookingStats(queryParams)
+        getAllBookings(queryParams),
+        getBookingStats(queryParams)
       ]);
       
       console.log('✅ 获取到预订数据:', { 
@@ -114,7 +123,7 @@ export const useBookingAdmin = (): UseBookingAdminReturn => {
     } finally {
       setLoading(false);
     }
-  }, [searchParams]);
+  }, [searchParams, eventParam]);
 
   /**
    * 搜索预订数据
@@ -223,11 +232,50 @@ export const useBookingAdmin = (): UseBookingAdminReturn => {
   }, []);
 
   /**
-   * 组件挂载时获取数据
+   * 组件挂载时获取数据（只在有活动参数时执行）
    */
   useEffect(() => {
-    fetchBookings();
-  }, [fetchBookings]);
+    // 只有在有活动参数时才自动加载数据
+    if (eventParam) {
+      fetchBookings();
+    }
+  }, []); // 只在组件挂载时执行一次
+
+  /**
+   * 当活动参数变化时，重新加载数据
+   */
+  useEffect(() => {
+    if (eventParam) {
+      console.log('🔄 [useBookingAdmin] 活动参数变化，重新加载预订数据:', eventParam);
+      // 使用一个独立的函数来避免依赖循环
+      const loadData = async () => {
+        const queryParams = {
+          ...(eventParam ? { event: eventParam } : {})
+        };
+        
+        try {
+          setLoading(true);
+          setError(undefined);
+          
+          const [bookingsData, statsData] = await Promise.all([
+            getAllBookings(queryParams),
+            getBookingStats(queryParams)
+          ]);
+          
+          setBookings(bookingsData);
+          setStats(statsData);
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : '获取预订数据失败';
+          setError(errorMessage);
+          console.error('❌ 获取预订数据失败:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      loadData();
+    }
+  }, [eventParam]); // 只依赖eventParam
 
   return {
     bookings,

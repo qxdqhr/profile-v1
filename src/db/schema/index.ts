@@ -3,6 +3,8 @@ import { serial, text, timestamp, pgTable, json, integer, primaryKey } from 'dri
 
 // 导出画集相关的表
 export * from '@/modules/showmasterpiece/db/schema/masterpieces';
+// 导出活动管理相关的表
+export * from '@/modules/showmasterpiece/db/schema/events';
 // 导出画集预订相关的表
 export * from '@/modules/showmasterpiece/db/schema/bookings';
 // 导出弹窗配置相关的表

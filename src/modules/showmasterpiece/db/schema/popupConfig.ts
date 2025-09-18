@@ -6,7 +6,9 @@
  * @fileoverview 弹窗配置数据库schema
  */
 
-import { pgTable, text, timestamp, boolean, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, boolean, jsonb, integer, index } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
+import { showmasterEvents } from './events';
 
 /**
  * 弹窗配置表
@@ -14,6 +16,9 @@ import { pgTable, text, timestamp, boolean, jsonb } from 'drizzle-orm/pg-core';
 export const popupConfigs = pgTable('popup_configs', {
   /** 配置ID */
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  
+  /** 配置所属的活动ID（外键，级联删除） */
+  eventId: integer('event_id').references(() => showmasterEvents.id, { onDelete: 'cascade' }),
   
   /** 配置名称 */
   name: text('name').notNull(),
@@ -82,7 +87,21 @@ export const popupConfigs = pgTable('popup_configs', {
   
   /** 更新时间 */
   updatedAt: timestamp('updated_at').defaultNow(),
-});
+}, (table) => ({
+  /** 按活动查询的索引 */
+  eventIdIndex: index('popup_configs_event_id_idx').on(table.eventId),
+}));
+
+/**
+ * 弹窗配置表关系
+ */
+export const popupConfigsRelations = relations(popupConfigs, ({ one }) => ({
+  /** 弹窗配置所属的活动 */
+  event: one(showmasterEvents, {
+    fields: [popupConfigs.eventId],
+    references: [showmasterEvents.id],
+  }),
+}));
 
 export type PopupConfig = typeof popupConfigs.$inferSelect;
 export type NewPopupConfig = typeof popupConfigs.$inferInsert;

@@ -157,9 +157,9 @@ export const useMasterpiecesConfig = () => {
   };
 
   // 画集管理
-  const handleCreateCollection = async (collectionData: CollectionFormData) => {
+  const handleCreateCollection = async (collectionData: CollectionFormData, eventParam?: string) => {
     try {
-      const newCollection = await createCollection(collectionData);
+      const newCollection = await createCollection(collectionData, eventParam);
       // 重新加载数据以确保与数据库完全同步
       await loadData();
     } catch (err) {

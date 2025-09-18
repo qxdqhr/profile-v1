@@ -30,6 +30,7 @@ import {
   primaryKey
 } from 'drizzle-orm/pg-core';
 import { comicUniverseCollections } from './masterpieces';
+import { showmasterEvents } from './events';
 
 /**
  * 画集预订表 (comic_universe_bookings)
@@ -51,6 +52,9 @@ export const comicUniverseBookings = pgTable('comic_universe_bookings', {
   
   /** 预订的画集ID（外键，级联删除） */
   collectionId: integer('collection_id').notNull().references(() => comicUniverseCollections.id, { onDelete: 'cascade' }),
+  
+  /** 预订所属的活动ID（外键，级联删除） */
+  eventId: integer('event_id').references(() => showmasterEvents.id, { onDelete: 'cascade' }),
   
   /** 用户QQ号 */
   qqNumber: varchar('qq_number', { length: 20 }).notNull(),
@@ -94,6 +98,9 @@ export const comicUniverseBookings = pgTable('comic_universe_bookings', {
   /** 按画集查询预订的索引 */
   collectionIdIndex: index('bookings_collection_id_idx').on(table.collectionId),
   
+  /** 按活动查询的索引 */
+  eventIdIndex: index('bookings_event_id_idx').on(table.eventId),
+  
   /** 按状态查询的索引 */
   statusIndex: index('bookings_status_idx').on(table.status),
   
@@ -130,5 +137,11 @@ export const comicUniverseBookingsRelations = relations(comicUniverseBookings, (
   collection: one(comicUniverseCollections, {
     fields: [comicUniverseBookings.collectionId],
     references: [comicUniverseCollections.id],
+  }),
+  
+  /** 预订所属的活动 */
+  event: one(showmasterEvents, {
+    fields: [comicUniverseBookings.eventId],
+    references: [showmasterEvents.id],
   }),
 })); 
