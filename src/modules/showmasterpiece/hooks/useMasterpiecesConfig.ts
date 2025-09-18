@@ -52,7 +52,7 @@ export const useMasterpiecesConfig = () => {
       
       // 强制不使用缓存，添加时间戳和特殊参数
       const timestamp = Date.now();
-      const [configData, collectionsData, categoriesData, tagsData] = await Promise.all([
+      const [configData, collectionsResponse, categoriesData, tagsData] = await Promise.all([
         getConfig(),
         fetch(`/api/masterpieces/collections?_t=${timestamp}&nocache=true&includeImages=true`, {
           headers: {
@@ -63,6 +63,9 @@ export const useMasterpiecesConfig = () => {
         getCategories(),
         getTags()
       ]);
+      
+      // 从API响应中提取实际的画集数据
+      const collectionsData = collectionsResponse.data || [];
       
       console.log('✅ [Hook] 数据加载完成:', {
         配置: configData ? '已加载' : '未加载',
