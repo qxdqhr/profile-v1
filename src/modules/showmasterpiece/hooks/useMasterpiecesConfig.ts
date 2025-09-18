@@ -97,7 +97,7 @@ export const useMasterpiecesConfig = () => {
       // 返回加载的数据，供调用者使用
       return {
         config: configData,
-        collections: collectionsData,
+        collections: collectionsData, // 这里已经是提取后的数组数据
         categories: categoriesData,
         tags: tagsData
       };

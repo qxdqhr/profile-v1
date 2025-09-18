@@ -478,7 +478,7 @@ export class CollectionsDbService {
           imageUrl = fileIdToUrlMap.get(artwork.fileId)!;
         } else {
           // 如果没有fileId或获取URL失败，使用API路径
-          imageUrl = `/api/masterpieces/collections/${artwork.collectionId}/artworks/${artwork.id}/image`;
+          imageUrl = `/api/showmasterpiece/collections/${artwork.collectionId}/artworks/${artwork.id}/image`;
         }
         
         const artworkPage: ArtworkPage = {
@@ -1542,7 +1542,7 @@ export class ArtworksDbService {
         imageUrl = fileIdToUrlMap.get(artwork.fileId)!;
       } else {
         // 如果没有fileId或获取URL失败，使用API路径
-        imageUrl = `/api/masterpieces/collections/${collectionId}/artworks/${artwork.id}/image`;
+        imageUrl = `/api/showmasterpiece/collections/${collectionId}/artworks/${artwork.id}/image`;
       }
       
       return {

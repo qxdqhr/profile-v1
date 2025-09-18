@@ -40,7 +40,7 @@ export const ArtworkViewer: React.FC<ArtworkViewerProps> = ({
         
         // 如果没有imageUrl，尝试使用fileId构建URL
         if (artwork.fileId) {
-          const imageUrl = `/api/masterpieces/collections/${collectionId}/artworks/${artwork.id}/image`;
+          const imageUrl = `/api/showmasterpiece/collections/${collectionId}/artworks/${artwork.id}/image`;
           setImageSrc(imageUrl);
           setImageLoading(false);
           return;
