@@ -847,7 +847,7 @@ function ConfigPageContent() {
                         <button
                           onClick={async () => {
                             if (confirm('确定要删除这个画集吗？')) {
-                              await deleteCollection(collection.id);
+                              await deleteCollection(collection.id, currentEvent?.id);
                               // 刷新Event-aware画集数据
                               if (currentEvent) {
                                 await loadEventAwareCollections(currentEvent.slug);
@@ -972,7 +972,7 @@ function ConfigPageContent() {
                           <button
                             onClick={() => {
                               if (confirm('确定要删除这个作品吗？')) {
-                                deleteArtwork(selectedCollection, artwork.id);
+                                deleteArtwork(selectedCollection, artwork.id, currentEvent?.id);
                               }
                             }}
                             className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 border border-red-200 rounded text-sm hover:bg-red-200 transition-colors"

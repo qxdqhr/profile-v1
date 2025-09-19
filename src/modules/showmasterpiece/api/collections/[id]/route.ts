@@ -54,12 +54,18 @@ export async function DELETE(
     }
 
     const collectionId = parseInt(params.id);
-    await collectionsDbService.deleteCollection(collectionId);
+    
+    // 从查询参数中获取事件ID（用于验证）
+    const url = new URL(request.url);
+    const eventIdParam = url.searchParams.get('eventId');
+    const eventId = eventIdParam ? parseInt(eventIdParam) : undefined;
+
+    await collectionsDbService.deleteCollection(collectionId, eventId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('删除画集失败:', error);
     return NextResponse.json(
-      { error: '删除画集失败' },
+      { error: error instanceof Error ? error.message : '删除画集失败' },
       { status: 500 }
     );
   }

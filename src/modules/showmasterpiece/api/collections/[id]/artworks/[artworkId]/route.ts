@@ -56,12 +56,18 @@ export async function DELETE(
 
     const collectionId = parseInt(params.id);
     const artworkId = parseInt(params.artworkId);
-    await artworksDbService.deleteArtwork(collectionId, artworkId);
+    
+    // 从查询参数中获取事件ID（用于验证）
+    const url = new URL(request.url);
+    const eventIdParam = url.searchParams.get('eventId');
+    const eventId = eventIdParam ? parseInt(eventIdParam) : undefined;
+
+    await artworksDbService.deleteArtwork(collectionId, artworkId, eventId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('删除作品失败:', error);
     return NextResponse.json(
-      { error: '删除作品失败' },
+      { error: error instanceof Error ? error.message : '删除作品失败' },
       { status: 500 }
     );
   }

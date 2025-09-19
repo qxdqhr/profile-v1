@@ -797,7 +797,32 @@ export class CollectionsDbService {
   }
 
   // 删除画集
-  async deleteCollection(id: number): Promise<void> {
+  async deleteCollection(id: number, eventId?: number): Promise<void> {
+    // 首先验证画集存在性和事件归属
+    const collection = await db
+      .select({
+        id: comicUniverseCollections.id,
+        title: comicUniverseCollections.title,
+        eventId: comicUniverseCollections.eventId,
+      })
+      .from(comicUniverseCollections)
+      .where(eq(comicUniverseCollections.id, id))
+      .limit(1);
+
+    if (!collection.length) {
+      throw new Error('画集不存在');
+    }
+
+    const collectionData = collection[0];
+
+    // 验证事件ID匹配（如果提供了eventId）
+    if (eventId !== undefined && collectionData.eventId !== eventId) {
+      throw new Error(`无权删除其他活动的画集。尝试删除活动${eventId}的画集，但该画集属于活动${collectionData.eventId}`);
+    }
+
+    console.log(`🗑️ [deleteCollection] 删除画集 ID:${id} "${collectionData.title}" (活动ID:${collectionData.eventId})`);
+
+    // 执行删除（级联删除作品）
     await db.delete(comicUniverseCollections)
       .where(eq(comicUniverseCollections.id, id));
     
@@ -1189,7 +1214,38 @@ export class ArtworksDbService {
   }
 
   // 删除作品
-  async deleteArtwork(collectionId: number, artworkId: number): Promise<void> {
+  async deleteArtwork(collectionId: number, artworkId: number, eventId?: number): Promise<void> {
+    // 首先验证作品存在性和事件归属
+    const artworkWithCollection = await db
+      .select({
+        artworkId: comicUniverseArtworks.id,
+        artworkTitle: comicUniverseArtworks.title,
+        collectionId: comicUniverseCollections.id,
+        collectionTitle: comicUniverseCollections.title,
+        collectionEventId: comicUniverseCollections.eventId,
+      })
+      .from(comicUniverseArtworks)
+      .leftJoin(comicUniverseCollections, eq(comicUniverseArtworks.collectionId, comicUniverseCollections.id))
+      .where(and(
+        eq(comicUniverseArtworks.id, artworkId),
+        eq(comicUniverseArtworks.collectionId, collectionId)
+      ))
+      .limit(1);
+
+    if (!artworkWithCollection.length) {
+      throw new Error('作品不存在或不属于指定画集');
+    }
+
+    const artwork = artworkWithCollection[0];
+
+    // 验证事件ID匹配（如果提供了eventId）
+    if (eventId !== undefined && artwork.collectionEventId !== eventId) {
+      throw new Error(`无权删除其他活动的作品。尝试删除活动${eventId}的作品，但该作品属于活动${artwork.collectionEventId}的画集"${artwork.collectionTitle}"`);
+    }
+
+    console.log(`🗑️ [deleteArtwork] 删除作品 ID:${artworkId} "${artwork.artworkTitle}" 从画集 ID:${collectionId} "${artwork.collectionTitle}" (活动ID:${artwork.collectionEventId})`);
+
+    // 执行删除
     await db.delete(comicUniverseArtworks)
       .where(and(
         eq(comicUniverseArtworks.id, artworkId),

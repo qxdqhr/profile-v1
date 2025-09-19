@@ -180,9 +180,9 @@ export const useMasterpiecesConfig = () => {
     }
   };
 
-  const handleDeleteCollection = async (id: number) => {
+  const handleDeleteCollection = async (id: number, eventId?: number) => {
     try {
-      await deleteCollection(id);
+      await deleteCollection(id, eventId);
       // 重新加载数据以确保与数据库完全同步
       await loadData();
     } catch (err) {
@@ -273,9 +273,9 @@ export const useMasterpiecesConfig = () => {
     }
   };
 
-  const handleDeleteArtwork = async (collectionId: number, artworkId: number) => {
+  const handleDeleteArtwork = async (collectionId: number, artworkId: number, eventId?: number) => {
     try {
-      await deleteArtwork(collectionId, artworkId);
+      await deleteArtwork(collectionId, artworkId, eventId);
       // 重新加载数据以确保与数据库完全同步
       await loadData();
     } catch (err) {

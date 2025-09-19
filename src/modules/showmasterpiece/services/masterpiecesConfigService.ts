@@ -160,13 +160,19 @@ export const updateCollection = async (id: number, collectionData: CollectionFor
   return await response.json();
 };
 
-export const deleteCollection = async (id: number): Promise<void> => {
-  const response = await fetch(`/api/masterpieces/collections/${id}`, {
+export const deleteCollection = async (id: number, eventId?: number): Promise<void> => {
+  const url = new URL(`/api/showmasterpiece/collections/${id}`, window.location.origin);
+  if (eventId !== undefined) {
+    url.searchParams.set('eventId', eventId.toString());
+  }
+  
+  const response = await fetch(url.toString(), {
     method: 'DELETE',
   });
   
   if (!response.ok) {
-    throw new Error('删除画集失败');
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || '删除画集失败');
   }
 };
 
@@ -311,13 +317,19 @@ export const updateArtwork = async (collectionId: number, artworkId: number, art
   return await response.json();
 };
 
-export const deleteArtwork = async (collectionId: number, artworkId: number): Promise<void> => {
-  const response = await fetch(`/api/masterpieces/collections/${collectionId}/artworks/${artworkId}`, {
+export const deleteArtwork = async (collectionId: number, artworkId: number, eventId?: number): Promise<void> => {
+  const url = new URL(`/api/showmasterpiece/collections/${collectionId}/artworks/${artworkId}`, window.location.origin);
+  if (eventId !== undefined) {
+    url.searchParams.set('eventId', eventId.toString());
+  }
+  
+  const response = await fetch(url.toString(), {
     method: 'DELETE',
   });
   
   if (!response.ok) {
-    throw new Error('删除作品失败');
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || '删除作品失败');
   }
 };
 
