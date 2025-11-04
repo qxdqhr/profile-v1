@@ -5,7 +5,7 @@ import type { GameState, EmotionState, ItemInventory, AnimationType, RecordingSt
 import { getInitialInventory } from '../constants/items'
 import { DEFAULT_GAME_CONFIG } from '../types'
 
-// 动态导入组件
+// 动态导入组件（避免SSR问题）
 import dynamic from 'next/dynamic'
 
 const StatusBar = dynamic(() => import('./StatusBar'), { ssr: false })
@@ -17,103 +17,166 @@ const CameraControl = dynamic(() => import('./CameraControl'), { ssr: false })
 const RightPanel = dynamic(() => import('./RightPanel'), { ssr: false })
 
 /**
+ * ========================================
  * 米库说话主游戏组件
+ * ========================================
+ * 
+ * 功能说明：
+ * - 游戏主逻辑控制器
+ * - 管理游戏状态（情绪、库存、交互等）
+ * - 协调各个子组件
+ * - 处理用户交互（点击、道具使用等）
+ * - 自动情绪衰减和升级系统
+ * - 集成MMD模型展示和动画控制
+ * 
+ * 组件结构：
+ * - StatusBar: 顶部状态栏（情绪、等级、经验）
+ * - MikuMMDViewer: 3D模型展示区域
+ * - InteractionOverlay: 交互覆盖层（检测点击位置）
+ * - ItemBar: 底部道具栏
+ * - TutorialModal: 教程弹窗
+ * - CameraControl: 相机控制器（桌面端）
+ * - RightPanel: 右侧功能面板
+ * 
+ * @component
  */
 export default function MikuTalkingGame() {
-  // 初始情绪状态
+  
+  // ========================================
+  // 初始状态配置
+  // ========================================
+  
+  /** 初始情绪状态 */
   const initialEmotion: EmotionState = {
-    current: 'neutral',
-    happiness: 80,
-    energy: 90,
-    hunger: 30,
-    affection: 50,
-    level: 1,
-    experience: 0,
+    current: 'neutral',  // 当前情绪
+    happiness: 80,       // 快乐度 (0-100)
+    energy: 90,          // 能量 (0-100)
+    hunger: 30,          // 饥饿度 (0-100)
+    affection: 50,       // 亲密度 (0-100)
+    level: 1,            // 等级
+    experience: 0,       // 经验值
   }
 
-  // 游戏状态
+  // ========================================
+  // 状态管理
+  // ========================================
+  
+  /** 游戏主状态 */
   const [gameState, setGameState] = useState<GameState>({
-    modelLoaded: false,
-    currentAnimation: 'idle',
-    animationQueue: [],
-    emotion: initialEmotion,
-    inventory: getInitialInventory(),
-    lastInteraction: Date.now(),
-    interactionCount: 0,
-    recordingState: 'idle',
-    recordings: [],
-    currentVoiceEffect: 'normal',
-    showTutorial: true,
-    showSettings: false,
-    debugMode: false,
-    volume: 0.7,
-    soundEnabled: true,
-    musicEnabled: true,
+    modelLoaded: false,                          // 模型是否加载完成
+    currentAnimation: 'idle',                    // 当前播放的动画
+    animationQueue: [],                          // 动画队列
+    emotion: initialEmotion,                     // 情绪状态
+    inventory: getInitialInventory(),            // 道具库存
+    lastInteraction: Date.now(),                 // 最后交互时间
+    interactionCount: 0,                         // 交互次数统计
+    recordingState: 'idle',                      // 录音状态
+    recordings: [],                              // 录音列表
+    currentVoiceEffect: 'normal',                // 当前变声效果
+    showTutorial: true,                          // 是否显示教程
+    showSettings: false,                         // 是否显示设置
+    debugMode: false,                            // 是否开启调试模式
+    volume: 0.7,                                 // 音量 (0-1)
+    soundEnabled: true,                          // 音效是否开启
+    musicEnabled: true,                          // 背景音乐是否开启
   })
 
-  // 相机控制
+  /** 相机控制器接口 */
   const [cameraControls, setCameraControls] = useState<{
     moveCamera: (deltaX: number, deltaY: number) => void
     zoomCamera: (delta: number) => void
+    elevateCamera: (delta: number) => void
     resetCamera: () => void
   } | null>(null)
 
-  // 动作播放控制
+  /** 动画播放控制器接口 */
   const [animationControls, setAnimationControls] = useState<{
     playAnimation: () => Promise<void>
-    pauseAnimation: () => void
-    resumeAnimation: () => void
     stopAnimation: () => void
     isPlaying: boolean
     progress: number
   } | null>(null)
   
+  /** 动画是否正在播放 */
   const [isAnimationPlaying, setIsAnimationPlaying] = useState(false)
+  /** 动画播放进度 (0-100) */
   const [animationProgress, setAnimationProgress] = useState(0)
 
-  // MMD动作配置
+  // ========================================
+  // MMD配置
+  // ========================================
+  
+  /** MMD动作和模型配置 */
   const mmdConfig = {
-    modelPath: '/mikutalking/models/YYB_Z6SakuraMiku/miku.pmx',
-    motionPath: '/mikutalking/actions/CatchTheWave/mmd_CatchTheWave_motion.vmd',
-    cameraPath: '/mikutalking/actions/CatchTheWave/camera.vmd',
-    audioPath: '/mikutalking/actions/CatchTheWave/pv_268.wav',
+    modelBasePath: '/mikutalking/models/YYB_Z6SakuraMiku',
+    modelPath: '/mikutalking/models/YYB_Z6SakuraMiku/miku.pmx',                // PMX模型文件
+    motionPath: '/mikutalking/actions/CatchTheWave/mmd_CatchTheWave_motion.vmd',  // VMD动作文件
+    cameraPath: '/mikutalking/actions/CatchTheWave/camera.vmd',                    // 相机动画文件
+    audioPath: '/mikutalking/actions/CatchTheWave/pv_268.wav',                     // 音频文件
   }
 
-  // 不再需要预加载模型数据，MikuMMDViewer会直接从URL加载
-  // useEffect已移除
+  // ========================================
+  // 回调函数
+  // ========================================
 
-  // 模型加载完成回调
+  /**
+   * 模型加载完成回调
+   * @param model - Three.js 模型对象
+   */
   const handleModelLoad = useCallback((model: any) => {
     setGameState(prev => ({ ...prev, modelLoaded: true }))
+    console.log('✅ MMD模型加载成功')
   }, [])
 
-  // 模型加载错误回调
+  /**
+   * 模型加载错误回调
+   * @param error - 错误对象
+   */
   const handleModelError = useCallback((error: Error) => {
-    console.error('MMD模型加载失败:', error)
+    console.error('❌ MMD模型加载失败:', error)
   }, [])
 
-  // 相机准备就绪回调
+  /**
+   * 相机控制器准备就绪回调
+   * 接收相机控制方法并保存到state
+   */
   const handleCameraReady = useCallback((controls: {
     moveCamera: (deltaX: number, deltaY: number) => void
     zoomCamera: (delta: number) => void
+    elevateCamera: (delta: number) => void
     resetCamera: () => void
   }) => {
     setCameraControls(controls)
+    console.log('✅ 相机控制器就绪')
   }, [])
 
-  // 动作播放准备就绪回调
+  /**
+   * 动画控制器准备就绪回调
+   * 接收动画控制方法并保存到state
+   */
   const handleAnimationReady = useCallback((controls: {
     playAnimation: () => Promise<void>
-    pauseAnimation: () => void
-    resumeAnimation: () => void
     stopAnimation: () => void
     isPlaying: boolean
     progress: number
   }) => {
     setAnimationControls(controls)
+    console.log('✅ 动画控制器就绪')
   }, [])
 
-  // 更新情绪状态
+  // ========================================
+  // 游戏逻辑函数
+  // ========================================
+
+  /**
+   * 更新情绪状态
+   * 
+   * 功能：
+   * - 更新指定的情绪属性
+   * - 自动限制数值在 0-100 范围内
+   * 
+   * @param changes - 要更新的情绪属性（部分更新）
+   */
   const updateEmotion = useCallback((changes: Partial<EmotionState>) => {
     setGameState(prev => ({
       ...prev,
@@ -252,10 +315,10 @@ export default function MikuTalkingGame() {
 
       {/* 主游戏区域 */}
       <div className="absolute inset-0">
-        {/* MMD模型查看器 - 互动模式 */}
+        {/* MMD模型查看器 */}
         <div className="absolute inset-0">
           <MikuMMDViewer
-            modelBasePath="/mikutalking/models/YYB_Z6SakuraMiku"
+            modelBasePath={mmdConfig.modelBasePath}
             motionPath={mmdConfig.motionPath}
             cameraPath={mmdConfig.cameraPath}
             audioPath={mmdConfig.audioPath}
@@ -294,6 +357,7 @@ export default function MikuTalkingGame() {
           <CameraControl
             onCameraMove={cameraControls.moveCamera}
             onCameraZoom={cameraControls.zoomCamera}
+            onCameraElevate={cameraControls.elevateCamera}
             onCameraReset={cameraControls.resetCamera}
           />
         </div>

@@ -3,32 +3,34 @@
 import React, { useState } from 'react'
 import type { RecordingState, VoiceEffectType } from '../types'
 
+/**
+ * 右侧面板组件的属性接口
+ */
 interface RightPanelProps {
-  // 相机控制
+  // ===== 相机控制 =====
   cameraControls: {
     moveCamera: (deltaX: number, deltaY: number) => void
     zoomCamera: (delta: number) => void
+    elevateCamera: (delta: number) => void
     resetCamera: () => void
   } | null
 
-  // MMD动作播放
+  // ===== MMD动作播放 =====
   animationControls?: {
     playAnimation: () => Promise<void>
-    pauseAnimation: () => void
-    resumeAnimation: () => void
     stopAnimation: () => void
     isPlaying: boolean
     progress: number
   } | null
 
-  // 语音录制
+  // ===== 语音录制 =====
   recordingState: RecordingState
   currentVoiceEffect: VoiceEffectType
   onRecordingStateChange: (state: RecordingState) => void
   onVoiceEffectChange: (effect: VoiceEffectType) => void
   soundEnabled: boolean
 
-  // 设置
+  // ===== 游戏设置 =====
   volume: number
   musicEnabled: boolean
   debugMode: boolean
@@ -40,7 +42,19 @@ interface RightPanelProps {
 }
 
 /**
- * 右侧功能面板 - 整合所有右侧控制
+ * ========================================
+ * 右侧功能面板组件
+ * ========================================
+ * 
+ * 功能说明：
+ * - 集成所有右侧控制功能
+ * - 相机控制（放大、缩小、重置）
+ * - MMD动作播放控制（播放、暂停、停止、进度）
+ * - 语音录制功能
+ * - 快捷操作（设置、帮助、返回）
+ * - 可展开/收起的侧边面板设计
+ * 
+ * @component
  */
 export default function RightPanel({
   cameraControls,
@@ -121,37 +135,26 @@ export default function RightPanel({
                   
                   {/* 控制按钮组 */}
                   <div className="flex gap-2">
-                    {/* 播放/暂停按钮 */}
-                    {!animationControls.isPlaying ? (
-                      <button
-                        onClick={() => {
-                          if (animationControls.progress === 0) {
-                            animationControls.playAnimation()
-                          } else {
-                            animationControls.resumeAnimation()
-                          }
-                        }}
-                        className="flex-1 py-3 rounded-lg transition-all duration-300 text-sm font-medium flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white shadow-lg"
-                      >
-                        <span>▶️</span>
-                        <span>{animationControls.progress === 0 ? '播放' : '继续'}</span>
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => animationControls.pauseAnimation()}
-                        className="flex-1 py-3 rounded-lg transition-all duration-300 text-sm font-medium flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg"
-                      >
-                        <span>⏸️</span>
-                        <span>暂停</span>
-                      </button>
-                    )}
+                    {/* 播放按钮 */}
+                    <button
+                      onClick={() => animationControls.playAnimation()}
+                      disabled={animationControls.isPlaying}
+                      className={`flex-1 py-3 rounded-lg transition-all duration-300 text-sm font-medium flex items-center justify-center gap-2 ${
+                        animationControls.isPlaying
+                          ? 'bg-gray-300 cursor-not-allowed text-gray-500'
+                          : 'bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white shadow-lg'
+                      }`}
+                    >
+                      <span>▶️</span>
+                      <span>播放</span>
+                    </button>
                     
                     {/* 停止按钮 */}
                     <button
                       onClick={() => animationControls.stopAnimation()}
-                      disabled={!animationControls.isPlaying && animationControls.progress === 0}
+                      disabled={!animationControls.isPlaying}
                       className={`flex-1 py-3 rounded-lg transition-all duration-300 text-sm font-medium flex items-center justify-center gap-2 ${
-                        !animationControls.isPlaying && animationControls.progress === 0
+                        !animationControls.isPlaying
                           ? 'bg-gray-300 cursor-not-allowed text-gray-500'
                           : 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white shadow-lg'
                       }`}

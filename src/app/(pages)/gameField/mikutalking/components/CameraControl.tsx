@@ -2,25 +2,55 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
 
+/**
+ * 相机控制组件的属性接口
+ */
 interface CameraControlProps {
+  /** 相机移动回调函数 - deltaX: 水平偏移量, deltaY: 垂直偏移量 */
   onCameraMove: (deltaX: number, deltaY: number) => void
+  /** 相机缩放回调函数 - delta: 缩放增量 */
   onCameraZoom: (delta: number) => void
+  /** 相机升降回调函数 - delta: Z轴移动增量 */
+  onCameraElevate: (delta: number) => void
+  /** 重置相机回调函数 - 恢复相机到初始位置和角度 */
   onCameraReset: () => void
 }
 
-export default function CameraControl({ onCameraMove, onCameraZoom, onCameraReset }: CameraControlProps) {
+/**
+ * 相机控制组件
+ * 
+ * 功能说明：
+ * - 提供虚拟摇杆控制，用于调整相机视角
+ * - 支持放大/缩小功能
+ * - 提供一键重置相机位置的功能
+ * - 摇杆采用物理拖拽方式，支持触摸和鼠标操作
+ * - 实时更新相机位置，提供流畅的视角控制体验
+ * 
+ * @component
+ */
+export default function CameraControl({ onCameraMove, onCameraZoom, onCameraElevate, onCameraReset }: CameraControlProps) {
+  // ========== 状态管理 ==========
+  /** 是否正在拖拽摇杆 */
   const [isDragging, setIsDragging] = useState(false)
-  const [joystickPos, setJoystickPos] = useState({ x: 0, y: 0 }) // 摇杆相对于中心的位置
+  /** 摇杆相对于中心的位置（单位：像素） */
+  const [joystickPos, setJoystickPos] = useState({ x: 0, y: 0 })
+  
+  // ========== Refs ==========
+  /** 基座DOM元素引用，用于获取位置信息 */
   const baseRef = useRef<HTMLDivElement>(null)
+  /** 动画帧ID引用，用于取消动画循环 */
   const animationFrameRef = useRef<number | null>(null)
   
-  // 摇杆范围（基座半径）- 扩大1.5倍
-  const BASE_RADIUS = 75 // 基座半径（像素）
-  const JOYSTICK_RADIUS = 25 // 摇杆半径（像素）
-  const MAX_DISTANCE = BASE_RADIUS - JOYSTICK_RADIUS // 摇杆可移动的最大距离
-  const MOVE_SENSITIVITY = 0.03 // 移动灵敏度
+  // ========== 摇杆配置常量 ==========
+  const BASE_RADIUS = 75         // 基座半径（像素）
+  const JOYSTICK_RADIUS = 25     // 摇杆半径（像素）
+  const MAX_DISTANCE = BASE_RADIUS - JOYSTICK_RADIUS  // 摇杆可移动的最大距离
+  const MOVE_SENSITIVITY = 0.03  // 移动灵敏度（影响相机移动速度）
 
-  // 获取基座中心坐标
+  /**
+   * 获取基座中心坐标（屏幕坐标系）
+   * @returns 基座中心的 {x, y} 坐标
+   */
   const getBaseCenter = useCallback(() => {
     if (!baseRef.current) return { x: 0, y: 0 }
     const rect = baseRef.current.getBoundingClientRect()
@@ -30,26 +60,40 @@ export default function CameraControl({ onCameraMove, onCameraZoom, onCameraRese
     }
   }, [])
 
-  // 计算摇杆位置（限制在基座范围内）
+  /**
+   * 计算摇杆位置（限制在基座范围内）
+   * 
+   * 计算逻辑：
+   * 1. 根据触摸/鼠标位置计算相对于中心的偏移量
+   * 2. 计算距离中心的距离
+   * 3. 如果超出最大距离，则限制在圆形边界内
+   * 
+   * @param clientX - 触摸/鼠标的 X 坐标
+   * @param clientY - 触摸/鼠标的 Y 坐标
+   * @returns 摇杆位置 {x, y} 和距离 distance
+   */
   const calculateJoystickPosition = useCallback((clientX: number, clientY: number) => {
     const center = getBaseCenter()
     let deltaX = clientX - center.x
     let deltaY = clientY - center.y
     
-    // 计算距离
+    // 计算距离中心的距离（勾股定理）
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
     
-    // 限制在最大范围内
+    // 如果超出最大范围，则限制在圆形边界内
     if (distance > MAX_DISTANCE) {
-      const angle = Math.atan2(deltaY, deltaX)
-      deltaX = Math.cos(angle) * MAX_DISTANCE
-      deltaY = Math.sin(angle) * MAX_DISTANCE
+      const angle = Math.atan2(deltaY, deltaX)  // 计算角度
+      deltaX = Math.cos(angle) * MAX_DISTANCE   // 根据角度计算新的 X 偏移
+      deltaY = Math.sin(angle) * MAX_DISTANCE   // 根据角度计算新的 Y 偏移
     }
     
     return { x: deltaX, y: deltaY, distance }
   }, [getBaseCenter, MAX_DISTANCE])
 
-  // 开始拖拽
+  /**
+   * 开始拖拽事件处理
+   * 当用户按下摇杆时触发
+   */
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault()
     setIsDragging(true)
@@ -57,7 +101,10 @@ export default function CameraControl({ onCameraMove, onCameraZoom, onCameraRese
     setJoystickPos({ x: pos.x, y: pos.y })
   }, [calculateJoystickPosition])
 
-  // 拖拽中（只更新摇杆位置，不触发移动）
+  /**
+   * 拖拽移动事件处理
+   * 只更新摇杆位置，实际的相机移动在 useEffect 中通过 requestAnimationFrame 处理
+   */
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!isDragging) return
     e.preventDefault()
@@ -66,16 +113,23 @@ export default function CameraControl({ onCameraMove, onCameraZoom, onCameraRese
     setJoystickPos({ x: pos.x, y: pos.y })
   }, [isDragging, calculateJoystickPosition])
 
-  // 结束拖拽
+  /**
+   * 结束拖拽事件处理
+   * 松开摇杆时，摇杆自动回到中心位置
+   */
   const handlePointerUp = useCallback(() => {
     setIsDragging(false)
-    // 摇杆回到中心（添加弹性动画）
+    // 摇杆回到中心（CSS transition 会提供弹性动画效果）
     setJoystickPos({ x: 0, y: 0 })
   }, [])
 
-  // 全局监听（确保在任何地方松开都能结束拖拽）
+  /**
+   * 全局监听器 Effect
+   * 确保在任何地方松开鼠标/触摸都能正确结束拖拽
+   */
   useEffect(() => {
     if (isDragging) {
+      // 在拖拽状态下，监听全局的 pointer 事件
       const handleGlobalPointerMove = (e: PointerEvent) => {
         const pos = calculateJoystickPosition(e.clientX, e.clientY)
         setJoystickPos({ x: pos.x, y: pos.y })
@@ -89,6 +143,7 @@ export default function CameraControl({ onCameraMove, onCameraZoom, onCameraRese
       window.addEventListener('pointermove', handleGlobalPointerMove)
       window.addEventListener('pointerup', handleGlobalPointerUp)
       
+      // 清理函数：移除事件监听器
       return () => {
         window.removeEventListener('pointermove', handleGlobalPointerMove)
         window.removeEventListener('pointerup', handleGlobalPointerUp)
@@ -96,27 +151,31 @@ export default function CameraControl({ onCameraMove, onCameraZoom, onCameraRese
     }
   }, [isDragging, calculateJoystickPosition])
 
-  // 持续检测摇杆位置并触发相机移动
+  /**
+   * 相机移动循环 Effect
+   * 使用 requestAnimationFrame 持续检测摇杆位置并触发相机移动
+   * 这样可以提供流畅的相机控制体验
+   */
   useEffect(() => {
     const updateCamera = () => {
       // 只有当摇杆不在中心位置时才触发移动
       if (joystickPos.x !== 0 || joystickPos.y !== 0) {
-        // 归一化到 -1 到 1
+        // 将摇杆位置归一化到 -1 到 1 的范围
         const normalizedX = joystickPos.x / MAX_DISTANCE
         const normalizedY = joystickPos.y / MAX_DISTANCE
         
-        // 应用移动（乘以灵敏度系数）
+        // 应用移动（乘以灵敏度系数，控制相机移动速度）
         onCameraMove(normalizedX * MOVE_SENSITIVITY, normalizedY * MOVE_SENSITIVITY)
       }
       
-      // 继续下一帧
+      // 请求下一帧，形成动画循环
       animationFrameRef.current = requestAnimationFrame(updateCamera)
     }
     
-    // 开始动画循环
+    // 启动动画循环
     animationFrameRef.current = requestAnimationFrame(updateCamera)
     
-    // 清理
+    // 清理函数：取消动画循环
     return () => {
       if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current)
@@ -126,9 +185,10 @@ export default function CameraControl({ onCameraMove, onCameraZoom, onCameraRese
 
   return (
     <div className="fixed bottom-20 right-6 z-50 flex flex-col gap-4 items-center">
-      {/* 摇杆控制器 */}
+      {/* ========== 摇杆控制器区域 ========== */}
+      {/* 摇杆控制器容器 */}
       <div className="relative">
-        {/* 基座（拖拽范围） */}
+        {/* 基座 - 定义摇杆的拖拽范围 */}
         <div
           ref={baseRef}
           className={`
@@ -149,16 +209,16 @@ export default function CameraControl({ onCameraMove, onCameraZoom, onCameraRese
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
         >
-          {/* 中心十字线 */}
+          {/* 中心十字线 - 辅助定位 */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-1 h-full bg-white/10" />
-            <div className="absolute w-full h-1 bg-white/10" />
+            <div className="w-1 h-full bg-white/10" /> {/* 垂直线 */}
+            <div className="absolute w-full h-1 bg-white/10" /> {/* 水平线 */}
           </div>
 
-          {/* 中心点 */}
+          {/* 中心点标记 */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white/30 rounded-full pointer-events-none" />
 
-          {/* 摇杆 */}
+          {/* 摇杆 - 可拖拽的圆形控制器 */}
           <div
             className={`
               absolute top-1/2 left-1/2
@@ -193,7 +253,7 @@ export default function CameraControl({ onCameraMove, onCameraZoom, onCameraRese
           </div>
         </div>
 
-        {/* 提示文本 */}
+        {/* 拖拽时的提示文本 */}
         {isDragging && (
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap">
             <div className="bg-black/75 text-white px-3 py-1.5 rounded-full text-xs font-medium">
@@ -203,8 +263,9 @@ export default function CameraControl({ onCameraMove, onCameraZoom, onCameraRese
         )}
       </div>
 
-      {/* 缩放按钮组 */}
+      {/* ========== 缩放按钮组 ========== */}
       <div className="flex gap-2">
+        {/* 放大按钮 - 负值表示拉近相机 */}
         <button
           onClick={() => onCameraZoom(-0.5)}
           className="
@@ -221,6 +282,7 @@ export default function CameraControl({ onCameraMove, onCameraZoom, onCameraRese
           </svg>
         </button>
         
+        {/* 缩小按钮 - 正值表示推远相机 */}
         <button
           onClick={() => onCameraZoom(0.5)}
           className="
@@ -238,7 +300,45 @@ export default function CameraControl({ onCameraMove, onCameraZoom, onCameraRese
         </button>
       </div>
 
-      {/* 重置按钮 */}
+      {/* ========== 升降按钮组 ========== */}
+      <div className="flex gap-2">
+        {/* 升高按钮 - 正值表示向上移动 */}
+        <button
+          onClick={() => onCameraElevate(0.5)}
+          className="
+            w-12 h-12 rounded-full 
+            bg-gradient-to-br from-green-400/90 to-green-500/90 backdrop-blur-sm shadow-lg
+            flex items-center justify-center
+            hover:from-green-500 hover:to-green-600 hover:scale-110 active:scale-95
+            transition-all duration-200
+          "
+          title="升高视角"
+        >
+          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+        </button>
+        
+        {/* 降低按钮 - 负值表示向下移动 */}
+        <button
+          onClick={() => onCameraElevate(-0.5)}
+          className="
+            w-12 h-12 rounded-full 
+            bg-gradient-to-br from-orange-400/90 to-orange-500/90 backdrop-blur-sm shadow-lg
+            flex items-center justify-center
+            hover:from-orange-500 hover:to-orange-600 hover:scale-110 active:scale-95
+            transition-all duration-200
+          "
+          title="降低视角"
+        >
+          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </button>
+      </div>
+
+      {/* ========== 重置按钮 ========== */}
+      {/* 重置视角按钮 - 恢复相机到默认位置和角度 */}
       <button
         onClick={onCameraReset}
         className="

@@ -2,14 +2,37 @@
 
 import React, { useState } from 'react'
 
+/**
+ * 教程弹窗组件的属性接口
+ */
 interface TutorialModalProps {
+  /** 关闭回调函数 */
   onClose: () => void
 }
 
 /**
+ * ========================================
  * 教程弹窗组件
+ * ========================================
+ * 
+ * 功能说明：
+ * - 分页展示游戏教程
+ * - 介绍游戏玩法和功能
+ * - 支持上一页、下一页、跳过
+ * - 页码指示器
+ * 
+ * 教程内容：
+ * 1. 欢迎页面
+ * 2. 点击互动说明
+ * 3. 录音和变声功能
+ * 4. 道具系统
+ * 5. 情绪系统
+ * 6. 等级和经验
+ * 
+ * @component
  */
 export default function TutorialModal({ onClose }: TutorialModalProps) {
+  /** 当前页码 (0-based) */
   const [currentPage, setCurrentPage] = useState(0)
 
   const tutorialPages = [

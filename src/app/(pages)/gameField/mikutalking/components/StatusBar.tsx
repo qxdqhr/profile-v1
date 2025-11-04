@@ -11,7 +11,7 @@ interface StatusBarProps {
  * 状态栏组件 - 显示角色情绪和状态
  */
 export default function StatusBar({ emotion }: StatusBarProps) {
-  const [isExpanded, setIsExpanded] = useState(true)
+  const [isExpanded, setIsExpanded] = useState(false)
   // 获取情绪图标
   const getEmotionIcon = () => {
     switch (emotion.current) {

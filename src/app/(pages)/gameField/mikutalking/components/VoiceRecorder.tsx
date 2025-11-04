@@ -3,16 +3,39 @@
 import React, { useState, useRef, useEffect } from 'react'
 import type { RecordingState, VoiceEffectType } from '../types'
 
+/**
+ * 语音录制器组件的属性接口
+ */
 interface VoiceRecorderProps {
+  /** 当前录音状态 */
   recordingState: RecordingState
+  /** 当前选中的变声效果 */
   currentVoiceEffect: VoiceEffectType
+  /** 录音状态变化回调 */
   onRecordingStateChange: (state: RecordingState) => void
+  /** 变声效果变化回调 */
   onVoiceEffectChange: (effect: VoiceEffectType) => void
+  /** 是否启用录音功能 */
   enabled: boolean
 }
 
 /**
+ * ========================================
  * 语音录制器组件
+ * ========================================
+ * 
+ * 功能说明：
+ * - 支持按住录音，松开停止
+ * - 提供多种变声效果选择
+ * - 实时音量监测和可视化
+ * - 最长录音10秒
+ * - 使用 Web Audio API 和 MediaRecorder
+ * 
+ * 变声效果：
+ * - 正常、尖声、低沉
+ * - 机器人、回声、快速、慢速
+ * 
+ * @component
  */
 export default function VoiceRecorder({
   recordingState,
