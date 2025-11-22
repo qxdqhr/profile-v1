@@ -27,6 +27,11 @@ export default function MMDTestPage() {
         name: 'Catch The Wave',
         path: '/mikutalking/actions/CatchTheWave/mmd_CatchTheWave_motion.vmd',
       },
+      {
+        id: 'elsa-swim',
+        name: '打招呼',
+        path: '/mikutalking/actions/打招呼.vmd',
+      },
     ],
     audios: [
       {
@@ -47,7 +52,7 @@ export default function MMDTestPage() {
       {
         id: 'classroom',
         name: '教室场景',
-        path: '/mikutalking/stages/1.pmx',
+        path: 'mikutalking/stages/stages/1.pmx',
       },
       // {
       //   id: 'stage',
@@ -60,7 +65,7 @@ export default function MMDTestPage() {
       {
         id: 'bg1',
         name: '背景1',
-        path: '/mikutalking/stages/stages/bei/00000000E4B0AD38.png',
+        path: '/linkGame/background2.png',
       },
       {
         id: 'bg2',
