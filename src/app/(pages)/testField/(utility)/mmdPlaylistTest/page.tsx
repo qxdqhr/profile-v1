@@ -13,16 +13,15 @@ export default function MMDPlaylistTestPage() {
     description: '包含多个 MMD 表演的连续播放',
     nodes: [
       {
-        id: 'node1',
-        name: '初音未来 - Catch The Wave',
-        description: '经典的 Catch The Wave 表演',
+        id: 'node0',
+        name: '艾尔莎 - 打招呼',
+        description: '艾尔莎的打招呼动作',
         resources: {
-          modelPath: '/mikutalking/models/YYB_Z6SakuraMiku/miku.pmx',
-          motionPath: '/mikutalking/actions/CatchTheWave/mmd_CatchTheWave_motion.vmd',
-          audioPath: '/mikutalking/actions/CatchTheWave/pv_268.wav',
-          cameraPath: '/mikutalking/actions/CatchTheWave/camera.vmd',
+          modelPath: '/mikutalking/models/艾尔莎/艾尔莎-水手服泳装.pmx',
+          motionPath: '/mikutalking/actions/打招呼.vmd',
+          // 注意：这个节点没有音频和相机，只有模型和动作
         },
-        loop: false, // 播放完成后自动切换到下一个节点
+        loop: false,
       },
       {
         id: 'node2',
@@ -35,6 +34,19 @@ export default function MMDPlaylistTestPage() {
         },
         loop: false,
       },
+      {
+        id: 'node1',
+        name: '初音未来 - Catch The Wave',
+        description: '经典的 Catch The Wave 表演',
+        resources: {
+          modelPath: '/mikutalking/models/YYB_Z6SakuraMiku/miku.pmx',
+          motionPath: '/mikutalking/actions/CatchTheWave/mmd_CatchTheWave_motion.vmd',
+          audioPath: '/mikutalking/actions/CatchTheWave/pv_268.wav',
+          cameraPath: '/mikutalking/actions/CatchTheWave/camera.vmd',
+        },
+        loop: false, // 播放完成后自动切换到下一个节点
+      },
+   
       {
         id: 'node3',
         name: '初音未来 + 场景 + 背景',
