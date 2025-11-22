@@ -40,6 +40,7 @@ export { CollectionCard } from './CollectionCard';
  * - 移动端手势支持
  */
 export { ArtworkViewer } from './ArtworkViewer';
+export { MobileAlbumViewer } from './MobileAlbumViewer';
 
 /** 
  * 缩略图侧边栏组件

@@ -29,9 +29,13 @@ import Link from 'next/link';
 import { useMasterpieces, useDeadlinePopup } from '../hooks';
 import { getConfig } from '../services';
 import { MasterpiecesConfig, CollectionCategory, CollectionCategoryType } from '../types';
-import { CollectionCard, ArtworkViewer, ThumbnailSidebar, CartModal, CartButton, DeadlinePopupManager} from '../components';
+import { CollectionCard, ArtworkViewer, ThumbnailSidebar, MobileAlbumViewer, CartModal, CartButton, DeadlinePopupManager} from '../components';
 import { CartProvider } from '../contexts/CartContext';
 import { AuthProvider, useAuth, UserMenu, CustomMenuItem } from '@/modules/auth';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface ShowMasterPiecesContentProps {
   /** 活动参数，用于指定显示特定活动的数据 */
@@ -250,10 +254,10 @@ function ShowMasterPiecesContent({ eventParam }: ShowMasterPiecesContentProps) {
    * 渲染加载状态
    */
   const renderLoading = () => (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-white to-prussian-blue-900/5 overflow-x-hidden">
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 p-4">
-        <div className="w-10 h-10 border-4 border-slate-200 border-t-blue-500 rounded-full animate-spin"></div>
-        <p className="text-slate-600">加载中...</p>
+        <div className="w-10 h-10 border-4 border-prussian-blue-300 border-t-moonstone rounded-full animate-spin"></div>
+        <p className="text-prussian-blue-600">加载中...</p>
       </div>
     </div>
   );
@@ -262,15 +266,15 @@ function ShowMasterPiecesContent({ eventParam }: ShowMasterPiecesContentProps) {
    * 渲染错误状态
    */
   const renderError = () => (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-white to-prussian-blue-900/5 overflow-x-hidden">
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 p-4 text-center">
-        <p className="text-red-600 text-lg">加载失败：{error}</p>
-        <button
+        <p className="text-destructive text-lg">加载失败：{error}</p>
+        <Button 
           onClick={() => window.location.reload()}
-          className="bg-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors min-h-[44px]"
+          className="bg-gradient-to-r from-moonstone to-cerulean hover:from-cerulean hover:to-moonstone text-white shadow-lg transition-all duration-300"
         >
           重试
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -279,19 +283,21 @@ function ShowMasterPiecesContent({ eventParam }: ShowMasterPiecesContentProps) {
    * 渲染空状态
    */
   const renderEmptyState = () => (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-white to-prussian-blue-900/5 overflow-x-hidden">
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 p-4 text-center">
-        <div className="text-slate-400 text-6xl mb-4">🎨</div>
-        <h3 className="text-xl font-semibold text-slate-800 mb-2">暂无可用画集</h3>
-        <p className="text-slate-600 mb-6">当前没有可预订的画集，请稍后再试</p>
+        <div className="text-moonstone text-6xl mb-4">🎨</div>
+        <h3 className="text-xl font-semibold mb-2 text-rich-black">暂无可用画集</h3>
+        <p className="text-prussian-blue-600 mb-6">当前没有可预订的画集，请稍后再试</p>
         {hasAdminAccess && (
-          <a
-            href="/testField/ShowMasterPieces/config"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          <Button 
+            asChild 
+            className="bg-gradient-to-r from-moonstone to-cerulean hover:from-cerulean hover:to-moonstone text-white shadow-lg transition-all duration-300"
           >
+            <a href="/testField/ShowMasterPieces/config" className="gap-2">
             <Settings size={20} />
             前往配置页面
           </a>
+          </Button>
         )}
       </div>
     </div>
@@ -319,40 +325,42 @@ function ShowMasterPiecesContent({ eventParam }: ShowMasterPiecesContentProps) {
 
   return (
     <CartProvider userId={userId} eventParam={eventParam}>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 overflow-x-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-white to-prussian-blue-900/5 overflow-x-hidden">
         {/* 顶部导航 */}
-        <div className="bg-white shadow-md border-b border-slate-200 sticky top-0 z-50">
+        <div className="bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-b border-prussian-blue-200/30 sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
             <div className="flex items-center justify-between gap-2 sm:gap-4 min-h-[44px]">
               {/* 左侧：返回按钮和标题 */}
               <div className="flex items-center gap-4 sm:gap-8 min-w-0 flex-1">
                 {selectedCollection && (
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={backToGallery}
-                    className="flex items-center gap-1 sm:gap-2 text-slate-500 bg-transparent border-none cursor-pointer text-base transition-colors hover:text-slate-800 p-1 sm:p-2 rounded-lg min-h-[44px] min-w-[44px] flex-shrink-0"
+                    className="gap-1 sm:gap-2 min-h-[44px] min-w-[44px] flex-shrink-0"
                   >
                     <ArrowLeft size={18} className="sm:w-5 sm:h-5" />
                     <span className="hidden sm:inline">返回</span>
-                  </button>
+                  </Button>
                 )}
                 <div className="text-center sm:text-left min-w-0 flex-1">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                    <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-800 m-0 truncate">
+                    <h1 className="text-lg sm:text-xl lg:text-2xl font-bold m-0 truncate text-rich-black">
                       {config?.heroTitle || '艺术画集展览'}
                     </h1>
                     {currentEvent && (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-slate-400">·</span>
-                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                        <span className="text-xs text-prussian-blue-400">·</span>
+                        <Badge variant="secondary" className="gap-1 bg-moonstone/10 text-cerulean border-moonstone/30">
                           🎨 {currentEvent.displayName}
-                        </span>
+                        </Badge>
                       </div>
                     )}
                   </div>
-                  <p className="text-xs sm:text-sm text-slate-500 m-0 hidden sm:block truncate">
+                  <p className="text-xs sm:text-sm text-prussian-blue-600 m-0 hidden sm:block truncate">
                     {config?.heroSubtitle || '探索精美的艺术作品，感受创作的魅力'}
                     {currentEvent && !eventParam && (
-                      <span className="ml-2 text-blue-600">
+                      <span className="ml-2 text-moonstone font-medium">
                         · 当前浏览默认活动
                       </span>
                     )}
@@ -365,7 +373,7 @@ function ShowMasterPiecesContent({ eventParam }: ShowMasterPiecesContentProps) {
                 {/* 历史记录链接 */}
                 <Link
                   href="/testField/ShowMasterPieces/history"
-                  className="flex items-center gap-1 sm:gap-2 text-slate-600 hover:text-slate-800 transition-colors p-1 sm:p-2 rounded-lg min-h-[44px] min-w-[44px] flex-shrink-0"
+                  className="flex items-center gap-1 sm:gap-2 text-prussian-blue-600 hover:text-moonstone transition-colors p-1 sm:p-2 rounded-lg min-h-[44px] min-w-[44px] flex-shrink-0"
                   title="查看预订历史"
                 >
                   <History size={18} className="sm:w-5 sm:h-5" />
@@ -375,7 +383,7 @@ function ShowMasterPiecesContent({ eventParam }: ShowMasterPiecesContentProps) {
                 {/* 购物车按钮 */}
                 <CartButton 
                   onClick={handleCartClick} 
-                  className="relative p-1 sm:p-2 text-slate-600 hover:text-slate-800 transition-colors" 
+                  className="relative p-1 sm:p-2 text-prussian-blue-600 hover:text-moonstone transition-colors" 
                   userId={userId}
                 />
                 
@@ -397,177 +405,118 @@ function ShowMasterPiecesContent({ eventParam }: ShowMasterPiecesContentProps) {
         </div>
 
         {/* 主要内容区域 */}
-        <div className="max-w-7xl mx-auto p-3 sm:p-4 lg:p-6">
-          {selectedCollection ? (
-            /* 作品浏览视图 */
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
-              {/* 侧边栏：缩略图导航 */}
-              <div className="lg:col-span-1 order-2 lg:order-1">
-                <ThumbnailSidebar
-                  pages={selectedCollection.pages}
-                  currentPage={currentPage}
-                  onPageSelect={goToPage}
-                />
-              </div>
-              
-              {/* 主内容区：作品查看器 */}
-              <div className="lg:col-span-3 order-1 lg:order-2">
-                {getCurrentArtwork() && (
-                  <ArtworkViewer
-                    artwork={getCurrentArtwork()!}
-                    collectionId={selectedCollection.id}
-                    onNext={nextPage}
-                    onPrev={prevPage}
-                    canGoNext={canGoNext}
-                    canGoPrev={canGoPrev}
-                  />
-                )}
-              </div>
-            </div>
-          ) : (
-            /* 画集列表视图 */
+        {selectedCollection ? (
+          /* 手机相册风格的作品浏览视图 */
+          <div className="fixed inset-0 top-[76px] z-40">
+            <MobileAlbumViewer
+              artworks={selectedCollection.pages}
+              collectionId={selectedCollection.id}
+              currentIndex={currentPage}
+              onIndexChange={goToPage}
+              onNext={nextPage}
+              onPrev={prevPage}
+              canGoNext={canGoNext}
+              canGoPrev={canGoPrev}
+            />
+          </div>
+        ) : (
+          <div className="max-w-7xl mx-auto p-3 sm:p-4 lg:p-6">
+            {/* 画集列表视图 */}
             <div className="space-y-6">
-              {/* 分类筛选网格 */}
-              <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
-                <h3 className="text-lg font-semibold text-slate-800 mb-4">商品分类</h3>
-                <div className="grid grid-cols-3 gap-3">
-                  <button
-                    onClick={() => setSelectedCategory(CollectionCategory.COLLECTION)}
-                    className={`px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
-                      selectedCategory === CollectionCategory.COLLECTION
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div className="font-semibold">画集</div>
-                      <div className="text-xs opacity-75 mt-1">
-                        ({collections.filter(c => c.category === CollectionCategory.COLLECTION).length})
-                      </div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => setSelectedCategory(CollectionCategory.ACRYLIC)}
-                    className={`px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
-                      selectedCategory === CollectionCategory.ACRYLIC
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div className="font-semibold">立牌</div>
-                      <div className="text-xs opacity-75 mt-1">
-                        ({collections.filter(c => c.category === CollectionCategory.ACRYLIC).length})
-                      </div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => setSelectedCategory(CollectionCategory.BADGE)}
-                    className={`px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
-                      selectedCategory === CollectionCategory.BADGE
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div className="font-semibold">吧唧</div>
-                      <div className="text-xs opacity-75 mt-1">
-                        ({collections.filter(c => c.category === CollectionCategory.BADGE).length})
-                      </div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => setSelectedCategory(CollectionCategory.COLOR_PAPER)}
-                    className={`px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
-                      selectedCategory === CollectionCategory.COLOR_PAPER
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div className="font-semibold">色纸</div>
-                      <div className="text-xs opacity-75 mt-1">
-                        ({collections.filter(c => c.category === CollectionCategory.COLOR_PAPER).length})
-                      </div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => setSelectedCategory(CollectionCategory.POSTCARD)}
-                    className={`px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
-                      selectedCategory === CollectionCategory.POSTCARD
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div className="font-semibold">明信片</div>
-                      <div className="text-xs opacity-75 mt-1">
-                        ({collections.filter(c => c.category === CollectionCategory.POSTCARD).length})
-                      </div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => setSelectedCategory(CollectionCategory.LASER_TICKET)}
-                    className={`px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
-                      selectedCategory === CollectionCategory.LASER_TICKET
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div className="font-semibold">镭射票</div>
-                      <div className="text-xs opacity-75 mt-1">
-                        ({collections.filter(c => c.category === CollectionCategory.LASER_TICKET).length})
-                      </div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => setSelectedCategory(CollectionCategory.CANVAS_BAG)}
-                    className={`px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
-                      selectedCategory === CollectionCategory.CANVAS_BAG
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div className="font-semibold">帆布包</div>
-                      <div className="text-xs opacity-75 mt-1">
-                        ({collections.filter(c => c.category === CollectionCategory.CANVAS_BAG).length})
-                      </div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => setSelectedCategory(CollectionCategory.SUPPORT_STICK)}
-                    className={`px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
-                      selectedCategory === CollectionCategory.SUPPORT_STICK
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div className="font-semibold">应援棒</div>
-                      <div className="text-xs opacity-75 mt-1">
-                        ({collections.filter(c => c.category === CollectionCategory.SUPPORT_STICK).length})
-                      </div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => setSelectedCategory(CollectionCategory.OTHER)}
-                    className={`px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
-                      selectedCategory === CollectionCategory.OTHER
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div className="font-semibold">挂件/钥匙扣</div>
-                      <div className="text-xs opacity-75 mt-1">
-                        ({collections.filter(c => c.category === CollectionCategory.OTHER).length})
-                      </div>
-                    </div>
-                  </button>
-                </div>
-              </div>
+              {/* 分类筛选 */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>商品分类</CardTitle>
+                  <CardDescription>选择您感兴趣的商品类型</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Tabs value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as CollectionCategoryType)}>
+                    <TabsList className="grid grid-cols-3 lg:grid-cols-9 h-auto p-1 bg-moonstone-900/10">
+                      <TabsTrigger 
+                        value={CollectionCategory.COLLECTION} 
+                        className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+                      >
+                        <span className="font-semibold text-xs">画集</span>
+                        <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
+                          {collections.filter(c => c.category === CollectionCategory.COLLECTION).length}
+                        </Badge>
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value={CollectionCategory.ACRYLIC} 
+                        className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+                      >
+                        <span className="font-semibold text-xs">立牌</span>
+                        <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
+                          {collections.filter(c => c.category === CollectionCategory.ACRYLIC).length}
+                        </Badge>
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value={CollectionCategory.BADGE} 
+                        className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+                      >
+                        <span className="font-semibold text-xs">吧唧</span>
+                        <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
+                          {collections.filter(c => c.category === CollectionCategory.BADGE).length}
+                        </Badge>
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value={CollectionCategory.COLOR_PAPER} 
+                        className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+                      >
+                        <span className="font-semibold text-xs">色纸</span>
+                        <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
+                          {collections.filter(c => c.category === CollectionCategory.COLOR_PAPER).length}
+                        </Badge>
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value={CollectionCategory.POSTCARD} 
+                        className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+                      >
+                        <span className="font-semibold text-xs">明信片</span>
+                        <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
+                          {collections.filter(c => c.category === CollectionCategory.POSTCARD).length}
+                        </Badge>
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value={CollectionCategory.LASER_TICKET} 
+                        className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+                      >
+                        <span className="font-semibold text-xs">镭射票</span>
+                        <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
+                          {collections.filter(c => c.category === CollectionCategory.LASER_TICKET).length}
+                        </Badge>
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value={CollectionCategory.CANVAS_BAG} 
+                        className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+                      >
+                        <span className="font-semibold text-xs">帆布包</span>
+                        <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
+                          {collections.filter(c => c.category === CollectionCategory.CANVAS_BAG).length}
+                        </Badge>
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value={CollectionCategory.SUPPORT_STICK} 
+                        className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+                      >
+                        <span className="font-semibold text-xs">应援棒</span>
+                        <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
+                          {collections.filter(c => c.category === CollectionCategory.SUPPORT_STICK).length}
+                        </Badge>
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value={CollectionCategory.OTHER} 
+                        className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+                      >
+                        <span className="font-semibold text-xs">挂件/钥匙扣</span>
+                        <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
+                          {collections.filter(c => c.category === CollectionCategory.OTHER).length}
+                        </Badge>
+                      </TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </CardContent>
+              </Card>
 
               {/* 画集网格 */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
@@ -584,17 +533,17 @@ function ShowMasterPiecesContent({ eventParam }: ShowMasterPiecesContentProps) {
               {/* 空状态提示 */}
               {filteredCollections.length === 0 && collections.length > 0 && (
                 <div className="text-center py-8 sm:py-12 px-4">
-                  <div className="text-slate-400 text-base sm:text-lg mb-2">
+                  <div className="text-prussian-blue-400 text-base sm:text-lg mb-2">
                     当前分类暂无内容
                   </div>
-                  <p className="text-slate-500 text-xs sm:text-sm">
+                  <p className="text-prussian-blue-500 text-xs sm:text-sm">
                     请尝试选择其他分类查看
                   </p>
                 </div>
               )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* 购物车弹窗 */}
         <CartModal 

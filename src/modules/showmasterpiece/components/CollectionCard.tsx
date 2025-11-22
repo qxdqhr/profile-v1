@@ -21,6 +21,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Book, Eye, ImageIcon, ShoppingBag } from 'lucide-react';
 import { ArtCollection, CollectionCategory } from '../types';
 import { AddToCartButton } from './AddToCartButton';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 /**
  * CollectionCard 组件的 Props 接口
@@ -126,7 +129,7 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
    */
   const renderImageLoading = () => (
     <div className="absolute inset-0 flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-slate-200 border-t-blue-500 rounded-full animate-spin"></div>
+      <div className="w-8 h-8 border-2 border-prussian-blue-300 border-t-moonstone rounded-full animate-spin"></div>
     </div>
   );
 
@@ -134,8 +137,8 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
    * 渲染图片错误状态
    */
   const renderImageError = () => (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-500 text-sm text-center p-4">
-      <ImageIcon size={32} className="text-slate-400" />
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-prussian-blue-600 text-sm text-center p-4">
+      <ImageIcon size={32} className="text-prussian-blue-500" />
       <span>图片加载失败</span>
     </div>
   );
@@ -184,37 +187,38 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
   const isProduct = collection.category !== CollectionCategory.COLLECTION;
 
   return (
-    <div
+    <Card
       ref={cardRef}
-      className={`bg-white rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 transform w-full max-w-sm mx-auto group ${
+      className={`overflow-hidden transition-all duration-300 transform w-full max-w-sm mx-auto group border-prussian-blue-200/30 shadow-lg hover:shadow-xl bg-gradient-to-br from-white to-prussian-blue-900/5 ${
         !(collection.pages && collection.pages.length > 0) 
           ? 'cursor-default' 
-          : 'cursor-pointer hover:-translate-y-2 hover:shadow-3xl'
+          : 'cursor-pointer hover:-translate-y-1 hover:shadow-moonstone/20 hover:border-moonstone/40'
       }`}
       onClick={(collection.pages && collection.pages.length > 0) ? () => onSelect(collection) : undefined}
     >
       {/* 图片容器 - B5尺寸适配 */}
-      <div className="relative w-full bg-slate-50 flex items-center justify-center overflow-hidden aspect-[1/1.414]">
+      <div className="relative w-full bg-gradient-to-br from-prussian-blue-900/5 to-oxford-blue-100/10 flex items-center justify-center overflow-hidden aspect-[1/1.414]">
         {/* 图片覆盖层 */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-rich-black/60 via-oxford-blue/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         
         {/* 画集徽章 */}
-        <div className="absolute bottom-4 left-4 text-white z-10">
-          <div className="flex items-center gap-2 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1">
+        <div className="absolute bottom-4 left-4 z-10">
+          <Badge 
+            variant="secondary" 
+            className="bg-moonstone/90 text-white backdrop-blur-sm border-none hover:bg-cerulean/90 transition-colors shadow-lg"
+          >
             {isProduct ? (
               <>
-                <ShoppingBag size={16} />
-                <span className="text-sm font-medium">商品</span>
+                <ShoppingBag size={16} className="mr-1" />
+                商品
               </>
             ) : (
               <>
-                <Book size={16} />
-                <span className="text-sm font-medium">
-                  {collection.pages.length} 页
-                </span>
+                <Book size={16} className="mr-1" />
+                {collection.pages.length} 页
               </>
             )}
-          </div>
+          </Badge>
         </div>
 
         {/* 封面图片 */}
@@ -222,32 +226,32 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
       </div>
 
       {/* 内容区域 */}
-      <div className="p-6">
+      <CardContent className="p-6">
         {/* 标题 */}
-        <h3 className="text-xl font-bold text-slate-800 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+        <h3 className="text-xl font-bold text-rich-black mb-2 line-clamp-2 group-hover:text-moonstone transition-colors">
           {collection.title}
         </h3>
         
         {/* 编号 */}
-        <p className="text-slate-600 text-sm mb-1">
+        <p className="text-prussian-blue-600 text-sm mb-1">
           编号：{collection.number}
         </p>
         
         {/* 分类 */}
         {collection.category && (
-          <p className="text-slate-600 text-sm mb-1">
+          <p className="text-prussian-blue-600 text-sm mb-1">
             分类：{collection.category}
           </p>
         )}
         
         {/* 价格 */}
-        <p className="text-slate-600 text-sm mb-2">
+        <p className="text-prussian-blue-700 text-sm mb-2 font-medium">
           价格：{formatPrice(collection.price)}
         </p>
         
         {/* 描述 */}
         {collection.description && (
-          <p className="text-slate-500 text-sm mb-4 line-clamp-2">
+          <p className="text-prussian-blue-500 text-sm mb-4 line-clamp-2">
             {collection.description}
           </p>
         )}
@@ -256,8 +260,8 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
         <div className="flex gap-2">
           {/* 查看按钮 - 有作品内容时显示 */}
           {collection.pages && collection.pages.length > 0 && (
-            <button
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex-1 justify-center"
+            <Button
+              className="flex-1 bg-gradient-to-r from-moonstone to-cerulean hover:from-cerulean hover:to-moonstone text-white gap-2 shadow-lg transition-all duration-300 hover:shadow-moonstone/30"
               onClick={(e) => {
                 e.stopPropagation();
                 onSelect(collection);
@@ -265,7 +269,7 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
             >
               <Eye size={16} />
               查看详情
-            </button>
+            </Button>
           )}
           
           {/* 加入购物车按钮 - 没有作品内容时占满宽度 */}
@@ -276,7 +280,7 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
             size="md"
           />
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }; 

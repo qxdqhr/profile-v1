@@ -144,6 +144,17 @@ export const experiments: ExperimentItem[] = [
     isCompleted: false
   },
   {
+    id: "mmd-test",
+    title: "MMD 功能测试场",
+    description: "基于 @sa2kit/mmd 的MMD播放器测试页面，封装所有逻辑，仅需传入配置即可使用",
+    path: "/testField/mmdTest",
+    tags: ["3D", "MMD", "测试", "SA2Kit"],
+    category: "utility",
+    isCompleted: true,
+    createdAt: '2025-11-21',
+    updatedAt: '2025-11-21'
+  },
+  {
     id: "card-maker",
     title: "名片制作器",
     description: "移动端名片制作工具，支持角色头像、背景图片、文字编辑等功能，可创建个性化名片",
@@ -350,5 +361,27 @@ export const experiments: ExperimentItem[] = [
     isCompleted: true,
     createdAt: '2024-01-15',
     updatedAt: '2024-01-15'
+  },
+  {
+    id: "miku-talking",
+    title: "米库说话",
+    description: "类似会说话的汤姆猫的MMD互动游戏，支持点击互动、语音录制变声、拖拽手势、喂食道具等功能。与米库互动，提升亲密度，解锁更多动画和表情！",
+    path: "/gameField/mikutalking",
+    tags: ["小游戏", "MMD", "互动", "语音", "Three.js", "3D", "变声"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2025-11-03',
+    updatedAt: '2025-11-03'
+  },
+  {
+    id: "mmd-test",
+    title: "MMD 功能测试",
+    description: "测试和验证 SA2Kit MMD 库的各项功能，包括模型加载、动画播放、相机控制、React Hooks 等。支持多种测试模式，提供详细的状态信息和调试工具",
+    path: "/testField/mmdTest",
+    tags: ["MMD", "3D", "测试", "SA2Kit", "Three.js", "开发工具"],
+    category: "utility",
+    isCompleted: false,
+    createdAt: '2025-11-15',
+    updatedAt: '2025-11-15'
   }
 ];

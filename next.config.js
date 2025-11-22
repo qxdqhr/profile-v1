@@ -15,7 +15,7 @@ const nextConfig = {
         unoptimized: true
     },
     // 添加你的音频文件到允许的资源类型中
-    webpack: (config) => {
+    webpack: (config, { isServer }) => {
         config.module.rules.push({
             test: /\.(mp3)$/,
             type: 'asset/resource',
@@ -23,6 +23,13 @@ const nextConfig = {
                 filename: 'static/media/[name][ext]'
             }
         });
+        
+        // 添加 SA2Kit 路径别名
+        config.resolve.alias = {
+            ...config.resolve.alias,
+            '@sa2kit': require('path').join(__dirname, 'sa2kit/dist/index.js'),
+        };
+        
         return config;
     },
     // 允许跨域加载子应用资源

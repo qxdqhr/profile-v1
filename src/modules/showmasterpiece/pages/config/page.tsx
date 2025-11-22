@@ -16,6 +16,18 @@ import {
 } from '../../components';
 import { shouldUseUniversalFileService, getStorageModeDisplayName } from '../../services';
 import { AuthGuard, AuthProvider } from '@/modules/auth';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 type TabType = 'general' | 'collections' | 'artworks' | 'bookings' | 'popup' | 'system' | 'events';
 
@@ -459,330 +471,304 @@ function ConfigPageContent() {
   // 错误状态
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200">
+      <div className="min-h-screen bg-background">
         <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 p-4">
-          <p className="text-red-600 text-lg">加载失败：{error}</p>
-          <button
-            onClick={refreshData}
-            className="bg-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors"
-          >
+          <p className="text-destructive text-lg">加载失败：{error}</p>
+          <Button onClick={refreshData}>
             重试
-          </button>
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200">
+    <div className="min-h-screen bg-background">
       {/* 顶部导航 */}
-      <div className="bg-white shadow-md border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center gap-8">
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => window.history.back()}
-              className="flex items-center gap-2 text-slate-500 bg-transparent border-none cursor-pointer text-base transition-colors hover:text-slate-800"
+              className="gap-2"
             >
               <ArrowLeft size={20} />
-              <span>返回</span>
-            </button>
+              返回
+            </Button>
             <div>
-              <h1 className="text-2xl font-bold text-slate-800 m-0">画集展览配置管理</h1>
-              <p className="text-sm text-slate-500 m-0">管理展览的所有配置、画集和作品</p>
+              <h1 className="text-2xl font-bold">画集展览配置管理</h1>
+              <p className="text-sm text-muted-foreground">管理展览的所有配置、画集和作品</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* 活动选择器 */}
-      <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-800 mb-2">当前管理活动</h2>
-              <div className="max-w-md">
-                <EventSelector
-                  currentEvent={currentEvent}
-                  events={availableEvents}
-                  onEventChange={(event) => {
-                    setCurrentEvent(event);
-                    // 注意：预订数据会通过hook自动响应活动变化
-                  }}
-                  loading={eventsLoading}
-                  mode="dropdown"
-                />
-              </div>
-            </div>
+      <Card className="mx-6 mt-6 mb-0 rounded-b-none border-b-0">
+        <CardHeader>
+          <CardTitle className="text-lg">当前管理活动</CardTitle>
+          <CardDescription>选择要管理的活动</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="max-w-md">
+            <EventSelector
+              currentEvent={currentEvent}
+              events={availableEvents}
+              onEventChange={(event) => {
+                setCurrentEvent(event);
+                // 注意：预订数据会通过hook自动响应活动变化
+              }}
+              loading={eventsLoading}
+              mode="dropdown"
+            />
           </div>
-        </div>
-      </div>
-
-      {/* 标签页导航 */}
-      <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto flex gap-0">
-          <button
-            className={`flex items-center gap-2 px-6 py-4 bg-transparent border-none cursor-pointer border-b-2 transition-colors ${
-              activeTab === 'general' 
-                ? 'border-blue-500 text-blue-600' 
-                : 'border-transparent text-slate-600 hover:text-slate-800'
-            }`}
-            onClick={() => setActiveTab('general')}
-          >
-            <Settings size={18} />
-            基础配置
-          </button>
-          <button
-            className={`flex items-center gap-2 px-6 py-4 bg-transparent border-none cursor-pointer border-b-2 transition-colors ${
-              activeTab === 'collections' 
-                ? 'border-blue-500 text-blue-600' 
-                : 'border-transparent text-slate-600 hover:text-slate-800'
-            }`}
-            onClick={() => setActiveTab('collections')}
-          >
-            <Database size={18} />
-            画集管理
-          </button>
-          <button
-            className={`flex items-center gap-2 px-6 py-4 bg-transparent border-none cursor-pointer border-b-2 transition-colors ${
-              activeTab === 'artworks' 
-                ? 'border-blue-500 text-blue-600' 
-                : 'border-transparent text-slate-600 hover:text-slate-800'
-            }`}
-            onClick={() => setActiveTab('artworks')}
-          >
-            <Image size={18} />
-            作品管理
-          </button>
-          <button
-            className={`flex items-center gap-2 px-6 py-4 bg-transparent border-none cursor-pointer border-b-2 transition-colors ${
-              activeTab === 'bookings' 
-                ? 'border-blue-500 text-blue-600' 
-                : 'border-transparent text-slate-600 hover:text-slate-800'
-            }`}
-            onClick={() => setActiveTab('bookings')}
-          >
-            <Calendar size={18} />
-            预订管理
-          </button>
-          <button
-            className={`flex items-center gap-2 px-6 py-4 bg-transparent border-none cursor-pointer border-b-2 transition-colors ${
-              activeTab === 'popup' 
-                ? 'border-blue-500 text-blue-600' 
-                : 'border-transparent text-slate-600 hover:text-slate-800'
-            }`}
-            onClick={() => setActiveTab('popup')}
-          >
-            <Bell size={18} />
-            弹窗配置
-          </button>
-          <button
-            className={`flex items-center gap-2 px-6 py-4 bg-transparent border-none cursor-pointer border-b-2 transition-colors ${
-              activeTab === 'events' 
-                ? 'border-blue-500 text-blue-600' 
-                : 'border-transparent text-slate-600 hover:text-slate-800'
-            }`}
-            onClick={() => setActiveTab('events')}
-          >
-            <Activity size={18} />
-            活动管理
-          </button>
-          <button
-            className={`flex items-center gap-2 px-6 py-4 bg-transparent border-none cursor-pointer border-b-2 transition-colors ${
-              activeTab === 'system' 
-                ? 'border-blue-500 text-blue-600' 
-                : 'border-transparent text-slate-600 hover:text-slate-800'
-            }`}
-            onClick={() => setActiveTab('system')}
-          >
-            <Cog size={18} />
-            系统配置
-          </button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* 主要内容区域 */}
       <div className="max-w-7xl mx-auto p-6">
-        {/* 基础配置标签页 */}
-        {activeTab === 'general' && (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-slate-800 mb-2">基础配置</h2>
-                <p className="text-slate-600">配置网站的基本信息和显示选项</p>
-              </div>
-              <div className="flex gap-3">
-                <button 
-                  onClick={handleResetConfig} 
-                  className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-lg font-medium hover:bg-slate-200 transition-colors"
-                >
-                  <RotateCcw size={16} />
-                  重置默认
-                </button>
-                <button 
-                  onClick={handleSaveConfig} 
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white border border-blue-600 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-                >
-                  <Save size={16} />
-                  保存配置
-                </button>
-              </div>
-            </div>
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabType)} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-7">
+            <TabsTrigger value="general" className="flex items-center gap-2">
+              <Settings size={16} />
+              基础配置
+            </TabsTrigger>
+            <TabsTrigger value="collections" className="flex items-center gap-2">
+              <Database size={16} />
+              画集管理
+            </TabsTrigger>
+            <TabsTrigger value="artworks" className="flex items-center gap-2">
+              <Image size={16} />
+              作品管理
+            </TabsTrigger>
+            <TabsTrigger value="bookings" className="flex items-center gap-2">
+              <Calendar size={16} />
+              预订管理
+            </TabsTrigger>
+            <TabsTrigger value="popup" className="flex items-center gap-2">
+              <Bell size={16} />
+              弹窗配置
+            </TabsTrigger>
+            <TabsTrigger value="events" className="flex items-center gap-2">
+              <Activity size={16} />
+              活动管理
+            </TabsTrigger>
+            <TabsTrigger value="system" className="flex items-center gap-2">
+              <Cog size={16} />
+              系统配置
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="general" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>基础配置</CardTitle>
+                    <CardDescription>配置网站的基本信息和显示选项</CardDescription>
+                  </div>
+                  <div className="flex gap-3">
+                    <Button 
+                      variant="outline"
+                      onClick={handleResetConfig}
+                      className="gap-2"
+                    >
+                      <RotateCcw size={16} />
+                      重置默认
+                    </Button>
+                    <Button 
+                      onClick={handleSaveConfig}
+                      className="gap-2"
+                    >
+                      <Save size={16} />
+                      保存配置
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <label className="block text-sm font-medium text-slate-700">网站名称</label>
-                <input
-                  type="text"
-                  value={configForm.siteName}
-                  onChange={(e) => setConfigForm(prev => ({ ...prev, siteName: e.target.value }))}
-                  placeholder="输入网站名称"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="siteName">网站名称</Label>
+                    <Input
+                      id="siteName"
+                      type="text"
+                      value={configForm.siteName}
+                      onChange={(e) => setConfigForm(prev => ({ ...prev, siteName: e.target.value }))}
+                      placeholder="输入网站名称"
+                    />
+                  </div>
 
-              <div className="space-y-4">
-                <label className="block text-sm font-medium text-slate-700">网站描述</label>
-                <textarea
-                  value={configForm.siteDescription}
-                  onChange={(e) => setConfigForm(prev => ({ ...prev, siteDescription: e.target.value }))}
-                  placeholder="输入网站描述"
-                  rows={2}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="siteDescription">网站描述</Label>
+                    <Textarea
+                      id="siteDescription"
+                      value={configForm.siteDescription}
+                      onChange={(e) => setConfigForm(prev => ({ ...prev, siteDescription: e.target.value }))}
+                      placeholder="输入网站描述"
+                      rows={2}
+                    />
+                  </div>
 
-              <div className="space-y-4">
-                <label className="block text-sm font-medium text-slate-700">主标题</label>
-                <input
-                  type="text"
-                  value={configForm.heroTitle}
-                  onChange={(e) => setConfigForm(prev => ({ ...prev, heroTitle: e.target.value }))}
-                  placeholder="输入主标题"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="heroTitle">主标题</Label>
+                    <Input
+                      id="heroTitle"
+                      type="text"
+                      value={configForm.heroTitle}
+                      onChange={(e) => setConfigForm(prev => ({ ...prev, heroTitle: e.target.value }))}
+                      placeholder="输入主标题"
+                    />
+                  </div>
 
-              <div className="space-y-4">
-                <label className="block text-sm font-medium text-slate-700">副标题</label>
-                <textarea
-                  value={configForm.heroSubtitle}
-                  onChange={(e) => setConfigForm(prev => ({ ...prev, heroSubtitle: e.target.value }))}
-                  placeholder="输入副标题"
-                  rows={2}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="heroSubtitle">副标题</Label>
+                    <Textarea
+                      id="heroSubtitle"
+                      value={configForm.heroSubtitle}
+                      onChange={(e) => setConfigForm(prev => ({ ...prev, heroSubtitle: e.target.value }))}
+                      placeholder="输入副标题"
+                      rows={2}
+                    />
+                  </div>
 
-              <div className="space-y-4">
-                <label className="block text-sm font-medium text-slate-700">每页显示画集数量</label>
-                <input
-                  type="number"
-                  value={configForm.maxCollectionsPerPage}
-                  onChange={(e) => setConfigForm(prev => ({ ...prev, maxCollectionsPerPage: parseInt(e.target.value) }))}
-                  min="1"
-                  max="50"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="maxCollections">每页显示画集数量</Label>
+                    <Input
+                      id="maxCollections"
+                      type="number"
+                      value={configForm.maxCollectionsPerPage}
+                      onChange={(e) => setConfigForm(prev => ({ ...prev, maxCollectionsPerPage: parseInt(e.target.value) }))}
+                      min="1"
+                      max="50"
+                    />
+                  </div>
 
-              <div className="space-y-4">
-                <label className="block text-sm font-medium text-slate-700">主题</label>
-                <select
-                  value={configForm.theme}
-                  onChange={(e) => setConfigForm(prev => ({ ...prev, theme: e.target.value as any }))}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="light">浅色</option>
-                  <option value="dark">深色</option>
-                  <option value="auto">自动</option>
-                </select>
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="theme">主题</Label>
+                    <Select
+                      value={configForm.theme}
+                      onValueChange={(value) => setConfigForm(prev => ({ ...prev, theme: value as any }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="选择主题" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="light">浅色</SelectItem>
+                        <SelectItem value="dark">深色</SelectItem>
+                        <SelectItem value="auto">自动</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-              <div className="space-y-4">
-                <label className="block text-sm font-medium text-slate-700">语言</label>
-                <select
-                  value={configForm.language}
-                  onChange={(e) => setConfigForm(prev => ({ ...prev, language: e.target.value as any }))}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="zh">中文</option>
-                  <option value="en">English</option>
-                </select>
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="language">语言</Label>
+                    <Select
+                      value={configForm.language}
+                      onValueChange={(value) => setConfigForm(prev => ({ ...prev, language: value as any }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="选择语言" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="zh">中文</SelectItem>
+                        <SelectItem value="en">English</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-              <div className="space-y-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={configForm.enableSearch}
-                    onChange={(e) => setConfigForm(prev => ({ ...prev, enableSearch: e.target.checked }))}
-                    className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
-                  />
-                  <span className="text-sm font-medium text-slate-700">启用搜索功能</span>
-                </label>
-              </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      id="enableSearch"
+                      type="checkbox"
+                      checked={configForm.enableSearch}
+                      onChange={(e) => setConfigForm(prev => ({ ...prev, enableSearch: e.target.checked }))}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                    <Label htmlFor="enableSearch" className="text-sm font-medium">
+                      启用搜索功能
+                    </Label>
+                  </div>
 
-              <div className="space-y-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={configForm.enableCategories}
-                    onChange={(e) => setConfigForm(prev => ({ ...prev, enableCategories: e.target.checked }))}
-                    className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
-                  />
-                  <span className="text-sm font-medium text-slate-700">启用分类功能</span>
-                </label>
-              </div>
-            </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      id="enableCategories"
+                      type="checkbox"
+                      checked={configForm.enableCategories}
+                      onChange={(e) => setConfigForm(prev => ({ ...prev, enableCategories: e.target.checked }))}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                    <Label htmlFor="enableCategories" className="text-sm font-medium">
+                      启用分类功能
+                    </Label>
+                  </div>
+                </div>
 
-            {/* 文件服务信息 */}
-            <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h3 className="text-lg font-semibold text-blue-800 mb-2">文件服务状态</h3>
-              <p className="text-blue-700 mb-2">
-                当前使用：<span className="font-medium">{storageModeDisplay}</span>
-              </p>
-              <p className="text-blue-600 text-sm">
-                通用文件服务：{useUniversalService ? '已启用' : '未启用'}
-              </p>
-            </div>
-          </div>
-        )}
+                <Separator className="my-6" />
+                
+                {/* 文件服务信息 */}
+                <Card className="bg-blue-50/50 border-blue-200">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-blue-800">文件服务状态</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <p className="text-blue-700">
+                      当前使用：<Badge variant="secondary">{storageModeDisplay}</Badge>
+                    </p>
+                    <p className="text-blue-600 text-sm">
+                      通用文件服务：<Badge variant={useUniversalService ? "default" : "outline"}>
+                        {useUniversalService ? '已启用' : '未启用'}
+                      </Badge>
+                    </p>
+                  </CardContent>
+                </Card>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        {/* 画集管理标签页 */}
-        {activeTab === 'collections' && (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-slate-800">画集管理</h2>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setCollectionForm({
-                      title: '',
-                      number: '',
-                      coverImage: '',
-                      description: '',
-                      category: CollectionCategory.COLLECTION,
-                      tags: [],
-                      isPublished: true,
-                      price: undefined,
-                    });
-                    setEditingCollection(null);
-                    setShowCollectionForm(true);
-                  }}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white border border-blue-600 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-                >
-                  <Plus size={16} />
-                  添加画集
-                </button>
-                <button
-                  onClick={() => handleToggleCollectionOrder()}
-                  className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-lg font-medium hover:bg-slate-200 transition-colors"
-                >
-                  <ArrowUpDown size={16} />
-                  {showCollectionOrder ? '关闭排序' : '画集排序'}
-                </button>
-              </div>
-            </div>
+          <TabsContent value="collections" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>画集管理</CardTitle>
+                    <CardDescription>管理当前活动的画集</CardDescription>
+                  </div>
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={() => {
+                        setCollectionForm({
+                          title: '',
+                          number: '',
+                          coverImage: '',
+                          description: '',
+                          category: CollectionCategory.COLLECTION,
+                          tags: [],
+                          isPublished: true,
+                          price: undefined,
+                        });
+                        setEditingCollection(null);
+                        setShowCollectionForm(true);
+                      }}
+                      className="gap-2"
+                    >
+                      <Plus size={16} />
+                      添加画集
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleToggleCollectionOrder()}
+                      className="gap-2"
+                    >
+                      <ArrowUpDown size={16} />
+                      {showCollectionOrder ? '关闭排序' : '画集排序'}
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
 
             {showCollectionOrder && (
               <div className="mb-6 p-6 bg-white rounded-lg shadow-sm border border-slate-200">
@@ -866,12 +852,11 @@ function ConfigPageContent() {
                 </div>
               </div>
             )}
-          </div>
-        )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        {/* 作品管理标签页 */}
-        {activeTab === 'artworks' && (
-          <div>
+          <TabsContent value="artworks" className="space-y-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-slate-800">作品管理</h2>
               <div className="flex gap-3">
@@ -986,12 +971,9 @@ function ConfigPageContent() {
                   ))}
               </div>
             )}
-          </div>
-        )}
+          </TabsContent>
 
-        {/* 预订管理标签页 */}
-        {activeTab === 'bookings' && (
-          <div>
+          <TabsContent value="bookings" className="space-y-6">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-slate-800">预订管理</h2>
@@ -1022,23 +1004,17 @@ function ConfigPageContent() {
               onExportBookings={exportBookings}
               eventParam={currentEvent?.slug}
             />
-          </div>
-        )}
+          </TabsContent>
 
-        {/* 弹窗配置标签页 */}
-        {activeTab === 'popup' && (
-          <div>
+          <TabsContent value="popup" className="space-y-6">
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-slate-800 mb-2">弹窗配置</h2>
               <p className="text-slate-600">管理购物车提交时的限时提醒弹窗设置</p>
             </div>
             <PopupConfigManagement eventParam={currentEvent?.slug} />
-          </div>
-        )}
+          </TabsContent>
 
-        {/* 活动管理标签页 */}
-        {activeTab === 'events' && (
-          <div>
+          <TabsContent value="events" className="space-y-6">
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-slate-800 mb-2">活动管理</h2>
               <p className="text-slate-600">管理多期活动，创建新活动并配置活动参数</p>
@@ -1054,12 +1030,9 @@ function ConfigPageContent() {
               }}
               hasAdminAccess={true}
             />
-          </div>
-        )}
+          </TabsContent>
 
-        {/* 系统配置标签页 */}
-        {activeTab === 'system' && (
-          <div>
+          <TabsContent value="system" className="space-y-6">
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-slate-800 mb-2">系统配置</h2>
               <p className="text-slate-600">管理ShowMasterPieces模块的系统级配置项，为模块独立化做准备</p>
@@ -1080,8 +1053,8 @@ function ConfigPageContent() {
               </div>
             </div>
             <SystemConfigManager />
-          </div>
-        )}
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* 画集表单弹窗 */}
