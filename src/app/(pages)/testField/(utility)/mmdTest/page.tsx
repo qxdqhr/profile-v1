@@ -43,31 +43,36 @@ export default function MMDTestPage() {
       },
     ],
     // 场景模型选项（可选）
-    // stageModels: [
-    //   {
-    //     id: 'classroom',
-    //     name: '教室场景',
-    //     path: '/mikutalking/stages/classroom.pmx',
-    //   },
-    //   {
-    //     id: 'stage',
-    //     name: '舞台场景',
-    //     path: '/mikutalking/stages/stage.pmx',
-    //   },
-    // ],
+    stageModels: [
+      {
+        id: 'classroom',
+        name: '教室场景',
+        path: '/mikutalking/stages/1.pmx',
+      },
+      // {
+      //   id: 'stage',
+      //   name: '舞台场景',
+      //   path: '/mikutalking/stages/stage.pmx',
+      // },
+    ],
     // 背景图片选项（可选）
-    // backgrounds: [
-    //   {
-    //     id: 'sky',
-    //     name: '天空背景',
-    //     path: '/mikutalking/backgrounds/sky.jpg',
-    //   },
-    //   {
-    //     id: 'sunset',
-    //     name: '日落背景',
-    //     path: '/mikutalking/backgrounds/sunset.jpg',
-    //   },
-    // ],
+    backgrounds: [
+      {
+        id: 'bg1',
+        name: '背景1',
+        path: '/mikutalking/stages/stages/bei/00000000E4B0AD38.png',
+      },
+      {
+        id: 'bg2',
+        name: '背景2',
+        path: '/mikutalking/stages/stages/bei/00000000E4AFE2F8.png',
+      },
+      // {
+      //   id: 'sunset',
+      //   name: '日落背景',
+      //   path: '/mikutalking/backgrounds/sunset.jpg',
+      // },
+    ],
   };
 
   const customStage = {
@@ -78,6 +83,7 @@ export default function MMDTestPage() {
     showGrid: false,
     ammoPath: '/mikutalking/libs/ammo.wasm.js',
     ammoWasmPath: '/mikutalking/libs/',
+    backgroundType: 'image' as const, // 'image' 表示固定背景图，'skybox' 表示全景背景
   };
 
   return (
@@ -125,8 +131,8 @@ export default function MMDTestPage() {
           cameraId: 'catch-the-wave-camera',
         }}
         stage={customStage}
-        autoPlay
-        loop
+        // autoPlay
+        // loop
         onSelectionChange={(selection) => console.log('🔄 资源已选择:', selection)}
       />
     </div>
