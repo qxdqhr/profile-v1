@@ -7,7 +7,7 @@ import {
 
 export default function MMDTestPage() {
   // ==================== 下拉框独立选择模式 ====================
-  // 用户可以独立选择模型、动作、音乐、相机
+  // 用户可以独立选择模型、动作、音乐、相机、场景、背景
   const resourceOptions: MMDResourceOptions = {
     models: [
       {
@@ -42,6 +42,32 @@ export default function MMDTestPage() {
         path: '/mikutalking/actions/CatchTheWave/camera.vmd',
       },
     ],
+    // 场景模型选项（可选）
+    // stageModels: [
+    //   {
+    //     id: 'classroom',
+    //     name: '教室场景',
+    //     path: '/mikutalking/stages/classroom.pmx',
+    //   },
+    //   {
+    //     id: 'stage',
+    //     name: '舞台场景',
+    //     path: '/mikutalking/stages/stage.pmx',
+    //   },
+    // ],
+    // 背景图片选项（可选）
+    // backgrounds: [
+    //   {
+    //     id: 'sky',
+    //     name: '天空背景',
+    //     path: '/mikutalking/backgrounds/sky.jpg',
+    //   },
+    //   {
+    //     id: 'sunset',
+    //     name: '日落背景',
+    //     path: '/mikutalking/backgrounds/sunset.jpg',
+    //   },
+    // ],
   };
 
   const customStage = {
@@ -60,7 +86,7 @@ export default function MMDTestPage() {
         ==================== 下拉框选择模式使用说明 ====================
         
         1. **resourceOptions 参数**：
-           - 提供 models、motions、audios、cameras 四个选项列表
+           - 提供 models、motions、audios、cameras、stageModels、backgrounds 六个选项列表
            - 每个选项包含 id、name 和 path
            - 用户可以在设置弹窗中独立选择每个资源
         
@@ -72,16 +98,21 @@ export default function MMDTestPage() {
         3. **onSelectionChange 回调**：
            - 当用户切换任何资源时触发
            - 参数为包含所有选中ID的对象
-           - 例如：{ modelId: 'miku', motionId: 'catch-the-wave', audioId: '...', cameraId: '...' }
+           - 例如：{ modelId: 'miku', motionId: 'catch-the-wave', audioId: '...', cameraId: '...', stageModelId: '...', backgroundId: '...' }
         
         4. **添加更多选项**：
            - 在 resourceOptions 的对应数组中添加新选项
            - 每个选项必须包含 id、name 和 path
            - 可以只提供部分列表（例如只提供 models 和 motions）
         
-        5. **灵活组合**：
-           - 用户可以自由组合不同的模型、动作、音乐和相机
-           - 例如：初音未来 + Catch The Wave 动作 + 自定义音乐
+        5. **场景和背景**：
+           - stageModels: 场景模型文件（.pmx/.pmd），如教室、舞台等
+           - backgrounds: 背景图片文件（.jpg/.png），用于 skybox 或固定背景
+           - 这两个选项都是可选的，取消注释上面的代码即可启用
+        
+        6. **灵活组合**：
+           - 用户可以自由组合不同的模型、动作、音乐、相机、场景和背景
+           - 例如：初音未来 + Catch The Wave 动作 + 教室场景 + 天空背景
            - 任何资源都可以选择"无"（除了模型必须选择）
       */}
       <MMDPlayerEnhanced
