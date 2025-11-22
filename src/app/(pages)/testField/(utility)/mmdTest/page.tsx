@@ -1,56 +1,48 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import clsx from 'clsx'
 import {
   MMDPlayerEnhanced,
-  availableMMDPresets,
-  defaultMMDPreset,
-  type MMDPreset,
-  type MMDResourceItem,
+  type MMDResourceOptions,
 } from 'sa2kit/mmd'
 
-const presets: MMDPreset[] = availableMMDPresets
-
 export default function MMDTestPage() {
-  // ==================== 动态资源切换示例 ====================
-  // 定义多个资源配置，用户可以通过设置按钮切换
-  const resourcesList: MMDResourceItem[] = [
-    {
-      id: 'catch-the-wave-miku',
-      name: 'Catch The Wave - 初音未来',
-      resources: {
-        modelPath: '/mikutalking/models/YYB_Z6SakuraMiku/miku.pmx',
-        motionPath: '/mikutalking/actions/CatchTheWave/mmd_CatchTheWave_motion.vmd',
-        cameraPath: '/mikutalking/actions/CatchTheWave/camera.vmd',
-        audioPath: '/mikutalking/actions/CatchTheWave/pv_268.wav',
+  // ==================== 下拉框独立选择模式 ====================
+  // 用户可以独立选择模型、动作、音乐、相机
+  const resourceOptions: MMDResourceOptions = {
+    models: [
+      {
+        id: 'miku',
+        name: '初音未来',
+        path: '/mikutalking/models/YYB_Z6SakuraMiku/miku.pmx',
       },
-    },
-    {
-      id: 'catch-the-wave-elsa',
-      name: 'Catch The Wave - 艾尔莎',
-      resources: {
-        modelPath: '/mikutalking/models/艾尔莎/艾尔莎-水手服泳装.pmx',
-        motionPath: '/mikutalking/actions/CatchTheWave/mmd_CatchTheWave_motion.vmd',
-        cameraPath: '/mikutalking/actions/CatchTheWave/camera.vmd',
-        audioPath: '/mikutalking/actions/CatchTheWave/pv_268.wav',
+      {
+        id: 'elsa',
+        name: '艾尔莎',
+        path: '/mikutalking/models/艾尔莎/艾尔莎-水手服泳装.pmx',
       },
-    },
-    {
-      id: 'static-miku',
-      name: '静态模型 - 初音未来',
-      resources: {
-        modelPath: '/mikutalking/models/YYB_Z6SakuraMiku/miku.pmx',
+    ],
+    motions: [
+      {
+        id: 'catch-the-wave',
+        name: 'Catch The Wave',
+        path: '/mikutalking/actions/CatchTheWave/mmd_CatchTheWave_motion.vmd',
       },
-    },
-    {
-      id: 'static-elsa',
-      name: '静态模型 - 艾尔莎',
-      resources: {
-        modelPath: '/mikutalking/models/艾尔莎/艾尔莎-水手服泳装.pmx',
+    ],
+    audios: [
+      {
+        id: 'catch-the-wave-audio',
+        name: 'Catch The Wave 音乐',
+        path: '/mikutalking/actions/CatchTheWave/pv_268.wav',
       },
-    },
-  ];
+    ],
+    cameras: [
+      {
+        id: 'catch-the-wave-camera',
+        name: 'Catch The Wave 镜头',
+        path: '/mikutalking/actions/CatchTheWave/camera.vmd',
+      },
+    ],
+  };
 
   const customStage = {
     backgroundColor: '#01030b',
@@ -65,39 +57,46 @@ export default function MMDTestPage() {
   return (
     <div className="fixed inset-0 z-0 bg-[#01030b] text-white flex flex-col">
       {/*
-        ==================== 动态资源切换使用说明 ====================
+        ==================== 下拉框选择模式使用说明 ====================
         
-        1. **resourcesList 参数**：
-           - 传入 MMDResourceItem[] 数组，每个项目包含 id、name 和 resources
-           - 自动在播放控制栏显示设置按钮（⚙️）
-           - 点击设置按钮可打开资源选择弹窗
+        1. **resourceOptions 参数**：
+           - 提供 models、motions、audios、cameras 四个选项列表
+           - 每个选项包含 id、name 和 path
+           - 用户可以在设置弹窗中独立选择每个资源
         
-        2. **defaultResourceId 参数**：
-           - 指定初始加载的资源ID（对应 resourcesList 中的某个 id）
-           - 如果不指定，默认使用第一个资源
+        2. **defaultSelection 参数**：
+           - 指定初始选中的资源ID
+           - 例如：defaultSelection={{ modelId: 'miku', motionId: 'catch-the-wave' }}
+           - 如果不指定，默认使用每个列表的第一项
         
-        3. **onResourceChange 回调**：
-           - 当用户切换资源时触发
-           - 参数为新选中的资源ID
+        3. **onSelectionChange 回调**：
+           - 当用户切换任何资源时触发
+           - 参数为包含所有选中ID的对象
+           - 例如：{ modelId: 'miku', motionId: 'catch-the-wave', audioId: '...', cameraId: '...' }
         
-        4. **添加更多资源**：
-           - 在上面的 resourcesList 数组中添加新的配置项
-           - 每个配置可以包含：modelPath（模型）、motionPath（动作）、cameraPath（相机）、audioPath（音频）
-           - 任何资源都是可选的（除了 modelPath 必须提供）
+        4. **添加更多选项**：
+           - 在 resourceOptions 的对应数组中添加新选项
+           - 每个选项必须包含 id、name 和 path
+           - 可以只提供部分列表（例如只提供 models 和 motions）
         
-        5. **单资源模式**：
-           - 如果不需要切换功能，可以使用 resources 参数直接传入单个资源
-           - 例如：resources={customResources} stage={customStage}
-           - 单资源模式下不会显示设置按钮
+        5. **灵活组合**：
+           - 用户可以自由组合不同的模型、动作、音乐和相机
+           - 例如：初音未来 + Catch The Wave 动作 + 自定义音乐
+           - 任何资源都可以选择"无"（除了模型必须选择）
       */}
       <MMDPlayerEnhanced
         className="h-full w-full"
-        resourcesList={resourcesList}
-        defaultResourceId="catch-the-wave-miku"
+        resourceOptions={resourceOptions}
+        defaultSelection={{
+          modelId: 'miku',
+          motionId: 'catch-the-wave',
+          audioId: 'catch-the-wave-audio',
+          cameraId: 'catch-the-wave-camera',
+        }}
         stage={customStage}
         autoPlay
         loop
-        onResourceChange={(id) => console.log('🔄 资源已切换:', id)}
+        onSelectionChange={(selection) => console.log('🔄 资源已选择:', selection)}
       />
     </div>
   )
