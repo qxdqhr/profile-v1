@@ -71,13 +71,19 @@ export async function GET(request: NextRequest) {
       console.log('🔧 修正 region 格式:', ossConfig.region, '→', region);
     }
 
+    // 构建 endpoint（解决 DNS 解析问题）
+    const endpoint = `https://${region}.aliyuncs.com`;
+    console.log('🌐 使用 endpoint:', endpoint);
+
     const client = new OSS({
-      region: region,
+      endpoint: endpoint,
       accessKeyId: ossConfig.accessKeyId,
       accessKeySecret: ossConfig.accessKeySecret,
       bucket: ossConfig.bucket,
       secure: true, // 使用 HTTPS
       timeout: 60000, // 60秒超时
+      // 使用 IPv4
+      family: 4,
     });
 
     // 获取 OSS 基础 URL
