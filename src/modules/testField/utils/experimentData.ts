@@ -383,5 +383,27 @@ export const experiments: ExperimentItem[] = [
     isCompleted: false,
     createdAt: '2025-11-15',
     updatedAt: '2025-11-15'
+  },
+  {
+    id: "mmd-upload",
+    title: "MMD 资源上传",
+    description: "上传 MMD 模型、动作、音频等资源到阿里云 OSS，获取 CDN 加速链接。支持拖拽上传、批量上传、进度显示，提供原始 URL 和 CDN URL，用于测试和优化 MMD 资源加载速度",
+    path: "/testField/mmdUpload",
+    tags: ["MMD", "上传", "OSS", "CDN", "文件管理", "开发工具"],
+    category: "utility",
+    isCompleted: true,
+    createdAt: '2025-11-23',
+    updatedAt: '2025-11-23'
+  },
+  {
+    id: "mmd-playlist",
+    title: "MMD 播放列表",
+    description: "测试 MMD 播放列表功能，支持多个 MMD 场景的连续播放、节点管理、预加载优化等。可以配置播放列表、添加/删除节点、调整播放顺序",
+    path: "/testField/mmdPlaylist",
+    tags: ["MMD", "播放列表", "3D", "测试", "SA2Kit"],
+    category: "utility",
+    isCompleted: true,
+    createdAt: '2025-11-23',
+    updatedAt: '2025-11-23'
   }
 ];
