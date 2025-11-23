@@ -64,30 +64,50 @@ export async function GET(request: NextRequest) {
     }
 
     // 创建 OSS 客户端
+    // 确保 region 格式正确（应该是 oss-cn-beijing 而不是 cn-beijing）
+    let region = ossConfig.region;
+    if (region && !region.startsWith('oss-')) {
+      region = `oss-${region}`;
+      console.log('🔧 修正 region 格式:', ossConfig.region, '→', region);
+    }
+
     const client = new OSS({
-      region: ossConfig.region,
+      region: region,
       accessKeyId: ossConfig.accessKeyId,
       accessKeySecret: ossConfig.accessKeySecret,
       bucket: ossConfig.bucket,
+      secure: true, // 使用 HTTPS
+      timeout: 60000, // 60秒超时
     });
 
     // 获取 OSS 基础 URL
     const ossBaseUrl = ossConfig.customDomain
       ? `https://${ossConfig.customDomain}`
-      : `https://${ossConfig.bucket}.${ossConfig.region}.aliyuncs.com`;
+      : `https://${ossConfig.bucket}.${region}.aliyuncs.com`;
 
     console.log('🔗 OSS 基础 URL:', ossBaseUrl);
+    console.log('🔧 OSS 配置:', {
+      originalRegion: ossConfig.region,
+      correctedRegion: region,
+      bucket: ossConfig.bucket,
+      endpoint: `${ossConfig.bucket}.${region}.aliyuncs.com`,
+    });
 
     // 列出所有文件
-    const result = await client.list({
-      prefix,
-      'max-keys': maxKeys,
-    });
-
-    console.log('📊 查询结果:', {
-      文件数量: result.objects?.length || 0,
-      前缀: prefix,
-    });
+    let result;
+    try {
+      result = await client.list({
+        prefix,
+        'max-keys': maxKeys,
+      });
+      console.log('📊 查询结果:', {
+        文件数量: result.objects?.length || 0,
+        前缀: prefix,
+      });
+    } catch (listError) {
+      console.error('❌ OSS list 调用失败:', listError);
+      throw new Error(`OSS 查询失败: ${listError instanceof Error ? listError.message : '未知错误'}`);
+    }
 
     if (!result.objects || result.objects.length === 0) {
       return NextResponse.json({
