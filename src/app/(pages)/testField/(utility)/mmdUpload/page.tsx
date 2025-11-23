@@ -136,7 +136,9 @@ export default function MMDUploadPage() {
             <input
               type="file"
               multiple
-              accept=".pmx,.pmd,.vmd,.wav,.mp3,.ogg,.jpg,.jpeg,.png,.webp,.mp4,.webm"
+              webkitdirectory=""
+              directory=""
+              accept=".pmx,.pmd,.vmd,.wav,.mp3,.ogg,.jpg,.jpeg,.png,.webp,.mp4,.webm,.bmp,.tga,.spa,.sph"
               onChange={(e) => handleFileSelect(e.target.files)}
               className="absolute inset-0 cursor-pointer opacity-0"
             />
@@ -144,13 +146,23 @@ export default function MMDUploadPage() {
             <div className="pointer-events-none">
               <div className="mb-4 text-6xl">📁</div>
               <div className="mb-2 text-xl font-semibold text-white">
-                {isDragging ? '松开以上传文件' : '拖拽文件到这里或点击选择'}
+                {isDragging ? '松开以上传文件/文件夹' : '拖拽文件/文件夹到这里或点击选择'}
               </div>
               <div className="text-sm text-gray-400">
                 支持 MMD 模型(.pmx, .pmd)、动作(.vmd)、音频、图片、视频
               </div>
               <div className="mt-2 text-xs text-gray-500">
                 单个文件最大 500MB，可同时上传多个文件
+              </div>
+              <div className="mt-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30 p-3 text-left">
+                <div className="mb-1 text-sm font-semibold text-yellow-300">
+                  ⚠️ 重要提示：上传 MMD 模型
+                </div>
+                <div className="text-xs text-yellow-200/80 space-y-1">
+                  <div>• 请上传<strong>整个模型文件夹</strong>（包含 .pmx 和所有贴图文件）</div>
+                  <div>• 模型文件通常引用相对路径的贴图，缺少贴图会导致模型无法正常显示</div>
+                  <div>• 点击上传按钮可以选择整个文件夹上传</div>
+                </div>
               </div>
             </div>
           </div>
@@ -281,7 +293,7 @@ export default function MMDUploadPage() {
           <div className="space-y-3 text-sm text-gray-300">
             <div className="flex gap-2">
               <span className="text-blue-400">1.</span>
-              <span>支持拖拽上传或点击选择文件</span>
+              <span>支持拖拽上传或点击选择文件/文件夹</span>
             </div>
             <div className="flex gap-2">
               <span className="text-blue-400">2.</span>
@@ -293,10 +305,22 @@ export default function MMDUploadPage() {
             </div>
             <div className="flex gap-2">
               <span className="text-blue-400">4.</span>
-              <span>上传成功后，复制 CDN URL 用于 MMD 播放器配置</span>
+              <div className="flex-1">
+                <div className="font-semibold text-yellow-300 mb-1">⚠️ 上传 MMD 模型的正确方式：</div>
+                <div className="ml-4 space-y-1 text-xs text-gray-400">
+                  <div>• 点击上传区域，选择<strong>整个模型文件夹</strong>（不是单个 .pmx 文件）</div>
+                  <div>• 确保文件夹包含所有贴图文件（.png, .jpg, .bmp, .tga, .spa, .sph 等）</div>
+                  <div>• 保持文件夹的原始结构，这样模型才能正确找到贴图</div>
+                  <div>• 例如：选择 "miku" 文件夹，而不是只选择 "miku.pmx"</div>
+                </div>
+              </div>
             </div>
             <div className="flex gap-2">
               <span className="text-blue-400">5.</span>
+              <span>上传成功后，复制存储路径用于 MMD 播放器配置</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-blue-400">6.</span>
               <span>CDN URL 提供全球加速，推荐在生产环境使用</span>
             </div>
           </div>
