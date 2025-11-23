@@ -3,12 +3,16 @@
  */
 
 // 导出核心服务类
-export { UniversalFileService } from './UniversalFileService';
+export { 
+  UniversalFileService,
+  createUniversalFileServiceWithConfigManager 
+} from './UniversalFileService';
 
 // 导出配置管理
 export {
   FileServiceConfigManager,
   createFileServiceConfig,
+  createFileServiceConfigWithConfigManager,
   getDefaultConfig,
   validateAliyunOSSConfig,
   validateAliyunCDNConfig,
