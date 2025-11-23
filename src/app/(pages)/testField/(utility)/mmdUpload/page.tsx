@@ -1,85 +1,106 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { FileUploader } from 'sa2kit/universalFile'
+import { useState } from 'react'
 import type { FileMetadata } from 'sa2kit/universalFile'
-import { createUniversalFileServiceWithConfigManager } from '@/services/universalFile'
-import type { UniversalFileService } from '@/services/universalFile'
 
 export default function MMDUploadPage() {
-  const [fileService, setFileService] = useState<UniversalFileService | null>(null)
   const [uploadedFiles, setUploadedFiles] = useState<FileMetadata[]>([])
-  const [isInitializing, setIsInitializing] = useState(true)
-  const [initError, setInitError] = useState<string | null>(null)
+  const [uploadingFiles, setUploadingFiles] = useState<Array<{
+    id: string
+    name: string
+    progress: number
+    status: 'uploading' | 'success' | 'error'
+    error?: string
+  }>>([])
+  const [isDragging, setIsDragging] = useState(false)
 
-  // 初始化文件服务
-  useEffect(() => {
-    const initService = async () => {
-      try {
-        console.log('🚀 初始化文件服务...')
-        const service = await createUniversalFileServiceWithConfigManager()
-        setFileService(service)
-        console.log('✅ 文件服务初始化成功')
-      } catch (error) {
-        console.error('❌ 文件服务初始化失败:', error)
-        setInitError(error instanceof Error ? error.message : '初始化失败')
-      } finally {
-        setIsInitializing(false)
+  // 处理文件选择
+  const handleFileSelect = async (files: FileList | null) => {
+    if (!files || files.length === 0) return
+
+    const fileArray = Array.from(files)
+    
+    // 验证文件
+    for (const file of fileArray) {
+      if (file.size > 500 * 1024 * 1024) {
+        alert(`文件 ${file.name} 超过 500MB 限制`)
+        return
       }
     }
 
-    initService()
-  }, [])
+    // 开始上传
+    for (const file of fileArray) {
+      const fileId = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      
+      setUploadingFiles(prev => [...prev, {
+        id: fileId,
+        name: file.name,
+        progress: 0,
+        status: 'uploading'
+      }])
 
-  // 处理上传成功
-  const handleUploadSuccess = (files: FileMetadata[]) => {
-    console.log('✅ 文件上传成功:', files)
-    setUploadedFiles(prev => [...prev, ...files])
+      try {
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('moduleId', 'mmd')
+        formData.append('businessId', 'resources')
+
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        })
+
+        if (!response.ok) {
+          throw new Error(`上传失败: ${response.statusText}`)
+        }
+
+        const result = await response.json()
+        
+        setUploadingFiles(prev => prev.map(f => 
+          f.id === fileId ? { ...f, status: 'success' as const, progress: 100 } : f
+        ))
+        
+        setUploadedFiles(prev => [...prev, result.file])
+        
+        // 3秒后移除上传状态
+        setTimeout(() => {
+          setUploadingFiles(prev => prev.filter(f => f.id !== fileId))
+        }, 3000)
+
+      } catch (error) {
+        console.error('上传失败:', error)
+        setUploadingFiles(prev => prev.map(f => 
+          f.id === fileId ? { 
+            ...f, 
+            status: 'error' as const, 
+            error: error instanceof Error ? error.message : '上传失败' 
+          } : f
+        ))
+      }
+    }
   }
 
-  // 处理上传失败
-  const handleUploadError = (error: string) => {
-    console.error('❌ 文件上传失败:', error)
-    alert(`上传失败: ${error}`)
+  // 处理拖拽
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    handleFileSelect(e.dataTransfer.files)
   }
 
   // 复制 URL 到剪贴板
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
     alert('URL 已复制到剪贴板')
-  }
-
-  if (isInitializing) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-gray-900 text-white">
-        <div className="text-center">
-          <div className="mb-4 text-2xl">⏳ 正在初始化文件服务...</div>
-          <div className="text-gray-400">请稍候</div>
-        </div>
-      </div>
-    )
-  }
-
-  if (initError) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-gray-900 text-white">
-        <div className="max-w-2xl rounded-lg bg-red-900/20 border border-red-500 p-8 text-center">
-          <div className="mb-4 text-2xl">❌ 初始化失败</div>
-          <div className="text-red-400">{initError}</div>
-          <div className="mt-6 text-sm text-gray-400">
-            请检查 OSS 配置是否正确（在配置管理页面或环境变量中）
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!fileService) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-gray-900 text-white">
-        <div className="text-2xl">⚠️ 文件服务未初始化</div>
-      </div>
-    )
   }
 
   return (
@@ -98,37 +119,77 @@ export default function MMDUploadPage() {
         {/* 上传区域 */}
         <div className="mb-8 rounded-xl bg-white/10 backdrop-blur-md p-6 border border-white/20">
           <h2 className="mb-4 text-2xl font-bold text-white">📤 上传文件</h2>
-          <FileUploader
-            fileService={fileService}
-            moduleId="mmd"
-            businessId="resources"
-            acceptedTypes={[
-              // MMD 模型
-              'application/octet-stream', // .pmx, .pmd
-              // VMD 动作文件
-              'application/x-vmd',
-              // 音频
-              'audio/wav',
-              'audio/mp3',
-              'audio/mpeg',
-              'audio/ogg',
-              // 图片（背景、贴图）
-              'image/jpeg',
-              'image/png',
-              'image/webp',
-              // 视频
-              'video/mp4',
-              'video/webm',
-            ]}
-            maxFileSize={500} // 500MB
-            maxFiles={20}
-            multiple={true}
-            enableProcessing={false}
-            onUploadSuccess={handleUploadSuccess}
-            onUploadError={handleUploadError}
-            mode="detailed"
-            className="w-full"
-          />
+          
+          {/* 文件上传区 */}
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`
+              relative rounded-lg border-2 border-dashed p-12 text-center transition-all
+              ${isDragging 
+                ? 'border-blue-400 bg-blue-500/10' 
+                : 'border-white/30 bg-white/5 hover:border-white/50 hover:bg-white/10'
+              }
+            `}
+          >
+            <input
+              type="file"
+              multiple
+              accept=".pmx,.pmd,.vmd,.wav,.mp3,.ogg,.jpg,.jpeg,.png,.webp,.mp4,.webm"
+              onChange={(e) => handleFileSelect(e.target.files)}
+              className="absolute inset-0 cursor-pointer opacity-0"
+            />
+            
+            <div className="pointer-events-none">
+              <div className="mb-4 text-6xl">📁</div>
+              <div className="mb-2 text-xl font-semibold text-white">
+                {isDragging ? '松开以上传文件' : '拖拽文件到这里或点击选择'}
+              </div>
+              <div className="text-sm text-gray-400">
+                支持 MMD 模型(.pmx, .pmd)、动作(.vmd)、音频、图片、视频
+              </div>
+              <div className="mt-2 text-xs text-gray-500">
+                单个文件最大 500MB，可同时上传多个文件
+              </div>
+            </div>
+          </div>
+
+          {/* 上传进度 */}
+          {uploadingFiles.length > 0 && (
+            <div className="mt-6 space-y-3">
+              {uploadingFiles.map((file) => (
+                <div
+                  key={file.id}
+                  className="rounded-lg bg-white/5 p-4 border border-white/10"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-white font-medium">{file.name}</span>
+                    <span className={`text-sm ${
+                      file.status === 'success' ? 'text-green-400' :
+                      file.status === 'error' ? 'text-red-400' :
+                      'text-blue-400'
+                    }`}>
+                      {file.status === 'success' ? '✓ 完成' :
+                       file.status === 'error' ? '✗ 失败' :
+                       `${file.progress}%`}
+                    </span>
+                  </div>
+                  {file.status === 'uploading' && (
+                    <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-blue-500 transition-all duration-300"
+                        style={{ width: `${file.progress}%` }}
+                      />
+                    </div>
+                  )}
+                  {file.error && (
+                    <div className="mt-2 text-xs text-red-400">{file.error}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* 已上传文件列表 */}
@@ -162,7 +223,7 @@ export default function MMDUploadPage() {
                           <span className="text-gray-400">类型:</span> {file.mimeType}
                         </div>
                         <div>
-                          <span className="text-gray-400">存储:</span> {file.storageType}
+                          <span className="text-gray-400">存储:</span> {file.storageProvider}
                         </div>
                         <div>
                           <span className="text-gray-400">状态:</span>{' '}
@@ -172,15 +233,15 @@ export default function MMDUploadPage() {
 
                       {/* URL 列表 */}
                       <div className="space-y-2">
-                        {/* 原始 URL */}
+                        {/* 存储路径 */}
                         <div className="rounded bg-black/30 p-3">
-                          <div className="mb-1 text-xs text-gray-400">原始 URL:</div>
+                          <div className="mb-1 text-xs text-gray-400">存储路径:</div>
                           <div className="flex items-center gap-2">
                             <code className="flex-1 overflow-x-auto text-xs text-green-300">
-                              {file.url}
+                              {file.storagePath}
                             </code>
                             <button
-                              onClick={() => copyToClipboard(file.url)}
+                              onClick={() => copyToClipboard(file.storagePath)}
                               className="rounded bg-blue-500 px-3 py-1 text-xs text-white hover:bg-blue-600 transition-colors"
                             >
                               复制
