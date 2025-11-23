@@ -33,6 +33,40 @@ interface ZipUploadResult {
   }
 }
 
+interface OSSFile {
+  name: string
+  url: string
+  size: number
+  lastModified: Date
+  type: string
+}
+
+interface MMDFolder {
+  name: string
+  path: string
+  files: OSSFile[]
+  modelFiles: OSSFile[]
+  motionFiles: OSSFile[]
+  audioFiles: OSSFile[]
+  textureFiles: OSSFile[]
+  totalSize: number
+  fileCount: number
+}
+
+interface OSSListResult {
+  success: boolean
+  folders: MMDFolder[]
+  totalFiles: number
+  totalSize: number
+  ossBaseUrl: string
+  summary: {
+    totalFolders: number
+    totalFiles: number
+    totalSize: number
+    totalSizeFormatted: string
+  }
+}
+
 export default function MMDUploadPage() {
   const [uploadedFiles, setUploadedFiles] = useState<FileMetadata[]>([])
   const [uploadingFiles, setUploadingFiles] = useState<Array<{
@@ -48,6 +82,12 @@ export default function MMDUploadPage() {
   const [isUploadingZip, setIsUploadingZip] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const zipInputRef = useRef<HTMLInputElement>(null)
+  
+  // OSS 文件列表相关状态
+  const [ossFiles, setOssFiles] = useState<OSSListResult | null>(null)
+  const [isLoadingOss, setIsLoadingOss] = useState(false)
+  const [showOssFiles, setShowOssFiles] = useState(false)
+  const [selectedFolder, setSelectedFolder] = useState<MMDFolder | null>(null)
 
   // 处理压缩包上传
   const handleZipUpload = async (file: File) => {
@@ -195,6 +235,26 @@ export default function MMDUploadPage() {
     alert('URL 已复制到剪贴板')
   }
 
+  // 查询 OSS 中的 MMD 文件
+  const loadOssFiles = async () => {
+    setIsLoadingOss(true)
+    try {
+      const response = await fetch('/api/list-mmd-files?prefix=mmd/')
+      if (!response.ok) {
+        throw new Error('查询失败')
+      }
+      const result: OSSListResult = await response.json()
+      setOssFiles(result)
+      setShowOssFiles(true)
+      console.log('✅ OSS 文件列表:', result)
+    } catch (error) {
+      console.error('❌ 查询 OSS 文件失败:', error)
+      alert(`查询失败: ${error instanceof Error ? error.message : '未知错误'}`)
+    } finally {
+      setIsLoadingOss(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 p-8">
       <div className="mx-auto max-w-6xl">
@@ -206,6 +266,17 @@ export default function MMDUploadPage() {
           <p className="text-gray-300">
             上传 MMD 模型、动作、音频等资源到 OSS，获取 CDN 加速链接
           </p>
+          
+          {/* 查询 OSS 文件按钮 */}
+          <div className="mt-4">
+            <button
+              onClick={loadOssFiles}
+              disabled={isLoadingOss}
+              className="px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoadingOss ? '🔄 查询中...' : '📂 查看 OSS 已有文件'}
+            </button>
+          </div>
         </div>
 
         {/* 上传模式切换 */}
@@ -607,6 +678,214 @@ export default function MMDUploadPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* OSS 文件列表 */}
+        {showOssFiles && ossFiles && (
+          <div className="mb-8 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 overflow-hidden">
+            {/* 标题栏 */}
+            <div className="bg-gradient-to-r from-blue-600/30 to-purple-600/30 p-6 border-b border-white/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-white mb-2">
+                    📂 OSS 中的 MMD 资源
+                  </h2>
+                  <div className="flex gap-4 text-sm text-gray-300">
+                    <span>📁 {ossFiles.summary.totalFolders} 个模型</span>
+                    <span>📄 {ossFiles.summary.totalFiles} 个文件</span>
+                    <span>💾 {ossFiles.summary.totalSizeFormatted}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowOssFiles(false)}
+                  className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+                >
+                  ✕ 关闭
+                </button>
+              </div>
+            </div>
+
+            {/* 文件夹列表 */}
+            <div className="p-6 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20 hover:scrollbar-thumb-white/30">
+              {ossFiles.folders.length === 0 ? (
+                <div className="text-center py-12 text-gray-400">
+                  <div className="text-6xl mb-4">📭</div>
+                  <div className="text-lg">暂无 MMD 资源</div>
+                  <div className="text-sm mt-2">上传你的第一个 MMD 模型吧！</div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {ossFiles.folders.map((folder, index) => (
+                    <div
+                      key={folder.path}
+                      className="rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all overflow-hidden"
+                    >
+                      {/* 文件夹头部 */}
+                      <div
+                        className="p-4 cursor-pointer"
+                        onClick={() => setSelectedFolder(selectedFolder?.path === folder.path ? null : folder)}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className="text-2xl">
+                                {selectedFolder?.path === folder.path ? '📂' : '📁'}
+                              </span>
+                              <div>
+                                <h3 className="text-lg font-bold text-white">
+                                  {folder.name}
+                                </h3>
+                                <p className="text-xs text-gray-400 mt-1">
+                                  {folder.path}
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex gap-4 text-sm">
+                              {folder.modelFiles.length > 0 && (
+                                <span className="text-green-400">
+                                  🎭 {folder.modelFiles.length} 模型
+                                </span>
+                              )}
+                              {folder.motionFiles.length > 0 && (
+                                <span className="text-blue-400">
+                                  🎬 {folder.motionFiles.length} 动作
+                                </span>
+                              )}
+                              {folder.audioFiles.length > 0 && (
+                                <span className="text-purple-400">
+                                  🎵 {folder.audioFiles.length} 音频
+                                </span>
+                              )}
+                              {folder.textureFiles.length > 0 && (
+                                <span className="text-yellow-400">
+                                  🖼️ {folder.textureFiles.length} 贴图
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="text-right">
+                            <div className="text-sm text-gray-400">
+                              {formatFileSize(folder.totalSize)}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1">
+                              {folder.fileCount} 个文件
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 文件夹详情（展开时显示） */}
+                      {selectedFolder?.path === folder.path && (
+                        <div className="border-t border-white/10 bg-black/20">
+                          {/* 模型文件 */}
+                          {folder.modelFiles.length > 0 && (
+                            <div className="p-4 border-b border-white/5">
+                              <h4 className="text-sm font-semibold text-green-300 mb-2">
+                                🎭 模型文件
+                              </h4>
+                              <div className="space-y-2">
+                                {folder.modelFiles.map((file, idx) => (
+                                  <div key={idx} className="flex items-center justify-between text-xs bg-white/5 rounded p-2">
+                                    <span className="text-gray-300">{file.name}</span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-gray-500">{formatFileSize(file.size)}</span>
+                                      <button
+                                        onClick={() => copyToClipboard(file.url)}
+                                        className="px-2 py-1 rounded bg-green-500 text-white hover:bg-green-600 transition-colors"
+                                      >
+                                        复制
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 动作文件 */}
+                          {folder.motionFiles.length > 0 && (
+                            <div className="p-4 border-b border-white/5">
+                              <h4 className="text-sm font-semibold text-blue-300 mb-2">
+                                🎬 动作文件
+                              </h4>
+                              <div className="space-y-2">
+                                {folder.motionFiles.map((file, idx) => (
+                                  <div key={idx} className="flex items-center justify-between text-xs bg-white/5 rounded p-2">
+                                    <span className="text-gray-300">{file.name}</span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-gray-500">{formatFileSize(file.size)}</span>
+                                      <button
+                                        onClick={() => copyToClipboard(file.url)}
+                                        className="px-2 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                                      >
+                                        复制
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 音频文件 */}
+                          {folder.audioFiles.length > 0 && (
+                            <div className="p-4 border-b border-white/5">
+                              <h4 className="text-sm font-semibold text-purple-300 mb-2">
+                                🎵 音频文件
+                              </h4>
+                              <div className="space-y-2">
+                                {folder.audioFiles.map((file, idx) => (
+                                  <div key={idx} className="flex items-center justify-between text-xs bg-white/5 rounded p-2">
+                                    <span className="text-gray-300">{file.name}</span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-gray-500">{formatFileSize(file.size)}</span>
+                                      <button
+                                        onClick={() => copyToClipboard(file.url)}
+                                        className="px-2 py-1 rounded bg-purple-500 text-white hover:bg-purple-600 transition-colors"
+                                      >
+                                        复制
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 贴图文件（折叠显示） */}
+                          {folder.textureFiles.length > 0 && (
+                            <details className="p-4">
+                              <summary className="text-sm font-semibold text-yellow-300 mb-2 cursor-pointer">
+                                🖼️ 贴图文件 ({folder.textureFiles.length})
+                              </summary>
+                              <div className="space-y-2 mt-2">
+                                {folder.textureFiles.map((file, idx) => (
+                                  <div key={idx} className="flex items-center justify-between text-xs bg-white/5 rounded p-2">
+                                    <span className="text-gray-300">{file.name}</span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-gray-500">{formatFileSize(file.size)}</span>
+                                      <button
+                                        onClick={() => copyToClipboard(file.url)}
+                                        className="px-2 py-1 rounded bg-yellow-500 text-white hover:bg-yellow-600 transition-colors"
+                                      >
+                                        复制
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </details>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
