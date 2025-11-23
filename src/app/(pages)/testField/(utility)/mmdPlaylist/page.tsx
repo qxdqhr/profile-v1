@@ -14,7 +14,7 @@ export default function MMDPlaylistTestPage() {
     nodes: [
       {
         id: 'node0',
-        name: '艾尔莎 - 打招呼',
+        name: '艾尔莎1 - 打招呼',
         description: '艾尔莎的打招呼动作',
         resources: {
           modelPath: '/mikutalking/models/艾尔莎/艾尔莎-水手服泳装.pmx',
@@ -25,7 +25,18 @@ export default function MMDPlaylistTestPage() {
       },
       {
         id: 'node2',
-        name: '艾尔莎 - 打招呼',
+        name: 'miku1 - 打招呼',
+        description: '艾尔莎的打招呼动作',
+        resources: {
+          modelPath: '/mikutalking/models/YYB_Z6SakuraMiku/miku.pmx',
+          motionPath: '/mikutalking/actions/打招呼.vmd',
+          // 注意：这个节点没有音频和相机，只有模型和动作
+        },
+        loop: false,
+      },
+      {
+        id: 'node1',
+        name: '艾尔莎2 - 打招呼',
         description: '艾尔莎的打招呼动作',
         resources: {
           modelPath: '/mikutalking/models/艾尔莎/艾尔莎-水手服泳装.pmx',
@@ -35,29 +46,13 @@ export default function MMDPlaylistTestPage() {
         loop: false,
       },
       {
-        id: 'node1',
-        name: '初音未来 - Catch The Wave',
-        description: '经典的 Catch The Wave 表演',
-        resources: {
-          modelPath: '/mikutalking/models/YYB_Z6SakuraMiku/miku.pmx',
-          motionPath: '/mikutalking/actions/CatchTheWave/mmd_CatchTheWave_motion.vmd',
-          audioPath: '/mikutalking/actions/CatchTheWave/pv_268.wav',
-          cameraPath: '/mikutalking/actions/CatchTheWave/camera.vmd',
-        },
-        loop: false, // 播放完成后自动切换到下一个节点
-      },
-   
-      {
         id: 'node3',
-        name: '初音未来 + 场景 + 背景',
-        description: '带场景和背景的完整表演',
+        name: 'miku2 - 打招呼',
+        description: '艾尔莎的打招呼动作',
         resources: {
           modelPath: '/mikutalking/models/YYB_Z6SakuraMiku/miku.pmx',
-          motionPath: '/mikutalking/actions/CatchTheWave/mmd_CatchTheWave_motion.vmd',
-          audioPath: '/mikutalking/actions/CatchTheWave/pv_268.wav',
-          cameraPath: '/mikutalking/actions/CatchTheWave/camera.vmd',
-          stageModelPath: 'mikutalking/stages/stages/1.pmx',
-          backgroundPath: '/linkGame/background2.png',
+          motionPath: '/mikutalking/actions/打招呼.vmd',
+          // 注意：这个节点没有音频和相机，只有模型和动作
         },
         loop: false,
       },
