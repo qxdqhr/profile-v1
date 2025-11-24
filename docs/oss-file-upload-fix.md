@@ -9,55 +9,86 @@ StorageProviderError: OSS存储提供者未初始化
 at AliyunOSSProvider.ensureInitialized
 ```
 
-## 🔍 根本原因
+## 🔍 问题诊断
 
-1. **OSS 连接测试失败**：在初始化 OSS Provider 时，`testConnection()` 方法尝试连接 OSS 进行测试，但由于网络或DNS问题失败
-2. **初始化阻塞**：原代码在连接测试失败时会抛出错误，导致 `isInitialized` 保持为 `false`
-3. **上传失败**：`ensureInitialized()` 检查到 `isInitialized === false` 时抛出错误，阻止文件上传
+运行诊断脚本检查配置和连接状态：
+
+```bash
+# 检查 OSS 配置
+npx tsx scripts/check-oss-config.ts
+
+# 测试文件服务初始化
+npx tsx scripts/test-file-service.ts
+```
+
+**可能的失败原因**：
+
+1. **DNS 解析失败**：`getaddrinfo ENOTFOUND profile-qhr-resource.oss-cn-beijing.aliyuncs.com`
+   - 网络连接问题
+   - DNS 配置问题
+   - 防火墙阻止
+
+2. **配置错误**：
+   - `ALIYUN_OSS_REGION` 格式不正确
+   - `ALIYUN_OSS_BUCKET` 不存在
+   - Access Key 无效
+
+3. **权限问题**：
+   - Access Key 没有 Bucket 访问权限
+   - Bucket 策略限制
 
 ## ✅ 解决方案
 
-### 1. OSS Provider 容错处理
+### 1. OSS Provider 连接测试
 
 **修改文件**：`src/services/universalFile/providers/AliyunOSSProvider.ts`
 
 **修改内容**：
-- 将 `testConnection()` 失败改为**警告**而非错误
-- 即使连接测试失败也标记 `isInitialized = true`
-- 允许在后续实际上传时再处理网络问题
+- 保持 `testConnection()` 的严格检查
+- 连接测试失败时抛出错误，`isInitialized` 保持为 `false`
+- 确保只有成功连接的 Provider 才能被使用
 
 ```typescript
-// 测试连接（非阻塞）
-try {
-  await this.testConnection();
-  console.log(`✅ [AliyunOSSProvider] OSS连接测试成功`);
-} catch (testError) {
-  console.warn('⚠️ [AliyunOSSProvider] OSS连接测试失败，但将继续初始化:', testError);
-  // 不抛出错误，允许继续使用
-}
+// 测试连接
+await this.testConnection();
 
-this.isInitialized = true; // 仍然标记为已初始化
+this.isInitialized = true;
+console.log(`✅ [AliyunOSSProvider] 阿里云OSS初始化完成`);
 ```
 
-### 2. 智能存储提供者降级
+**错误处理**：
+```typescript
+catch (error) {
+  console.error('❌ [AliyunOSSProvider] 阿里云OSS初始化失败:', error);
+  this.isInitialized = false;
+  throw new StorageProviderError(
+    `阿里云OSS初始化失败: ${error instanceof Error ? error.message : '未知错误'}`
+  );
+}
+```
+
+### 2. 严格的存储提供者检查
 
 **修改文件**：`src/services/universalFile/UniversalFileService.ts`
 
 **修改内容**：
-- 新增 `isProviderAvailable()` 检查函数
-- 在选择存储提供者时检查 `isInitialized` 状态
-- OSS 不可用时自动降级到本地存储
+- 在上传前严格检查存储提供者是否存在
+- 检查存储提供者是否已成功初始化
+- **不降级**：如果 OSS 不可用，直接抛出清晰的错误信息
 
 ```typescript
-const isProviderAvailable = (provider: any) => {
-  return provider && (!('isInitialized' in provider) || provider['isInitialized'] === true);
-};
+// 检查 Provider 是否存在
+if (!storageProvider) {
+  throw new StorageProviderError(`存储提供者不存在: ${selectedStorageType}`);
+}
 
-// 如果 OSS 不可用，自动降级
-if (!isProviderAvailable(storageProvider)) {
-  console.log(`⚠️ [UniversalFileService] OSS 不可用，回退到本地存储`);
-  storageProvider = this.storageProviders.get('local');
-  selectedStorageType = 'local';
+// 检查 Provider 是否已初始化
+const isInitialized = !('isInitialized' in storageProvider) || storageProvider['isInitialized'] === true;
+if (!isInitialized) {
+  throw new StorageProviderError(
+    `存储提供者未初始化: ${selectedStorageType}。` +
+    `请检查配置或网络连接，确保 ${selectedStorageType} 正常工作。`
+  );
 }
 ```
 
@@ -127,7 +158,33 @@ npx tsx scripts/test-file-service.ts
 
 ## 📝 使用步骤
 
-### 1. 重启开发服务器
+### 1. 确保 OSS 配置正确
+
+运行检查脚本：
+```bash
+npx tsx scripts/check-oss-config.ts
+```
+
+确认所有必需配置都已设置：
+- ✅ `ALIYUN_OSS_REGION`
+- ✅ `ALIYUN_OSS_BUCKET`
+- ✅ `ALIYUN_OSS_ACCESS_KEY_ID`
+- ✅ `ALIYUN_OSS_ACCESS_KEY_SECRET`
+
+### 2. 测试文件服务
+
+```bash
+npx tsx scripts/test-file-service.ts
+```
+
+确认输出显示：
+```
+aliyun-oss:
+  - 已注册: ✅
+  - 已初始化: ✅  ← 必须是 ✅
+```
+
+### 3. 重启开发服务器
 
 ```bash
 # 停止当前服务器 (Ctrl+C)
@@ -135,27 +192,26 @@ npx tsx scripts/test-file-service.ts
 pnpm dev
 ```
 
-### 2. 测试文件上传
+### 4. 测试文件上传
 
 访问 MMD 上传页面：`http://localhost:3001/testField/mmdUpload`
 
 拖拽一个 MMD 压缩包（.zip）到上传区域。
 
-### 3. 查看上传日志
+### 5. 查看上传日志
 
 观察服务器终端输出：
 
-**成功使用 OSS**：
+**成功**：
 ```
 📤 [UniversalFileService] 使用存储提供者: aliyun-oss
-✅ [upload-mmd-zip] 上传完成: 57/57 个文件
+✅ 上传完成: 57/57 个文件
 ```
 
-**降级到本地存储**：
+**失败**：
 ```
-⚠️ [UniversalFileService] OSS 不可用或未初始化，回退到本地存储
-✅ [UniversalFileService] 切换到本地存储
-📤 [UniversalFileService] 使用存储提供者: local
+❌ 上传失败: StorageProviderError: 存储提供者未初始化: aliyun-oss
+提示：请检查配置或网络连接，确保 aliyun-oss 正常工作。
 ```
 
 ## 🔧 网络问题排查
@@ -166,60 +222,89 @@ pnpm dev
 getaddrinfo ENOTFOUND profile-qhr-resource.oss-cn-beijing.aliyuncs.com
 ```
 
-### 可能原因：
+### 诊断步骤：
 
-1. **DNS 配置问题**
+1. **测试 DNS 解析**
    ```bash
-   # 测试 DNS 解析
    nslookup profile-qhr-resource.oss-cn-beijing.aliyuncs.com
    ```
+   
+   预期输出应包含 IP 地址。如果失败，说明 DNS 无法解析。
 
-2. **网络连接问题**
+2. **测试网络连接**
    ```bash
-   # 测试网络连接
    curl -I https://profile-qhr-resource.oss-cn-beijing.aliyuncs.com
    ```
+   
+   应返回 HTTP 响应头。如果超时或连接被拒绝，说明网络不通。
 
-3. **防火墙阻止**
-   - 检查公司/学校网络是否阻止 OSS 访问
-   - 尝试使用 VPN 或更换网络
+3. **检查防火墙**
+   - 公司/学校网络可能阻止 OSS 访问
+   - 尝试使用手机热点或其他网络
+   - 联系网络管理员开放 `*.aliyuncs.com` 的访问
 
 ### 解决方案：
 
-**即使网络问题无法解决，文件上传功能仍会正常工作**（通过降级到本地存储）。
+1. **修复网络连接**（推荐）
+   - 确保能访问阿里云 OSS
+   - 配置正确的 DNS 服务器
+   - 关闭可能阻止连接的代理/VPN
+
+2. **使用本地存储**（临时方案）
+   - 修改数据库中的配置：`defaultStorage: 'local'`
+   - 启用本地存储提供者
+   - 文件将保存到 `uploads/` 目录
+
+**注意**：新的实现**不会自动降级**，必须解决 OSS 连接问题或手动切换到本地存储。
 
 ## ⚠️ 注意事项
 
-1. **本地存储路径**：
-   - 默认：`uploads/` 目录
-   - 可通过环境变量配置：`FILE_STORAGE_PATH`
+1. **严格模式**：
+   - OSS 不可用时**不会自动降级**到本地存储
+   - 必须确保 OSS 配置正确且网络连接正常
+   - 上传失败会抛出清晰的错误信息
 
-2. **本地存储备用**：
-   - 本地存储会在以下情况启用：
-     - 配置管理器未找到 OSS 配置
-     - OSS Provider 初始化失败
-     - OSS Provider 在运行时不可用
+2. **错误排查优先级**：
+   - 首先运行 `check-oss-config.ts` 检查配置
+   - 然后运行 `test-file-service.ts` 测试初始化
+   - 最后检查网络连接（DNS、防火墙等）
 
-3. **CDN URL**：
-   - OSS 上传成功：`cdnUrl` 为完整的 OSS URL
+3. **切换到本地存储**（如果需要）：
+   - 修改数据库中的 `defaultStorage` 配置
+   - 或在代码中明确指定使用 `local` 存储
+   ```typescript
+   await fileService.uploadFile(fileInfo, 'local')  // 强制使用本地存储
+   ```
+
+4. **CDN URL**：
+   - OSS 成功：`cdnUrl` 为 OSS URL（如 `https://bucket.region.aliyuncs.com/path`）
    - 本地存储：`cdnUrl` 为本地路径（如 `/uploads/mmd/...`）
 
 ## 🎯 预期行为
 
-### 理想情况（OSS 正常）
+### 成功情况（OSS 正常）
 
-1. ✅ OSS Provider 初始化成功
-2. ✅ 文件上传到 OSS
-3. ✅ 返回 OSS CDN URL
+1. ✅ OSS 配置正确
+2. ✅ 网络连接正常
+3. ✅ OSS Provider 初始化成功（`isInitialized: true`）
+4. ✅ 文件上传到 OSS
+5. ✅ 返回 OSS CDN URL
 
-### 降级情况（OSS 不可用）
+### 失败情况（OSS 不可用）
 
-1. ⚠️ OSS Provider 初始化失败或不可用
-2. 🔄 自动切换到本地存储
-3. ✅ 文件保存到本地 `uploads/` 目录
-4. ✅ 返回本地文件路径
+1. ❌ OSS 配置错误 或 网络连接失败
+2. ❌ OSS Provider 初始化失败（`isInitialized: false`）
+3. ❌ 文件上传时抛出错误：
+   ```
+   StorageProviderError: 存储提供者未初始化: aliyun-oss
+   请检查配置或网络连接，确保 aliyun-oss 正常工作。
+   ```
+4. ⚠️ **不会自动降级到本地存储**
+5. ⚠️ 用户需要手动修复 OSS 问题或切换到本地存储
 
-**无论哪种情况，上传功能都不会报错！** 🎉
+**关键差异**：
+- **之前**：OSS 不可用时自动降级到本地存储
+- **现在**：OSS 不可用时直接报错，要求修复问题
 
 ## 📚 相关文件
 
