@@ -174,8 +174,8 @@ importers:
         specifier: ^2.5.2
         version: 2.5.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       sa2kit:
-        specifier: ^1.0.2
-        version: 1.0.2(lucide-react@0.474.0(react@18.3.1))(react@18.3.1)
+        specifier: ^1.0.4
+        version: 1.0.4(lucide-react@0.474.0(react@18.3.1))(react@18.3.1)
       tailwind-merge:
         specifier: ^2.6.0
         version: 2.6.0
@@ -3627,8 +3627,8 @@ packages:
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
 
-  sa2kit@1.0.2:
-    resolution: {integrity: sha512-csl3EXPxmgzB+DGYboiDbjHM27v1imrNeuCtLSm6vvCrKveCxWox3LuTPE79+E8Nv2XkGSCbSUjydQJC2VzF0Q==}
+  sa2kit@1.0.4:
+    resolution: {integrity: sha512-9NnfIS/OOhW7e5Mym/LOmXzLpdyUaUTZQ9NzkD5cjhC6yT9wH7UXxdUXUYxqQ2UTc2Yh5RyOb9yVrnJ7//2dDw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       lucide-react: ^0.263.0 || ^0.300.0 || ^0.400.0 || ^0.500.0
@@ -7582,7 +7582,7 @@ snapshots:
     dependencies:
       queue-microtask: 1.2.3
 
-  sa2kit@1.0.2(lucide-react@0.474.0(react@18.3.1))(react@18.3.1):
+  sa2kit@1.0.4(lucide-react@0.474.0(react@18.3.1))(react@18.3.1):
     dependencies:
       bcryptjs: 3.0.3
       jsonwebtoken: 9.0.2
