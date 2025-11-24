@@ -33,32 +33,35 @@ interface ZipUploadResult {
   }
 }
 
-interface OSSFile {
+interface MMDFile {
+  id: string
   name: string
   url: string
   size: number
-  lastModified: Date
+  uploadTime: Date
   type: string
+  extension: string
+  storagePath: string
 }
 
 interface MMDFolder {
   name: string
   path: string
-  files: OSSFile[]
-  modelFiles: OSSFile[]
-  motionFiles: OSSFile[]
-  audioFiles: OSSFile[]
-  textureFiles: OSSFile[]
+  files: MMDFile[]
+  modelFiles: MMDFile[]
+  motionFiles: MMDFile[]
+  audioFiles: MMDFile[]
+  textureFiles: MMDFile[]
   totalSize: number
   fileCount: number
+  uploadTime: Date
 }
 
-interface OSSListResult {
+interface MMDListResult {
   success: boolean
   folders: MMDFolder[]
   totalFiles: number
   totalSize: number
-  ossBaseUrl: string
   summary: {
     totalFolders: number
     totalFiles: number
@@ -84,7 +87,7 @@ export default function MMDUploadPage() {
   const zipInputRef = useRef<HTMLInputElement>(null)
   
   // OSS 文件列表相关状态
-  const [ossFiles, setOssFiles] = useState<OSSListResult | null>(null)
+  const [ossFiles, setOssFiles] = useState<MMDListResult | null>(null)
   const [isLoadingOss, setIsLoadingOss] = useState(false)
   const [showOssFiles, setShowOssFiles] = useState(false)
   const [selectedFolder, setSelectedFolder] = useState<MMDFolder | null>(null)
@@ -239,16 +242,16 @@ export default function MMDUploadPage() {
   const loadOssFiles = async () => {
     setIsLoadingOss(true)
     try {
-      const response = await fetch('/api/list-mmd-files?prefix=mmd/')
+      const response = await fetch('/api/list-mmd-files')
       if (!response.ok) {
         throw new Error('查询失败')
       }
-      const result: OSSListResult = await response.json()
+      const result: MMDListResult = await response.json()
       setOssFiles(result)
       setShowOssFiles(true)
-      console.log('✅ OSS 文件列表:', result)
+      console.log('✅ MMD 文件列表:', result)
     } catch (error) {
-      console.error('❌ 查询 OSS 文件失败:', error)
+      console.error('❌ 查询 MMD 文件失败:', error)
       alert(`查询失败: ${error instanceof Error ? error.message : '未知错误'}`)
     } finally {
       setIsLoadingOss(false)
@@ -717,7 +720,7 @@ export default function MMDUploadPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {ossFiles.folders.map((folder, index) => (
+                  {ossFiles.folders.map((folder: MMDFolder, index: number) => (
                     <div
                       key={folder.path}
                       className="rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all overflow-hidden"
@@ -788,7 +791,7 @@ export default function MMDUploadPage() {
                                 🎭 模型文件
                               </h4>
                               <div className="space-y-2">
-                                {folder.modelFiles.map((file, idx) => (
+                                {folder.modelFiles.map((file: MMDFile, idx: number) => (
                                   <div key={idx} className="flex items-center justify-between text-xs bg-white/5 rounded p-2">
                                     <span className="text-gray-300">{file.name}</span>
                                     <div className="flex items-center gap-2">
@@ -813,7 +816,7 @@ export default function MMDUploadPage() {
                                 🎬 动作文件
                               </h4>
                               <div className="space-y-2">
-                                {folder.motionFiles.map((file, idx) => (
+                                {folder.motionFiles.map((file: MMDFile, idx: number) => (
                                   <div key={idx} className="flex items-center justify-between text-xs bg-white/5 rounded p-2">
                                     <span className="text-gray-300">{file.name}</span>
                                     <div className="flex items-center gap-2">
@@ -838,7 +841,7 @@ export default function MMDUploadPage() {
                                 🎵 音频文件
                               </h4>
                               <div className="space-y-2">
-                                {folder.audioFiles.map((file, idx) => (
+                                {folder.audioFiles.map((file: MMDFile, idx: number) => (
                                   <div key={idx} className="flex items-center justify-between text-xs bg-white/5 rounded p-2">
                                     <span className="text-gray-300">{file.name}</span>
                                     <div className="flex items-center gap-2">
@@ -863,7 +866,7 @@ export default function MMDUploadPage() {
                                 🖼️ 贴图文件 ({folder.textureFiles.length})
                               </summary>
                               <div className="space-y-2 mt-2">
-                                {folder.textureFiles.map((file, idx) => (
+                                {folder.textureFiles.map((file: MMDFile, idx: number) => (
                                   <div key={idx} className="flex items-center justify-between text-xs bg-white/5 rounded p-2">
                                     <span className="text-gray-300">{file.name}</span>
                                     <div className="flex items-center gap-2">
