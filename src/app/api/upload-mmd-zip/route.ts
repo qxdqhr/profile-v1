@@ -204,7 +204,12 @@ export async function POST(request: NextRequest) {
           ? `${basePath}/${fileDir}/${fileName}`
           : `${basePath}/${fileName}`;
 
-        console.log(`📤 上传 [${uploadedCount + 1}/${totalFiles}]:`, storagePath);
+        console.log(`📤 上传 [${uploadedCount + 1}/${totalFiles}]:`, {
+          原始路径: relativePath,
+          存储路径: storagePath,
+          文件夹: fileDir || '(根目录)',
+          文件名: fileName
+        });
 
         // 创建 File 对象
         const uploadFile = {
@@ -219,7 +224,7 @@ export async function POST(request: NextRequest) {
           webkitRelativePath: '',
         } as File;
 
-        // 上传文件
+        // 上传文件（使用自定义路径以保持目录结构）
         const result = await fileService.uploadFile(
           {
             file: uploadFile,
@@ -227,6 +232,7 @@ export async function POST(request: NextRequest) {
             businessId: 'resources',
             permission: 'public',
             needsProcessing: false,
+            customPath: storagePath,  // 使用我们构建的完整路径
           },
           undefined,
           (progress) => {

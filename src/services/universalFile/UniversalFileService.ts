@@ -218,8 +218,8 @@ export class UniversalFileService extends EventEmitter {
         );
       }
 
-      // 生成存储路径
-      const storagePath = this.generateStoragePath(metadata);
+      // 生成存储路径（优先使用自定义路径）
+      const storagePath = fileInfo.customPath || this.generateStoragePath(metadata);
 
       // 更新上传状态
       progress.status = 'uploading';
