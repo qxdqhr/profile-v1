@@ -26,15 +26,28 @@ PMX 文件中的贴图引用路径是相对路径，例如：
 
 ### 正确的目录结构
 
+**MMD 标准目录名称**：
+- `tex/` - 基础贴图目录
+- `spa/` - 高光贴图目录（Sphere 贴图）
+- 其他自定义目录名会被原样保留
+
 ```
 mmd/2025/11/24/model-name/
 ├── model.pmx
-├── texture/               ✅ 保持子目录
+├── tex/                   ✅ 标准贴图目录
 │   ├── face.png
 │   └── body.png
+├── spa/                   ✅ 高光贴图目录
+│   ├── face.spa
+│   └── body.sph
 ├── motion.vmd
 └── audio.wav
 ```
+
+**注意**：代码会**原样保留**压缩包中的目录名称，因此：
+- 如果你的模型使用 `tex/` → 上传后保持 `tex/`
+- 如果你的模型使用 `texture/` → 上传后保持 `texture/`
+- 如果你的模型使用其他名称 → 上传后保持原名称
 
 ### 实现原理
 
@@ -86,15 +99,18 @@ for (const { entry, relativePath } of allFiles) {
 
 ## 📊 路径映射示例
 
-### 压缩包内部结构
+### 压缩包内部结构（标准 MMD 结构）
 
 ```
 miku-model.zip
 ├── miku.pmx
-├── texture/
+├── tex/                   ← MMD 标准贴图目录
 │   ├── face.png
 │   ├── body.png
 │   └── hair.png
+├── spa/                   ← MMD 高光贴图目录
+│   ├── face.spa
+│   └── body.sph
 ├── motion/
 │   └── dance.vmd
 └── audio/
@@ -106,10 +122,13 @@ miku-model.zip
 ```
 mmd/2025/11/24/miku-model/
 ├── miku.pmx
-├── texture/
+├── tex/                   ✅ 保持原始目录名
 │   ├── face.png
 │   ├── body.png
 │   └── hair.png
+├── spa/                   ✅ 保持原始目录名
+│   ├── face.spa
+│   └── body.sph
 ├── motion/
 │   └── dance.vmd
 └── audio/
@@ -121,8 +140,9 @@ mmd/2025/11/24/miku-model/
 | 压缩包中的路径 | relativePath | storagePath |
 |---------------|--------------|-------------|
 | `miku.pmx` | `miku.pmx` | `mmd/2025/11/24/miku-model/miku.pmx` |
-| `texture/face.png` | `texture/face.png` | `mmd/2025/11/24/miku-model/texture/face.png` |
-| `texture/body.png` | `texture/body.png` | `mmd/2025/11/24/miku-model/texture/body.png` |
+| `tex/face.png` | `tex/face.png` | `mmd/2025/11/24/miku-model/tex/face.png` |
+| `tex/body.png` | `tex/body.png` | `mmd/2025/11/24/miku-model/tex/body.png` |
+| `spa/face.spa` | `spa/face.spa` | `mmd/2025/11/24/miku-model/spa/face.spa` |
 | `motion/dance.vmd` | `motion/dance.vmd` | `mmd/2025/11/24/miku-model/motion/dance.vmd` |
 | `audio/song.wav` | `audio/song.wav` | `mmd/2025/11/24/miku-model/audio/song.wav` |
 
@@ -146,12 +166,19 @@ mmd/2025/11/24/miku-model/
 观察服务器输出，确认 `存储路径` 包含了子目录：
 
 ```bash
-# 正确的输出
+# 正确的输出（标准 MMD 目录）
 📤 上传 [3/10]: {
-  原始路径: 'texture/face.png',
-  存储路径: 'mmd/2025/11/24/model-name/texture/face.png',  ✅
-  文件夹: 'texture',  ✅
+  原始路径: 'tex/face.png',
+  存储路径: 'mmd/2025/11/24/model-name/tex/face.png',  ✅
+  文件夹: 'tex',  ✅
   文件名: 'face.png'
+}
+
+📤 上传 [4/10]: {
+  原始路径: 'spa/face.spa',
+  存储路径: 'mmd/2025/11/24/model-name/spa/face.spa',  ✅
+  文件夹: 'spa',  ✅
+  文件名: 'face.spa'
 }
 ```
 
@@ -192,10 +219,12 @@ npx tsx scripts/check-oss-files.ts
 MMD 模型文件（.pmx）内部存储的是**相对路径**：
 
 ```
-# PMX 文件中的贴图引用
-texture/face.png
-texture/body.png
-texture/hair.png
+# PMX 文件中的贴图引用（标准 MMD 结构）
+tex/face.png
+tex/body.png
+tex/hair.png
+spa/face.spa
+spa/body.sph
 ```
 
 这些路径是**相对于 .pmx 文件所在目录**的。因此，文件结构必须保持：
@@ -203,10 +232,19 @@ texture/hair.png
 ```
 model.pmx 所在目录/
 ├── model.pmx          ← PMX 文件位置
-└── texture/           ← 贴图相对于 PMX 的位置
-    ├── face.png
-    └── body.png
+├── tex/               ← 基础贴图相对于 PMX 的位置
+│   ├── face.png
+│   └── body.png
+└── spa/               ← 高光贴图相对于 PMX 的位置
+    ├── face.spa
+    └── body.sph
 ```
+
+**重要**：
+- 代码会**原样保留**压缩包中的目录结构
+- 如果 PMX 文件引用 `tex/face.png`，则压缩包中必须有 `tex/` 目录
+- 如果 PMX 文件引用 `texture/face.png`，则压缩包中必须有 `texture/` 目录
+- 目录名称必须与 PMX 文件中的引用**完全一致**（包括大小写）
 
 ## ⚠️ 常见问题
 
