@@ -103,23 +103,18 @@ export class AliyunOSSProvider implements IStorageProvider {
       
       this.client = new OSS(ossConfig);
 
-      // 测试连接（非阻塞）
-      try {
-        await this.testConnection();
-        console.log(`✅ [AliyunOSSProvider] OSS连接测试成功`);
-      } catch (testError) {
-        console.warn('⚠️ [AliyunOSSProvider] OSS连接测试失败，但将继续初始化:', testError);
-        // 不抛出错误，允许继续使用（可能是网络暂时不通）
-      }
+      // 测试连接
+      await this.testConnection();
       
       this.isInitialized = true;
       console.log(`✅ [AliyunOSSProvider] 阿里云OSS${configChanged ? '重新' : ''}初始化完成`);
       
     } catch (error) {
       console.error('❌ [AliyunOSSProvider] 阿里云OSS初始化失败:', error);
-      // 不抛出错误，标记为未初始化即可
       this.isInitialized = false;
-      console.warn('⚠️ [AliyunOSSProvider] OSS将不可用，请检查配置和网络');
+      throw new StorageProviderError(
+        `阿里云OSS初始化失败: ${error instanceof Error ? error.message : '未知错误'}`
+      );
     }
   }
 

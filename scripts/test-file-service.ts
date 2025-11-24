@@ -39,32 +39,27 @@ async function testFileService() {
     console.log(`  本地存储启用: ${serviceConfig.storageProviders['local']?.enabled ? '✅' : '❌'}`);
     console.log(`  OSS存储启用: ${serviceConfig.storageProviders['aliyun-oss']?.enabled ? '✅' : '❌'}`);
 
-    // 测试降级逻辑
+    // 测试存储提供者可用性检查
     console.log('\n🔍 测试存储提供者选择逻辑:');
     
     const defaultStorageType = serviceConfig.defaultStorage;
-    let storageProvider = storageProviders.get(defaultStorageType);
+    const storageProvider = storageProviders.get(defaultStorageType);
     
-    const isProviderAvailable = (provider: any) => {
-      return provider && (!('isInitialized' in provider) || provider['isInitialized'] === true);
-    };
+    console.log(`  默认存储类型: ${defaultStorageType}`);
     
-    console.log(`  1. 尝试使用默认存储 (${defaultStorageType}): ${isProviderAvailable(storageProvider) ? '✅ 可用' : '❌ 不可用'}`);
-    
-    if (!isProviderAvailable(storageProvider)) {
-      storageProvider = storageProviders.get('aliyun-oss');
-      console.log(`  2. 尝试使用 OSS: ${isProviderAvailable(storageProvider) ? '✅ 可用' : '❌ 不可用'}`);
-      
-      if (!isProviderAvailable(storageProvider)) {
-        storageProvider = storageProviders.get('local');
-        console.log(`  3. 尝试使用本地存储: ${isProviderAvailable(storageProvider) ? '✅ 可用' : '❌ 不可用'}`);
-      }
-    }
-    
-    if (isProviderAvailable(storageProvider)) {
-      console.log(`\n✅ 最终选择的存储提供者: ${storageProvider['type']}`);
+    if (!storageProvider) {
+      console.log(`  ❌ 存储提供者不存在`);
     } else {
-      console.log(`\n❌ 没有可用的存储提供者!`);
+      const isInitialized = !('isInitialized' in storageProvider) || storageProvider['isInitialized'] === true;
+      console.log(`  ${isInitialized ? '✅' : '❌'} 存储提供者已初始化: ${isInitialized}`);
+      
+      if (!isInitialized) {
+        console.log(`\n⚠️ 如果尝试上传文件，将会抛出错误：`);
+        console.log(`   StorageProviderError: 存储提供者未初始化: ${defaultStorageType}`);
+        console.log(`   提示：请检查配置或网络连接，确保 ${defaultStorageType} 正常工作。`);
+      } else {
+        console.log(`\n✅ 存储提供者可用，可以正常上传文件`);
+      }
     }
 
     console.log('\n✅ 测试完成！');

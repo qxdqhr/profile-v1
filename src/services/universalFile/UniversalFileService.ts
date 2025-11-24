@@ -201,37 +201,21 @@ export class UniversalFileService extends EventEmitter {
       const metadata = await this.generateFileMetadata(fileId, fileInfo);
 
       // 选择存储提供者
-      let selectedStorageType = storageType || this.config.defaultStorage;
-      let storageProvider = this.storageProviders.get(selectedStorageType);
+      const selectedStorageType = storageType || this.config.defaultStorage;
+      const storageProvider = this.storageProviders.get(selectedStorageType);
       
-      // 检查 Provider 是否可用（存在且已初始化）
-      const isProviderAvailable = (provider: any) => {
-        return provider && (!('isInitialized' in provider) || provider['isInitialized'] === true);
-      };
-      
-      // 如果指定的存储提供者不可用，优先尝试OSS
-      if (!isProviderAvailable(storageProvider)) {
-        console.log(`⚠️ [UniversalFileService] 存储提供者 ${selectedStorageType} 不可用或未初始化，尝试使用OSS`);
-        storageProvider = this.storageProviders.get('aliyun-oss');
-        
-        // 检查 OSS 是否可用
-        if (isProviderAvailable(storageProvider)) {
-          selectedStorageType = 'aliyun-oss';
-          console.log(`✅ [UniversalFileService] 切换到 OSS 存储`);
-        } else {
-          // 如果OSS也不可用，回退到本地存储
-          console.log(`⚠️ [UniversalFileService] OSS 不可用或未初始化，回退到本地存储`);
-          storageProvider = this.storageProviders.get('local');
-          
-          if (isProviderAvailable(storageProvider)) {
-            selectedStorageType = 'local';
-            console.log(`✅ [UniversalFileService] 切换到本地存储`);
-          }
-        }
+      // 检查 Provider 是否存在
+      if (!storageProvider) {
+        throw new StorageProviderError(`存储提供者不存在: ${selectedStorageType}`);
       }
       
-      if (!storageProvider || !isProviderAvailable(storageProvider)) {
-        throw new StorageProviderError(`没有可用的存储提供者`);
+      // 检查 Provider 是否已初始化
+      const isInitialized = !('isInitialized' in storageProvider) || storageProvider['isInitialized'] === true;
+      if (!isInitialized) {
+        throw new StorageProviderError(
+          `存储提供者未初始化: ${selectedStorageType}。` +
+          `请检查配置或网络连接，确保 ${selectedStorageType} 正常工作。`
+        );
       }
 
       // 生成存储路径
