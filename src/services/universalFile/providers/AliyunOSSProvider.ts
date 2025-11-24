@@ -70,7 +70,18 @@ export class AliyunOSSProvider implements IStorageProvider {
       this.validateConfig();
 
       // 创建OSS客户端
-      this.client = new OSS({
+      // 检查是否使用真正的自定义域名（不包含 .aliyuncs.com 的才是自定义域名）
+      const hasRealCustomDomain = this.config.customDomain && !this.config.customDomain.includes('.aliyuncs.com');
+      
+      console.log(`🔧 [AliyunOSSProvider] OSS配置:`, {
+        region: this.config.region,
+        bucket: this.config.bucket,
+        customDomain: this.config.customDomain,
+        hasRealCustomDomain,
+        secure: this.config.secure !== false,
+      });
+      
+      const ossConfig: any = {
         region: this.config.region,
         bucket: this.config.bucket,
         accessKeyId: this.config.accessKeyId,
@@ -78,21 +89,37 @@ export class AliyunOSSProvider implements IStorageProvider {
         secure: this.config.secure !== false, // 默认使用HTTPS
         internal: this.config.internal || false, // 默认使用公网
         timeout: 300000, // 5分钟超时
-        cname: !!this.config.customDomain, // 是否使用自定义域名
-        endpoint: this.config.customDomain || undefined
-      });
+      };
+      
+      // 只有真正的自定义域名才设置 endpoint 和 cname
+      if (hasRealCustomDomain) {
+        ossConfig.endpoint = this.config.customDomain;
+        ossConfig.cname = true;
+        console.log(`🌐 [AliyunOSSProvider] 使用自定义域名: ${this.config.customDomain}`);
+      } else {
+        // 使用标准的 OSS 域名，让SDK自动构建
+        console.log(`🌐 [AliyunOSSProvider] 使用标准OSS域名: ${this.config.region}`);
+      }
+      
+      this.client = new OSS(ossConfig);
 
-      // 测试连接
-      await this.testConnection();
+      // 测试连接（非阻塞）
+      try {
+        await this.testConnection();
+        console.log(`✅ [AliyunOSSProvider] OSS连接测试成功`);
+      } catch (testError) {
+        console.warn('⚠️ [AliyunOSSProvider] OSS连接测试失败，但将继续初始化:', testError);
+        // 不抛出错误，允许继续使用（可能是网络暂时不通）
+      }
       
       this.isInitialized = true;
       console.log(`✅ [AliyunOSSProvider] 阿里云OSS${configChanged ? '重新' : ''}初始化完成`);
       
     } catch (error) {
       console.error('❌ [AliyunOSSProvider] 阿里云OSS初始化失败:', error);
-      throw new StorageProviderError(
-        `阿里云OSS初始化失败: ${error instanceof Error ? error.message : '未知错误'}`
-      );
+      // 不抛出错误，标记为未初始化即可
+      this.isInitialized = false;
+      console.warn('⚠️ [AliyunOSSProvider] OSS将不可用，请检查配置和网络');
     }
   }
 
@@ -405,11 +432,19 @@ export class AliyunOSSProvider implements IStorageProvider {
   private async testConnection(): Promise<void> {
     try {
       // 尝试列出少量对象来测试连接
-      await this.client.list({
-        'max-keys': '1'
+      console.log(`🔍 [AliyunOSSProvider] 测试OSS连接...`);
+      const result = await this.client.list({
+        'max-keys': 1
       });
-      console.log(`✅ [AliyunOSSProvider] OSS连接测试成功`);
+      console.log(`✅ [AliyunOSSProvider] OSS连接测试成功，找到 ${result.objects?.length || 0} 个对象`);
     } catch (error) {
+      // 记录详细错误信息用于调试
+      console.warn(`⚠️ [AliyunOSSProvider] OSS连接测试失败:`, {
+        error: error instanceof Error ? error.message : String(error),
+        code: (error as any)?.code,
+        requestUrl: (error as any)?.url || (error as any)?.message?.match(/GET\s+(https?:\/\/[^\s]+)/)?.[1],
+      });
+      
       if (this.isOSSError(error)) {
         if (error.code === 'NoSuchBucket') {
           throw new StorageProviderError(`存储桶不存在: ${this.config!.bucket}`);

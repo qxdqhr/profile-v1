@@ -148,7 +148,16 @@ export async function POST(request: NextRequest) {
     }
 
     // 初始化文件服务
+    console.log('🔧 [upload-mmd-zip] 开始创建文件服务...');
     const fileService = await createUniversalFileServiceWithConfigManager();
+    console.log('✅ [upload-mmd-zip] 文件服务创建完成');
+    
+    // 检查 OSS Provider 状态
+    const ossProvider = fileService['storageProviders'].get('aliyun-oss');
+    console.log('🔍 [upload-mmd-zip] OSS Provider 状态:', {
+      exists: !!ossProvider,
+      initialized: ossProvider ? ossProvider['isInitialized'] : 'N/A'
+    });
 
     // 生成规范化的模型名称
     const mainModelFile = structure.modelFiles[0];
