@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    console.log('✅ 文件上传成功:', result.url);
+    console.log('✅ 文件上传成功:', result.cdnUrl ?? result.storagePath);
 
     return NextResponse.json({
       success: true,

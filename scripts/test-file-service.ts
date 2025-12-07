@@ -19,16 +19,30 @@ async function testFileService() {
     const storageProviders = fileService['storageProviders'];
     
     for (const [type, provider] of storageProviders.entries()) {
-      const isInitialized = provider['isInitialized'];
-      const config = provider['config'];
+      const isInitialized =
+        typeof provider === 'object' && provider !== null && 'isInitialized' in provider
+          ? Boolean((provider as { isInitialized?: boolean }).isInitialized)
+          : false;
+      const config =
+        typeof provider === 'object' && provider !== null && 'config' in provider
+          ? (provider as { config?: { enabled?: boolean; type?: string } })['config']
+          : undefined;
       console.log(`  ${type}:`);
       console.log(`    - 已注册: ✅`);
       console.log(`    - 已初始化: ${isInitialized ? '✅' : '❌'}`);
       if (config) {
-        console.log(`    - 配置: ${JSON.stringify({
-          enabled: config.enabled,
-          type: config.type
-        }, null, 2).split('\n').join('\n      ')}`);
+        console.log(
+          `    - 配置: ${JSON.stringify(
+            {
+              enabled: config.enabled ?? '未知',
+              type: config.type ?? '未知',
+            },
+            null,
+            2,
+          )
+            .split('\n')
+            .join('\n      ')}`,
+        );
       }
     }
 
@@ -50,7 +64,12 @@ async function testFileService() {
     if (!storageProvider) {
       console.log(`  ❌ 存储提供者不存在`);
     } else {
-      const isInitialized = !('isInitialized' in storageProvider) || storageProvider['isInitialized'] === true;
+      const isInitialized =
+        typeof storageProvider !== 'object' ||
+        storageProvider === null ||
+        !('isInitialized' in storageProvider)
+          ? true
+          : Boolean((storageProvider as { isInitialized?: boolean }).isInitialized);
       console.log(`  ${isInitialized ? '✅' : '❌'} 存储提供者已初始化: ${isInitialized}`);
       
       if (!isInitialized) {

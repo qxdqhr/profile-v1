@@ -405,5 +405,16 @@ export const experiments: ExperimentItem[] = [
     isCompleted: true,
     createdAt: '2025-11-23',
     updatedAt: '2025-11-23'
+  },
+  {
+    id: "audio-detection-test",
+    title: "SA2Kit 音频检测器",
+    description: "调试 sa2kit 新增的音频检测模块，涵盖预设 UI、Hook 沙盒和参数调节器，便于验证音符与和弦识别表现",
+    path: "/testField/audio-detection-test",
+    tags: ["音频", "检测", "SA2Kit", "实验"],
+    category: "utility",
+    isCompleted: false,
+    createdAt: '2025-12-06',
+    updatedAt: '2025-12-06'
   }
 ];

@@ -51,7 +51,7 @@ async function setupCORS() {
         allowedMethod: ['GET', 'POST', 'PUT', 'DELETE', 'HEAD'],
         allowedHeader: ['*'],
         exposeHeader: ['ETag', 'x-oss-request-id'],
-        maxAgeSeconds: 600,
+        maxAgeSeconds: '600', // ali-oss 类型要求字符串或字符串数组
       },
       // 如果需要更严格的规则，可以添加：
       // {
@@ -63,7 +63,7 @@ async function setupCORS() {
       //   allowedMethod: ['GET', 'HEAD'],
       //   allowedHeader: ['*'],
       //   exposeHeader: ['ETag'],
-      //   maxAgeSeconds: 600,
+      //   maxAgeSeconds: '600',
       // },
     ];
 
