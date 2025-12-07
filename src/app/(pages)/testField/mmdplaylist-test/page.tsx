@@ -1,69 +1,75 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { MMDPlaylist, type MMDPlaylistConfig } from 'sa2kit/mmd';
-
-const OSS_BASE_PATH = 'https://profile-qhr-resource.oss-cn-beijing.aliyuncs.com/mmd';
+import {
+  convertPlaylistToMmdConfig,
+  type PlaylistWithFiles,
+} from '@/modules/testField/utils/mmdPlaylistAdapter';
 
 export default function MMDPlaylistTestPage() {
   const [mounted, setMounted] = useState(false);
+  const [playlistData, setPlaylistData] = useState<PlaylistWithFiles | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
-  // 定义播放列表
-  const playlist: MMDPlaylistConfig = {
-    id: 'test-playlist',
-    name: 'MMD 播放列表测试',
-    nodes: [
-      {
-        id: 'node-1',
-        name: '场景 1 - 打招呼',
-        resources: {
-          modelPath: '/mikutalking/models/YYB_Z6SakuraMiku/miku.pmx',
-          motionPath: '/mikutalking/actions/打招呼.vmd',
-        },
-        duration: 10,
-      },
-      {
-        id: 'node-2',
-        name: '场景 2 - Erusa Sailor',
-        resources: {
-          modelPath: `${OSS_BASE_PATH}/2025/11/25/erusa-sailor-swim/erusa-sailor-swim.pmx`,
-          motionPath: '/mikutalking/actions/打招呼.vmd',
-        },
-        duration: 15,
-      },
-      {
-        id: 'node-3',
-        name: '场景 3 - Miku 本地',
-        resources: {
-          modelPath: '/mikutalking/models/YYB_Z6SakuraMiku/miku.pmx',
-          motionPath: '/mikutalking/actions/打招呼.vmd',
-        },
-        duration: 12,
-      },
-    ],
-    loop: true, // 列表循环
-    preload: 'next', // 预加载下一个节点
-    autoPlay: true,
-  };
+
+  // 后端拉取播放列表（可由后台管理配置生成）
+  useEffect(() => {
+    const fetchPlaylist = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch('/api/mmd/playlists/demo');
+        if (!res.ok) throw new Error(`加载播放列表失败：${res.statusText}`);
+        const data = await res.json();
+        setPlaylistData(data);
+      } catch (err) {
+        console.error(err);
+        setError(err instanceof Error ? err.message : '未知错误');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlaylist();
+  }, []);
+
+  // 将后台格式转换为 MMD 组件可用格式
+  const playlist = useMemo<MMDPlaylistConfig | null>(() => {
+    if (!playlistData) return null;
+    return convertPlaylistToMmdConfig(playlistData as any);
+  }, [playlistData]);
 
   const stageConfig = {
     physicsPath: '/mikutalking/libs/ammo.wasm.js',
     enablePhysics: true,
-    backgroundColor: '#1a1a2e', // 深蓝色背景
+    backgroundColor: '#1a1a2e',
   };
 
-  if (!mounted) {
-    // 仅在客户端挂载后再渲染调试组件，避免 SSR 时间文本导致的 hydration mismatch
-    return null;
+  if (!mounted) return null;
+
+  if (loading) {
+    return (
+      <div className="w-full h-screen bg-gray-900 flex items-center justify-center text-white">
+        正在加载播放列表...
+      </div>
+    );
+  }
+
+  if (error || !playlist) {
+    return (
+      <div className="w-full h-screen bg-gray-900 flex items-center justify-center text-red-200">
+        加载失败：{error || '未获取到播放列表'}
+      </div>
+    );
   }
 
   return (
     <div className="w-full h-screen bg-gray-900 flex flex-col">
-
-      {/* 主要内容区 - 播放列表播放器 */}
       <main className="flex-1 relative overflow-hidden">
         <MMDPlaylist
           playlist={playlist}
@@ -79,21 +85,12 @@ export default function MMDPlaylistTestPage() {
           onPlaylistComplete={() => {
             console.log('[MMDPlaylist] 播放列表播放完成！');
           }}
-          onError={(error) => {
-            console.error('[MMDPlaylist] 错误:', error);
+          onError={(err) => {
+            console.error('[MMDPlaylist] 错误:', err);
           }}
           className="w-full h-full"
         />
       </main>
-
     </div>
   );
 }
-
-
-
-
-
-
-
-
