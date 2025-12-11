@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createUniversalFileServiceWithConfigManager } from '@/services/universalFile/UniversalFileService';
+import { UniversalFileService } from 'sa2kit/universalFile/server';
+import { createFileServiceConfigWithConfigManager } from '@/services/universalFile/config';
+import { createDrizzleFileRepository } from '@/services/universalFile/adapters/drizzleAdapter';
 import { validateApiAuth } from '@/modules/auth/server';
 
 /**
@@ -44,13 +46,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 验证文件类型（目前只支持图片）
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json(
-        { error: '只支持图片文件类型' },
-        { status: 400 }
-      );
-    }
+    // // 验证文件类型（目前只支持图片）
+    // if (!file.type.startsWith('image/')) {
+    //   return NextResponse.json(
+    //     { error: '只支持图片文件类型' },
+    //     { status: 400 }
+    //   );
+    // }
 
     console.log('📋 [通用文件服务] 上传参数:', {
       fileName: file.name,
@@ -67,7 +69,56 @@ export async function POST(request: NextRequest) {
     console.log('🔧 [通用文件服务] 开始初始化文件服务...');
     let fileService;
     try {
-      fileService = await createUniversalFileServiceWithConfigManager();
+      // 1. 加载配置 (使用现有配置管理器)
+      const configManager = await createFileServiceConfigWithConfigManager();
+      const config = configManager.getConfig();
+      
+      // 2. 创建数据库持久化仓储
+      const repository = createDrizzleFileRepository();
+      
+      // 3. 获取默认存储配置
+      const defaultStorageType = config.defaultStorage || 'local';
+      const storageConfig = config.storageProviders[defaultStorageType];
+      
+      if (!storageConfig) {
+        console.error('❌ [通用文件服务] 未找到存储配置:', defaultStorageType);
+        return NextResponse.json(
+          { error: `未找到存储配置: ${defaultStorageType}` },
+          { status: 500 }
+        );
+      }
+      
+      console.log('📦 [通用文件服务] 使用存储配置:', {
+        type: storageConfig.type,
+        enabled: storageConfig.enabled,
+      });
+      
+      // 4. 构建 sa2kit 配置
+      const serviceConfig = {
+        // storage 字段是 sa2kit 要求的
+        storage: storageConfig,
+        // cdn 配置可选
+        cdn: config.defaultCDN !== 'none' ? config.cdnProviders[config.defaultCDN] : undefined,
+        maxFileSize: config.maxFileSize,
+        allowedMimeTypes: config.allowedMimeTypes,
+        cache: {
+          enabled: true,
+          metadataTTL: config.cache.metadataTTL,
+          urlTTL: config.cache.urlTTL,
+        },
+        persistence: {
+          enabled: true,
+          repository,
+          autoPersist: true,
+        },
+        // 额外字段用于兼容旧的配置结构和 registerDefaultStorageProviders 逻辑
+        defaultStorage: defaultStorageType,
+        defaultCDN: config.defaultCDN,
+        storageProviders: config.storageProviders,
+      };
+      
+      fileService = new UniversalFileService(serviceConfig as any);
+      await fileService.initialize();
       console.log('✅ [通用文件服务] 文件服务初始化成功');
     } catch (initError) {
       console.error('❌ [通用文件服务] 文件服务初始化失败:', initError);
@@ -136,9 +187,8 @@ export async function POST(request: NextRequest) {
     if (uploadResult.cdnUrl) {
       accessUrl = uploadResult.cdnUrl;
     } else {
-      // 如果没有CDN URL，尝试从存储提供者获取访问URL
+      // 如果没有CDN URL，使用 storagePath 或调用 getFileUrl
       try {
-        // 传递用户ID以通过权限检查
         accessUrl = await fileService.getFileUrl(uploadResult.id, user.id?.toString());
       } catch (error) {
         console.warn('⚠️ [通用文件服务] 获取文件访问URL失败，使用默认路径:', error);

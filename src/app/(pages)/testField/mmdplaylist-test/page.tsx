@@ -74,7 +74,7 @@ export default function MMDPlaylistTestPage() {
         <MMDPlaylist
           playlist={playlist}
           stage={stageConfig}
-          showDebugInfo={true}
+          showDebugInfo={false}
           mobileOptimization={{
             enabled: false,
             pixelRatio: 1,

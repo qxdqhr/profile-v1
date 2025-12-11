@@ -2,14 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import { nanoid } from 'nanoid';
+import { processMmdModelArchive, MMD_MODEL_ARCHIVE_MIME_TYPES } from 'sa2kit/mmd/server';
 import { MMDModelsDbService, MMDAnimationsDbService, MMDAudiosDbService } from '@/modules/mmd/db/mmdDbService';
 
 // 支持的MMD文件类型
-const SUPPORTED_MODEL_TYPES = [
-  'application/octet-stream', // PMD/PMX文件通常是这个类型
-  'model/pmd',
-  'model/pmx',
-];
+const SUPPORTED_MODEL_TYPES = [...MMD_MODEL_ARCHIVE_MIME_TYPES];
 
 const SUPPORTED_ANIMATION_TYPES = [
   'application/octet-stream', // VMD文件
@@ -78,7 +75,7 @@ export async function POST(request: NextRequest) {
     // 验证文件扩展名
     const ext = path.extname(file.name).toLowerCase();
     const allowedExtensions = {
-      model: ['.pmd', '.pmx'],
+      model: ['.zip'],
       animation: ['.vmd'],
       audio: ['.wav', '.mp3', '.ogg']
     };
@@ -96,39 +93,52 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 生成唯一文件名
     const uniqueId = nanoid();
-    const fileName = `${uniqueId}${ext}`;
-    
-    // 创建上传目录
     const uploadDir = path.join(process.cwd(), 'uploads', 'mmd', subPath);
     await mkdir(uploadDir, { recursive: true });
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
     
-    // 保存文件
-    const filePath = path.join(uploadDir, fileName);
-    const bytes = await file.arrayBuffer();
-    await writeFile(filePath, Buffer.from(bytes));
-
-    // 生成访问URL
-    const fileUrl = `/uploads/mmd/${subPath}/${fileName}`;
+    let fileUrl = '';
+    let responseFormat = ext.slice(1).toUpperCase();
     
     // 保存到数据库
     let savedRecord;
 
     switch (fileType) {
       case 'model':
-        const modelService = new MMDModelsDbService();
-        savedRecord = await modelService.createModel({
-          name,
-          description,
-          filePath: fileUrl,
-          fileSize: file.size,
-          format: ext.slice(1).toLowerCase() as 'pmd' | 'pmx',
-          isPublic: true, // 默认公开
-        });
+        try {
+          const archiveResult = await processMmdModelArchive(fileBuffer, {
+            storageRoot: uploadDir,
+            publicRoot: '/uploads/mmd/models',
+            folderName: uniqueId,
+          });
+          fileUrl = archiveResult.modelUrl;
+          responseFormat = archiveResult.format.toUpperCase();
+          const modelService = new MMDModelsDbService();
+          savedRecord = await modelService.createModel({
+            name,
+            description,
+            filePath: fileUrl,
+            fileSize: file.size,
+            format: archiveResult.format,
+            isPublic: true,
+          });
+        } catch (extractError) {
+          console.error('模型压缩包处理失败:', extractError);
+          return NextResponse.json(
+            { error: extractError instanceof Error ? extractError.message : '模型压缩包处理失败' },
+            { status: 400 }
+          );
+        }
         break;
         
       case 'animation':
+        {
+          const fileName = `${uniqueId}${ext}`;
+          const filePath = path.join(uploadDir, fileName);
+          await writeFile(filePath, fileBuffer);
+          fileUrl = `/uploads/mmd/${subPath}/${fileName}`;
+        }
         const animationService = new MMDAnimationsDbService();
         savedRecord = await animationService.createAnimation({
           name,
@@ -142,6 +152,12 @@ export async function POST(request: NextRequest) {
         break;
         
       case 'audio':
+        {
+          const fileName = `${uniqueId}${ext}`;
+          const filePath = path.join(uploadDir, fileName);
+          await writeFile(filePath, fileBuffer);
+          fileUrl = `/uploads/mmd/${subPath}/${fileName}`;
+        }
         const audioService = new MMDAudiosDbService();
         savedRecord = await audioService.createAudio({
           name,
@@ -161,7 +177,7 @@ export async function POST(request: NextRequest) {
       filePath: fileUrl,
       fileSize: file.size,
       type: fileType,
-      format: ext.slice(1).toUpperCase(),
+      format: responseFormat,
       uploadTime: new Date().toISOString(),
     });
 
@@ -172,4 +188,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

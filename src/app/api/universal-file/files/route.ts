@@ -50,53 +50,71 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 查询文件列表
-    const result = await fileDbService.getFiles(queryParams);
-
-    // 转换为API响应格式
-    const responseData = {
-      files: result.files.map(file => ({
-        id: file.id,
-        originalName: file.originalName,
-        storedName: file.storedName,
-        extension: file.extension,
-        mimeType: file.mimeType,
-        size: file.size,
-        md5Hash: file.md5Hash,
-        sha256Hash: file.sha256Hash,
-        storagePath: file.storagePath,
-        cdnUrl: file.cdnUrl,
-        folderId: file.folderId,
-        moduleId: file.moduleId,
-        businessId: file.businessId,
-        tags: file.tags || [],
-        metadata: file.metadata || {},
-        isTemporary: file.isTemporary,
-        isDeleted: file.isDeleted,
-        accessCount: file.accessCount,
-        downloadCount: file.downloadCount,
-        uploaderId: file.uploaderId,
-        uploadTime: file.createdAt,
-        lastAccessTime: file.lastAccessTime,
-        expiresAt: file.expiresAt,
-        createdAt: file.createdAt,
-        updatedAt: file.updatedAt,
-      })),
-      pagination: {
-        total: result.total,
-        page: queryParams.page!,
-        pageSize: queryParams.pageSize!,
-        totalPages: Math.ceil(result.total / queryParams.pageSize!),
-      }
+    // 转换为 FileDbService 期望的参数格式
+    const dbQueryOptions = {
+      moduleId: queryParams.moduleId,
+      businessId: queryParams.businessId,
+      folderId: queryParams.folderId,
+      isDeleted: queryParams.isDeleted,
+      uploaderId: queryParams.uploaderId,
+      limit: queryParams.pageSize,
+      offset: (queryParams.page! - 1) * queryParams.pageSize!,
     };
 
-    return ApiResponseHelper.toNextResponse(
-      ApiResponseHelper.success(responseData, {
-        total: result.total,
-        page: queryParams.page,
-        pageSize: queryParams.pageSize,
-        totalPages: Math.ceil(result.total / queryParams.pageSize!),
-      })
+    // 查询文件列表
+    const result = await fileDbService.getFiles(dbQueryOptions);
+
+    // 确保 files 是数组，并将 total 转换为数字
+    const files = result?.files || [];
+    const total = typeof result?.total === 'string' ? parseInt(result.total, 10) : (result?.total || 0);
+
+    // 转换为 sa2kit 客户端期望的响应格式
+    const page = queryParams.page!;
+    const pageSize = queryParams.pageSize!;
+    const totalPages = Math.ceil(total / pageSize);
+    
+    const items = files.map(file => ({
+      id: file.id,
+      originalName: file.originalName,
+      storageName: file.storedName, // sa2kit 使用 storageName
+      storedName: file.storedName,
+      extension: file.extension,
+      mimeType: file.mimeType,
+      size: file.size,
+      hash: file.md5Hash,
+      md5Hash: file.md5Hash,
+      sha256Hash: file.sha256Hash,
+      storagePath: file.storagePath,
+      storageProvider: 'local', // 默认
+      cdnUrl: file.cdnUrl,
+      folderId: file.folderId,
+      moduleId: file.moduleId,
+      businessId: file.businessId,
+      permission: 'public',
+      tags: file.tags || [],
+      metadata: file.metadata || {},
+      isTemporary: file.isTemporary,
+      isDeleted: file.isDeleted,
+      accessCount: file.accessCount,
+      downloadCount: file.downloadCount,
+      uploaderId: file.uploaderId,
+      uploadTime: file.createdAt,
+      lastAccessTime: file.lastAccessTime,
+      expiresAt: file.expiresAt,
+      createdAt: file.createdAt,
+      updatedAt: file.updatedAt,
+    }));
+
+    // 返回 sa2kit UniversalFileClient 期望的格式
+    return NextResponse.json({
+      items,
+      total,
+      page,
+      pageSize,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrev: page > 1,
+    }
     );
   } catch (error) {
     console.error('API Error:', error);
