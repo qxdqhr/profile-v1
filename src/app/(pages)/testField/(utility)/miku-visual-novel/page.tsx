@@ -8,6 +8,8 @@ import {
   MMDStage,
 } from 'sa2kit/mmd';
 
+const OSS_BASE_PATH = 'https://profile-qhr-resource.oss-cn-beijing.aliyuncs.com/mmd'
+
 // 剧本配置
 const exampleScript: VisualNovelScript = {
   id: 'demo-script-1',
@@ -17,7 +19,7 @@ const exampleScript: VisualNovelScript = {
       id: 'node-1',
       name: '开场',
       resources: {
-        modelPath: '/mikutalking/models/YYB_Z6SakuraMiku/miku.pmx',
+        modelPath: `${OSS_BASE_PATH}/2025/11/25/erusa-sailor-swim/erusa-sailor-swim.pmx`,
         motionPath: '/mikutalking/motions/打招呼.vmd',
       },
       loopAnimation: true,
@@ -54,7 +56,7 @@ const exampleScript: VisualNovelScript = {
       id: 'node-2',
       name: '演唱准备',
       resources: {
-        modelPath: '/mikutalking/models/YYB_Z6SakuraMiku/miku.pmx',
+        modelPath: `${OSS_BASE_PATH}/2025/11/25/erusa-sailor-swim/erusa-sailor-swim.pmx`,
         motionPath: '/mikutalking/motions/CatchTheWave/mmd_CatchTheWave_motion.vmd',
       },
       loopAnimation: true,
@@ -89,7 +91,7 @@ const exampleScript: VisualNovelScript = {
       id: 'node-3',
       name: '结束',
       resources: {
-        modelPath: '/mikutalking/models/YYB_Z6SakuraMiku/miku.pmx',
+        modelPath: `${OSS_BASE_PATH}/2025/11/25/erusa-sailor-swim/erusa-sailor-swim.pmx`,
         motionPath: '/mikutalking/motions/打招呼.vmd',
       },
       loopAnimation: true,
