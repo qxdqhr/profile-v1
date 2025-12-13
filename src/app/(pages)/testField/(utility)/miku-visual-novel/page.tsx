@@ -8,7 +8,7 @@ import {
   MMDStage,
 } from 'sa2kit/mmd';
 
-const OSS_BASE_PATH = 'https://profile-qhr-resource.oss-cn-beijing.aliyuncs.com/mmd'
+const OSS_BASE_PATH = 'https://profile-qhr-resource.oss-cn-beijing.aliyuncs.com'
 
 // 剧本配置
 const exampleScript: VisualNovelScript = {
@@ -19,8 +19,8 @@ const exampleScript: VisualNovelScript = {
       id: 'node-1',
       name: '开场',
       resources: {
-        modelPath: `${OSS_BASE_PATH}/2025/11/25/erusa-sailor-swim/erusa-sailor-swim.pmx`,
-        motionPath: '/mikutalking/motions/打招呼.vmd',
+        modelPath: `${OSS_BASE_PATH}/mmd/2025/11/25/erusa-sailor-swim/erusa-sailor-swim.pmx`,
+        motionPath: `${OSS_BASE_PATH}/mmd-motions/2025/12/10/132dfca3-fe65-430d-850c-4e0c293c4ea4.vmd`,
       },
       loopAnimation: true,
       dialogues: [
@@ -57,7 +57,7 @@ const exampleScript: VisualNovelScript = {
       name: '演唱准备',
       resources: {
         modelPath: `${OSS_BASE_PATH}/2025/11/25/erusa-sailor-swim/erusa-sailor-swim.pmx`,
-        motionPath: '/mikutalking/motions/CatchTheWave/mmd_CatchTheWave_motion.vmd',
+        motionPath: `${OSS_BASE_PATH}/mmd-motions/2025/12/10/mmd_CatchTheWave_motion.vmd`,
       },
       loopAnimation: true,
       dialogues: [
@@ -92,7 +92,7 @@ const exampleScript: VisualNovelScript = {
       name: '结束',
       resources: {
         modelPath: `${OSS_BASE_PATH}/2025/11/25/erusa-sailor-swim/erusa-sailor-swim.pmx`,
-        motionPath: '/mikutalking/motions/打招呼.vmd',
+        motionPath: `${OSS_BASE_PATH}/mmd-motions/2025/12/10/132dfca3-fe65-430d-850c-4e0c293c4ea4.vmd`,
       },
       loopAnimation: true,
       dialogues: [
