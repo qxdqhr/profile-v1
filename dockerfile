@@ -33,6 +33,9 @@ COPY . .
 # Learn more here: https://nextjs.org/telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# 设置构建阶段标识，避免数据库连接问题
+ENV NEXT_PHASE=phase-production-build
+
 # 构建应用（只执行一次）
 RUN pnpm run build
 
