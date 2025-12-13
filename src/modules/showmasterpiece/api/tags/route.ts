@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { tagsDbService } from '../../db/masterpiecesDbService';
 
-// 强制动态渲染,避免构建时静态生成超时
-export const dynamic = 'force-dynamic';
-export const revalidate = false;
-export const fetchCache = 'force-no-store';
-
-
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);

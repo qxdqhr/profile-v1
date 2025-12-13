@@ -26,23 +26,7 @@ function getDatabaseConfig(): DatabaseConfig {
   // 数据库连接URL必须从环境变量读取
   const connectionString = process.env.DATABASE_URL;
   
-  // 在构建时，如果没有数据库URL，使用一个虚拟连接
-  // 这是因为 Next.js 在构建时会导入模块，但不会实际执行数据库操作
   if (!connectionString) {
-    const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build' || 
-                        process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL;
-    
-    if (isBuildTime) {
-      console.warn('⚠️ 构建时未提供数据库连接，使用虚拟连接');
-      // 返回一个虚拟的配置，实际不会被使用
-      return {
-        url: 'postgres://dummy:dummy@localhost:5432/dummy',
-        poolSize: 1,
-        timeout: 1000,
-        sslMode: 'disable'
-      };
-    }
-    
     const env = process.env.NODE_ENV || 'development';
     throw new Error(`数据库连接URL未在${env}环境变量中设置`);
   }
@@ -72,14 +56,11 @@ function getDatabaseConfig(): DatabaseConfig {
 // 获取数据库配置
 const dbConfig = getDatabaseConfig();
 
-// 检查是否是构建时
-const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
-
 // 创建Postgres客户端配置
 const postgresConfig = {
   max: dbConfig.poolSize,
   idle_timeout: dbConfig.timeout,
-  connect_timeout: isBuildTime ? 100 : dbConfig.timeout, // 构建时使用更短的超时
+  connect_timeout: dbConfig.timeout,
   // 禁用SSL以避免TLS连接问题
   ssl: false,
   // 添加连接重试配置
@@ -89,17 +70,15 @@ const postgresConfig = {
   // 设置事务隔离级别为 READ COMMITTED，确保读取最新提交的数据
   onnotice: () => {}, // 忽略通知
   // 强制设置事务隔离级别
-  ...(isBuildTime ? {} : {
-    afterConnect: async (connection: any) => {
-      try {
-        await connection.query('SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED');
-        await connection.query('SET SESSION synchronous_commit = on');
-        console.log('数据库连接已设置事务隔离级别为 READ COMMITTED');
-      } catch (error) {
-        console.warn('设置事务隔离级别失败:', error);
-      }
+  afterConnect: async (connection: any) => {
+    try {
+      await connection.query('SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED');
+      await connection.query('SET SESSION synchronous_commit = on');
+      console.log('数据库连接已设置事务隔离级别为 READ COMMITTED');
+    } catch (error) {
+      console.warn('设置事务隔离级别失败:', error);
     }
-  })
+  }
 };
 
 // 创建Postgres客户端

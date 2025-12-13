@@ -11,12 +11,6 @@ import { db } from '@/db';
 import { comicUniverseCollections } from '@/db/schema';
 import { eq, and, asc, desc } from 'drizzle-orm';
 
-// 强制动态渲染,避免构建时静态生成超时
-export const dynamic = 'force-dynamic';
-export const revalidate = false;
-export const fetchCache = 'force-no-store';
-
-
 /**
  * 获取可预订的画集列表
  * 
