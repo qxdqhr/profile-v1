@@ -5,6 +5,18 @@ const nextConfig = {
         // 如果需要的话，可以添加其他实验性功能
         serverComponentsExternalPackages: [],
     },
+    // 跳过 API 路由的静态生成，避免构建时超时
+    staticPageGenerationTimeout: 300, // 增加超时时间到 300 秒 (5 分钟)
+    // 配置哪些路径需要动态处理
+    async generateBuildId() {
+        // 使用时间戳作为构建 ID，确保每次构建都是新的
+        return `build-${Date.now()}`;
+    },
+    // 确保 API 路由在构建时不被预渲染
+    typescript: {
+        // 在构建时忽略 TypeScript 错误（如果需要）
+        ignoreBuildErrors: false,
+    },
     // 环境变量配置
     env: {
         // 设置最大请求体大小

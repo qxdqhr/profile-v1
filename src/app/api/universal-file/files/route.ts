@@ -9,6 +9,11 @@ import { FileDbService } from '@/services/universalFile/db/services/fileDbServic
 import { FileQueryParams, FileUploadParams } from '@/services/universalFile/types/api';
 import { db } from '@/db';
 
+// 强制动态渲染,避免构建时静态生成超时
+export const dynamic = 'force-dynamic';
+export const revalidate = false;
+export const fetchCache = 'force-no-store';
+
 // 初始化服务
 const fileDbService = new FileDbService(db);
 

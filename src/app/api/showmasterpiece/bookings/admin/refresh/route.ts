@@ -6,5 +6,5 @@
  * @fileoverview 预订管理强制刷新API代理
  */
 
-// 直接从模块内导出API实现
+// 直接从模块内导出API实现（包括 dynamic 和 revalidate 配置）
 export { GET, dynamic, revalidate } from '@/modules/showmasterpiece/api/bookings/admin/refresh/route';
