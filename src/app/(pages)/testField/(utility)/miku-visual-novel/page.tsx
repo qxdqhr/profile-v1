@@ -9,7 +9,7 @@ import {
 } from 'sa2kit/mmd';
 
 const OSS_BASE_PATH = 'https://profile-qhr-resource.oss-cn-beijing.aliyuncs.com'
-
+const YYB_Z6SakuraMiku = `${OSS_BASE_PATH}/mmd/2025/11/25/YYB_Z6SakuraMiku/miku.pmx`
 // 剧本配置
 const exampleScript: VisualNovelScript = {
   id: 'demo-script-1',
@@ -19,7 +19,7 @@ const exampleScript: VisualNovelScript = {
       id: 'node-1',
       name: '开场',
       resources: {
-        modelPath: `${OSS_BASE_PATH}/mmd/2025/11/25/erusa-sailor-swim/erusa-sailor-swim.pmx`,
+        modelPath: YYB_Z6SakuraMiku,
         motionPath: `${OSS_BASE_PATH}/mmd-motions/2025/12/10/132dfca3-fe65-430d-850c-4e0c293c4ea4.vmd`,
       },
       loopAnimation: true,
@@ -56,7 +56,7 @@ const exampleScript: VisualNovelScript = {
       id: 'node-2',
       name: '演唱准备',
       resources: {
-        modelPath: `${OSS_BASE_PATH}/mmd/2025/11/25/erusa-sailor-swim/erusa-sailor-swim.pmx`,
+        modelPath: YYB_Z6SakuraMiku,
         motionPath: `${OSS_BASE_PATH}/mmd-motions/2025/12/10/mmd_CatchTheWave_motion.vmd`,
       },
       loopAnimation: true,
@@ -91,7 +91,7 @@ const exampleScript: VisualNovelScript = {
       id: 'node-3',
       name: '结束',
       resources: {
-        modelPath: `${OSS_BASE_PATH}/mmd/2025/11/25/erusa-sailor-swim/erusa-sailor-swim.pmx`,
+        modelPath: YYB_Z6SakuraMiku,
         motionPath: `${OSS_BASE_PATH}/mmd-motions/2025/12/10/132dfca3-fe65-430d-850c-4e0c293c4ea4.vmd`,
       },
       loopAnimation: true,
