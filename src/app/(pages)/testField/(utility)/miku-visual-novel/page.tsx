@@ -58,6 +58,7 @@ const exampleScript: VisualNovelScript = {
       resources: {
         modelPath: YYB_Z6SakuraMiku,
         motionPath: `${OSS_BASE_PATH}/mmd-motions/2025/12/10/mmd_CatchTheWave_motion.vmd`,
+        audioPath: `/mikutalking/motions/CatchTheWave/pv_268.wav`
       },
       loopAnimation: true,
       dialogues: [
@@ -124,8 +125,8 @@ const exampleScript: VisualNovelScript = {
 // 舞台配置
 const stageConfig: MMDStage = {
   backgroundColor: '#1a1a2e',
-  enablePhysics: false,
-  physicsPath: '/libs/ammo.wasm.js',
+  enablePhysics: true,
+  physicsPath: '/mikutalking/libs/ammo.wasm.js',
   enableShadow: true,
   ambientLightIntensity: 0.6,
   directionalLightIntensity: 0.8,
