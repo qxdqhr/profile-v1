@@ -10,7 +10,8 @@ import {
 
 const OSS_BASE_PATH = 'https://profile-qhr-resource.oss-cn-beijing.aliyuncs.com'
 const YYB_Z6SakuraMiku = `${OSS_BASE_PATH}/mmd/2025/11/25/YYB_Z6SakuraMiku/miku.pmx`
-// 剧本配置
+
+// 剧本配置 - 采用 v1.6.1 新格式
 const exampleScript: VisualNovelScript = {
   id: 'demo-script-1',
   name: '初音未来的一天',
@@ -49,8 +50,38 @@ const exampleScript: VisualNovelScript = {
           speakerColor: '#39C5BB',
           text: '你今天有什么想听的歌曲吗？我可以为你演唱哦！',
           typeSpeed: 40,
+          // 🎯 新格式：在对话行中直接插入分支
+          choices: [
+            { 
+              text: "想听你唱歌！", 
+              // 仅仅设置变量，不触发立即跳转
+              setVariable: { key: "player_choice", value: "sing" },
+              onSelect: () => console.log("玩家选择了听歌") 
+            },
+            { 
+              text: "只想陪你聊聊天", 
+              setVariable: { key: "player_choice", value: "chat" },
+              onSelect: () => console.log("玩家选择了聊天")
+            }
+          ]
+        },
+        {
+          id: 'dialogue-1-5',
+          speaker: '初音未来',
+          speakerColor: '#39C5BB',
+          text: '嗯嗯，我知道了！那接下来...',
+          typeSpeed: 40,
         },
       ],
+      // 🎯 新格式：节点结束时根据之前存储的变量进行判定跳转
+      nextCondition: {
+        key: "player_choice",
+        map: {
+          "sing": 1, // 跳转到“演唱准备”节点 (Node 2)
+          "chat": 2  // 跳转到“结束”节点 (Node 3)
+        },
+        defaultIndex: 1 // 默认去听歌
+      }
     },
     {
       id: 'node-2',
@@ -70,21 +101,11 @@ const exampleScript: VisualNovelScript = {
           typeSpeed: 40,
         },
         {
-          id: 'dialogue-2-2',
-          text: '（初音未来开始做热身运动）',
-          typeSpeed: 60,
-        },
-        {
           id: 'dialogue-2-3',
           speaker: '初音未来',
           speakerColor: '#39C5BB',
-          text: '嗯嗯~准备好了！让我为你带来一首《甩葱歌》！',
+          text: '嗯嗯~准备好了！让我为你带来一首《CatchTheWave》！',
           typeSpeed: 40,
-        },
-        {
-          id: 'dialogue-2-4',
-          text: '（欢快的音乐响起，初音未来开始舞动）',
-          typeSpeed: 60,
         },
       ],
     },
@@ -101,7 +122,7 @@ const exampleScript: VisualNovelScript = {
           id: 'dialogue-3-1',
           speaker: '初音未来',
           speakerColor: '#39C5BB',
-          text: '演出结束了！希望你喜欢！',
+          text: '虽然只是聊了会儿天，但我也很开心哦！',
           typeSpeed: 40,
         },
         {
@@ -110,11 +131,6 @@ const exampleScript: VisualNovelScript = {
           speakerColor: '#39C5BB',
           text: '下次再见吧！拜拜~',
           typeSpeed: 40,
-        },
-        {
-          id: 'dialogue-3-3',
-          text: '— THE END — 刷新页面重新播放',
-          typeSpeed: 100,
         },
       ],
     },
