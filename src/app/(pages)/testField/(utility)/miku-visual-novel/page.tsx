@@ -9,7 +9,8 @@ import {
 } from 'sa2kit/mmd';
 
 const OSS_BASE_PATH = 'https://profile-qhr-resource.oss-cn-beijing.aliyuncs.com'
-const YYB_Z6SakuraMiku = `${OSS_BASE_PATH}/mmd/2025/11/25/YYB_Z6SakuraMiku/miku.pmx`
+const CDN_BASE_PATH = 'http://cdn.qhr062.top.w.kunlunaq.com'
+const YYB_Z6SakuraMiku = `${CDN_BASE_PATH}/mmd/2025/11/25/YYB_Z6SakuraMiku/miku.pmx`
 
 // 剧本配置 - 采用 v1.6.1 新格式
 const exampleScript: VisualNovelScript = {
@@ -21,7 +22,7 @@ const exampleScript: VisualNovelScript = {
       name: '开场',
       resources: {
         modelPath: YYB_Z6SakuraMiku,
-        motionPath: `${OSS_BASE_PATH}/mmd-motions/2025/12/10/132dfca3-fe65-430d-850c-4e0c293c4ea4.vmd`,
+        motionPath: `${CDN_BASE_PATH}/mmd-motions/2025/12/10/132dfca3-fe65-430d-850c-4e0c293c4ea4.vmd`,
       },
       loopAnimation: true,
       dialogues: [
@@ -88,7 +89,7 @@ const exampleScript: VisualNovelScript = {
       name: '演唱准备',
       resources: {
         modelPath: YYB_Z6SakuraMiku,
-        motionPath: `${OSS_BASE_PATH}/mmd-motions/2025/12/10/mmd_CatchTheWave_motion.vmd`,
+        motionPath: `${CDN_BASE_PATH}/mmd-motions/2025/12/10/mmd_CatchTheWave_motion.vmd`,
         audioPath: `/mikutalking/motions/CatchTheWave/pv_268.wav`
       },
       loopAnimation: true,
@@ -114,7 +115,7 @@ const exampleScript: VisualNovelScript = {
       name: '结束',
       resources: {
         modelPath: YYB_Z6SakuraMiku,
-        motionPath: `${OSS_BASE_PATH}/mmd-motions/2025/12/10/132dfca3-fe65-430d-850c-4e0c293c4ea4.vmd`,
+        motionPath: `${CDN_BASE_PATH}/mmd-motions/2025/12/10/132dfca3-fe65-430d-850c-4e0c293c4ea4.vmd`,
       },
       loopAnimation: true,
       dialogues: [
