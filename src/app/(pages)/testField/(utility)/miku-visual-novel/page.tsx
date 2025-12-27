@@ -11,6 +11,13 @@ import {
 const OSS_BASE_PATH = 'https://profile-qhr-resource.oss-cn-beijing.aliyuncs.com'
 const CDN_BASE_PATH = 'https://cdn.qhr062.top'
 const YYB_Z6SakuraMiku = `${CDN_BASE_PATH}/mmd/2025/11/25/YYB_Z6SakuraMiku/miku.pmx`
+const STAGE_1_PATH = `${CDN_BASE_PATH}/stages/stage/zhimeng/场景主体.pmx`
+const STAGE_2_PATHS = `${CDN_BASE_PATH}/mmd/stages/xushi/场景主体.pmx`
+const STAGE_3_PATHS = [
+  `${CDN_BASE_PATH}/mmd/stages/场景主体.pmx`,
+  `${CDN_BASE_PATH}/mmd/stages/吊饰.pmx`,
+  `${CDN_BASE_PATH}/mmd/stages/地板追加.pmx`
+]
 
 // 剧本配置 - 采用 v1.6.1 新格式
 const exampleScript: VisualNovelScript = {
@@ -23,8 +30,17 @@ const exampleScript: VisualNovelScript = {
       resources: {
         modelPath: YYB_Z6SakuraMiku,
         motionPath: `${CDN_BASE_PATH}/mmd-motions/2025/12/10/132dfca3-fe65-430d-850c-4e0c293c4ea4.vmd`,
+        stageModelPath: STAGE_1_PATH,
       },
       loopAnimation: true,
+      // 🎯 开启节点特定的渲染效果：描边
+      stage: {
+        renderEffect: 'outline',
+        outlineOptions: {
+          thickness: 0.005,
+          color: '#ffffff'
+        }
+      },
       dialogues: [
         {
           id: 'dialogue-1-1',
@@ -44,6 +60,8 @@ const exampleScript: VisualNovelScript = {
           id: 'dialogue-1-3',
           text: '（初音未来向你挥了挥手）',
           typeSpeed: 60,
+          // 🎯 触发全屏闪白特效
+          effect: { type: 'flash', color: 'white', duration: 500 }
         },
         {
           id: 'dialogue-1-4',
@@ -53,14 +71,16 @@ const exampleScript: VisualNovelScript = {
           typeSpeed: 40,
           // 🎯 新格式：在对话行中直接插入分支
           choices: [
-            { 
-              text: "想听你唱歌！", 
+            {
+              text: "想听你唱歌！",
               // 仅仅设置变量，不触发立即跳转
               setVariable: { key: "player_choice", value: "sing" },
-              onSelect: () => console.log("玩家选择了听歌") 
+              // 🎯 点击选项后触发特效
+              effect: { type: 'flash', color: '#39C5BB', duration: 300 },
+              onSelect: () => console.log("玩家选择了听歌")
             },
-            { 
-              text: "只想陪你聊聊天", 
+            {
+              text: "只想陪你聊聊天",
               setVariable: { key: "player_choice", value: "chat" },
               onSelect: () => console.log("玩家选择了聊天")
             }
@@ -90,9 +110,27 @@ const exampleScript: VisualNovelScript = {
       resources: {
         modelPath: YYB_Z6SakuraMiku,
         motionPath: `${CDN_BASE_PATH}/mmd-motions/2025/12/10/mmd_CatchTheWave_motion.vmd`,
-        audioPath: `/mikutalking/motions/CatchTheWave/pv_268.wav`
+        audioPath: `/mikutalking/motions/CatchTheWave/pv_268.wav`,
+        stageModelPath: STAGE_1_PATH,
       },
       loopAnimation: true,
+      // 🎯 演唱环节开启描边 + 辉光组合效果
+      stage: {
+        renderEffect: 'outline+bloom',
+        outlineOptions: {
+          thickness: 0.005,
+          color: '#000000'//白色
+        },
+        // 🎯 新增三渲二优化配置
+        toonOptions: {
+          enabled: true,
+          forceHardShading: true, // 开启硬色阶
+          shininess: 0,           // 彻底消除反光
+        },
+        // 🎯 建议：灯光强度略微调高，环境光增强
+        ambientLightIntensity: 0.8,
+        directionalLightIntensity: 0.6,
+      },
       dialogues: [
         {
           id: 'dialogue-2-1',
@@ -107,6 +145,8 @@ const exampleScript: VisualNovelScript = {
           speakerColor: '#39C5BB',
           text: '嗯嗯~准备好了！让我为你带来一首《CatchTheWave》！',
           typeSpeed: 40,
+          // 🎯 开始唱歌前闪烁一下
+          effect: { type: 'flash', color: 'white', duration: 1000 }
         },
       ],
     },
@@ -116,8 +156,14 @@ const exampleScript: VisualNovelScript = {
       resources: {
         modelPath: YYB_Z6SakuraMiku,
         motionPath: `${CDN_BASE_PATH}/mmd-motions/2025/12/10/132dfca3-fe65-430d-850c-4e0c293c4ea4.vmd`,
+        stageModelPath: STAGE_1_PATH,
       },
       loopAnimation: true,
+      // 🎯 回到普通描边模式
+      stage: {
+        renderEffect: 'outline',
+        outlineOptions: { thickness: 0.004 }
+      },
       dialogues: [
         {
           id: 'dialogue-3-1',
@@ -145,7 +191,7 @@ const stageConfig: MMDStage = {
   enablePhysics: true,
   physicsPath: '/mikutalking/libs/ammo.wasm.js',
   enableShadow: true,
-  ambientLightIntensity: 0.6,
+  ambientLightIntensity: 1,
   directionalLightIntensity: 0.8,
   cameraPosition: { x: 0, y: 15, z: 30 },
   cameraTarget: { x: 0, y: 10, z: 0 },
