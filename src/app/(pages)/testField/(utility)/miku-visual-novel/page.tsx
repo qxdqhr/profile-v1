@@ -11,7 +11,7 @@ import {
 const OSS_BASE_PATH = 'https://profile-qhr-resource.oss-cn-beijing.aliyuncs.com'
 const CDN_BASE_PATH = 'https://cdn.qhr062.top'
 const YYB_Z6SakuraMiku = `${CDN_BASE_PATH}/mmd/2025/11/25/YYB_Z6SakuraMiku/miku.pmx`
-const STAGE_1_PATH = `${CDN_BASE_PATH}/stages/stage/zhimeng/场景主体.pmx`
+const STAGE_1_PATH = `${CDN_BASE_PATH}/mmd/stages/zhimeng/场景主体.pmx`
 const STAGE_2_PATHS = `${CDN_BASE_PATH}/mmd/stages/xushi/场景主体.pmx`
 const STAGE_3_PATHS = [
   `${CDN_BASE_PATH}/mmd/stages/场景主体.pmx`,
