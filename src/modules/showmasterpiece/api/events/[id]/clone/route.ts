@@ -20,9 +20,9 @@ import {
 import { eq } from 'drizzle-orm';
 
 interface RouteContext {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 /**
@@ -31,7 +31,8 @@ interface RouteContext {
  */
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
-    const sourceEventId = parseInt(context.params.id);
+    const { id } = await context.params;
+    const sourceEventId = parseInt(id);
     const body = await request.json();
     
     console.log('🔄 [活动API] 克隆活动:', { sourceEventId, body });

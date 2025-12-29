@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { GenericOrderManager } from '@/components/GenericOrderManager';
+import { GenericOrderManager } from 'sa2kit';
 import { 
   getAllCollections,
   updateCollectionOrder,

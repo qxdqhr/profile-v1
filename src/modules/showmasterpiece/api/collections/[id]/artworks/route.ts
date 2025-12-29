@@ -4,7 +4,7 @@ import { validateApiAuth } from '@/modules/auth/server';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     console.log('🎨 开始创建作品，画集ID:', params.id);
@@ -120,7 +120,7 @@ export async function POST(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 验证用户权限
@@ -239,7 +239,7 @@ export async function PATCH(
 // 添加GET方法用于获取指定画集的所有作品
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 验证用户权限

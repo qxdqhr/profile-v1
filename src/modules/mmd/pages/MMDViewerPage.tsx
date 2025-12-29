@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { MMDViewer } from '../components/MMDViewer';
 import MMDSettingsModal from '../components/MMDSettingsModal';
-import { Modal } from '@/components/PopWindow';
+import { Modal } from 'sa2kit';
 import { FileText } from 'lucide-react';
 
 // 本地文件数据接口

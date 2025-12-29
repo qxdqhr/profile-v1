@@ -10,7 +10,7 @@ import { showmasterConfigService } from '../../../../db/services/configService';
 // 获取单个配置项
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = params;
@@ -48,7 +48,7 @@ export async function GET(
 // 更新配置项
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = params;
@@ -117,7 +117,7 @@ export async function PUT(
 // 删除配置项
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = params;

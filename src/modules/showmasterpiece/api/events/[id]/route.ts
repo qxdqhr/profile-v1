@@ -18,9 +18,9 @@ import {
 import { eq } from 'drizzle-orm';
 
 interface RouteContext {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 /**
@@ -29,7 +29,8 @@ interface RouteContext {
  */
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const eventId = parseInt(context.params.id);
+    const { id } = await context.params;
+    const eventId = parseInt(id);
     const { searchParams } = new URL(request.url);
     const includeConfig = searchParams.get('includeConfig') === 'true';
     const includeStats = searchParams.get('includeStats') === 'true';
@@ -123,7 +124,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
  */
 export async function PUT(request: NextRequest, context: RouteContext) {
   try {
-    const eventId = parseInt(context.params.id);
+    const { id } = await context.params;
+    const eventId = parseInt(id);
     const body = await request.json();
 
     console.log('✏️ [活动API] 更新活动:', { eventId, body });
@@ -231,7 +233,8 @@ export async function PUT(request: NextRequest, context: RouteContext) {
  */
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
-    const eventId = parseInt(context.params.id);
+    const { id } = await context.params;
+    const eventId = parseInt(id);
     const { searchParams } = new URL(request.url);
     const force = searchParams.get('force') === 'true'; // 强制删除标志
 

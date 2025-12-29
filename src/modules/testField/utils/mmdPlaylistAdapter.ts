@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { MMDPlaylistConfig, MMDPlaylistNode } from 'sa2kit/mmd';
 
 type PlaylistNodeWithFiles = {

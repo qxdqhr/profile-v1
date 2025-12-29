@@ -1,6 +1,6 @@
 import type { CompletionFilter } from '../types';
 import { getCompletionFilterDisplayName } from '../utils';
-import FilterButtonGroup from '../../../components/FilterButtonGroup';
+import { FilterButtonGroup } from 'sa2kit';
 
 interface CompletionFilterProps {
   completionFilter: CompletionFilter;

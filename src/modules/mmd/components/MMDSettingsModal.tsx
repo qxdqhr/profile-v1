@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Modal } from '@/components/PopWindow';
+import { Modal } from 'sa2kit';
 import { FileText } from 'lucide-react';
 
 interface MMDSettingsModalProps {

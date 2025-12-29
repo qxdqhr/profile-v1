@@ -1,6 +1,6 @@
 'use client';
 
-import { FloatingMenuExample } from '@/components/FloatingMenu';
+import { FloatingMenuExample } from 'sa2kit';
  
 export default function FloatingMenuDemoPage() {
   return <FloatingMenuExample />;

@@ -5,7 +5,7 @@ import { ActivityForm } from './_components/ActivityForm';
 import { JsonEditor } from './_components/JsonEditor';
 import { ResponseDisplay } from './_components/ResponseDisplay';
 import { FormData, ApiResponse } from './_components/types';
-import BackButton from '@/components/BackButton';
+import { BackButton } from 'sa2kit';
 import Link from 'next/link';
 
 export default function LiveActivity() {

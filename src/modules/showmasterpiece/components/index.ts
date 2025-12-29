@@ -70,7 +70,7 @@ export { ThumbnailSidebar } from './ThumbnailSidebar';
  * 
  * 注意：此组件已迁移到 @/components/GenericOrderManager
  */
-export { GenericOrderManager } from '@/components/GenericOrderManager';
+export { GenericOrderManager } from 'sa2kit';
 
 /** 
  * 画集顺序管理器组件

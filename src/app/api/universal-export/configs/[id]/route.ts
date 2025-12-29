@@ -10,10 +10,11 @@ import { exportConfigDB } from '@/services/universalExport/database';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const config = await exportConfigDB.getConfigById(params.id);
+    const { id } = await params;
+    const config = await exportConfigDB.getConfigById(id);
     
     if (!config) {
       return NextResponse.json(
@@ -37,12 +38,13 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     
-    const config = await exportConfigDB.updateConfig(params.id, {
+    const config = await exportConfigDB.updateConfig(id, {
       name: body.name,
       description: body.description || null,
       format: body.format,
@@ -78,10 +80,11 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const success = await exportConfigDB.deleteConfig(params.id);
+    const { id } = await params;
+    const success = await exportConfigDB.deleteConfig(id);
     
     if (!success) {
       return NextResponse.json(

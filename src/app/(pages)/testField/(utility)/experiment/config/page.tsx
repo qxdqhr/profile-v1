@@ -10,7 +10,7 @@ import ResultsConfig from './_components/ResultsConfig';
 import ExamManagement from './_components/ExamManagement';
 import { loadConfigurations, saveConfigurations, 
   exportConfigurations, importConfigurations } from './_service/configManagement';
-import BackButton from '@/components/BackButton';
+import { BackButton } from 'sa2kit';
 import { Question, StartScreenData, ResultModalData } from './types';
 
 // 修改部分：用空数组初始化，然后动态加载

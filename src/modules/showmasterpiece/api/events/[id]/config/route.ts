@@ -12,9 +12,9 @@ import { showmasterEvents, showmasterEventConfigs } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
 interface RouteContext {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 /**
@@ -23,7 +23,8 @@ interface RouteContext {
  */
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const eventId = parseInt(context.params.id);
+    const { id } = await context.params;
+    const eventId = parseInt(id);
     
     console.log('📋 [活动配置API] 获取活动配置:', { eventId });
 
@@ -96,7 +97,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
  */
 export async function PUT(request: NextRequest, context: RouteContext) {
   try {
-    const eventId = parseInt(context.params.id);
+    const { id } = await context.params;
+    const eventId = parseInt(id);
     const body = await request.json();
     
     console.log('✏️ [活动配置API] 更新活动配置:', { eventId, body });
@@ -211,7 +213,8 @@ export async function PUT(request: NextRequest, context: RouteContext) {
  */
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
-    const eventId = parseInt(context.params.id);
+    const { id } = await context.params;
+    const eventId = parseInt(id);
     const body = await request.json();
     
     console.log('📝 [活动配置API] 创建活动配置:', { eventId, body });

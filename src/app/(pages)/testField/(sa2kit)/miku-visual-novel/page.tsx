@@ -33,13 +33,56 @@ const exampleScript: VisualNovelScript = {
         stageModelPath: STAGE_1_PATH,
       },
       loopAnimation: true,
-      // 🎯 开启节点特定的渲染效果：描边
+      // 🎯 使用多FX文件配置
       stage: {
-        renderEffect: 'outline',
-        outlineOptions: {
-          thickness: 0.005,
-          color: '#ffffff'
-        }
+        // renderEffect: 'outline',  // 描边可以与FX共存
+        // outlineOptions: {
+        //   thickness: 0.005,
+        //   color: '#000000'
+        // },
+        // 🌟 多FX配置：同时应用场景级和模型级效果
+        fxConfigs: [
+          // Layer 1: 场景基础渲染 (.x文件)
+          {
+            path: '/mikutalking/effects/SSAO/SSAO.x',
+            type: 'x',
+            priority: 0,
+            target: 'all',
+            description: 'SSAO场景全局光照'
+          },
+         
+           // Layer 2: PAToon着色器基础 (.fx文件，应用到全部)
+           {
+            path: '/mikutalking/effects/SSAO/SSAO.fx',
+            type: 'fx',
+            priority: 10,
+            target: 'model',
+            description: 'SSAO模型效果'
+          },
+
+          // Layer 2: PAToon着色器基础 (.fx文件，应用到全部)
+          {
+            path: '/mikutalking/effects/PAToon/PAToon_シェーダー_標準.fx',
+            texturePath: '/mikutalking/effects/PAToon/',
+            type: 'fx',
+            priority: 20,
+            target: 'model',
+            description: 'PAToon着色器基础'
+          },
+          
+          // Layer 3: PAToon模型效果 (.fx文件，仅模型)
+          {
+            path: '/mikutalking/effects/PAToon/PAToon_モデル_標準.fx',
+            texturePath: '/mikutalking/effects/PAToon/',
+            type: 'fx',
+            priority: 30,
+            target: 'model',
+            description: 'PAToon模型卡通渲染'
+          },
+        ],
+        // 🎯 建议：灯光强度略微调高，环境光增强
+        ambientLightIntensity: 1.6,
+        directionalLightIntensity: 1.2,
       },
       dialogues: [
         {
@@ -109,24 +152,24 @@ const exampleScript: VisualNovelScript = {
       name: '演唱准备',
       resources: {
         modelPath: YYB_Z6SakuraMiku,
-        motionPath: `${CDN_BASE_PATH}/mmd-motions/2025/12/10/mmd_CatchTheWave_motion.vmd`,
-        audioPath: `/mikutalking/motions/CatchTheWave/pv_268.wav`,
-        stageModelPath: STAGE_1_PATH,
+        // motionPath: `${CDN_BASE_PATH}/mmd-motions/2025/12/10/mmd_CatchTheWave_motion.vmd`,
+        motionPath: `${CDN_BASE_PATH}/mmd-motions/2025/12/10/132dfca3-fe65-430d-850c-4e0c293c4ea4.vmd`,
+        // audioPath: `/mikutalking/motions/CatchTheWave/pv_268.wav`,
+        stageModelPath: STAGE_2_PATHS,
       },
       loopAnimation: true,
-      // 🎯 演唱环节开启描边 + 辉光组合效果
+      // 🎯 演唱环节使用FX效果文件（PAToon卡通渲染）
       stage: {
-        renderEffect: 'outline+bloom',
-        outlineOptions: {
-          thickness: 0.005,
-          color: '#000000'//白色
-        },
-        // 🎯 新增三渲二优化配置
-        toonOptions: {
-          enabled: true,
-          forceHardShading: true, // 开启硬色阶
-          shininess: 0,           // 彻底消除反光
-        },
+        // renderEffect: 'outline',
+        // outlineOptions: {
+        //   thickness: 0.005,
+        //   color: '#000000'
+        // },
+        // // 🎨 使用FX效果文件替代toonOptions
+        // fxPath: '/mikutalking/effects/PAToon/PAToon_モデル_標準.fx',  // PAToon模型标准版
+        // fxTexturePath: '/effects/PAToon/',          // 纹理基础路径
+        fxPath: '/mikutalking/effects/PAToon/PAToon_モデル_標準.fx',
+        fxTexturePath: '/mikutalking/effects/PAToon/',
         // 🎯 建议：灯光强度略微调高，环境光增强
         ambientLightIntensity: 0.8,
         directionalLightIntensity: 0.6,
@@ -184,6 +227,7 @@ const exampleScript: VisualNovelScript = {
   ],
   loop: false,
 };
+
 
 // 舞台配置
 const stageConfig: MMDStage = {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import BackButton from '@/components/BackButton';
+import { BackButton } from 'sa2kit';
 import '@pixi/events'
 
 interface SyncBox {

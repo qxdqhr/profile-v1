@@ -24,7 +24,7 @@ import { UpdateBookingRequest } from '@/modules/showmasterpiece/types/booking';
  */
 async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const id = parseInt(params.id);
@@ -118,7 +118,7 @@ async function GET(
  */
 async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const id = parseInt(params.id);
@@ -212,7 +212,7 @@ async function PUT(
  */
 async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const id = parseInt(params.id);

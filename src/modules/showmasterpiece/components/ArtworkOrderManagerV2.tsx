@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Image as ImageIcon } from 'lucide-react';
-import { GenericOrderManager } from '@/components/GenericOrderManager';
+import { GenericOrderManager } from 'sa2kit';
 import { 
   getArtworksByCollection,
   updateArtworkOrder,

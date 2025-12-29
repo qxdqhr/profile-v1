@@ -1,14 +1,18 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
-import NavigationContainer from "@/components/navigation";
-import { NavigationConfig } from "@/components/navigation/types";
-import About from "@/components/About";
-import HomeSection, { HomeConfig } from "@/components/Home/Home";
-import ProjectCarousel, { ProjectsConfig } from "@/components/ProjectCarousel";
-import Contact from "@/components/Contact";
-import { TimelineConfig } from "@/components/Timeline";
-import { CollisionBallsConfig } from "@/components/CollisionBalls";
+import { 
+  Navigation as NavigationContainer, 
+  NavigationConfig, 
+  About, 
+  Home as HomeSection, 
+  type HomeConfig, 
+  ProjectCarousel, 
+  type ProjectsConfig, 
+  Contact, 
+  TimelineConfig, 
+  CollisionBallsConfig 
+} from "sa2kit";
 
 
 // 整体配置类型
@@ -36,6 +40,7 @@ const HomePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeNavId, setActiveNavId] = useState<string>('');
   const [isUserClicking, setIsUserClicking] = useState(false);
+  const [isNavOpen, setIsNavOpen] = useState(false);
 
   useEffect(() => {
     const fetchConfig = async () => {
@@ -196,7 +201,8 @@ const HomePage: React.FC = () => {
         config={navigationConfig}
         activeItemId={activeNavId}
         onItemClick={handleItemClick}
-        defaultOpen={false}
+        isOpen={isNavOpen}
+        onToggle={() => setIsNavOpen(!isNavOpen)}
       />
 
       {/* 主内容 */}
@@ -215,4 +221,4 @@ const HomePage: React.FC = () => {
   );
 };
 
-export default HomePage; 
+export default HomePage;

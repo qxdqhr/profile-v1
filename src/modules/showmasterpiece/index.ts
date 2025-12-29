@@ -57,7 +57,7 @@ export * from './components';
  * 
  * 注意：此组件已迁移到 @/components/GenericOrderManager
  */
-export { GenericOrderManager } from '@/components/GenericOrderManager';
+export { GenericOrderManager } from 'sa2kit';
 
 
 // ===== 页面组件导出 =====

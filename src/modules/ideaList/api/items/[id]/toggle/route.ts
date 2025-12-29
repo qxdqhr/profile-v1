@@ -8,7 +8,7 @@ import { validateApiAuth } from '@/modules/auth/server';
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 验证用户身份

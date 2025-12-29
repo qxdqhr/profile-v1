@@ -17,7 +17,7 @@ import { eq, and } from 'drizzle-orm';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string; artworkId: string } }
+  { params }: { params: Promise<{ id: string; artworkId: string }> }
 ) {
   try {
     const collectionId = parseInt(params.id);
@@ -144,7 +144,7 @@ export async function GET(
  */
 export async function HEAD(
   request: NextRequest,
-  { params }: { params: { id: string; artworkId: string } }
+  { params }: { params: Promise<{ id: string; artworkId: string }> }
 ) {
   try {
     const collectionId = parseInt(params.id);

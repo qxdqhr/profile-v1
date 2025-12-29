@@ -7,15 +7,15 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { audioManager } from '../utils/audioManager';
-import { Modal } from '@/components/PopWindow';
+import { Modal } from 'sa2kit';
 import { GridConfig, GridCell, BackgroundMusic, InterfaceSettings, DEFAULT_INTERFACE_SETTINGS, AnimationType } from '../types';
 import { useConfigDatabase } from '../hooks/useConfigDatabase';
 import TestAnimation from '../components/TestAnimation';
 import FullscreenAnimation from '../components/FullscreenAnimation';
 import MikutapButton from '../components/MikutapButton';
 import { RhythmGenerator } from '../utils/rhythmGenerator';
-import { FloatingMenu } from '@/components/FloatingMenu';
-import MikutapMusicPlayer, { type MikutapMusicTrack } from '@/components/MusicPlayer/MikutapMusicPlayer';
+import { FloatingMenu } from 'sa2kit';
+import { MikutapMusicPlayer, type MikutapMusicTrack } from 'sa2kit/music';
 
 interface SimpleMikutapPageProps {
   className?: string;

@@ -14,7 +14,7 @@ import { validateApiAuth } from '@/modules/auth/server';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   console.log('📁 [API/collections/:id] 收到获取集合详情请求');
   
@@ -60,7 +60,7 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   console.log('📁 [API/collections/:id] 收到更新集合请求');
   
@@ -123,7 +123,7 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   console.log('📁 [API/collections/:id] 收到删除集合请求');
   

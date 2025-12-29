@@ -9,10 +9,10 @@ import { createUniversalFileServiceWithConfigManager } from '@/services/universa
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { fileId: string } }
+  { params }: { params: Promise<{ fileId: string }> }
 ) {
   try {
-    const { fileId } = params;
+    const { fileId } = await params;
     
     console.log('📄 [通用文件服务] 收到文件获取请求:', fileId);
 

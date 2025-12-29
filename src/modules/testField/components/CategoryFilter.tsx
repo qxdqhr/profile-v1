@@ -1,6 +1,6 @@
 import type { ViewMode } from '../types';
 import { getCategoryDisplayName } from '../utils';
-import FilterButtonGroup from '../../../components/FilterButtonGroup';
+import { FilterButtonGroup } from 'sa2kit';
 
 interface CategoryFilterProps {
   viewMode: ViewMode;

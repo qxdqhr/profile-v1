@@ -1,6 +1,5 @@
-import ExperimentCard from '@/components/ExperimentCard';
+import { ExperimentCard, Grid, GridItem, GridColumns, GridGap } from 'sa2kit';
 import type { ExperimentItem } from '../types';
-import { Grid, GridItem, GridColumns, GridGap } from '../../../components/Grid';
 
 
 // ==================== 实验项目特定接口 ====================

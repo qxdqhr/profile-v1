@@ -8,12 +8,13 @@ export const dynamic = 'force-dynamic';
 const modelsService = new MMDModelsDbService();
 const animationsService = new MMDAnimationsDbService();
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const limitParam = request.nextUrl.searchParams.get('limit');
     const limit = limitParam ? Math.max(1, Math.min(10, Number(limitParam))) : 5;
 
-    const playlist = await buildPlaylistFromDatabase(params.id, limit);
+    const playlist = await buildPlaylistFromDatabase(id, limit);
     if (!playlist) {
       return NextResponse.json({ error: 'playlist not found' }, { status: 404 });
     }

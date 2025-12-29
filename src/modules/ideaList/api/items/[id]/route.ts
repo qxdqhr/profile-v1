@@ -9,7 +9,7 @@ import type { IdeaItemFormData } from '../../../types';
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 验证用户身份
@@ -21,7 +21,8 @@ export async function PUT(
       );
     }
 
-    const itemId = parseInt(params.id);
+    const { id } = await params;
+    const itemId = parseInt(id);
     if (isNaN(itemId)) {
       return NextResponse.json(
         { success: false, message: '无效的项目ID' },
@@ -111,7 +112,7 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 验证用户身份
@@ -123,7 +124,8 @@ export async function DELETE(
       );
     }
 
-    const itemId = parseInt(params.id);
+    const { id } = await params;
+    const itemId = parseInt(id);
     if (isNaN(itemId)) {
       return NextResponse.json(
         { success: false, message: '无效的项目ID' },

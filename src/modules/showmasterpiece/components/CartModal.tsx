@@ -9,7 +9,7 @@
 'use client';
 
 import React from 'react';
-import { Modal } from '@/components/PopWindow';
+import { Modal } from 'sa2kit';
 import { CartPage } from './CartPage';
 
 /**

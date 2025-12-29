@@ -1,0 +1,479 @@
+{
+  "fileName": "PAToon_シェーダー_標準.fx",
+  "rawContent": "//PAToon2.98�ȍ~\r\n//Key, ����, lite������\r\n\r\n//�t���O�ݒ�\r\n//�g��Ȃ��t���O�̑O�ɂ́u//�v�����Ă���\r\n\r\n\r\n//�ǉ��ގ��F���i�ގ��F��RGB�AHSV�̐��l�����Z�A�}�C�i�X�B�R���g���[���[�l��10����1�ɑΉ��j\r\n#define ADDMATERIALCOLOR\r\nfloat3 AddMaterialRgb = float3(0.00, 0.00, 0.00);\r\nfloat3 AddMaterialHsv = float3(0.00, 0.00, 0.00);\r\n\r\n//�ǉ��g�D�[���F���i�g�D�[���̐F��RGB�AHSV�̐��l�����Z�A�}�C�i�X�B�R���g���[���[�l��10����1�ɑΉ��j\r\n#define ADDTOONCOLOR\r\nfloat3 AddToonRgb     = float3(0.00, 0.00, 0.00);\r\nfloat3 AddToonHsv     = float3(0.00, 0.00, 0.00);\r\n\r\n//�L�[�C���O�ގ��̃J���[�R���g���[���[�I�t�ݒ�\r\n#define FLAGCOLOROFF\r\n\r\n\r\n//LocalShadwo�̎g�p�t���O\r\n#define USE_LOCALSHADOW\r\n\r\n// �ގ������ʂ��邽�߂̃L�[���l�A�L�[���I�t�ɂ���Ƌ����I�ɉR�e�`�ʂɂȂ�܂��B\r\n//#define LS_ExecKey  0.39\r\n\r\n\r\n//ExcellentShadow�̃t���O�i�L�[�C���O�ގ��ȊO�ɓK�p�BHgShadow�Ƃǂ��炩��K�p�j\r\n#define USE_EXCELLENTSHADOW\r\n\r\n//HgShadow�̃t���O�i�L�[�C���O�ގ��ȊO�ɓK�p�BExcellentShadow�Ƃǂ��炩�B�����I���̏ꍇ��HgShadow���D��)\r\n#define USE_HGSHADOW\r\n\r\n\r\n//�n���h���G�b�W�̃t���O\r\n//#define HANDLE_EDGE\r\n\r\n//�n���h���G�b�W�̑����{��\r\nstatic float PAEdgeWidth = 1.0;\r\n\r\n//�n���h���G�b�W�Ƀ��f�����̓Ǝ��ݒ�𔽉f���邩�i�F, ������, �����j�P�ŗL���A�O�Ŗ���    ���F�����ō��A�����������Ŕ񓧉߁A���������Ńf�t�H���g�P\r\nfloat3 HandleEdgeSettingON = float3(1, 1, 1);\r\n\r\n\r\n//���f���̍ގ��ݒ�Toon�F�̗D��\r\n//#define MODEL_TOON\r\n\r\n\r\n//�O���R���g���[���[��\r\n#define PATOONCONTROLLER \"PAToon�R���g���[���[.pmx\"\r\n\r\n//�@�����ʉ��̃t���O\r\n#define USE_ROUNDNORMAL\r\n\r\n\r\n//�e�X���e�N�X�`���̃t���O�i���F�a�̏����_�Ƀt���O���K�v�j\r\n//#define USE_SHADOWBIAS_TOONTEX //���F�a�̏����_��T�ʂ��P�ɂ���\r\n//#define USE_SHADOWBIAS_SUBTEX  //���F�a�̏����_��U�ʂ��P�ɂ���\r\n\r\n//�e�X���e�N�X�`���̊O���w��\r\n//#define USE_SHADOWBIASMAP  \"ShadowBiasMap.png\"\r\n\r\n//�e�X�����x�i�P���ʏ�A�O�ŃI�t�B�O�D�T�`�P�D�O���炢�j\r\nfloat SetShadingBiasPower = 1;\r\n\r\n\r\n//�m�[�}���}�b�v�̃t���O�i���F�a�̏����_�Ƀt���O���K�v�j\r\n//#define USE_NORMALMAP_TOONTEX //���F�a�̏����_��T�ʂ��Q�ɂ���\r\n//#define USE_NORMALMAP_SUBTEX  //���F�a�̏����_��U�ʂ��Q�ɂ���\r\n\r\n//�m�[�}���}�b�v�̊O���w��\r\n//#define USE_NORMALMAP  \"NormalMap.png\"\r\n\r\n\r\n//�m�[�}���}�b�v�̉𑜓x�i�L���ׂ̍����j\r\nfloat NormalMapResolution\r\n<\r\nstring UIName = \"�@���}�b�v�𑜓x\";\r\nstring UIWidget = \"Numeric\";\r\nfloat UIMin = 0;\r\nfloat UIMax = 10;\r\n> = 1;\r\n\r\n\r\n\r\n\r\n//HAToon2�̃p�����[�^�[�ݒ�\r\n\r\n//�F���̕ϊ��iRGB��HSV�A�F�����������Ȃ�ꍇ�̓I�t�ɂ���j\r\n#define BLENDDIFFUSE0TEXTURE \"Tex/DiffuseHue.png\"\r\n#define BLENDDIFFUSE0TEXTURE_X 256\r\n#define BLENDDIFFUSE0TEXTURE_Y 360\r\n\r\n//�g�D�[���ɐ݂�t����i�Ԃ݂̂���e�N�X�`���ł��������Ȃ�ꍇ�̓I�t�j\r\n#define BLENDDIFFUSE1TEXTURE \"Tex/DiffuseMulBySat.png\"\r\n#define BLENDDIFFUSE1TEXTURE_X 256\r\n#define BLENDDIFFUSE1TEXTURE_Y 256\r\n\r\n//�f�t�H���g�̃g�D�[���F�i�e�N�X�`����ւ���ΐF���ύX�BMODEL_TOON��L���ɂ��Ă�ƃ��f���̍ގ��g�D�[���D��j\r\n#define BLENDDIFFUSE2TEXTURE \"Tex/DiffuseMulc2.png\"\r\n#define BLENDDIFFUSE2TEXTURE_X 256\r\n#define BLENDDIFFUSE2TEXTURE_Y 256\r\n\r\n//�ގ���S�̂ɖ��邭���Z����i�I�t�ɂ���ƃ��f���̃f�t�H���g�̐F�ݒ�j\r\n#define BLENDDIFFUSE3TEXTURE \"Tex/DiffuseAdd.png\"\r\n#define BLENDDIFFUSE3TEXTURE_X 256\r\n#define BLENDDIFFUSE3TEXTURE_Y 256\r\n\r\n//���ːF�i�X�y�L�����j���g���i�g�D�[���Ŏg���͓̂���̂ŃI�t�ł����Ǝv���j\r\n//#define BLENDSPECULAR0TEXTURE \"Tex/SpecularMul.png\"\r\n//#define BLENDSPECULAR0TEXTURE_X 256\r\n//#define BLENDSPECULAR0TEXTURE_Y 256\r\n#define BLENDSPECULAR1TEXTURE\r\n#define BLENDSPECULAR1TEXTURE_X 256\r\n#define BLENDSPECULAR1TEXTURE_Y 256\r\n\r\n#define BLENDADDSPHERE0TEXTURE\r\n#define BLENDADDSPHERE0TEXTURE_X 256\r\n#define BLENDADDSPHERE0TEXTURE_Y 256\r\n\r\n//���Z�X�t�B�A�Ƀg�D�[����������i�ア����͖�������₷���B�I�t�ɂ���ƃf�t�H���g�̃X�t�B�A�ݒ�j\r\n//#define BLENDADDSPHERE1TEXTURE \"Tex/AddSphereRepl.png\"\r\n//#define BLENDADDSPHERE1TEXTURE_X 256\r\n//#define BLENDADDSPHERE1TEXTURE_Y 1\r\n\r\n//#define BLENDADDSPHERE2TEXTURE\r\n//#define BLENDADDSPHERE2TEXTURE_X 256\r\n//#define BLENDADDSPHERE2TEXTURE_Y 256\r\n\r\n//�G�b�W�e�N�X�`���̗L��\r\n#define BLENDEDGE0TEXTURE\r\n#define BLENDEDGE0TEXTURE_X 256\r\n#define BLENDEDGE0TEXTURE_Y 256\r\n\r\n//����ł�t���O�i���Ԃ�j\r\n//#define SHADE_TOONLESS\r\n//#define AMBIENT_AS_BASE\r\n//#define AMBIENT_TOON_AS_BASE\r\n\r\n\r\n\r\n//PAToon�̃R���g���[���[�p�ݒ�i������K�v�Ȃ��B�R���g���[���[�F�����Ȃ��Ȃ�I�t�̕��������͌y���j\r\n//#define BLENDDIFFUSESHADOWTEXTURE \"Tex/DiffuseShadowMask.png\"\r\n//#define BLENDDIFFUSESHADOWTEXTURE_X 256\r\n//#define BLENDDIFFUSESHADOWTEXTURE_Y 256\r\n\r\n//#define BLENDDIFFUSEMATERIALTEXTURE \"Tex/DiffuseMaterialMask.png\"\r\n//#define BLENDDIFFUSEMATERIALTEXTURE_X 256\r\n//#define BLENDDIFFUSEMATERIALTEXTURE_Y 256\r\n\r\n\r\n\r\n/////////////////////////////////////////////////////////\r\n/////////////////////////////////////////////////////////\r\n// LocalShadow�̃p�����[�^�[�ݒ�\r\n// �Z���t�e�̐ݒ�͂����̃p�����[�^��ύX���Ă�������\r\n\r\n// �e�����̌v�Z�ɗp����f�t�H���g�̃��C�g����(�ǂݍ��񂾎��̏Ɩ�����(X,Y,Z�j�B���f�����ł����h�����������ݒ肵�܂�)\r\n#define LS_InitDirection  float3(-0.5, -0.1, 1.0)\r\n\r\n// �V���h�E�}�b�v�o�b�t�@�T�C�Y�i�Z���t�e�}�b�v�̉𑜓x�A512,1024,2048,4196,8192�̂ǂꂩ�j\r\n// �R���g���[���[�łڂ�����̂ŏ��������l�ł������B�X�y�b�N�ɗ]�T������Ȃ�傫�����������y�B\r\n\r\n#define LS_ShadowMapBuffSize  2048\r\n\r\n\r\n\r\n// �V���h�E�}�b�v���K�p������͈̓T�C�Y(�t�F�C�X���ʂ�菭���傫�߂̃T�C�Y����͂��܂�)\r\n#define LS_ShadowMapAreaSize  3.5\r\n\r\n// �V���h�E�}�b�v���K�p������[�x�T�C�Y(���f���S�̂�菭���傫�߂̃T�C�Y����͂��܂�)\r\n#define LS_ShadowMapDepthLength  20.0\r\n\r\n// �e�����̌v�Z�ɗp����f�t�H���g�̂ڂ������x(0�`1�Őݒ�,���[�t�Œ����\\�Ȃ̂�,�����ł͍ŏ��l��ݒ肵�܂�)\r\n#define LS_InitBlurPower  0\r\n\r\n// �A�e���Ɩ�����ɘA������f�t�H���g�̊���(0�`1�Őݒ�,���[�t�Œ����\\�Ȃ̂�,�����ł͍ŏ��l��ݒ肵�܂�)\r\n#define LS_LightSyncShade 0\r\n\r\n// �Օ��e���Ɩ�����ɘA������f�t�H���g�̊���(0�`1�Őݒ�,���[�t�Œ����\\�Ȃ̂�,�����ł͍ŏ��l��ݒ肵�܂�)\r\n#define LS_LightSyncShadow 0\r\n\r\n// �Օ��e�̔Z�x���Ɩ�����ɘA������f�t�H���g�̊���(0�`1�Őݒ�,���[�t�Œ����\\�Ȃ̂�,�����ł͍ŏ��l��ݒ肵�܂�)\r\n#define LS_LightSyncDensity  0\r\n\r\n\r\n//float LS_ShadowMapBuffSize = ( LS_ShadowMapBuffSizeA * 2 )\r\n\r\n// VSM�V���h�E�}�b�v�̎���\r\n#define LS_UseSoftShadow  1\r\n// 0 : �������Ȃ�(�\\�t�g�V���h�E�͎g���Ȃ����Ǖ`�摬�x�͌��シ��)\r\n// 1 : ��������(�\\�t�g�V���h�E���g����悤�ɂȂ�܂�)\r\n\r\n\r\n\r\n////////////////////////////////////////////////////////\r\n////////////////////////////////////////////////////////\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n#include \"PACore.hlsl\"\r\n\r\n",
+  "defines": [
+    {
+      "name": "ADDMATERIALCOLOR",
+      "isCommented": false,
+      "lineNumber": 9
+    },
+    {
+      "name": "ADDTOONCOLOR",
+      "isCommented": false,
+      "lineNumber": 14
+    },
+    {
+      "name": "FLAGCOLOROFF",
+      "isCommented": false,
+      "lineNumber": 19
+    },
+    {
+      "name": "USE_LOCALSHADOW",
+      "isCommented": false,
+      "lineNumber": 23
+    },
+    {
+      "name": "LS_ExecKey",
+      "value": "0.39",
+      "isCommented": true,
+      "lineNumber": 26
+    },
+    {
+      "name": "USE_EXCELLENTSHADOW",
+      "isCommented": false,
+      "lineNumber": 30
+    },
+    {
+      "name": "USE_HGSHADOW",
+      "isCommented": false,
+      "lineNumber": 33
+    },
+    {
+      "name": "HANDLE_EDGE",
+      "isCommented": true,
+      "lineNumber": 37
+    },
+    {
+      "name": "MODEL_TOON",
+      "isCommented": true,
+      "lineNumber": 47
+    },
+    {
+      "name": "PATOONCONTROLLER",
+      "value": "\"PAToon�R���g���[���[.pmx\"",
+      "isCommented": false,
+      "lineNumber": 51
+    },
+    {
+      "name": "USE_ROUNDNORMAL",
+      "isCommented": false,
+      "lineNumber": 54
+    },
+    {
+      "name": "USE_SHADOWBIAS_TOONTEX",
+      "value": "",
+      "isCommented": true,
+      "lineNumber": 58,
+      "comment": "���F�a�̏����_��T�ʂ��P�ɂ���"
+    },
+    {
+      "name": "USE_SHADOWBIAS_SUBTEX",
+      "value": "",
+      "isCommented": true,
+      "lineNumber": 59,
+      "comment": "���F�a�̏����_��U�ʂ��P�ɂ���"
+    },
+    {
+      "name": "USE_SHADOWBIASMAP",
+      "value": "\"ShadowBiasMap.png\"",
+      "isCommented": true,
+      "lineNumber": 62
+    },
+    {
+      "name": "USE_NORMALMAP_TOONTEX",
+      "value": "",
+      "isCommented": true,
+      "lineNumber": 69,
+      "comment": "���F�a�̏����_��T�ʂ��Q�ɂ���"
+    },
+    {
+      "name": "USE_NORMALMAP_SUBTEX",
+      "value": "",
+      "isCommented": true,
+      "lineNumber": 70,
+      "comment": "���F�a�̏����_��U�ʂ��Q�ɂ���"
+    },
+    {
+      "name": "USE_NORMALMAP",
+      "value": "\"NormalMap.png\"",
+      "isCommented": true,
+      "lineNumber": 73
+    },
+    {
+      "name": "BLENDDIFFUSE0TEXTURE",
+      "value": "\"Tex/DiffuseHue.png\"",
+      "isCommented": false,
+      "lineNumber": 91
+    },
+    {
+      "name": "BLENDDIFFUSE0TEXTURE_X",
+      "value": "256",
+      "isCommented": false,
+      "lineNumber": 92
+    },
+    {
+      "name": "BLENDDIFFUSE0TEXTURE_Y",
+      "value": "360",
+      "isCommented": false,
+      "lineNumber": 93
+    },
+    {
+      "name": "BLENDDIFFUSE1TEXTURE",
+      "value": "\"Tex/DiffuseMulBySat.png\"",
+      "isCommented": false,
+      "lineNumber": 96
+    },
+    {
+      "name": "BLENDDIFFUSE1TEXTURE_X",
+      "value": "256",
+      "isCommented": false,
+      "lineNumber": 97
+    },
+    {
+      "name": "BLENDDIFFUSE1TEXTURE_Y",
+      "value": "256",
+      "isCommented": false,
+      "lineNumber": 98
+    },
+    {
+      "name": "BLENDDIFFUSE2TEXTURE",
+      "value": "\"Tex/DiffuseMulc2.png\"",
+      "isCommented": false,
+      "lineNumber": 101
+    },
+    {
+      "name": "BLENDDIFFUSE2TEXTURE_X",
+      "value": "256",
+      "isCommented": false,
+      "lineNumber": 102
+    },
+    {
+      "name": "BLENDDIFFUSE2TEXTURE_Y",
+      "value": "256",
+      "isCommented": false,
+      "lineNumber": 103
+    },
+    {
+      "name": "BLENDDIFFUSE3TEXTURE",
+      "value": "\"Tex/DiffuseAdd.png\"",
+      "isCommented": false,
+      "lineNumber": 106
+    },
+    {
+      "name": "BLENDDIFFUSE3TEXTURE_X",
+      "value": "256",
+      "isCommented": false,
+      "lineNumber": 107
+    },
+    {
+      "name": "BLENDDIFFUSE3TEXTURE_Y",
+      "value": "256",
+      "isCommented": false,
+      "lineNumber": 108
+    },
+    {
+      "name": "BLENDSPECULAR0TEXTURE",
+      "value": "\"Tex/SpecularMul.png\"",
+      "isCommented": true,
+      "lineNumber": 111
+    },
+    {
+      "name": "BLENDSPECULAR0TEXTURE_X",
+      "value": "256",
+      "isCommented": true,
+      "lineNumber": 112
+    },
+    {
+      "name": "BLENDSPECULAR0TEXTURE_Y",
+      "value": "256",
+      "isCommented": true,
+      "lineNumber": 113
+    },
+    {
+      "name": "BLENDSPECULAR1TEXTURE",
+      "isCommented": false,
+      "lineNumber": 114
+    },
+    {
+      "name": "BLENDSPECULAR1TEXTURE_X",
+      "value": "256",
+      "isCommented": false,
+      "lineNumber": 115
+    },
+    {
+      "name": "BLENDSPECULAR1TEXTURE_Y",
+      "value": "256",
+      "isCommented": false,
+      "lineNumber": 116
+    },
+    {
+      "name": "BLENDADDSPHERE0TEXTURE",
+      "isCommented": false,
+      "lineNumber": 118
+    },
+    {
+      "name": "BLENDADDSPHERE0TEXTURE_X",
+      "value": "256",
+      "isCommented": false,
+      "lineNumber": 119
+    },
+    {
+      "name": "BLENDADDSPHERE0TEXTURE_Y",
+      "value": "256",
+      "isCommented": false,
+      "lineNumber": 120
+    },
+    {
+      "name": "BLENDADDSPHERE1TEXTURE",
+      "value": "\"Tex/AddSphereRepl.png\"",
+      "isCommented": true,
+      "lineNumber": 123
+    },
+    {
+      "name": "BLENDADDSPHERE1TEXTURE_X",
+      "value": "256",
+      "isCommented": true,
+      "lineNumber": 124
+    },
+    {
+      "name": "BLENDADDSPHERE1TEXTURE_Y",
+      "value": "1",
+      "isCommented": true,
+      "lineNumber": 125
+    },
+    {
+      "name": "BLENDADDSPHERE2TEXTURE",
+      "isCommented": true,
+      "lineNumber": 127
+    },
+    {
+      "name": "BLENDADDSPHERE2TEXTURE_X",
+      "value": "256",
+      "isCommented": true,
+      "lineNumber": 128
+    },
+    {
+      "name": "BLENDADDSPHERE2TEXTURE_Y",
+      "value": "256",
+      "isCommented": true,
+      "lineNumber": 129
+    },
+    {
+      "name": "BLENDEDGE0TEXTURE",
+      "isCommented": false,
+      "lineNumber": 132
+    },
+    {
+      "name": "BLENDEDGE0TEXTURE_X",
+      "value": "256",
+      "isCommented": false,
+      "lineNumber": 133
+    },
+    {
+      "name": "BLENDEDGE0TEXTURE_Y",
+      "value": "256",
+      "isCommented": false,
+      "lineNumber": 134
+    },
+    {
+      "name": "SHADE_TOONLESS",
+      "isCommented": true,
+      "lineNumber": 137
+    },
+    {
+      "name": "AMBIENT_AS_BASE",
+      "isCommented": true,
+      "lineNumber": 138
+    },
+    {
+      "name": "AMBIENT_TOON_AS_BASE",
+      "isCommented": true,
+      "lineNumber": 139
+    },
+    {
+      "name": "BLENDDIFFUSESHADOWTEXTURE",
+      "value": "\"Tex/DiffuseShadowMask.png\"",
+      "isCommented": true,
+      "lineNumber": 144
+    },
+    {
+      "name": "BLENDDIFFUSESHADOWTEXTURE_X",
+      "value": "256",
+      "isCommented": true,
+      "lineNumber": 145
+    },
+    {
+      "name": "BLENDDIFFUSESHADOWTEXTURE_Y",
+      "value": "256",
+      "isCommented": true,
+      "lineNumber": 146
+    },
+    {
+      "name": "BLENDDIFFUSEMATERIALTEXTURE",
+      "value": "\"Tex/DiffuseMaterialMask.png\"",
+      "isCommented": true,
+      "lineNumber": 148
+    },
+    {
+      "name": "BLENDDIFFUSEMATERIALTEXTURE_X",
+      "value": "256",
+      "isCommented": true,
+      "lineNumber": 149
+    },
+    {
+      "name": "BLENDDIFFUSEMATERIALTEXTURE_Y",
+      "value": "256",
+      "isCommented": true,
+      "lineNumber": 150
+    },
+    {
+      "name": "LS_InitDirection",
+      "value": "float3(-0.5, -0.1, 1.0)",
+      "isCommented": false,
+      "lineNumber": 160
+    },
+    {
+      "name": "LS_ShadowMapBuffSize",
+      "value": "2048",
+      "isCommented": false,
+      "lineNumber": 165
+    },
+    {
+      "name": "LS_ShadowMapAreaSize",
+      "value": "3.5",
+      "isCommented": false,
+      "lineNumber": 170
+    },
+    {
+      "name": "LS_ShadowMapDepthLength",
+      "value": "20.0",
+      "isCommented": false,
+      "lineNumber": 173
+    },
+    {
+      "name": "LS_InitBlurPower",
+      "value": "0",
+      "isCommented": false,
+      "lineNumber": 176
+    },
+    {
+      "name": "LS_LightSyncShade",
+      "value": "0",
+      "isCommented": false,
+      "lineNumber": 179
+    },
+    {
+      "name": "LS_LightSyncShadow",
+      "value": "0",
+      "isCommented": false,
+      "lineNumber": 182
+    },
+    {
+      "name": "LS_LightSyncDensity",
+      "value": "0",
+      "isCommented": false,
+      "lineNumber": 185
+    },
+    {
+      "name": "LS_UseSoftShadow",
+      "value": "1",
+      "isCommented": false,
+      "lineNumber": 191
+    }
+  ],
+  "parameters": [
+    {
+      "type": "float3",
+      "name": "AddMaterialRgb",
+      "defaultValue": "float3(0.00, 0.00, 0.00)",
+      "lineNumber": 10
+    },
+    {
+      "type": "float3",
+      "name": "AddMaterialHsv",
+      "defaultValue": "float3(0.00, 0.00, 0.00)",
+      "lineNumber": 11
+    },
+    {
+      "type": "float3",
+      "name": "AddToonRgb",
+      "defaultValue": "float3(0.00, 0.00, 0.00)",
+      "lineNumber": 15
+    },
+    {
+      "type": "float3",
+      "name": "AddToonHsv",
+      "defaultValue": "float3(0.00, 0.00, 0.00)",
+      "lineNumber": 16
+    },
+    {
+      "type": "float3",
+      "name": "HandleEdgeSettingON",
+      "defaultValue": "float3(1, 1, 1)",
+      "lineNumber": 43
+    },
+    {
+      "type": "float",
+      "name": "SetShadingBiasPower",
+      "defaultValue": "1",
+      "lineNumber": 65
+    },
+    {
+      "type": "float",
+      "name": "UIMin",
+      "defaultValue": "0",
+      "lineNumber": 81
+    },
+    {
+      "type": "float",
+      "name": "UIMax",
+      "defaultValue": "10",
+      "lineNumber": 82
+    }
+  ],
+  "staticVariables": [
+    {
+      "type": "float",
+      "name": "PAEdgeWidth",
+      "expression": "1.0",
+      "lineNumber": 40
+    }
+  ],
+  "textures": [
+    {
+      "name": "BLENDDIFFUSE0TEXTURE",
+      "path": "Tex/DiffuseHue.png",
+      "width": 256,
+      "height": 360,
+      "purpose": "diffuse0"
+    },
+    {
+      "name": "BLENDDIFFUSE1TEXTURE",
+      "path": "Tex/DiffuseMulBySat.png",
+      "width": 256,
+      "height": 256,
+      "purpose": "diffuse1"
+    },
+    {
+      "name": "BLENDDIFFUSE2TEXTURE",
+      "path": "Tex/DiffuseMulc2.png",
+      "width": 256,
+      "height": 256,
+      "purpose": "diffuse2"
+    },
+    {
+      "name": "BLENDDIFFUSE3TEXTURE",
+      "path": "Tex/DiffuseAdd.png",
+      "width": 256,
+      "height": 256,
+      "purpose": "diffuse3"
+    }
+  ],
+  "controllers": [],
+  "includes": [
+    "PACore.hlsl"
+  ],
+  "techniques": [],
+  "shaderFunctions": [],
+  "comments": []
+}

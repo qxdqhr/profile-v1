@@ -13,7 +13,7 @@ import { fileTransferService } from '@/modules/filetransfer/services/fileTransfe
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 验证用户权限
@@ -23,7 +23,7 @@ export async function DELETE(
       return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // 删除传输记录
     await fileTransferService.deleteTransfer(id, user.id.toString());
