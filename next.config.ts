@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-    // output: 'standalone', // 临时注释掉，因为与某些页面的动态特性冲突
+    output: 'standalone', // Docker 部署需要
     
     // sa2kit 需要转译以正确加载样式和组件
     transpilePackages: ["sa2kit"],
