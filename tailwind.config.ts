@@ -7,6 +7,8 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/modules/**/*.{js,ts,jsx,tsx,mdx}",
+    // 添加 sa2kit 包的路径，以便 Tailwind 扫描其中的类名
+    "./node_modules/sa2kit/**/*.{js,ts,jsx,tsx,mjs}",
   ],
   theme: {
   	extend: {

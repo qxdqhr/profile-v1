@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
     // output: 'standalone', // 临时注释掉，因为与某些页面的动态特性冲突
     
+    // sa2kit 需要转译以正确加载样式和组件
+    transpilePackages: ["sa2kit"],
+    
     // 临时禁用TypeScript检查，因为sa2kit类型定义问题
     typescript: {
         ignoreBuildErrors: true,
