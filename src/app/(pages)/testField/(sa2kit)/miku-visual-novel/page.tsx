@@ -23,9 +23,11 @@ import {
   MMDStage,
 } from 'sa2kit/mmd';
 
+
 const OSS_BASE_PATH = 'https://profile-qhr-resource.oss-cn-beijing.aliyuncs.com'
 const CDN_BASE_PATH = 'https://cdn.qhr062.top'
 const YYB_Z6SakuraMiku = `${CDN_BASE_PATH}/mmd/model/YYB_Z6SakuraMiku/miku.pmx`
+const YAGI39_MikuNT = `${CDN_BASE_PATH}/mmd/model/yagi39mikuNT/yagi39mikuNT.pmx`
 const STAGE_1_PATH = `${CDN_BASE_PATH}/mmd/stages/xushi/场景主体.pmx`
 const STAGE_2_PATHS = [
   `${CDN_BASE_PATH}/mmd/stages/zhimeng/场景主体.pmx`,
@@ -93,7 +95,7 @@ const exampleScript: VisualNovelScript = {
       id: 'node-1',
       name: '开场',
       resources: {
-        modelPath: YYB_Z6SakuraMiku,
+        modelPath: YAGI39_MikuNT,
         motionPath: MOTION_1_PATH,
         stageModelPath: STAGE_2_PATHS,
       },
@@ -166,7 +168,7 @@ const exampleScript: VisualNovelScript = {
       id: 'node-2',
       name: '演唱准备',
       resources: {
-        modelPath: YYB_Z6SakuraMiku,
+        modelPath: YAGI39_MikuNT,
         motionPath: MOTION_2_PATH,
         audioPath: AUDIO_1_PATH,
         stageModelPath: STAGE_2_PATHS,
@@ -199,7 +201,7 @@ const exampleScript: VisualNovelScript = {
       id: 'node-3',
       name: '结束',
       resources: {
-        modelPath: YYB_Z6SakuraMiku,
+        modelPath: YAGI39_MikuNT,
         motionPath: MOTION_1_PATH,
         stageModelPath: STAGE_1_PATH,
       },
