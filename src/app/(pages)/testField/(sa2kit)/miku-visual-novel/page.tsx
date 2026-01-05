@@ -26,9 +26,10 @@ import {
 
 const OSS_BASE_PATH = 'https://profile-qhr-resource.oss-cn-beijing.aliyuncs.com'
 const CDN_BASE_PATH = 'https://cdn.qhr062.top'
+const CDN_BIGFILE_BASE_PATH = 'https://cdn.bigfile.qhr062.top'
 const YYB_Z6SakuraMiku = `${CDN_BASE_PATH}/mmd/model/YYB_Z6SakuraMiku/miku.pmx`
-const YAGI39_MikuNT = `${CDN_BASE_PATH}/mmd/model/yagi39mikuNT1/yagi39mikuNT.pmx`
-const STAGE_1_PATH = `${CDN_BASE_PATH}/mmd/stages/xushi/场景主体.pmx`
+const YAGI39_MikuNT = `${CDN_BIGFILE_BASE_PATH}/mmd/model/yagi39mikuNT1/yagi39mikuNT.pmx`
+const STAGE_1_PATH = `${CDN_BIGFILE_BASE_PATH}/mmd/stages/xushi/场景主体.pmx`
 const STAGE_2_PATHS = [
   `${CDN_BASE_PATH}/mmd/stages/zhimeng/场景主体.pmx`,
   `${CDN_BASE_PATH}/mmd/stages/zhimeng/吊饰.pmx`,
@@ -43,48 +44,7 @@ const DEFAULT_STAGE: MMDStage = {
   outlineOptions: {
     thickness: 0.001,
     color: '#FFFFFF'
-  },
-  fxConfigs: [
-    // Layer 1: 场景基础渲染 (.x文件)
-    {
-      path: `${CDN_BASE_PATH}/mmd/effects/SSAO/SSAO.x`,
-      type: 'x',
-      priority: 0,
-      target: 'all',
-      description: 'SSAO场景全局光照'
-    },
-   
-     // Layer 2: PAToon着色器基础 (.fx文件，应用到全部)
-     {
-      path: `${CDN_BASE_PATH}/mmd/effects/SSAO/SSAO.fx`,
-      type: 'fx',
-      priority: 10,
-      target: 'model',
-      description: 'SSAO模型效果'
-    },
-  
-    // Layer 2: PAToon着色器基础 (.fx文件，应用到全部)
-    {
-      path: `${CDN_BASE_PATH}/mmd/effects/PAToon/PAToon_シェーダー_標準.fx`,
-      texturePath: `${CDN_BASE_PATH}/mmd/effects/PAToon`,
-      type: 'fx',
-      priority: 20,
-      target: 'model',
-      description: 'PAToon着色器基础'
-    },
-    
-    // Layer 3: PAToon模型效果 (.fx文件，仅模型)
-    {
-      path: `${CDN_BASE_PATH}/mmd/effects/PAToon/PAToon_モデル_標準.fx`,
-      texturePath: `${CDN_BASE_PATH}/mmd/effects/PAToon`,
-      type: 'fx',
-      priority: 30,
-      target: 'model',
-      description: 'PAToon模型卡通渲染'
-    },
-  ],
-  ambientLightIntensity: 1.6,
-  directionalLightIntensity: 1.2,
+  }
 }
 // 剧本配置 - 采用 v1.6.1 新格式
 const exampleScript: VisualNovelScript = {
@@ -234,9 +194,15 @@ const stageConfig: MMDStage = {
   backgroundColor: '#1a1a2e',
   enablePhysics: true,
   physicsPath: `${CDN_BASE_PATH}/mmd/libs/ammo.wasm.js`,
-  enableShadow: true,
-  ambientLightIntensity: 1,
-  directionalLightIntensity: 0.8,
+  enableShadow: false,  // 关闭阴影以避免显示问题（参考Three.js实现）
+  // 🎨 参考 Three.js MMD 原生实现的完整光照配置
+  ambientLightIntensity: 0.8,  // 环境光强度，避免过度曝光
+  directionalLightIntensity: 0.6,  // 方向光强度，保持细节
+  directionalLightPosition: { x: 0.5, y: 1, z: 0.75 },  // 方向光位置
+  hemisphereLightIntensity: 0.3,  // 半球光强度（补充环境光照）
+  hemisphereLightSkyColor: 0xffffff,  // 半球光天空颜色
+  hemisphereLightGroundColor: 0x444444,  // 半球光地面颜色
+  toneMapping: 'None',  // 色调映射：无（与参考文件一致）
   cameraPosition: { x: 0, y: 15, z: 30 },
   cameraTarget: { x: 0, y: 10, z: 0 },
 };
@@ -271,6 +237,10 @@ export default function VisualNovelExample() {
         }}
         onError={(error) => {
           console.error('[Demo] 错误:', error);
+        }}
+        onProgress={(progress) => {
+          // 显示加载进度
+          console.log(`[Demo] 加载进度: ${(progress * 100).toFixed(1)}%`);
         }}
         className="w-full h-full"
       />

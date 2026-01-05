@@ -180,8 +180,8 @@ importers:
         specifier: ^2.5.2
         version: 2.5.2(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       sa2kit:
-        specifier: ^1.6.13
-        version: 1.6.13(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@xenova/transformers@2.17.2)(lucide-react@0.474.0(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.3.8(react@19.2.1))(tesseract.js@7.0.0)
+        specifier: ^1.6.14
+        version: 1.6.14(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@xenova/transformers@2.17.2)(lucide-react@0.474.0(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.3.8(react@19.2.1))(tesseract.js@7.0.0)
       swr:
         specifier: ^2.3.8
         version: 2.3.8(react@19.2.1)
@@ -210,6 +210,9 @@ importers:
         specifier: ^5.0.3
         version: 5.0.3(@types/react@19.2.7)(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1))
     devDependencies:
+      '@alicloud/pop-core':
+        specifier: ^1.8.0
+        version: 1.8.0
       '@tailwindcss/typography':
         specifier: ^0.5.16
         version: 0.5.16(tailwindcss@3.4.17(ts-node@10.9.1(@types/node@20.17.12)(typescript@5.7.3)))
@@ -260,6 +263,10 @@ importers:
         version: 5.7.3
 
 packages:
+
+  '@alicloud/pop-core@1.8.0':
+    resolution: {integrity: sha512-ef6vIVigtr9n8Lw6Ld2GZ9jVUD0+ReHviaQaMqZDPI2HwdpVvrq1Rvn2tBnFToe0tdTpovz9N7XFSf/C274OtA==}
+    engines: {node: '>=8.0.0'}
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -2198,6 +2205,9 @@ packages:
   before@0.0.1:
     resolution: {integrity: sha512-1J5SWbkoVJH9DTALN8igB4p+nPKZzPrJ/HomqBDLpfUvDXCdjdBmBUcH5McZfur0lftVssVU6BZug5NYh87zTw==}
 
+  bignumber.js@9.3.1:
+    resolution: {integrity: sha512-Ko0uX15oIUS7wJ3Rb30Fs6SkVbLmPBAKdlm7q9+ak9bbIeFf0MwuBsQV6z7+X768/cHsfg+WlysDWJcmthjsjQ==}
+
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
     engines: {node: '>=8'}
@@ -3130,6 +3140,9 @@ packages:
     resolution: {integrity: sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==}
     engines: {node: '>= 14'}
 
+  httpx@2.3.3:
+    resolution: {integrity: sha512-k1qv94u1b6e+XKCxVbLgYlOypVP9MPGpnN5G/vxFf6tDO4V3xpz3d6FUOY/s8NtPgaq5RBVVgSB+7IHpVxMYzw==}
+
   humanize-ms@1.2.1:
     resolution: {integrity: sha512-Fl70vYtsAFb/C06PTS9dZBo7ihau+Tu/DNCk/OyHhea07S+aeMWpFFkUaXRa8fI+ScZbEI8dfSxwY7gxZ9SAVQ==}
 
@@ -3362,6 +3375,9 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
+  json-bigint@1.0.0:
+    resolution: {integrity: sha512-SiPv/8VpZuWbvLSMtTDU8hEfrZWg/mH/nV/b4o0CYbSxu1UIQPLdwKOCIyLQX+VIPO5vrLX3i8qtqFyhdPSUSQ==}
+
   json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
 
@@ -3402,6 +3418,9 @@ packages:
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
+
+  kitx@1.3.0:
+    resolution: {integrity: sha512-fhBqFlXd0GkKTB+8ayLfpzPUw+LHxZlPAukPNBD1Om7JMeInT+/PxCAf1yLagvD+VKoyWhXtJR68xQkX/a0wOQ==}
 
   language-subtag-registry@0.3.23:
     resolution: {integrity: sha512-0K65Lea881pHotoGEa5gDlMxt3pctLi2RplBb7Ezh4rRdLEOtgi7n4EwK9lamnUCkKBqaeKRVebTq6BAxSkpXQ==}
@@ -4193,8 +4212,8 @@ packages:
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
 
-  sa2kit@1.6.13:
-    resolution: {integrity: sha512-jtK7PjFJpdK1PIWGm6dvUO+bjDPvzbg+bRtOKD230uCfXOKOZbmMZynK0ursc1xB3o0LBGuHS2DkAcTstpafEA==}
+  sa2kit@1.6.14:
+    resolution: {integrity: sha512-plVUoXTnzl86cHjPcKICS+uGS2aDVfJT83HgXHlN8oUPTM/VRO+jiHpsdQ+527cCKnEFjtOtv6jyJ+wKK5wynw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       '@imgly/background-removal': ^1.7.0
@@ -4801,6 +4820,10 @@ packages:
     engines: {node: '>=0.8'}
     hasBin: true
 
+  xml2js@0.5.0:
+    resolution: {integrity: sha512-drPFnkQJik/O+uPKpqSgr22mpuFHqKdbS835iAQrUC73L2F5WkboIRd63ai/2Yg6I1jzifPFKH2NTK+cfglkIA==}
+    engines: {node: '>=4.0.0'}
+
   xml2js@0.6.2:
     resolution: {integrity: sha512-T4rieHaC1EXcES0Kxxj4JWgaUQHDk+qwHcYOCFHfiwKz7tOVPLq7Hjq9dM1WCMhylqMEfP7hMcOIChvotiZegA==}
     engines: {node: '>=4.0.0'}
@@ -4860,6 +4883,16 @@ packages:
         optional: true
 
 snapshots:
+
+  '@alicloud/pop-core@1.8.0':
+    dependencies:
+      debug: 3.2.7
+      httpx: 2.3.3
+      json-bigint: 1.0.0
+      kitx: 1.3.0
+      xml2js: 0.5.0
+    transitivePeerDependencies:
+      - supports-color
 
   '@alloc/quick-lru@5.2.0': {}
 
@@ -6759,6 +6792,8 @@ snapshots:
 
   before@0.0.1: {}
 
+  bignumber.js@9.3.1: {}
+
   binary-extensions@2.3.0: {}
 
   bl@4.1.0:
@@ -7847,6 +7882,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  httpx@2.3.3:
+    dependencies:
+      '@types/node': 20.19.27
+      debug: 4.4.0
+    transitivePeerDependencies:
+      - supports-color
+
   humanize-ms@1.2.1:
     dependencies:
       ms: 2.1.3
@@ -8066,6 +8108,10 @@ snapshots:
 
   jsesc@3.1.0: {}
 
+  json-bigint@1.0.0:
+    dependencies:
+      bignumber.js: 9.3.1
+
   json-buffer@3.0.1: {}
 
   json-schema-traverse@0.4.1: {}
@@ -8121,6 +8167,8 @@ snapshots:
   keyv@4.5.4:
     dependencies:
       json-buffer: 3.0.1
+
+  kitx@1.3.0: {}
 
   language-subtag-registry@0.3.23: {}
 
@@ -8959,7 +9007,7 @@ snapshots:
     dependencies:
       queue-microtask: 1.2.3
 
-  sa2kit@1.6.13(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@xenova/transformers@2.17.2)(lucide-react@0.474.0(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.3.8(react@19.2.1))(tesseract.js@7.0.0):
+  sa2kit@1.6.14(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@xenova/transformers@2.17.2)(lucide-react@0.474.0(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.3.8(react@19.2.1))(tesseract.js@7.0.0):
     dependencies:
       '@dnd-kit/core': 6.3.1(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@dnd-kit/sortable': 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react@19.2.1)
@@ -9763,6 +9811,11 @@ snapshots:
       ssf: 0.11.2
       wmf: 1.0.2
       word: 0.3.0
+
+  xml2js@0.5.0:
+    dependencies:
+      sax: 1.4.1
+      xmlbuilder: 11.0.1
 
   xml2js@0.6.2:
     dependencies:
