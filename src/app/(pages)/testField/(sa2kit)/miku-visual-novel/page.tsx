@@ -23,33 +23,80 @@ import {
   MMDStage,
 } from 'sa2kit/mmd';
 
-
 const OSS_BASE_PATH = 'https://profile-qhr-resource.oss-cn-beijing.aliyuncs.com'
 const CDN_BASE_PATH = 'https://cdn.qhr062.top'
 const CDN_BIGFILE_BASE_PATH = 'https://cdn.bigfile.qhr062.top'
-const YYB_Z6SakuraMiku = `${CDN_BASE_PATH}/mmd/model/YYB_Z6SakuraMiku/miku.pmx`
+
+const YYB_Z6SakuraMiku = `${CDN_BIGFILE_BASE_PATH}/mmd/model/YYB_Z6SakuraMiku/miku.pmx`
 const YAGI39_MikuNT = `${CDN_BIGFILE_BASE_PATH}/mmd/model/yagi39mikuNT1/yagi39mikuNT.pmx`
+
 const STAGE_1_PATH = `${CDN_BIGFILE_BASE_PATH}/mmd/stages/xushi/场景主体.pmx`
 const STAGE_2_PATHS = [
-  `${CDN_BASE_PATH}/mmd/stages/zhimeng/场景主体.pmx`,
-  `${CDN_BASE_PATH}/mmd/stages/zhimeng/吊饰.pmx`,
-  `${CDN_BASE_PATH}/mmd/stages/zhimeng/地板追加.pmx`
+  `${CDN_BIGFILE_BASE_PATH}/mmd/stages/zhimeng/场景主体.pmx`,
+  `${CDN_BIGFILE_BASE_PATH}/mmd/stages/zhimeng/吊饰.pmx`,
+  `${CDN_BIGFILE_BASE_PATH}/mmd/stages/zhimeng/地板追加.pmx`
 ]
-const MOTION_1_PATH = `${CDN_BASE_PATH}/mmd/motion/132dfca3-fe65-430d-850c-4e0c293c4ea4.vmd`
-const MOTION_2_PATH = `${CDN_BASE_PATH}/mmd/motion/CatchTheWave/mmd_CatchTheWave_motion.vmd`
-const AUDIO_1_PATH = `${CDN_BASE_PATH}/mmd/motion/CatchTheWave/pv_268.wav`
+const MOTION_1_PATH = `${CDN_BIGFILE_BASE_PATH}/mmd/motion/132dfca3-fe65-430d-850c-4e0c293c4ea4.vmd`
+const MOTION_2_PATH = `${CDN_BIGFILE_BASE_PATH}/mmd/motion/CatchTheWave/mmd_CatchTheWave_motion.vmd`
+const AUDIO_1_PATH = `${CDN_BIGFILE_BASE_PATH}/mmd/motion/CatchTheWave/pv_268.wav`
 
 const DEFAULT_STAGE: MMDStage = {
-  renderEffect: 'outline',
-  outlineOptions: {
-    thickness: 0.001,
-    color: '#FFFFFF'
-  }
+  // renderEffect: 'outline',
+  // outlineOptions: {
+  //   thickness: 0.005,  // 从0.001增加到0.005，描边更明显
+  //   color: '#000000'   // 改为黑色描边，更符合MMD风格
+  // },
+
+
+  // 🎨 根据光照调试面板优化的渲染参数
+  // 参数来源：光照调试面板导出的配置
+
+  // // 渲染器设置
+  // toneMapping: 'None',                  // toneMapping: 0 = None
+  // toneMappingExposure: 1.4,             // 曝光值
+  // enableShadow: true,                   // 启用阴影
+  // shadowBias: -0.0001,                  // 阴影偏移
+  // modelReceiveShadow: true,             // 模型接收阴影
+
+  // // 光源强度
+  // ambientLightIntensity: 1.5,           // 环境光强度
+  // directionalLightIntensity: 0.8,       // 主方向光强度
+  // hemisphereLightIntensity: 0.6,        // 半球光强度
+  // sideLightIntensity: 0.5,              // 侧面补光强度
+
+  // // 光源位置
+  // directionalLightPosition: {
+  //   x: 5,   // directionalX
+  //   y: 10,  // directionalY
+  //   z: 5,   // directionalZ
+  // },
+  // sideLightPosition: {
+  //   x: -3,  // 默认位置
+  //   y: 8,
+  //   z: 8,
+  // },
+
+  // // 半球光颜色
+  // hemisphereLightSkyColor: 0xffffff,    // 天空颜色（白色）
+  // hemisphereLightGroundColor: 0xaaaaaa, // 地面颜色（灰色）
+
+  // // 🎨 材质属性配置
+  // emissiveIntensity: 0.35,              // 自发光强度
+  // colorBrightness: 1.35,                // 颜色亮度系数
+  // colorSaturation: 1.15,                // 颜色饱和度系数
+  // shininess: 30,                        // 高光强度
+  // specularIntensity: 0.5,               // 高光颜色强度
+  // reflectivity: 0.5,                    // 反射率
+  // metalness: 0,                         // 金属度（PBR）
+  // roughness: 0.8,                       // 粗糙度（PBR）
+  // aoMapIntensity: 1,                    // 环境光遮蔽强度
+  // rimLightIntensity: 0,                 // 边缘光强度
+  // rimLightColor: '#ffffff',             // 边缘光颜色
 }
 // 剧本配置 - 采用 v1.6.1 新格式
 const exampleScript: VisualNovelScript = {
   id: 'demo-script-1',
-  name: 'Miku Ciallo~',
+  name: '初音未来的一天',
   nodes: [
     {
       id: 'node-1',
@@ -60,7 +107,7 @@ const exampleScript: VisualNovelScript = {
         stageModelPath: STAGE_2_PATHS,
       },
       loopAnimation: true,
-      stage: DEFAULT_STAGE,
+      // stage: DEFAULT_STAGE,
       dialogues: [
         {
           id: 'dialogue-1-1',
@@ -128,7 +175,7 @@ const exampleScript: VisualNovelScript = {
       id: 'node-2',
       name: '演唱准备',
       resources: {
-        modelPath: YAGI39_MikuNT,
+        modelPath: YYB_Z6SakuraMiku,
         motionPath: MOTION_2_PATH,
         audioPath: AUDIO_1_PATH,
         stageModelPath: STAGE_2_PATHS,
@@ -161,7 +208,7 @@ const exampleScript: VisualNovelScript = {
       id: 'node-3',
       name: '结束',
       resources: {
-        modelPath: YAGI39_MikuNT,
+        modelPath: YYB_Z6SakuraMiku,
         motionPath: MOTION_1_PATH,
         stageModelPath: STAGE_1_PATH,
       },
@@ -191,18 +238,42 @@ const exampleScript: VisualNovelScript = {
 
 // 舞台配置（全局默认配置）
 const stageConfig: MMDStage = {
-  backgroundColor: '#1a1a2e',
+  // backgroundColor: '#1a1a2e',
   enablePhysics: true,
-  physicsPath: `${CDN_BASE_PATH}/mmd/libs/ammo.wasm.js`,
-  enableShadow: false,  // 关闭阴影以避免显示问题（参考Three.js实现）
-  // 🎨 参考 Three.js MMD 原生实现的完整光照配置
-  ambientLightIntensity: 0.8,  // 环境光强度，避免过度曝光
-  directionalLightIntensity: 0.6,  // 方向光强度，保持细节
-  directionalLightPosition: { x: 0.5, y: 1, z: 0.75 },  // 方向光位置
-  hemisphereLightIntensity: 0.3,  // 半球光强度（补充环境光照）
-  hemisphereLightSkyColor: 0xffffff,  // 半球光天空颜色
-  hemisphereLightGroundColor: 0x444444,  // 半球光地面颜色
-  toneMapping: 'None',  // 色调映射：无（与参考文件一致）
+  physicsPath: `${CDN_BIGFILE_BASE_PATH}/mmd/libs/ammo.wasm.js`,
+
+  // // 🎨 光照配置（来自光照调试面板优化结果）
+  // // 渲染器设置
+  // toneMapping: 'None',                  // 色调映射：None
+  // toneMappingExposure: 1.4,             // 曝光值
+  // enableShadow: true,                   // 启用阴影
+  // shadowBias: -0.0001,                  // 阴影偏移
+  // modelReceiveShadow: true,             // 模型接收阴影
+
+  // // 光源强度
+  // ambientLightIntensity: 1.5,           // 环境光强度
+  // directionalLightIntensity: 0.8,       // 主方向光强度
+  // hemisphereLightIntensity: 0.6,        // 半球光强度
+  // sideLightIntensity: 0.5,              // 侧面补光强度
+
+  // // 光源位置
+  // directionalLightPosition: { x: 5, y: 10, z: 5 }, // 主光源位置
+  // sideLightPosition: { x: -3, y: 8, z: 8 },        // 侧面补光位置
+
+  // // 材质属性
+  // emissiveIntensity: 0.35,              // 自发光强度
+  // colorBrightness: 1.35,                // 颜色亮度系数
+  // colorSaturation: 1.15,                // 颜色饱和度系数
+  // shininess: 30,                        // 高光强度
+  // specularIntensity: 0.5,               // 高光颜色强度
+  // reflectivity: 0.5,                    // 反射率
+  // metalness: 0,                         // 金属度
+  // roughness: 0.8,                       // 粗糙度
+  // aoMapIntensity: 1,                    // 环境光遮蔽强度
+  // rimLightIntensity: 0,                 // 边缘光强度
+  // rimLightColor: '#ffffff',             // 边缘光颜色
+
+  // 相机配置
   cameraPosition: { x: 0, y: 15, z: 30 },
   cameraTarget: { x: 0, y: 10, z: 0 },
 };
@@ -238,10 +309,6 @@ export default function VisualNovelExample() {
         onError={(error) => {
           console.error('[Demo] 错误:', error);
         }}
-        onProgress={(progress) => {
-          // 显示加载进度
-          console.log(`[Demo] 加载进度: ${(progress * 100).toFixed(1)}%`);
-        }}
         className="w-full h-full"
       />
     </div>
@@ -249,11 +316,79 @@ export default function VisualNovelExample() {
 }
 
 /**
- * 🎨 FX效果文件配置示例
+ * 🎨 光照调试面板参数应用说明
  * 
  * ════════════════════════════════════════════════════════════════
- * 单FX模式（简单）
+ * 从光照调试面板导出的参数如何应用到视觉小说？
  * ════════════════════════════════════════════════════════════════
+ * 
+ * 光照调试面板导出23个参数，但MMDStage只直接支持其中8个：
+ * 
+ * ✅ MMDStage直接支持的参数（已应用到上面的配置）：
+ * 
+ * 1. toneMapping: 0 → 'None'
+ * 2. toneMappingExposure: 1.4 ✅
+ * 3. ambientIntensity: 1.5 → ambientLightIntensity ✅
+ * 4. directionalIntensity: 0.8 → directionalLightIntensity ✅
+ * 5. directionalX/Y/Z: (5,10,5) → directionalLightPosition ✅
+ * 6. hemisphereIntensity: 0.6 → hemisphereLightIntensity ✅
+ * 7. enableShadows: true → enableShadow ✅
+ * 8. outlineOptions → thickness, color ✅
+ * 
+ * ❌ MMDStage不支持的参数（需要其他方式应用）：
+ * 
+ * 9. sideIntensity: 0.5 (侧面补光)
+ *    → 需要扩展MMDPlayerBase添加第三个光源
+ * 
+ * 10-16. 材质参数（emissiveIntensity, colorBrightness, colorSaturation,
+ *        shininess, specularIntensity, reflectivity, metalness, roughness）
+ *    → 方案A: 通过FX文件配置（当前使用PAToon）
+ *    → 方案B: 在MMDPlayerBase加载后手动应用
+ *    → 方案C: 扩展MMDStage接口支持这些参数
+ * 
+ * 17-18. 高级效果（aoMapIntensity, rimLightIntensity, rimLightColor）
+ *    → 通过FX文件或后期处理实现
+ * 
+ * 19-20. 其他（receiveShadow, shadowBias）
+ *    → 在MMDPlayerBase内部处理
+ * 
+ * ════════════════════════════════════════════════════════════════
+ * 💡 建议的完整应用方案
+ * ════════════════════════════════════════════════════════════════
+ * 
+ * 如果需要应用所有23个参数，推荐创建自定义Hook：
+ * 
+ * ```typescript
+ * import { useEffect, useRef } from 'react';
+ * import { MMDPlayerBaseRef } from 'sa2kit/mmd';
+ * 
+ * const playerRef = useRef<MMDPlayerBaseRef>(null);
+ * 
+ * useEffect(() => {
+ *   // 等待模型加载
+ *   const interval = setInterval(() => {
+ *     if (playerRef.current) {
+ *       const scene = (playerRef.current as any).sceneRef?.current;
+ *       if (scene) {
+ *         // 应用材质参数
+ *         scene.traverse((obj) => {
+ *           if (obj.material) {
+ *             // 应用shininess, specularIntensity等
+ *           }
+ *         });
+ *         clearInterval(interval);
+ *       }
+ *     }
+ *   }, 100);
+ * }, []);
+ * ```
+ * 
+ * ════════════════════════════════════════════════════════════════
+ * 🎨 FX效果文件配置示例
+ * ════════════════════════════════════════════════════════════════
+ * 
+ * 单FX模式（简单）
+ * ────────────────────────────────────────────────────────────────
  * 
  * 示例1: 使用单个.fx文件
  * stage: {
@@ -261,9 +396,8 @@ export default function VisualNovelExample() {
  *   fxTexturePath: '/effects/PAToon/',
  * }
  * 
- * ════════════════════════════════════════════════════════════════
  * 多FX模式（高级） - 推荐！
- * ════════════════════════════════════════════════════════════════
+ * ────────────────────────────────────────────────────────────────
  * 
  * 示例2: 场景级(.x) + 模型级(.fx)组合
  * stage: {
