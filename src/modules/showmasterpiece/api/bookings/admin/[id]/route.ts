@@ -23,8 +23,9 @@ async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
-    
+    const resolvedParams = await params;
+    const id = parseInt(resolvedParams.id);
+
     if (isNaN(id)) {
       return NextResponse.json(
         { message: '无效的预订ID' },

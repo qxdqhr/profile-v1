@@ -20,8 +20,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string; artworkId: string }> }
 ) {
   try {
-    const collectionId = parseInt(params.id);
-    const artworkId = parseInt(params.artworkId);
+    const resolvedParams = await params;
+    const collectionId = parseInt(resolvedParams.id);
+    const artworkId = parseInt(resolvedParams.artworkId);
 
     // 验证参数
     if (isNaN(collectionId) || isNaN(artworkId)) {
@@ -147,8 +148,9 @@ export async function HEAD(
   { params }: { params: Promise<{ id: string; artworkId: string }> }
 ) {
   try {
-    const collectionId = parseInt(params.id);
-    const artworkId = parseInt(params.artworkId);
+    const resolvedParams = await params;
+    const collectionId = parseInt(resolvedParams.id);
+    const artworkId = parseInt(resolvedParams.artworkId);
 
     if (isNaN(collectionId) || isNaN(artworkId)) {
       return new NextResponse(null, { status: 400 });

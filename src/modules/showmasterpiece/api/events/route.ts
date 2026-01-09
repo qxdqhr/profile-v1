@@ -278,18 +278,20 @@ export async function POST(request: NextRequest) {
                     console.log(`🔗 [活动API] 复制 ${allSourceCollectionTags.length} 个画集标签关联`);
 
                     // 创建新的画集标签关联
-                    const newCollectionTags = allSourceCollectionTags.map(relation => {
-                      const newCollectionId = collectionMappings.get(relation.sourceCollectionId);
-                      const newTagId = tagMappings.get(relation.tagId);
+                    const newCollectionTags = allSourceCollectionTags
+                      .map(relation => {
+                        const newCollectionId = collectionMappings.get(relation.sourceCollectionId);
+                        const newTagId = tagMappings.get(relation.tagId);
 
-                      if (newCollectionId && newTagId) {
-                        return {
-                          collectionId: newCollectionId,
-                          tagId: newTagId
-                        };
-                      }
-                      return null;
-                    }).filter(Boolean);
+                        if (newCollectionId && newTagId) {
+                          return {
+                            collectionId: newCollectionId,
+                            tagId: newTagId
+                          };
+                        }
+                        return null;
+                      })
+                      .filter((tag): tag is { collectionId: number; tagId: number } => tag !== null);
 
                     if (newCollectionTags.length > 0) {
                       await db.insert(comicUniverseCollectionTags).values(newCollectionTags);

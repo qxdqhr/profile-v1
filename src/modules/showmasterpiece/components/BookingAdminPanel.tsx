@@ -8,7 +8,7 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Calendar, User, Package, Clock, CheckCircle, XCircle, RefreshCw, Eye, Edit, Save, X, Trash2, Download, Settings, Search } from 'lucide-react';
 import { BookingAdminData, BookingAdminStats, BookingAdminQueryParams, BOOKING_EXPORT_FIELDS, DEFAULT_BOOKING_EXPORT_CONFIG } from '../services';
 import { BookingStatus, BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS } from '../types/booking';
@@ -86,7 +86,101 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
   // 创建导出客户端实例
   const exportService = useMemo(() => new UniversalExportClient(), []);
 
-  // 数据源函数
+  // 自定义导出处理函数
+  const handleCustomExport = useCallback(async (config: any) => {
+    try {
+      console.log('🚀 [BookingAdminPanel] 开始自定义导出:', {
+        configId: config.id,
+        format: config.format,
+        bookingsLength: bookings.length,
+      });
+
+      // 准备导出数据
+      const exportData = bookings.map(booking => ({
+        id: booking.id,
+        collectionId: booking.collectionId,
+        qqNumber: booking.qqNumber || '',
+        phoneNumber: booking.phoneNumber || '',
+        collectionTitle: booking.collection?.title || '未知画集',
+        collectionNumber: booking.collection?.number || '',
+        collectionPrice: booking.collection?.price || 0,
+        status: booking.status,
+        quantity: booking.quantity,
+        price: booking.price,
+        totalPrice: booking.totalPrice,
+        notes: booking.notes || '',
+        pickupMethod: booking.pickupMethod || '',
+        adminNotes: booking.adminNotes || '',
+        createdAt: booking.createdAt,
+        updatedAt: booking.updatedAt,
+        confirmedAt: booking.confirmedAt,
+        completedAt: booking.completedAt,
+        cancelledAt: booking.cancelledAt,
+      }));
+
+      console.log('📊 [BookingAdminPanel] 导出数据准备完成:', {
+        exportDataLength: exportData.length,
+        sampleData: exportData.slice(0, 2),
+      });
+
+      // 直接调用API
+      const response = await fetch('/api/universal-export/export', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          configId: config,
+          data: exportData,
+          customFileName: `预订信息_${new Date().toISOString().split('T')[0]}`,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `导出失败: ${response.statusText}`);
+      }
+
+      // 处理文件下载
+      const contentDisposition = response.headers.get('Content-Disposition');
+      const contentType = response.headers.get('Content-Type');
+
+      if (contentType?.includes('application/octet-stream') || contentDisposition?.includes('attachment')) {
+        // 直接下载文件
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+
+        // 从Content-Disposition获取文件名
+        let filename = `export_${new Date().toISOString().split('T')[0]}.${config.format}`;
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+          if (filenameMatch && filenameMatch[1]) {
+            filename = filenameMatch[1].replace(/['"]/g, '');
+          }
+        }
+
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        console.log('✅ [BookingAdminPanel] 文件下载完成:', { filename });
+      } else {
+        // 返回结果信息
+        const result = await response.json();
+        console.log('✅ [BookingAdminPanel] 导出完成:', result);
+      }
+
+    } catch (error) {
+      console.error('❌ [BookingAdminPanel] 自定义导出失败:', error);
+      throw error;
+    }
+  }, [bookings]);
+
+  // 数据源函数（保留用于其他用途）
   const dataSource = useMemo(() => async () => {
     console.log('📊 [BookingAdminPanel] dataSource 开始执行:', {
       bookingsLength: bookings.length,
@@ -555,12 +649,30 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
               size="md"
               disabled={loading}
               onExportSuccess={(result: { filename: string; format: string; recordCount: number }) => {
-                console.log('导出成功:', result);
+                console.log('✅ [BookingAdminPanel] UniversalExportButton 导出成功:', result);
               }}
               onExportError={(error: Error) => {
-                console.error('导出失败:', error);
+                console.error('❌ [BookingAdminPanel] UniversalExportButton 导出失败:', error);
               }}
             />
+
+            {/* 备用导出按钮 - 直接调用API */}
+            <button
+              onClick={async () => {
+                try {
+                  await handleCustomExport(DEFAULT_BOOKING_EXPORT_CONFIG);
+                  console.log('✅ [BookingAdminPanel] 自定义导出成功');
+                } catch (error) {
+                  console.error('❌ [BookingAdminPanel] 自定义导出失败:', error);
+                  alert(`导出失败: ${error instanceof Error ? error.message : '未知错误'}`);
+                }
+              }}
+              disabled={loading || bookings.length === 0}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download size={16} />
+              直接导出 ({bookings.length}条)
+            </button>
           </div>
         </div>
       </div>
@@ -928,11 +1040,17 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                 <div>
                   <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-3">画集信息</h3>
                   <div className="flex items-start gap-3 sm:gap-4">
-                    <img
-                      src={selectedBooking.collection.coverImage}
-                      alt={selectedBooking.collection.title}
-                      className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0"
-                    />
+                    {selectedBooking.collection.coverImage ? (
+                      <img
+                        src={selectedBooking.collection.coverImage}
+                        alt={selectedBooking.collection.title}
+                        className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-100 rounded-lg flex-shrink-0 flex items-center justify-center text-slate-400 text-xs">
+                        暂无图片
+                      </div>
+                    )}
                     <div className="min-w-0 flex-1">
                       <h4 className="font-medium text-slate-800 truncate">{selectedBooking.collection.title}</h4>
                       <p className="text-sm text-slate-600">编号：{selectedBooking.collection.number}</p>

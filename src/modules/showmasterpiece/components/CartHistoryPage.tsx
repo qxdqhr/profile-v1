@@ -344,11 +344,17 @@ export const CartHistoryPage: React.FC<CartHistoryPageProps> = ({
                   <div>
                     <h3 className="text-lg font-semibold text-slate-800 mb-3">画集详情</h3>
                     <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
-                      <img
-                        src={selectedBooking.collection.coverImage}
-                        alt={selectedBooking.collection.title}
-                        className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
-                      />
+                      {selectedBooking.collection.coverImage ? (
+                        <img
+                          src={selectedBooking.collection.coverImage}
+                          alt={selectedBooking.collection.title}
+                          className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 bg-slate-100 rounded-lg flex-shrink-0 flex items-center justify-center text-slate-400 text-xs">
+                          暂无图片
+                        </div>
+                      )}
                       <div className="min-w-0 flex-1">
                         <h4 className="font-medium text-slate-800">{selectedBooking.collection.title}</h4>
                         <p className="text-sm text-slate-600">编号：{selectedBooking.collection.number}</p>

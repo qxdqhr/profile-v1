@@ -328,11 +328,17 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose, eventParam 
             {cart.items.map((item: CartItem) => (
               <div key={item.collectionId} className="flex flex-col sm:flex-row items-start sm:items-center p-3 sm:p-4 border-b last:border-b-0 gap-3 sm:gap-4">
                 {/* 商品图片 */}
-                <img
-                  src={item.collection.coverImage}
-                  alt={item.collection.title}
-                  className="w-16 h-16 sm:w-16 sm:h-16 object-cover rounded-md flex-shrink-0"
-                />
+                {item.collection.coverImage ? (
+                  <img
+                    src={item.collection.coverImage}
+                    alt={item.collection.title}
+                    className="w-16 h-16 sm:w-16 sm:h-16 object-cover rounded-md flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-16 h-16 sm:w-16 sm:h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center text-gray-400 text-xs">
+                    暂无图片
+                  </div>
+                )}
                 
                 {/* 商品信息 */}
                 <div className="flex-1 min-w-0">

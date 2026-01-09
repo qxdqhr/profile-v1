@@ -219,11 +219,17 @@ export const BookingPage: React.FC<BookingPageProps> = ({ onClose, eventParam })
             {/* 选中的画集信息 */}
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
               <div className="flex items-center">
-                <img
-                  src={selectedCollection.coverImage}
-                  alt={selectedCollection.title}
-                  className="w-16 h-16 object-cover rounded-md mr-4"
-                />
+                {selectedCollection.coverImage ? (
+                  <img
+                    src={selectedCollection.coverImage}
+                    alt={selectedCollection.title}
+                    className="w-16 h-16 object-cover rounded-md mr-4"
+                  />
+                ) : (
+                  <div className="w-16 h-16 bg-gray-100 rounded-md mr-4 flex items-center justify-center text-gray-400 text-xs">
+                    暂无图片
+                  </div>
+                )}
                 <div>
                   <h3 className="font-semibold text-gray-900">{selectedCollection.title}</h3>
                   <p className="text-sm text-gray-600">编号：{selectedCollection.number}</p>

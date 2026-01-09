@@ -22,7 +22,8 @@ export async function PUT(
       );
     }
 
-    const collectionId = parseInt(params.id);
+    const resolvedParams = await params;
+    const collectionId = parseInt(resolvedParams.id);
     const collectionData = await request.json();
     const updatedCollection = await collectionsDbService.updateCollection(collectionId, collectionData);
     return NextResponse.json(updatedCollection);
@@ -53,7 +54,8 @@ export async function DELETE(
       return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }
 
-    const collectionId = parseInt(params.id);
+    const resolvedParams = await params;
+    const collectionId = parseInt(resolvedParams.id);
     
     // 从查询参数中获取事件ID（用于验证）
     const url = new URL(request.url);

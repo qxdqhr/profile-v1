@@ -22,8 +22,9 @@ export async function PUT(
       );
     }
 
-    const collectionId = parseInt(params.id);
-    const artworkId = parseInt(params.artworkId);
+    const resolvedParams = await params;
+    const collectionId = parseInt(resolvedParams.id);
+    const artworkId = parseInt(resolvedParams.artworkId);
     const artworkData = await request.json();
     const updatedArtwork = await artworksDbService.updateArtwork(collectionId, artworkId, artworkData);
     return NextResponse.json(updatedArtwork);
@@ -54,8 +55,9 @@ export async function DELETE(
       return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }
 
-    const collectionId = parseInt(params.id);
-    const artworkId = parseInt(params.artworkId);
+    const resolvedParams = await params;
+    const collectionId = parseInt(resolvedParams.id);
+    const artworkId = parseInt(resolvedParams.artworkId);
     
     // 从查询参数中获取事件ID（用于验证）
     const url = new URL(request.url);

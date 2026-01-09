@@ -503,31 +503,25 @@ function ConfigPageContent() {
               <h1 className="text-2xl font-bold">画集展览配置管理</h1>
               <p className="text-sm text-muted-foreground">管理展览的所有配置、画集和作品</p>
             </div>
+
+      {/* 活动选择器 */}
+     
+      <div className="flex justify-center max-w-md mx-auto">
+        <EventSelector
+          currentEvent={currentEvent}
+          events={availableEvents}
+          onEventChange={(event) => {
+            setCurrentEvent(event);
+          }}
+          loading={eventsLoading}
+          mode="dropdown"
+        />
+      </div>
           </div>
         </div>
       </div>
 
-      {/* 活动选择器 */}
-      <Card className="mx-6 mt-6 mb-0 rounded-b-none border-b-0">
-        <CardHeader>
-          <CardTitle className="text-lg">当前管理活动</CardTitle>
-          <CardDescription>选择要管理的活动</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="max-w-md">
-            <EventSelector
-              currentEvent={currentEvent}
-              events={availableEvents}
-              onEventChange={(event) => {
-                setCurrentEvent(event);
-                // 注意：预订数据会通过hook自动响应活动变化
-              }}
-              loading={eventsLoading}
-              mode="dropdown"
-            />
-          </div>
-        </CardContent>
-      </Card>
+      
 
       {/* 主要内容区域 */}
       <div className="max-w-7xl mx-auto p-6">

@@ -7,8 +7,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    console.log('🎨 开始创建作品，画集ID:', params.id);
-    
+    const resolvedParams = await params;
+    console.log('🎨 开始创建作品，画集ID:', resolvedParams.id);
+
     // 验证用户权限
     const user = await validateApiAuth(request);
     if (!user) {
@@ -28,7 +29,7 @@ export async function POST(
     }
     console.log('✅ 请求体大小检查通过:', contentLength, 'bytes');
 
-    const collectionId = parseInt(params.id);
+    const collectionId = parseInt(resolvedParams.id);
     console.log('📊 画集ID解析:', collectionId);
     
     // 🔍 新增：检查画集是否存在
@@ -129,7 +130,8 @@ export async function PATCH(
       return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }
 
-    const collectionId = parseInt(params.id);
+    const resolvedParams = await params;
+    const collectionId = parseInt(resolvedParams.id);
     const searchParams = request.nextUrl.searchParams;
     const action = searchParams.get('action');
     
@@ -248,7 +250,8 @@ export async function GET(
       return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }
 
-    const collectionId = parseInt(params.id);
+    const resolvedParams = await params;
+    const collectionId = parseInt(resolvedParams.id);
     
     // 验证参数
     if (isNaN(collectionId)) {

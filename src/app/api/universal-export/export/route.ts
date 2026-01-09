@@ -47,8 +47,19 @@ export async function POST(request: NextRequest) {
 
     // 检查是否有dataSource或直接数据
     if (!dataSource && !data) {
+      console.log('⚠️ [API: universal-export/export] 缺少数据源，将返回错误');
       return NextResponse.json(
         { error: '缺少必需的dataSource或data参数' },
+        { status: 400 }
+      );
+    }
+
+    // 如果传入了直接数据，使用它
+    let exportData = data;
+    if (!exportData && dataSource) {
+      console.log('⚠️ [API: universal-export/export] 收到了dataSource标识符但无法执行函数，将返回错误');
+      return NextResponse.json(
+        { error: 'dataSource函数无法通过HTTP传递，请直接传递data参数' },
         { status: 400 }
       );
     }
