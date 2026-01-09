@@ -12,8 +12,7 @@ import React, { useState, useMemo } from 'react';
 import { Calendar, User, Package, Clock, CheckCircle, XCircle, RefreshCw, Eye, Edit, Save, X, Trash2, Download, Settings, Search } from 'lucide-react';
 import { BookingAdminData, BookingAdminStats, BookingAdminQueryParams, BOOKING_EXPORT_FIELDS, DEFAULT_BOOKING_EXPORT_CONFIG } from '../services';
 import { BookingStatus, BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS } from '../types/booking';
-import { UniversalExportButton } from '../../../components/UniversalExport';
-import { UniversalExportService } from '../../../services/universalExport';
+import { UniversalExportButton, UniversalExportClient } from 'sa2kit/universalExport';
 
 /**
  * 预订管理面板组件属性
@@ -84,8 +83,8 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
     status: searchParams.status || 'all'
   });
 
-  // 创建导出服务实例
-  const exportService = useMemo(() => new UniversalExportService(), []);
+  // 创建导出客户端实例
+  const exportService = useMemo(() => new UniversalExportClient(), []);
 
   // 数据源函数
   const dataSource = useMemo(() => async () => {
@@ -555,10 +554,10 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
               variant="primary"
               size="md"
               disabled={loading}
-              onExportSuccess={(result) => {
+              onExportSuccess={(result: { filename: string; format: string; recordCount: number }) => {
                 console.log('导出成功:', result);
               }}
-              onExportError={(error) => {
+              onExportError={(error: Error) => {
                 console.error('导出失败:', error);
               }}
             />
@@ -600,11 +599,17 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                 <div className="p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                     <div className="flex items-start gap-3 sm:gap-4">
-                      <img
-                        src={booking.collection.coverImage}
-                        alt={booking.collection.title}
-                        className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg flex-shrink-0"
-                      />
+                      {booking.collection.coverImage ? (
+                        <img
+                          src={booking.collection.coverImage}
+                          alt={booking.collection.title}
+                          className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 rounded-lg flex-shrink-0 flex items-center justify-center text-slate-400 text-xs">
+                          暂无
+                        </div>
+                      )}
                       <div className="min-w-0 flex-1">
                         <h3 className="text-base sm:text-lg font-semibold text-slate-800 truncate">{booking.collection.title}</h3>
                         <p className="text-sm text-slate-600">编号：{booking.collection.number}</p>

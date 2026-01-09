@@ -21,9 +21,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Book, Eye, ImageIcon, ShoppingBag } from 'lucide-react';
 import { ArtCollection, CollectionCategory } from '../types';
 import { AddToCartButton } from './AddToCartButton';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, Badge, Button } from 'sa2kit';
 
 /**
  * CollectionCard 组件的 Props 接口
@@ -151,7 +149,7 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
       return renderImageLoading();
     }
 
-    if (imageError) {
+    if (imageError || !collection.coverImage) {
       return renderImageError();
     }
 

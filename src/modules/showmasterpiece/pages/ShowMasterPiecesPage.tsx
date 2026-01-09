@@ -32,10 +32,7 @@ import { MasterpiecesConfig, CollectionCategory, CollectionCategoryType } from '
 import { CollectionCard, ArtworkViewer, ThumbnailSidebar, MobileAlbumViewer, CartModal, CartButton, DeadlinePopupManager} from '../components';
 import { CartProvider } from '../contexts/CartContext';
 import { AuthProvider, useAuth, UserMenu, CustomMenuItem } from '@/modules/auth';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, Tabs, TabsContent, TabsList, TabsTrigger } from 'sa2kit';
 
 interface ShowMasterPiecesContentProps {
   /** 活动参数，用于指定显示特定活动的数据 */
