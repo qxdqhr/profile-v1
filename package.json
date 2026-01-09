@@ -91,7 +91,7 @@
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "19.2.1",
     "react-hot-toast": "^2.5.2",
-    "sa2kit": "^1.6.17",
+    "sa2kit": "^1.6.18",
     "swr": "^2.3.8",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",

@@ -177,8 +177,8 @@ importers:
         specifier: ^2.5.2
         version: 2.5.2(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       sa2kit:
-        specifier: ^1.6.17
-        version: 1.6.17(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@xenova/transformers@2.17.2)(lucide-react@0.474.0(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.3.8(react@19.2.1))(tesseract.js@7.0.0)
+        specifier: ^1.6.18
+        version: 1.6.18(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@xenova/transformers@2.17.2)(lucide-react@0.474.0(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.3.8(react@19.2.1))(tesseract.js@7.0.0)
       swr:
         specifier: ^2.3.8
         version: 2.3.8(react@19.2.1)
@@ -4017,8 +4017,8 @@ packages:
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
 
-  sa2kit@1.6.17:
-    resolution: {integrity: sha512-qJLYZ/aH0VfZe8SKexKjestdYRBMLWs3ocNLgFYbFPrZLDER0t7QtNfAtEOAHafy3/Iyr9omQYtVM404dwaHXw==}
+  sa2kit@1.6.18:
+    resolution: {integrity: sha512-KIDeMaaAPKLKnB6bsz5mdn0Ax7bF90FCaI1t7xhlvyo31JMJ2Ow4pDvnursyEnmdDMG3K6L3paHSATo34gjOzA==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       '@imgly/background-removal': ^1.7.0
@@ -8611,7 +8611,7 @@ snapshots:
     dependencies:
       queue-microtask: 1.2.3
 
-  sa2kit@1.6.17(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@xenova/transformers@2.17.2)(lucide-react@0.474.0(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.3.8(react@19.2.1))(tesseract.js@7.0.0):
+  sa2kit@1.6.18(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@xenova/transformers@2.17.2)(lucide-react@0.474.0(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.3.8(react@19.2.1))(tesseract.js@7.0.0):
     dependencies:
       '@dnd-kit/core': 6.3.1(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@dnd-kit/sortable': 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react@19.2.1)
