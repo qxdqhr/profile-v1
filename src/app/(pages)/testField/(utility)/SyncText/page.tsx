@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { BackButton } from 'sa2kit';
-import '@pixi/events'
 
 interface SyncBox {
     id: string;
