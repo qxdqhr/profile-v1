@@ -151,7 +151,7 @@ export const DeadlinePopup: React.FC<DeadlinePopupProps> = ({
       height={displayConfig?.height || 'auto'}
       maskClosable={displayConfig?.maskClosable ?? true}
       showCloseButton={false}
-      zIndex={2000}
+      zIndex={10000}
     >
       <div className={`${styles.bgColor} ${styles.borderColor} border rounded-lg p-6`}>
         {/* 图标和标题 */}
