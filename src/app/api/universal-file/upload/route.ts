@@ -69,8 +69,18 @@ export async function POST(request: NextRequest) {
     console.log('🔧 [通用文件服务] 开始初始化文件服务...');
     let fileService;
     try {
-      // 1. 加载配置 (使用现有配置管理器)
-      const configManager = await createFileServiceConfigWithConfigManager();
+      // 1. 根据模块ID加载相应的配置管理器
+      let configManager;
+      if (moduleId === 'showmasterpiece') {
+        // ShowMasterpiece模块使用独立的配置系统
+        const { getShowMasterpieceFileConfig } = await import('@/modules/showmasterpiece/services/fileService');
+        configManager = await getShowMasterpieceFileConfig();
+        console.log('🎨 [通用文件服务] 使用ShowMasterpiece独立配置');
+      } else {
+        // 其他模块使用全局配置管理器
+        configManager = await createFileServiceConfigWithConfigManager();
+        console.log('🌐 [通用文件服务] 使用全局配置管理器');
+      }
       const config = configManager.getConfig();
       
       // 2. 创建数据库持久化仓储
