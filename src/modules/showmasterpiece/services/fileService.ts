@@ -167,7 +167,7 @@ async function getCachedConfigManager() {
       console.log('🎨 [ShowMasterpiece] 使用独立OSS配置创建配置管理器');
       
       // 使用独立配置创建配置管理器
-      cachedConfigManager = createFileServiceConfig({
+      cachedConfigManager = await createFileServiceConfig({
         defaultStorage: 'aliyun-oss',
         storageProviders: {
           'local': {
@@ -194,7 +194,7 @@ async function getCachedConfigManager() {
     } else {
       console.log('🎨 [ShowMasterpiece] 独立配置不完整，使用默认配置');
       // 使用默认配置（主要从环境变量读取）
-      cachedConfigManager = createFileServiceConfig({
+      cachedConfigManager = await createFileServiceConfig({
         defaultStorage: 'local', // 默认使用本地存储
         storageProviders: {
           'local': {

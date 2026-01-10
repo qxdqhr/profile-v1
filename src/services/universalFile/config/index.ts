@@ -249,9 +249,12 @@ export class FileServiceConfigManager {
         const service = EnvConfigService.getInstance();
         
         // 先加载配置到缓存
-        await service.loadConfigFromDatabase();
-        const config = service.getCachedConfig();
-        console.log('🔍 [ConfigManager] 从配置管理模块加载阿里云OSS配置:', config);
+        let config = await service.loadConfigFromDatabase();
+        if(!config || !config.ALIYUN_OSS_REGION || !config.ALIYUN_OSS_BUCKET || !config.ALIYUN_OSS_ACCESS_KEY_ID || !config.ALIYUN_OSS_ACCESS_KEY_SECRET) {
+          config = service.getCachedConfig();
+          console.warn('⚠️ [ConfigManager] 配置管理模块中没有阿里云OSS配置,读取缓存中config');
+        }
+          console.log('🔍 [ConfigManager] 从配置管理模块加载阿里云OSS配置:', config);
         const ossConfig: Partial<AliyunOSSConfig> = {
           region: config.ALIYUN_OSS_REGION,
           bucket: config.ALIYUN_OSS_BUCKET,
@@ -361,13 +364,13 @@ export class FileServiceConfigManager {
 /**
  * 创建默认配置管理器
  */
-export function createFileServiceConfig(customConfig?: Partial<UniversalFileServiceConfig>): FileServiceConfigManager {
+export async function createFileServiceConfig(customConfig?: Partial<UniversalFileServiceConfig>): Promise<FileServiceConfigManager> {
   const configManager = new FileServiceConfigManager(customConfig);
   
   // 尝试从环境变量加载云服务配置
-  configManager.loadAliyunOSSFromEnv();
-  configManager.loadAliyunCDNFromEnv();
-  configManager.loadAliyunOSSFromConfigManager();
+  await configManager.loadAliyunOSSFromEnv();
+  await configManager.loadAliyunCDNFromEnv();
+  await configManager.loadAliyunOSSFromConfigManager();
   return configManager;
 }
 

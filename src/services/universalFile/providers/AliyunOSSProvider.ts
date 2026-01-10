@@ -64,7 +64,6 @@ export class AliyunOSSProvider implements IStorageProvider {
     this.config = newConfig;
     
     console.log(`☁️ [AliyunOSSProvider] ${this.isInitialized ? '重新' : ''}初始化阿里云OSS`);
-    console.log(`qhr111112222 config: ${JSON.stringify(this.config)}`);
 
     try {
       // 验证必需的配置项
@@ -402,9 +401,11 @@ export class AliyunOSSProvider implements IStorageProvider {
    */
   private ensureInitialized(): void {
     if (!this.isInitialized || !this.client || !this.config) {
-      console.log(`qhr111112222 isInitialized: ${this.isInitialized}
-        qhr111112222 client: ${JSON.stringify(this.client)}
-        qhr111112222 config: ${JSON.stringify(this.config)}`);
+      console.log('❌ [AliyunOSSProvider] OSS存储提供者未初始化', {
+        isInitialized: this.isInitialized,
+        hasClient: !!this.client,
+        hasConfig: !!this.config
+      });
       throw new StorageProviderError('OSS存储提供者未初始化');
     }
   }
@@ -498,7 +499,6 @@ export class AliyunOSSProvider implements IStorageProvider {
    * 生成公开访问URL
    */
   private generateAccessUrl(filePath: string): string {
-    console.log(`qhr111112222`);
     if (!this.config) {
       throw new StorageProviderError('OSS配置为空');
     }

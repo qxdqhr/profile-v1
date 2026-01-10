@@ -46,14 +46,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // // 验证文件类型（目前只支持图片）
-    // if (!file.type.startsWith('image/')) {
-    //   return NextResponse.json(
-    //     { error: '只支持图片文件类型' },
-    //     { status: 400 }
-    //   );
-    // }
-
     console.log('📋 [通用文件服务] 上传参数:', {
       fileName: file.name,
       fileSize: file.size,

@@ -529,11 +529,6 @@ export class UniversalFileService extends EventEmitter {
             console.log(`✅ [UniversalFileService] 存储提供者初始化完成: ${type}`);
           } catch (error) {
             console.warn(`⚠️ [UniversalFileService] 存储提供者初始化失败: ${type}:`, error);
-            // 如果默认存储提供者初始化失败，切换到本地存储
-            // if (type === this.config.defaultStorage) {
-            //   console.warn(`⚠️ [UniversalFileService] 默认存储提供者 ${type} 初始化失败，切换到本地存储`);
-            //   this.config.defaultStorage = 'local';
-            // }
           }
         } else {
           console.warn(`⚠️ [UniversalFileService] 存储提供者未注册: ${type}`);
