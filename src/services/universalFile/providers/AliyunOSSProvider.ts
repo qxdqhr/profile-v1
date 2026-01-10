@@ -15,6 +15,7 @@ import type {
 } from '../types';
 
 import { StorageProviderError } from '../types';
+import OSS from 'ali-oss';
 
 /**
  * 阿里云OSS存储提供者
@@ -23,7 +24,7 @@ export class AliyunOSSProvider implements IStorageProvider {
   readonly type: StorageType = 'aliyun-oss';
   
   private config: AliyunOSSConfig | null = null;
-  private client: any = null;
+  private client: OSS | null = null;
   private isInitialized = false;
 
   /**
@@ -385,7 +386,7 @@ export class AliyunOSSProvider implements IStorageProvider {
         'max-keys': String(maxKeys || 1000)
       };
 
-      const result = await this.client.list(options);
+      const result = await this.client.list(options, {});
       
       return result.objects?.map((obj: any) => obj.name) || [];
 
@@ -434,9 +435,9 @@ export class AliyunOSSProvider implements IStorageProvider {
     try {
       // 尝试列出少量对象来测试连接
       console.log(`🔍 [AliyunOSSProvider] 测试OSS连接...`);
-      const result = await this.client.list({
+      const result = await this.client?.list({
         'max-keys': 1
-      });
+      }, {});
       console.log(`✅ [AliyunOSSProvider] OSS连接测试成功，找到 ${result.objects?.length || 0} 个对象`);
     } catch (error: any) {
       // 记录详细错误信息用于调试
