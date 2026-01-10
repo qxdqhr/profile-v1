@@ -102,6 +102,7 @@ export class AliyunOSSProvider implements IStorageProvider {
       }
       
       this.client = new OSS(ossConfig);
+      console.log('qhr111112222 ossConfig:', JSON.stringify(ossConfig));
 
       // 测试连接
       await this.testConnection();
@@ -439,7 +440,7 @@ export class AliyunOSSProvider implements IStorageProvider {
       console.log(`✅ [AliyunOSSProvider] OSS连接测试成功，找到 ${result.objects?.length || 0} 个对象`);
     } catch (error: any) {
       // 记录详细错误信息用于调试
-      console.warn(`⚠️ [AliyunOSSProvider] OSS连接测试失败:`, {
+      console.log(`⚠️ [AliyunOSSProvider] OSS连接测试失败:`, {
         error: error instanceof Error ? error.message : String(error),
         code: error?.code,
         name: error?.name,
