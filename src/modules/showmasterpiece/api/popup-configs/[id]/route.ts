@@ -17,7 +17,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     console.log('📋 [API] 获取弹窗配置详情:', id);
 
@@ -62,18 +62,20 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
 
     console.log('✏️ [API] 更新弹窗配置请求:', {
       id,
+      body,
+      bodyKeys: Object.keys(body),
       name: body.name,
       enabled: body.enabled,
     });
 
     // 构建更新数据
     const updateData: any = {};
-    
+
     if ('name' in body) updateData.name = body.name;
     if ('description' in body) updateData.description = body.description;
     if ('type' in body) updateData.type = body.type;
@@ -85,6 +87,21 @@ export async function PUT(
     if ('businessModule' in body) updateData.businessModule = body.businessModule;
     if ('businessScene' in body) updateData.businessScene = body.businessScene;
     if ('sortOrder' in body) updateData.sortOrder = body.sortOrder;
+
+    // 验证至少有一个字段要更新
+    if (Object.keys(updateData).length === 0) {
+      console.error('❌ [API] 更新数据为空，无字段需要更新:', { id, body });
+      return NextResponse.json(
+        {
+          success: false,
+          error: '没有提供要更新的字段',
+          details: '请求体中必须包含至少一个有效的字段',
+        },
+        { status: 400 }
+      );
+    }
+
+    console.log('🔧 [API] 构建的更新数据:', { id, updateData });
 
     const config = await popupConfigService.updatePopupConfig(id, updateData);
 
@@ -118,7 +135,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     console.log('🗑️ [API] 删除弹窗配置请求:', id);
 

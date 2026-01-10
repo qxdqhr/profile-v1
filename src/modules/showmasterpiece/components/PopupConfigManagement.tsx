@@ -265,14 +265,24 @@ export const PopupConfigManagement: React.FC<PopupConfigManagementProps> = ({ ev
    */
   const handleToggle = async (config: PopupConfig) => {
     try {
+      const requestBody = {
+        enabled: !config.enabled,
+      };
+
+      console.log('🔄 [PopupConfigManagement] 切换弹窗配置状态:', {
+        configId: config.id,
+        configName: config.name,
+        currentEnabled: config.enabled,
+        newEnabled: !config.enabled,
+        requestBody
+      });
+
       const response = await fetch(`/api/showmasterpiece/popup-configs/${config.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          enabled: !config.enabled,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       const result = await response.json();
@@ -511,7 +521,6 @@ export const PopupConfigManagement: React.FC<PopupConfigManagementProps> = ({ ev
           title={editingConfig ? '编辑弹窗配置' : '创建弹窗配置'}
           width={600}
           maskClosable={false}
-          showCloseButton={false}
         >
           <div className="space-y-6 max-h-[70vh] overflow-y-auto">
             {/* 基本信息 */}
