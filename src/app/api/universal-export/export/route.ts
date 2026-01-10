@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       fieldMapping: fieldMapping || {},
       filters: filters || [],
       sortBy: sortBy || [],
-      pagination: pagination || {},
+      pagination: pagination || undefined,
       customFileName,
       callbacks: {
         onProgress: (progress) => {
@@ -115,46 +115,26 @@ export async function POST(request: NextRequest) {
       fileBlobSize: result.fileBlob?.size || 0,
     });
 
-    // 如果有文件数据，直接返回文件
-    if (result.fileBlob) {
-      console.log('📁 [API: universal-export/export] 返回文件数据');
-
-      // 根据文件名确定MIME类型
-      const getMimeType = (fileName: string): string => {
-        const extension = fileName.split('.').pop()?.toLowerCase();
-        switch (extension) {
-          case 'csv':
-            return 'text/csv; charset=utf-8';
-          case 'xlsx':
-          case 'xls':
-            return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-          case 'json':
-            return 'application/json; charset=utf-8';
-          default:
-            return 'application/octet-stream';
-        }
-      };
-
-      const headers = new Headers();
-      headers.set('Content-Type', getMimeType(result.fileName));
-      headers.set('Content-Disposition', `attachment; filename="${encodeURIComponent(result.fileName)}"`);
-      headers.set('Content-Length', result.fileBlob.size.toString());
-
-      return new NextResponse(result.fileBlob, {
-        status: 200,
-        headers,
-      });
-    }
-
-    // 如果没有文件数据，返回结果信息
+    // 总是返回JSON格式的响应
     console.log('📄 [API: universal-export/export] 返回导出结果信息');
+
+    // 如果有文件数据，创建一个临时的文件URL
+    let fileUrl = result.fileUrl;
+    if (result.fileBlob && !fileUrl) {
+      console.log('📁 [API: universal-export/export] 创建临时文件URL');
+
+      // 在实际应用中，这里应该将文件保存到临时存储并返回URL
+      // 现在暂时返回undefined，让客户端使用fileBlob下载
+      fileUrl = undefined;
+    }
 
     return NextResponse.json({
       result: {
         exportId: result.exportId,
         fileName: result.fileName,
         fileSize: result.fileSize,
-        fileUrl: result.fileUrl,
+        fileUrl: fileUrl,
+        fileBlob: result.fileBlob ? await result.fileBlob.arrayBuffer().then(buffer => Buffer.from(buffer).toString('base64')) : undefined,
         exportedRows: result.exportedRows,
         startTime: result.startTime,
         endTime: result.endTime,

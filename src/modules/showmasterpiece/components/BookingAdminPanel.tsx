@@ -12,7 +12,8 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { Calendar, User, Package, Clock, CheckCircle, XCircle, RefreshCw, Eye, Edit, Save, X, Trash2, Download, Settings, Search } from 'lucide-react';
 import { BookingAdminData, BookingAdminStats, BookingAdminQueryParams, BOOKING_EXPORT_FIELDS, DEFAULT_BOOKING_EXPORT_CONFIG } from '../services';
 import { BookingStatus, BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS } from '../types/booking';
-import { UniversalExportButton, UniversalExportClient } from 'sa2kit/universalExport';
+import { UniversalExportButton } from 'sa2kit/universalExport';
+import { UniversalExportClientService } from '@/services/universalExport/client';
 
 /**
  * 预订管理面板组件属性
@@ -84,7 +85,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
   });
 
   // 创建导出客户端实例
-  const exportService = useMemo(() => new UniversalExportClient(), []);
+  const exportService = useMemo(() => new UniversalExportClientService(), []);
 
   // 自定义导出处理函数
   const handleCustomExport = useCallback(async (config: any) => {
@@ -133,6 +134,8 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
           configId: config,
           data: exportData,
           customFileName: `预订信息_${new Date().toISOString().split('T')[0]}`,
+          // 不传递分页参数，避免导出时被分页限制
+          pagination: undefined,
         }),
       });
 
@@ -141,37 +144,51 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
         throw new Error(errorData.error || `导出失败: ${response.statusText}`);
       }
 
-      // 处理文件下载
-      const contentDisposition = response.headers.get('Content-Disposition');
-      const contentType = response.headers.get('Content-Type');
+      // 解析JSON响应
+      const responseData = await response.json();
 
-      if (contentType?.includes('application/octet-stream') || contentDisposition?.includes('attachment')) {
-        // 直接下载文件
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
+      if (responseData.result && responseData.result.fileData) {
+        // 有文件数据，使用base64数据创建blob并下载
+        console.log('📁 [BookingAdminPanel] 检测到文件数据，开始下载');
+        const { fileData, fileName } = responseData.result;
 
-        // 从Content-Disposition获取文件名
-        let filename = `export_${new Date().toISOString().split('T')[0]}.${config.format}`;
-        if (contentDisposition) {
-          const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-          if (filenameMatch && filenameMatch[1]) {
-            filename = filenameMatch[1].replace(/['"]/g, '');
-          }
+        // 将base64转换为blob
+        const binaryString = atob(fileData);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
         }
 
+        // 根据文件扩展名确定MIME类型
+        const getMimeType = (filename: string): string => {
+          const extension = filename.split('.').pop()?.toLowerCase();
+          switch (extension) {
+            case 'csv':
+              return 'text/csv; charset=utf-8';
+            case 'xlsx':
+            case 'xls':
+              return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+            case 'json':
+              return 'application/json; charset=utf-8';
+            default:
+              return 'application/octet-stream';
+          }
+        };
+
+        const blob = new Blob([bytes], { type: getMimeType(fileName) });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
         link.href = url;
-        link.download = filename;
+        link.download = fileName;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
 
-        console.log('✅ [BookingAdminPanel] 文件下载完成:', { filename });
+        console.log('✅ [BookingAdminPanel] 文件下载完成:', { fileName, fileSize: bytes.length });
       } else {
-        // 返回结果信息
-        const result = await response.json();
-        console.log('✅ [BookingAdminPanel] 导出完成:', result);
+        // 没有文件数据，只返回结果信息
+        console.log('✅ [BookingAdminPanel] 导出完成:', responseData);
       }
 
     } catch (error) {

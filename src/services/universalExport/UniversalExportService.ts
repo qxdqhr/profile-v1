@@ -594,8 +594,8 @@ export class UniversalExportService {
       });
     }
 
-    // 应用分页
-    if (request.pagination) {
+    // 应用分页 - 只有当分页参数有效时才应用
+    if (request.pagination && typeof request.pagination.page === 'number' && typeof request.pagination.pageSize === 'number') {
       console.log('📄 [UniversalExportService] 应用分页...');
       const { page, pageSize } = request.pagination;
       const start = (page - 1) * pageSize;
