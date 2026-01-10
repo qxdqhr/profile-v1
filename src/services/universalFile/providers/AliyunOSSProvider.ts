@@ -421,10 +421,10 @@ export class AliyunOSSProvider implements IStorageProvider {
     }
 
     const required = ['region', 'bucket', 'accessKeyId', 'accessKeySecret'];
-    const missing = required.filter(key => !this.config![key as keyof AliyunOSSConfig]);
+    const missing = required.filter(key => !this.config?.[key as keyof AliyunOSSConfig] );
     
     if (missing.length > 0) {
-      throw new StorageProviderError(`OSS配置缺少必需项: ${missing.join(', ')}`);
+      throw new StorageProviderError(`OSS配置缺少必需项: 请检查配置项:`);
     }
   }
 
@@ -451,7 +451,7 @@ export class AliyunOSSProvider implements IStorageProvider {
       // 检查是否为OSS相关的错误
       if (error && typeof error.code === 'string') {
         if (error.code === 'NoSuchBucket') {
-          throw new StorageProviderError(`存储桶不存在: ${this.config!.bucket}`);
+          throw new StorageProviderError(`存储桶不存在`);
         }
         if (error.code === 'InvalidAccessKeyId') {
           throw new StorageProviderError('Access Key ID 无效');

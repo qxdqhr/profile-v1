@@ -206,7 +206,7 @@ export class UniversalFileService extends EventEmitter {
       
       // 检查 Provider 是否存在
       if (!storageProvider) {
-        throw new StorageProviderError(`存储提供者不存在: ${selectedStorageType}`);
+        throw new StorageProviderError(`存储提供者不存在: 请检查配置项:`);
       }
       
       // 检查 Provider 是否已初始化
@@ -327,7 +327,7 @@ export class UniversalFileService extends EventEmitter {
       const storageProvider = this.storageProviders.get(metadata.storageProvider);
       
       if (!storageProvider) {
-        throw new StorageProviderError(`存储提供者不存在: ${metadata.storageProvider}`);
+        throw new StorageProviderError(`存储提供者不存在: 请检查配置项:`);
       }
 
       // 下载文件
@@ -368,7 +368,7 @@ export class UniversalFileService extends EventEmitter {
       const storageProvider = this.storageProviders.get(metadata.storageProvider);
       
       if (!storageProvider) {
-        throw new StorageProviderError(`存储提供者不存在: ${metadata.storageProvider}`);
+        throw new StorageProviderError(`存储提供者不存在: 请检查配置项:`);
       }
 
       // 从存储中删除文件
@@ -428,7 +428,7 @@ export class UniversalFileService extends EventEmitter {
       const storageProvider = this.storageProviders.get(metadata.storageProvider);
       
       if (!storageProvider) {
-        throw new StorageProviderError(`存储提供者不存在: ${metadata.storageProvider}`);
+        throw new StorageProviderError(`存储提供者不存在: 请检查配置项:`);
       }
 
       url = await storageProvider.getAccessUrl(metadata.storagePath, expiresIn);
