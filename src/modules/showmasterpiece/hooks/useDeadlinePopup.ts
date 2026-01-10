@@ -58,7 +58,7 @@ export function useDeadlinePopup(
           businessModule,
           businessScene,
           currentTime: (currentTime || new Date()).toISOString(),
-          eventParam,
+          eventParam: eventParam || '1',
         }),
       });
 

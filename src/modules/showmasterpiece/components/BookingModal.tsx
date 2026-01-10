@@ -55,11 +55,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
       onClose={onClose}
       title={title}
       width={width}
-      height={height}
       maskClosable={false}
-      showCloseButton={true}
       className="max-w-6xl"
-      contentClassName="p-0 overflow-hidden"
     >
       <BookingPage onClose={onClose} eventParam={eventParam} />
     </Modal>

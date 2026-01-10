@@ -148,10 +148,8 @@ export const DeadlinePopup: React.FC<DeadlinePopupProps> = ({
       onClose={onClose}
       title=""
       width={displayConfig?.width || 400}
-      height={displayConfig?.height || 'auto'}
       maskClosable={displayConfig?.maskClosable ?? true}
-      showCloseButton={false}
-      zIndex={10000}
+      zIndex={9999}
     >
       <div className={`${styles.bgColor} ${styles.borderColor} border rounded-lg p-6`}>
         {/* 图标和标题 */}

@@ -121,7 +121,7 @@ export const CartModal: React.FC<CartModalProps> = ({
     <>
       {/* 遮罩层 */}
       <div
-        className="fixed top-0 left-0 right-0 bottom-0 w-screen h-screen bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
+        className="fixed top-0 left-0 right-0 bottom-0 w-screen h-screen bg-black/50 backdrop-blur-sm flex items-center justify-center z-[999] p-4"
         style={{ margin: 0 }}
         onClick={handleOverlayClick}
         // 拦截遮罩层的滚动事件

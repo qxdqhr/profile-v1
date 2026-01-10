@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       businessModule = 'showmasterpiece', 
       businessScene = 'cart_checkout',
       currentTime,
-      eventParam
+      eventParam = '1'
     } = body;
 
     console.log('🔔 [API] 检查弹窗配置请求:', {
