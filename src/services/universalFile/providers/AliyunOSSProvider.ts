@@ -176,7 +176,7 @@ export class AliyunOSSProvider implements IStorageProvider {
           etag: result.data ? JSON.stringify(result.data) : '',
           requestId: result.res?.rt || 0,
           uploadTime,
-          ossUrl: result.url || result.name
+          ossUrl: result.url || result.name || filePath
         }
       };
 
@@ -402,6 +402,9 @@ export class AliyunOSSProvider implements IStorageProvider {
    */
   private ensureInitialized(): void {
     if (!this.isInitialized || !this.client || !this.config) {
+      console.log(`qhr111112222 isInitialized: ${this.isInitialized}
+        qhr111112222 client: ${JSON.stringify(this.client)}
+        qhr111112222 config: ${JSON.stringify(this.config)}`);
       throw new StorageProviderError('OSS存储提供者未初始化');
     }
   }
@@ -484,8 +487,8 @@ export class AliyunOSSProvider implements IStorageProvider {
     });
 
     return {
-      name: result.name,
-      url: result.name, // OSS返回的是object名称
+      name: result.name || filePath,
+      url: result.name || filePath, // OSS返回的是object名称
       data: result.data,
       res: result.res
     };
@@ -575,10 +578,10 @@ export class AliyunOSSProvider implements IStorageProvider {
         url: accessUrl,
         size: contentLength,
         data: {
-          name: result.name,
+          name: result.name || filePath,
           requestId: result.res?.rt || 0,
           uploadTime,
-          ossUrl: result.url || result.name
+          ossUrl: result.url || result.name || filePath
         }
       };
 
