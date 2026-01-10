@@ -64,6 +64,7 @@ export class AliyunOSSProvider implements IStorageProvider {
     this.config = newConfig;
     
     console.log(`☁️ [AliyunOSSProvider] ${this.isInitialized ? '重新' : ''}初始化阿里云OSS`);
+    console.log(`qhr111112222 config: ${JSON.stringify(this.config)}`);
 
     try {
       // 验证必需的配置项
@@ -432,15 +433,17 @@ export class AliyunOSSProvider implements IStorageProvider {
         'max-keys': 1
       });
       console.log(`✅ [AliyunOSSProvider] OSS连接测试成功，找到 ${result.objects?.length || 0} 个对象`);
-    } catch (error) {
+    } catch (error: any) {
       // 记录详细错误信息用于调试
       console.warn(`⚠️ [AliyunOSSProvider] OSS连接测试失败:`, {
         error: error instanceof Error ? error.message : String(error),
-        code: (error as any)?.code,
-        requestUrl: (error as any)?.url || (error as any)?.message?.match(/GET\s+(https?:\/\/[^\s]+)/)?.[1],
+        code: error?.code,
+        name: error?.name,
+        requestUrl: error?.url || error?.message?.match(/GET\s+(https?:\/\/[^\s]+)/)?.[1],
       });
-      
-      if (this.isOSSError(error)) {
+
+      // 检查是否为OSS相关的错误
+      if (error && typeof error.code === 'string') {
         if (error.code === 'NoSuchBucket') {
           throw new StorageProviderError(`存储桶不存在: ${this.config!.bucket}`);
         }
@@ -451,7 +454,9 @@ export class AliyunOSSProvider implements IStorageProvider {
           throw new StorageProviderError('Access Key Secret 无效');
         }
       }
-      throw error;
+
+      // 对于其他错误，记录详细信息但不阻止初始化
+      console.warn(`⚠️ [AliyunOSSProvider] OSS连接测试失败，但继续初始化:`, error);
     }
   }
 
