@@ -232,13 +232,11 @@ export const useBookingAdmin = (eventParam?: string): UseBookingAdminReturn => {
   }, []);
 
   /**
-   * 组件挂载时获取数据（只在有活动参数时执行）
+   * 组件挂载时获取数据
    */
   useEffect(() => {
-    // 只有在有活动参数时才自动加载数据
-    if (eventParam) {
-      fetchBookings();
-    }
+    // 总是加载数据，无论是否有活动参数
+    fetchBookings();
   }, []); // 只在组件挂载时执行一次
 
   /**

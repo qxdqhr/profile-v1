@@ -262,6 +262,16 @@ export class UniversalExportService {
       if (typeof request.configId === 'object' && request.configId !== null) {
         // 直接传入配置对象
         config = request.configId as ExportConfig;
+
+        // 验证配置
+        try {
+          this.validateConfig(config);
+          console.log('✅ [UniversalExportService] 配置验证通过');
+        } catch (validationError) {
+          console.error('❌ [UniversalExportService] 配置验证失败:', validationError);
+          throw validationError;
+        }
+
         console.log('📋 [UniversalExportService] 使用直接传入的配置:', {
           configId: config.id,
           configName: config.name,
@@ -524,6 +534,15 @@ export class UniversalExportService {
           isArray: Array.isArray(data),
           length: Array.isArray(data) ? data.length : 'N/A',
         });
+
+        // 验证数据
+        if (!Array.isArray(data)) {
+          throw new ExportDataError('数据源函数必须返回数组');
+        }
+        if (data.length === 0) {
+          throw new ExportDataError('数据源返回空数组');
+        }
+
         return data;
       } else {
         // 这里可以扩展支持从API获取数据

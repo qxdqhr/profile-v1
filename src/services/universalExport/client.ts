@@ -101,11 +101,21 @@ export class UniversalExportClientService {
    * 执行数据导出（自定义实现，支持文件blob处理）
    */
   async exportData(request: Omit<ExportRequest, 'callbacks'> & {
-    dataSource: any[] | string;
+    dataSource: any[] | string | (() => Promise<any[]>);
   }): Promise<any> {
     const url = '/api/universal-export/export';
     try {
-      const isDataArray = Array.isArray(request.dataSource);
+      // 处理数据源：如果是函数则执行获取数据，否则直接使用
+      let exportData: any[] | string;
+      if (typeof request.dataSource === 'function') {
+        console.log('🔄 [UniversalExportClientService] 执行数据源函数...');
+        exportData = await request.dataSource();
+        console.log('✅ [UniversalExportClientService] 数据源函数执行完成:', { dataLength: Array.isArray(exportData) ? exportData.length : 'N/A' });
+      } else {
+        exportData = request.dataSource;
+      }
+
+      const isDataArray = Array.isArray(exportData);
       const requestBody = {
         configId: request.configId,
         queryParams: request.queryParams,
@@ -117,10 +127,18 @@ export class UniversalExportClientService {
       };
 
       if (isDataArray) {
-        requestBody.data = request.dataSource;
+        requestBody.data = exportData;
       } else {
-        requestBody.dataSource = request.dataSource;
+        requestBody.dataSource = exportData;
       }
+
+      console.log('🚀 [UniversalExportClientService] 发送导出请求:', {
+        url,
+        configId: typeof requestBody.configId === 'object' ? '配置对象' : requestBody.configId,
+        hasData: !!requestBody.data,
+        dataLength: requestBody.data ? requestBody.data.length : 0,
+        hasDataSource: !!requestBody.dataSource,
+      });
 
       const response = await fetch(url, {
         method: 'POST',
@@ -130,8 +148,15 @@ export class UniversalExportClientService {
         body: JSON.stringify(requestBody),
       });
 
+      console.log('📡 [UniversalExportClientService] 收到响应:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+      });
+
       if (!response.ok) {
         const errorText = await response.text();
+        console.error('❌ [UniversalExportClientService] API错误响应:', errorText);
         let errorData;
         try {
           errorData = JSON.parse(errorText);
@@ -141,10 +166,10 @@ export class UniversalExportClientService {
         throw new Error(errorData.message || `导出失败: ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const responseData = await response.json();
 
       // 自定义的转换函数，支持base64文件数据
-      return this.transformExportResultFromAPI(data.result);
+      return this.transformExportResultFromAPI(responseData.result);
     } catch (error) {
       throw {
         code: 'EXPORT_DATA_ERROR',

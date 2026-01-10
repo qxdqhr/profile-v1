@@ -30,6 +30,8 @@ export async function POST(request: NextRequest) {
     console.log('📨 [API: universal-export/export] 收到导出请求:', {
       configId: typeof configId === 'object' ? '配置对象' : configId,
       hasDataSource: !!dataSource,
+      hasData: !!data,
+      dataLength: data ? (Array.isArray(data) ? data.length : 'N/A') : 'N/A',
       hasQueryParams: !!queryParams,
       hasFilters: !!filters,
       hasSortBy: !!sortBy,
