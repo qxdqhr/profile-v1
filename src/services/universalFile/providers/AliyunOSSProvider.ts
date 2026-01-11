@@ -433,18 +433,31 @@ export class AliyunOSSProvider implements IStorageProvider {
    */
   private async testConnection(): Promise<void> {
     try {
-      // 尝试列出少量对象来测试连接
       console.log(`🔍 [AliyunOSSProvider] 测试OSS连接...`);
-      const result = await this.client?.list({
-        'max-keys': 1
-      }, {});
-      console.log(`✅ [AliyunOSSProvider] OSS连接测试成功，找到 ${result?.objects?.length ?? 0} 个对象`);
+
+      // 使用 head 一个不存在的文件来测试连接
+      // 比 list 更轻量，且看起来 list 方法在某些环境下有 ReferenceError 问题
+      const testKey = 'connection-test-' + Date.now();
+      try {
+        await this.client?.head(testKey);
+        // 如果文件居然存在，那也是连接成功
+        console.log(`✅ [AliyunOSSProvider] OSS连接测试成功 (文件存在)`);
+      } catch (headError: any) {
+        // 如果是文件不存在，说明连接成功（因为只能连接成功了才知道文件不存在）
+        if (headError.code === 'NoSuchKey' || headError.status === 404) {
+          console.log(`✅ [AliyunOSSProvider] OSS连接测试成功 (连接正常)`);
+        } else {
+          // 其他错误才抛出
+          throw headError;
+        }
+      }
+
     } catch (error: any) {
       // 记录详细错误信息用于调试
       console.log(`⚠️ [AliyunOSSProvider] OSS连接测试失败:`, {
         error: error instanceof Error ? error.message : String(error),
         code: (error as any)?.code,
-        errorName: (error as any)?.name, // Changed key to errorName and added cast
+        errorName: (error as any)?.name,
         requestUrl: (error as any)?.url,
       });
 
