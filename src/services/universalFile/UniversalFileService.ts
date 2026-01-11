@@ -582,6 +582,9 @@ export class UniversalFileService extends EventEmitter {
   }
 
   private async initializeCDNProviders(): Promise<void> {
+    if(this.config.cdnProviders == undefined) {
+      return;
+    }
     for (const [type, config] of Object.entries(this.config.cdnProviders)) {
       if (config.enabled) {
         const provider = this.cdnProviders.get(type as CDNType);
