@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { UniversalFileService } from 'sa2kit/universalFile/server';
+// import { UniversalFileService } from 'sa2kit/universalFile/server';
+import { UniversalFileService } from '@/services/universalFile';
 import { createFileServiceConfigWithConfigManager } from '@/services/universalFile/config';
 import { createDrizzleFileRepository } from '@/services/universalFile/adapters/drizzleAdapter';
 import { validateApiAuth } from '@/modules/auth/server';
@@ -74,14 +75,14 @@ export async function POST(request: NextRequest) {
         console.log('🌐 [通用文件服务] 使用全局配置管理器');
       }
       const config = configManager.getConfig();
-      
+
       // 2. 创建数据库持久化仓储
       const repository = createDrizzleFileRepository();
-      
+
       // 3. 获取默认存储配置
       const defaultStorageType = config.defaultStorage || 'local';
       const storageConfig = config.storageProviders[defaultStorageType];
-      
+
       if (!storageConfig) {
         console.error('❌ [通用文件服务] 未找到存储配置:', defaultStorageType);
         return NextResponse.json(
@@ -89,12 +90,12 @@ export async function POST(request: NextRequest) {
           { status: 500 }
         );
       }
-      
+
       console.log('📦 [通用文件服务] 使用存储配置:', {
         type: storageConfig.type,
         enabled: storageConfig.enabled,
       });
-      
+
       // 4. 构建 sa2kit 配置
       const serviceConfig = {
         // storage 字段是 sa2kit 要求的
@@ -118,14 +119,14 @@ export async function POST(request: NextRequest) {
         defaultCDN: config.defaultCDN,
         storageProviders: config.storageProviders,
       };
-      
+
       fileService = new UniversalFileService(serviceConfig as any);
       await fileService.initialize();
       console.log('✅ [通用文件服务] 文件服务初始化成功');
     } catch (initError) {
       console.error('❌ [通用文件服务] 文件服务初始化失败:', initError);
       return NextResponse.json(
-        { 
+        {
           error: '文件服务初始化失败',
           details: initError instanceof Error ? initError.message : '未知错误'
         },
@@ -176,7 +177,7 @@ export async function POST(request: NextRequest) {
     } catch (uploadError) {
       console.error('❌ [通用文件服务] 文件上传执行失败:', uploadError);
       return NextResponse.json(
-        { 
+        {
           error: '文件上传执行失败',
           details: uploadError instanceof Error ? uploadError.message : '未知错误'
         },
@@ -218,7 +219,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('❌ [通用文件服务] 文件上传失败:', error);
-    
+
     // 记录详细的错误信息
     if (error instanceof Error) {
       console.error('❌ [通用文件服务] 错误详情:', {
@@ -227,7 +228,7 @@ export async function POST(request: NextRequest) {
         stack: error.stack,
         cause: error.cause
       });
-      
+
       // 处理特定错误类型
       if (error.message.includes('文件大小超过限制')) {
         return NextResponse.json(
@@ -235,7 +236,7 @@ export async function POST(request: NextRequest) {
           { status: 413 }
         );
       }
-      
+
       if (error.message.includes('不支持的文件类型')) {
         return NextResponse.json(
           { error: '不支持的文件类型' },
@@ -259,7 +260,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { 
+      {
         error: '文件上传失败',
         details: error instanceof Error ? error.message : '未知错误'
       },
