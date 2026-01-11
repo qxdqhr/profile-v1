@@ -2,7 +2,7 @@
  * 阿里云OSS存储提供者实现
  */
 
-const OSS = require('ali-oss');
+// const OSS = require('ali-oss');
 import { Readable } from 'stream';
 
 import type {
@@ -22,7 +22,7 @@ import OSS from 'ali-oss';
  */
 export class AliyunOSSProvider implements IStorageProvider {
   readonly type: StorageType = 'aliyun-oss';
-  
+
   private config: AliyunOSSConfig | null = null;
   private client: OSS | null = null;
   private isInitialized = false;
@@ -43,9 +43,9 @@ export class AliyunOSSProvider implements IStorageProvider {
     }
 
     const newConfig = config as AliyunOSSConfig;
-    
+
     // 检查配置是否发生变化
-    const configChanged = !this.config || 
+    const configChanged = !this.config ||
       this.config.region !== newConfig.region ||
       this.config.bucket !== newConfig.bucket ||
       this.config.accessKeyId !== newConfig.accessKeyId ||
@@ -63,7 +63,7 @@ export class AliyunOSSProvider implements IStorageProvider {
     }
 
     this.config = newConfig;
-    
+
     console.log(`☁️ [AliyunOSSProvider] ${this.isInitialized ? '重新' : ''}初始化阿里云OSS`);
 
     try {
@@ -73,7 +73,7 @@ export class AliyunOSSProvider implements IStorageProvider {
       // 创建OSS客户端
       // 检查是否使用真正的自定义域名（不包含 .aliyuncs.com 的才是自定义域名）
       const hasRealCustomDomain = this.config.customDomain && !this.config.customDomain.includes('.aliyuncs.com');
-      
+
       console.log(`🔧 [AliyunOSSProvider] OSS配置:`, {
         region: this.config.region,
         bucket: this.config.bucket,
@@ -81,7 +81,7 @@ export class AliyunOSSProvider implements IStorageProvider {
         hasRealCustomDomain,
         secure: this.config.secure !== false,
       });
-      
+
       const ossConfig: any = {
         region: this.config.region,
         bucket: this.config.bucket,
@@ -91,7 +91,7 @@ export class AliyunOSSProvider implements IStorageProvider {
         internal: this.config.internal || false, // 默认使用公网
         timeout: 300000, // 5分钟超时
       };
-      
+
       // 只有真正的自定义域名才设置 endpoint 和 cname
       if (hasRealCustomDomain) {
         ossConfig.endpoint = this.config.customDomain;
@@ -101,16 +101,16 @@ export class AliyunOSSProvider implements IStorageProvider {
         // 使用标准的 OSS 域名，让SDK自动构建
         console.log(`🌐 [AliyunOSSProvider] 使用标准OSS域名: ${this.config.region}`);
       }
-      
+
       this.client = new OSS(ossConfig);
       console.log('qhr111112222 ossConfig:', JSON.stringify(ossConfig));
 
       // 测试连接
       await this.testConnection();
-      
+
       this.isInitialized = true;
       console.log(`✅ [AliyunOSSProvider] 阿里云OSS${configChanged ? '重新' : ''}初始化完成`);
-      
+
     } catch (error) {
       console.error('❌ [AliyunOSSProvider] 阿里云OSS初始化失败:', error);
       this.isInitialized = false;
@@ -125,14 +125,14 @@ export class AliyunOSSProvider implements IStorageProvider {
    */
   async upload(fileInfo: UploadFileInfo, filePath: string): Promise<StorageResult> {
     this.ensureInitialized();
-    
+
     const startTime = Date.now();
     console.log(`📤 [AliyunOSSProvider] 开始上传文件到OSS: ${filePath}`);
 
     try {
       // 将File对象转换为Buffer
       const buffer = Buffer.from(await fileInfo.file.arrayBuffer());
-      
+
       // 构建上传选项
       const options: any = {
         headers: {
@@ -153,7 +153,7 @@ export class AliyunOSSProvider implements IStorageProvider {
 
       // 根据文件大小选择上传方式
       let result: any;
-      
+
       if (fileInfo.file.size > 100 * 1024 * 1024) { // 大于100MB使用分片上传
         console.log(`📦 [AliyunOSSProvider] 使用分片上传大文件: ${filePath}, 大小: ${fileInfo.file.size}`);
         result = await this.multipartUpload(filePath, buffer, options);
@@ -164,7 +164,7 @@ export class AliyunOSSProvider implements IStorageProvider {
 
       // 生成访问URL
       const accessUrl = this.generateAccessUrl(filePath);
-      
+
       const uploadTime = Date.now() - startTime;
       console.log(`✅ [AliyunOSSProvider] 文件上传完成: ${filePath}, 耗时: ${uploadTime}ms`);
 
@@ -183,7 +183,7 @@ export class AliyunOSSProvider implements IStorageProvider {
 
     } catch (error) {
       console.error(`❌ [AliyunOSSProvider] 文件上传失败: ${filePath}:`, error);
-      
+
       return {
         success: false,
         error: this.formatOSSError(error)
@@ -196,27 +196,27 @@ export class AliyunOSSProvider implements IStorageProvider {
    */
   async download(filePath: string): Promise<Buffer> {
     this.ensureInitialized();
-    
+
     console.log(`📥 [AliyunOSSProvider] 开始从OSS下载文件: ${filePath}`);
 
     try {
       const result = await this.client?.get(filePath);
-      
+
       if (!result?.content || !Buffer.isBuffer(result?.content ?? [])) {
         throw new StorageProviderError('下载的文件内容格式错误');
       }
 
       console.log(`✅ [AliyunOSSProvider] 文件下载完成: ${filePath}, 大小: ${result.content.length}`);
-      
+
       return result.content;
 
     } catch (error) {
       console.error(`❌ [AliyunOSSProvider] 文件下载失败: ${filePath}:`, error);
-      
+
       if (this.isOSSError(error) && error.code === 'NoSuchKey') {
         throw new StorageProviderError(`文件不存在: ${filePath}`);
       }
-      
+
       throw new StorageProviderError(
         `文件下载失败: ${this.formatOSSError(error)}`
       );
@@ -228,14 +228,14 @@ export class AliyunOSSProvider implements IStorageProvider {
    */
   async delete(filePath: string): Promise<StorageResult> {
     this.ensureInitialized();
-    
+
     console.log(`🗑️ [AliyunOSSProvider] 开始从OSS删除文件: ${filePath}`);
 
     try {
       const result = await this.client?.delete(filePath);
-      
+
       console.log(`✅ [AliyunOSSProvider] 文件删除完成: ${filePath}`);
-      
+
       return {
         success: true,
         data: {
@@ -246,7 +246,7 @@ export class AliyunOSSProvider implements IStorageProvider {
 
     } catch (error) {
       console.error(`❌ [AliyunOSSProvider] 文件删除失败: ${filePath}:`, error);
-      
+
       // OSS中删除不存在的文件不会报错，但我们统一处理
       if (this.isOSSError(error) && error.code === 'NoSuchKey') {
         console.warn(`⚠️ [AliyunOSSProvider] 文件不存在: ${filePath}`);
@@ -255,7 +255,7 @@ export class AliyunOSSProvider implements IStorageProvider {
           data: { reason: 'file_not_exists' }
         };
       }
-      
+
       return {
         success: false,
         error: this.formatOSSError(error)
@@ -268,10 +268,10 @@ export class AliyunOSSProvider implements IStorageProvider {
    */
   async getFileInfo(filePath: string): Promise<StorageResult> {
     this.ensureInitialized();
-    
+
     try {
       const result = await this.client?.head(filePath);
-      
+
       return {
         success: true,
         size: parseInt(String(result?.meta?.['content-length'] ?? '0')),
@@ -291,7 +291,7 @@ export class AliyunOSSProvider implements IStorageProvider {
           error: '文件不存在'
         };
       }
-      
+
       return {
         success: false,
         error: this.formatOSSError(error)
@@ -304,12 +304,12 @@ export class AliyunOSSProvider implements IStorageProvider {
    */
   async getAccessUrl(filePath: string, expiresIn?: number): Promise<string> {
     this.ensureInitialized();
-    
+
     try {
       // 对于图片文件，直接返回公开URL，避免CORS问题
       // 对于其他文件，使用签名URL
       const isImage = /\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)$/i.test(filePath);
-      
+
       if (isImage) {
         // 图片文件使用公开URL
         return this.generateAccessUrl(filePath);
@@ -320,7 +320,7 @@ export class AliyunOSSProvider implements IStorageProvider {
           expires,
           method: 'GET'
         });
-        
+
         return signedUrl ?? '';
       }
 
@@ -337,15 +337,15 @@ export class AliyunOSSProvider implements IStorageProvider {
    */
   async getUploadUrl(filePath: string, expiresIn?: number): Promise<string> {
     this.ensureInitialized();
-    
+
     try {
       const expires = expiresIn || 3600; // 默认1小时
       const signedUrl = this.client?.signatureUrl(filePath, {
         expires,
         method: 'PUT'
       });
-      
-      return signedUrl ?? '' ;
+
+      return signedUrl ?? '';
 
     } catch (error) {
       console.error(`❌ [AliyunOSSProvider] 生成上传URL失败: ${filePath}:`, error);
@@ -360,7 +360,7 @@ export class AliyunOSSProvider implements IStorageProvider {
    */
   async exists(filePath: string): Promise<boolean> {
     this.ensureInitialized();
-    
+
     try {
       await this.client?.head(filePath);
       return true;
@@ -379,7 +379,7 @@ export class AliyunOSSProvider implements IStorageProvider {
    */
   async list(prefix: string, maxKeys?: number): Promise<string[]> {
     this.ensureInitialized();
-    
+
     try {
       const options: any = {
         prefix,
@@ -387,7 +387,7 @@ export class AliyunOSSProvider implements IStorageProvider {
       };
 
       const result = await this.client?.list(options, {});
-      
+
       return result?.objects?.map((obj: any) => obj.name) ?? [];
 
     } catch (error) {
@@ -421,8 +421,8 @@ export class AliyunOSSProvider implements IStorageProvider {
     }
 
     const required = ['region', 'bucket', 'accessKeyId', 'accessKeySecret'];
-    const missing = required.filter(key => !this.config?.[key as keyof AliyunOSSConfig] );
-    
+    const missing = required.filter(key => !this.config?.[key as keyof AliyunOSSConfig]);
+
     if (missing.length > 0) {
       throw new StorageProviderError(`OSS配置缺少必需项: 请检查配置项:`);
     }
@@ -443,9 +443,9 @@ export class AliyunOSSProvider implements IStorageProvider {
       // 记录详细错误信息用于调试
       console.log(`⚠️ [AliyunOSSProvider] OSS连接测试失败:`, {
         error: error instanceof Error ? error.message : String(error),
-        code: error?.code,
-        name: error?.name,
-        requestUrl: error?.url || error?.message?.match(/GET\s+(https?:\/\/[^\s]+)/)?.[1],
+        code: (error as any)?.code,
+        errorName: (error as any)?.name, // Changed key to errorName and added cast
+        requestUrl: (error as any)?.url,
       });
 
       // 检查是否为OSS相关的错误
@@ -550,7 +550,7 @@ export class AliyunOSSProvider implements IStorageProvider {
     contentLength?: number
   ): Promise<StorageResult> {
     this.ensureInitialized();
-    
+
     const startTime = Date.now();
     console.log(`📤 [AliyunOSSProvider] 开始流式上传文件到OSS: ${filePath}`);
 
@@ -568,9 +568,9 @@ export class AliyunOSSProvider implements IStorageProvider {
       }
 
       const result = await this.client?.putStream(filePath, readableStream, options);
-      
+
       const accessUrl = this.generateAccessUrl(filePath);
-      
+
       const uploadTime = Date.now() - startTime;
       console.log(`✅ [AliyunOSSProvider] 流式上传完成: ${filePath}, 耗时: ${uploadTime}ms`);
 
@@ -589,7 +589,7 @@ export class AliyunOSSProvider implements IStorageProvider {
 
     } catch (error) {
       console.error(`❌ [AliyunOSSProvider] 流式上传失败: ${filePath}:`, error);
-      
+
       return {
         success: false,
         error: this.formatOSSError(error)
@@ -602,16 +602,16 @@ export class AliyunOSSProvider implements IStorageProvider {
    */
   async batchDelete(filePaths: string[]): Promise<StorageResult> {
     this.ensureInitialized();
-    
+
     console.log(`🗑️ [AliyunOSSProvider] 开始批量删除文件，数量: ${filePaths.length}`);
 
     try {
       const result = await this.client?.deleteMulti(filePaths, {
         quiet: false // 返回删除结果
       });
-      
+
       console.log(`✅ [AliyunOSSProvider] 批量删除完成，成功: ${result?.deleted?.length ?? 0}`);
-      
+
       return {
         success: true,
         data: {
@@ -622,7 +622,7 @@ export class AliyunOSSProvider implements IStorageProvider {
 
     } catch (error) {
       console.error(`❌ [AliyunOSSProvider] 批量删除失败:`, error);
-      
+
       return {
         success: false,
         error: this.formatOSSError(error)
@@ -635,14 +635,14 @@ export class AliyunOSSProvider implements IStorageProvider {
    */
   async copy(sourcePath: string, targetPath: string): Promise<StorageResult> {
     this.ensureInitialized();
-    
+
     console.log(`📋 [AliyunOSSProvider] 开始复制文件: ${sourcePath} -> ${targetPath}`);
 
     try {
       const result = await this.client?.copy(targetPath, sourcePath, {});
-      
+
       console.log(`✅ [AliyunOSSProvider] 文件复制完成: ${sourcePath} -> ${targetPath}`);
-      
+
       return {
         success: true,
         data: {
@@ -654,7 +654,7 @@ export class AliyunOSSProvider implements IStorageProvider {
 
     } catch (error) {
       console.error(`❌ [AliyunOSSProvider] 文件复制失败: ${sourcePath} -> ${targetPath}:`, error);
-      
+
       return {
         success: false,
         error: this.formatOSSError(error)
@@ -667,7 +667,7 @@ export class AliyunOSSProvider implements IStorageProvider {
    */
   private encodeMetadata(metadata: Record<string, any>): Record<string, string> {
     const encoded: Record<string, string> = {};
-    
+
     for (const [key, value] of Object.entries(metadata)) {
       if (value !== null && value !== undefined) {
         // 将值转换为字符串并进行URL编码
@@ -675,7 +675,7 @@ export class AliyunOSSProvider implements IStorageProvider {
         encoded[key] = encodeURIComponent(stringValue);
       }
     }
-    
+
     return encoded;
   }
 } 
