@@ -479,7 +479,8 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose, eventParam 
 （2）葱韵环京外星开拓群
 （3）葱韵环京比邻星
 （4）葱韵环京华东群
-（5）葱韵环京天津群`}
+（5）葱韵环京天津群
+（6）葱韵环京·四维空间`}
                   disabled={isCheckingOut}
                 />
                 {formErrors.notes && (
@@ -490,7 +491,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose, eventParam 
               {/* 领取方式 */}
               <div>
                 <label htmlFor="pickupMethod" className="block text-sm font-medium text-gray-700 mb-2">
-                  领取方式 <span className="text-red-500">*</span>
+                  收货信息 <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   id="pickupMethod"
@@ -500,9 +501,10 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose, eventParam 
                   className={`w-full px-3 py-3 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[120px] ${
                     formErrors.pickupMethod ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder={`是否到9.13北京场现场领取（天津/南京场暂不设置现场领取点）
-【1】是（现场领）
-【2】否（邮寄）`}
+                  placeholder={`请填写2月1号以后能收到货的地址
+（1）收件人
+（2）收件地址
+（3）收件手机号`}
                   disabled={isCheckingOut}
                 />
                 {formErrors.pickupMethod && (

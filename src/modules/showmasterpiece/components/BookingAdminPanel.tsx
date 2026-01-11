@@ -814,9 +814,10 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                       {booking.pickupMethod && (
                         <div className="mb-2">
                           <p className="text-xs text-slate-500">领取方式
-                          是否到9.13北京场现场领取（天津/南京场暂不设置现场领取点）
-                          （1）是（现场领）
-                          （2）否（邮寄）
+                            请填写2月1号以后能收到货的地址
+                            （1）收件人
+                            （2）收件地址
+                            （3）收件手机号
                           </p>
                           <p className="text-sm text-slate-700">{booking.pickupMethod}</p>
                         </div>
@@ -829,6 +830,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                             （3）葱韵环京比邻星
                             （4）葱韵环京华东群
                             （5）葱韵环京天津群
+                            （6）葱韵环京·四维空间
                           </p>
                           <p className="text-sm text-slate-700">{booking.notes}</p>
                         </div>
