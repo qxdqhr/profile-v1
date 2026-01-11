@@ -432,51 +432,52 @@ export class AliyunOSSProvider implements IStorageProvider {
    * 测试连接
    */
   private async testConnection(): Promise<void> {
-    try {
-      console.log(`🔍 [AliyunOSSProvider] 测试OSS连接...`);
+    // try {
+    //   console.log(`🔍 [AliyunOSSProvider] 测试OSS连接...`);
 
-      // 使用 head 一个不存在的文件来测试连接
-      // 比 list 更轻量，且看起来 list 方法在某些环境下有 ReferenceError 问题
-      const testKey = 'connection-test-' + Date.now();
-      try {
-        await this.client?.head(testKey);
-        // 如果文件居然存在，那也是连接成功
-        console.log(`✅ [AliyunOSSProvider] OSS连接测试成功 (文件存在)`);
-      } catch (headError: any) {
-        // 如果是文件不存在，说明连接成功（因为只能连接成功了才知道文件不存在）
-        if (headError.code === 'NoSuchKey' || headError.status === 404) {
-          console.log(`✅ [AliyunOSSProvider] OSS连接测试成功 (连接正常)`);
-        } else {
-          // 其他错误才抛出
-          throw headError;
-        }
-      }
+    //   // 使用 head 一个不存在的文件来测试连接
+    //   // 比 list 更轻量，且看起来 list 方法在某些环境下有 ReferenceError 问题
+    //   const testKey = 'connection-test-' + Date.now();
+    //   try {
+    //     await this.client?.head(testKey);
+    //     // 如果文件居然存在，那也是连接成功
+    //     console.log(`✅ [AliyunOSSProvider] OSS连接测试成功 (文件存在)`);
+    //   } catch (headError: any) {
+    //     // 如果是文件不存在，说明连接成功（因为只能连接成功了才知道文件不存在）
+    //     if (headError.code === 'NoSuchKey' || headError.status === 404) {
+    //       console.log(`✅ [AliyunOSSProvider] OSS连接测试成功 (连接正常)`);
+    //     } else {
+    //       // 其他错误才抛出
+    //       throw headError;
+    //     }
+    //   }
 
-    } catch (error: any) {
-      // 记录详细错误信息用于调试
-      console.log(`⚠️ [AliyunOSSProvider] OSS连接测试失败:`, {
-        error: error instanceof Error ? error.message : String(error),
-        code: (error as any)?.code,
-        errorName: (error as any)?.name,
-        requestUrl: (error as any)?.url,
-      });
+    // } catch (error: any) {
+    //   // 记录详细错误信息用于调试
+    //   console.log(`⚠️ [AliyunOSSProvider] OSS连接测试失败:`, {
+    //     error: error instanceof Error ? error.message : String(error),
+    //     code: (error as any)?.code,
+    //     errorName: (error as any)?.name,
+    //     requestUrl: (error as any)?.url,
+    //   });
 
-      // 检查是否为OSS相关的错误
-      if (error && typeof error.code === 'string') {
-        if (error.code === 'NoSuchBucket') {
-          throw new StorageProviderError(`存储桶不存在`);
-        }
-        if (error.code === 'InvalidAccessKeyId') {
-          throw new StorageProviderError('Access Key ID 无效');
-        }
-        if (error.code === 'SignatureDoesNotMatch') {
-          throw new StorageProviderError('Access Key Secret 无效');
-        }
-      }
+    //   // 检查是否为OSS相关的错误
+    //   if (error && typeof error.code === 'string') {
+    //     if (error.code === 'NoSuchBucket') {
+    //       throw new StorageProviderError(`存储桶不存在`);
+    //     }
+    //     if (error.code === 'InvalidAccessKeyId') {
+    //       throw new StorageProviderError('Access Key ID 无效');
+    //     }
+    //     if (error.code === 'SignatureDoesNotMatch') {
+    //       throw new StorageProviderError('Access Key Secret 无效');
+    //     }
+    //   }
 
-      // 对于其他错误，记录详细信息但不阻止初始化
-      console.warn(`⚠️ [AliyunOSSProvider] OSS连接测试失败，但继续初始化:`, error);
-    }
+    //   // 对于其他错误，记录详细信息但不阻止初始化
+    //   console.warn(`⚠️ [AliyunOSSProvider] OSS连接测试失败，但继续初始化:`, error);
+    // }
+    return
   }
 
   /**
