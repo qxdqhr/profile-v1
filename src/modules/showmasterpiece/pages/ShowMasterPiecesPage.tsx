@@ -28,7 +28,7 @@ import { ArrowLeft, Settings, History } from 'lucide-react';
 import Link from 'next/link';
 import { useMasterpieces, useDeadlinePopup } from '../hooks';
 import { getConfig } from '../services';
-import { MasterpiecesConfig, CollectionCategory, CollectionCategoryType } from '../types';
+import { MasterpiecesConfig, CollectionCategory, CollectionCategoryType ,CategoryDisplayName,CategoryDescription} from '../types';
 import { CollectionCard, ArtworkViewer, ThumbnailSidebar, MobileAlbumViewer, CartModal, CartButton, DeadlinePopupManager} from '../components';
 import { CartProvider } from '../contexts/CartContext';
 import { AuthProvider, useAuth, UserMenu, CustomMenuItem } from '@/modules/auth';
@@ -319,6 +319,24 @@ function ShowMasterPiecesContent({ eventParam }: ShowMasterPiecesContentProps) {
 
   // 获取用户ID，临时默认为1（应该要求登录）
   const userId = user?.id || 1;
+ 
+  // 仅展示：帆布包、线圈笔记本、鼠标垫、立牌、吧唧、色纸、挂件/钥匙扣、透卡、镭射票
+  const shownCategories: CollectionCategory[] = [
+    CollectionCategory.CANVAS_BAG,         // 帆布包
+    CollectionCategory.SPIRAL_NOTEBOOK,    // 线圈笔记本
+    CollectionCategory.MOUSE_PAD,          // 鼠标垫
+    CollectionCategory.ACRYLIC,            // 立牌
+    CollectionCategory.BADGE,              // 吧唧
+    CollectionCategory.COLOR_PAPER,        // 色纸
+    CollectionCategory.KEYCHAIN,           // 挂件/钥匙扣
+    CollectionCategory.TRANSPARENT_CARD,   // 透卡
+    CollectionCategory.LASER_TICKET        // 镭射票
+  ];
+
+  const categoryList = shownCategories.map((category: CollectionCategory) => ({
+    category,
+    displayName: CategoryDisplayName[category as CollectionCategory]
+  }));
 
   return (
     <CartProvider userId={userId} eventParam={eventParam}>
@@ -429,87 +447,18 @@ function ShowMasterPiecesContent({ eventParam }: ShowMasterPiecesContentProps) {
                 <CardContent>
                   <Tabs value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as CollectionCategoryType)}>
                     <TabsList className="grid grid-cols-3 lg:grid-cols-9 h-auto p-1 bg-moonstone-900/10">
-                      <TabsTrigger 
-                        value={CollectionCategory.COLLECTION} 
-                        className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
-                      >
-                        <span className="font-semibold text-xs">画集</span>
-                        <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
-                          {collections.filter(c => c.category === CollectionCategory.COLLECTION).length}
-                        </Badge>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value={CollectionCategory.ACRYLIC} 
-                        className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
-                      >
-                        <span className="font-semibold text-xs">立牌</span>
-                        <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
-                          {collections.filter(c => c.category === CollectionCategory.ACRYLIC).length}
-                        </Badge>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value={CollectionCategory.BADGE} 
-                        className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
-                      >
-                        <span className="font-semibold text-xs">吧唧</span>
-                        <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
-                          {collections.filter(c => c.category === CollectionCategory.BADGE).length}
-                        </Badge>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value={CollectionCategory.COLOR_PAPER} 
-                        className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
-                      >
-                        <span className="font-semibold text-xs">色纸</span>
-                        <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
-                          {collections.filter(c => c.category === CollectionCategory.COLOR_PAPER).length}
-                        </Badge>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value={CollectionCategory.POSTCARD} 
-                        className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
-                      >
-                        <span className="font-semibold text-xs">明信片</span>
-                        <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
-                          {collections.filter(c => c.category === CollectionCategory.POSTCARD).length}
-                        </Badge>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value={CollectionCategory.LASER_TICKET} 
-                        className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
-                      >
-                        <span className="font-semibold text-xs">镭射票</span>
-                        <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
-                          {collections.filter(c => c.category === CollectionCategory.LASER_TICKET).length}
-                        </Badge>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value={CollectionCategory.CANVAS_BAG} 
-                        className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
-                      >
-                        <span className="font-semibold text-xs">帆布包</span>
-                        <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
-                          {collections.filter(c => c.category === CollectionCategory.CANVAS_BAG).length}
-                        </Badge>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value={CollectionCategory.SUPPORT_STICK} 
-                        className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
-                      >
-                        <span className="font-semibold text-xs">应援棒</span>
-                        <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
-                          {collections.filter(c => c.category === CollectionCategory.SUPPORT_STICK).length}
-                        </Badge>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value={CollectionCategory.OTHER} 
-                        className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
-                      >
-                        <span className="font-semibold text-xs">挂件/钥匙扣</span>
-                        <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
-                          {collections.filter(c => c.category === CollectionCategory.OTHER).length}
-                        </Badge>
-                      </TabsTrigger>
+                      {categoryList.map(({ category, displayName }) => (
+                        <TabsTrigger
+                          key={category}
+                          value={category}
+                          className="flex flex-col h-auto py-3 px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-moonstone data-[state=active]:to-cerulean data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+                        >
+                          <span className="font-semibold text-xs">{displayName}</span>
+                          <Badge variant="outline" className="mt-1 text-xs border-moonstone/30 text-cerulean bg-moonstone-900/5">
+                            {collections.filter(c => c.category === category).length}
+                          </Badge>
+                        </TabsTrigger>
+                      ))}
                     </TabsList>
                   </Tabs>
                 </CardContent>

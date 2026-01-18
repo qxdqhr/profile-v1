@@ -22,23 +22,31 @@
  */
 export enum CollectionCategory {
   /** 画集 - 用于展示艺术作品 */
-  COLLECTION = '画集',
+  COLLECTION = 'collection',
   /** 立牌 - 立牌制品 */
-  ACRYLIC = '立牌',
+  ACRYLIC = 'acrylic',
   /** 吧唧 - 徽章类商品 */
-  BADGE = '吧唧',
+  BADGE = 'badge',
   /** 色纸 - 彩色纸张制品 */
-  COLOR_PAPER = '色纸',
+  COLOR_PAPER = 'color_paper',
+  /** 透卡 - 透明卡片制品 */
+  TRANSPARENT_CARD = 'transparent_card',
   /** 明信片 - 明信片类商品 */
-  POSTCARD = '明信片',
+  POSTCARD = 'postcard',
   /** 镭射票 - 镭射票类商品 */
-  LASER_TICKET = '镭射票',
+  LASER_TICKET = 'laser_ticket',
   /** 帆布包 - 帆布包类商品 */
-  CANVAS_BAG = '帆布包',
+  CANVAS_BAG = 'canvas_bag',
+  /** 线圈笔记本 - 线圈装订笔记本 */
+  SPIRAL_NOTEBOOK = 'spiral_notebook',
+  /** 鼠标垫 - 鼠标垫类商品 */
+  MOUSE_PAD = 'mouse_pad',
   /** 应援棒 - 应援棒类商品 */
-  SUPPORT_STICK = '应援棒',
+  SUPPORT_STICK = 'support_stick',
   /** 挂件/钥匙扣 - 挂件/钥匙扣类商品 */
-  OTHER = '挂件/钥匙扣'
+  KEYCHAIN = 'keychain',
+  /** 其它 */
+  OTHER = 'other'
 }
 
 /**
@@ -216,7 +224,7 @@ export interface CollectionFormData {
   category: CollectionCategoryType;
   
   /** 画集标签列表 */
-  tags: string[];
+tags: string[];
   
   /** 是否已发布 */
   isPublished: boolean;
@@ -312,45 +320,42 @@ export function isValidCategory(category: string): category is CollectionCategor
 }
 
 /**
- * 获取分类的显示名称
- * 
- * @param category - 分类枚举值
- * @returns 分类的显示名称
+ * 获取分类的显示名称 (枚举调用方式)
  */
-export function getCategoryDisplayName(category: CollectionCategoryType): string {
-  return category;
-}
+export const CategoryDisplayName = {
+  [CollectionCategory.COLLECTION]: '画集',
+  [CollectionCategory.ACRYLIC]: '立牌',
+  [CollectionCategory.BADGE]: '吧唧',
+  [CollectionCategory.COLOR_PAPER]: '色纸',
+  [CollectionCategory.TRANSPARENT_CARD]: '透卡',
+  [CollectionCategory.POSTCARD]: '明信片',
+  [CollectionCategory.LASER_TICKET]: '镭射票',
+  [CollectionCategory.CANVAS_BAG]: '帆布包',
+  [CollectionCategory.SPIRAL_NOTEBOOK]: '线圈笔记本',
+  [CollectionCategory.MOUSE_PAD]: '鼠标垫',
+  [CollectionCategory.SUPPORT_STICK]: '应援棒',
+  [CollectionCategory.KEYCHAIN]: '挂件/钥匙扣',
+  [CollectionCategory.OTHER]: '其它'
+} as const;
 
 /**
- * 获取分类的描述信息
- * 
- * @param category - 分类枚举值
- * @returns 分类的描述信息
+ * 获取分类的描述信息 (枚举调用方式)
  */
-export function getCategoryDescription(category: CollectionCategoryType): string {
-  switch (category) {
-    case CollectionCategory.COLLECTION:
-      return '用于展示艺术作品，包含多个作品页面的画集';
-    case CollectionCategory.ACRYLIC:
-      return '立牌制品，如亚克力立牌、展示立牌等';
-    case CollectionCategory.BADGE:
-      return '徽章类商品，如徽章、钥匙扣等';
-    case CollectionCategory.COLOR_PAPER:
-      return '彩色纸张制品，如彩色卡纸、彩色打印纸等';
-    case CollectionCategory.POSTCARD:
-      return '明信片类商品，如艺术明信片、纪念明信片等';
-    case CollectionCategory.LASER_TICKET:
-      return '镭射票类商品，如演唱会门票、电影票等';
-    case CollectionCategory.CANVAS_BAG:
-      return '帆布包类商品，如帆布袋、帆布背包等';
-    case CollectionCategory.SUPPORT_STICK:
-      return '应援棒类商品，如荧光棒、应援棒等';
-    case CollectionCategory.OTHER:
-      return '挂件/钥匙扣类商品，如装饰挂件、钥匙扣等';
-    default:
-      return '未知分类';
-  }
-}
+export const CategoryDescription = {
+  [CollectionCategory.COLLECTION]: '用于展示艺术作品，包含多个作品页面的画集',
+  [CollectionCategory.ACRYLIC]: '立牌制品，如亚克力立牌、展示立牌等',
+  [CollectionCategory.BADGE]: '徽章类商品，如徽章、钥匙扣等',
+  [CollectionCategory.COLOR_PAPER]: '彩色纸张制品，如彩色卡纸、彩色打印纸等',
+  [CollectionCategory.TRANSPARENT_CARD]: '透明卡片制品，如透明卡片、透明卡等',
+  [CollectionCategory.POSTCARD]: '明信片类商品，如艺术明信片、纪念明信片等',
+  [CollectionCategory.LASER_TICKET]: '镭射票类商品，如演唱会门票、电影票等',
+  [CollectionCategory.CANVAS_BAG]: '帆布包类商品，如帆布袋、帆布背包等',
+  [CollectionCategory.SPIRAL_NOTEBOOK]: '线圈装订笔记本，如线圈笔记本、线圈装订笔记本等',
+  [CollectionCategory.MOUSE_PAD]: '鼠标垫类商品，如鼠标垫、鼠标垫等',
+  [CollectionCategory.SUPPORT_STICK]: '应援棒类商品，如荧光棒、应援棒等',
+  [CollectionCategory.KEYCHAIN]: '挂件/钥匙扣类商品，如装饰挂件、钥匙扣等',
+  [CollectionCategory.OTHER]: '挂件/钥匙扣类商品，如装饰挂件、钥匙扣等'
+} as const;
 
 // ===== 上下文类型导出 =====
 export type { CartContextState } from './context'; 

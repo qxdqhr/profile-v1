@@ -45,7 +45,6 @@ export class EventAwareCollectionsService {
       const collections = await db.select()
         .from(comicUniverseCollections)
         .where(and(
-          eq(comicUniverseCollections.eventId, eventId),
           eq(comicUniverseCollections.isPublished, true)
         ))
         .orderBy(desc(comicUniverseCollections.displayOrder), desc(comicUniverseCollections.createdAt));
@@ -60,7 +59,6 @@ export class EventAwareCollectionsService {
                   .from(comicUniverseCategories)
                   .where(and(
                     eq(comicUniverseCategories.id, collection.categoryId),
-                    eq(comicUniverseCategories.eventId, eventId)
                   ))
                   .limit(1)
               : Promise.resolve([]),
@@ -91,6 +89,7 @@ export class EventAwareCollectionsService {
               .where(eq(comicUniverseCollectionTags.collectionId, collection.id))
           ]);
 
+          console.log('🎨 [getAllCollections] 获取画集作品列表:', artworks);
           // 转换数据格式
           const mappedArtworks: ArtworkPage[] = artworks.map(artwork => ({
             id: artwork.id,
@@ -112,7 +111,7 @@ export class EventAwareCollectionsService {
             coverImage: collection.coverImage,
             coverImageFileId: collection.coverImageFileId || undefined,
             description: collection.description || '',
-            category: (category[0]?.name as any) || '画集',
+            category: (category[0]?.name as any) || 'collection',
             tags: tags.map(tag => tag.name),
             pages: mappedArtworks,
             isPublished: collection.isPublished,
@@ -123,7 +122,7 @@ export class EventAwareCollectionsService {
         })
       );
 
-      console.log(`✅ [EventAwareCollections] 获取了 ${collectionsWithData.length} 个画集`);
+      console.log(`✅ [EventAwareCollections] 获取了 ${collectionsWithData.length} 个画集,collectionsWithData:`, collectionsWithData);
       return collectionsWithData;
 
     } catch (error) {

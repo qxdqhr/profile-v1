@@ -746,7 +746,9 @@ export class CollectionsDbService {
 
     // 返回完整的画集数据
     const collections = await this.getAllCollections(false); // 强制重新查询
-    return collections.find(c => c.id === newCollection[0].id)!;
+   const filterCollection = collections.filter(c => c.id === newCollection[0].id);
+   console.log('🎨 [createCollection] 创建画集成功:', filterCollection);
+    return filterCollection[0];
   }
 
   // 更新画集
