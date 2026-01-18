@@ -238,7 +238,7 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
         {/* 分类 */}
         {collection.category && (
           <p className="text-prussian-blue-600 text-sm mb-1">
-            分类：{collection.category}
+            分类：{collection.category.displayName}
           </p>
         )}
         

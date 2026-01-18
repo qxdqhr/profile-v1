@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Settings, Database, Image, Tag, Save, RotateCcw, Plus, Edit, Trash2, ArrowUpDown, Calendar, RefreshCw, Bell, Cog, Activity } from 'lucide-react';
 import { useMasterpiecesConfig, useBookingAdmin } from '../../hooks';
-import { ConfigFormData, CollectionFormData, ArtworkFormData, CollectionCategory, CollectionCategoryType, getAvailableCategories, CategoryDisplayName } from '../../types';
+import { ConfigFormData, CollectionFormData, ArtworkFormData, CollectionCategory, CollectionCategoryType, getAvailableCategories } from '../../types';
 import { 
   UniversalImageUpload, 
   CollectionOrderManagerV2 as CollectionOrderManager,
@@ -817,7 +817,7 @@ function ConfigPageContent() {
                     <div className="p-4">
                       <h3 className="text-lg font-semibold text-slate-800 mb-2">{collection.title}</h3>
                       <p className="text-slate-600 text-sm mb-1">编号：{collection.number}</p>
-                      <p className="text-slate-600 text-sm mb-1">分类：{CategoryDisplayName[collection.category as CollectionCategory]}</p>
+                      <p className="text-slate-600 text-sm mb-1">分类：{collection.category.displayName}</p>
                       <p className="text-slate-600 text-sm mb-1">价格：{collection.price ? `¥${collection.price}` : '免费'}</p>
                       <p className="text-slate-600 text-sm mb-1">作品数量：{collection.pages.length}</p>
                       <p className="text-slate-600 text-sm mb-3">状态：{collection.isPublished ? '已发布' : '草稿'}</p>
@@ -1124,7 +1124,7 @@ function ConfigPageContent() {
                   >
                     {getAvailableCategories().map((category) => (
                       <option key={category} value={category}>
-                        {CategoryDisplayName[category as CollectionCategory]}
+                        {(category as any).displayName}
                       </option>
                     ))}
                   </select>

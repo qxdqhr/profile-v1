@@ -55,6 +55,19 @@ export enum CollectionCategory {
  */
 export type CollectionCategoryType = `${CollectionCategory}`;
 
+/**
+ * 分类信息接口
+ * 包含分类值和显示名称
+ */
+export interface CategoryInfo {
+  /** 分类值 */
+  value: CollectionCategoryType;
+  /** 显示名称 */
+  displayName: string;
+  /** 描述信息 */
+  description?: string;
+}
+
 // ===== 基础类型定义 =====
 
 /**
@@ -320,23 +333,122 @@ export function isValidCategory(category: string): category is CollectionCategor
 }
 
 /**
- * 获取分类的显示名称 (枚举调用方式)
+ * 分类信息映射
+ * 为每个分类提供完整的信息对象
  */
-export const CategoryDisplayName = {
-  [CollectionCategory.COLLECTION]: '画集',
-  [CollectionCategory.ACRYLIC]: '立牌',
-  [CollectionCategory.BADGE]: '吧唧',
-  [CollectionCategory.COLOR_PAPER]: '色纸',
-  [CollectionCategory.TRANSPARENT_CARD]: '透卡',
-  [CollectionCategory.POSTCARD]: '明信片',
-  [CollectionCategory.LASER_TICKET]: '镭射票',
-  [CollectionCategory.CANVAS_BAG]: '帆布包',
-  [CollectionCategory.SPIRAL_NOTEBOOK]: '线圈笔记本',
-  [CollectionCategory.MOUSE_PAD]: '鼠标垫',
-  [CollectionCategory.SUPPORT_STICK]: '应援棒',
-  [CollectionCategory.KEYCHAIN]: '挂件/钥匙扣',
-  [CollectionCategory.OTHER]: '其它'
-} as const;
+export const categories = {
+  [CollectionCategory.COLLECTION]: {
+    value: CollectionCategory.COLLECTION,
+    displayName: '画集',
+    description: '用于展示艺术作品'
+  },
+  [CollectionCategory.ACRYLIC]: {
+    value: CollectionCategory.ACRYLIC,
+    displayName: '立牌',
+    description: '立牌制品'
+  },
+  [CollectionCategory.BADGE]: {
+    value: CollectionCategory.BADGE,
+    displayName: '吧唧',
+    description: '徽章类商品'
+  },
+  [CollectionCategory.COLOR_PAPER]: {
+    value: CollectionCategory.COLOR_PAPER,
+    displayName: '色纸',
+    description: '彩色纸张制品'
+  },
+  [CollectionCategory.TRANSPARENT_CARD]: {
+    value: CollectionCategory.TRANSPARENT_CARD,
+    displayName: '透卡',
+    description: '透明卡片制品'
+  },
+  [CollectionCategory.POSTCARD]: {
+    value: CollectionCategory.POSTCARD,
+    displayName: '明信片',
+    description: '明信片类商品'
+  },
+  [CollectionCategory.LASER_TICKET]: {
+    value: CollectionCategory.LASER_TICKET,
+    displayName: '镭射票',
+    description: '镭射票类商品'
+  },
+  [CollectionCategory.CANVAS_BAG]: {
+    value: CollectionCategory.CANVAS_BAG,
+    displayName: '帆布包',
+    description: '帆布包类商品'
+  },
+  [CollectionCategory.SPIRAL_NOTEBOOK]: {
+    value: CollectionCategory.SPIRAL_NOTEBOOK,
+    displayName: '线圈笔记本',
+    description: '线圈装订笔记本'
+  },
+  [CollectionCategory.MOUSE_PAD]: {
+    value: CollectionCategory.MOUSE_PAD,
+    displayName: '鼠标垫',
+    description: '鼠标垫类商品'
+  },
+  [CollectionCategory.SUPPORT_STICK]: {
+    value: CollectionCategory.SUPPORT_STICK,
+    displayName: '应援棒',
+    description: '应援棒类商品'
+  },
+  [CollectionCategory.KEYCHAIN]: {
+    value: CollectionCategory.KEYCHAIN,
+    displayName: '挂件/钥匙扣',
+    description: '挂件/钥匙扣类商品'
+  },
+  [CollectionCategory.OTHER]: {
+    value: CollectionCategory.OTHER,
+    displayName: '其它',
+    description: '其他类型商品'
+  }
+} as const satisfies Record<CollectionCategory, CategoryInfo>;
+
+
+/**
+ * 获取分类的显示名称
+ * 支持 collection.category.displayName 的调用方式
+ */
+export function getCategoryDisplayName(category: CollectionCategoryType): string {
+  return categories[category as CollectionCategory]?.displayName || category;
+}
+
+/**
+ * 获取分类的完整信息
+ * 支持 collection.category.displayName 的调用方式
+ */
+export function getCategoryInfo(category: CollectionCategoryType): CategoryInfo {
+  return categories[category as CollectionCategory] || {
+    value: category,
+    displayName: category,
+    description: ''
+  };
+}
+
+/**
+ * 扩展 CollectionCategoryType，使其支持 displayName 属性访问
+ * 使用方式: collection.category.displayName
+ */
+declare global {
+  interface String {
+    get displayName(): string;
+    get categoryInfo(): CategoryInfo;
+  }
+}
+
+// 为字符串类型添加 displayName getter
+Object.defineProperty(String.prototype, 'displayName', {
+  get(this: string): string {
+    return getCategoryDisplayName(this as CollectionCategoryType);
+  }
+});
+
+// 为字符串类型添加 categoryInfo getter
+Object.defineProperty(String.prototype, 'categoryInfo', {
+  get(this: string): CategoryInfo {
+    return getCategoryInfo(this as CollectionCategoryType);
+  }
+});
 
 /**
  * 获取分类的描述信息 (枚举调用方式)

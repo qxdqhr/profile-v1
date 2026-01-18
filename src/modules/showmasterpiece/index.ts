@@ -138,9 +138,7 @@ export type {
   CollectionCategory,  // 画集分类枚举
   CollectionCategoryType, // 画集分类类型
   getAvailableCategories, // 获取可用分类
-  getCategoryDisplayName, // 获取分类显示名称
   isValidCategory,     // 验证分类
-  getCategoryDescription // 获取分类描述
 } from './types';
 
 /** 
