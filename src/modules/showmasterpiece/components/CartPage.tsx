@@ -501,7 +501,7 @@ export const CartPage: React.FC<CartPageProps> = ({ userId, onClose, eventParam 
                   className={`w-full px-3 py-3 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base min-h-[120px] ${
                     formErrors.pickupMethod ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder={`请填写2月1号以后能收到货的地址
+                  placeholder={`请填写2月10号以后能收到货的地址
 （1）收件人
 （2）收件地址
 （3）收件手机号`}
