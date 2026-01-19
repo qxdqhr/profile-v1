@@ -814,7 +814,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
                       {booking.pickupMethod && (
                         <div className="mb-2">
                           <p className="text-xs text-slate-500">领取方式
-                            请填写2月1号以后能收到货的地址
+                            请填写2月10号以后能收到货的地址
                             （1）收件人
                             （2）收件地址
                             （3）收件手机号
