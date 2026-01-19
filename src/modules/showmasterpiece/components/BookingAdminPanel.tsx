@@ -12,7 +12,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { Calendar, User, Package, Clock, CheckCircle, XCircle, RefreshCw, Eye, Edit, Save, X, Trash2, Download, Settings, Search } from 'lucide-react';
 import { BookingAdminData, BookingAdminStats, BookingAdminQueryParams, BOOKING_EXPORT_FIELDS, DEFAULT_BOOKING_EXPORT_CONFIG } from '../services';
 import { BookingStatus, BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS } from '../types/booking';
-import { UniversalExportButton } from 'sa2kit/universalExport';
+import { ExportResult, UniversalExportButton } from 'sa2kit/universalExport';
 import { UniversalExportClientService } from '@/services/universalExport/client';
 
 /**
@@ -665,10 +665,10 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
               variant="primary"
               size="md"
               disabled={loading}
-              onExportSuccess={(result: { filename: string; format: string; recordCount: number }) => {
+              onExportSuccess={(result: ExportResult) => {
                 console.log('✅ [BookingAdminPanel] UniversalExportButton 导出成功:', result);
               }}
-              onExportError={(error: Error) => {
+              onExportError={(error: string) => {
                 console.error('❌ [BookingAdminPanel] UniversalExportButton 导出失败:', error);
               }}
             />
