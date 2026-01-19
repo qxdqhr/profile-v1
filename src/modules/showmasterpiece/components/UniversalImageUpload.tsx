@@ -2,6 +2,10 @@
  * 通用图片上传组件
  * 使用通用文件服务，支持阿里云OSS存储
  * 可在画集封面和作品图片之间复用
+ *
+ * 修复记录：
+ * - 2026-01-19: 修复封面图片上传覆盖问题
+ *   为封面图片生成唯一文件夹路径（包含时间戳和随机ID），避免新画集覆盖历史画集的封面图片
  */
 
 'use client';
@@ -60,6 +64,14 @@ export const UniversalImageUpload: React.FC<UniversalImageUploadProps> = ({
       formData.append('file', file);
       formData.append('moduleId', 'showmasterpiece');
       formData.append('businessId', businessType);
+
+      // 为封面图片生成唯一的文件夹路径，避免覆盖历史文件
+      if (businessType === 'cover') {
+        const timestamp = Date.now();
+        const randomId = Math.random().toString(36).substr(2, 9);
+        formData.append('folderPath', `showmasterpiece/cover/${timestamp}_${randomId}`);
+      }
+
       formData.append('needsProcessing', 'true');
       
       // 调用通用文件上传API
