@@ -26,6 +26,10 @@ jobs:
             -u "${{ secrets.ALIYUN_USERNAME }}" \
             --password-stdin crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com || exit 1
 
+      - name: Clean up Docker system
+        run: |
+          docker system prune -a --volumes -f
+
       - name: Build Docker image
         run: |
           docker buildx build --platform linux/amd64 -t nextjs-name:amd64 --load .
