@@ -6,11 +6,10 @@
 
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { CartPage } from './CartPage';
-import { useNavigation } from '../contexts/NavigationContext';
 
 /**
  * 购物车弹窗组件属性
@@ -54,49 +53,30 @@ export const CartModal: React.FC<CartModalProps> = ({
   eventParam,
 }) => {
   const [mounted, setMounted] = useState(false);
-  const { getParentUrl } = useNavigation();
 
   // 确保在客户端渲染
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // 处理浏览器后退事件
-  const handlePopState = useCallback((event: PopStateEvent) => {
-    // 如果事件是我们添加的弹窗状态，则关闭弹窗
-    if (event.state && event.state.cartModalOpen) {
-      onClose();
-    }
-  }, [onClose]);
-
-  // 弹窗显示/隐藏时控制底层页面滚动和历史记录
+  // 弹窗显示/隐藏时控制底层页面滚动
   useEffect(() => {
     if (isOpen && mounted) {
       // 弹窗打开时，禁止底层页面滚动
       document.body.style.overflow = 'hidden';
       document.body.style.paddingRight = 'var(--scrollbar-width, 0px)';
-
-      // 向浏览器历史记录添加新状态，防止后退按钮直接返回上级页面
-      window.history.pushState({ cartModalOpen: true }, '', window.location.href);
-
-      // 监听popstate事件
-      window.addEventListener('popstate', handlePopState);
-    } else if (!isOpen && mounted) {
+    } else {
       // 弹窗关闭时，恢复底层页面滚动
       document.body.style.overflow = '';
       document.body.style.paddingRight = '';
-
-      // 移除popstate事件监听器
-      window.removeEventListener('popstate', handlePopState);
     }
 
     // 组件卸载时恢复
     return () => {
       document.body.style.overflow = '';
       document.body.style.paddingRight = '';
-      window.removeEventListener('popstate', handlePopState);
     };
-  }, [isOpen, mounted, handlePopState]);
+  }, [isOpen, mounted]);
 
   // 处理遮罩层点击
   const handleOverlayClick = (e: React.MouseEvent) => {

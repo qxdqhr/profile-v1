@@ -8,18 +8,17 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { CartHistoryPage } from '../../components';
 import { User, Search, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { NavigationProvider, useNavigation } from '../../contexts/NavigationContext';
 
 /**
- * 用户历史记录页面内容组件
- *
+ * 用户历史记录页面组件
+ * 
  * @returns React组件
  */
-function UserHistoryPageContent() {
+export default function UserHistoryPage() {
   const [formData, setFormData] = useState({
     qqNumber: '',
     phoneNumber: ''
@@ -29,8 +28,6 @@ function UserHistoryPageContent() {
     phoneNumber?: string;
   }>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
-
-  const { getParentUrl } = useNavigation();
 
   /**
    * 处理表单字段更新
@@ -95,11 +92,11 @@ function UserHistoryPageContent() {
         {/* 返回按钮 */}
         <div className="mb-6">
           <Link
-            href={getParentUrl('/testField/ShowMasterPieces')}
+            href="/testField/ShowMasterPieces"
             className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
           >
             <ArrowLeft size={20} />
-            返回上级页面
+            返回画集展示
           </Link>
         </div>
 
@@ -203,18 +200,5 @@ function UserHistoryPageContent() {
         )}
       </div>
     </div>
-  );
-}
-
-/**
- * 用户历史记录页面组件
- *
- * @returns React组件
- */
-export default function UserHistoryPage() {
-  return (
-    <NavigationProvider>
-      <UserHistoryPageContent />
-    </NavigationProvider>
   );
 } 

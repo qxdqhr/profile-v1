@@ -91,9 +91,6 @@ export * from './hooks';
 /** 购物车上下文提供者 - 提供购物车状态的全局管理 */
 export { CartProvider } from './contexts/CartContext';
 
-/** 导航上下文提供者 - 提供页面导航历史管理 */
-export { NavigationProvider, useNavigation } from './contexts/NavigationContext';
-
 /** 
  * 注意：useCartContext Hook 现已通过 hooks 统一导出
  * 可以通过以下方式导入：
