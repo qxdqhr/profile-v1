@@ -80,8 +80,21 @@ function ShowMasterPiecesContent({ eventParam }: ShowMasterPiecesContentProps) {
   /** 购物车弹窗状态 */
   const [cartModalOpen, setCartModalOpen] = useState(false);
   
+  // 仅展示：帆布包、线圈笔记本、鼠标垫、立牌、吧唧、色纸、挂件/钥匙扣、透卡、镭射票
+  const shownCategories: CollectionCategory[] = [
+    CollectionCategory.CANVAS_BAG,         // 帆布包
+    CollectionCategory.SPIRAL_NOTEBOOK,    // 线圈笔记本
+    CollectionCategory.MOUSE_PAD,          // 鼠标垫
+    CollectionCategory.ACRYLIC,            // 立牌
+    CollectionCategory.BADGE,              // 吧唧
+    CollectionCategory.COLOR_PAPER,        // 色纸
+    CollectionCategory.KEYCHAIN,           // 挂件/钥匙扣
+    CollectionCategory.TRANSPARENT_CARD,   // 透卡
+    CollectionCategory.LASER_TICKET        // 镭射票
+  ];
+
   /** 当前选中的分类 */
-  const [selectedCategory, setSelectedCategory] = useState<CollectionCategoryType>(CollectionCategory.COLLECTION);
+  const [selectedCategory, setSelectedCategory] = useState<CollectionCategoryType>(shownCategories[0]);
   
   /** 当前活动信息 */
   const [currentEvent, setCurrentEvent] = useState<{ id: number; name: string; displayName: string; slug: string } | null>(null);
@@ -319,19 +332,6 @@ function ShowMasterPiecesContent({ eventParam }: ShowMasterPiecesContentProps) {
 
   // 获取用户ID，临时默认为1（应该要求登录）
   const userId = user?.id || 1;
- 
-  // 仅展示：帆布包、线圈笔记本、鼠标垫、立牌、吧唧、色纸、挂件/钥匙扣、透卡、镭射票
-  const shownCategories: CollectionCategory[] = [
-    CollectionCategory.CANVAS_BAG,         // 帆布包
-    CollectionCategory.SPIRAL_NOTEBOOK,    // 线圈笔记本
-    CollectionCategory.MOUSE_PAD,          // 鼠标垫
-    CollectionCategory.ACRYLIC,            // 立牌
-    CollectionCategory.BADGE,              // 吧唧
-    CollectionCategory.COLOR_PAPER,        // 色纸
-    CollectionCategory.KEYCHAIN,           // 挂件/钥匙扣
-    CollectionCategory.TRANSPARENT_CARD,   // 透卡
-    CollectionCategory.LASER_TICKET        // 镭射票
-  ];
 
   const categoryList = shownCategories.map((category: CollectionCategory) => ({
     category,
