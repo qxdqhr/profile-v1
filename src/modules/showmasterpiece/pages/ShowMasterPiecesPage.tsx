@@ -31,6 +31,7 @@ import { getConfig } from '../services';
 import { MasterpiecesConfig, CollectionCategory, CollectionCategoryType ,CategoryDescription, categories} from '../types';
 import { CollectionCard, ArtworkViewer, ThumbnailSidebar, MobileAlbumViewer, CartModal, CartButton, DeadlinePopupManager} from '../components';
 import { CartProvider } from '../contexts/CartContext';
+import { NavigationProvider, useNavigation } from '../contexts/NavigationContext';
 import { AuthProvider, useAuth, UserMenu, CustomMenuItem } from '@/modules/auth';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, Tabs, TabsContent, TabsList, TabsTrigger } from 'sa2kit';
 
@@ -98,6 +99,9 @@ function ShowMasterPiecesContent({ eventParam }: ShowMasterPiecesContentProps) {
     cancelPopup,
   } = useDeadlinePopup('showmasterpiece', 'homepage_visit', eventParam);
 
+  /** 导航上下文 */
+  const { setParentUrl } = useNavigation();
+
   // ===== 配置加载 =====
   
   /**
@@ -157,6 +161,25 @@ function ShowMasterPiecesContent({ eventParam }: ShowMasterPiecesContentProps) {
     
     loadEventInfo();
   }, [eventParam]);
+
+  /**
+   * 组件挂载时记录上级页面URL
+   */
+  useEffect(() => {
+    // 记录上级页面URL，用于浏览器后退导航
+    if (typeof window !== 'undefined') {
+      const referrer = document.referrer;
+      const currentUrl = window.location.href;
+
+      // 如果有referrer且不是当前页面的内部跳转，则认为是上级页面
+      if (referrer && !referrer.includes('/testField/ShowMasterPieces')) {
+        setParentUrl(referrer);
+      } else if (referrer && referrer !== currentUrl) {
+        // 如果referrer是当前页面的其他路径，也记录
+        setParentUrl(referrer);
+      }
+    }
+  }, [setParentUrl]);
 
   /**
    * 组件挂载时检查是否需要显示主页弹窗
@@ -535,9 +558,11 @@ interface ShowMasterPiecesPageProps {
 export default function ShowMasterPieces(props: ShowMasterPiecesPageProps = {}) {
   const { eventParam } = props;
   return (
-    <AuthProvider>
-      <ShowMasterPiecesContent eventParam={eventParam} />
-    </AuthProvider>
+    <NavigationProvider>
+      <AuthProvider>
+        <ShowMasterPiecesContent eventParam={eventParam} />
+      </AuthProvider>
+    </NavigationProvider>
   );
 }
 
