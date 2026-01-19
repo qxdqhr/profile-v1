@@ -249,13 +249,19 @@ export async function uploadArtworkImage(file: File, collectionId?: number): Pro
   accessUrl: string;
 }> {
   console.log('🎨 [ShowMasterpiece] 开始上传作品图片:', file.name);
-  
+
   // 创建FormData
   const formData = new FormData();
   formData.append('file', file);
   formData.append('moduleId', 'showmasterpiece');
   formData.append('businessId', collectionId ? `collection-${collectionId}` : 'artwork');
-  formData.append('folderPath', collectionId ? `showmasterpiece/collection-${collectionId}` : 'showmasterpiece/artwork');
+
+  // 为作品图片生成包含扩展名的路径，确保被正确识别为图片文件
+  const timestamp = Date.now();
+  const randomId = Math.random().toString(36).substr(2, 9);
+  const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+  const basePath = collectionId ? `showmasterpiece/collection-${collectionId}` : 'showmasterpiece/artwork';
+  formData.append('folderPath', `${basePath}/${timestamp}_${randomId}.${extension}`);
   formData.append('needsProcessing', 'true');
   
   // 调用通用文件上传API

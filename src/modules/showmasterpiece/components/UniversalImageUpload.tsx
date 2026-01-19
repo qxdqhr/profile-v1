@@ -6,6 +6,8 @@
  * 修复记录：
  * - 2026-01-19: 修复封面图片上传覆盖问题
  *   为封面图片生成唯一文件夹路径（包含时间戳和随机ID），避免新画集覆盖历史画集的封面图片
+ * - 2026-01-19: 修复图片链接过期问题
+ *   为封面图片路径添加文件扩展名，确保被正确识别为图片文件，避免生成带过期时间的签名URL
  */
 
 'use client';
@@ -66,10 +68,13 @@ export const UniversalImageUpload: React.FC<UniversalImageUploadProps> = ({
       formData.append('businessId', businessType);
 
       // 为封面图片生成唯一的文件夹路径，避免覆盖历史文件
+      // 路径包含文件扩展名，确保被正确识别为图片文件
       if (businessType === 'cover') {
         const timestamp = Date.now();
         const randomId = Math.random().toString(36).substr(2, 9);
-        formData.append('folderPath', `showmasterpiece/cover/${timestamp}_${randomId}`);
+        // 获取文件扩展名，默认为.jpg
+        const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+        formData.append('folderPath', `showmasterpiece/cover/${timestamp}_${randomId}.${extension}`);
       }
 
       formData.append('needsProcessing', 'true');

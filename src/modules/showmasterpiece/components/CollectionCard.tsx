@@ -152,7 +152,7 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
     if (imageError || !collection.coverImage) {
       return renderImageError();
     }
-
+    console.log('🔍 [CollectionCard] 渲染封面图片:', collection.coverImage, 'collection:', collection);
     return (
       <img
         src={collection.coverImage}
