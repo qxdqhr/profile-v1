@@ -220,6 +220,16 @@ export const BOOKING_EXPORT_FIELDS: ExportField[] = [
       return date.toLocaleString('zh-CN');
     },
   },
+  {
+    key: 'userTotalPrice',
+    label: '用户总价',
+    type: 'number',
+    enabled: false, // 默认不启用，需要勾选才启用
+    required: false,
+    description: '根据QQ号和手机号统一匹配的该用户所有预订商品的总价格',
+    alignment: 'right',
+    formatter: (value) => `¥${Number(value || 0).toFixed(2)}`,
+  },
 ];
 
 /**
@@ -245,6 +255,14 @@ export const DEFAULT_BOOKING_EXPORT_CONFIG = {
       {
         key: 'qqNumber',
         label: 'QQ号',
+        mode: 'merge' as const,
+        valueProcessing: 'first' as const,
+        showGroupHeader: false,
+        mergeCells: true
+      },
+      {
+        key: 'userTotalPrice',
+        label: '用户总价',
         mode: 'merge' as const,
         valueProcessing: 'first' as const,
         showGroupHeader: false,

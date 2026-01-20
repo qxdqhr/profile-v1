@@ -87,6 +87,23 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
   // 创建导出客户端实例
   const exportService = useMemo(() => new UniversalExportClientService(), []);
 
+  // 用户价格结算功能状态
+  const [enableUserPriceCalculation, setEnableUserPriceCalculation] = useState(false);
+
+  // 计算用户价格结算的辅助函数
+  const calculateUserTotalPrices = useCallback((bookings: BookingAdminData[]) => {
+    const userPriceMap = new Map<string, number>();
+
+    // 根据QQ号和手机号的组合来分组计算总价
+    bookings.forEach(booking => {
+      const userKey = `${booking.qqNumber || ''}_${booking.phoneNumber || ''}`;
+      const currentPrice = userPriceMap.get(userKey) || 0;
+      userPriceMap.set(userKey, currentPrice + (booking.totalPrice || 0));
+    });
+
+    return userPriceMap;
+  }, []);
+
   // 自定义导出处理函数
   const handleCustomExport = useCallback(async (config: any) => {
     try {
@@ -94,35 +111,81 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
         configId: config.id,
         format: config.format,
         bookingsLength: bookings.length,
+        enableUserPriceCalculation,
       });
 
+      // 计算用户总价映射（如果启用）
+      const userPriceMap = enableUserPriceCalculation ? calculateUserTotalPrices(bookings) : null;
+
       // 准备导出数据
-      const exportData = bookings.map(booking => ({
-        id: booking.id,
-        collectionId: booking.collectionId,
-        qqNumber: booking.qqNumber || '',
-        phoneNumber: booking.phoneNumber || '',
-        collectionTitle: booking.collection?.title || '未知画集',
-        collectionNumber: booking.collection?.number || '',
-        collectionPrice: booking.collection?.price || 0,
-        status: booking.status,
-        quantity: booking.quantity,
-        price: booking.price,
-        totalPrice: booking.totalPrice,
-        notes: booking.notes || '',
-        pickupMethod: booking.pickupMethod || '',
-        adminNotes: booking.adminNotes || '',
-        createdAt: booking.createdAt,
-        updatedAt: booking.updatedAt,
-        confirmedAt: booking.confirmedAt,
-        completedAt: booking.completedAt,
-        cancelledAt: booking.cancelledAt,
-      }));
+      const exportData = bookings.map(booking => {
+        const baseData = {
+          id: booking.id,
+          collectionId: booking.collectionId,
+          qqNumber: booking.qqNumber || '',
+          phoneNumber: booking.phoneNumber || '',
+          collectionTitle: booking.collection?.title || '未知画集',
+          collectionNumber: booking.collection?.number || '',
+          collectionPrice: booking.collection?.price || 0,
+          status: booking.status,
+          quantity: booking.quantity,
+          price: booking.price,
+          totalPrice: booking.totalPrice,
+          notes: booking.notes || '',
+          pickupMethod: booking.pickupMethod || '',
+          adminNotes: booking.adminNotes || '',
+          createdAt: booking.createdAt,
+          updatedAt: booking.updatedAt,
+          confirmedAt: booking.confirmedAt,
+          completedAt: booking.completedAt,
+          cancelledAt: booking.cancelledAt,
+        };
+
+        // 如果启用了用户价格结算，添加用户总价字段
+        if (enableUserPriceCalculation && userPriceMap) {
+          const userKey = `${booking.qqNumber || ''}_${booking.phoneNumber || ''}`;
+          return {
+            ...baseData,
+            userTotalPrice: userPriceMap.get(userKey) || 0,
+          };
+        }
+
+        return baseData;
+      });
 
       console.log('📊 [BookingAdminPanel] 导出数据准备完成:', {
         exportDataLength: exportData.length,
         sampleData: exportData.slice(0, 2),
       });
+
+      // 根据是否启用用户价格结算来调整导出配置
+      const exportConfig = {
+        ...config,
+        fields: config.fields.map((field: any) => {
+          // 如果是 userTotalPrice 字段，根据勾选状态启用或禁用
+          if (field.key === 'userTotalPrice') {
+            return {
+              ...field,
+              enabled: enableUserPriceCalculation,
+            };
+          }
+          return field;
+        }),
+        grouping: enableUserPriceCalculation ? {
+          ...config.grouping,
+          fields: [
+            ...config.grouping.fields,
+            {
+              key: 'userTotalPrice',
+              label: '用户总价',
+              mode: 'merge' as const,
+              valueProcessing: 'first' as const,
+              showGroupHeader: false,
+              mergeCells: true
+            }
+          ]
+        } : config.grouping,
+      };
 
       // 直接调用API
       const response = await fetch('/api/universal-export/export', {
@@ -131,9 +194,9 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          configId: config,
+          config: exportConfig,
           data: exportData,
-          customFileName: `预订信息_${new Date().toISOString().split('T')[0]}`,
+          customFileName: `预订信息_${new Date().toISOString().split('T')[0]}${enableUserPriceCalculation ? '_含用户总价' : ''}`,
           // 不传递分页参数，避免导出时被分页限制
           pagination: undefined,
         }),
@@ -195,7 +258,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
       console.error('❌ [BookingAdminPanel] 自定义导出失败:', error);
       throw error;
     }
-  }, [bookings]);
+  }, [bookings, enableUserPriceCalculation, calculateUserTotalPrices]);
 
   // 数据源函数（保留用于其他用途）
   const dataSource = useMemo(() => async () => {
@@ -203,11 +266,15 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
       bookingsLength: bookings.length,
       bookingsKeys: bookings.length > 0 ? Object.keys(bookings[0]) : [],
       firstBookingPickupMethod: bookings.length > 0 ? bookings[0].pickupMethod : '无数据',
+      enableUserPriceCalculation,
     });
+
+    // 计算用户总价映射（如果启用）
+    const userPriceMap = enableUserPriceCalculation ? calculateUserTotalPrices(bookings) : null;
 
     const mappedData = bookings.map(booking => {
       // 根据实际API返回的数据结构进行映射
-      const mapped = {
+      const baseMapped = {
         id: booking.id,
         collectionId: booking.collectionId,
         qqNumber: booking.qqNumber || '',
@@ -228,6 +295,17 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
         completedAt: booking.completedAt || '',
         cancelledAt: booking.cancelledAt || '',
       };
+
+      // 如果启用了用户价格结算，添加用户总价字段
+      if (enableUserPriceCalculation && userPriceMap) {
+        const userKey = `${booking.qqNumber || ''}_${booking.phoneNumber || ''}`;
+        return {
+          ...baseMapped,
+          userTotalPrice: userPriceMap.get(userKey) || 0,
+        };
+      }
+
+      return baseMapped;
 
       if (bookings.indexOf(booking) === 0) {
         console.log('📊 [BookingAdminPanel] 第一行数据映射示例:', {
@@ -253,7 +331,7 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
     });
 
     return mappedData;
-  }, [bookings]);
+  }, [bookings, enableUserPriceCalculation, calculateUserTotalPrices]);
 
   /**
    * 获取状态信息
@@ -645,21 +723,65 @@ export const BookingAdminPanel: React.FC<BookingAdminPanelProps> = ({
               <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
               刷新
             </button>
+
+            {/* 用户价格结算勾选框 */}
+            <div className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg">
+              <input
+                type="checkbox"
+                id="enableUserPriceCalculation"
+                checked={enableUserPriceCalculation}
+                onChange={(e) => setEnableUserPriceCalculation(e.target.checked)}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+              />
+              <label
+                htmlFor="enableUserPriceCalculation"
+                className="text-sm font-medium text-slate-700 cursor-pointer"
+                title="勾选后导出Excel时会添加一列用户总价（根据QQ号+手机号唯一匹配）"
+              >
+                包含用户总价
+              </label>
+            </div>
+
             <UniversalExportButton
               exportService={exportService}
               moduleId="showmasterpiece"
               businessId="bookings"
-              availableFields={BOOKING_EXPORT_FIELDS}
+              availableFields={BOOKING_EXPORT_FIELDS.map(field => ({
+                ...field,
+                enabled: field.key === 'userTotalPrice' ? enableUserPriceCalculation : field.enabled,
+              }))}
               dataSource={dataSource}
               defaultConfig={(() => {
+                const config = {
+                  ...DEFAULT_BOOKING_EXPORT_CONFIG,
+                  fields: DEFAULT_BOOKING_EXPORT_CONFIG.fields.map(field => ({
+                    ...field,
+                    enabled: field.key === 'userTotalPrice' ? enableUserPriceCalculation : field.enabled,
+                  })),
+                  grouping: enableUserPriceCalculation ? {
+                    ...DEFAULT_BOOKING_EXPORT_CONFIG.grouping,
+                    fields: [
+                      ...DEFAULT_BOOKING_EXPORT_CONFIG.grouping.fields,
+                      {
+                        key: 'userTotalPrice',
+                        label: '用户总价',
+                        mode: 'merge' as const,
+                        valueProcessing: 'first' as const,
+                        showGroupHeader: false,
+                        mergeCells: true
+                      }
+                    ]
+                  } : DEFAULT_BOOKING_EXPORT_CONFIG.grouping,
+                };
                 console.log('🔍 [BookingAdminPanel] 传递的默认配置:', {
-                  id: DEFAULT_BOOKING_EXPORT_CONFIG.id,
-                  format: DEFAULT_BOOKING_EXPORT_CONFIG.format,
-                  hasGrouping: !!DEFAULT_BOOKING_EXPORT_CONFIG.grouping,
-                  groupingEnabled: DEFAULT_BOOKING_EXPORT_CONFIG.grouping?.enabled,
-                  groupingFields: DEFAULT_BOOKING_EXPORT_CONFIG.grouping?.fields?.map(f => ({ key: f.key, mergeCells: f.mergeCells })) || [],
+                  id: config.id,
+                  format: config.format,
+                  hasGrouping: !!config.grouping,
+                  groupingEnabled: config.grouping?.enabled,
+                  groupingFields: config.grouping?.fields?.map(f => ({ key: f.key, mergeCells: f.mergeCells })) || [],
+                  enableUserPriceCalculation,
                 });
-                return DEFAULT_BOOKING_EXPORT_CONFIG;
+                return config;
               })()}
               buttonText="导出数据"
               variant="primary"
