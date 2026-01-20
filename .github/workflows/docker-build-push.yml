@@ -45,14 +45,13 @@ jobs:
           docker push crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:${NEW_TAG}
 
       - name: Deploy to remote server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.DEPLOY_SERVER_HOST }}
-          username: ${{ secrets.DEPLOY_SERVER_USERNAME }}
-          key: ${{ secrets.DEPLOY_SERVER_SSH_KEY }}
-          script: |
-            NEW_TAG=${{ github.run_number }}
+        run: |
+          NEW_TAG=${{ github.run_number }}
+          echo "${{ secrets.DEPLOY_SERVER_SSH_KEY }}" > /tmp/ssh_key
+          chmod 600 /tmp/ssh_key
+          ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key ${{ secrets.DEPLOY_SERVER_USERNAME }}@${{ secrets.DEPLOY_SERVER_HOST }} << EOF
             docker pull crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:${NEW_TAG}
             docker stop my_container || true
             docker rm my_container || true
             docker run -d -p 3000:3000 --name my_container crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:${NEW_TAG}
+          EOF
