@@ -700,25 +700,7 @@ function ConfigPageContent() {
                     </Label>
                   </div>
                 </div>
-
-                <Separator className="my-6" />
-                
-                {/* 文件服务信息 */}
-                <Card className="bg-blue-50/50 border-blue-200">
-                  <CardHeader>
-                    <CardTitle className="text-lg text-blue-800">文件服务状态</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div className="text-blue-700">
-                      当前使用：<Badge variant="secondary">{storageModeDisplay}</Badge>
-                    </div>
-                    <div className="text-blue-600 text-sm">
-                      通用文件服务：<Badge variant={useUniversalService ? "default" : "outline"}>
-                        {useUniversalService ? '已启用' : '未启用'}
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
+                <Separator className="my-6" />             
               </CardContent>
             </Card>
           </TabsContent>
