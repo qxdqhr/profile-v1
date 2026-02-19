@@ -10,6 +10,7 @@ const config: Config = {
     // 扫描本地 sa2kit 源码与构建产物，避免全量扫 node_modules
     "../sa2kit/src/**/*.{ts,tsx}",
     "../sa2kit/dist/**/*.{js,mjs,ts,tsx}",
+    "./node_modules/sa2kit/dist/**/*.{js,mjs}",
   ],
   theme: {
   	extend: {
