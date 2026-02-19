@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Modal } from 'sa2kit';
+import { Modal } from 'sa2kit/components';
 import { 
   resetToDefaultConfig, 
   updateGridSize, 

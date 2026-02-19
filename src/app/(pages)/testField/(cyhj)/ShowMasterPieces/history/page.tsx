@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * ShowMasterpiece 模块 - 用户历史记录页面路由
  * 
@@ -6,6 +8,6 @@
  * @fileoverview 历史记录页面路由
  */
 
-import UserHistoryPage from '@/modules/showmasterpiece/pages/history/page';
+import { ShowMasterPiecesHistoryPage } from 'sa2kit/showmasterpiece';
 
-export default UserHistoryPage; 
+export default ShowMasterPiecesHistoryPage; 

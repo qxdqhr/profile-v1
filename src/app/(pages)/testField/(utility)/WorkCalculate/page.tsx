@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { BackButton } from 'sa2kit';
+import { BackButton } from 'sa2kit/components';
 import dayjs, { Dayjs } from 'dayjs';
 import { WorkItem, Assignment, Person } from './types';
 import { DateControls } from './components/DateControls';

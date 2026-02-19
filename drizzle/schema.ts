@@ -65,6 +65,7 @@ export const comicUniverseConfigs = pgTable("comic_universe_configs", {
 	maxCollectionsPerPage: integer("max_collections_per_page").default(9).notNull(),
 	enableSearch: boolean("enable_search").default(true).notNull(),
 	enableCategories: boolean("enable_categories").default(true).notNull(),
+	homeTabConfig: json("home_tab_config").default([]),
 	defaultCategory: varchar("default_category", { length: 100 }).default('all').notNull(),
 	theme: varchar({ length: 20 }).default('light').notNull(),
 	language: varchar({ length: 10 }).default('zh').notNull(),

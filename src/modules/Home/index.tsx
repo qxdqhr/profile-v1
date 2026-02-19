@@ -1,18 +1,11 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
-import { 
-  Navigation as NavigationContainer, 
-  NavigationConfig, 
-  About, 
-  Home as HomeSection, 
-  type HomeConfig, 
-  ProjectCarousel, 
-  type ProjectsConfig, 
-  Contact, 
-  TimelineConfig, 
-  CollisionBallsConfig 
-} from "sa2kit";
+import { Navigation as NavigationContainer, NavigationToggle } from "sa2kit/navigation";
+import { About, Home as HomeSection, ProjectCarousel, Contact } from "sa2kit/portfolio";
+import type { NavigationConfig } from "sa2kit/navigation";
+import type { HomeConfig, ProjectsConfig } from "sa2kit/portfolio";
+import type { TimelineConfig, CollisionBallsConfig } from "sa2kit/components";
 
 
 // 整体配置类型
@@ -197,6 +190,11 @@ const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 新的通用导航栏组件 */}
+      <NavigationToggle
+        isOpen={isNavOpen}
+        onClick={() => setIsNavOpen(!isNavOpen)}
+        position={navigationConfig.position}
+      />
       <NavigationContainer
         config={navigationConfig}
         activeItemId={activeNavId}

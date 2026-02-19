@@ -59,12 +59,7 @@ export async function DELETE(
     const collectionId = parseInt(resolvedParams.id);
     const artworkId = parseInt(resolvedParams.artworkId);
     
-    // 从查询参数中获取事件ID（用于验证）
-    const url = new URL(request.url);
-    const eventIdParam = url.searchParams.get('eventId');
-    const eventId = eventIdParam ? parseInt(eventIdParam) : undefined;
-
-    await artworksDbService.deleteArtwork(collectionId, artworkId, eventId);
+    await artworksDbService.deleteArtwork(collectionId, artworkId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('删除作品失败:', error);

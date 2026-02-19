@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+    // 允许同时启动多个 next dev 实例（通过不同 distDir 避免 .next/dev/lock 冲突）
+    distDir: process.env.NEXT_DIST_DIR || '.next',
     output: 'standalone', // Docker 部署需要
     
     // sa2kit 需要转译以正确加载样式和组件
@@ -31,8 +33,11 @@ const nextConfig: NextConfig = {
         "@xenova/transformers"
     ],
     
-    // Turbopack 配置（Next.js 16+ 默认使用 Turbopack）
-    // 添加空配置表示我们接受使用 Turbopack
+    experimental: {
+        externalDir: true,
+    },
+
+    // Turbopack 配置（使用 webpack 启动时会被忽略）
     turbopack: {},
     
     // 添加你的音频文件到允许的资源类型中
@@ -48,11 +53,14 @@ const nextConfig: NextConfig = {
         // 添加 SA2Kit 路径别名
         config.resolve.alias = {
             ...config.resolve.alias,
-            '@sa2kit': require('path').join(__dirname, 'sa2kit/dist/index.js'),
         };
         
         // 在客户端构建时，排除 Node.js 原生模块
         if (!isServer) {
+            config.resolve.alias = {
+                ...config.resolve.alias,
+                'stream/promises': false,
+            };
             config.resolve.fallback = {
                 ...config.resolve.fallback,
                 'onnxruntime-node': false,
@@ -60,6 +68,8 @@ const nextConfig: NextConfig = {
                 'fs': false,
                 'path': false,
                 'os': false,
+                'stream': false,
+                'stream/promises': false,
             };
         }
         
@@ -115,4 +125,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-

@@ -9,7 +9,7 @@
 ### 1. 新增组件
 
 #### MobileAlbumViewer 组件
-- **文件位置**: `src/modules/showmasterpiece/components/MobileAlbumViewer.tsx`
+- **文件位置**: `src/modules/showmasterpiece@sa2kit/components/MobileAlbumViewer.tsx`
 - **功能特性**:
   - 全屏黑色背景的沉浸式观看体验
   - 支持触摸手势滑动切换（左右滑动）
@@ -30,7 +30,7 @@
 
 #### Components 导出文件
 - **修改内容**: 
-  - 在 `src/modules/showmasterpiece/components/index.ts` 中添加 `MobileAlbumViewer` 的导出
+  - 在 `src/modules/showmasterpiece@sa2kit/components/index.ts` 中添加 `MobileAlbumViewer` 的导出
 
 ## 功能特性详细说明
 

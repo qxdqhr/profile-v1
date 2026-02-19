@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { collectionsDbService } from '../../db/masterpiecesDbService';
-import { eventAwareCollectionsService } from '../../services/eventAwareCollectionsService';
 import { validateApiAuth } from '@/modules/auth/server';
+import '@/modules/showmasterpiece/sa2kit-init';
 
 /**
  * 获取画集列表
@@ -9,14 +9,13 @@ import { validateApiAuth } from '@/modules/auth/server';
  * 
  * 查询参数:
  * - overview: boolean - 是否只获取概览信息（不包含作品详情）
- * - event: string - 活动标识符或ID，指定获取特定活动的画集（默认为第一期活动）
  * 
  * 性能优化策略:
  * 1. 支持overview模式，只获取基本信息，不加载作品详情
  * 2. 使用内存缓存（2分钟有效期）
  * 3. 并行查询优化（分类、标签、作品数据并行获取）
  * 4. HTTP缓存头设置（2分钟强缓存 + 5分钟过期重验证）
- * 5. 支持活动参数，实现多期活动数据隔离
+ * 5. 支持快速概览模式
  */
 export async function GET(request: NextRequest) {
   try {
@@ -28,14 +27,13 @@ export async function GET(request: NextRequest) {
     const overview = searchParams.get('overview') === 'true';
     const nocache = searchParams.get('nocache') === 'true'; // 检查是否强制不使用缓存
     const includeImages = searchParams.get('includeImages') === 'true'; // 检查是否包含图片数据
-    const eventParam = searchParams.get('event') || undefined; // 活动参数：可以是ID或slug
     
-    console.log('📋 [collections] 获取画集列表参数:', { overview, nocache, includeImages, eventParam });
+    console.log('📋 [collections] 获取画集列表参数:', { overview, nocache, includeImages });
     
     // 如果请求overview，返回不包含作品详情的快速响应
     // 这种模式适用于首页展示、列表页等场景，大幅提升加载速度
     if (overview) {
-      const collectionsOverview = await eventAwareCollectionsService.getCollectionsOverview(eventParam);
+      const collectionsOverview = await collectionsDbService.getCollectionsOverview();
       
       // 设置缓存头 - 客户端缓存2分钟，过期后可重验证5分钟
       const response = NextResponse.json({
@@ -49,7 +47,7 @@ export async function GET(request: NextRequest) {
     
     // 完整的画集数据（包含所有作品）
     // 这种模式适用于详情页、编辑页等需要完整数据的场景
-    const collections = await eventAwareCollectionsService.getAllCollections(!nocache, eventParam); // 传递缓存参数和活动参数
+    const collections = await collectionsDbService.getAllCollections(!nocache);
     
     // 设置不缓存的响应头
     const response = NextResponse.json({
@@ -109,19 +107,9 @@ export async function POST(request: NextRequest) {
     }
 
     const requestBody = await request.json();
-    const { eventParam, ...collectionData } = requestBody;
+    const collectionData = requestBody;
     
-    // 解析活动参数，获取eventId
-    let eventId: number | null = null;
-    if (eventParam) {
-      const { EventService } = await import('../../services/eventService');
-      const { eventId: resolvedEventId } = await EventService.resolveEvent(eventParam);
-      eventId = resolvedEventId;
-    }
-    
-    console.log('🎨 [创建画集] 活动信息:', { eventParam, eventId });
-    
-    const newCollection = await collectionsDbService.createCollection(collectionData, eventId ?? undefined);
+    const newCollection = await collectionsDbService.createCollection(collectionData);
     return NextResponse.json(newCollection);
   } catch (error) {
     console.error('创建画集失败:', error);

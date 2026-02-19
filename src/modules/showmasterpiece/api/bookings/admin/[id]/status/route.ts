@@ -9,9 +9,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { comicUniverseBookings } from '@/db/schema';
-import { eq } from 'drizzle-orm';
-import { BookingStatus } from '@/modules/showmasterpiece/types/booking';
+import { BookingCommandError, createBookingCommandService } from 'sa2kit/showmasterpiece/server';
+
+const bookingCommandService = createBookingCommandService(db);
 
 /**
  * 更新预订状态
@@ -38,69 +38,12 @@ async function PUT(
     const body = await request.json();
     const { status, adminNotes } = body;
 
-    // 验证状态值
-    if (!status || !['pending', 'confirmed', 'completed', 'cancelled'].includes(status)) {
-      return NextResponse.json(
-        { message: '无效的预订状态' },
-        { status: 400 }
-      );
-    }
+    const updatedBooking = await bookingCommandService.updateBookingStatus(
+      bookingId,
+      status,
+      adminNotes
+    );
 
-    // 检查预订是否存在
-    const existingBooking = await db
-      .select()
-      .from(comicUniverseBookings)
-      .where(eq(comicUniverseBookings.id, bookingId))
-      .limit(1);
-
-    if (existingBooking.length === 0) {
-      return NextResponse.json(
-        { message: '预订不存在' },
-        { status: 404 }
-      );
-    }
-
-    // 准备更新数据
-    const updateData: any = {
-      status: status as BookingStatus,
-      updatedAt: new Date(),
-    };
-
-    // 如果提供了管理员备注，则更新
-    if (adminNotes !== undefined) {
-      updateData.adminNotes = adminNotes;
-    }
-
-    // 根据状态设置相应的时间字段
-    switch (status) {
-      case 'confirmed':
-        updateData.confirmedAt = new Date();
-        break;
-      case 'completed':
-        updateData.completedAt = new Date();
-        break;
-      case 'cancelled':
-        updateData.cancelledAt = new Date();
-        break;
-    }
-
-    // 更新预订
-    const updatedBookings = await db
-      .update(comicUniverseBookings)
-      .set(updateData)
-      .where(eq(comicUniverseBookings.id, bookingId))
-      .returning();
-
-    if (updatedBookings.length === 0) {
-      return NextResponse.json(
-        { message: '更新预订失败' },
-        { status: 500 }
-      );
-    }
-
-    const updatedBooking = updatedBookings[0];
-
-    // 返回更新后的预订信息
     return NextResponse.json({
       id: updatedBooking.id,
       collectionId: updatedBooking.collectionId,
@@ -110,14 +53,19 @@ async function PUT(
       status: updatedBooking.status,
       notes: updatedBooking.notes,
       adminNotes: updatedBooking.adminNotes,
-      createdAt: updatedBooking.createdAt.toISOString(),
-      updatedAt: updatedBooking.updatedAt.toISOString(),
-      confirmedAt: updatedBooking.confirmedAt?.toISOString(),
-      completedAt: updatedBooking.completedAt?.toISOString(),
-      cancelledAt: updatedBooking.cancelledAt?.toISOString(),
+      createdAt: updatedBooking.createdAt?.toISOString?.() ?? updatedBooking.createdAt,
+      updatedAt: updatedBooking.updatedAt?.toISOString?.() ?? updatedBooking.updatedAt,
+      confirmedAt: updatedBooking.confirmedAt?.toISOString?.() ?? updatedBooking.confirmedAt,
+      completedAt: updatedBooking.completedAt?.toISOString?.() ?? updatedBooking.completedAt,
+      cancelledAt: updatedBooking.cancelledAt?.toISOString?.() ?? updatedBooking.cancelledAt,
     });
 
   } catch (error) {
+    if (error instanceof BookingCommandError) {
+      const statusCode = error.code === 'BOOKING_NOT_FOUND' ? 404 : 400;
+      return NextResponse.json({ message: error.message }, { status: statusCode });
+    }
+
     console.error('更新预订状态失败:', error);
     return NextResponse.json(
       { message: '更新预订状态失败' },

@@ -13,7 +13,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     
     console.log('🎨 [ShowMasterpiece Config] 获取配置项:', id);
     
@@ -51,7 +51,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { value, environment } = body;
     
@@ -120,7 +120,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     
     console.log('🎨 [ShowMasterpiece Config] 删除配置项:', id);
     

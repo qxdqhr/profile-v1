@@ -2,15 +2,7 @@ import { relations } from 'drizzle-orm';
 import { serial, text, timestamp, pgTable, json, integer, primaryKey } from 'drizzle-orm/pg-core';
 
 // 导出画集相关的表
-export * from '@/modules/showmasterpiece/db/schema/masterpieces';
-// 导出活动管理相关的表
-export * from '@/modules/showmasterpiece/db/schema/events';
-// 导出画集预订相关的表
-export * from '@/modules/showmasterpiece/db/schema/bookings';
-// 导出弹窗配置相关的表
-export * from '@/modules/showmasterpiece/db/schema/popupConfig';
-// 导出ShowMasterPieces配置管理相关的表
-export * from '@/modules/showmasterpiece/db/schema/config';
+export * from 'sa2kit/showmasterpiece/server';
 // 导出认证相关的表
 export * from '@/modules/auth/db/schema';
 
@@ -32,7 +24,7 @@ export * from '@/modules/cardMaker/db/schema';
 export * from '@/modules/mikutap/db/schema';
 
 // 导出通用文件服务相关的表
-export * from '@/services/universalFile/db/schema';
+export * from 'sa2kit/universalFile/server';
 
 // 导出配置管理相关的表
 export * from '@/modules/configManager/db/schema';

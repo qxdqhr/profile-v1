@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-// import { UniversalFileService } from 'sa2kit/universalFile/server';
-import { UniversalFileService } from '@/services/universalFile';
-import { createFileServiceConfigWithConfigManager } from '@/services/universalFile/config';
-import { createDrizzleFileRepository } from '@/services/universalFile/adapters/drizzleAdapter';
+import {
+  UniversalFileService,
+  createFileServiceConfigWithConfigManager,
+  createDrizzleFileRepository,
+  fileMetadata,
+  fileStorageProviders,
+} from 'sa2kit/universalFile/server';
 import { validateApiAuth } from '@/modules/auth/server';
+import { EnvConfigService } from '@/modules/configManager/services/envConfigService';
+import '@/modules/showmasterpiece/sa2kit-init';
+import { db } from '@/db';
 
 /**
  * 通用文件上传API端点
@@ -62,11 +68,15 @@ export async function POST(request: NextRequest) {
     console.log('🔧 [通用文件服务] 开始初始化文件服务...');
     let fileService;
     try {
+      const envConfigService = EnvConfigService.getInstance();
+      const envConfig = await envConfigService.loadConfigFromDatabase();
+      envConfigService.setEnvironmentVariables(envConfig);
+
       // 1. 根据模块ID加载相应的配置管理器
       let configManager;
       if (moduleId === 'showmasterpiece') {
-        // ShowMasterpiece模块使用独立的配置系统
-        const { getShowMasterpieceFileConfig } = await import('@/modules/showmasterpiece/services/fileService');
+        // ShowMasterpiece模块使用独立的配置系统（服务端入口）
+        const { getShowMasterpieceFileConfig } = await import('sa2kit/showmasterpiece');
         configManager = await getShowMasterpieceFileConfig();
         console.log('🎨 [通用文件服务] 使用ShowMasterpiece独立配置');
       } else {
@@ -77,7 +87,11 @@ export async function POST(request: NextRequest) {
       const config = configManager.getConfig();
 
       // 2. 创建数据库持久化仓储
-      const repository = createDrizzleFileRepository();
+      const repository = createDrizzleFileRepository({
+        db,
+        fileMetadata,
+        fileStorageProviders,
+      });
 
       // 3. 获取默认存储配置
       const defaultStorageType = config.defaultStorage || 'local';
@@ -89,6 +103,23 @@ export async function POST(request: NextRequest) {
           { error: `未找到存储配置: ${defaultStorageType}` },
           { status: 500 }
         );
+      }
+
+      if (storageConfig.type === 'aliyun-oss') {
+        const missing = [
+          !storageConfig.region && 'region',
+          !storageConfig.bucket && 'bucket',
+          !storageConfig.accessKeyId && 'accessKeyId',
+          !storageConfig.accessKeySecret && 'accessKeySecret',
+        ].filter(Boolean);
+
+        if (missing.length > 0) {
+          console.error('❌ [通用文件服务] OSS配置缺失:', missing);
+          return NextResponse.json(
+            { error: `OSS配置缺失: ${missing.join(', ')}` },
+            { status: 500 }
+          );
+        }
       }
 
       console.log('📦 [通用文件服务] 使用存储配置:', {

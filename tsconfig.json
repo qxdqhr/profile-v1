@@ -25,12 +25,6 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ],
-      "@sa2kit": [
-        "./sa2kit/src/index.ts"
-      ],
-      "@sa2kit/*": [
-        "./sa2kit/src/*"
       ]
     }
   },

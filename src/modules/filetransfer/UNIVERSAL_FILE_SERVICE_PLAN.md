@@ -166,7 +166,7 @@
 8. 适配移动端和桌面端
 
 **交付物：**
-- [x] UniversalFileUploader组件 (src/components/UniversalFileUploader/UniversalFileUploader.tsx)
+- [x] UniversalFileUploader组件 (src@sa2kit/components/UniversalFileUploader/UniversalFileUploader.tsx)
 - [x] 上传进度追踪 (实时进度显示和状态管理)
 - [x] 错误处理UI (错误提示和重试机制)
 - [x] 响应式设计 (支持compact、normal、detailed三种模式)

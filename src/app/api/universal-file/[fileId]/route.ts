@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createUniversalFileServiceWithConfigManager } from '@/services/universalFile/UniversalFileService';
+import { createUniversalFileServiceWithConfigManager } from 'sa2kit/universalFile/server';
+import { EnvConfigService } from '@/modules/configManager/services/envConfigService';
 
 /**
  * 通用文件获取API端点
@@ -24,6 +25,9 @@ export async function GET(
     }
 
     // 初始化文件服务
+    const envConfigService = EnvConfigService.getInstance();
+    const envConfig = await envConfigService.loadConfigFromDatabase();
+    envConfigService.setEnvironmentVariables(envConfig);
     const fileService = await createUniversalFileServiceWithConfigManager();
 
     // 生成访问URL

@@ -4,9 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { ApiResponseHelper, ApiErrorFactory, ValidationHelper } from '@/services/universalFile/utils/apiError';
-import { FileDbService } from '@/services/universalFile/db/services/fileDbService';
-import { FolderCreateParams, FolderUpdateParams } from '@/services/universalFile/types/api';
+import { ApiResponseHelper, ApiErrorFactory, ValidationHelper, FileDbService, FolderCreateParams, FolderUpdateParams } from 'sa2kit/universalFile/server';
 import { db } from '@/db';
 
 // 初始化服务

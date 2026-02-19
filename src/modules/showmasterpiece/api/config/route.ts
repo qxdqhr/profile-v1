@@ -51,6 +51,8 @@ import { validateApiAuth } from '@/modules/auth/server';
 export async function GET() {
   try {
     const config = await masterpiecesConfigDbService.getConfig();
+    console.log('获取配置成功:', config);
+
     return NextResponse.json(config);
   } catch (error) {
     console.error('获取配置失败:', error);

@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db/index';
-import { comicUniverseArtworks } from '../../../../../../db/schema/masterpieces';
 import { eq, and } from 'drizzle-orm';
+
+const getComicUniverseArtworks = async () => {
+  const module = await import('sa2kit/showmasterpiece/server');
+  return (module as any).comicUniverseArtworks as any;
+};
 
 /**
  * 获取单个作品的图片数据
@@ -33,6 +37,7 @@ export async function GET(
     }
 
     // 查询图片数据，优先使用fileId
+    const comicUniverseArtworks = await getComicUniverseArtworks();
     const result = await db
       .select({
         fileId: comicUniverseArtworks.fileId,
@@ -70,10 +75,10 @@ export async function GET(
     if (artwork.fileId) {
       try {
         // 通过ShowMasterpiece的独立文件服务获取图片
-        const { getShowMasterpieceFileConfig } = await import('../../../../../../services/fileService');
-        
+        const { getShowMasterpieceFileConfig } = await import('sa2kit/showmasterpiece');
+
         const configManager = await getShowMasterpieceFileConfig();
-        const { UniversalFileService } = await import('@/services/universalFile/UniversalFileService');
+        const { UniversalFileService } = await import('sa2kit/universalFile/server');
         
         // 使用ShowMasterpiece的独立配置创建文件服务
         const fileService = new UniversalFileService(configManager.getConfig());
@@ -157,6 +162,7 @@ export async function HEAD(
     }
 
     // 只查询是否存在，不获取图片数据
+    const comicUniverseArtworks = await getComicUniverseArtworks();
     const result = await db
       .select({
         id: comicUniverseArtworks.id,

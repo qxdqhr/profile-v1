@@ -144,9 +144,9 @@ export const experiments: ExperimentItem[] = [
     isCompleted: false
   },
   {
-    id: "mmd-test",
+    id: "mmd-test-playground",
     title: "MMD 功能测试场",
-    description: "基于 @sa2kit/mmd 的MMD播放器测试页面，封装所有逻辑，仅需传入配置即可使用",
+    description: "基于 sa2kit/mmd 的MMD播放器测试页面，封装所有逻辑，仅需传入配置即可使用",
     path: "/testField/mmdTest",
     tags: ["3D", "MMD", "测试", "SA2Kit"],
     category: "utility",
@@ -416,5 +416,27 @@ export const experiments: ExperimentItem[] = [
     isCompleted: false,
     createdAt: '2025-12-06',
     updatedAt: '2025-12-06'
+  },
+  {
+    id: "miku-fusion-game",
+    title: "Miku Fusion Game",
+    description: "体验 sa2kit 新增的 Miku Fusion 合成玩法，支持点击投放、碰撞合并与分数记录",
+    path: "/testField/mikuFusionGame",
+    tags: ["SA2Kit", "小游戏", "合成", "初音未来"],
+    category: "leisure",
+    isCompleted: true,
+    createdAt: '2026-02-16',
+    updatedAt: '2026-02-16'
+  },
+  {
+    id: "miku-fireworks-3d",
+    title: "Miku Fireworks 3D",
+    description: "体验 sa2kit 新增的 3D 烟花弹幕模块，支持普通/初音/头像烟花与实时弹幕",
+    path: "/testField/mikuFireworks3D",
+    tags: ["SA2Kit", "3D", "烟花", "弹幕", "初音未来"],
+    category: "leisure",
+    isCompleted: true,
+    createdAt: '2026-02-16',
+    updatedAt: '2026-02-16'
   }
 ];

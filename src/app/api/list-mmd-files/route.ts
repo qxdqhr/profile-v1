@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { fileMetadata } from '@/services/universalFile/db/schema';
+import { fileMetadata } from 'sa2kit/universalFile/server';
 import { eq, and, desc, sql, like } from 'drizzle-orm';
 
 export const runtime = 'nodejs';

@@ -84,7 +84,7 @@
 ### 即将完成的任务
 
 #### 1. 游戏主控制器 (进行中)
-**文件**: `src/modules/mikutap/components/game/MelodyGameController.tsx`
+**文件**: `src/modules/mikutap@sa2kit/components/game/MelodyGameController.tsx`
 - 集成所有游戏组件
 - 实现旋律播放引擎
 - 用户输入捕获和分析

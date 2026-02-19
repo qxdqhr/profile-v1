@@ -1,31 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { categoriesDbService } from '../../db/masterpiecesDbService';
+import { validateApiAuth } from '@/modules/auth/server';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const eventParam = searchParams.get('event') || undefined;
+    console.log('📋 [分类API] 获取分类列表');
 
-    console.log('📋 [分类API] 获取分类列表:', { eventParam });
-
-    // 解析活动参数，获取eventId
-    let eventId: number | null = null;
-    if (eventParam) {
-      try {
-        const { EventService } = await import('../../services/eventService');
-        const { eventId: resolvedEventId } = await EventService.resolveEvent(eventParam);
-        eventId = resolvedEventId;
-        console.log('🎯 [分类API] 解析活动:', { eventParam, eventId });
-      } catch (error) {
-        console.error('解析活动参数失败:', error);
-        return NextResponse.json(
-          { error: '无效的活动参数' },
-          { status: 400 }
-        );
-      }
-    }
-
-    const categories = await categoriesDbService.getCategories(eventId);
+    const categories = await categoriesDbService.getCategories();
     
     console.log(`✅ [分类API] 获取到 ${categories.length} 个分类`);
     
@@ -42,3 +24,29 @@ export async function GET(request: NextRequest) {
     );
   }
 } 
+
+export async function POST(request: NextRequest) {
+  try {
+    const user = await validateApiAuth(request);
+    if (!user) {
+      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const name = typeof body?.name === 'string' ? body.name.trim() : '';
+    const description = typeof body?.description === 'string' ? body.description.trim() : undefined;
+
+    if (!name) {
+      return NextResponse.json({ error: '分类名称不能为空' }, { status: 400 });
+    }
+
+    await categoriesDbService.createCategory(name, description);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('创建分类失败:', error);
+    return NextResponse.json(
+      { error: '创建分类失败' },
+      { status: 500 }
+    );
+  }
+}

@@ -127,7 +127,7 @@ interface GameScore {
 #### 3.2 组件结构
 
 ```
-src/modules/mikutap/components/game/
+src/modules/mikutap@sa2kit/components/game/
 ├── GameModeSelector.tsx       # 模式选择弹窗
 ├── GameModeSwitch.tsx         # 模式切换按钮
 ├── MelodyGameController.tsx   # 游戏主控制器

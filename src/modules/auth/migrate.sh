@@ -45,16 +45,16 @@ done
 
 # 更新 LoginModal 组件导入
 find src -type f \( -name "*.ts" -o -name "*.tsx" \) -not -path "src/modules/auth/*" -exec grep -l "LoginModal" {} \; | while read file; do
-    sed -i.tmp "s|from '@/components/auth/LoginModal'|from '@/modules/auth'|g" "$file"
-    sed -i.tmp "s|import LoginModal from '@/components/auth/LoginModal'|import { LoginModal } from '@/modules/auth'|g" "$file"
+    sed -i.tmp "s|from '@sa2kit/components/auth/LoginModal'|from '@/modules/auth'|g" "$file"
+    sed -i.tmp "s|import LoginModal from '@sa2kit/components/auth/LoginModal'|import { LoginModal } from '@/modules/auth'|g" "$file"
     rm -f "$file.tmp"
     echo "  ✅ 更新 $file"
 done
 
 # 更新 AuthGuard 组件导入
 find src -type f \( -name "*.ts" -o -name "*.tsx" \) -not -path "src/modules/auth/*" -exec grep -l "AuthGuard" {} \; | while read file; do
-    sed -i.tmp "s|from '@/components/auth/AuthGuard'|from '@/modules/auth'|g" "$file"
-    sed -i.tmp "s|import AuthGuard from '@/components/auth/AuthGuard'|import { AuthGuard } from '@/modules/auth'|g" "$file"
+    sed -i.tmp "s|from '@sa2kit/components/auth/AuthGuard'|from '@/modules/auth'|g" "$file"
+    sed -i.tmp "s|import AuthGuard from '@sa2kit/components/auth/AuthGuard'|import { AuthGuard } from '@/modules/auth'|g" "$file"
     rm -f "$file.tmp"
     echo "  ✅ 更新 $file"
 done
@@ -96,8 +96,8 @@ done
 
 # 4. 检查样式文件
 echo "🎨 检查样式文件..."
-if [ -f "src/components/auth/LoginModal.module.css" ]; then
-    echo "ℹ️  发现原始样式文件: src/components/auth/LoginModal.module.css"
+if [ -f "src@sa2kit/components/auth/LoginModal.module.css" ]; then
+    echo "ℹ️  发现原始样式文件: src@sa2kit/components/auth/LoginModal.module.css"
     echo "   已复制到模块中，可以删除原文件"
 fi
 
@@ -138,7 +138,7 @@ cat >> "$report_file" << EOF
 3. **清理旧文件**
    ```bash
    # 在确认一切正常后，可以删除以下目录/文件：
-   rm -rf src/components/auth/
+   rm -rf src@sa2kit/components/auth/
    rm -rf src/hooks/useAuth.ts
    rm -rf src/utils/authUtils.ts
    rm -rf src/types/auth.ts
@@ -161,7 +161,7 @@ cat >> "$report_file" << EOF
 \`\`\`typescript
 // 旧的方式
 import { useAuth } from '@/hooks/useAuth';
-import LoginModal from '@/components/auth/LoginModal';
+import LoginModal from '@sa2kit/components/auth/LoginModal';
 import { User } from '@/types/auth';
 
 // 新的方式

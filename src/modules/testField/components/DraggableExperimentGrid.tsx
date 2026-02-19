@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ExperimentCard } from 'sa2kit';
+import { ExperimentCard } from 'sa2kit/portfolio';
 import type { ExperimentItem } from '../types';
 import { 
   DndContext, 

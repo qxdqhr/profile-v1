@@ -36,7 +36,7 @@ export async function POST(
     console.log('🔍 检查画集是否存在...');
     try {
       const collections = await collectionsDbService.getAllCollections(false); // 强制从数据库查询
-      const targetCollection = collections.find(c => c.id === collectionId);
+      const targetCollection = collections.find((c: any) => c.id === collectionId);
       
       if (!targetCollection) {
         console.error('❌ 画集不存在:', {
@@ -266,7 +266,7 @@ export async function GET(
     console.log('📋 [API] 作品列表获取成功:', { 
       collectionId, 
       count: artworks.length,
-      orders: artworks.map(a => ({ id: a.id, pageOrder: a.pageOrder }))
+      orders: artworks.map((a: any) => ({ id: a.id, pageOrder: a.pageOrder }))
     });
     
     // 设置不缓存的响应头，确保总是返回最新数据

@@ -4,10 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { cacheManager } from '@/services/universalFile/cache/CacheManager';
-import { performanceMonitor } from '@/services/universalFile/monitoring/PerformanceMonitor';
-import { queryOptimizer } from '@/services/universalFile/db/middleware/queryOptimizer';
-import { ApiResponse } from '@/services/universalFile/types/api';
+import { cacheManager, performanceMonitor, queryOptimizer, ApiResponse } from 'sa2kit/universalFile/server';
 
 /**
  * GET /api/universal-file/monitoring

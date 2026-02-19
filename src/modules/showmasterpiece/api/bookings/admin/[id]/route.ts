@@ -8,8 +8,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { comicUniverseBookings } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { BookingCommandError, createBookingCommandService } from 'sa2kit/showmasterpiece/server';
+
+const bookingCommandService = createBookingCommandService(db);
 
 /**
  * 删除预订
@@ -33,24 +34,7 @@ async function DELETE(
       );
     }
 
-    // 检查预订是否存在
-    const existingBooking = await db
-      .select({ id: comicUniverseBookings.id })
-      .from(comicUniverseBookings)
-      .where(eq(comicUniverseBookings.id, id))
-      .limit(1);
-
-    if (existingBooking.length === 0) {
-      return NextResponse.json(
-        { message: '预订不存在' },
-        { status: 404 }
-      );
-    }
-
-    // 删除预订
-    await db
-      .delete(comicUniverseBookings)
-      .where(eq(comicUniverseBookings.id, id));
+    await bookingCommandService.deleteBooking(id);
 
     console.log('✅ 预订删除成功:', { bookingId: id });
 
@@ -60,6 +44,11 @@ async function DELETE(
     });
 
   } catch (error) {
+    if (error instanceof BookingCommandError) {
+      const status = error.code === 'BOOKING_NOT_FOUND' ? 404 : 400;
+      return NextResponse.json({ message: error.message }, { status });
+    }
+
     console.error('删除预订失败:', error);
     return NextResponse.json(
       { message: '删除预订失败', error: error instanceof Error ? error.message : '未知错误' },

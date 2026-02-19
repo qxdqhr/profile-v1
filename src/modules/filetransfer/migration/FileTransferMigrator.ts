@@ -5,7 +5,7 @@
 
 import { db } from '@/db';
 import { fileTransfers } from '../db/schema';
-import { fileMetadata, fileFolders, fileStorageProviders } from '@/services/universalFile/db/schema';
+import { fileMetadata, fileFolders, fileStorageProviders } from 'sa2kit/universalFile/server';
 import { eq, and } from 'drizzle-orm';
 import { readFile, copyFile, stat } from 'fs/promises';
 import { join, basename, extname } from 'path';

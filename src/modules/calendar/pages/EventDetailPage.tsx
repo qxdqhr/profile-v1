@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { CalendarEvent, useEvents, formatDate, formatTime } from '../index';
 import EventModal from '../components/EventModal';
-import { ConfirmModal } from '@/components/PopWindow';
+import { ConfirmModal } from 'sa2kit/components';
 
 interface EventDetailPageProps {
   eventId: number;

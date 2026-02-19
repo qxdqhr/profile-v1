@@ -76,7 +76,7 @@ export interface UserGameProfile {
 ### 1.2 模式选择弹窗组件
 
 ```typescript
-// src/modules/mikutap/components/game/GameModeSelector.tsx
+// src/modules/mikut../components/game/GameModeSelector.tsx
 
 'use client';
 
@@ -183,7 +183,7 @@ export default function GameModeSelector({
 ### 1.3 模式切换按钮组件
 
 ```typescript
-// src/modules/mikutap/components/game/GameModeSwitch.tsx
+// src/modules/mikut../components/game/GameModeSwitch.tsx
 
 'use client';
 
@@ -235,7 +235,7 @@ export default function GameModeSwitch({
 ### 1.4 游戏模式主控制器
 
 ```typescript
-// src/modules/mikutap/components/game/MelodyGameController.tsx
+// src/modules/mikut../components/game/MelodyGameController.tsx
 
 'use client';
 

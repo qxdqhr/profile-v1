@@ -3,7 +3,7 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ExperimentCard } from 'sa2kit';
+import { ExperimentCard } from 'sa2kit/portfolio';
 import type { ExperimentItem } from '../types';
 
 interface SortableExperimentItemProps {

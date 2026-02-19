@@ -346,7 +346,7 @@ GET  /api/auth/validate  # 验证会话
 ```typescript
 // 旧的导入方式
 import { useAuth } from '@/hooks/useAuth';
-import LoginModal from '@/components/auth/LoginModal';
+import LoginModal from '@sa2kit/components/auth/LoginModal';
 
 // 新的导入方式
 import { useAuth, LoginModal } from '@/modules/auth';

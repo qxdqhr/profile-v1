@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BackButton } from 'sa2kit';
+import { BackButton } from 'sa2kit/components';
 
 interface SyncBox {
     id: string;

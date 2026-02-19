@@ -9,9 +9,10 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { comicUniverseBookings, comicUniverseCollections, showmasterEvents } from '@/db/schema';
-import { desc, sql, eq, and, like } from 'drizzle-orm';
-import { BookingStatus } from '@/modules/showmasterpiece/types/booking';
+import type { BookingStatus } from 'sa2kit/showmasterpiece';
+import { createBookingQueryService } from 'sa2kit/showmasterpiece/server';
+
+const bookingQueryService = createBookingQueryService(db);
 
 /**
  * 获取所有预订数据和统计信息（管理员专用）
@@ -38,11 +39,9 @@ async function GET(request: NextRequest) {
     const phoneNumber = searchParams.get('phoneNumber');
     const statusParam = searchParams.get('status');
     const status = statusParam && statusParam !== 'all' ? statusParam as BookingStatus : null;
-    const eventParam = searchParams.get('event') || undefined;
-    
     console.log('🔍 [API/Admin] 收到搜索请求参数:', {
       allParams: Object.fromEntries(searchParams.entries()),
-      extractedParams: { qqNumber, phoneNumber, status, statusParam, eventParam },
+      extractedParams: { qqNumber, phoneNumber, status, statusParam },
       url: request.url,
       timestamp: new Date().toISOString()
     });
@@ -52,186 +51,25 @@ async function GET(request: NextRequest) {
       console.log('强制刷新预订数据:', { forceRefresh, timestamp: new Date().toISOString() });
     }
     
-    // 获取所有预订数据（包含画集信息）
-    console.log('开始查询预订数据...', { qqNumber, phoneNumber, status });
-    
-    // 强制刷新：先执行一个简单的查询来确保连接是最新的
-    if (forceRefresh) {
-      console.log('执行强制刷新查询...');
-      await db.execute(sql`SELECT 1 as refresh_check`);
-    }
-    
-    // 解析event参数 - 统一使用EventService进行解析
-    let eventId: number | null = null;
-    if (eventParam) {
-      try {
-        const { EventService } = await import('../../../services/eventService');
-        const { eventId: resolvedEventId } = await EventService.resolveEvent(eventParam);
-        eventId = resolvedEventId;
-        console.log('🎯 [API/Admin] 通过EventService解析活动:', { eventParam, eventId });
-      } catch (error) {
-        console.log('⚠️ [API/Admin] 未找到指定的活动:', eventParam, error instanceof Error ? error.message : String(error));
-      }
-    }
-
-    // 构建查询条件
-    const conditions = [];
-    
-    // Event-aware filtering
-    if (eventId) {
-      conditions.push(eq(comicUniverseBookings.eventId, eventId));
-      console.log('🔍 [API/Admin] 添加活动过滤条件:', eventId);
-    }
-    
-    if (qqNumber) {
-      conditions.push(like(comicUniverseBookings.qqNumber, `%${qqNumber}%`));
-      console.log('🔍 [API/Admin] 添加QQ号搜索条件:', `%${qqNumber}%`);
-    }
-    
-    if (phoneNumber) {
-      conditions.push(like(comicUniverseBookings.phoneNumber, `%${phoneNumber}%`));
-      console.log('🔍 [API/Admin] 添加手机号搜索条件:', `%${phoneNumber}%`);
-    }
-    
-    if (status) {
-      conditions.push(eq(comicUniverseBookings.status, status));
-      console.log('🔍 [API/Admin] 添加状态过滤条件:', status);
-    }
-    
-    console.log('🔍 [API/Admin] 总查询条件数量:', conditions.length);
-    
-    const bookings = await db
-      .select({
-        id: comicUniverseBookings.id,
-        collectionId: comicUniverseBookings.collectionId,
-        qqNumber: comicUniverseBookings.qqNumber,
-        phoneNumber: comicUniverseBookings.phoneNumber,
-        quantity: comicUniverseBookings.quantity,
-        status: comicUniverseBookings.status,
-        notes: comicUniverseBookings.notes,
-        pickupMethod: comicUniverseBookings.pickupMethod,
-        adminNotes: comicUniverseBookings.adminNotes,
-        createdAt: comicUniverseBookings.createdAt,
-        updatedAt: comicUniverseBookings.updatedAt,
-        confirmedAt: comicUniverseBookings.confirmedAt,
-        completedAt: comicUniverseBookings.completedAt,
-        cancelledAt: comicUniverseBookings.cancelledAt,
-        // 画集信息
-        collectionTitle: comicUniverseCollections.title,
-        collectionNumber: comicUniverseCollections.number,
-        collectionCoverImage: comicUniverseCollections.coverImage,
-        collectionPrice: comicUniverseCollections.price,
-      })
-      .from(comicUniverseBookings)
-      .leftJoin(comicUniverseCollections, eq(comicUniverseBookings.collectionId, comicUniverseCollections.id))
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
-      .orderBy(desc(comicUniverseBookings.createdAt));
-
-    console.log(`查询到 ${bookings.length} 条预订数据`);
-    
-    // 🔍 调试：打印原始查询结果
-    console.log('🔍 [API] 预订数据查询结果预览:');
-    console.log(`📊 [API] 查询到 ${bookings.length} 条预订记录`);
-    if (bookings.length > 0) {
-      const firstBooking = bookings[0];
-      console.log('🔍 [API] 第一条预订记录的原始数据:', {
-        id: firstBooking.id,
-        qqNumber: firstBooking.qqNumber,
-        phoneNumber: firstBooking.phoneNumber,
-        pickupMethod: firstBooking.pickupMethod,
-        pickupMethodType: typeof firstBooking.pickupMethod,
-        notes: firstBooking.notes,
-        allKeys: Object.keys(firstBooking)
-      });
-    }
-
-    // 计算统计信息（应用相同的过滤条件）
-    const baseStatsQuery = db
-      .select({
-        totalBookings: sql<number>`count(*)`,
-        pendingBookings: sql<number>`count(*) filter (where ${comicUniverseBookings.status} = 'pending')`,
-        confirmedBookings: sql<number>`count(*) filter (where ${comicUniverseBookings.status} = 'confirmed')`,
-        completedBookings: sql<number>`count(*) filter (where ${comicUniverseBookings.status} = 'completed')`,
-        cancelledBookings: sql<number>`count(*) filter (where ${comicUniverseBookings.status} = 'cancelled')`,
-        totalQuantity: sql<number>`coalesce(sum(${comicUniverseBookings.quantity}), 0)`,
-        totalRevenue: sql<number>`coalesce(sum(${comicUniverseBookings.quantity} * coalesce(${comicUniverseCollections.price}, 0)), 0)`,
-      })
-      .from(comicUniverseBookings)
-      .leftJoin(comicUniverseCollections, eq(comicUniverseBookings.collectionId, comicUniverseCollections.id));
-    
-    // 应用相同的过滤条件到统计查询
-    const statsQuery = conditions.length > 0 
-      ? baseStatsQuery.where(and(...conditions))
-      : baseStatsQuery;
-    
-    if (conditions.length > 0) {
-      console.log('🔍 [API/Admin] 对统计查询应用了过滤条件');
-    }
-    
-    const stats = await statsQuery;
-
-    // 格式化预订数据
-    const formattedBookings = bookings.map((booking, index) => {
-      const formatted = {
-        id: booking.id,
-        collectionId: booking.collectionId,
-        qqNumber: booking.qqNumber,
-        phoneNumber: booking.phoneNumber,
-        quantity: booking.quantity,
-        status: booking.status,
-        notes: booking.notes,
-        pickupMethod: booking.pickupMethod, // 添加领取方式字段
-        adminNotes: booking.adminNotes,
-        createdAt: booking.createdAt instanceof Date ? booking.createdAt.toISOString() : booking.createdAt,
-        updatedAt: booking.updatedAt instanceof Date ? booking.updatedAt.toISOString() : booking.updatedAt,
-        confirmedAt: booking.confirmedAt instanceof Date ? booking.confirmedAt.toISOString() : booking.confirmedAt,
-        completedAt: booking.completedAt instanceof Date ? booking.completedAt.toISOString() : booking.completedAt,
-        cancelledAt: booking.cancelledAt instanceof Date ? booking.cancelledAt.toISOString() : booking.cancelledAt,
-      collection: {
-        id: booking.collectionId,
-        title: booking.collectionTitle || '未知画集',
-        number: booking.collectionNumber || '未知编号',
-        coverImage: booking.collectionCoverImage || '',
-        price: booking.collectionPrice || 0,
-      },
-      totalPrice: (booking.collectionPrice || 0) * booking.quantity,
-    };
-
-    // 添加调试信息，查看前几条记录的pickupMethod
-    if (index < 3) {
-      console.log(`🔍 [API] 预订记录 ${index + 1} (ID: ${booking.id}) pickupMethod 处理:`, {
-        原始值: booking.pickupMethod,
-        格式化后: formatted.pickupMethod,
-        类型: typeof booking.pickupMethod,
-      });
-    }
-
-    return formatted;
-  });
-
-    // 格式化统计信息
-    const formattedStats = {
-      totalBookings: stats[0]?.totalBookings || 0,
-      pendingBookings: stats[0]?.pendingBookings || 0,
-      confirmedBookings: stats[0]?.confirmedBookings || 0,
-      completedBookings: stats[0]?.completedBookings || 0,
-      cancelledBookings: stats[0]?.cancelledBookings || 0,
-      totalQuantity: stats[0]?.totalQuantity || 0,
-      totalRevenue: stats[0]?.totalRevenue || 0,
-    };
+    const result = await bookingQueryService.getAdminBookings({
+      qqNumber,
+      phoneNumber,
+      status,
+      applyFiltersToStats: true,
+    });
 
     // 强制刷新数据库连接，确保获取最新数据
     console.log('API响应数据:', {
-      bookingsCount: formattedBookings.length,
-      stats: formattedStats,
+      bookingsCount: result.bookings.length,
+      stats: result.stats,
       timestamp: new Date().toISOString(),
       forceRefresh: forceRefresh,
       searchParams: { qqNumber, phoneNumber, status }
     });
 
     const response = NextResponse.json({
-      bookings: formattedBookings,
-      stats: formattedStats,
+      bookings: result.bookings,
+      stats: result.stats,
       _timestamp: Date.now(), // 添加时间戳到响应体
       _cacheBuster: Math.random().toString(36).substring(7) // 添加随机字符串
     });

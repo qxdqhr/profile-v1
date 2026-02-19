@@ -8,8 +8,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { comicUniverseCollections } from '@/db/schema';
-import { eq, and, asc, desc } from 'drizzle-orm';
+import { createBookingQueryService } from 'sa2kit/showmasterpiece/server';
+
+const bookingQueryService = createBookingQueryService(db);
 
 /**
  * 获取可预订的画集列表
@@ -26,60 +27,13 @@ async function GET(request: NextRequest) {
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 50;
     const orderBy = searchParams.get('orderBy') || 'displayOrder'; // displayOrder, createdAt, title
 
-    // 构建查询条件
-    const conditions = [
-      eq(comicUniverseCollections.isPublished, true), // 只查询已发布的画集
-    ];
-    
-    if (categoryId) {
-      conditions.push(eq(comicUniverseCollections.categoryId, categoryId));
-    }
+    const collections = await bookingQueryService.getBookableCollections({
+      categoryId,
+      limit,
+      orderBy,
+    });
 
-    // 构建排序条件
-    let orderByClause;
-    switch (orderBy) {
-      case 'createdAt':
-        orderByClause = desc(comicUniverseCollections.createdAt);
-        break;
-      case 'title':
-        orderByClause = asc(comicUniverseCollections.title);
-        break;
-      case 'displayOrder':
-      default:
-        orderByClause = asc(comicUniverseCollections.displayOrder);
-        break;
-    }
-
-    // 查询画集列表
-    const collections = await db
-      .select({
-        id: comicUniverseCollections.id,
-        title: comicUniverseCollections.title,
-        number: comicUniverseCollections.number,
-        coverImage: comicUniverseCollections.coverImage,
-        price: comicUniverseCollections.price,
-        description: comicUniverseCollections.description,
-        displayOrder: comicUniverseCollections.displayOrder,
-        createdAt: comicUniverseCollections.createdAt,
-      })
-      .from(comicUniverseCollections)
-      .where(and(...conditions))
-      .orderBy(orderByClause)
-      .limit(Math.min(100, Math.max(1, limit)));
-
-    // 格式化响应数据
-    const formattedCollections = collections.map(collection => ({
-      id: collection.id,
-      title: collection.title,
-      number: collection.number,
-      coverImage: collection.coverImage,
-      price: collection.price,
-      description: collection.description,
-      displayOrder: collection.displayOrder,
-      createdAt: collection.createdAt?.toISOString(),
-    }));
-
-    return NextResponse.json(formattedCollections);
+    return NextResponse.json(collections);
 
   } catch (error) {
     console.error('获取可预订画集列表失败:', error);
