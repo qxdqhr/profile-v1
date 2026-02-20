@@ -17,7 +17,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { masterpiecesConfigDbService } from 'sa2kit/showmasterpiece/server';
+import { masterpiecesConfigDbService } from '../../db/masterpiecesDbService';
 import { validateApiAuth } from '@/modules/auth/server';
 
 /**

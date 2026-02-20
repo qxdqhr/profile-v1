@@ -3,4 +3,4 @@ export {
   GET,
   PUT,
   DELETE
-} from '@/app/api/showmasterpiece/config/route'; 
+} from '@/modules/showmasterpiece/api/config/route'; 

@@ -1,69 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { collectionsDbService } from 'sa2kit/showmasterpiece/server';
-import { validateApiAuth } from '@/modules/auth/server';
+/**
+ * ShowMasterpiece 模块 - 单个画集API代理
+ * 
+ * 代理文件，调用模块内的实际实现
+ * 
+ * @fileoverview 单个画集API代理
+ */
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    // 验证用户权限
-    const user = await validateApiAuth(request);
-    if (!user) {
-      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
-    }
-
-    // 检查请求体大小
-    const contentLength = request.headers.get('content-length');
-    if (contentLength && parseInt(contentLength) > 10 * 1024 * 1024) { // 10MB 限制
-      return NextResponse.json(
-        { error: '请求数据太大，请压缩图片后重试' },
-        { status: 413 }
-      );
-    }
-
-    const resolvedParams = await params;
-    const collectionId = parseInt(resolvedParams.id);
-    const collectionData = await request.json();
-    const updatedCollection = await collectionsDbService.updateCollection(collectionId, collectionData);
-    return NextResponse.json(updatedCollection);
-  } catch (error) {
-    console.error('更新画集失败:', error);
-    // 检查是否是请求体过大的错误
-    if (error instanceof Error && error.message.includes('body')) {
-      return NextResponse.json(
-        { error: '请求数据太大，请压缩图片后重试' },
-        { status: 413 }
-      );
-    }
-    return NextResponse.json(
-      { error: '更新画集失败' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    // 验证用户权限
-    const user = await validateApiAuth(request);
-    if (!user) {
-      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
-    }
-
-    const resolvedParams = await params;
-    const collectionId = parseInt(resolvedParams.id);
-    
-    await collectionsDbService.deleteCollection(collectionId);
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('删除画集失败:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : '删除画集失败' },
-      { status: 500 }
-    );
-  }
-} 
+// 直接从模块内导出API实现
+export { PUT, DELETE } from '@/modules/showmasterpiece/api/collections/[id]/route';
