@@ -1,10 +1,25 @@
-/**
- * ShowMasterpiece 模块 - 标签API代理
- * 
- * 代理文件，调用模块内的实际实现
- * 
- * @fileoverview 标签API代理
- */
+import { NextRequest, NextResponse } from 'next/server';
+import { tagsDbService } from '@/modules/showmasterpiece/masterpiecesDbService';
 
-// 直接从模块内导出API实现
-export { GET } from '@/modules/showmasterpiece/api/tags/route';
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    console.log('📋 [标签API] 获取标签列表');
+
+    const tags = await tagsDbService.getTags();
+    
+    console.log(`✅ [标签API] 获取到 ${tags.length} 个标签`);
+    
+    return NextResponse.json({
+      success: true,
+      data: tags,
+      total: tags.length
+    });
+  } catch (error) {
+    console.error('获取标签失败:', error);
+    return NextResponse.json(
+      { error: '获取标签失败' },
+      { status: 500 }
+    );
+  }
+} 

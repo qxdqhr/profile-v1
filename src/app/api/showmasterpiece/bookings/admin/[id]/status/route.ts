@@ -1,10 +1,77 @@
 /**
- * ShowMasterpiece 模块 - 预订状态管理API代理
+ * ShowMasterpiece 模块 - 预订状态更新API路由
  * 
- * 代理文件，调用模块内的实际实现
+ * 管理员专用的预订状态更新API，提供：
+ * - PUT: 更新预订状态和管理员备注
  * 
- * @fileoverview 预订状态管理API代理
+ * @fileoverview 预订状态更新API路由
  */
 
-// 直接从模块内导出API实现
-export * from '@/modules/showmasterpiece/api/bookings/admin/[id]/status/route';
+import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/db';
+import { BookingCommandError, createBookingCommandService } from 'sa2kit/showmasterpiece/server';
+
+const bookingCommandService = createBookingCommandService(db);
+
+/**
+ * 更新预订状态
+ * 
+ * @param request Next.js请求对象
+ * @param params 路由参数，包含预订ID
+ * @returns 更新后的预订信息
+ */
+async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const resolvedParams = await params;
+    const bookingId = parseInt(resolvedParams.id);
+    
+    if (isNaN(bookingId)) {
+      return NextResponse.json(
+        { message: '无效的预订ID' },
+        { status: 400 }
+      );
+    }
+
+    const body = await request.json();
+    const { status, adminNotes } = body;
+
+    const updatedBooking = await bookingCommandService.updateBookingStatus(
+      bookingId,
+      status,
+      adminNotes
+    );
+
+    return NextResponse.json({
+      id: updatedBooking.id,
+      collectionId: updatedBooking.collectionId,
+      qqNumber: updatedBooking.qqNumber,
+      phoneNumber: updatedBooking.phoneNumber,
+      quantity: updatedBooking.quantity,
+      status: updatedBooking.status,
+      notes: updatedBooking.notes,
+      adminNotes: updatedBooking.adminNotes,
+      createdAt: updatedBooking.createdAt?.toISOString?.() ?? updatedBooking.createdAt,
+      updatedAt: updatedBooking.updatedAt?.toISOString?.() ?? updatedBooking.updatedAt,
+      confirmedAt: updatedBooking.confirmedAt?.toISOString?.() ?? updatedBooking.confirmedAt,
+      completedAt: updatedBooking.completedAt?.toISOString?.() ?? updatedBooking.completedAt,
+      cancelledAt: updatedBooking.cancelledAt?.toISOString?.() ?? updatedBooking.cancelledAt,
+    });
+
+  } catch (error) {
+    if (error instanceof BookingCommandError) {
+      const statusCode = error.code === 'BOOKING_NOT_FOUND' ? 404 : 400;
+      return NextResponse.json({ message: error.message }, { status: statusCode });
+    }
+
+    console.error('更新预订状态失败:', error);
+    return NextResponse.json(
+      { message: '更新预订状态失败' },
+      { status: 500 }
+    );
+  }
+}
+
+export { PUT }; 

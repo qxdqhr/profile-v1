@@ -1,10 +1,78 @@
 /**
- * ShowMasterpiece 模块 - 预订导出API代理
+ * ShowMasterpiece 模块 - 预订信息导出API路由
  * 
- * 代理文件，调用模块内的实际实现
+ * 管理员导出预订信息为CSV格式的API路由
  * 
- * @fileoverview 预订导出API代理
+ * @fileoverview 预订导出API路由
  */
 
-// 直接从模块内导出API实现
-export * from '@/modules/showmasterpiece/api/bookings/admin/export/route';
+import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/db';
+import { createBookingQueryService } from 'sa2kit/showmasterpiece/server';
+
+const bookingQueryService = createBookingQueryService(db);
+
+/**
+ * 导出预订数据为CSV格式
+ * 
+ * @param request Next.js请求对象
+ * @returns CSV文件响应
+ */
+async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const format = searchParams.get('format') || 'csv';
+    
+    if (format !== 'csv') {
+      return NextResponse.json(
+        { message: '目前只支持CSV格式导出' },
+        { status: 400 }
+      );
+    }
+
+    const csvContent = await bookingQueryService.exportBookingsCsv();
+    
+    // 设置响应头
+    const headers = new Headers();
+    headers.set('Content-Type', 'text/csv; charset=utf-8');
+    
+    // 使用英文文件名避免字符编码问题
+    const fileName = `bookings_${new Date().toISOString().split('T')[0]}.csv`;
+    headers.set('Content-Disposition', `attachment; filename="${fileName}"`);
+    
+    console.log('✅ 预订数据导出成功:', { 
+      format: 'csv',
+      timestamp: new Date().toISOString()
+    });
+
+    return new NextResponse(csvContent, {
+      status: 200,
+      headers,
+    });
+
+  } catch (error) {
+    console.error('导出预订数据失败:', error);
+    
+    // 更详细的错误信息
+    let errorMessage = '导出预订数据失败';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      console.error('错误详情:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
+    }
+    
+    return NextResponse.json(
+      { 
+        message: '导出预订数据失败', 
+        error: errorMessage,
+        details: error instanceof Error ? error.stack : '未知错误'
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export { GET };
