@@ -23,17 +23,29 @@ import { asc, eq } from 'drizzle-orm';
 import { comicUniverseCategories, comicUniverseConfigs } from 'sa2kit/showmasterpiece/server';
 
 type HomeTabItem = {
+  name: string;
+  description: string | null;
   category: string;
   visible: boolean;
   order: number;
 };
 
+type HomeTabItemInput = {
+  name?: string;
+  description?: string | null;
+  category?: string;
+  visible?: boolean;
+  order?: number;
+};
+
 type MasterpiecesConfigRow = typeof comicUniverseConfigs.$inferSelect;
 
 const buildHomeTabsFromCategories = (
-  categories: { name: string; displayOrder: number | null; isActive: boolean }[],
+  categories: { name: string; description: string | null; displayOrder: number | null; isActive: boolean }[],
 ): HomeTabItem[] =>
   categories.map((item, index) => ({
+    name: item.name,
+    description: item.description ?? null,
     category: item.name,
     visible: item.isActive,
     order: index,
@@ -41,7 +53,7 @@ const buildHomeTabsFromCategories = (
 
 const toConfigResponse = (
   config: MasterpiecesConfigRow,
-  categories: { name: string; displayOrder: number | null; isActive: boolean }[],
+  categories: { name: string; description: string | null; displayOrder: number | null; isActive: boolean }[],
 ) => ({
   ...config,
   homeTabConfig: buildHomeTabsFromCategories(categories),
@@ -51,13 +63,16 @@ const loadCategories = async () =>
   db
     .select({
       name: comicUniverseCategories.name,
+      description: comicUniverseCategories.description,
       displayOrder: comicUniverseCategories.displayOrder,
       isActive: comicUniverseCategories.isActive,
     })
     .from(comicUniverseCategories)
     .orderBy(asc(comicUniverseCategories.displayOrder), asc(comicUniverseCategories.name));
 
-const buildDefaultConfig = (categories: { name: string; displayOrder: number | null; isActive: boolean }[]) => ({
+const buildDefaultConfig = (
+  categories: { name: string; description: string | null; displayOrder: number | null; isActive: boolean }[],
+) => ({
   siteName: '画集展览',
   siteDescription: '精美的艺术作品展览',
   heroTitle: '艺术画集展览',
@@ -130,33 +145,59 @@ export async function PUT(request: NextRequest) {
 
     if (Array.isArray(configData.homeTabConfig)) {
       const items = configData.homeTabConfig
-        .filter((item: HomeTabItem) => item && typeof item.category === 'string' && item.category.trim().length > 0)
-        .map((item: HomeTabItem) => ({
-          category: item.category.trim(),
-          visible: item.visible ?? true,
-          order: Number.isFinite(item.order) ? Number(item.order) : 0,
-        }))
+        .filter((item: HomeTabItemInput) => {
+          if (!item) return false;
+          const rawName = typeof item.name === 'string' ? item.name : item.category;
+          return typeof rawName === 'string' && rawName.trim().length > 0;
+        })
+        .map((item: HomeTabItemInput) => {
+          const rawName = typeof item.name === 'string' ? item.name : item.category;
+          const name = rawName ? rawName.trim() : '';
+          const description = typeof item.description === 'string' ? item.description.trim() : '';
+          return {
+            name,
+            category: name,
+            description: description.length > 0 ? description : null,
+            visible: item.visible ?? true,
+            order: Number.isFinite(item.order) ? Number(item.order) : 0,
+          };
+        })
         .sort((a: HomeTabItem, b: HomeTabItem) => a.order - b.order)
         .map((item: HomeTabItem, index: number) => ({ ...item, order: index }));
 
       const current = await loadCategories();
       const currentMap = new Map(current.map((cat) => [cat.name, cat]));
-      const incomingSet = new Set(items.map((item: HomeTabItem) => item.category));
+
+      const missingDescription = items.find((item) => {
+        if (item.description && item.description.trim().length > 0) return false;
+        return !currentMap.has(item.name);
+      });
+
+      if (missingDescription) {
+        return NextResponse.json({ error: '新增分类时，分类名称和展示文案均不能为空' }, { status: 400 });
+      }
+
+      const incomingSet = new Set(items.map((item: HomeTabItem) => item.name));
 
       await Promise.all(
         items.map(async (item: HomeTabItem) => {
-          if (currentMap.has(item.category)) {
+          const existingCategory = currentMap.get(item.name);
+          const description = item.description ?? existingCategory?.description ?? null;
+
+          if (existingCategory) {
             await db
               .update(comicUniverseCategories)
               .set({
                 isActive: item.visible,
                 displayOrder: item.order,
+                description,
                 updatedAt: new Date(),
               })
-              .where(eq(comicUniverseCategories.name, item.category));
+              .where(eq(comicUniverseCategories.name, item.name));
           } else {
             await db.insert(comicUniverseCategories).values({
-              name: item.category,
+              name: item.name,
+              description,
               isActive: item.visible,
               displayOrder: item.order,
             });

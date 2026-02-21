@@ -34,10 +34,14 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const name = typeof body?.name === 'string' ? body.name.trim() : '';
-    const description = typeof body?.description === 'string' ? body.description.trim() : undefined;
+    const description = typeof body?.description === 'string' ? body.description.trim() : '';
 
     if (!name) {
       return NextResponse.json({ error: '分类名称不能为空' }, { status: 400 });
+    }
+
+    if (!description) {
+      return NextResponse.json({ error: '分类展示文案不能为空' }, { status: 400 });
     }
 
     await categoriesDbService.createCategory(name, description);
