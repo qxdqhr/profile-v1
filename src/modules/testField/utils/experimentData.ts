@@ -438,5 +438,16 @@ export const experiments: ExperimentItem[] = [
     isCompleted: true,
     createdAt: '2026-02-16',
     updatedAt: '2026-02-16'
+  },
+  {
+    id: "xfyun-asr-test",
+    title: "讯飞语音识别测试",
+    description: "基于 iFlytek WebSocket 听写接口的语音识别测试台，用于验证 sa2kit 的语音链路",
+    path: "/testField/xunfeiAsr",
+    tags: ["SA2Kit", "语音识别", "讯飞", "测试"],
+    category: "utility",
+    isCompleted: true,
+    createdAt: '2026-02-21',
+    updatedAt: '2026-02-21'
   }
 ];
