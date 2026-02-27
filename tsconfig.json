@@ -25,6 +25,12 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@sa2kit/exam": [
+        "./packages/sa2kit-exam/src/index.ts"
+      ],
+      "@sa2kit/exam/*": [
+        "./packages/sa2kit-exam/src/*"
       ]
     }
   },

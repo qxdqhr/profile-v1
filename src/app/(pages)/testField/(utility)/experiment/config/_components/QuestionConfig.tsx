@@ -1,15 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { 
-  Question, 
-  QuestionType, 
-  SpecialEffectType, 
-  SingleChoiceQuestion, 
+import {
+  Question,
+  QuestionType,
+  SpecialEffectType,
+  SingleChoiceQuestion,
   MultipleChoiceQuestion,
-  Option,
-  SpecialEffect,
-  ModalPopEffect
+  FillBlankQuestion,
 } from '../types';
 import styles from '../styles.module.css';
 import AudioUploader from './AudioUploader';
@@ -87,6 +85,12 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
           : [{ id: `${questionId}_option_1`, content: '' }],
         answers: [],
       } as any;
+    } else if (type === QuestionType.FillBlank) {
+      updatedQuestion = {
+        ...question,
+        type,
+        answers: question.type === QuestionType.FillBlank ? (question as any).answers || [] : [],
+      } as any;
     } else {
       updatedQuestion = {
         ...question,
@@ -116,9 +120,9 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
   const updateMultipleAnswer = (questionId: string, optionId: string, isSelected: boolean) => {
     const question = questions.find(q => q.id === questionId) as any;
     if (!question) return;
-    
+
     let updatedAnswers = [...(question.answers || [])];
-    
+
     if (isSelected) {
       if (!updatedAnswers.includes(optionId)) {
         updatedAnswers.push(optionId);
@@ -126,8 +130,18 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
     } else {
       updatedAnswers = updatedAnswers.filter(id => id !== optionId);
     }
-    
+
     updateQuestion(questionId, { answers: updatedAnswers } as any);
+  };
+
+  // 更新填空题答案（逗号分隔）
+  const updateFillBlankAnswers = (questionId: string, answersText: string) => {
+    const answers = answersText
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    updateQuestion(questionId, { answers } as any);
   };
 
   // 添加选项
@@ -391,6 +405,7 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
                   >
                     <option value={QuestionType.SingleChoice}>单选题</option>
                     <option value={QuestionType.MultipleChoice}>多选题</option>
+                    <option value={QuestionType.FillBlank}>填空题</option>
                   </select>
                 </div>
                 
@@ -430,10 +445,10 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>选项</label>
                     <div className={styles.optionList}>
-                      {(question.type === QuestionType.SingleChoice 
-                          ? (question as SingleChoiceQuestion).options 
-                          : (question as MultipleChoiceQuestion).options
-                        ).map((option) => (
+                      {(question.type === QuestionType.SingleChoice
+                        ? (question as SingleChoiceQuestion).options
+                        : (question as MultipleChoiceQuestion).options
+                      ).map((option) => (
                         <div key={option.id} className={styles.optionItem}>
                           <div className={styles.optionHeader}>
                             {question.type === QuestionType.SingleChoice && (
@@ -444,7 +459,7 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
                                 onChange={() => updateSingleAnswer(question.id, option.id)}
                               />
                             )}
-                            
+
                             {question.type === QuestionType.MultipleChoice && (
                               <input
                                 type="checkbox"
@@ -452,7 +467,7 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
                                 onChange={(e) => updateMultipleAnswer(question.id, option.id, e.target.checked)}
                               />
                             )}
-                            
+
                             <input
                               type="text"
                               className={styles.formInput}
@@ -460,14 +475,14 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
                               onChange={(e) => updateOption(question.id, option.id, e.target.value)}
                               placeholder="选项内容..."
                             />
-                            
+
                             <button
                               className={styles.expandButton}
                               onClick={() => toggleOptionExpanded(option.id)}
                             >
                               {expandedOptionId === option.id ? '收起' : '详情'}
                             </button>
-                            
+
                             <button
                               className={styles.removeButton}
                               onClick={() => deleteOption(question.id, option.id)}
@@ -475,7 +490,7 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
                               删除
                             </button>
                           </div>
-                          
+
                           {expandedOptionId === option.id && (
                             <div className={styles.optionDetails}>
                               <div className={styles.formGroup}>
@@ -500,7 +515,7 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
                           )}
                         </div>
                       ))}
-                      
+
                       <button
                         className={styles.addButton}
                         onClick={() => addOption(question.id)}
@@ -508,6 +523,18 @@ const QuestionConfig = ({ questions, onQuestionsChange }: QuestionConfigProps) =
                         + 添加选项
                       </button>
                     </div>
+                  </div>
+                )}
+
+                {question.type === QuestionType.FillBlank && (
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>填空答案（使用英文逗号分隔多个空）</label>
+                    <textarea
+                      className={styles.formTextarea}
+                      value={((question as FillBlankQuestion).answers || []).join(', ')}
+                      onChange={(e) => updateFillBlankAnswers(question.id, e.target.value)}
+                      placeholder="例如: 北京, 上海"
+                    />
                   </div>
                 )}
                 

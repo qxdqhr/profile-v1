@@ -18,6 +18,10 @@ const QuestionDisplay = () => {
         return (
           <div className={styles["question-type"]}>多选题</div>
         );
+      case QuestionType.FillBlank:
+        return (
+          <div className={styles["question-type"]}>填空题</div>
+        );
       default:
         return null;
     }

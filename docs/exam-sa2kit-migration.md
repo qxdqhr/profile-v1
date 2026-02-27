@@ -1,4 +1,4 @@
-# Exam Module Migration to sa2kit (Phase 1)
+# Exam Module Migration to sa2kit (Phase 1-3)
 
 ## Scope completed
 
@@ -27,10 +27,28 @@ This phase migrates the existing exam module architecture for current supported 
 
 Compatibility is preserved for existing API paths.
 
+## Phase 2 completed
+
+- Added fill blank support in current web exam flow:
+  - runtime answer area
+  - config panel answer editing
+  - scoring fix for text answers
+- Added realtime session architecture in server/services layers:
+  - frontend `realtimeSocket` client abstraction
+  - backend realtime session service
+  - API endpoints under `/api/exam/realtime/*`
+
+## Phase 3 completed
+
+- Added package candidate module: `packages/sa2kit-exam`
+  - `core/`, `services/`, `ui/` extracted copies
+  - package name prepared as `@sa2kit/exam`
+- Added tsconfig alias mapping for `@sa2kit/exam`.
+- `src/modules/exam/index.ts` now re-exports from `@sa2kit/exam` plus local server layer.
+
 ## Deferred scope (next phase)
 
-- Socket-based collaborative/runtime flow.
-- Fill blank question feature implementation.
+- Upgrade realtime transport from current session-state API + client abstraction to full WebSocket infra.
 - Short answer/essay end-to-end workflow.
 
 ## Layering rules (must keep)

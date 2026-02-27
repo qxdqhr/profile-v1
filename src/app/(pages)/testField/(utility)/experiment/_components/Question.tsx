@@ -5,6 +5,7 @@ import { QuestionType } from '@/app/(pages)/testField/(utility)/experiment/confi
 import QuestionContent from './QuestionContent';
 import OptionsList from './OptionsList';
 import QuestionHeader from './QuestionHeader';
+import FillBlankAnswerArea from './FillBlankAnswerArea';
 
 // 这个组件根据题目类型渲染不同的题目组件
 const Question = () => {
@@ -16,22 +17,10 @@ const Question = () => {
       <QuestionContent question={currentQuestion} />
       
       {/* 根据题目类型渲染不同的答题区域 */}
-      {(currentQuestion.type === QuestionType.SingleChoice || 
-        currentQuestion.type === QuestionType.MultipleChoice) && (
-        <OptionsList />
-      )}
-      
-      {/* 在这里可以添加其他题型的渲染组件，如填空题、简答题等 */}
-      {/* 比如: */}
-      {/*
-      {currentQuestion.type === QuestionType.FillBlank && (
-        <FillBlankAnswerArea />
-      )}
-      
-      {currentQuestion.type === QuestionType.ShortAnswer && (
-        <ShortAnswerArea />
-      )}
-      */}
+      {(currentQuestion.type === QuestionType.SingleChoice ||
+        currentQuestion.type === QuestionType.MultipleChoice) && <OptionsList />}
+
+      {currentQuestion.type === QuestionType.FillBlank && <FillBlankAnswerArea />}
     </div>
   );
 };

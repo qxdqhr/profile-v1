@@ -1,4 +1,2 @@
-export * from './core';
-export * from './services';
+export * from '@sa2kit/exam';
 export * from './server';
-export * from './ui';
