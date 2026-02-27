@@ -1,3 +1,4 @@
+import { createExamQueryService } from '@sa2kit/exam/server';
 import {
   getAllExamTypes,
   getExamMetadata,
@@ -6,22 +7,16 @@ import {
   saveFullExamConfig,
 } from '@/db/services/exam-service';
 
-export async function fetchExamTypes() {
-  return getAllExamTypes();
-}
+const queryService = createExamQueryService({
+  getAllExamTypes,
+  getExamMetadata,
+  getExamQuestions,
+  getFullExamConfig,
+  saveFullExamConfig,
+});
 
-export async function fetchExamMetadata(type: string) {
-  return getExamMetadata(type);
-}
-
-export async function fetchExamQuestions(type: string) {
-  return getExamQuestions(type);
-}
-
-export async function fetchFullExamConfig(type: string) {
-  return getFullExamConfig(type);
-}
-
-export async function saveExamConfig(type: string, config: unknown) {
-  return saveFullExamConfig(type, config);
-}
+export const fetchExamTypes = queryService.fetchExamTypes;
+export const fetchExamMetadata = queryService.fetchExamMetadata;
+export const fetchExamQuestions = queryService.fetchExamQuestions;
+export const fetchFullExamConfig = queryService.fetchFullExamConfig;
+export const saveExamConfig = queryService.saveExamConfig;

@@ -7,5 +7,6 @@ Shared exam SDK module extracted from profile-v1.
 - core: domain types and scoring
 - services: frontend API clients and service wrappers
 - ui: cross-platform adapter contracts and platform adapters
+- server: backend service factories (dependency-injected)
 
-Server-side data access remains in host app (`src/modules/exam/server`).
+Profile app keeps only server wiring (db adapters), and routes consume the wired services.
