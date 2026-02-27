@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/db';
-import { examTypes } from '@/db/schema';
-import { eq } from 'drizzle-orm';
-import { getFullExamConfig, saveFullExamConfig } from '@/db/services/exam-service';
+import { fetchFullExamConfig, findExamType, saveExamConfig } from '@/modules/exam/server';
 
 // 标记为动态路由，防止静态生成
 export const dynamic = 'force-dynamic';
@@ -15,10 +12,7 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type') || 'default';
     
     // 先检查考试类型是否存在
-    const typeExists = await db
-      .select()
-      .from(examTypes)
-      .where(eq(examTypes.id, type));
+    const typeExists = await findExamType(type);
     
     if (typeExists.length === 0) {
       return NextResponse.json(
@@ -28,7 +22,7 @@ export async function GET(request: NextRequest) {
     }
     
     // 获取完整配置（包括问题、启动页和结果页）
-    const fullConfig = await getFullExamConfig(type);
+    const fullConfig = await fetchFullExamConfig(type);
     
     return NextResponse.json(fullConfig);
   } catch (error) {
@@ -50,10 +44,7 @@ export async function POST(request: NextRequest) {
     const type = searchParams.get('type') || 'default';
     
     // 检查考试类型是否存在
-    const typeExists = await db
-      .select()
-      .from(examTypes)
-      .where(eq(examTypes.id, type));
+    const typeExists = await findExamType(type);
     
     if (typeExists.length === 0) {
       return NextResponse.json(
@@ -63,7 +54,7 @@ export async function POST(request: NextRequest) {
     }
     
     // 保存完整配置（问题、启动页和结果页）
-    await saveFullExamConfig(type, data);
+    await saveExamConfig(type, data);
     
     return NextResponse.json({ 
       success: true,

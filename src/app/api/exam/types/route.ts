@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { getAllExamTypes } from '../../../../db/services/exam-service';
+import { fetchExamTypes } from '@/modules/exam/server';
 
 /**
  * 获取所有考试类型
  */
 export async function GET() {
   try {
-    const examTypes = await getAllExamTypes();
+    const examTypes = await fetchExamTypes();
     return NextResponse.json({ examTypes }, { status: 200 });
   } catch (error) {
     console.error('获取考试类型失败:', error);

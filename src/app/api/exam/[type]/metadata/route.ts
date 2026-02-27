@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getExamMetadata } from '../../../../../db/services/exam-service';
+import { fetchExamMetadata } from '@/modules/exam/server';
 
 /**
  * 获取考试元数据
@@ -18,7 +18,7 @@ export async function GET(
       );
     }
     
-    const metadata = await getExamMetadata(type);
+    const metadata = await fetchExamMetadata(type);
     return NextResponse.json(metadata, { status: 200 });
   } catch (error) {
     console.error(`获取考试元数据失败:`, error);

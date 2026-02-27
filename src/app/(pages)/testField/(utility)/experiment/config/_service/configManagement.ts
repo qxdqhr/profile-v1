@@ -1,64 +1,33 @@
 import { ConfigData } from '../types';
 import { mockQuestions, mockStartScreenData, mockResultModalData } from '@/app/(pages)/testField/(utility)/experiment/_utils/mockData';
+import { ExamConfigFrontendService, HttpExamClient } from '@/modules/exam/services';
+
+const examConfigService = new ExamConfigFrontendService(new HttpExamClient());
 
 // 从静态文件加载配置
 export const loadConfigurations = async (examId: string = 'default'): Promise<ConfigData> => {
   try {
-    // 构建API URL，带上试卷类型参数
-    const response = await fetch(`/api/testField/experiment/config/questions?type=${encodeURIComponent(examId)}`);
-    
-    if (response.ok) {
-      return await response.json();
-    }
-    
-    // 如果静态文件不存在（404）
-    if (response.status === 404) {
-      console.log(`试卷类型 ${examId} 的配置文件不存在，使用默认配置`);
-      
-      // 使用默认配置
-      const defaultConfig = {
-        questions: mockQuestions,
-        startScreen: mockStartScreenData,
-        resultModal: mockResultModalData
-      };
-      
-      // 尝试保存默认配置到服务器
-      await saveConfigurations(defaultConfig, examId);
-      
-      return defaultConfig;
-    }
-    
-    throw new Error(`加载配置失败: ${response.statusText}`);
+    return await examConfigService.load(examId);
   } catch (error) {
     console.error('加载配置失败:', error);
-    
-    // 出错时返回默认配置
-    return {
+
+    const defaultConfig = {
       questions: mockQuestions,
       startScreen: mockStartScreenData,
-      resultModal: mockResultModalData
+      resultModal: mockResultModalData,
     };
+
+    return defaultConfig;
   }
 };
 
 // 保存配置到静态文件
 export const saveConfigurations = async (config: ConfigData, examId: string = 'default'): Promise<void> => {
   try {
-    // 保存到服务器
-    const response = await fetch(`/api/testField/experiment/config/questions?type=${encodeURIComponent(examId)}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(config),
-    });
-    
-    if (!response.ok) {
-      throw new Error('保存到服务器失败');
-    }
+    await examConfigService.save(examId, config);
   } catch (error) {
     console.error('保存配置失败:', error);
-    throw error; // 抛出错误让调用者处理
+    throw error;
   }
 };
 

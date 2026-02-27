@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getExamQuestions } from '../../../../../db/services/exam-service';
+import { fetchExamQuestions } from '@/modules/exam/server';
 
 /**
  * 获取考试问题
@@ -18,7 +18,7 @@ export async function GET(
       );
     }
     
-    const questions = await getExamQuestions(type);
+    const questions = await fetchExamQuestions(type);
     return NextResponse.json(questions, { status: 200 });
   } catch (error) {
     console.error(`获取考试问题失败:`, error);
