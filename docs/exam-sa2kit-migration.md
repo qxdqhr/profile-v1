@@ -33,10 +33,7 @@ Compatibility is preserved for existing API paths.
   - runtime answer area
   - config panel answer editing
   - scoring fix for text answers
-- Added realtime session architecture in server/services layers:
-  - frontend `realtimeSocket` client abstraction
-  - backend realtime session service
-  - API endpoints under `/api/exam/realtime/*`
+- Removed non-essential realtime/socket scaffolding to keep module focused on exam frontend/backend core flow.
 
 ## Phase 3 completed
 
@@ -48,8 +45,8 @@ Compatibility is preserved for existing API paths.
 
 ## Deferred scope (next phase)
 
-- Upgrade realtime transport from current session-state API + client abstraction to full WebSocket infra.
 - Short answer/essay end-to-end workflow.
+- Additional cross-end rendering refinements for wechat/rn/desktop adapters.
 
 ## Layering rules (must keep)
 
