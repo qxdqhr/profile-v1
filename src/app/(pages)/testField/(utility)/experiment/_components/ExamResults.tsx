@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { ExamResultReviewList } from '@sa2kit/exam';
 import { useExam } from '../_context';
-import { MultipleChoiceQuestion, QuestionType, SingleChoiceQuestion } from '@/app/(pages)/testField/(utility)/experiment/config/types';
 import styles from '../styles.module.css';
 import { assert } from '../_utils/utils';
 
@@ -46,91 +46,14 @@ const ExamResults = () => {
     };
   }, [resultModalData.showDelayTime]);
 
-  const renderQuestionReview = () => {
-    return questions.map((question, index) => {
-      const userAnswer = userAnswers.find((answer) => answer.questionId === question.id);
-
-      if (question.type === QuestionType.FillBlank) {
-        return (
-          <div key={question.id} className={styles['result-question-item']}>
-            <div className={styles['result-question-title']}>
-              第 {index + 1} 题（填空题）
-            </div>
-            <div>{question.content}</div>
-            <div className={styles['result-question-skip']}>填空题暂不展示答案详情</div>
-          </div>
-        );
-      }
-
-      if (question.type === QuestionType.SingleChoice) {
-        const singleQuestion = question as SingleChoiceQuestion;
-        const selectedId = userAnswer?.selectedOptions?.[0];
-        const correctId = singleQuestion.answer;
-        const selectedOption = singleQuestion.options.find((option) => option.id === selectedId);
-        const correctOption = singleQuestion.options.find((option) => option.id === correctId);
-        const isCorrect = !!selectedId && selectedId === correctId;
-
-        return (
-          <div key={question.id} className={styles['result-question-item']}>
-            <div className={styles['result-question-title']}>
-              第 {index + 1} 题（单选题）
-            </div>
-            <div>{question.content}</div>
-            <div className={styles['result-question-line']}>
-              你的选择：{selectedOption ? selectedOption.content : '未作答'}
-            </div>
-            <div className={styles['result-question-line']}>
-              正确答案：{correctOption ? correctOption.content : correctId}
-            </div>
-            <div className={isCorrect ? styles['result-question-correct'] : styles['result-question-wrong']}>
-              {isCorrect ? '回答正确' : '回答错误'}
-            </div>
-          </div>
-        );
-      }
-
-      if (question.type === QuestionType.MultipleChoice) {
-        const multipleQuestion = question as MultipleChoiceQuestion;
-        const selectedIds = userAnswer?.selectedOptions || [];
-        const selectedOptions = multipleQuestion.options.filter((option) => selectedIds.includes(option.id));
-        const correctOptions = multipleQuestion.options.filter((option) =>
-          multipleQuestion.answers.includes(option.id)
-        );
-        const isCorrect =
-          selectedIds.length === multipleQuestion.answers.length &&
-          multipleQuestion.answers.every((answerId) => selectedIds.includes(answerId));
-
-        return (
-          <div key={question.id} className={styles['result-question-item']}>
-            <div className={styles['result-question-title']}>
-              第 {index + 1} 题（多选题）
-            </div>
-            <div>{question.content}</div>
-            <div className={styles['result-question-line']}>
-              你的选择：
-              {selectedOptions.length > 0
-                ? selectedOptions.map((option) => option.content).join('，')
-                : '未作答'}
-            </div>
-            <div className={styles['result-question-line']}>
-              正确答案：{correctOptions.map((option) => option.content).join('，')}
-            </div>
-            <div className={isCorrect ? styles['result-question-correct'] : styles['result-question-wrong']}>
-              {isCorrect ? '回答正确' : '回答错误'}
-            </div>
-          </div>
-        );
-      }
-
-      return (
-        <div key={question.id} className={styles['result-question-item']}>
-          <div className={styles['result-question-title']}>第 {index + 1} 题</div>
-          <div>{question.content}</div>
-          <div className={styles['result-question-skip']}>该题型暂不展示答案详情</div>
-        </div>
-      );
-    });
-  };
+  const reviewQuestions = questions.map((question) => ({
+    id: question.id,
+    type: question.type,
+    content: question.content,
+    options: 'options' in question ? question.options : undefined,
+    answer: 'answer' in question ? question.answer : undefined,
+    answers: 'answers' in question ? question.answers : undefined,
+  }));
 
   return (
     <div className={styles['exam-container']}>
@@ -199,7 +122,7 @@ const ExamResults = () => {
               </div>
             </div>
 
-            <div className={styles['result-question-list']}>{renderQuestionReview()}</div>
+            <ExamResultReviewList questions={reviewQuestions} userAnswers={userAnswers} skipFillBlank />
 
             <div className={styles['button-group']}>
               <button className={styles['review-button']} onClick={resetExam}>
