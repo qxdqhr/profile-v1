@@ -5,10 +5,9 @@ import { useSearchParams } from 'next/navigation';
 import { ExamProvider } from './_context';
 import ExamLayout from './_components/ExamLayout';
 import { mockQuestions, mockStartScreenData, mockResultModalData } from './_utils/mockData';
-import { loadConfigurations } from '@/app/(pages)/testField/(utility)/experiment/config/_service/configManagement';
+import { listExamTypes, loadConfigurations } from '@/app/(pages)/testField/(utility)/experiment/config/_service/configManagement';
 import { Question, StartScreenData, ResultModalData } from '@/app/(pages)/testField/(utility)/experiment/config/types';
 import styles from './styles.module.css';
-import { EXAM_TYPE_MAP } from '@/app/(pages)/testField/(utility)/experiment/config/types';
 
 // 创建一个内部组件来使用 useSearchParams
 function ExperimentContent() {
@@ -20,25 +19,32 @@ function ExperimentContent() {
   const [startScreenData, setStartScreenData] = useState<StartScreenData>(mockStartScreenData);
   const [resultModalData, setResultModalData] = useState<ResultModalData>(mockResultModalData);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   // 加载配置数据
   useEffect(() => {
     const loadConfig = async () => {
       setIsLoading(true);
       setError(null);
-      
+      setNotice(null);
+
       try {
-        // 根据type参数决定加载哪个配置
-        const examId = EXAM_TYPE_MAP[examType] || 'default';
+        const availableTypes = await listExamTypes();
+        const requestedType = examType || 'default';
+        const examId = availableTypes.includes(requestedType) ? requestedType : 'default';
+
+        if (examId !== requestedType) {
+          setNotice(`试卷类型 ${requestedType} 不存在，已自动切换为 default`);
+        }
+
         const config = await loadConfigurations(examId);
-        
+
         setQuestions(config.questions);
         setStartScreenData(config.startScreen);
         setResultModalData(config.resultModal);
       } catch (error) {
         console.error('加载配置失败:', error);
         setError(`加载试卷类型 ${examType} 失败，请检查参数是否正确`);
-        // 加载失败时使用默认模拟数据
       } finally {
         setIsLoading(false);
       }
@@ -76,6 +82,9 @@ function ExperimentContent() {
 
   return (
     <div>
+      {notice && (
+        <div className={styles["experiment-notice"]}>{notice}</div>
+      )}
       <ExamProvider 
         initialQuestions={questions}
         startScreenData={startScreenData}

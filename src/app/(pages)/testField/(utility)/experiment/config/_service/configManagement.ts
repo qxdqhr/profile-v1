@@ -4,6 +4,15 @@ import { ExamConfigFrontendService, HttpExamClient } from '@sa2kit/exam/services
 
 const examConfigService = new ExamConfigFrontendService(new HttpExamClient());
 
+export const listExamTypes = async (): Promise<string[]> => {
+  try {
+    return await examConfigService.listTypes();
+  } catch (error) {
+    console.error('加载试卷类型列表失败:', error);
+    return ['default'];
+  }
+};
+
 // 从静态文件加载配置
 export const loadConfigurations = async (examId: string = 'default'): Promise<ConfigData> => {
   try {
