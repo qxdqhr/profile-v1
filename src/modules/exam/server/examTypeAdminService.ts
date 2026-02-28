@@ -1,26 +1,9 @@
-import { createExamTypeAdminService } from '@sa2kit/exam/server';
-import {
-  countExamQuestions,
-  createExamTypeWithMetadata,
-  deleteExamTypeCascade,
-  findExamMetadata,
-  findExamType,
-  listExamTypes,
-  updateExamTypeMetadata,
-} from './examRepository';
+import { examAdminService, examRepository } from './sdkServices';
 
-const adminService = createExamTypeAdminService({
-  listExamTypes,
-  findExamType,
-  findExamMetadata,
-  countExamQuestions,
-  createExamTypeWithMetadata,
-  updateExamTypeMetadata,
-  deleteExamTypeCascade,
-});
+export const listExamTypeIds = examAdminService.listExamTypeIds;
+export const listExamTypeDetails = examAdminService.listExamTypeDetails;
+export const createExamType = examAdminService.createExamType;
+export const deleteExamType = examAdminService.deleteExamType;
+export const updateExamType = examAdminService.updateExamType;
 
-export const listExamTypeIds = adminService.listExamTypeIds;
-export const listExamTypeDetails = adminService.listExamTypeDetails;
-export const createExamType = adminService.createExamType;
-export const deleteExamType = adminService.deleteExamType;
-export const updateExamType = adminService.updateExamType;
+export const findExamType = examRepository.findExamType;
