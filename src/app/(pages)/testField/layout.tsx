@@ -1,21 +1,12 @@
-import { AuthProvider, UserMenu } from '@/modules/auth';
+'use client';
 
-export const metadata = {
-  title: '实验田 - Next.js',
-  description: '功能测试和实验的地方',
-}
-
-// 添加专门的viewport导出
-export const viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-}
+import { AuthProvider } from 'sa2kit/auth/legacy';
+import type { ReactNode } from 'react';
 
 export default function TestFieldLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: ReactNode
 }) {
   return (
     <AuthProvider>

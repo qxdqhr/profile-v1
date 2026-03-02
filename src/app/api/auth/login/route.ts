@@ -1,2 +1,13 @@
-// 直接导出auth模块中的登录路由处理程序
-export { POST } from '@/modules/auth/api/login/route'; 
+import { createLegacyLoginHandler } from 'sa2kit/auth/legacy/routes';
+import { authService } from '@/lib/auth/legacy';
+
+export const POST = createLegacyLoginHandler({
+  authService,
+  cookieOptions: {
+    name: 'session_token',
+    secure: false,
+    sameSite: 'lax',
+    maxAge: 30 * 24 * 60 * 60,
+    path: '/',
+  },
+});

@@ -4,7 +4,7 @@ import { serial, text, timestamp, pgTable, json, integer, primaryKey } from 'dri
 // 导出画集相关的表
 export * from 'sa2kit/showmasterpiece/server';
 // 导出认证相关的表
-export * from '@/modules/auth/db/schema';
+export * from '@/lib/auth/schema';
 
 export * from '@/modules/filetransfer/db/schema';
 

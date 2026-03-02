@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { validateApiAuth } from '@/modules/auth/server';
+import { validateApiAuth } from '@/lib/auth/legacy';
 import { fileTransferDbService } from '../../../db/fileTransferDbService';
 import { fileTransferService } from '../../../services/fileTransferService';
 import { readFile } from 'fs/promises';

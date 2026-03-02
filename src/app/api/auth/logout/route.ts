@@ -1,2 +1,12 @@
-// 直接导出auth模块中的logout路由处理程序
-export { POST } from '@/modules/auth/api/logout/route'; 
+import { createLegacyLogoutHandler } from 'sa2kit/auth/legacy/routes';
+import { authService } from '@/lib/auth/legacy';
+
+export const POST = createLegacyLogoutHandler({
+  authService,
+  cookieOptions: {
+    name: 'session_token',
+    secure: false,
+    sameSite: 'lax',
+    path: '/',
+  },
+});

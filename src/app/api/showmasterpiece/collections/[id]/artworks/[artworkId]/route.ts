@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { artworksDbService } from '@/modules/showmasterpiece/masterpiecesDbService';
-import { validateApiAuth } from '@/modules/auth/server';
+import { validateApiAuth } from '@/lib/auth/legacy';
 
 export async function PUT(
   request: NextRequest,

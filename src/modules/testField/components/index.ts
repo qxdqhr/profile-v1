@@ -1,9 +1,6 @@
-export { SearchBox } from 'sa2kit/components';
 export { default as CategoryFilter } from './CategoryFilter';
 export { default as CompletionFilter } from './CompletionFilter';
-export { FilterButtonGroup } from 'sa2kit/components';
 export { default as PageHeader } from './PageHeader';
-export { SearchResultHint } from 'sa2kit/components';
 export { default as ExperimentGrid } from './ExperimentGrid';
 export { default as EmptyState } from './EmptyState';
 export { default as SortControl } from './SortControl';

@@ -3,14 +3,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useIdeaLists } from '../hooks/useIdeaLists';
 import { useIdeaItems } from '../hooks/useIdeaItems';
-import { AuthGuard } from '@/modules/auth';
+import { AuthGuard } from 'sa2kit/auth/legacy';
 import CreateIdeaListModal from '../components/CreateIdeaListModal';
 import EditIdeaListModal from '../components/EditIdeaListModal';
 import CreateIdeaItemModal from '../components/CreateIdeaItemModal';
 import EditIdeaItemModal from '../components/EditIdeaItemModal';
 import IdeaItem from '../components/IdeaItem';
 import type { IdeaList, IdeaListWithItems, IdeaListFormData, IdeaItemFormData, IdeaItem as IdeaItemType } from '../types';
-import { AuthProvider, UserMenu } from '@/modules/auth';
+import { AuthProvider, UserMenu } from 'sa2kit/auth/legacy';
 
 /**
  * 想法清单主页面

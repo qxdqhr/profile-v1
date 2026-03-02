@@ -9,17 +9,16 @@ import {
   getExperimentCounts
 } from '../utils';
 
+import { SearchBox, SearchResultHint } from 'sa2kit/components';
 import {
-  SearchBox,
   CategoryFilter,
   CompletionFilter as CompletionFilterComponent,
   PageHeader,
-  SearchResultHint,
   ExperimentGrid,
   EmptyState,
   SortControl,
   SortModeToggle,
-  DraggableExperimentGrid
+  DraggableExperimentGrid,
 } from '../components';
 import { UserInfoBar } from '../components/UserInfoBar';
 

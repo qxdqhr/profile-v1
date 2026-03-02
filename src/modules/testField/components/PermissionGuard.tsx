@@ -7,7 +7,7 @@
 'use client';
 
 import React from 'react';
-import { useAuth } from '@/modules/auth';
+import { useAuth } from 'sa2kit/auth/legacy';
 import { Shield, AlertTriangle } from 'lucide-react';
 
 interface PermissionGuardProps {

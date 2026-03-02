@@ -11,7 +11,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, CloudUpload, FileIcon, Lock, Shield, Sparkles, Zap } from 'lucide-react';
 import { FileTransferCard } from '../components/FileTransferCard';
 import { FileUploader } from '../components/FileUploader';
-import { AuthProvider, useAuth, UserMenu } from '@/modules/auth';
+import { AuthProvider, useAuth, UserMenu } from 'sa2kit/auth/legacy';
 import type { FileTransfer } from '../types';
 
 /**

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { configDbService } from '../../db/configDbService';
-import { validateApiAuth } from '@/modules/auth/server';
+import { validateApiAuth } from '@/lib/auth/legacy';
 
 /**
  * 获取所有配置分类

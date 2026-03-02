@@ -7,7 +7,7 @@
 'use client';
 
 import { CalendarPage } from 'sa2kit/calendar';
-import { useAuth, LoginModal } from '@/modules/auth';
+import { useAuth, LoginModal } from 'sa2kit/auth/legacy';
 import { useState } from 'react';
 
 export default function TestFieldCalendarPage() {

@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { calendarDbService } from '../../../server';
-import { validateApiAuth } from '@/modules/auth/server';
+import { validateApiAuth } from '@/lib/auth/legacy';
 
 interface RouteParams {
   params: {

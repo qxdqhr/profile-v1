@@ -18,7 +18,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { validateApiAuth } from '@/modules/auth/server';
+import { validateApiAuth } from '@/lib/auth/legacy';
 import { asc, eq } from 'drizzle-orm';
 import { comicUniverseCategories, comicUniverseConfigs } from 'sa2kit/showmasterpiece/server';
 

@@ -6,7 +6,7 @@ import {
   fileMetadata,
   fileStorageProviders,
 } from 'sa2kit/universalFile/server';
-import { validateApiAuth } from '@/modules/auth/server';
+import { validateApiAuth } from '@/lib/auth/legacy';
 import { EnvConfigService } from '@/modules/configManager/services/envConfigService';
 import '@/modules/showmasterpiece/sa2kit-init';
 import { db } from '@/db';

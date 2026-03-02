@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { AuthProvider, useAuth, UserMenu, CustomMenuItem, LoginModal } from '@/modules/auth';
+import { AuthProvider, useAuth, UserMenu, CustomMenuItem, LoginModal } from 'sa2kit/auth/legacy';
 import { Settings, Calendar, List, Cog } from 'lucide-react';
 import { 
   CalendarViewType, 

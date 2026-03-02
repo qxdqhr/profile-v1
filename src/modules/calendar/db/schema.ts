@@ -1,6 +1,6 @@
 import { pgTable, serial, text, timestamp, boolean, varchar, integer, json } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { users } from '@/modules/auth/db/schema';
+import { users } from '@/lib/auth/schema';
 
 /**
  * 日历事件表

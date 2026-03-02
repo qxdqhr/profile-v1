@@ -1,6 +1,6 @@
 import { pgTable, serial, text, timestamp, boolean, varchar, integer, real, json } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { users } from '../../auth/db/schema';
+import { users } from '@/lib/auth/schema';
 
 /**
  * MMD模型表

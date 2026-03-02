@@ -191,6 +191,7 @@ declare module 'sa2kit/showmasterpiece' {
   export const SHOWMASTERPIECE_MODULE_NAME: string;
 }
 
+
 declare module 'sa2kit/showmasterpiece/scripts' {
   export const migrateConfigToShowmasterpiece: (...args: any[]) => Promise<any>;
 }

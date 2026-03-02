@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { calendarDbService } from '../../../server';
-import { validateApiAuth } from '@/modules/auth/server';
+import { validateApiAuth } from '@/lib/auth/legacy';
 
 /**
  * 批量删除日历事件

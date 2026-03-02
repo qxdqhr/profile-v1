@@ -53,6 +53,9 @@ const nextConfig: NextConfig = {
         // 添加 SA2Kit 路径别名
         config.resolve.alias = {
             ...config.resolve.alias,
+            'react-native': false,
+            '@tarojs/components': false,
+            '@tarojs/taro': false,
         };
         
         // 在客户端构建时，排除 Node.js 原生模块

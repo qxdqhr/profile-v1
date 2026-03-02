@@ -7,7 +7,7 @@
 'use client';
 
 import React from 'react';
-import { AuthProvider, AuthGuard } from '@/modules/auth';
+import { AuthProvider, AuthGuard } from 'sa2kit/auth/legacy';
 import { ConfigManagerPage } from './ConfigManagerPage';
 import { PermissionGuard } from '../components/PermissionGuard';
 
