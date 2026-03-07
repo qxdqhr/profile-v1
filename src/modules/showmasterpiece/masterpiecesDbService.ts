@@ -19,7 +19,7 @@ let showmasterpieceFileServicePromise: Promise<{
 async function resolveShowmasterpieceFileUrl(fileId: string): Promise<string | null> {
   if (!showmasterpieceFileServicePromise) {
     showmasterpieceFileServicePromise = (async () => {
-      const { getShowMasterpieceFileConfig } = await import('sa2kit/showmasterpiece');
+      const { getShowMasterpieceFileConfig } = await import('sa2kit/showmasterpiece/server');
       const configManager = await getShowMasterpieceFileConfig();
       const { UniversalFileService } = await import('sa2kit/universalFile/server');
       const fileService = new UniversalFileService(configManager.getConfig());

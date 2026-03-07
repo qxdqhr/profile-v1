@@ -25,6 +25,8 @@ export * from '@/modules/mikutap/db/schema';
 
 // 导出通用文件服务相关的表
 export * from 'sa2kit/universalFile/server';
+// 导出节日贺卡相关的表
+export * from 'sa2kit/festivalCard/server';
 
 // 导出配置管理相关的表
 export * from '@/modules/configManager/db/schema';

@@ -2,4 +2,4 @@
 
 import { ShowMasterPiecesConfigPage } from 'sa2kit/showmasterpiece';
 
-export default ShowMasterPiecesConfigPage; 
+export default ShowMasterPiecesConfigPage;

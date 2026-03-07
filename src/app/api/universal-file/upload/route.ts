@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       let configManager;
       if (moduleId === 'showmasterpiece') {
         // ShowMasterpiece模块使用独立的配置系统（服务端入口）
-        const { getShowMasterpieceFileConfig } = await import('sa2kit/showmasterpiece');
+        const { getShowMasterpieceFileConfig } = await import('sa2kit/showmasterpiece/server');
         configManager = await getShowMasterpieceFileConfig();
         console.log('🎨 [通用文件服务] 使用ShowMasterpiece独立配置');
       } else {

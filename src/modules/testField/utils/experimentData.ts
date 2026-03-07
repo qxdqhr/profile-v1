@@ -440,6 +440,39 @@ export const experiments: ExperimentItem[] = [
     updatedAt: '2026-02-16'
   },
   {
+    id: "festival-card",
+    title: "节日贺卡 Three.js",
+    description: "3D 翻页节日贺卡，支持 3 页图文、全局背景音乐，并可在页面实时配置页数和元素",
+    path: "/testField/festivalCard",
+    tags: ["SA2Kit", "Three.js", "节日贺卡", "3D翻页", "可配置"],
+    category: "leisure",
+    isCompleted: true,
+    createdAt: '2026-03-02',
+    updatedAt: '2026-03-02'
+  },
+  {
+    id: "festival-card-config",
+    title: "节日贺卡配置中心",
+    description: "管理多套节日贺卡配置，支持 /festivalCard/config + cardId 参数跳转主页面",
+    path: "/testField/festivalCard/config",
+    tags: ["SA2Kit", "配置中心", "节日贺卡"],
+    category: "utility",
+    isCompleted: true,
+    createdAt: '2026-03-02',
+    updatedAt: '2026-03-02'
+  },
+  {
+    id: "ar-module-test",
+    title: "AR 模块测试",
+    description: "基于 sa2kit 的 AR 模块测试页面，用于验证摄像头、平面放置和模型播放链路",
+    path: "/testField/ar",
+    tags: ["SA2Kit", "AR", "测试", "摄像头"],
+    category: "utility",
+    isCompleted: true,
+    createdAt: '2026-03-06',
+    updatedAt: '2026-03-06'
+  },
+  {
     id: "xfyun-asr-test",
     title: "讯飞语音识别测试",
     description: "基于 iFlytek WebSocket 听写接口的语音识别测试台，用于验证 sa2kit 的语音链路",

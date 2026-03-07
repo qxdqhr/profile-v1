@@ -75,7 +75,7 @@ export async function GET(
     if (artwork.fileId) {
       try {
         // 通过ShowMasterpiece的独立文件服务获取图片
-        const { getShowMasterpieceFileConfig } = await import('sa2kit/showmasterpiece');
+        const { getShowMasterpieceFileConfig } = await import('sa2kit/showmasterpiece/server');
 
         const configManager = await getShowMasterpieceFileConfig();
         const { UniversalFileService } = await import('sa2kit/universalFile/server');
