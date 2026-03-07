@@ -1,0 +1,1 @@
+ALTER TABLE "comic_universe_configs" ADD COLUMN "miniapp_floating_buttons" json DEFAULT '{"showCart":true,"showHistory":true}'::json;
