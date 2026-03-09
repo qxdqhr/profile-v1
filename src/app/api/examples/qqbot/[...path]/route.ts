@@ -1,7 +1,8 @@
 import { NapCatClient, createNextNapCatRouteHandler } from 'sa2kit/qqbot/server';
 
 const client = new NapCatClient({
-  baseUrl: process.env.NAPCAT_HTTP_URL || 'http://127.0.0.1:3000',
+  // Default to NapCat common local HTTP port to avoid accidentally looping back to Next.js app (:3000).
+  baseUrl: process.env.NAPCAT_HTTP_URL || 'http://127.0.0.1:3001',
   accessToken: process.env.NAPCAT_TOKEN,
   timeoutMs: Number(process.env.NAPCAT_TIMEOUT_MS || 12000),
 });

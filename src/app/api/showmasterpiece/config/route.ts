@@ -38,6 +38,11 @@ type HomeTabItemInput = {
   order?: number;
 };
 
+type MiniappFloatingButtonsInput = {
+  showCart?: boolean;
+  showHistory?: boolean;
+};
+
 type MasterpiecesConfigRow = typeof comicUniverseConfigs.$inferSelect;
 
 const buildHomeTabsFromCategories = (
@@ -81,6 +86,10 @@ const buildDefaultConfig = (
   enableSearch: true,
   enableCategories: true,
   homeTabConfig: buildHomeTabsFromCategories(categories),
+  miniappFloatingButtons: {
+    showCart: true,
+    showHistory: true,
+  },
   defaultCategory: 'all',
   theme: 'light',
   language: 'zh',
@@ -139,6 +148,13 @@ export async function PUT(request: NextRequest) {
     if (configData.maxCollectionsPerPage !== undefined) updateData.maxCollectionsPerPage = configData.maxCollectionsPerPage;
     if (configData.enableSearch !== undefined) updateData.enableSearch = configData.enableSearch;
     if (configData.enableCategories !== undefined) updateData.enableCategories = configData.enableCategories;
+    if (configData.miniappFloatingButtons !== undefined) {
+      const input = configData.miniappFloatingButtons as MiniappFloatingButtonsInput;
+      updateData.miniappFloatingButtons = {
+        showCart: input?.showCart ?? true,
+        showHistory: input?.showHistory ?? true,
+      } as any;
+    }
     if (configData.defaultCategory !== undefined) updateData.defaultCategory = configData.defaultCategory;
     if (configData.theme !== undefined) updateData.theme = configData.theme;
     if (configData.language !== undefined) updateData.language = configData.language;
