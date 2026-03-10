@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { vocaloidBoothTestRuntime } from '@/lib/vocaloidBoothTestRuntime';
+import { vocaloidBoothDbService } from '@/modules/vocaloidBooth/db/vocaloidBoothDbService';
 
 export async function GET() {
   return NextResponse.json({
     success: true,
-    message: 'vocaloid booth route ready',
-    auditEvents: vocaloidBoothTestRuntime.auditSink.list().slice(-20),
+    message: 'vocaloid booth production route ready',
   });
 }
 
@@ -15,7 +14,7 @@ export async function POST(request: NextRequest) {
     const action = body?.action;
 
     if (action === 'create') {
-      const created = await vocaloidBoothTestRuntime.service.createUpload({
+      const created = await vocaloidBoothDbService.createRecord({
         boothId: body.boothId ?? 'production-booth',
         ttlHours: body.ttlHours ?? 24 * 14,
         metadata: {
@@ -33,22 +32,30 @@ export async function POST(request: NextRequest) {
         })),
       });
 
-      return NextResponse.json({ success: true, data: created });
+      return NextResponse.json({
+        success: true,
+        data: {
+          record: {
+            ...created,
+            downloadUrlPath: `/vocaloid-booth?code=${created.matchCode}`,
+          },
+        },
+      });
     }
 
     if (action === 'redeem') {
-      const record = await vocaloidBoothTestRuntime.service.resolveDownloadFilesByCode(body.matchCode, {
-        requesterKey: body.requesterKey ?? 'user',
-      });
+      const record = await vocaloidBoothDbService.redeemByCode(body.matchCode);
 
       if (!record || record.status !== 'active') {
         return NextResponse.json({ success: true, data: record, files: [] });
       }
 
       const files = await Promise.all(
-        record.files.map(async (file) => {
+        ((record.files as any[]) ?? []).map(async (file) => {
           try {
-            const res = await fetch(`${request.nextUrl.origin}/api/universal-file/${encodeURIComponent(file.objectKey)}`);
+            const res = await fetch(
+              `${request.nextUrl.origin}/api/universal-file/${encodeURIComponent(file.objectKey)}`
+            );
             const data = await res.json();
             return {
               ...file,

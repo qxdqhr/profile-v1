@@ -37,6 +37,9 @@ export * from '@/modules/purchaseGame/db/schema';
 // 导出通用导出服务相关的表
 export * from './universalExport';
 
+// 导出 Vocaloid Booth 相关表
+export * from '@/modules/vocaloidBooth/db/schema';
+
 // 考试类型表
 export const examTypes = pgTable('exam_types', {
   id: text('id').primaryKey(), // 如 "default", "arknights"
