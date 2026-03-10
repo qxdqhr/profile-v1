@@ -41,6 +41,7 @@ type HomeTabItemInput = {
 type MiniappFloatingButtonsInput = {
   showCart?: boolean;
   showHistory?: boolean;
+  showAddToCart?: boolean;
 };
 
 type MasterpiecesConfigRow = typeof comicUniverseConfigs.$inferSelect;
@@ -61,6 +62,9 @@ const toConfigResponse = (
   categories: { name: string; description: string | null; displayOrder: number | null; isActive: boolean }[],
 ) => ({
   ...config,
+  miniappFloatingButtons: normalizeMiniappFloatingButtons(
+    (config.miniappFloatingButtons as MiniappFloatingButtonsInput | undefined) ?? undefined,
+  ),
   homeTabConfig: buildHomeTabsFromCategories(categories),
 });
 
@@ -75,6 +79,12 @@ const loadCategories = async () =>
     .from(comicUniverseCategories)
     .orderBy(asc(comicUniverseCategories.displayOrder), asc(comicUniverseCategories.name));
 
+const normalizeMiniappFloatingButtons = (input?: MiniappFloatingButtonsInput | null) => ({
+  showCart: input?.showCart ?? true,
+  showHistory: input?.showHistory ?? true,
+  showAddToCart: input?.showAddToCart ?? true,
+});
+
 const buildDefaultConfig = (
   categories: { name: string; description: string | null; displayOrder: number | null; isActive: boolean }[],
 ) => ({
@@ -86,10 +96,7 @@ const buildDefaultConfig = (
   enableSearch: true,
   enableCategories: true,
   homeTabConfig: buildHomeTabsFromCategories(categories),
-  miniappFloatingButtons: {
-    showCart: true,
-    showHistory: true,
-  },
+  miniappFloatingButtons: normalizeMiniappFloatingButtons(undefined),
   defaultCategory: 'all',
   theme: 'light',
   language: 'zh',
@@ -150,10 +157,7 @@ export async function PUT(request: NextRequest) {
     if (configData.enableCategories !== undefined) updateData.enableCategories = configData.enableCategories;
     if (configData.miniappFloatingButtons !== undefined) {
       const input = configData.miniappFloatingButtons as MiniappFloatingButtonsInput;
-      updateData.miniappFloatingButtons = {
-        showCart: input?.showCart ?? true,
-        showHistory: input?.showHistory ?? true,
-      } as any;
+      updateData.miniappFloatingButtons = normalizeMiniappFloatingButtons(input) as any;
     }
     if (configData.defaultCategory !== undefined) updateData.defaultCategory = configData.defaultCategory;
     if (configData.theme !== undefined) updateData.theme = configData.theme;
