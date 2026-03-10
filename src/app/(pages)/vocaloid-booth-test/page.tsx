@@ -29,6 +29,9 @@ export default function VocaloidBoothTestPage() {
     <main className="p-6 space-y-4">
       <h1 className="text-2xl font-semibold">Vocaloid Booth 新功能测试</h1>
       <div className="text-sm text-gray-600">页面：/vocaloid-booth-test，API：/api/vocaloid-booth-test</div>
+      <a href="/vocaloid-booth-config" className="inline-block rounded border px-3 py-2 text-sm text-indigo-700">
+        打开配置入口 /vocaloid-booth-config
+      </a>
 
       <div className="flex gap-2">
         <button
