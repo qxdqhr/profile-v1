@@ -462,6 +462,28 @@ export const experiments: ExperimentItem[] = [
     updatedAt: '2026-03-11'
   },
   {
+    id: "huarongdao-game",
+    title: "图片华容道（前台）",
+    description: "测试 sa2kit/huarongdao 图片切块拼图玩法，支持随机可解打乱与通关判断",
+    path: "/testField/huarongdao",
+    tags: ["SA2Kit", "华容道", "拼图", "图片游戏"],
+    category: "leisure",
+    isCompleted: true,
+    createdAt: '2026-03-11',
+    updatedAt: '2026-03-11'
+  },
+  {
+    id: "huarongdao-config",
+    title: "图片华容道（配置后台）",
+    description: "测试 sa2kit/huarongdao 多套配置管理页面（名称、slug、图片、网格参数）",
+    path: "/testField/huarongdao/config",
+    tags: ["SA2Kit", "华容道", "配置后台"],
+    category: "utility",
+    isCompleted: true,
+    createdAt: '2026-03-11',
+    updatedAt: '2026-03-11'
+  },
+  {
     id: "festival-card",
     title: "节日贺卡 Three.js",
     description: "3D 翻页节日贺卡，支持 3 页图文、全局背景音乐，并可在页面实时配置页数和元素",
