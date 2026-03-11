@@ -451,6 +451,17 @@ export const experiments: ExperimentItem[] = [
     updatedAt: '2026-02-16'
   },
   {
+    id: "miku-contest",
+    title: "Miku Contest 供稿系统",
+    description: "测试 sa2kit/mikuContest 的观众端、画师端、管理员端页面骨架与路由联通",
+    path: "/testField/mikuContest",
+    tags: ["SA2Kit", "投稿", "投票", "管理后台"],
+    category: "utility",
+    isCompleted: true,
+    createdAt: '2026-03-11',
+    updatedAt: '2026-03-11'
+  },
+  {
     id: "festival-card",
     title: "节日贺卡 Three.js",
     description: "3D 翻页节日贺卡，支持 3 页图文、全局背景音乐，并可在页面实时配置页数和元素",

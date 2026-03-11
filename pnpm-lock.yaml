@@ -177,8 +177,8 @@ importers:
         specifier: ^2.5.2
         version: 2.5.2(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       sa2kit:
-        specifier: ^1.6.90
-        version: 1.6.90(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@xenova/transformers@2.17.2)(lucide-react@0.474.0(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.3.8(react@19.2.1))(tesseract.js@7.0.0)(ws@8.19.0(bufferutil@4.1.0))
+        specifier: ^1.6.92
+        version: 1.6.92(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@xenova/transformers@2.17.2)(lucide-react@0.474.0(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.3.8(react@19.2.1))(tesseract.js@7.0.0)(ws@8.19.0(bufferutil@4.1.0))
       swr:
         specifier: ^2.3.8
         version: 2.3.8(react@19.2.1)
@@ -4234,8 +4234,8 @@ packages:
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
 
-  sa2kit@1.6.90:
-    resolution: {integrity: sha512-w117PSOgAH+PAdUiceQqoD5wTujoc8rR+tTP2Op0HRLqvZl4WyiSINfnhPPTFU/TSZnRL+vFQuOnZ4EFsrxphw==}
+  sa2kit@1.6.92:
+    resolution: {integrity: sha512-fUCWyMRlQoDItlUInFLfg6svMnp21jMovBbvb4r37gidVFBkldc9hSWk76Flgd5I31ztQR2E0sAlzjFJMub1pw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       '@imgly/background-removal': ^1.7.0
@@ -6158,7 +6158,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 20.17.12
+      '@types/node': 20.19.37
 
   '@types/long@4.0.2': {}
 
@@ -6177,7 +6177,6 @@ snapshots:
   '@types/node@20.19.37':
     dependencies:
       undici-types: 6.21.0
-    optional: true
 
   '@types/node@22.15.17':
     dependencies:
@@ -6223,7 +6222,7 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 20.17.12
+      '@types/node': 20.19.37
 
   '@types/stats.js@0.17.4': {}
 
@@ -8890,7 +8889,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 20.17.12
+      '@types/node': 20.19.37
       long: 5.3.2
 
   proxy-agent@6.5.0:
@@ -9117,7 +9116,7 @@ snapshots:
     dependencies:
       queue-microtask: 1.2.3
 
-  sa2kit@1.6.90(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@xenova/transformers@2.17.2)(lucide-react@0.474.0(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.3.8(react@19.2.1))(tesseract.js@7.0.0)(ws@8.19.0(bufferutil@4.1.0)):
+  sa2kit@1.6.92(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@xenova/transformers@2.17.2)(lucide-react@0.474.0(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.3.8(react@19.2.1))(tesseract.js@7.0.0)(ws@8.19.0(bufferutil@4.1.0)):
     dependencies:
       '@ar-js-org/ar.js': 3.4.7
       '@dnd-kit/core': 6.3.1(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
