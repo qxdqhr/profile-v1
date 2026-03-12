@@ -8,6 +8,7 @@ export interface HuarongdaoLevelConfig {
 }
 
 export const HUARONGDAO_CONFIG_KEY = 'huarongdao.levelConfigs';
+export type HuarongdaoTheme = 'miku' | 'sakura';
 
 export const DEFAULT_HUARONGDAO_LEVEL_CONFIGS: HuarongdaoLevelConfig[] = [
   {
@@ -61,4 +62,36 @@ export const mergeWithDefaults = (input: Partial<HuarongdaoLevelConfig>[] | null
   return DEFAULT_HUARONGDAO_LEVEL_CONFIGS.map((fallback) =>
     normalizeLevelConfig(byId.get(fallback.id) || {}, fallback),
   );
+};
+
+export interface HuarongdaoPersistedConfig {
+  theme: HuarongdaoTheme;
+  levels: HuarongdaoLevelConfig[];
+}
+
+export const normalizeTheme = (value: unknown): HuarongdaoTheme => {
+  return value === 'sakura' ? 'sakura' : 'miku';
+};
+
+export const buildPersistedConfig = (input: unknown): HuarongdaoPersistedConfig => {
+  const obj = (input && typeof input === 'object' ? input : {}) as {
+    theme?: unknown;
+    levels?: unknown;
+  };
+
+  const levelsInput = Array.isArray(obj.levels)
+    ? obj.levels
+    : Array.isArray(input)
+      ? input
+      : [];
+
+  return {
+    theme: normalizeTheme(obj.theme),
+    levels: mergeWithDefaults(levelsInput as Partial<HuarongdaoLevelConfig>[]),
+  };
+};
+
+export const DEFAULT_HUARONGDAO_PERSISTED_CONFIG: HuarongdaoPersistedConfig = {
+  theme: 'miku',
+  levels: DEFAULT_HUARONGDAO_LEVEL_CONFIGS,
 };

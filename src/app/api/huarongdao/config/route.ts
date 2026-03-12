@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { configDbService } from '@/modules/configManager/db/configDbService';
 import {
-  DEFAULT_HUARONGDAO_LEVEL_CONFIGS,
+  buildPersistedConfig,
+  DEFAULT_HUARONGDAO_PERSISTED_CONFIG,
   HUARONGDAO_CONFIG_KEY,
-  mergeWithDefaults,
 } from '@/modules/testField/huarongdao/shared';
 
 export async function GET() {
@@ -12,20 +12,20 @@ export async function GET() {
     if (!item?.value) {
       return NextResponse.json({
         success: true,
-        data: { levels: DEFAULT_HUARONGDAO_LEVEL_CONFIGS },
+        data: DEFAULT_HUARONGDAO_PERSISTED_CONFIG,
       });
     }
 
-    let parsed: unknown = [];
+    let parsed: unknown = {};
     try {
       parsed = JSON.parse(item.value);
     } catch {
-      parsed = [];
+      parsed = {};
     }
 
     return NextResponse.json({
       success: true,
-      data: { levels: mergeWithDefaults(Array.isArray(parsed) ? parsed : []) },
+      data: buildPersistedConfig(parsed),
     });
   } catch (error) {
     console.error('[huarongdao/config][GET] failed:', error);
@@ -38,12 +38,11 @@ export async function GET() {
 
 export async function PUT(req: NextRequest) {
   try {
-    const body = (await req.json()) as { levels?: unknown };
-    const incoming = Array.isArray(body?.levels) ? body.levels : [];
-    const normalized = mergeWithDefaults(incoming as any[]);
+    const body = await req.json();
+    const normalized = buildPersistedConfig(body);
 
     const existing = await configDbService.getConfigItemByKey(HUARONGDAO_CONFIG_KEY);
-    const value = JSON.stringify(normalized);
+    const value = JSON.stringify(normalized, null, 2);
 
     if (existing) {
       await configDbService.updateConfigItemByKey(HUARONGDAO_CONFIG_KEY, { value });
@@ -52,9 +51,9 @@ export async function PUT(req: NextRequest) {
         categoryId: null,
         key: HUARONGDAO_CONFIG_KEY,
         displayName: '华容道关卡配置',
-        description: '华容道三关关卡配置（行列、打乱步数、图片）',
+        description: '华容道主题与三关关卡配置（行列、打乱步数、图片）',
         value,
-        defaultValue: JSON.stringify(DEFAULT_HUARONGDAO_LEVEL_CONFIGS),
+        defaultValue: JSON.stringify(DEFAULT_HUARONGDAO_PERSISTED_CONFIG, null, 2),
         type: 'json',
         isRequired: false,
         isSensitive: false,
@@ -66,7 +65,7 @@ export async function PUT(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: { levels: normalized },
+      data: normalized,
     });
   } catch (error) {
     console.error('[huarongdao/config][PUT] failed:', error);

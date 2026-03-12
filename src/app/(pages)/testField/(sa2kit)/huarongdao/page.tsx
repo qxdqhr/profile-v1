@@ -4,8 +4,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { HuarongdaoGamePage } from 'sa2kit/huarongdao/ui/web';
 import {
+  buildPersistedConfig,
   DEFAULT_HUARONGDAO_LEVEL_CONFIGS,
-  mergeWithDefaults,
+  normalizeTheme,
+  type HuarongdaoTheme,
   type HuarongdaoLevelConfig,
 } from '@/modules/testField/huarongdao/shared';
 
@@ -47,7 +49,7 @@ const findLevel = (levels: HuarongdaoLevelConfig[], id: number) =>
   levels.find((item) => item.id === id) || levels[0];
 
 export default function HuarongdaoPage() {
-  const [theme, setTheme] = useState<keyof typeof THEMES>('miku');
+  const [theme, setTheme] = useState<HuarongdaoTheme>('miku');
   const [levelId, setLevelId] = useState<number>(1);
   const [levels, setLevels] = useState<HuarongdaoLevelConfig[]>(DEFAULT_HUARONGDAO_LEVEL_CONFIGS);
   const [activeTrack, setActiveTrack] = useState<string | null>(null);
@@ -65,7 +67,9 @@ export default function HuarongdaoPage() {
         const res = await fetch('/api/huarongdao/config', { cache: 'no-store' });
         const json = await res.json();
         if (!res.ok || !json?.success) return;
-        setLevels(mergeWithDefaults(json?.data?.levels));
+        const persisted = buildPersistedConfig(json?.data);
+        setTheme(normalizeTheme(persisted.theme));
+        setLevels(persisted.levels);
       } catch {
         setLevels(DEFAULT_HUARONGDAO_LEVEL_CONFIGS);
       }
@@ -98,16 +102,6 @@ export default function HuarongdaoPage() {
     void audio.play().catch(() => {
       setPlayError('当前环境无法自动播放音乐，请检查系统媒体权限。');
     });
-  };
-
-  const switchTheme = (next: keyof typeof THEMES) => {
-    setTheme(next);
-    if (!audioUnlocked) return;
-    setTimeout(() => {
-      const audio = audioRef.current;
-      if (!audio) return;
-      void audio.play().catch(() => undefined);
-    }, 80);
   };
 
   const switchLevel = (nextLevel: number) => {
@@ -182,24 +176,6 @@ export default function HuarongdaoPage() {
                   BGM: {activeTrack ? TRACK_NAME_MAP[activeTrack] || '随机曲目' : '加载中'}
                 </div>
               )}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              {Object.entries(THEMES).map(([key, item]) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => switchTheme(key as keyof typeof THEMES)}
-                  className="rounded-full border px-3 py-1 text-xs transition md:px-4 md:py-1.5 md:text-sm"
-                  style={{
-                    borderColor: theme === key ? item.accent : '#ffffff44',
-                    background: theme === key ? `${item.accent}33` : '#00000022',
-                    color: '#fff',
-                  }}
-                >
-                  {item.label}
-                </button>
-              ))}
             </div>
 
             <div className="grid grid-cols-3 gap-2 md:gap-3">

@@ -4,8 +4,10 @@
 import Link from 'next/link';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  DEFAULT_HUARONGDAO_LEVEL_CONFIGS,
-  mergeWithDefaults,
+  buildPersistedConfig,
+  DEFAULT_HUARONGDAO_PERSISTED_CONFIG,
+  normalizeTheme,
+  type HuarongdaoTheme,
   type HuarongdaoLevelConfig,
 } from '@/modules/testField/huarongdao/shared';
 
@@ -33,8 +35,8 @@ const FLOW_STEPS = [
 ];
 
 export default function HuarongdaoConfigPage() {
-  const [theme, setTheme] = useState<keyof typeof THEMES>('miku');
-  const [levels, setLevels] = useState<HuarongdaoLevelConfig[]>(DEFAULT_HUARONGDAO_LEVEL_CONFIGS);
+  const [theme, setTheme] = useState<HuarongdaoTheme>('miku');
+  const [levels, setLevels] = useState<HuarongdaoLevelConfig[]>(DEFAULT_HUARONGDAO_PERSISTED_CONFIG.levels);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -49,10 +51,13 @@ export default function HuarongdaoConfigPage() {
         const res = await fetch('/api/huarongdao/config', { cache: 'no-store' });
         const json = await res.json();
         if (!res.ok || !json?.success) throw new Error(json?.error || '加载失败');
-        setLevels(mergeWithDefaults(json?.data?.levels));
+        const persisted = buildPersistedConfig(json?.data);
+        setTheme(normalizeTheme(persisted.theme));
+        setLevels(persisted.levels);
       } catch (error: any) {
         setMessage(error?.message || '加载失败，已使用默认配置');
-        setLevels(DEFAULT_HUARONGDAO_LEVEL_CONFIGS);
+        setTheme(DEFAULT_HUARONGDAO_PERSISTED_CONFIG.theme);
+        setLevels(DEFAULT_HUARONGDAO_PERSISTED_CONFIG.levels);
       } finally {
         setLoading(false);
       }
@@ -71,12 +76,14 @@ export default function HuarongdaoConfigPage() {
       const res = await fetch('/api/huarongdao/config', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ levels }),
+        body: JSON.stringify({ theme, levels }),
       });
       const json = await res.json();
       if (!res.ok || !json?.success) throw new Error(json?.error || '保存失败');
-      setLevels(mergeWithDefaults(json?.data?.levels));
-      setMessage('已保存到数据库，游戏页会按关卡读取最新配置。');
+      const persisted = buildPersistedConfig(json?.data);
+      setTheme(normalizeTheme(persisted.theme));
+      setLevels(persisted.levels);
+      setMessage('已保存到数据库，游戏页会读取此主题和关卡配置。');
     } catch (error: any) {
       setMessage(error?.message || '保存失败');
     } finally {
@@ -139,7 +146,7 @@ export default function HuarongdaoConfigPage() {
               <button
                 key={key}
                 type="button"
-                onClick={() => setTheme(key as keyof typeof THEMES)}
+                onClick={() => setTheme(key as HuarongdaoTheme)}
                 className="rounded-full border px-4 py-1.5 text-sm transition"
                 style={{
                   borderColor: theme === key ? item.accent : '#ffffff44',
@@ -147,7 +154,7 @@ export default function HuarongdaoConfigPage() {
                   color: '#fff',
                 }}
               >
-                {item.label}
+                {item.label}（游戏页生效）
               </button>
             ))}
           </div>
