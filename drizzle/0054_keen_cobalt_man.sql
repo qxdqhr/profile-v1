@@ -1,0 +1,1 @@
+ALTER TABLE "comic_universe_configs" ALTER COLUMN "miniapp_floating_buttons" SET DEFAULT '{"showCart":true,"showHistory":true,"showAddToCart":true}'::json;
