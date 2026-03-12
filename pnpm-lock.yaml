@@ -177,8 +177,8 @@ importers:
         specifier: ^2.5.2
         version: 2.5.2(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       sa2kit:
-        specifier: ^1.6.92
-        version: 1.6.92(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@xenova/transformers@2.17.2)(lucide-react@0.474.0(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.3.8(react@19.2.1))(tesseract.js@7.0.0)(ws@8.19.0(bufferutil@4.1.0))
+        specifier: ^1.6.96
+        version: 1.6.96(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@xenova/transformers@2.17.2)(lucide-react@0.474.0(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.3.8(react@19.2.1))(tesseract.js@7.0.0)(ws@8.19.0(bufferutil@4.1.0))
       swr:
         specifier: ^2.3.8
         version: 2.3.8(react@19.2.1)
@@ -2869,8 +2869,8 @@ packages:
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
 
-  framer-motion@12.35.2:
-    resolution: {integrity: sha512-dhfuEMaNo0hc+AEqyHiIfiJRNb9U9UQutE9FoKm5pjf7CMitp9xPEF1iWZihR1q86LBmo6EJ7S8cN8QXEy49AA==}
+  framer-motion@12.36.0:
+    resolution: {integrity: sha512-4PqYHAT7gev0ke0wos+PyrcFxI0HScjm3asgU8nSYa8YzJFuwgIvdj3/s3ZaxLq0bUSboIn19A2WS/MHwLCvfw==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -3565,14 +3565,14 @@ packages:
   monaco-editor@0.52.2:
     resolution: {integrity: sha512-GEQWEZmfkOGLdd3XK8ryrfWz3AIP8YymVXiPHEdewrUq7mh0qrKrfHLNCXcbB6sTnMLnOZ3ztSiKcciFUkIJwQ==}
 
-  motion-dom@12.35.2:
-    resolution: {integrity: sha512-pWXFMTwvGDbx1Fe9YL5HZebv2NhvGBzRtiNUv58aoK7+XrsuaydQ0JGRKK2r+bTKlwgSWwWxHbP5249Qr/BNpg==}
+  motion-dom@12.36.0:
+    resolution: {integrity: sha512-Ep1pq8P88rGJ75om8lTCA13zqd7ywPGwCqwuWwin6BKc0hMLkVfcS6qKlRqEo2+t0DwoUcgGJfXwaiFn4AOcQA==}
 
   motion-dom@12.6.5:
     resolution: {integrity: sha512-jpM9TQLXzYMWMJ7Ec7sAj0iis8oIuu6WvjI3yNKJLdrZyrsI/b2cRInDVL8dCl683zQQq19DpL9cSMP+k8T1NA==}
 
-  motion-utils@12.29.2:
-    resolution: {integrity: sha512-G3kc34H2cX2gI63RqU+cZq+zWRRPSsNIOjpdl9TN4AQwC4sgwYPl/Q/Obf/d53nOm569T0fYK+tcoSV50BWx8A==}
+  motion-utils@12.36.0:
+    resolution: {integrity: sha512-eHWisygbiwVvf6PZ1vhaHCLamvkSbPIeAYxWUuL3a2PD/TROgE7FvfHWTIH4vMl798QLfMw15nRqIaRDXTlYRg==}
 
   motion-utils@12.6.5:
     resolution: {integrity: sha512-IsOeKsOF+FWBhxQEDFBO6ZYC8/jlidmVbbLpe9/lXSA9j9kzGIMUuIBx2SZY+0reAS0DjZZ1i7dJp4NHrjocPw==}
@@ -4234,8 +4234,8 @@ packages:
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
 
-  sa2kit@1.6.92:
-    resolution: {integrity: sha512-fUCWyMRlQoDItlUInFLfg6svMnp21jMovBbvb4r37gidVFBkldc9hSWk76Flgd5I31ztQR2E0sAlzjFJMub1pw==}
+  sa2kit@1.6.96:
+    resolution: {integrity: sha512-eM1DHUkDXxzWDgFNiravP0w5sK3eeoxdatfQ7BScdG5yIE55322QTVjjwxhh1Woyh1MRWObxzizOw9h8FVvuJA==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       '@imgly/background-removal': ^1.7.0
@@ -6158,7 +6158,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 20.19.37
+      '@types/node': 20.17.12
 
   '@types/long@4.0.2': {}
 
@@ -6177,6 +6177,7 @@ snapshots:
   '@types/node@20.19.37':
     dependencies:
       undici-types: 6.21.0
+    optional: true
 
   '@types/node@22.15.17':
     dependencies:
@@ -6222,7 +6223,7 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 20.19.37
+      '@types/node': 20.17.12
 
   '@types/stats.js@0.17.4': {}
 
@@ -7681,10 +7682,10 @@ snapshots:
 
   fraction.js@4.3.7: {}
 
-  framer-motion@12.35.2(@emotion/is-prop-valid@1.3.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1):
+  framer-motion@12.36.0(@emotion/is-prop-valid@1.3.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1):
     dependencies:
-      motion-dom: 12.35.2
-      motion-utils: 12.29.2
+      motion-dom: 12.36.0
+      motion-utils: 12.36.0
       tslib: 2.8.1
     optionalDependencies:
       '@emotion/is-prop-valid': 1.3.1
@@ -8377,15 +8378,15 @@ snapshots:
 
   monaco-editor@0.52.2: {}
 
-  motion-dom@12.35.2:
+  motion-dom@12.36.0:
     dependencies:
-      motion-utils: 12.29.2
+      motion-utils: 12.36.0
 
   motion-dom@12.6.5:
     dependencies:
       motion-utils: 12.6.5
 
-  motion-utils@12.29.2: {}
+  motion-utils@12.36.0: {}
 
   motion-utils@12.6.5: {}
 
@@ -8889,7 +8890,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 20.19.37
+      '@types/node': 20.17.12
       long: 5.3.2
 
   proxy-agent@6.5.0:
@@ -9116,7 +9117,7 @@ snapshots:
     dependencies:
       queue-microtask: 1.2.3
 
-  sa2kit@1.6.92(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@xenova/transformers@2.17.2)(lucide-react@0.474.0(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.3.8(react@19.2.1))(tesseract.js@7.0.0)(ws@8.19.0(bufferutil@4.1.0)):
+  sa2kit@1.6.96(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@xenova/transformers@2.17.2)(lucide-react@0.474.0(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.3.8(react@19.2.1))(tesseract.js@7.0.0)(ws@8.19.0(bufferutil@4.1.0)):
     dependencies:
       '@ar-js-org/ar.js': 3.4.7
       '@dnd-kit/core': 6.3.1(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -9126,7 +9127,7 @@ snapshots:
       adm-zip: 0.5.16
       ali-oss: 6.23.0(proxy-agent@6.5.0)
       bcryptjs: 3.0.3
-      framer-motion: 12.35.2(@emotion/is-prop-valid@1.3.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      framer-motion: 12.36.0(@emotion/is-prop-valid@1.3.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       jsonwebtoken: 9.0.3
       jszip: 3.10.1
       onnxruntime-web: 1.21.0

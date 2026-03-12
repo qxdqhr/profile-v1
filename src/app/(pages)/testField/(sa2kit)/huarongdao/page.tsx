@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import * as sa2kit from 'sa2kit';
+import { HuarongdaoGamePage } from 'sa2kit/huarongdao/ui/web';
 
 const demoConfig = {
   id: 'demo',
@@ -20,13 +20,5 @@ const demoConfig = {
 };
 
 export default function HuarongdaoPage() {
-  const GamePage = (sa2kit as any)?.huarongdao?.webUI?.HuarongdaoGamePage;
-  if (!GamePage) {
-    return (
-      <div className="p-6 text-sm text-muted-foreground">
-        当前安装的 sa2kit 版本未导出华容道 Web 组件（huarongdao.webUI.HuarongdaoGamePage）。
-      </div>
-    );
-  }
-  return <GamePage config={demoConfig as any} />;
+  return <HuarongdaoGamePage config={demoConfig as any} />;
 }
