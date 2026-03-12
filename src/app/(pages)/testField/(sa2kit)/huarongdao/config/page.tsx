@@ -2,8 +2,12 @@
 'use client';
 
 import Link from 'next/link';
-import React, { useMemo, useState } from 'react';
-import { HuarongdaoConfigPage as SA2HuarongdaoConfigPage } from 'sa2kit/huarongdao/ui/web';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  DEFAULT_HUARONGDAO_LEVEL_CONFIGS,
+  mergeWithDefaults,
+  type HuarongdaoLevelConfig,
+} from '@/modules/testField/huarongdao/shared';
 
 const THEMES = {
   miku: {
@@ -22,34 +26,63 @@ const THEMES = {
   },
 };
 
-const CONFIG_GUIDES = [
-  {
-    title: '基础信息',
-    hint: '名称 / slug / 状态',
-    desc: '用于区分不同关卡配置，slug 建议语义化且唯一。',
-  },
-  {
-    title: '拼图难度',
-    hint: 'rows / cols / shuffleSteps',
-    desc: '网格越大、打乱步数越高，整体难度越高。',
-  },
-  {
-    title: '视觉与体验',
-    hint: 'sourceImageUrl / showReference',
-    desc: '高对比图片更易识别，移动端建议开启参考图。',
-  },
-];
-
 const FLOW_STEPS = [
-  '先创建配置：填写名称和 slug，保存后得到可复用配置。',
-  '再设定难度：优先调整 rows/cols，其次再调 shuffleSteps。',
-  '最后联调体验：跳转游戏页验证三关体感和音乐切换效果。',
+  '为每一关填写图片链接（sourceImageUrl），建议使用可公网访问的 URL。',
+  '调整 rows/cols/shuffleSteps，决定该关拼图难度。',
+  '点击“保存到数据库”后返回游戏页验证关卡效果。',
 ];
 
 export default function HuarongdaoConfigPage() {
   const [theme, setTheme] = useState<keyof typeof THEMES>('miku');
+  const [levels, setLevels] = useState<HuarongdaoLevelConfig[]>(DEFAULT_HUARONGDAO_LEVEL_CONFIGS);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
   const currentTheme = THEMES[theme];
   const petals = useMemo(() => Array.from({ length: 16 }, (_, i) => i), []);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      setMessage('');
+      try {
+        const res = await fetch('/api/huarongdao/config', { cache: 'no-store' });
+        const json = await res.json();
+        if (!res.ok || !json?.success) throw new Error(json?.error || '加载失败');
+        setLevels(mergeWithDefaults(json?.data?.levels));
+      } catch (error: any) {
+        setMessage(error?.message || '加载失败，已使用默认配置');
+        setLevels(DEFAULT_HUARONGDAO_LEVEL_CONFIGS);
+      } finally {
+        setLoading(false);
+      }
+    };
+    void load();
+  }, []);
+
+  const updateLevel = (id: number, patch: Partial<HuarongdaoLevelConfig>) => {
+    setLevels((prev) => prev.map((item) => (item.id === id ? { ...item, ...patch } : item)));
+  };
+
+  const save = async () => {
+    setSaving(true);
+    setMessage('');
+    try {
+      const res = await fetch('/api/huarongdao/config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ levels }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json?.success) throw new Error(json?.error || '保存失败');
+      setLevels(mergeWithDefaults(json?.data?.levels));
+      setMessage('已保存到数据库，游戏页会按关卡读取最新配置。');
+    } catch (error: any) {
+      setMessage(error?.message || '保存失败');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div
@@ -79,15 +112,26 @@ export default function HuarongdaoConfigPage() {
         <div className="mb-5 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h1 className="text-xl font-semibold text-white md:text-2xl">华容道配置中心</h1>
-              <p className="text-sm text-white/75">清晰配置项 + 快速验证流程</p>
+              <h1 className="text-xl font-semibold text-white md:text-2xl">华容道配置中心（数据库版）</h1>
+              <p className="text-sm text-white/75">每关图片链接、网格和打乱步数统一持久化</p>
             </div>
-            <Link
-              href="/testField/huarongdao"
-              className="rounded-md border border-white/25 bg-black/20 px-3 py-1.5 text-sm text-white transition hover:bg-black/35"
-            >
-              返回游戏页
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/testField/huarongdao"
+                className="rounded-md border border-white/25 bg-black/20 px-3 py-1.5 text-sm text-white transition hover:bg-black/35"
+              >
+                返回游戏页
+              </Link>
+              <button
+                type="button"
+                onClick={save}
+                disabled={saving || loading}
+                className="rounded-md px-3 py-1.5 text-sm font-medium text-black disabled:opacity-70"
+                style={{ backgroundColor: currentTheme.accent }}
+              >
+                {saving ? '保存中...' : '保存到数据库'}
+              </button>
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -109,16 +153,6 @@ export default function HuarongdaoConfigPage() {
           </div>
         </div>
 
-        <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-          {CONFIG_GUIDES.map((item) => (
-            <div key={item.title} className="rounded-xl border border-white/15 bg-black/20 p-3 text-white">
-              <p className="text-sm font-semibold">{item.title}</p>
-              <p className="mt-1 text-xs text-white/65">{item.hint}</p>
-              <p className="mt-2 text-xs text-white/80">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-
         <div className="mb-4 rounded-xl border border-white/15 bg-black/20 p-3 text-white">
           <p className="text-sm font-semibold">三步完成配置</p>
           <div className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-3">
@@ -131,9 +165,58 @@ export default function HuarongdaoConfigPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-white/15 bg-white/95 p-3 md:p-4">
-          <SA2HuarongdaoConfigPage />
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          {levels.map((level) => (
+            <div key={level.id} className="rounded-xl border border-white/15 bg-white/95 p-3">
+              <p className="text-sm font-semibold text-slate-800">{level.label}</p>
+
+              <label className="mt-2 block text-xs text-slate-500">图片链接 sourceImageUrl</label>
+              <input
+                value={level.sourceImageUrl}
+                onChange={(e) => updateLevel(level.id, { sourceImageUrl: e.target.value })}
+                placeholder="https://..."
+                className="mt-1 w-full rounded-md border border-slate-200 px-2 py-1.5 text-sm outline-none"
+              />
+
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                <div>
+                  <label className="text-xs text-slate-500">rows</label>
+                  <input
+                    type="number"
+                    min={2}
+                    value={level.rows}
+                    onChange={(e) => updateLevel(level.id, { rows: Number(e.target.value) })}
+                    className="mt-1 w-full rounded-md border border-slate-200 px-2 py-1.5 text-sm outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500">cols</label>
+                  <input
+                    type="number"
+                    min={2}
+                    value={level.cols}
+                    onChange={(e) => updateLevel(level.id, { cols: Number(e.target.value) })}
+                    className="mt-1 w-full rounded-md border border-slate-200 px-2 py-1.5 text-sm outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500">shuffle</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={level.shuffleSteps}
+                    onChange={(e) => updateLevel(level.id, { shuffleSteps: Number(e.target.value) })}
+                    className="mt-1 w-full rounded-md border border-slate-200 px-2 py-1.5 text-sm outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
+
+        {message ? (
+          <div className="mt-4 rounded-md border border-white/20 bg-black/20 px-3 py-2 text-sm text-white/90">{message}</div>
+        ) : null}
       </div>
 
       <style jsx>{`

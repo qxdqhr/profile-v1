@@ -3,6 +3,11 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { HuarongdaoGamePage } from 'sa2kit/huarongdao/ui/web';
+import {
+  DEFAULT_HUARONGDAO_LEVEL_CONFIGS,
+  mergeWithDefaults,
+  type HuarongdaoLevelConfig,
+} from '@/modules/testField/huarongdao/shared';
 
 const THEMES = {
   miku: {
@@ -11,7 +16,7 @@ const THEMES = {
     accentSoft: '#a5f3fc',
     bgStart: '#05273c',
     bgEnd: '#0b1324',
-    sourceImageUrl: '/mikutalking/models/miku/texture/头.png',
+    fallbackImageUrl: '/mikutalking/models/miku/texture/头.png',
     tracks: ['/linkGame/mp3/ShakeIt!-Miku.mp3', '/linkGame/mp3/VivalaVida.mp3'],
   },
   sakura: {
@@ -20,39 +25,15 @@ const THEMES = {
     accentSoft: '#fbcfe8',
     bgStart: '#4a1834',
     bgEnd: '#220e22',
-    sourceImageUrl: '/mikutalking/models/YYB_Z6SakuraMiku/tex/face.png',
+    fallbackImageUrl: '/mikutalking/models/YYB_Z6SakuraMiku/tex/face.png',
     tracks: ['/linkGame/mp3/utanikatachinaikedo.mp3', '/linkGame/mp3/VivalaVida.mp3'],
   },
 };
-
-const LEVELS = [
-  { id: 1, label: '难度 1', rows: 3, cols: 3, shuffleSteps: 60, badge: '入门' },
-  { id: 2, label: '难度 2', rows: 4, cols: 4, shuffleSteps: 110, badge: '进阶' },
-  { id: 3, label: '难度 3', rows: 5, cols: 5, shuffleSteps: 180, badge: '挑战' },
-];
 
 const TRACK_NAME_MAP: Record<string, string> = {
   '/linkGame/mp3/ShakeIt!-Miku.mp3': 'Shake It! - Miku',
   '/linkGame/mp3/utanikatachinaikedo.mp3': 'Sakura Theme OST',
   '/linkGame/mp3/VivalaVida.mp3': 'Viva La Vida (Instrumental)',
-};
-
-const buildConfig = (themeKey: keyof typeof THEMES, levelId: number) => {
-  const level = LEVELS.find((item) => item.id === levelId) || LEVELS[0];
-  return {
-    id: `demo-${themeKey}-${level.id}`,
-    slug: `demo-huarongdao-${themeKey}-${level.id}`,
-    name: `${THEMES[themeKey].label} · ${level.label}`,
-    status: 'active',
-    rows: level.rows,
-    cols: level.cols,
-    sourceImageUrl: THEMES[themeKey].sourceImageUrl,
-    showReference: true,
-    shuffleSteps: level.shuffleSteps,
-    startMode: 'random-solvable',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
 };
 
 const pickRandomTrack = (tracks: string[], prevTrack: string | null) => {
@@ -62,18 +43,35 @@ const pickRandomTrack = (tracks: string[], prevTrack: string | null) => {
   return candidates[Math.floor(Math.random() * candidates.length)];
 };
 
+const findLevel = (levels: HuarongdaoLevelConfig[], id: number) =>
+  levels.find((item) => item.id === id) || levels[0];
+
 export default function HuarongdaoPage() {
   const [theme, setTheme] = useState<keyof typeof THEMES>('miku');
   const [levelId, setLevelId] = useState<number>(1);
+  const [levels, setLevels] = useState<HuarongdaoLevelConfig[]>(DEFAULT_HUARONGDAO_LEVEL_CONFIGS);
   const [activeTrack, setActiveTrack] = useState<string | null>(null);
   const [audioUnlocked, setAudioUnlocked] = useState(false);
   const [playError, setPlayError] = useState<string>('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const config = useMemo(() => buildConfig(theme, levelId), [theme, levelId]);
   const petals = useMemo(() => Array.from({ length: 18 }, (_, i) => i), []);
   const currentTheme = THEMES[theme];
-  const currentLevel = LEVELS.find((item) => item.id === levelId) || LEVELS[0];
+  const currentLevel = findLevel(levels, levelId);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch('/api/huarongdao/config', { cache: 'no-store' });
+        const json = await res.json();
+        if (!res.ok || !json?.success) return;
+        setLevels(mergeWithDefaults(json?.data?.levels));
+      } catch {
+        setLevels(DEFAULT_HUARONGDAO_LEVEL_CONFIGS);
+      }
+    };
+    void load();
+  }, []);
 
   useEffect(() => {
     setActiveTrack((prev) => pickRandomTrack(currentTheme.tracks, prev));
@@ -120,6 +118,23 @@ export default function HuarongdaoPage() {
       if (!audio) return;
       void audio.play().catch(() => undefined);
     }, 80);
+  };
+
+  const sourceImageUrl = currentLevel.sourceImageUrl?.trim() || currentTheme.fallbackImageUrl;
+
+  const gameConfig = {
+    id: `demo-${theme}-${currentLevel.id}`,
+    slug: `demo-huarongdao-${theme}-${currentLevel.id}`,
+    name: `${currentTheme.label} · ${currentLevel.label}`,
+    status: 'active',
+    rows: currentLevel.rows,
+    cols: currentLevel.cols,
+    sourceImageUrl,
+    showReference: true,
+    shuffleSteps: currentLevel.shuffleSteps,
+    startMode: 'random-solvable',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
 
   return (
@@ -188,7 +203,7 @@ export default function HuarongdaoPage() {
             </div>
 
             <div className="grid grid-cols-3 gap-2 md:gap-3">
-              {LEVELS.map((level) => (
+              {levels.map((level) => (
                 <button
                   key={level.id}
                   type="button"
@@ -199,7 +214,7 @@ export default function HuarongdaoPage() {
                     background: levelId === level.id ? `${currentTheme.accent}26` : '#00000020',
                   }}
                 >
-                  <p className="text-xs text-white/70 md:text-sm">{level.badge}</p>
+                  <p className="text-xs text-white/70 md:text-sm">第 {level.id} 关</p>
                   <p className="text-sm font-semibold text-white md:text-base">{level.label}</p>
                   <p className="text-[11px] text-white/70 md:text-xs">
                     {level.rows} x {level.cols}
@@ -215,7 +230,7 @@ export default function HuarongdaoPage() {
             <div className="mb-2 text-center text-xs text-white/65 md:text-sm">
               当前关卡：{currentLevel.label} · 网格 {currentLevel.rows}x{currentLevel.cols}
             </div>
-            <HuarongdaoGamePage key={config.slug} config={config as any} />
+            <HuarongdaoGamePage key={gameConfig.slug} config={gameConfig as any} />
           </div>
         </div>
       </div>
