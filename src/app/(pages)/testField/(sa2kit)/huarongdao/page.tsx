@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { HuarongdaoGamePage } from 'sa2kit/huarongdao/ui/web';
+import dynamic from 'next/dynamic';
 import {
   buildPersistedConfig,
   DEFAULT_HUARONGDAO_LEVEL_CONFIGS,
@@ -47,6 +47,16 @@ const pickRandomTrack = (tracks: string[], prevTrack: string | null) => {
 
 const findLevel = (levels: HuarongdaoLevelConfig[], id: number) =>
   levels.find((item) => item.id === id) || levels[0];
+
+const ClientOnlyHuarongdaoGamePage = dynamic(
+  () => import('sa2kit/huarongdao/ui/web').then((m) => m.HuarongdaoGamePage),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="py-10 text-center text-sm text-white/70">正在加载游戏区域...</div>
+    ),
+  },
+);
 
 export default function HuarongdaoPage() {
   const [theme, setTheme] = useState<HuarongdaoTheme>('miku');
@@ -206,7 +216,7 @@ export default function HuarongdaoPage() {
             <div className="mb-2 text-center text-xs text-white/65 md:text-sm">
               当前关卡：{currentLevel.label} · 网格 {currentLevel.rows}x{currentLevel.cols}
             </div>
-            <HuarongdaoGamePage key={gameConfig.slug} config={gameConfig as any} />
+            <ClientOnlyHuarongdaoGamePage key={gameConfig.slug} config={gameConfig as any} />
           </div>
         </div>
       </div>
