@@ -12,7 +12,7 @@ const THEMES = {
     bgStart: '#05273c',
     bgEnd: '#0b1324',
     sourceImageUrl: '/mikutalking/models/miku/texture/头.png',
-    defaultTrack: '/linkGame/mp3/ShakeIt!-Miku.mp3',
+    tracks: ['/linkGame/mp3/ShakeIt!-Miku.mp3', '/linkGame/mp3/VivalaVida.mp3'],
   },
   sakura: {
     label: '樱花初音主题',
@@ -21,87 +21,110 @@ const THEMES = {
     bgStart: '#4a1834',
     bgEnd: '#220e22',
     sourceImageUrl: '/mikutalking/models/YYB_Z6SakuraMiku/tex/face.png',
-    defaultTrack: '/linkGame/mp3/utanikatachinaikedo.mp3',
+    tracks: ['/linkGame/mp3/utanikatachinaikedo.mp3', '/linkGame/mp3/VivalaVida.mp3'],
   },
 };
 
-const TRACK_OPTIONS = [
-  { value: 'theme-default', label: '主题默认 BGM' },
-  { value: '/linkGame/mp3/ShakeIt!-Miku.mp3', label: 'Miku - Shake It!' },
-  { value: '/linkGame/mp3/utanikatachinaikedo.mp3', label: '樱花向轻音乐' },
-  { value: '/linkGame/mp3/VivalaVida.mp3', label: '纯音乐（Viva La Vida）' },
-  { value: 'custom', label: '自定义音乐 URL' },
+const LEVELS = [
+  { id: 1, label: '难度 1', rows: 3, cols: 3, shuffleSteps: 60, badge: '入门' },
+  { id: 2, label: '难度 2', rows: 4, cols: 4, shuffleSteps: 110, badge: '进阶' },
+  { id: 3, label: '难度 3', rows: 5, cols: 5, shuffleSteps: 180, badge: '挑战' },
 ];
 
-const buildConfig = (themeKey: keyof typeof THEMES) => ({
-  id: `demo-${themeKey}`,
-  slug: `demo-huarongdao-${themeKey}`,
-  name: THEMES[themeKey].label,
-  status: 'active',
-  rows: 3,
-  cols: 3,
-  sourceImageUrl: THEMES[themeKey].sourceImageUrl,
-  showReference: true,
-  shuffleSteps: 100,
-  startMode: 'random-solvable',
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-});
+const TRACK_NAME_MAP: Record<string, string> = {
+  '/linkGame/mp3/ShakeIt!-Miku.mp3': 'Shake It! - Miku',
+  '/linkGame/mp3/utanikatachinaikedo.mp3': 'Sakura Theme OST',
+  '/linkGame/mp3/VivalaVida.mp3': 'Viva La Vida (Instrumental)',
+};
+
+const buildConfig = (themeKey: keyof typeof THEMES, levelId: number) => {
+  const level = LEVELS.find((item) => item.id === levelId) || LEVELS[0];
+  return {
+    id: `demo-${themeKey}-${level.id}`,
+    slug: `demo-huarongdao-${themeKey}-${level.id}`,
+    name: `${THEMES[themeKey].label} · ${level.label}`,
+    status: 'active',
+    rows: level.rows,
+    cols: level.cols,
+    sourceImageUrl: THEMES[themeKey].sourceImageUrl,
+    showReference: true,
+    shuffleSteps: level.shuffleSteps,
+    startMode: 'random-solvable',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+};
+
+const pickRandomTrack = (tracks: string[], prevTrack: string | null) => {
+  if (!tracks.length) return null;
+  if (tracks.length === 1) return tracks[0];
+  const candidates = tracks.filter((item) => item !== prevTrack);
+  return candidates[Math.floor(Math.random() * candidates.length)];
+};
 
 export default function HuarongdaoPage() {
   const [theme, setTheme] = useState<keyof typeof THEMES>('miku');
-  const [track, setTrack] = useState<string>('theme-default');
-  const [customTrack, setCustomTrack] = useState<string>('');
-  const [volume, setVolume] = useState<number>(0.45);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [levelId, setLevelId] = useState<number>(1);
+  const [activeTrack, setActiveTrack] = useState<string | null>(null);
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
+  const [playError, setPlayError] = useState<string>('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const config = useMemo(() => buildConfig(theme), [theme]);
+  const config = useMemo(() => buildConfig(theme, levelId), [theme, levelId]);
   const petals = useMemo(() => Array.from({ length: 18 }, (_, i) => i), []);
-  const resolvedTrack =
-    track === 'custom'
-      ? customTrack.trim()
-      : track === 'theme-default'
-        ? THEMES[theme].defaultTrack
-        : track;
+  const currentTheme = THEMES[theme];
+  const currentLevel = LEVELS.find((item) => item.id === levelId) || LEVELS[0];
+
+  useEffect(() => {
+    setActiveTrack((prev) => pickRandomTrack(currentTheme.tracks, prev));
+  }, [theme, levelId, currentTheme.tracks]);
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return;
-    audio.volume = volume;
-  }, [volume]);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (!resolvedTrack) {
-      audio.pause();
-      setIsPlaying(false);
-      return;
-    }
-    audio.src = resolvedTrack;
+    if (!audio || !activeTrack) return;
+    audio.volume = 0.45;
+    audio.src = activeTrack;
     audio.load();
-    if (isPlaying) {
-      void audio.play().catch(() => setIsPlaying(false));
+    if (audioUnlocked) {
+      void audio.play().catch(() => {
+        setPlayError('浏览器已阻止自动播放，请点击「开启音乐」后继续闯关。');
+      });
     }
-  }, [resolvedTrack, isPlaying]);
+  }, [activeTrack, audioUnlocked]);
 
-  const togglePlay = () => {
+  const unlockAndPlay = () => {
     const audio = audioRef.current;
-    if (!audio || !resolvedTrack) return;
-    if (isPlaying) {
-      audio.pause();
-      setIsPlaying(false);
-      return;
-    }
-    void audio.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+    if (!audio) return;
+    setAudioUnlocked(true);
+    setPlayError('');
+    void audio.play().catch(() => {
+      setPlayError('当前环境无法自动播放音乐，请检查系统媒体权限。');
+    });
   };
 
-  const currentTheme = THEMES[theme];
+  const switchTheme = (next: keyof typeof THEMES) => {
+    setTheme(next);
+    if (!audioUnlocked) return;
+    setTimeout(() => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      void audio.play().catch(() => undefined);
+    }, 80);
+  };
+
+  const switchLevel = (nextLevel: number) => {
+    setLevelId(nextLevel);
+    if (!audioUnlocked) return;
+    setTimeout(() => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      void audio.play().catch(() => undefined);
+    }, 80);
+  };
 
   return (
     <div
-      className="relative min-h-screen overflow-hidden px-4 py-6 md:px-8"
+      className="relative min-h-screen overflow-hidden px-3 py-4 md:px-8 md:py-8"
       style={{
         background: `radial-gradient(circle at 20% 20%, ${currentTheme.accentSoft}22, transparent 40%), linear-gradient(135deg, ${currentTheme.bgStart}, ${currentTheme.bgEnd})`,
       }}
@@ -125,74 +148,76 @@ export default function HuarongdaoPage() {
 
       <audio ref={audioRef} loop preload="none" />
 
-      <div className="relative z-10 mx-auto w-full max-w-6xl rounded-2xl border border-white/20 bg-black/25 p-4 backdrop-blur-sm md:p-6">
-        <div className="mb-4 flex flex-col gap-3 md:mb-6">
-          <div className="flex flex-wrap items-center gap-2">
-            {Object.entries(THEMES).map(([key, item]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setTheme(key as keyof typeof THEMES)}
-                className="rounded-full border px-4 py-1.5 text-sm transition"
-                style={{
-                  borderColor: theme === key ? item.accent : '#ffffff44',
-                  background: theme === key ? `${item.accent}33` : '#00000022',
-                  color: '#fff',
-                }}
-              >
-                {item.label}
-              </button>
-            ))}
+      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-6xl flex-col justify-center">
+        <div className="mx-auto w-full max-w-5xl rounded-2xl border border-white/20 bg-black/30 p-3 backdrop-blur-sm md:p-5">
+          <div className="mb-3 flex flex-col gap-3 md:mb-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h1 className="text-lg font-semibold text-white md:text-2xl">华容道三关挑战</h1>
+              {!audioUnlocked ? (
+                <button
+                  type="button"
+                  onClick={unlockAndPlay}
+                  className="rounded-md px-3 py-1.5 text-xs font-medium text-black md:text-sm"
+                  style={{ backgroundColor: currentTheme.accent }}
+                >
+                  开启音乐
+                </button>
+              ) : (
+                <div className="rounded-md border border-white/20 bg-black/20 px-3 py-1 text-xs text-white/80">
+                  BGM: {activeTrack ? TRACK_NAME_MAP[activeTrack] || '随机曲目' : '加载中'}
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {Object.entries(THEMES).map(([key, item]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => switchTheme(key as keyof typeof THEMES)}
+                  className="rounded-full border px-3 py-1 text-xs transition md:px-4 md:py-1.5 md:text-sm"
+                  style={{
+                    borderColor: theme === key ? item.accent : '#ffffff44',
+                    background: theme === key ? `${item.accent}33` : '#00000022',
+                    color: '#fff',
+                  }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 md:gap-3">
+              {LEVELS.map((level) => (
+                <button
+                  key={level.id}
+                  type="button"
+                  onClick={() => switchLevel(level.id)}
+                  className="rounded-xl border p-2 text-left transition md:p-3"
+                  style={{
+                    borderColor: levelId === level.id ? currentTheme.accent : '#ffffff33',
+                    background: levelId === level.id ? `${currentTheme.accent}26` : '#00000020',
+                  }}
+                >
+                  <p className="text-xs text-white/70 md:text-sm">{level.badge}</p>
+                  <p className="text-sm font-semibold text-white md:text-base">{level.label}</p>
+                  <p className="text-[11px] text-white/70 md:text-xs">
+                    {level.rows} x {level.cols}
+                  </p>
+                </button>
+              ))}
+            </div>
+
+            {playError ? <p className="text-xs text-rose-200">{playError}</p> : null}
           </div>
 
-          <div className="grid grid-cols-1 gap-3 rounded-xl border border-white/15 bg-black/20 p-3 text-white md:grid-cols-[1fr_auto_auto] md:items-center">
-            <div className="flex flex-col gap-2">
-              <label className="text-xs text-white/70">背景音乐配置</label>
-              <select
-                value={track}
-                onChange={(e) => setTrack(e.target.value)}
-                className="rounded-md border border-white/20 bg-black/30 px-2 py-1.5 text-sm outline-none"
-              >
-                {TRACK_OPTIONS.map((item) => (
-                  <option key={item.value} value={item.value}>
-                    {item.label}
-                  </option>
-                ))}
-              </select>
-              {track === 'custom' ? (
-                <input
-                  value={customTrack}
-                  onChange={(e) => setCustomTrack(e.target.value)}
-                  placeholder="输入可访问的音频 URL（mp3/wav/ogg）"
-                  className="rounded-md border border-white/20 bg-black/30 px-2 py-1.5 text-sm outline-none"
-                />
-              ) : null}
+          <div className="mx-auto w-full max-w-3xl rounded-xl border border-white/15 bg-black/25 p-2 md:p-4">
+            <div className="mb-2 text-center text-xs text-white/65 md:text-sm">
+              当前关卡：{currentLevel.label} · 网格 {currentLevel.rows}x{currentLevel.cols}
             </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-white/70">音量</span>
-              <input
-                type="range"
-                min={0}
-                max={1}
-                step={0.01}
-                value={volume}
-                onChange={(e) => setVolume(Number(e.target.value))}
-              />
-            </div>
-
-            <button
-              type="button"
-              onClick={togglePlay}
-              className="rounded-md px-4 py-2 text-sm font-medium text-black"
-              style={{ backgroundColor: currentTheme.accent }}
-            >
-              {isPlaying ? '暂停 BGM' : '播放 BGM'}
-            </button>
+            <HuarongdaoGamePage key={config.slug} config={config as any} />
           </div>
         </div>
-
-        <HuarongdaoGamePage key={config.slug} config={config as any} />
       </div>
 
       <style jsx>{`

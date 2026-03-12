@@ -22,6 +22,30 @@ const THEMES = {
   },
 };
 
+const CONFIG_GUIDES = [
+  {
+    title: '基础信息',
+    hint: '名称 / slug / 状态',
+    desc: '用于区分不同关卡配置，slug 建议语义化且唯一。',
+  },
+  {
+    title: '拼图难度',
+    hint: 'rows / cols / shuffleSteps',
+    desc: '网格越大、打乱步数越高，整体难度越高。',
+  },
+  {
+    title: '视觉与体验',
+    hint: 'sourceImageUrl / showReference',
+    desc: '高对比图片更易识别，移动端建议开启参考图。',
+  },
+];
+
+const FLOW_STEPS = [
+  '先创建配置：填写名称和 slug，保存后得到可复用配置。',
+  '再设定难度：优先调整 rows/cols，其次再调 shuffleSteps。',
+  '最后联调体验：跳转游戏页验证三关体感和音乐切换效果。',
+];
+
 export default function HuarongdaoConfigPage() {
   const [theme, setTheme] = useState<keyof typeof THEMES>('miku');
   const currentTheme = THEMES[theme];
@@ -56,7 +80,7 @@ export default function HuarongdaoConfigPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h1 className="text-xl font-semibold text-white md:text-2xl">华容道配置中心</h1>
-              <p className="text-sm text-white/75">管理拼图配置、切图参数和展示策略</p>
+              <p className="text-sm text-white/75">清晰配置项 + 快速验证流程</p>
             </div>
             <Link
               href="/testField/huarongdao"
@@ -81,6 +105,28 @@ export default function HuarongdaoConfigPage() {
               >
                 {item.label}
               </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+          {CONFIG_GUIDES.map((item) => (
+            <div key={item.title} className="rounded-xl border border-white/15 bg-black/20 p-3 text-white">
+              <p className="text-sm font-semibold">{item.title}</p>
+              <p className="mt-1 text-xs text-white/65">{item.hint}</p>
+              <p className="mt-2 text-xs text-white/80">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mb-4 rounded-xl border border-white/15 bg-black/20 p-3 text-white">
+          <p className="text-sm font-semibold">三步完成配置</p>
+          <div className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-3">
+            {FLOW_STEPS.map((step, idx) => (
+              <div key={step} className="rounded-lg border border-white/10 bg-black/20 p-2">
+                <p className="text-xs font-semibold text-white/70">STEP {idx + 1}</p>
+                <p className="mt-1 text-xs text-white/85">{step}</p>
+              </div>
             ))}
           </div>
         </div>
