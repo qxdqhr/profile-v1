@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import dynamic from 'next/dynamic';
+import { moveTile, shuffleSolvable } from 'sa2kit/huarongdao';
 import {
   buildPersistedConfig,
   DEFAULT_HUARONGDAO_LEVEL_CONFIGS,
@@ -38,6 +38,15 @@ const TRACK_NAME_MAP: Record<string, string> = {
   '/linkGame/mp3/VivalaVida.mp3': 'Viva La Vida (Instrumental)',
 };
 
+const TIME_LIMIT_MAP: Record<number, number> = {
+  1: 180,
+  2: 240,
+  3: 300,
+};
+
+const findLevel = (levels: HuarongdaoLevelConfig[], id: number) =>
+  levels.find((item) => item.id === id) || levels[0];
+
 const pickRandomTrack = (tracks: string[], prevTrack: string | null) => {
   if (!tracks.length) return null;
   if (tracks.length === 1) return tracks[0];
@@ -45,31 +54,28 @@ const pickRandomTrack = (tracks: string[], prevTrack: string | null) => {
   return candidates[Math.floor(Math.random() * candidates.length)];
 };
 
-const findLevel = (levels: HuarongdaoLevelConfig[], id: number) =>
-  levels.find((item) => item.id === id) || levels[0];
-
-const ClientOnlyHuarongdaoGamePage = dynamic(
-  () => import('sa2kit/huarongdao/ui/web').then((m) => m.HuarongdaoGamePage),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="py-10 text-center text-sm text-white/70">正在加载游戏区域...</div>
-    ),
-  },
-);
-
 export default function HuarongdaoPage() {
+  const [mounted, setMounted] = useState(false);
   const [theme, setTheme] = useState<HuarongdaoTheme>('miku');
   const [levelId, setLevelId] = useState<number>(1);
   const [levels, setLevels] = useState<HuarongdaoLevelConfig[]>(DEFAULT_HUARONGDAO_LEVEL_CONFIGS);
+  const [bgmTracks, setBgmTracks] = useState<string[]>([]);
   const [activeTrack, setActiveTrack] = useState<string | null>(null);
   const [audioUnlocked, setAudioUnlocked] = useState(false);
   const [playError, setPlayError] = useState<string>('');
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [nowTs, setNowTs] = useState<number>(Date.now());
+  const [gameState, setGameState] = useState<any>(null);
+  const [showWinModal, setShowWinModal] = useState(false);
 
-  const petals = useMemo(() => Array.from({ length: 18 }, (_, i) => i), []);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentTheme = THEMES[theme];
+  const petals = useMemo(() => Array.from({ length: 18 }, (_, i) => i), []);
   const currentLevel = findLevel(levels, levelId);
+  const sourceImageUrl = currentLevel.sourceImageUrl?.trim() || currentTheme.fallbackImageUrl;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -80,6 +86,7 @@ export default function HuarongdaoPage() {
         const persisted = buildPersistedConfig(json?.data);
         setTheme(normalizeTheme(persisted.theme));
         setLevels(persisted.levels);
+        setBgmTracks((persisted.bgmTracks || []).map((item) => String(item || '').trim()).filter(Boolean));
       } catch {
         setLevels(DEFAULT_HUARONGDAO_LEVEL_CONFIGS);
       }
@@ -88,8 +95,10 @@ export default function HuarongdaoPage() {
   }, []);
 
   useEffect(() => {
-    setActiveTrack((prev) => pickRandomTrack(currentTheme.tracks, prev));
-  }, [theme, levelId, currentTheme.tracks]);
+    if (!mounted) return;
+    const tracks = (bgmTracks || []).length ? bgmTracks : currentTheme.tracks;
+    setActiveTrack((prev) => pickRandomTrack(tracks, prev));
+  }, [mounted, theme, levelId, bgmTracks, currentTheme.tracks]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -103,6 +112,33 @@ export default function HuarongdaoPage() {
       });
     }
   }, [activeTrack, audioUnlocked]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    const timer = setInterval(() => setNowTs(Date.now()), 200);
+    return () => clearInterval(timer);
+  }, [mounted]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    const tiles = shuffleSolvable(currentLevel.rows, currentLevel.cols, currentLevel.shuffleSteps);
+    setGameState({
+      tiles,
+      rows: currentLevel.rows,
+      cols: currentLevel.cols,
+      moveCount: 0,
+      startedAt: Date.now(),
+      isSolved: false,
+      finishedAt: undefined,
+    });
+    setShowWinModal(false);
+  }, [mounted, levelId, currentLevel.rows, currentLevel.cols, currentLevel.shuffleSteps, sourceImageUrl]);
+
+  useEffect(() => {
+    if (gameState?.isSolved) {
+      setShowWinModal(true);
+    }
+  }, [gameState?.isSolved]);
 
   const unlockAndPlay = () => {
     const audio = audioRef.current;
@@ -124,21 +160,40 @@ export default function HuarongdaoPage() {
     }, 80);
   };
 
-  const sourceImageUrl = currentLevel.sourceImageUrl?.trim() || currentTheme.fallbackImageUrl;
+  const resetCurrentLevel = () => {
+    const tiles = shuffleSolvable(currentLevel.rows, currentLevel.cols, currentLevel.shuffleSteps);
+    setGameState({
+      tiles,
+      rows: currentLevel.rows,
+      cols: currentLevel.cols,
+      moveCount: 0,
+      startedAt: Date.now(),
+      isSolved: false,
+      finishedAt: undefined,
+    });
+    setShowWinModal(false);
+  };
 
-  const gameConfig = {
-    id: `demo-${theme}-${currentLevel.id}`,
-    slug: `demo-huarongdao-${theme}-${currentLevel.id}`,
-    name: `${currentTheme.label} · ${currentLevel.label}`,
-    status: 'active',
-    rows: currentLevel.rows,
-    cols: currentLevel.cols,
-    sourceImageUrl,
-    showReference: true,
-    shuffleSteps: currentLevel.shuffleSteps,
-    startMode: 'random-solvable',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+  const elapsedSec = gameState
+    ? Math.floor(((gameState.finishedAt || nowTs) - gameState.startedAt) / 1000)
+    : 0;
+  const timeLimitSec = TIME_LIMIT_MAP[levelId] || 240;
+  const remainSec = Math.max(0, timeLimitSec - elapsedSec);
+  const maxScore = 1200 + levelId * 500;
+  const score = Math.max(0, maxScore - elapsedSec * 6 - (gameState?.moveCount || 0) * 4);
+
+  const onTileClick = (tileIndex: number) => {
+    if (!gameState || gameState.isSolved) return;
+    setGameState((prev: any) => moveTile(prev, tileIndex));
+  };
+
+  const nextLevel = () => {
+    if (levelId < 3) {
+      switchLevel(levelId + 1);
+      setShowWinModal(false);
+      return;
+    }
+    resetCurrentLevel();
   };
 
   return (
@@ -216,10 +271,105 @@ export default function HuarongdaoPage() {
             <div className="mb-2 text-center text-xs text-white/65 md:text-sm">
               当前关卡：{currentLevel.label} · 网格 {currentLevel.rows}x{currentLevel.cols}
             </div>
-            <ClientOnlyHuarongdaoGamePage key={gameConfig.slug} config={gameConfig as any} />
+
+            <div className="mb-3 grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-lg border border-cyan-300/40 bg-gradient-to-br from-cyan-400/35 to-cyan-700/30 p-2">
+                <p className="text-[11px] text-cyan-100">剩余时间</p>
+                <p className="text-lg font-bold text-cyan-50 drop-shadow-[0_0_8px_rgba(34,211,238,0.9)]">{remainSec}s</p>
+              </div>
+              <div className="rounded-lg border border-fuchsia-300/40 bg-gradient-to-br from-fuchsia-400/35 to-fuchsia-700/30 p-2">
+                <p className="text-[11px] text-fuchsia-100">分数</p>
+                <p className="text-lg font-bold text-fuchsia-50 drop-shadow-[0_0_8px_rgba(232,121,249,0.9)]">{score}</p>
+              </div>
+              <div className="rounded-lg border border-emerald-300/40 bg-gradient-to-br from-emerald-400/35 to-emerald-700/30 p-2">
+                <p className="text-[11px] text-emerald-100">步数</p>
+                <p className="text-lg font-bold text-emerald-50 drop-shadow-[0_0_8px_rgba(52,211,153,0.8)]">{gameState?.moveCount || 0}</p>
+              </div>
+            </div>
+
+            <div className="mx-auto w-full max-w-[min(86vw,520px)]">
+              {mounted && gameState ? (
+                <div
+                  className="grid gap-1.5"
+                  style={{ gridTemplateColumns: `repeat(${gameState.cols}, minmax(0, 1fr))` }}
+                >
+                  {gameState.tiles.map((tile: number, index: number) => {
+                    if (tile === 0) {
+                      return (
+                        <div
+                          key={`blank-${index}`}
+                          className="aspect-square rounded-md border border-white/10 bg-white/10"
+                        />
+                      );
+                    }
+                    const pieceIndex = tile - 1;
+                    const pr = Math.floor(pieceIndex / gameState.cols);
+                    const pc = pieceIndex % gameState.cols;
+                    const x = gameState.cols > 1 ? (pc / (gameState.cols - 1)) * 100 : 0;
+                    const y = gameState.rows > 1 ? (pr / (gameState.rows - 1)) * 100 : 0;
+
+                    return (
+                      <button
+                        key={`${tile}-${index}`}
+                        onClick={() => onTileClick(index)}
+                        className="aspect-square rounded-md border border-white/25 shadow-[0_8px_24px_rgba(0,0,0,0.35)]"
+                        style={{
+                          backgroundImage: `url(${sourceImageUrl})`,
+                          backgroundSize: `${gameState.cols * 100}% ${gameState.rows * 100}%`,
+                          backgroundPosition: `${x}% ${y}%`,
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="py-10 text-center text-sm text-white/70">正在加载游戏区域...</div>
+              )}
+            </div>
+
+            <div className="mt-3 flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={resetCurrentLevel}
+                className="rounded-md border border-white/30 px-3 py-1.5 text-xs text-white/90"
+              >
+                重新开始本关
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
+      {showWinModal ? (
+        <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-sm rounded-2xl border border-white/20 bg-slate-900/95 p-5 text-white shadow-[0_18px_60px_rgba(0,0,0,0.5)]">
+            <p className="text-xl font-bold text-emerald-300">通关成功！</p>
+            <p className="mt-2 text-sm text-white/80">{currentLevel.label} 已完成，继续挑战下一关吧。</p>
+            <div className="mt-3 space-y-1 text-sm">
+              <p>最终用时：{elapsedSec}s</p>
+              <p>最终步数：{gameState?.moveCount || 0}</p>
+              <p>关卡得分：{score}</p>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setShowWinModal(false)}
+                className="w-full rounded-md border border-white/25 px-3 py-2 text-sm"
+              >
+                关闭
+              </button>
+              <button
+                type="button"
+                onClick={nextLevel}
+                className="w-full rounded-md px-3 py-2 text-sm font-semibold text-black"
+                style={{ backgroundColor: currentTheme.accent }}
+              >
+                {levelId < 3 ? '下一关' : '再来一轮'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <style jsx>{`
         .petal-layer {

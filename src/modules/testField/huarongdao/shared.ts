@@ -67,6 +67,7 @@ export const mergeWithDefaults = (input: Partial<HuarongdaoLevelConfig>[] | null
 export interface HuarongdaoPersistedConfig {
   theme: HuarongdaoTheme;
   levels: HuarongdaoLevelConfig[];
+  bgmTracks: string[];
 }
 
 export const normalizeTheme = (value: unknown): HuarongdaoTheme => {
@@ -77,6 +78,7 @@ export const buildPersistedConfig = (input: unknown): HuarongdaoPersistedConfig 
   const obj = (input && typeof input === 'object' ? input : {}) as {
     theme?: unknown;
     levels?: unknown;
+    bgmTracks?: unknown;
   };
 
   const levelsInput = Array.isArray(obj.levels)
@@ -85,13 +87,19 @@ export const buildPersistedConfig = (input: unknown): HuarongdaoPersistedConfig 
       ? input
       : [];
 
+  const bgmTracks = Array.isArray(obj.bgmTracks)
+    ? obj.bgmTracks.map((item) => String(item || '').trim()).filter(Boolean)
+    : [];
+
   return {
     theme: normalizeTheme(obj.theme),
     levels: mergeWithDefaults(levelsInput as Partial<HuarongdaoLevelConfig>[]),
+    bgmTracks,
   };
 };
 
 export const DEFAULT_HUARONGDAO_PERSISTED_CONFIG: HuarongdaoPersistedConfig = {
   theme: 'miku',
   levels: DEFAULT_HUARONGDAO_LEVEL_CONFIGS,
+  bgmTracks: [],
 };
