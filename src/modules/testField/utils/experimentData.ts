@@ -440,6 +440,28 @@ export const experiments: ExperimentItem[] = [
     updatedAt: '2026-02-16'
   },
   {
+    id: "bubble-shooter",
+    title: "泡泡龙（初版）",
+    description: "体验 sa2kit/bubbleShooter 初版能力，支持瞄准发射、同色连消与悬空掉落",
+    path: "/testField/bubbleShooter",
+    tags: ["SA2Kit", "泡泡龙", "小游戏", "连消"],
+    category: "leisure",
+    isCompleted: true,
+    createdAt: '2026-03-14',
+    updatedAt: '2026-03-14'
+  },
+  {
+    id: "miku-flick",
+    title: "Miku Flick（初版）",
+    description: "体验 sa2kit/mikuFlick 初版能力，支持假名键位滑动方向判定、节奏判定与连击计分",
+    path: "/testField/mikuFlick",
+    tags: ["SA2Kit", "MikuFlick", "小游戏", "节奏输入"],
+    category: "leisure",
+    isCompleted: true,
+    createdAt: '2026-03-15',
+    updatedAt: '2026-03-15'
+  },
+  {
     id: "miku-fireworks-3d",
     title: "Miku Fireworks 3D",
     description: "体验 sa2kit 新增的 3D 烟花弹幕模块，支持普通/初音/头像烟花与实时弹幕",
