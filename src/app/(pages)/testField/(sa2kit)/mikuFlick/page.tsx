@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { webUI } from '../../../../../../../sa2kit/src/business/mikuFlick';
+import { webUI } from 'sa2kit/mikuFlick';
 
 const { MikuFlickGamePage } = webUI;
 
