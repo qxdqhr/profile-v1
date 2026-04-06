@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { createBookingQueryService } from 'sa2kit/showmasterpiece/server';
+import { validateApiAuth } from '@/lib/auth/legacy';
 
 const bookingQueryService = createBookingQueryService(db);
 
@@ -19,6 +20,11 @@ const bookingQueryService = createBookingQueryService(db);
  * @returns CSV文件响应
  */
 async function GET(request: NextRequest) {
+  const user = await validateApiAuth(request);
+  if (!user) {
+    return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const format = searchParams.get('format') || 'csv';
@@ -65,11 +71,7 @@ async function GET(request: NextRequest) {
     }
     
     return NextResponse.json(
-      { 
-        message: '导出预订数据失败', 
-        error: errorMessage,
-        details: error instanceof Error ? error.stack : '未知错误'
-      },
+      { error: '导出预订数据失败' },
       { status: 500 }
     );
   }

@@ -10,16 +10,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db, forceRefreshDatabaseConnection, getDatabaseConnectionStatus } from '@/db';
 import type { BookingStatus } from 'sa2kit/showmasterpiece';
 import { createBookingQueryService } from 'sa2kit/showmasterpiece/server';
+import { validateApiAuth } from '@/lib/auth/legacy';
 
 const bookingQueryService = createBookingQueryService(db);
 
 /**
  * 强制刷新获取所有预订数据和统计信息（管理员专用）
- * 
+ * 使用 POST 避免 GET 语义下的副作用（DB 重连）被代理缓存
+ *
  * @param request Next.js请求对象
  * @returns 所有预订数据和统计信息
  */
-async function GET(request: NextRequest) {
+async function POST(request: NextRequest) {
+  const user = await validateApiAuth(request);
+  if (!user) {
+    return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+  }
+
   try {
     console.log('🔄 强制刷新预订数据 - 开始执行...');
     
@@ -93,13 +100,13 @@ async function GET(request: NextRequest) {
   } catch (error) {
     console.error('强制刷新获取预订管理数据失败:', error);
     return NextResponse.json(
-      { message: '强制刷新获取预订管理数据失败', error: error instanceof Error ? error.message : '未知错误' },
+      { error: '强制刷新获取预订管理数据失败' },
       { status: 500 }
     );
   }
 }
 
-export { GET };
+export { POST };
 
 // 强制API路由不缓存
 export const dynamic = 'force-dynamic';

@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import type { BookingStatus } from 'sa2kit/showmasterpiece';
 import { createBookingQueryService } from 'sa2kit/showmasterpiece/server';
+import { validateApiAuth } from '@/lib/auth/legacy';
 
 const bookingQueryService = createBookingQueryService(db);
 
@@ -21,6 +22,11 @@ const bookingQueryService = createBookingQueryService(db);
  * @returns 所有预订数据和统计信息
  */
 async function GET(request: NextRequest) {
+  const user = await validateApiAuth(request);
+  if (!user) {
+    return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+  }
+
   try {
     // 强制禁用Next.js缓存
     let forceRefresh = null;

@@ -3,8 +3,9 @@
  * 
  * 处理单个预订的HTTP请求，包括：
  * - GET: 获取预订详情
- * - PUT: 更新预订状态
- * - DELETE: 删除预订
+ * - PUT: 更新预订信息
+ * 
+ * 注意：DELETE 操作已移至 /bookings/admin/[id]（需管理员鉴权）
  * 
  * @fileoverview 单个预订操作API路由
  */
@@ -17,6 +18,8 @@ import {
   createBookingCommandService,
   createBookingQueryService,
 } from 'sa2kit/showmasterpiece/server';
+
+// DELETE 已移至 /bookings/admin/[id]（需管理员鉴权）
 
 const bookingQueryService = createBookingQueryService(db);
 const bookingCommandService = createBookingCommandService(db);
@@ -103,43 +106,4 @@ async function PUT(
   }
 }
 
-/**
- * 删除预订
- * 
- * @param request Next.js请求对象
- * @param params 路由参数
- * @returns 删除结果
- */
-async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const resolvedParams = await params;
-    const id = parseInt(resolvedParams.id);
-    
-    if (isNaN(id)) {
-      return NextResponse.json(
-        { message: '无效的预订ID' },
-        { status: 400 }
-      );
-    }
-
-    await bookingCommandService.deleteBooking(id);
-    return NextResponse.json({ message: '预订删除成功' }, { status: 200 });
-
-  } catch (error) {
-    if (error instanceof BookingCommandError) {
-      const status = error.code === 'BOOKING_NOT_FOUND' ? 404 : 400;
-      return NextResponse.json({ message: error.message }, { status });
-    }
-
-    console.error('删除预订失败:', error);
-    return NextResponse.json(
-      { message: '删除预订失败' },
-      { status: 500 }
-    );
-  }
-}
-
-export { GET, PUT, DELETE }; 
+export { GET, PUT }; 

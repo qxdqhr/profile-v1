@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { showmasterConfigService } from '@/modules/showmasterpiece/configService';
+import { validateApiAuth } from '@/lib/auth/legacy';
 
 // 获取单个配置项
 export async function GET(
@@ -50,6 +51,11 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const user = await validateApiAuth(request);
+  if (!user) {
+    return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+  }
+
   try {
     const { id } = await params;
     const body = await request.json();
@@ -119,6 +125,11 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const user = await validateApiAuth(request);
+  if (!user) {
+    return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+  }
+
   try {
     const { id } = await params;
     

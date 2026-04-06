@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { showmasterConfigService } from '@/modules/showmasterpiece/configService';
+import { validateApiAuth } from '@/lib/auth/legacy';
 
 // 获取showmasterpiece模块配置项列表
 async function getConfigItems(request: NextRequest) {
@@ -171,5 +172,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const user = await validateApiAuth(request);
+  if (!user) {
+    return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+  }
   return createConfigItem(request);
 }
