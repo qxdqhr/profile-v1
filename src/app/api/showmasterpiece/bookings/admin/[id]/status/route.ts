@@ -36,7 +36,7 @@ async function PUT(
     
     if (isNaN(bookingId)) {
       return NextResponse.json(
-        { message: '无效的预订ID' },
+        { error: '无效的预订ID' },
         { status: 400 }
       );
     }
@@ -69,12 +69,12 @@ async function PUT(
   } catch (error) {
     if (error instanceof BookingCommandError) {
       const statusCode = error.code === 'BOOKING_NOT_FOUND' ? 404 : 400;
-      return NextResponse.json({ message: error.message }, { status: statusCode });
+      return NextResponse.json({ error: error.message }, { status: statusCode });
     }
 
     console.error('更新预订状态失败:', error);
     return NextResponse.json(
-      { message: '更新预订状态失败' },
+      { error: '更新预订状态失败' },
       { status: 500 }
     );
   }

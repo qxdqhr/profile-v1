@@ -31,7 +31,7 @@ async function GET(request: NextRequest) {
     
     if (format !== 'csv') {
       return NextResponse.json(
-        { message: '目前只支持CSV格式导出' },
+        { error: '目前只支持CSV格式导出' },
         { status: 400 }
       );
     }

@@ -46,7 +46,7 @@ async function GET(request: NextRequest) {
   } catch (error) {
     console.error('获取预订列表失败:', error);
     return NextResponse.json(
-      { message: '获取预订列表失败' },
+      { error: '获取预订列表失败' },
       { status: 500 }
     );
   }
@@ -68,12 +68,12 @@ async function POST(request: NextRequest) {
     if (error instanceof BookingCommandError) {
       const status =
         error.code === 'COLLECTION_NOT_FOUND' ? 404 : 400;
-      return NextResponse.json({ message: error.message }, { status });
+      return NextResponse.json({ error: error.message }, { status });
     }
 
     console.error('创建预订失败:', error);
     return NextResponse.json(
-      { message: '创建预订失败' },
+      { error: '创建预订失败' },
       { status: 500 }
     );
   }

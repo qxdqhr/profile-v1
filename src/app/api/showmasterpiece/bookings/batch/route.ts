@@ -26,12 +26,12 @@ async function POST(request: NextRequest) {
 
   } catch (error) {
     if (error instanceof BookingCommandError) {
-      return NextResponse.json({ message: error.message }, { status: 400 });
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     console.error('批量预订失败:', error);
     return NextResponse.json(
-      { message: '批量预订失败' },
+      { error: '批量预订失败' },
       { status: 500 }
     );
   }

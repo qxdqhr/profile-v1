@@ -38,7 +38,7 @@ async function GET(request: NextRequest) {
   } catch (error) {
     console.error('获取可预订画集列表失败:', error);
     return NextResponse.json(
-      { message: '获取画集列表失败' },
+      { error: '获取画集列表失败' },
       { status: 500 }
     );
   }

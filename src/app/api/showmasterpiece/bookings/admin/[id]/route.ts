@@ -35,7 +35,7 @@ async function DELETE(
 
     if (isNaN(id)) {
       return NextResponse.json(
-        { message: '无效的预订ID' },
+        { error: '无效的预订ID' },
         { status: 400 }
       );
     }
@@ -52,12 +52,12 @@ async function DELETE(
   } catch (error) {
     if (error instanceof BookingCommandError) {
       const status = error.code === 'BOOKING_NOT_FOUND' ? 404 : 400;
-      return NextResponse.json({ message: error.message }, { status });
+      return NextResponse.json({ error: error.message }, { status });
     }
 
     console.error('删除预订失败:', error);
     return NextResponse.json(
-      { message: '删除预订失败', error: error instanceof Error ? error.message : '未知错误' },
+      { error: '删除预订失败' },
       { status: 500 }
     );
   }

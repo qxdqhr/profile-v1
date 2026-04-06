@@ -41,7 +41,7 @@ async function GET(
 
     if (isNaN(id)) {
       return NextResponse.json(
-        { message: '无效的预订ID' },
+        { error: '无效的预订ID' },
         { status: 400 }
       );
     }
@@ -50,7 +50,7 @@ async function GET(
 
     if (!booking) {
       return NextResponse.json(
-        { message: '预订不存在' },
+        { error: '预订不存在' },
         { status: 404 }
       );
     }
@@ -59,7 +59,7 @@ async function GET(
   } catch (error) {
     console.error('获取预订详情失败:', error);
     return NextResponse.json(
-      { message: '获取预订详情失败' },
+      { error: '获取预订详情失败' },
       { status: 500 }
     );
   }
@@ -82,7 +82,7 @@ async function PUT(
     
     if (isNaN(id)) {
       return NextResponse.json(
-        { message: '无效的预订ID' },
+        { error: '无效的预订ID' },
         { status: 400 }
       );
     }
@@ -95,12 +95,12 @@ async function PUT(
   } catch (error) {
     if (error instanceof BookingCommandError) {
       const status = error.code === 'BOOKING_NOT_FOUND' ? 404 : 400;
-      return NextResponse.json({ message: error.message }, { status });
+      return NextResponse.json({ error: error.message }, { status });
     }
 
     console.error('更新预订失败:', error);
     return NextResponse.json(
-      { message: '更新预订失败' },
+      { error: '更新预订失败' },
       { status: 500 }
     );
   }
