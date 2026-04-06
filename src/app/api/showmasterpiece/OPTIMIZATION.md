@@ -146,16 +146,16 @@
 
 | Phase | 任务 | 完成情况 |
 |-------|------|----------|
-| P0 安全 | S1 管理端预订鉴权 | ⬜ |
+| P0 安全 | S1 管理端预订鉴权（admin GET/DELETE/PUT/export） | ✅ 2026-04-06 |
 | P0 安全 | S2 普通预订查询鉴权 | ⬜ |
-| P0 安全 | S3 弹窗配置写操作鉴权 | ⬜ |
-| P0 安全 | S4 系统配置项鉴权 | ⬜ |
-| P0 安全 | S6 移除 stack 泄露 | ⬜ |
-| P1 API | A1 refresh 改 POST | ⬜ |
-| P1 API | A2 删除重复 DELETE 路由 | ⬜ |
-| P1 API | A3 合并 refresh 路由 | ⬜ |
+| P0 安全 | S3 弹窗配置写操作鉴权 | ✅ 2026-04-06 |
+| P0 安全 | S4 系统配置项鉴权 | ✅ 2026-04-06 |
+| P0 安全 | S6 移除 export 接口 stack 泄露 | ✅ 2026-04-06 |
+| P1 API | A1 refresh 改 POST + 加鉴权 | ✅ 2026-04-06 |
+| P1 API | A2 删除重复 DELETE /bookings/[id] 路由 | ✅ 2026-04-06 |
+| P1 API | A3 合并 refresh 路由（可选，低优先级） | ⬜ |
 | P2 规范 | R1+R2 统一响应格式 | ⬜ |
-| P3 前端 | F1 移除死代码 import | ⬜ |
+| P3 前端 | F1 移除 ArtworkViewer/ThumbnailSidebar 死代码 | ✅ 2026-04-06 (sa2kit) |
 | P3 前端 | F2 购物车状态统一 | ⬜ |
 | P3 前端 | F3 拆分 Mega Component | ⬜ |
 | P3 前端 | F4 统一数据获取 | ⬜ |
@@ -163,4 +163,7 @@
 | P4 架构 | AR3 核查主键声明 | ⬜ |
 
 > **已完成：**
-> - ✅ AR2：universalExport 缓存问题已修复（config 对象直传，不再发 configId 字符串）
+> - ✅ AR2：universalExport 缓存问题已修复（config 对象直传，不再发 configId 字符串）（2026-04-06）
+> - ✅ S1/S3/S4/S6：管理端接口全量加鉴权，移除 stack 泄露（2026-04-06）
+> - ✅ A1/A2：refresh 改为 POST，删除重复删除路由（2026-04-06）
+> - ✅ F1：移除 ShowMasterPiecesPage 中从未渲染的组件 import（2026-04-06）
