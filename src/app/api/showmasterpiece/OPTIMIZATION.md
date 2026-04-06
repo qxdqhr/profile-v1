@@ -99,16 +99,17 @@
 - [ ] 保留 `bookings/admin/[id]/route.ts` 的 DELETE（加鉴权后使用）
 
 #### ✅ Task A3 — 合并 /admin 与 /admin/refresh
-- [ ] 将 `forceRefresh` 参数合并回主 admin 路由处理
-- [ ] 删除 `/bookings/admin/refresh` 路由文件
+- [x] 将 POST 合并至主 admin 路由（GET=普通查询，POST=强制刷新）
+- [x] 删除 `/bookings/admin/refresh` 路由文件
+- [x] 同步更新 sa2kit bookingAdminService.ts 调用路径
 
 ---
 
 ### Phase 3：响应格式统一（P2）
 
 #### ✅ Task R1+R2 — 统一错误响应格式
-- [ ] 在 `src/lib/api-response.ts` 创建通用响应工具函数
-- [ ] 批量更新所有 showmasterpiece API 路由使用统一格式
+- [x] 创建 `src/lib/api-response.ts` 通用响应工具函数
+- [x] 批量将所有 booking 路由错误响应从 `{ message }` 统一为 `{ error }`
 
 ---
 
@@ -119,26 +120,29 @@
 - [ ] 构建 sa2kit 并发布
 
 #### ✅ Task F2 — 统一购物车状态（较大重构，单独评估）
-- [ ] 分析 `cartUpdateEvents` 的使用场景
-- [ ] 判断是否所有使用方都在 `CartProvider` 树内
-- [ ] 合并到纯 Context 方案
+- [x] 确认所有 UI 组件已使用 useCartContext（无 useCart 直接依赖）
+- [x] 移除 CartContext 中冗余的 cartUpdateEvents 事件总线监听
+- [x] 修复 useCartContext 的 require 模式为标准 ES import
 
 #### ✅ Task F3 — 拆分 config/page.tsx（较大重构）
-- [ ] 将各 Tab 内容拆分为独立组件文件
-- [ ] 或拆分为独立子路由
+- [x] 拆分为 GeneralConfigTab / HomeTabsTab / CollectionsTab / ArtworksTab 4个组件
+- [x] 主文件从 1445 行缩减至 547 行（-62%）
 
 #### ✅ Task F4 — 统一数据获取（较大重构）
-- [ ] 评估引入 SWR 替代手写 useEffect 模式
+- [N/A] 当前 useMasterpiecesConfig 等 hooks 内置 useEffect 数据获取模式较成熟；
+  引入 SWR 收益有限，暂不处理（可在下次大重构时评估）
 
 ---
 
 ### Phase 5：架构清理（P4）
 
 #### ✅ Task AR1 — 服务实例复用
-- [ ] 将服务初始化移到路由文件模块顶层（已有部分路由这样做了，需统一）
+- [x] 核查确认：所有路由文件均已在模块顶层初始化服务（const service = createXxxService(db)），无需修改
 
 #### ✅ Task AR3 — 核查 bookings.id 主键
-- [ ] 对照 Drizzle 迁移文件确认 `comic_universe_bookings.id` 是否正确声明为主键
+- [x] 确认 Drizzle schema 缺少 .primaryKey()，且数据库快照显示 primaryKey: false
+- [x] 在 sa2kit schema 中补充 id: serial('id').primaryKey()
+- [x] 在 profile-v1 中创建迁移 0055_bookings_add_primary_key.sql 修复数据库
 
 ---
 
@@ -153,17 +157,22 @@
 | P0 安全 | S6 移除 export 接口 stack 泄露 | ✅ 2026-04-06 |
 | P1 API | A1 refresh 改 POST + 加鉴权 | ✅ 2026-04-06 |
 | P1 API | A2 删除重复 DELETE /bookings/[id] 路由 | ✅ 2026-04-06 |
-| P1 API | A3 合并 refresh 路由（可选，低优先级） | ⬜ |
-| P2 规范 | R1+R2 统一响应格式 | ⬜ |
+| P1 API | A3 合并 refresh 路由 | ✅ 2026-04-06 |
+| P2 规范 | R1+R2 统一响应格式 | ✅ 2026-04-06 |
 | P3 前端 | F1 移除 ArtworkViewer/ThumbnailSidebar 死代码 | ✅ 2026-04-06 (sa2kit) |
-| P3 前端 | F2 购物车状态统一 | ⬜ |
-| P3 前端 | F3 拆分 Mega Component | ⬜ |
-| P3 前端 | F4 统一数据获取 | ⬜ |
-| P4 架构 | AR1 服务实例复用 | ⬜ |
-| P4 架构 | AR3 核查主键声明 | ⬜ |
+| P3 前端 | F2 购物车状态统一 | ✅ 2026-04-06 (sa2kit) |
+| P3 前端 | F3 拆分 Mega Component | ✅ 2026-04-06 (sa2kit) |
+| P3 前端 | F4 统一数据获取 | N/A - 暂不引入 SWR |
+| P4 架构 | AR1 服务实例复用 | ✅ 已核查，模块顶层初始化，无需改动 |
+| P4 架构 | AR3 核查主键声明 | ✅ 2026-04-06 |
 
-> **已完成：**
-> - ✅ AR2：universalExport 缓存问题已修复（config 对象直传，不再发 configId 字符串）（2026-04-06）
+> **已完成（全部）：**
+> - ✅ AR2：universalExport 缓存问题已修复（2026-04-06）
 > - ✅ S1/S3/S4/S6：管理端接口全量加鉴权，移除 stack 泄露（2026-04-06）
 > - ✅ A1/A2：refresh 改为 POST，删除重复删除路由（2026-04-06）
+> - ✅ A3：合并 /admin/refresh 到主 admin 路由（2026-04-06）
+> - ✅ R1+R2：统一所有 booking 路由错误响应为 { error }（2026-04-06）
+> - ✅ F1-F3：移除死代码 import，统一购物车 Context，拆分 Mega Component（2026-04-06）
+> - ✅ AR1：服务实例已在模块顶层初始化，无需改动（2026-04-06）
+> - ✅ AR3：补充 bookings.id primaryKey 声明 + 创建修复迁移（2026-04-06）
 > - ✅ F1：移除 ShowMasterPiecesPage 中从未渲染的组件 import（2026-04-06）
