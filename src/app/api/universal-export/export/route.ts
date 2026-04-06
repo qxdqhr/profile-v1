@@ -27,8 +27,11 @@ export async function POST(request: NextRequest) {
       data // 支持直接传递数据数组
     } = body;
 
+    // 优先使用传入的 config 对象（完整配置），其次才用 configId 字符串（需从缓存/数据库查找）
+    const effectiveConfigId = (config && typeof config === 'object') ? config : (configId ?? config);
+
     console.log('📨 [API: universal-export/export] 收到导出请求:', {
-      configId: typeof configId === 'object' ? '配置对象' : configId,
+      configId: typeof effectiveConfigId === 'object' ? '配置对象' : effectiveConfigId,
       hasDataSource: !!dataSource,
       hasData: !!data,
       dataLength: data ? (Array.isArray(data) ? data.length : 'N/A') : 'N/A',
@@ -39,8 +42,8 @@ export async function POST(request: NextRequest) {
       customFileName,
     });
 
-    // 验证必需参数
-    if (!configId) {
+    // 验证必需参数（config 与 configId 二选一）
+    if (!effectiveConfigId) {
       return NextResponse.json(
         { error: '缺少必需的configId参数' },
         { status: 400 }
@@ -71,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     // 构建导出请求
     const exportRequest: ExportRequest = {
-      configId,
+      configId: effectiveConfigId,
       dataSource: data ? () => Promise.resolve(data) : dataSource, // 如果有直接数据，使用它，否则使用dataSource函数
       queryParams: queryParams || {},
       fieldMapping: fieldMapping || {},
