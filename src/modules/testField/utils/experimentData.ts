@@ -462,6 +462,17 @@ export const experiments: ExperimentItem[] = [
     updatedAt: '2026-04-25'
   },
   {
+    id: "suika-game",
+    title: "合成大西瓜",
+    description: "物理合成游戏，投放小球使相同大小的球碰撞合并，体积越大分数越高，挑战最高分！",
+    path: "/testField/suikaGame",
+    tags: ["小游戏", "物理", "合成", "休闲"],
+    category: "leisure",
+    isCompleted: true,
+    createdAt: '2026-04-25',
+    updatedAt: '2026-04-25'
+  },
+  {
     id: "miku-flick",
     title: "Miku Flick（初版）",
     description: "体验 sa2kit/mikuFlick 初版能力，支持假名键位滑动方向判定、节奏判定与连击计分",
