@@ -451,6 +451,17 @@ export const experiments: ExperimentItem[] = [
     updatedAt: '2026-03-14'
   },
   {
+    id: "arknights-bubble-shooter",
+    title: "岁家龙泡泡 · 泡泡龙",
+    description: "明日方舟岁家主题泡泡龙游戏，以年、夕、令、重岳、黍五位角色为泡泡类型，支持连消与悬空坠落，暗红金年节风格界面",
+    path: "/testField/arknightsBubbleShooter",
+    tags: ["明日方舟", "泡泡龙", "小游戏", "岁家", "龙泡泡", "连消"],
+    category: "leisure",
+    isCompleted: true,
+    createdAt: '2026-04-25',
+    updatedAt: '2026-04-25'
+  },
+  {
     id: "miku-flick",
     title: "Miku Flick（初版）",
     description: "体验 sa2kit/mikuFlick 初版能力，支持假名键位滑动方向判定、节奏判定与连击计分",
