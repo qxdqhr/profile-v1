@@ -172,6 +172,8 @@ export function SuikaGame() {
           this.matter.add.rectangle(wt / 2, gameH / 2, wt, gameH, wallOpts);
           this.matter.add.rectangle(gameW - wt / 2, gameH / 2, wt, gameH, wallOpts);
           this.matter.add.rectangle(gameW / 2, gameH - wt / 2, gameW, wt, wallOpts);
+          // 天花板：防止球向上飞出屏幕
+          this.matter.add.rectangle(gameW / 2, -wt / 2, gameW + wt * 4, wt, wallOpts);
 
           /* 初始化级别 */
           this.currentLv = Phaser.Math.RND.pick(DROP_POOL);
@@ -255,14 +257,22 @@ export function SuikaGame() {
 
           this.time.delayedCall(MERGE_DELAY_MS, () => {
             if (!this.scene?.isActive()) return;
-            if (goA.active) { this.balls.delete(goA); goA.destroy(); }
-            if (goB.active) { this.balls.delete(goB); goB.destroy(); }
+            // 如果任一球已被销毁（重启或其他合并抢先），则跳过生成
+            if (!goA.active || !goB.active) {
+              if (goA.active) { this.balls.delete(goA); goA.destroy(); }
+              if (goB.active) { this.balls.delete(goB); goB.destroy(); }
+              return;
+            }
+            this.balls.delete(goA); goA.destroy();
+            this.balls.delete(goB); goB.destroy();
 
             const newBall = this.spawnBall(mx, my, newLv);
-            newBall.setScale(0.1);
+            // 用 alpha 渐显替代 scale 动画：scale 动画不影响物理体尺寸，
+            // 会导致大球物理体以全尺寸直接与周围球碰撞，产生爆炸性冲力
+            newBall.setAlpha(0.2);
             this.tweens.add({
-              targets: newBall, scaleX: 1, scaleY: 1,
-              duration: 200, ease: 'Back.easeOut',
+              targets: newBall, alpha: 1,
+              duration: 180, ease: 'Linear',
             });
 
             this.score += LEVELS[newLv].score;
@@ -362,6 +372,9 @@ export function SuikaGame() {
 
         /* ── 重新开始 ───────────────────── */
         restartGame() {
+          // 清除所有延迟调用，防止残留 timer 在重启后触发（生成游离球、解锁投放等异常行为）
+          this.time.removeAllEvents();
+
           // 销毁所有活动球体
           for (const ball of this.balls) {
             if (ball?.active) ball.destroy();
@@ -410,15 +423,44 @@ export function SuikaGame() {
             }
           }
 
-          /* 危险检测 */
+          /* 危险检测 + 速度限制 + 越界复位 */
           if (this.status !== 'playing') return;
+          const MAX_VELOCITY = 22;
           for (const ball of this.balls) {
             if (!ball?.active || ball.lv === undefined) continue;
-            if (time - ball.spawnTime < 1200) continue; // 刚生成的不检测
 
             const body = ball.body;
+            const r = LEVELS[ball.lv].radius;
+
+            // 速度过大时钳制，防止球穿透墙体或飞出屏幕
+            const vx = body.velocity.x;
+            const vy = body.velocity.y;
+            if (Math.abs(vx) > MAX_VELOCITY || Math.abs(vy) > MAX_VELOCITY) {
+              ball.setVelocity(
+                Phaser.Math.Clamp(vx, -MAX_VELOCITY, MAX_VELOCITY),
+                Phaser.Math.Clamp(vy, -MAX_VELOCITY, MAX_VELOCITY),
+              );
+            }
+
+            // 位置越界时强制拉回容器内（兜底保护）
+            const bx = body.position.x;
+            const by = body.position.y;
+            const minX = wt + r;
+            const maxX = gameW - wt - r;
+            const minY = r;
+            const maxY = gameH - wt - r;
+            if (bx < minX || bx > maxX || by < minY || by > maxY) {
+              this.matter.body.setPosition(body, {
+                x: Phaser.Math.Clamp(bx, minX, maxX),
+                y: Phaser.Math.Clamp(by, minY, maxY),
+              });
+              ball.setVelocity(0, 1);
+            }
+
+            if (time - ball.spawnTime < 1200) continue; // 刚生成的不检测危险线
+
             const speed = Math.sqrt(body.velocity.x ** 2 + body.velocity.y ** 2);
-            const ballTop = body.position.y - LEVELS[ball.lv].radius;
+            const ballTop = body.position.y - r;
 
             if (ballTop < dangerY && speed < 0.8) {
               if (!ball.dangerTimer) {
