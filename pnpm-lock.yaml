@@ -164,6 +164,9 @@ importers:
       qiniu:
         specifier: ^7.14.0
         version: 7.14.0
+      qrcode.react:
+        specifier: ^4.2.0
+        version: 4.2.0(react@19.2.1)
       react:
         specifier: 19.2.1
         version: 19.2.1
@@ -4083,6 +4086,11 @@ packages:
     resolution: {integrity: sha512-3q7nIQQjqR69k7hbDPfM+hx52BmUxt8J/n9LrmjxypWVEeNK5PTaPS2pnxqaxs0tL9utNOPVfjFiBr18mHOFqQ==}
     engines: {node: '>= 6'}
 
+  qrcode.react@4.2.0:
+    resolution: {integrity: sha512-QpgqWi8rD9DsS9EP3z7BT+5lY5SFhsqGjpgW5DY/i3mK4M9DTBNz3ErMi8BWYEfI3L0d8GIbGmcdFAS1uIRGjA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   qs@6.14.0:
     resolution: {integrity: sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==}
     engines: {node: '>=0.6'}
@@ -6175,7 +6183,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 20.17.12
+      '@types/node': 20.19.39
 
   '@types/long@4.0.2': {}
 
@@ -6194,7 +6202,6 @@ snapshots:
   '@types/node@20.19.39':
     dependencies:
       undici-types: 6.21.0
-    optional: true
 
   '@types/node@22.15.17':
     dependencies:
@@ -6240,7 +6247,7 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 20.17.12
+      '@types/node': 20.19.39
 
   '@types/stats.js@0.17.4': {}
 
@@ -8958,6 +8965,10 @@ snapshots:
       urllib: 2.44.0(proxy-agent@6.5.0)
     transitivePeerDependencies:
       - proxy-agent
+
+  qrcode.react@4.2.0(react@19.2.1):
+    dependencies:
+      react: 19.2.1
 
   qs@6.14.0:
     dependencies:

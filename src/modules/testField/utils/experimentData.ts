@@ -570,5 +570,16 @@ export const experiments: ExperimentItem[] = [
     isCompleted: true,
     createdAt: '2026-02-21',
     updatedAt: '2026-02-21'
+  },
+  {
+    id: "qr-code-generator",
+    title: "二维码生成器",
+    description: "将任意 URL 或字符串转换为二维码图片，支持自定义尺寸、颜色、纠错级别，可下载 PNG/SVG",
+    path: "/testField/qrCode",
+    tags: ["工具", "二维码", "QR码", "图片"],
+    category: "utility",
+    isCompleted: true,
+    createdAt: '2026-04-25',
+    updatedAt: '2026-04-25'
   }
 ];
