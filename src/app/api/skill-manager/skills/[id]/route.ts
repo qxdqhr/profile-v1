@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { validateApiAuth } from '@/lib/auth/legacy';
+import { parseSkillFrontmatter, validateSkillMarkdownContent } from '@/modules/skillManager/services/skillMarkdown';
 
 type SkillSource = 'local_cursor' | 'manual_upload' | 'remote';
 type SkillStatus = 'draft' | 'published' | 'archived';
@@ -40,33 +41,17 @@ function extractDescription(content: string): string {
 }
 
 function parseFrontmatter(content: string): { description: string; tags: string[] } {
-  if (!content.startsWith('---\n')) {
-    return { description: '', tags: [] };
-  }
-
-  const endIndex = content.indexOf('\n---\n', 4);
-  if (endIndex === -1) {
-    return { description: '', tags: [] };
-  }
-
-  const fmText = content.slice(4, endIndex);
-  let description = '';
-  let tags: string[] = [];
-
-  for (const line of fmText.split('\n')) {
-    const idx = line.indexOf(':');
-    if (idx <= 0) continue;
-    const key = line.slice(0, idx).trim();
-    const value = line.slice(idx + 1).trim();
-    if (key === 'description') {
-      description = value;
-    }
-    if (key === 'tags' && value) {
-      tags = value.split(',').map((x) => x.trim()).filter(Boolean);
-    }
-  }
-
-  return { description, tags };
+  const parsed = parseSkillFrontmatter(content);
+  const tags = parsed.data.tags
+    ? parsed.data.tags
+        .split(',')
+        .map((x) => x.trim())
+        .filter(Boolean)
+    : [];
+  return {
+    description: parsed.data.description,
+    tags
+  };
 }
 
 function sanitizeSkillId(raw: string): string | null {
@@ -142,15 +127,7 @@ async function writeSkillMeta(skillDir: string, meta: SkillMeta): Promise<void> 
 }
 
 function validateSkillContent(content: string): string | null {
-  if (!content.trim()) {
-    return 'SKILL.md 内容不能为空';
-  }
-
-  if (content.length > 500_000) {
-    return 'SKILL.md 内容过大，超过 500KB';
-  }
-
-  return null;
+  return validateSkillMarkdownContent(content);
 }
 
 async function collectFiles(baseDir: string, relativeDir = '', limit = 200): Promise<string[]> {

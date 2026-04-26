@@ -1,7 +1,10 @@
-import type { SkillDetail, SkillListResponse, SkillSource, SkillStatus } from '../types';
+import type { SkillDetail, SkillListResponse, SkillSource, SkillStatus, SkillSyncTask } from '../types';
 import { universalFileClient } from 'sa2kit/universalFile';
 
 export type ConflictPolicy = 'skip' | 'overwrite';
+const UPLOAD_CONCURRENCY = 4;
+const MAX_UPLOAD_RETRIES = 3;
+const RETRY_BASE_DELAY_MS = 400;
 
 async function parseJson<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -12,10 +15,45 @@ async function parseJson<T>(response: Response): Promise<T> {
   return (await response.json()) as T;
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function uploadWithRetry(input: {
+  file: File;
+  moduleId: string;
+  businessId: string;
+  folderPath: string;
+  permission: 'private' | 'public';
+}) {
+  let attempt = 0;
+  let lastError: unknown;
+
+  while (attempt < MAX_UPLOAD_RETRIES) {
+    try {
+      return await universalFileClient.uploadFile(input);
+    } catch (error) {
+      lastError = error;
+      attempt += 1;
+      if (attempt >= MAX_UPLOAD_RETRIES) {
+        break;
+      }
+      const delay = RETRY_BASE_DELAY_MS * 2 ** (attempt - 1);
+      await sleep(delay);
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error('上传失败');
+}
+
 export async function fetchSkillList(filters?: {
   query?: string;
   source?: SkillSource | 'all';
   status?: SkillStatus | 'all';
+  page?: number;
+  limit?: number;
 }): Promise<SkillListResponse> {
   const params = new URLSearchParams();
   if (filters?.query?.trim()) {
@@ -26,6 +64,12 @@ export async function fetchSkillList(filters?: {
   }
   if (filters?.status && filters.status !== 'all') {
     params.set('status', filters.status);
+  }
+  if (filters?.page && filters.page > 0) {
+    params.set('page', String(filters.page));
+  }
+  if (filters?.limit && filters.limit > 0) {
+    params.set('limit', String(filters.limit));
   }
 
   const url = params.toString() ? `/api/skill-manager/skills?${params.toString()}` : '/api/skill-manager/skills';
@@ -38,6 +82,18 @@ export async function fetchSkillDetail(id: string): Promise<SkillDetail> {
     cache: 'no-store'
   });
   return parseJson<SkillDetail>(response);
+}
+
+export async function fetchSkillFileContent(id: string, relativePath: string): Promise<string> {
+  const params = new URLSearchParams({ path: relativePath });
+  const response = await fetch(`/api/skill-manager/skills/${encodeURIComponent(id)}/file?${params.toString()}`, {
+    cache: 'no-store'
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || `请求失败: ${response.status}`);
+  }
+  return response.text();
 }
 
 export async function saveSkillContent(
@@ -62,7 +118,7 @@ export async function uploadSkillMarkdown(
   policy: ConflictPolicy
 ): Promise<{ ok: boolean; id: string; skipped?: boolean; fileId: string; accessUrl?: string }> {
   void policy;
-  const meta = await universalFileClient.uploadFile({
+  const meta = await uploadWithRetry({
     file,
     moduleId: 'skill-manager',
     businessId: skillId,
@@ -90,36 +146,42 @@ export async function importSkillDirectory(
 }> {
   void policy;
   const details: Array<{ path: string; status: 'imported' | 'skipped'; reason?: string; fileId?: string; accessUrl?: string }> = [];
-
-  for (const file of files) {
+  const tasks = files.map((file) => async () => {
     const rel = (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name;
     const normalized = rel.replaceAll('\\', '/');
     const parts = normalized.split('/').filter(Boolean);
     if (parts.length < 2) {
-      details.push({ path: normalized, status: 'skipped', reason: '路径层级不足' });
-      continue;
+      return { path: normalized, status: 'skipped' as const, reason: '路径层级不足' };
     }
     const skillId = parts[0];
     try {
-      const meta = await universalFileClient.uploadFile({
+      const meta = await uploadWithRetry({
         file,
         moduleId: 'skill-manager',
         businessId: skillId,
         folderPath: `skill-manager/${skillId}/${parts.slice(1).join('/')}`,
         permission: 'private'
       });
-      details.push({
+      return {
         path: normalized,
-        status: 'imported',
+        status: 'imported' as const,
         fileId: meta.id,
         accessUrl: (meta as { accessUrl?: string; cdnUrl?: string }).accessUrl || (meta as { cdnUrl?: string }).cdnUrl
-      });
+      };
     } catch (error) {
-      details.push({
+      return {
         path: normalized,
-        status: 'skipped',
+        status: 'skipped' as const,
         reason: error instanceof Error ? error.message : '上传失败'
-      });
+      };
+    }
+  });
+
+  for (let i = 0; i < tasks.length; i += UPLOAD_CONCURRENCY) {
+    const batch = tasks.slice(i, i + UPLOAD_CONCURRENCY);
+    const result = await Promise.all(batch.map((run) => run()));
+    for (const item of result) {
+      details.push(item);
     }
   }
 
@@ -160,4 +222,47 @@ export async function preflightBatchDownload(ids: string[]): Promise<{ ok: boole
   });
 
   return parseJson<{ ok: boolean; exists: string[]; missing: string[]; invalid: string[] }>(response);
+}
+
+export async function createSyncTask(payload: {
+  skillIds: string[];
+  mode?: 'local-to-web';
+  strategy?: 'ff-only' | 'manual';
+}): Promise<SkillSyncTask> {
+  const response = await fetch('/api/skill-manager/sync/tasks', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+  return parseJson<SkillSyncTask>(response);
+}
+
+export async function fetchSyncTask(taskId: string): Promise<SkillSyncTask> {
+  const response = await fetch(`/api/skill-manager/sync/tasks/${encodeURIComponent(taskId)}`, {
+    cache: 'no-store'
+  });
+  return parseJson<SkillSyncTask>(response);
+}
+
+export async function retrySyncTask(taskId: string): Promise<SkillSyncTask> {
+  const response = await fetch(`/api/skill-manager/sync/tasks/${encodeURIComponent(taskId)}/retry`, {
+    method: 'POST'
+  });
+  return parseJson<SkillSyncTask>(response);
+}
+
+export async function resolveSyncTaskConflicts(
+  taskId: string,
+  resolutions: Array<{ skillId: string; decision: 'local' | 'remote' | 'merge_edit'; mergedContent?: string }>
+): Promise<SkillSyncTask> {
+  const response = await fetch(`/api/skill-manager/sync/tasks/${encodeURIComponent(taskId)}/resolve`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ resolutions })
+  });
+  return parseJson<SkillSyncTask>(response);
 }

@@ -18,4 +18,37 @@ export type SkillDetail = SkillSummary & {
 
 export type SkillListResponse = {
   items: SkillSummary[];
+  total: number;
+  page: number;
+  limit: number;
+};
+
+export type SkillSyncTaskItem = {
+  id: string;
+  skillId: string;
+  status: 'success' | 'failed';
+  reason?: string;
+};
+
+export type SkillSyncTask = {
+  taskId: string;
+  mode: 'local-to-web';
+  strategy: 'ff-only' | 'manual';
+  status: 'running' | 'success' | 'partial' | 'failed';
+  total: number;
+  successCount: number;
+  failedCount: number;
+  createdAt: string;
+  finishedAt?: string;
+  items: SkillSyncTaskItem[];
+  metrics?: {
+    durationMs: number;
+    successRate: number;
+    conflictRate: number;
+  };
+  logs?: Array<{
+    at: string;
+    level: 'info' | 'warn' | 'error';
+    message: string;
+  }>;
 };

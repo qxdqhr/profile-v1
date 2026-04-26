@@ -3,18 +3,25 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from 'sa2kit/auth/legacy';
 import {
+  createSyncTask,
   downloadBatchSkills,
   fetchSkillDetail,
+  fetchSkillFileContent,
   fetchSkillList,
+  fetchSyncTask,
   getSkillDownloadUrl,
   importSkillDirectory,
   saveSkillContent,
   uploadSkillMarkdown,
-  preflightBatchDownload
+  preflightBatchDownload,
+  retrySyncTask,
+  resolveSyncTaskConflicts
 } from '../services/skillManagerClient';
-import type { SkillDetail, SkillSource, SkillStatus, SkillSummary } from '../types';
+import type { SkillDetail, SkillSource, SkillStatus, SkillSummary, SkillSyncTask } from '../types';
+import { parseSkillFrontmatter, validateSkillFrontmatter } from '../services/skillMarkdown';
 
 const PAGE_SIZE = 10;
+const QUERY_DEBOUNCE_MS = 300;
 
 type EditMode = 'structured' | 'raw';
 
@@ -27,37 +34,17 @@ type FrontmatterData = {
 type RelativeFile = File & { webkitRelativePath?: string };
 
 function parseFrontmatter(content: string): { data: FrontmatterData; body: string } {
-  const defaultData: FrontmatterData = {
-    name: '',
-    description: '',
-    tags: ''
+  const parsed = parseSkillFrontmatter(content);
+  return {
+    data: parsed.data,
+    body: parsed.body
   };
+}
 
-  if (!content.startsWith('---\n')) {
-    return { data: defaultData, body: content };
-  }
-
-  const endIndex = content.indexOf('\n---\n', 4);
-  if (endIndex === -1) {
-    return { data: defaultData, body: content };
-  }
-
-  const fmText = content.slice(4, endIndex);
-  const body = content.slice(endIndex + 5);
-  const data = { ...defaultData };
-
-  for (const line of fmText.split('\n')) {
-    const idx = line.indexOf(':');
-    if (idx <= 0) continue;
-    const key = line.slice(0, idx).trim();
-    const value = line.slice(idx + 1).trim();
-
-    if (key === 'name') data.name = value;
-    if (key === 'description') data.description = value;
-    if (key === 'tags') data.tags = value;
-  }
-
-  return { data, body };
+function validateFrontmatter(data: FrontmatterData): string | null {
+  const result = validateSkillFrontmatter(data);
+  if (!result) return null;
+  return result.replace('frontmatter.', '');
 }
 
 function composeFrontmatter(data: FrontmatterData, body: string): string {
@@ -95,10 +82,12 @@ export default function SkillManagerPage() {
   const isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
 
   const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [sourceFilter, setSourceFilter] = useState<SkillSource | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<SkillStatus | 'all'>('all');
   const [page, setPage] = useState(1);
   const [items, setItems] = useState<SkillSummary[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
   const [selectedId, setSelectedId] = useState('');
   const [detail, setDetail] = useState<SkillDetail | null>(null);
 
@@ -121,6 +110,12 @@ export default function SkillManagerPage() {
     Array<{ path: string; status: 'imported' | 'skipped'; reason?: string; fileId?: string; accessUrl?: string }>
   >([]);
   const [preflightInfo, setPreflightInfo] = useState<{ exists: string[]; missing: string[]; invalid: string[] } | null>(null);
+  const [activeFilePath, setActiveFilePath] = useState<string>('SKILL.md');
+  const [activeFileContent, setActiveFileContent] = useState<string>('');
+  const [syncTask, setSyncTask] = useState<SkillSyncTask | null>(null);
+  const [syncLoading, setSyncLoading] = useState(false);
+  const [conflictResolutions, setConflictResolutions] = useState<Record<string, 'local' | 'remote' | 'merge_edit'>>({});
+  const [mergeDrafts, setMergeDrafts] = useState<Record<string, string>>({});
   const adminSourceOptions = useMemo(() => getAllowedAdminSources(), []);
 
   const singleUploadRef = useRef<HTMLInputElement | null>(null);
@@ -128,11 +123,14 @@ export default function SkillManagerPage() {
 
   const refreshList = async () => {
     const listRes = await fetchSkillList({
-      query,
+      query: debouncedQuery,
       source: sourceFilter,
-      status: statusFilter
+      status: statusFilter,
+      page,
+      limit: PAGE_SIZE
     });
     setItems(listRes.items || []);
+    setTotalItems(listRes.total || 0);
   };
 
   const toggleSelect = (id: string) => {
@@ -179,6 +177,8 @@ export default function SkillManagerPage() {
       setRawText(res.content);
       setEditingStatus(res.status);
       setEditingSource(adminSourceOptions.includes(res.source) ? res.source : adminSourceOptions[0] || 'local_cursor');
+      setActiveFilePath('SKILL.md');
+      setActiveFileContent(res.content);
     } catch (err: unknown) {
       setDetail(null);
       setError(err instanceof Error ? err.message : '读取 Skill 详情失败');
@@ -188,22 +188,33 @@ export default function SkillManagerPage() {
   };
 
   useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedQuery(query);
+    }, QUERY_DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [query]);
+
+  useEffect(() => {
     let active = true;
     setListLoading(true);
     setError('');
 
     fetchSkillList({
-      query,
+      query: debouncedQuery,
       source: sourceFilter,
-      status: statusFilter
+      status: statusFilter,
+      page,
+      limit: PAGE_SIZE
     })
       .then((res) => {
         if (!active) return;
         setItems(res.items || []);
+        setTotalItems(res.total || 0);
       })
       .catch((err: unknown) => {
         if (!active) return;
         setItems([]);
+        setTotalItems(0);
         setError(err instanceof Error ? err.message : '读取 Skill 列表失败');
       })
       .finally(() => {
@@ -213,7 +224,7 @@ export default function SkillManagerPage() {
     return () => {
       active = false;
     };
-  }, [query, sourceFilter, statusFilter]);
+  }, [debouncedQuery, sourceFilter, statusFilter, page]);
 
   useEffect(() => {
     if (!selectedId) {
@@ -235,13 +246,10 @@ export default function SkillManagerPage() {
     }
   }, [items, selectedId]);
 
-  const pageCount = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
 
-  const pageItems = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    return items.slice(start, start + PAGE_SIZE);
-  }, [items, currentPage]);
+  const pageItems = useMemo(() => items, [items]);
 
   useEffect(() => {
     if (currentPage !== page) {
@@ -252,10 +260,12 @@ export default function SkillManagerPage() {
   const validateBeforeSave = (content: string): string | null => {
     if (!detail) return '请选择要保存的 Skill';
     if (!content.trim()) return 'SKILL.md 内容不能为空';
-
-    if (editMode === 'structured') {
-      if (!frontmatter.name.trim()) return 'name 不能为空';
-      if (!frontmatter.description.trim()) return 'description 不能为空';
+    const parsed = parseFrontmatter(content);
+    if (content.startsWith('---\n')) {
+      const fmError = validateFrontmatter(parsed.data);
+      if (fmError) return fmError;
+    } else {
+      return 'SKILL.md 必须包含 frontmatter（--- 包裹）';
     }
 
     return null;
@@ -342,7 +352,7 @@ export default function SkillManagerPage() {
 
       setImportDetails(result.details || []);
       setSaveMessage(
-        `目录导入完成：上传到OSS ${result.importedFiles}，跳过 ${result.skippedFiles}；本地同步 SKILL.md ${skillMdFiles.length}`
+        `目录导入完成：上传到OSS ${result.importedFiles}，跳过 ${result.skippedFiles}（并发4，失败自动重试3次）；本地同步 SKILL.md ${skillMdFiles.length}`
       );
       await refreshList();
     } catch (err: unknown) {
@@ -352,12 +362,96 @@ export default function SkillManagerPage() {
     }
   };
 
+  const onPreviewFile = async (filePath: string) => {
+    if (!detail) return;
+    setActiveFilePath(filePath);
+    if (filePath === 'SKILL.md') {
+      setActiveFileContent(detail.content);
+      return;
+    }
+    try {
+      const content = await fetchSkillFileContent(detail.id, filePath);
+      setActiveFileContent(content);
+    } catch (err: unknown) {
+      setActiveFileContent(err instanceof Error ? err.message : '读取文件内容失败');
+    }
+  };
+
+  const onCreateSyncTask = async () => {
+    if (!selectedIds.length) {
+      setSaveMessage('请先选择要同步的 Skill');
+      return;
+    }
+    setSyncLoading(true);
+    try {
+      const task = await createSyncTask({
+        skillIds: selectedIds,
+        mode: 'local-to-web',
+        strategy: 'ff-only'
+      });
+      setSyncTask(task);
+      setSaveMessage(`同步任务已创建：成功 ${task.successCount}，失败 ${task.failedCount}`);
+    } catch (err: unknown) {
+      setSaveMessage(err instanceof Error ? err.message : '创建同步任务失败');
+    } finally {
+      setSyncLoading(false);
+    }
+  };
+
+  const onRefreshSyncTask = async () => {
+    if (!syncTask) return;
+    setSyncLoading(true);
+    try {
+      const latest = await fetchSyncTask(syncTask.taskId);
+      setSyncTask(latest);
+    } catch (err: unknown) {
+      setSaveMessage(err instanceof Error ? err.message : '刷新同步任务失败');
+    } finally {
+      setSyncLoading(false);
+    }
+  };
+
+  const onRetrySyncTask = async () => {
+    if (!syncTask) return;
+    setSyncLoading(true);
+    try {
+      const next = await retrySyncTask(syncTask.taskId);
+      setSyncTask(next);
+      setSaveMessage(`重试完成：成功 ${next.successCount}，失败 ${next.failedCount}`);
+    } catch (err: unknown) {
+      setSaveMessage(err instanceof Error ? err.message : '重试同步任务失败');
+    } finally {
+      setSyncLoading(false);
+    }
+  };
+
+  const onResolveConflicts = async () => {
+    if (!syncTask) return;
+    const failed = syncTask.items.filter((x) => x.status === 'failed');
+    if (!failed.length) return;
+    const resolutions = failed.map((item) => ({
+      skillId: item.skillId,
+      decision: conflictResolutions[item.skillId] || 'local',
+      mergedContent: conflictResolutions[item.skillId] === 'merge_edit' ? mergeDrafts[item.skillId] || '' : undefined
+    }));
+    setSyncLoading(true);
+    try {
+      const next = await resolveSyncTaskConflicts(syncTask.taskId, resolutions);
+      setSyncTask(next);
+      setSaveMessage(`冲突处理完成：成功 ${next.successCount}，失败 ${next.failedCount}`);
+    } catch (err: unknown) {
+      setSaveMessage(err instanceof Error ? err.message : '冲突处理失败');
+    } finally {
+      setSyncLoading(false);
+    }
+  };
+
   return (
     <main className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-4 px-4 py-6 lg:grid-cols-[1fr_460px]">
       <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-2xl font-semibold text-gray-900">Skill 管理平台</h1>
-          <span className="text-sm text-gray-500">总计 {items.length} 项</span>
+          <span className="text-sm text-gray-500">总计 {totalItems} 项</span>
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -390,6 +484,14 @@ export default function SkillManagerPage() {
             className="rounded border border-gray-300 px-3 py-1 text-sm"
           >
             批量下载({selectedIds.length})
+          </button>
+          <button
+            type="button"
+            onClick={onCreateSyncTask}
+            disabled={syncLoading}
+            className="rounded border border-gray-300 px-3 py-1 text-sm disabled:opacity-50"
+          >
+            {syncLoading ? '处理中...' : `创建同步任务(${selectedIds.length})`}
           </button>
           <label className="ml-2 text-sm text-gray-600">来源</label>
           <select
@@ -470,6 +572,106 @@ export default function SkillManagerPage() {
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {syncTask && (
+          <div className="mt-3 rounded border border-gray-200 bg-white p-2 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-medium text-gray-700">
+                同步任务：{syncTask.taskId.slice(0, 8)}... 状态 {syncTask.status}（成功 {syncTask.successCount} / 失败 {syncTask.failedCount}）
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={onRefreshSyncTask}
+                  className="rounded border border-gray-300 px-2 py-0.5"
+                >
+                  刷新
+                </button>
+                <button
+                  type="button"
+                  onClick={onRetrySyncTask}
+                  disabled={syncTask.failedCount === 0}
+                  className="rounded border border-gray-300 px-2 py-0.5 disabled:opacity-50"
+                >
+                  重试失败项
+                </button>
+              </div>
+            </div>
+            {syncTask.metrics && (
+              <p className="mt-1 text-gray-600">
+                指标：耗时 {syncTask.metrics.durationMs}ms，成功率 {(syncTask.metrics.successRate * 100).toFixed(1)}%，冲突率{' '}
+                {(syncTask.metrics.conflictRate * 100).toFixed(1)}%
+              </p>
+            )}
+            {syncTask.strategy === 'manual' && syncTask.failedCount > 0 && (
+              <div className="mt-2 rounded border border-amber-200 bg-amber-50 p-2">
+                <p className="mb-1 font-medium text-amber-800">冲突处理面板（manual）</p>
+                <ul className="space-y-1">
+                  {syncTask.items
+                    .filter((item) => item.status === 'failed')
+                    .map((item) => (
+                      <li key={item.id} className="rounded border border-amber-200 bg-white p-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-amber-900">
+                            {item.skillId}：{item.reason || '冲突'}
+                          </span>
+                          <select
+                            value={conflictResolutions[item.skillId] || 'local'}
+                            onChange={(e) =>
+                              setConflictResolutions((prev) => ({
+                                ...prev,
+                                [item.skillId]: e.target.value as 'local' | 'remote' | 'merge_edit'
+                              }))
+                            }
+                            className="rounded border border-amber-300 px-2 py-0.5"
+                          >
+                            <option value="local">选择本地版本</option>
+                            <option value="remote">选择远端版本</option>
+                            <option value="merge_edit">合并编辑</option>
+                          </select>
+                        </div>
+                        {(conflictResolutions[item.skillId] || 'local') === 'merge_edit' && (
+                          <textarea
+                            value={mergeDrafts[item.skillId] || ''}
+                            onChange={(e) =>
+                              setMergeDrafts((prev) => ({
+                                ...prev,
+                                [item.skillId]: e.target.value
+                              }))
+                            }
+                            className="mt-2 h-24 w-full rounded border border-amber-300 px-2 py-1 font-mono text-xs"
+                            placeholder="填写合并后的完整 SKILL.md 内容（包含 frontmatter）"
+                          />
+                        )}
+                      </li>
+                    ))}
+                </ul>
+                <div className="mt-2">
+                  <button
+                    type="button"
+                    onClick={onResolveConflicts}
+                    disabled={syncLoading}
+                    className="rounded border border-amber-300 px-2 py-0.5 text-amber-900 disabled:opacity-50"
+                  >
+                    应用冲突决策
+                  </button>
+                </div>
+              </div>
+            )}
+            {syncTask.logs && syncTask.logs.length > 0 && (
+              <div className="mt-2 rounded border border-gray-200 bg-gray-50 p-2">
+                <p className="mb-1 font-medium text-gray-700">任务日志</p>
+                <ul className="max-h-24 space-y-1 overflow-auto text-gray-600">
+                  {syncTask.logs.slice(-8).map((log, idx) => (
+                    <li key={`${log.at}-${idx}`}>
+                      [{log.level}] {log.at} {log.message}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
 
@@ -560,7 +762,17 @@ export default function SkillManagerPage() {
               <h3 className="text-sm font-medium text-gray-900">文件树</h3>
               <ul className="mt-2 max-h-32 space-y-1 overflow-auto text-sm text-gray-600">
                 {detail.files.map((file) => (
-                  <li key={file}>- {file}</li>
+                  <li key={file}>
+                    <button
+                      type="button"
+                      onClick={() => onPreviewFile(file)}
+                      className={`rounded px-1 py-0.5 text-left ${
+                        activeFilePath === file ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'
+                      }`}
+                    >
+                      - {file}
+                    </button>
+                  </li>
                 ))}
               </ul>
             </div>
@@ -589,11 +801,11 @@ export default function SkillManagerPage() {
 
               {previewMode === 'markdown' ? (
                 <article className="max-h-40 overflow-auto whitespace-pre-wrap rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-800">
-                  {detail.content}
+                  {activeFileContent}
                 </article>
               ) : (
                 <pre className="max-h-40 overflow-auto rounded-lg border border-gray-200 bg-black p-3 text-xs text-green-300">
-{detail.content}
+{activeFileContent}
                 </pre>
               )}
             </div>

@@ -428,6 +428,7 @@ MVP 采用“方案 A + 方案 C（简化版）”：
 - Frontmatter 必须可解析
 - `name` 符合规范：`^[a-z0-9-]{1,64}$`
 - `description` 非空且 <= 1024
+- 编辑保存时执行前后端双校验；后端校验失败返回 `400` 并提供字段级报错信息
 
 3. 权限校验
 - 上传/编辑/删除需登录
@@ -511,10 +512,12 @@ MVP 采用“方案 A + 方案 C（简化版）”：
 1. 单元测试
 - `skillParser` frontmatter 解析
 - `name/description` 校验规则
+- 已补充可执行脚本：`pnpm run test:skill-manager:validation`
 
 2. 集成测试
 - 上传 -> 建档 -> 预览 -> 编辑 -> 下载全链路
 - 批量导入 20+ Skill 的稳定性
+- 同步任务中心：创建任务 -> 查询进度 -> 重试失败项
 
 3. 手工测试
 - 中文/英文/超长 description
@@ -640,6 +643,13 @@ MVP 采用“方案 A + 方案 C（简化版）”：
 - [ ] 实现 diverged 判定
 - [ ] 输出冲突文件清单与原因
 
+> MVP 实现说明（Web 端）：
+- 已基于 `base/local/remote` 的 `SKILL.md` hash 执行 `ff-only/manual` 判定
+- `ff-only`：仅允许 no-op 与 fast-forward；behind/diverged 直接失败
+- `manual`：behind/diverged 标记为“需手工决策”，并在任务项中返回冲突原因
+- 已提供 `manual` 冲突处理面板（MVP）：可对失败项选择 `local/remote` 并应用；`merge_edit` 为占位流程
+- `merge_edit` 已升级为可执行：可在冲突面板填写合并后的 `SKILL.md` 内容并直接应用
+
 3. 策略执行
 - [ ] MVP：`ff-only`
 - [ ] MVP：`manual`（用户逐文件选择）
@@ -649,6 +659,10 @@ MVP 采用“方案 A + 方案 C（简化版）”：
 4. 可观测性
 - [ ] 任务日志（开始、完成、失败、重试）
 - [ ] 指标埋点（成功率、平均耗时、冲突率）
+
+> MVP 实现说明（Web 端）：
+- 已记录任务日志（创建、重试、冲突决策）
+- 已在任务返回中提供指标：`durationMs/successRate/conflictRate`
 
 ---
 

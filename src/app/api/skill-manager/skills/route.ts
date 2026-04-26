@@ -108,6 +108,10 @@ export async function GET(request: NextRequest) {
     const q = params.get('q')?.trim().toLowerCase() || '';
     const source = params.get('source')?.trim() as SkillSource | null;
     const status = params.get('status')?.trim() as SkillStatus | null;
+    const pageRaw = Number(params.get('page') || '1');
+    const limitRaw = Number(params.get('limit') || '10');
+    const page = Number.isFinite(pageRaw) && pageRaw > 0 ? Math.floor(pageRaw) : 1;
+    const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(100, Math.floor(limitRaw)) : 10;
 
     const dirEntries = await fs.readdir(rootDir, { withFileTypes: true });
     const skillDirs = dirEntries.filter((entry) => entry.isDirectory());
@@ -147,10 +151,18 @@ export async function GET(request: NextRequest) {
     });
 
     filtered.sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+    const total = filtered.length;
+    const start = (page - 1) * limit;
+    const paged = filtered.slice(start, start + limit);
 
-    return NextResponse.json({ items: filtered });
+    return NextResponse.json({
+      items: paged,
+      total,
+      page,
+      limit
+    });
   } catch (error) {
     console.error('[skill-manager] list failed:', error);
-    return NextResponse.json({ items: [], error: '读取技能目录失败' }, { status: 500 });
+    return NextResponse.json({ items: [], total: 0, page: 1, limit: 10, error: '读取技能目录失败' }, { status: 500 });
   }
 }
