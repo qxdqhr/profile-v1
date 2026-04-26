@@ -1,42 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import path from 'path';
-import { promises as fs } from 'fs';
 import { validateApiAuth } from '@/lib/auth/legacy';
 import { parseSkillFrontmatter, validateSkillMarkdownContent } from '@/modules/skillManager/services/skillMarkdown';
+import { getSkillFileByRelativePath, listSkillFiles, readMeta, readTextFileById, uploadSkillFile } from '../../_fileStore';
 
 type SkillSource = 'local_cursor' | 'manual_upload' | 'remote';
 type SkillStatus = 'draft' | 'published' | 'archived';
-type SkillMeta = {
-  source: SkillSource;
-  status: SkillStatus;
-};
-type AuthUser = { role?: string } | null;
+type AuthUser = { role?: string; id?: string } | null;
 
-function getSkillsRootDir(): string {
-  const customDir = process.env.SKILL_MANAGER_LOCAL_DIR;
-  if (customDir?.trim()) {
-    return customDir;
-  }
-
-  const home = process.env.HOME || process.cwd();
-  return path.join(home, '.cursor', 'skills');
-}
-
-function normalizeDate(timeMs: number): string {
-  return new Date(timeMs).toISOString().replace('T', ' ').slice(0, 19);
+function normalizeDate(iso: string): string {
+  return iso.replace('T', ' ').slice(0, 19);
 }
 
 function extractDescription(content: string): string {
-  const frontmatter = parseFrontmatter(content);
-  if (frontmatter.description) {
-    return frontmatter.description;
-  }
-
+  const parsed = parseSkillFrontmatter(content);
+  if (parsed.data.description) return parsed.data.description;
   const lines = content
     .split('\n')
     .map((line) => line.trim())
     .filter((line) => Boolean(line) && !line.startsWith('#'));
-
   return lines[0] || '暂无描述';
 }
 
@@ -48,31 +29,19 @@ function parseFrontmatter(content: string): { description: string; tags: string[
         .map((x) => x.trim())
         .filter(Boolean)
     : [];
-  return {
-    description: parsed.data.description,
-    tags
-  };
+  return { description: parsed.data.description, tags };
 }
 
 function sanitizeSkillId(raw: string): string | null {
-  if (!/^[a-zA-Z0-9_-]+$/.test(raw)) {
-    return null;
-  }
-  return raw;
+  return /^[a-zA-Z0-9_-]+$/.test(raw) ? raw : null;
 }
 
 function normalizeSource(source: unknown): SkillSource {
-  if (source === 'manual_upload' || source === 'remote' || source === 'local_cursor') {
-    return source;
-  }
-  return 'local_cursor';
+  return source === 'manual_upload' || source === 'remote' || source === 'local_cursor' ? source : 'manual_upload';
 }
 
 function normalizeStatus(status: unknown): SkillStatus {
-  if (status === 'published' || status === 'archived' || status === 'draft') {
-    return status;
-  }
-  return 'draft';
+  return status === 'published' || status === 'archived' || status === 'draft' ? status : 'draft';
 }
 
 function isAdminUser(user: AuthUser): boolean {
@@ -81,102 +50,43 @@ function isAdminUser(user: AuthUser): boolean {
 
 function getAllowedAdminSources(): SkillSource[] {
   const raw = process.env.SKILL_MANAGER_ADMIN_SOURCE_OPTIONS?.trim();
-  if (!raw) {
-    return ['local_cursor', 'manual_upload', 'remote'];
-  }
-
+  if (!raw) return ['local_cursor', 'manual_upload', 'remote'];
   const tokens = raw
     .split(',')
     .map((x) => x.trim())
     .filter(Boolean);
-
   const allowed = new Set<SkillSource>();
   for (const token of tokens) {
     if (token === 'local_cursor' || token === 'manual_upload' || token === 'remote') {
       allowed.add(token);
     }
   }
-
   return allowed.size ? Array.from(allowed) : ['local_cursor', 'manual_upload', 'remote'];
-}
-
-function defaultMeta(): SkillMeta {
-  return {
-    source: 'local_cursor',
-    status: 'draft'
-  };
-}
-
-async function readSkillMeta(skillDir: string): Promise<SkillMeta> {
-  try {
-    const metaPath = path.join(skillDir, '.skill-meta.json');
-    const content = await fs.readFile(metaPath, 'utf-8');
-    const parsed = JSON.parse(content) as Partial<SkillMeta>;
-    return {
-      source: normalizeSource(parsed.source),
-      status: normalizeStatus(parsed.status)
-    };
-  } catch {
-    return defaultMeta();
-  }
-}
-
-async function writeSkillMeta(skillDir: string, meta: SkillMeta): Promise<void> {
-  const metaPath = path.join(skillDir, '.skill-meta.json');
-  await fs.writeFile(metaPath, `${JSON.stringify(meta, null, 2)}\n`, 'utf-8');
-}
-
-function validateSkillContent(content: string): string | null {
-  return validateSkillMarkdownContent(content);
-}
-
-async function collectFiles(baseDir: string, relativeDir = '', limit = 200): Promise<string[]> {
-  const absDir = path.join(baseDir, relativeDir);
-  const entries = await fs.readdir(absDir, { withFileTypes: true });
-  const files: string[] = [];
-
-  for (const entry of entries) {
-    if (files.length >= limit) break;
-
-    const nextRelative = relativeDir ? path.join(relativeDir, entry.name) : entry.name;
-    if (entry.isDirectory()) {
-      const nested = await collectFiles(baseDir, nextRelative, limit - files.length);
-      files.push(...nested);
-    } else {
-      files.push(nextRelative.replaceAll('\\', '/'));
-    }
-  }
-
-  return files;
 }
 
 export async function GET(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const { id: rawId } = await context.params;
     const id = sanitizeSkillId(rawId);
-    if (!id) {
-      return NextResponse.json({ error: '非法 skill id' }, { status: 400 });
-    }
+    if (!id) return NextResponse.json({ error: '非法 skill id' }, { status: 400 });
 
-    const rootDir = getSkillsRootDir();
-    const skillDir = path.join(rootDir, id);
-    const skillMdPath = path.join(skillDir, 'SKILL.md');
+    const files = await listSkillFiles(id);
+    const skillMd = files.find((f) => f.relativePath === 'SKILL.md') || files[0];
+    if (!skillMd) return NextResponse.json({ error: 'Skill 不存在' }, { status: 404 });
 
-    const [content, stat] = await Promise.all([fs.readFile(skillMdPath, 'utf-8'), fs.stat(skillDir)]);
-    const files = await collectFiles(skillDir);
+    const content = await readTextFileById(skillMd.id);
     const fm = parseFrontmatter(content);
-    const meta = await readSkillMeta(skillDir);
-
+    const meta = readMeta(skillMd);
     return NextResponse.json({
       id,
       name: id,
       description: extractDescription(content),
-      updatedAt: normalizeDate(stat.mtimeMs),
+      updatedAt: normalizeDate(skillMd.createdAt),
       tags: fm.tags,
       source: meta.source,
       status: meta.status,
       content,
-      files
+      files: files.map((x) => x.relativePath)
     });
   } catch (error) {
     console.error('[skill-manager] detail failed:', error);
@@ -188,56 +98,48 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
   try {
     const { id: rawId } = await context.params;
     const id = sanitizeSkillId(rawId);
-    if (!id) {
-      return NextResponse.json({ error: '非法 skill id' }, { status: 400 });
-    }
+    if (!id) return NextResponse.json({ error: '非法 skill id' }, { status: 400 });
 
     const body = (await request.json()) as { content?: string; status?: SkillStatus; source?: SkillSource };
     const content = body.content ?? '';
-
-    const validationError = validateSkillContent(content);
-    if (validationError) {
-      return NextResponse.json({ error: validationError }, { status: 400 });
-    }
+    const validationError = validateSkillMarkdownContent(content);
+    if (validationError) return NextResponse.json({ error: validationError }, { status: 400 });
 
     if (body.source !== undefined) {
       const user = (await validateApiAuth(request)) as AuthUser;
-      if (!user) {
-        return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
-      }
-      if (!isAdminUser(user)) {
-        return NextResponse.json({ error: 'source 仅管理员可修改' }, { status: 403 });
-      }
+      if (!user) return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+      if (!isAdminUser(user)) return NextResponse.json({ error: 'source 仅管理员可修改' }, { status: 403 });
       const allowedSources = getAllowedAdminSources();
       const nextSource = normalizeSource(body.source);
       if (!allowedSources.includes(nextSource)) {
-        return NextResponse.json(
-          { error: `source 不在允许范围内: ${allowedSources.join(',')}` },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: `source 不在允许范围内: ${allowedSources.join(',')}` }, { status: 400 });
       }
     }
 
-    const rootDir = getSkillsRootDir();
-    const skillDir = path.join(rootDir, id);
-    const skillMdPath = path.join(skillDir, 'SKILL.md');
-
-    await fs.mkdir(skillDir, { recursive: true });
-    await fs.writeFile(skillMdPath, content, 'utf-8');
-    const prevMeta = await readSkillMeta(skillDir);
-    const nextMeta: SkillMeta = {
+    const prevSkillMd = await getSkillFileByRelativePath(id, 'SKILL.md');
+    const prevMeta = prevSkillMd ? readMeta(prevSkillMd) : { source: 'manual_upload' as SkillSource, status: 'draft' as SkillStatus };
+    const nextMeta = {
       source: body.source ? normalizeSource(body.source) : prevMeta.source,
       status: body.status ? normalizeStatus(body.status) : prevMeta.status
     };
-    await writeSkillMeta(skillDir, nextMeta);
+    const uploader = (await validateApiAuth(request)) as AuthUser;
+    const uploaded = await uploadSkillFile({
+      skillId: id,
+      relativePath: 'SKILL.md',
+      content,
+      source: nextMeta.source,
+      status: nextMeta.status,
+      uploaderId: uploader?.id ? String(uploader.id) : 'unknown'
+    });
 
-    const stat = await fs.stat(skillDir);
     return NextResponse.json({
       ok: true,
       id,
-      updatedAt: normalizeDate(stat.mtimeMs),
+      updatedAt: normalizeDate(new Date().toISOString()),
       source: nextMeta.source,
-      status: nextMeta.status
+      status: nextMeta.status,
+      fileId: uploaded.fileId,
+      accessUrl: uploaded.accessUrl
     });
   } catch (error) {
     console.error('[skill-manager] save failed:', error);

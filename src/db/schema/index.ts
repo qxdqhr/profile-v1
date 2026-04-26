@@ -23,6 +23,9 @@ export * from '@/modules/cardMaker/db/schema';
 // 导出Mikutap相关的表
 export * from '@/modules/mikutap/db/schema';
 
+// 导出 Skill Manager 相关表
+export * from '@/modules/skillManager/db/schema';
+
 // 导出通用文件服务相关的表
 export * from 'sa2kit/universalFile/server';
 // 导出节日贺卡相关的表

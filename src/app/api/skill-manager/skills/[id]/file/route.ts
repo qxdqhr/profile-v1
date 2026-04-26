@@ -1,15 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import path from 'path';
-import { promises as fs } from 'fs';
-
-function getSkillsRootDir(): string {
-  const customDir = process.env.SKILL_MANAGER_LOCAL_DIR;
-  if (customDir?.trim()) {
-    return customDir;
-  }
-  const home = process.env.HOME || process.cwd();
-  return path.join(home, '.cursor', 'skills');
-}
+import { getSkillFileByRelativePath, readTextFileById } from '../../../_fileStore';
 
 function sanitizeSkillId(raw: string): string | null {
   return /^[a-zA-Z0-9_-]+$/.test(raw) ? raw : null;
@@ -44,21 +34,9 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
       return NextResponse.json({ error: '缺少或非法 path 参数' }, { status: 400 });
     }
 
-    const root = getSkillsRootDir();
-    const skillDir = path.join(root, id);
-    const targetPath = path.join(skillDir, relativePath);
-    const normalizedTarget = path.normalize(targetPath);
-    const normalizedRoot = path.normalize(skillDir + path.sep);
-    if (!normalizedTarget.startsWith(normalizedRoot)) {
-      return NextResponse.json({ error: '非法文件路径' }, { status: 400 });
-    }
-
-    const stat = await fs.stat(targetPath);
-    if (!stat.isFile()) {
-      return NextResponse.json({ error: '目标不是文件' }, { status: 400 });
-    }
-
-    const content = await fs.readFile(targetPath, 'utf-8');
+    const file = await getSkillFileByRelativePath(id, relativePath);
+    if (!file) return NextResponse.json({ error: '文件不存在' }, { status: 404 });
+    const content = await readTextFileById(file.id);
     return new NextResponse(content, {
       status: 200,
       headers: {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
-import { buildTaskFromItems, executeSyncTask, readSyncStateMap, readTasks, writeSyncStateMap, writeTasks } from '../_lib';
+import { buildTaskFromItems, executeSyncTask, readSyncStateMap, upsertTask, writeSyncStateMap } from '../_lib';
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,9 +39,7 @@ export async function POST(request: NextRequest) {
         }
       ]
     });
-    const tasks = await readTasks();
-    tasks.unshift(task);
-    await writeTasks(tasks.slice(0, 200));
+    await upsertTask(task);
     return NextResponse.json(task);
   } catch (error) {
     console.error('[skill-manager] create sync task failed:', error);

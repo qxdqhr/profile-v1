@@ -1,13 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import path from 'path';
-import { promises as fs } from 'fs';
-
-function getSkillsRootDir(): string {
-  const customDir = process.env.SKILL_MANAGER_LOCAL_DIR;
-  if (customDir?.trim()) return customDir;
-  const home = process.env.HOME || process.cwd();
-  return path.join(home, '.cursor', 'skills');
-}
+import { listSkillFiles } from '../../../_fileStore';
 
 function sanitizeSkillId(raw: string): string | null {
   return /^[a-zA-Z0-9_-]+$/.test(raw) ? raw : null;
@@ -17,7 +9,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as { ids?: string[] };
     const ids = Array.isArray(body.ids) ? body.ids : [];
-    const root = getSkillsRootDir();
 
     const exists: string[] = [];
     const missing: string[] = [];
@@ -30,12 +21,9 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
-      try {
-        await fs.access(path.join(root, id));
-        exists.push(id);
-      } catch {
-        missing.push(id);
-      }
+      const files = await listSkillFiles(id);
+      if (files.length > 0) exists.push(id);
+      else missing.push(id);
     }
 
     return NextResponse.json({ ok: true, exists, missing, invalid });

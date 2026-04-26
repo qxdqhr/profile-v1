@@ -1,26 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import path from 'path';
-import { promises as fs } from 'fs';
+import { listSkillIds, listSkillFiles, readTextFileById, readMeta } from '../_fileStore';
 
 type SkillSource = 'local_cursor' | 'manual_upload' | 'remote';
 type SkillStatus = 'draft' | 'published' | 'archived';
-type SkillMeta = {
-  source: SkillSource;
-  status: SkillStatus;
-};
 
-function getSkillsRootDir(): string {
-  const customDir = process.env.SKILL_MANAGER_LOCAL_DIR;
-  if (customDir?.trim()) {
-    return customDir;
-  }
-
-  const home = process.env.HOME || process.cwd();
-  return path.join(home, '.cursor', 'skills');
-}
-
-function normalizeDate(timeMs: number): string {
-  return new Date(timeMs).toISOString().replace('T', ' ').slice(0, 19);
+function normalizeDate(iso: string): string {
+  return iso.replace('T', ' ').slice(0, 19);
 }
 
 function extractDescription(content: string): string {
@@ -67,43 +52,8 @@ function parseFrontmatter(content: string): { description: string; tags: string[
   return { description, tags };
 }
 
-async function safeReadSkillMd(filePath: string): Promise<string> {
-  try {
-    return await fs.readFile(filePath, 'utf-8');
-  } catch {
-    return '';
-  }
-}
-
-function defaultMeta(): SkillMeta {
-  return {
-    source: 'local_cursor',
-    status: 'draft'
-  };
-}
-
-async function readSkillMeta(skillDir: string): Promise<SkillMeta> {
-  try {
-    const metaPath = path.join(skillDir, '.skill-meta.json');
-    const content = await fs.readFile(metaPath, 'utf-8');
-    const parsed = JSON.parse(content) as Partial<SkillMeta>;
-    const source: SkillSource =
-      parsed.source === 'manual_upload' || parsed.source === 'remote' || parsed.source === 'local_cursor'
-        ? parsed.source
-        : 'local_cursor';
-    const status: SkillStatus =
-      parsed.status === 'published' || parsed.status === 'archived' || parsed.status === 'draft'
-        ? parsed.status
-        : 'draft';
-    return { source, status };
-  } catch {
-    return defaultMeta();
-  }
-}
-
 export async function GET(request: NextRequest) {
   try {
-    const rootDir = getSkillsRootDir();
     const params = new URL(request.url).searchParams;
     const q = params.get('q')?.trim().toLowerCase() || '';
     const source = params.get('source')?.trim() as SkillSource | null;
@@ -113,32 +63,55 @@ export async function GET(request: NextRequest) {
     const page = Number.isFinite(pageRaw) && pageRaw > 0 ? Math.floor(pageRaw) : 1;
     const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(100, Math.floor(limitRaw)) : 10;
 
-    const dirEntries = await fs.readdir(rootDir, { withFileTypes: true });
-    const skillDirs = dirEntries.filter((entry) => entry.isDirectory());
-
+    let skillIds: string[] = [];
+    try {
+      skillIds = await listSkillIds();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const maybeMissingTable =
+        message.includes('does not exist') ||
+        message.includes('relation') ||
+        message.includes('no such table');
+      if (maybeMissingTable) {
+        return NextResponse.json({ items: [], total: 0, page, limit });
+      }
+      throw error;
+    }
     const items = await Promise.all(
-      skillDirs.map(async (entry) => {
-        const id = entry.name;
-        const skillDir = path.join(rootDir, id);
-        const skillMdPath = path.join(skillDir, 'SKILL.md');
-        const content = await safeReadSkillMd(skillMdPath);
-        const stat = await fs.stat(skillDir);
-        const fm = parseFrontmatter(content);
-        const meta = await readSkillMeta(skillDir);
-
-        return {
-          id,
-          name: id,
-          description: extractDescription(content),
-          updatedAt: normalizeDate(stat.mtimeMs),
-          tags: fm.tags,
-          source: meta.source,
-          status: meta.status
-        };
+      skillIds.map(async (id) => {
+        try {
+          const files = await listSkillFiles(id);
+          const skillMd = files.find((f) => f.relativePath === 'SKILL.md') || files[0];
+          if (!skillMd) return null;
+          const content = await readTextFileById(skillMd.id);
+          const fm = parseFrontmatter(content);
+          const meta = readMeta(skillMd);
+          return {
+            id,
+            name: id,
+            description: extractDescription(content),
+            updatedAt: normalizeDate(skillMd.createdAt),
+            tags: fm.tags,
+            source: meta.source,
+            status: meta.status
+          };
+        } catch (error) {
+          console.warn(`[skill-manager] 跳过异常 skill: ${id}`, error);
+          return null;
+        }
       })
     );
+    const compact = items.filter(Boolean) as Array<{
+      id: string;
+      name: string;
+      description: string;
+      updatedAt: string;
+      tags: string[];
+      source: SkillSource;
+      status: SkillStatus;
+    }>;
 
-    const filtered = items.filter((item) => {
+    const filtered = compact.filter((item) => {
       if (source && source !== 'all' && item.source !== source) {
         return false;
       }

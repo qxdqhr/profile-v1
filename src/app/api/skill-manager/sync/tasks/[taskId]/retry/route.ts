@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { buildTaskFromItems, executeSyncTask, readSyncStateMap, readTasks, writeSyncStateMap, writeTasks } from '../../../_lib';
+import { buildTaskFromItems, executeSyncTask, readSyncStateMap, readTasks, upsertTask, writeSyncStateMap } from '../../../_lib';
 
 export async function POST(_request: NextRequest, context: { params: Promise<{ taskId: string }> }) {
   try {
@@ -49,7 +49,7 @@ export async function POST(_request: NextRequest, context: { params: Promise<{ t
       ]
     });
     tasks[idx] = updatedTask;
-    await writeTasks(tasks);
+    await upsertTask(updatedTask);
     return NextResponse.json(updatedTask);
   } catch (error) {
     console.error('[skill-manager] retry sync task failed:', error);

@@ -1,6 +1,8 @@
-import path from 'path';
-import { promises as fs } from 'fs';
 import { createHash } from 'crypto';
+import { desc, eq } from 'drizzle-orm';
+import { db } from '@/db';
+import { skillManagerSyncStates, skillManagerSyncTasks } from '@/modules/skillManager/db/schema';
+import { getSkillFileByRelativePath, readMeta, readTextFileById, uploadSkillFile } from '../_fileStore';
 
 export type TaskItem = {
   id: string;
@@ -40,63 +42,165 @@ type SkillSyncState = {
 
 type SyncStateMap = Record<string, SkillSyncState>;
 
-export function getSkillsRootDir(): string {
-  const customDir = process.env.SKILL_MANAGER_LOCAL_DIR;
-  if (customDir?.trim()) return customDir;
-  const home = process.env.HOME || process.cwd();
-  return path.join(home, '.cursor', 'skills');
-}
-
-export function getTasksFilePath(): string {
-  const home = process.env.HOME || process.cwd();
-  return path.join(home, '.cursor', 'skill-manager-sync-tasks.json');
-}
-
-export function getStateFilePath(): string {
-  const home = process.env.HOME || process.cwd();
-  return path.join(home, '.cursor', 'skill-manager-sync-state.json');
-}
-
 export async function readTasks(): Promise<SyncTask[]> {
-  try {
-    const file = await fs.readFile(getTasksFilePath(), 'utf-8');
-    const parsed = JSON.parse(file) as SyncTask[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  const rows = await db
+    .select()
+    .from(skillManagerSyncTasks)
+    .orderBy(desc(skillManagerSyncTasks.createdAt))
+    .limit(200);
+  return rows.map((row) => ({
+    taskId: row.taskId,
+    mode: row.mode as SyncTask['mode'],
+    strategy: row.strategy as SyncTask['strategy'],
+    status: row.status as SyncTask['status'],
+    total: row.total,
+    successCount: row.successCount,
+    failedCount: row.failedCount,
+    createdAt: row.createdAt.toISOString(),
+    finishedAt: row.finishedAt?.toISOString(),
+    items: (Array.isArray(row.items) ? row.items : []) as TaskItem[],
+    metrics: (row.metrics || undefined) as SyncTask['metrics'],
+    logs: (row.logs || []) as SyncTask['logs']
+  }));
 }
 
 export async function writeTasks(tasks: SyncTask[]): Promise<void> {
-  const target = getTasksFilePath();
-  await fs.mkdir(path.dirname(target), { recursive: true });
-  await fs.writeFile(target, `${JSON.stringify(tasks, null, 2)}\n`, 'utf-8');
-}
-
-export async function readSyncStateMap(): Promise<SyncStateMap> {
-  try {
-    const file = await fs.readFile(getStateFilePath(), 'utf-8');
-    const parsed = JSON.parse(file) as SyncStateMap;
-    return parsed && typeof parsed === 'object' ? parsed : {};
-  } catch {
-    return {};
+  if (!tasks.length) return;
+  for (const task of tasks) {
+    await upsertTask(task);
   }
 }
 
-export async function writeSyncStateMap(state: SyncStateMap): Promise<void> {
-  const target = getStateFilePath();
-  await fs.mkdir(path.dirname(target), { recursive: true });
-  await fs.writeFile(target, `${JSON.stringify(state, null, 2)}\n`, 'utf-8');
+export async function readSyncStateMap(): Promise<SyncStateMap> {
+  const rows = await db.select().from(skillManagerSyncStates);
+  const result: SyncStateMap = {};
+  for (const row of rows) {
+    result[row.skillId] = {
+      baseHash: row.baseHash,
+      remoteHash: row.remoteHash,
+      updatedAt: row.updatedAt.toISOString()
+    };
+  }
+  return result;
 }
 
-async function getLocalSkillHash(skillId: string): Promise<string | null> {
+export async function writeSyncStateMap(state: SyncStateMap): Promise<void> {
+  const entries = Object.entries(state);
+  if (!entries.length) return;
+  for (const [skillId, value] of entries) {
+    await db
+      .insert(skillManagerSyncStates)
+      .values({
+        skillId,
+        baseHash: value.baseHash || '',
+        remoteHash: value.remoteHash || '',
+        updatedAt: new Date(value.updatedAt || new Date().toISOString())
+      })
+      .onConflictDoUpdate({
+        target: skillManagerSyncStates.skillId,
+        set: {
+          baseHash: value.baseHash || '',
+          remoteHash: value.remoteHash || '',
+          updatedAt: new Date(value.updatedAt || new Date().toISOString())
+        }
+      });
+  }
+}
+
+export async function upsertTask(task: SyncTask): Promise<void> {
+  await db
+    .insert(skillManagerSyncTasks)
+    .values({
+      taskId: task.taskId,
+      mode: task.mode,
+      strategy: task.strategy,
+      status: task.status,
+      total: task.total,
+      successCount: task.successCount,
+      failedCount: task.failedCount,
+      createdAt: new Date(task.createdAt),
+      finishedAt: task.finishedAt ? new Date(task.finishedAt) : null,
+      items: task.items,
+      metrics: task.metrics || null,
+      logs: task.logs || []
+    })
+    .onConflictDoUpdate({
+      target: skillManagerSyncTasks.taskId,
+      set: {
+        status: task.status,
+        total: task.total,
+        successCount: task.successCount,
+        failedCount: task.failedCount,
+        finishedAt: task.finishedAt ? new Date(task.finishedAt) : null,
+        items: task.items,
+        metrics: task.metrics || null,
+        logs: task.logs || []
+      }
+    });
+}
+
+async function getSkillMarkdownHash(skillId: string): Promise<string | null> {
   try {
-    const filePath = path.join(getSkillsRootDir(), skillId, 'SKILL.md');
-    const content = await fs.readFile(filePath, 'utf-8');
+    const file = await getSkillFileByRelativePath(skillId, 'SKILL.md');
+    if (!file) return null;
+    const content = await readTextFileById(file.id);
     return createHash('sha256').update(content).digest('hex');
   } catch {
     return null;
   }
+}
+
+export async function getCurrentSkillMarkdownHash(skillId: string): Promise<string | null> {
+  return getSkillMarkdownHash(skillId);
+}
+
+export async function saveSkillMarkdownBySyncDecision(skillId: string, content: string): Promise<string | null> {
+  const existing = await getSkillFileByRelativePath(skillId, 'SKILL.md');
+  const prevMeta = existing
+    ? readMeta(existing)
+    : {
+        source: 'manual_upload' as const,
+        status: 'draft' as const
+      };
+  await uploadSkillFile({
+    skillId,
+    relativePath: 'SKILL.md',
+    content,
+    source: prevMeta.source,
+    status: prevMeta.status,
+    uploaderId: 'sync-task'
+  });
+  return createHash('sha256').update(content).digest('hex');
+}
+
+export async function getSkillSyncState(skillId: string): Promise<SkillSyncState | null> {
+  const rows = await db.select().from(skillManagerSyncStates).where(eq(skillManagerSyncStates.skillId, skillId)).limit(1);
+  const row = rows[0];
+  if (!row) return null;
+  return {
+    baseHash: row.baseHash || '',
+    remoteHash: row.remoteHash || '',
+    updatedAt: row.updatedAt.toISOString()
+  };
+}
+
+export async function setSkillSyncState(skillId: string, state: SkillSyncState): Promise<void> {
+  await db
+    .insert(skillManagerSyncStates)
+    .values({
+      skillId,
+      baseHash: state.baseHash || '',
+      remoteHash: state.remoteHash || '',
+      updatedAt: new Date(state.updatedAt || new Date().toISOString())
+    })
+    .onConflictDoUpdate({
+      target: skillManagerSyncStates.skillId,
+      set: {
+        baseHash: state.baseHash || '',
+        remoteHash: state.remoteHash || '',
+        updatedAt: new Date(state.updatedAt || new Date().toISOString())
+      }
+    });
 }
 
 type EvaluateResult = {
@@ -167,13 +271,13 @@ export async function executeSyncTask(input: {
   const items: TaskItem[] = [];
 
   for (const skillId of input.skillIds) {
-    const localHash = await getLocalSkillHash(skillId);
+    const localHash = await getSkillMarkdownHash(skillId);
     if (!localHash) {
       items.push({
         id: `${skillId}-${Date.now()}`,
         skillId,
         status: 'failed',
-        reason: '本地 SKILL.md 不存在或不可读取'
+        reason: 'SKILL.md 不存在或不可读取'
       });
       continue;
     }

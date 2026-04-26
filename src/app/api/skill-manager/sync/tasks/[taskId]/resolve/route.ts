@@ -1,27 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import path from 'path';
-import { promises as fs } from 'fs';
-import { createHash } from 'crypto';
-import { buildTaskFromItems, getSkillsRootDir, readSyncStateMap, readTasks, writeSyncStateMap, writeTasks } from '../../../_lib';
+import {
+  buildTaskFromItems,
+  getCurrentSkillMarkdownHash,
+  getSkillSyncState,
+  readTasks,
+  saveSkillMarkdownBySyncDecision,
+  setSkillSyncState,
+  upsertTask
+} from '../../../_lib';
 
 type ResolutionDecision = 'local' | 'remote' | 'merge_edit';
-
-async function getLocalSkillHash(skillId: string): Promise<string | null> {
-  try {
-    const filePath = path.join(getSkillsRootDir(), skillId, 'SKILL.md');
-    const content = await fs.readFile(filePath, 'utf-8');
-    return createHash('sha256').update(content).digest('hex');
-  } catch {
-    return null;
-  }
-}
-
-async function writeLocalSkillContent(skillId: string, content: string): Promise<string> {
-  const filePath = path.join(getSkillsRootDir(), skillId, 'SKILL.md');
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.writeFile(filePath, content, 'utf-8');
-  return createHash('sha256').update(content).digest('hex');
-}
 
 export async function POST(request: NextRequest, context: { params: Promise<{ taskId: string }> }) {
   try {
@@ -44,7 +32,6 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ta
       return NextResponse.json({ error: '仅 manual 策略支持冲突手工处理' }, { status: 400 });
     }
 
-    const state = await readSyncStateMap();
     const resolutionMap = new Map<string, { decision: ResolutionDecision; mergedContent?: string }>();
     for (const item of resolutions) {
       if (!item.skillId || !item.decision) continue;
@@ -72,46 +59,54 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ta
           };
           continue;
         }
-        const mergedHash = await writeLocalSkillContent(item.skillId, merged);
-        state[item.skillId] = {
+        const mergedHash = await saveSkillMarkdownBySyncDecision(item.skillId, merged);
+        if (!mergedHash) {
+          nextItems[i] = {
+            ...item,
+            status: 'failed',
+            reason: '写入合并内容失败'
+          };
+          continue;
+        }
+        await setSkillSyncState(item.skillId, {
           baseHash: mergedHash,
           remoteHash: mergedHash,
           updatedAt: new Date().toISOString()
-        };
+        });
         nextItems[i] = {
           ...item,
           status: 'success',
-          reason: 'manual 决策已应用：merge_edit 内容已写入并同步'
+          reason: 'manual 决策已应用：merge_edit 内容已写入数据库并同步'
         };
         continue;
       }
 
       if (decision === 'local') {
-        const localHash = await getLocalSkillHash(item.skillId);
+        const localHash = (await getCurrentSkillMarkdownHash(item.skillId)) || '';
         if (!localHash) {
           nextItems[i] = {
             ...item,
             status: 'failed',
-            reason: '本地 SKILL.md 不存在，无法应用 local 决策'
+            reason: 'SKILL.md 不存在，无法应用 local 决策'
           };
           continue;
         }
-        state[item.skillId] = {
+        await setSkillSyncState(item.skillId, {
           baseHash: localHash,
           remoteHash: localHash,
           updatedAt: new Date().toISOString()
-        };
+        });
         nextItems[i] = {
           ...item,
           status: 'success',
-          reason: 'manual 决策已应用：使用本地版本覆盖远端状态'
+          reason: 'manual 决策已应用：使用数据库当前版本作为同步基线'
         };
         continue;
       }
 
       if (decision === 'remote') {
-        const prev = state[item.skillId];
-        if (!prev?.remoteHash) {
+        const prev = await getSkillSyncState(item.skillId);
+        if (!prev || !prev.remoteHash) {
           nextItems[i] = {
             ...item,
             status: 'failed',
@@ -119,11 +114,11 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ta
           };
           continue;
         }
-        state[item.skillId] = {
+        await setSkillSyncState(item.skillId, {
           baseHash: prev.remoteHash,
           remoteHash: prev.remoteHash,
           updatedAt: new Date().toISOString()
-        };
+        });
         nextItems[i] = {
           ...item,
           status: 'success',
@@ -132,7 +127,6 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ta
       }
     }
 
-    await writeSyncStateMap(state);
     const updatedTask = buildTaskFromItems({
       taskId: task.taskId,
       strategy: task.strategy,
@@ -153,7 +147,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ta
       ]
     });
     tasks[idx] = updatedTask;
-    await writeTasks(tasks);
+    await upsertTask(updatedTask);
     return NextResponse.json(updatedTask);
   } catch (error) {
     console.error('[skill-manager] resolve sync task failed:', error);
