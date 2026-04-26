@@ -327,6 +327,15 @@ export const experiments: ExperimentItem[] = [
     isCompleted: true
   },
   {
+    id: "skillManager",
+    title: "Skill 管理平台",
+    description: "管理本地与在线 Skill，支持预览、编辑、上传与同步",
+    path: "/testField/skillManager",
+    tags: ["Skill", "管理", "上传", "同步"],
+    category: "utility",
+    isCompleted: false
+  },
+  {
     id: "calendar",
     title: "日历管理",
     description: "企业级日历应用，具备完整的事件管理、智能提醒、重复事件、事件搜索等高级功能。支持月/周/日视图切换，具备导入导出、时区支持、响应式设计等现代化特性。现已集成用户认证系统，支持登录/登出、用户菜单、认证守卫等功能",
