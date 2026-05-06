@@ -590,5 +590,16 @@ export const experiments: ExperimentItem[] = [
     isCompleted: true,
     createdAt: '2026-04-25',
     updatedAt: '2026-04-25'
+  },
+  {
+    id: "date-calculator",
+    title: "日期计算器",
+    description: "计算两个日期的自然日间隔与年月日分解，或在基准日期上加减天/周/月/年",
+    path: "/testField/dateCalculator",
+    tags: ["工具", "日期", "时间", "计算器"],
+    category: "utility",
+    isCompleted: true,
+    createdAt: '2026-05-06',
+    updatedAt: '2026-05-06'
   }
 ];
