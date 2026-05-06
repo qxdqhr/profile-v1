@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { AuthProvider, useAuth, UserMenu, CustomMenuItem, LoginModal } from 'sa2kit/auth/legacy';
-import { Settings, Calendar, List, Cog } from 'lucide-react';
+import { useAuth, UserMenu, LoginModal } from 'sa2kit/auth/legacy';
+import { Settings, Calculator } from 'lucide-react';
+import { DateCalculatorTool } from '@/modules/dateCalculator';
 import { 
   CalendarViewType, 
   EventColor,
@@ -25,7 +26,6 @@ import {
   useEvents,
   getWeekdayName
 } from '../index';
-import EventModal from '../components/EventModal';
 import EventList from '../components/EventList';
 import { useEnhancedEvents } from '../hooks/useEnhancedEvents';
 import { EventData } from '../services/eventTypeService';
@@ -47,7 +47,9 @@ export default function CalendarPage() {
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [editingEvent, setEditingEvent] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'calendar' | 'events' | 'settings'>('calendar');
+  const [activeTab, setActiveTab] = useState<
+    'calendar' | 'events' | 'tools' | 'settings'
+  >('calendar');
   
   // 登录相关状态
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -106,14 +108,6 @@ export default function CalendarPage() {
       console.error('加载事件失败:', err);
     });
   }, [currentDate, fetchEvents]);
-
-  // 示例事件数据 - 当没有实际事件时显示
-  const sampleEvents = useMemo(() => [
-    { date: '2024-12-15', title: '团队会议', color: 'blue' },
-    { date: '2024-12-20', title: '项目评审', color: 'green' },
-    { date: '2024-12-25', title: '圣诞节', color: 'red' },
-    { date: '2024-12-31', title: '年终总结', color: 'purple' },
-  ], []);
 
   // 向前导航
   const goToPrevious = () => {
@@ -182,33 +176,16 @@ export default function CalendarPage() {
 
   // 注意：getWeekdayNames 函数已移除，现在直接基于实际日期获取星期名称
 
-  // 检查日期是否有事件（优先使用真实事件，其次使用示例事件）
   const getEventsForDate = (date: Date) => {
     const dateStr = formatDate(date);
-    
-    // 首先查找真实事件
-    const realEvents = events.filter(event => {
-      const eventDateStr = formatDate(event.startTime);
-      return eventDateStr === dateStr;
-    });
-    
-    // 如果有真实事件，返回真实事件，否则返回示例事件
-    if (realEvents.length > 0) {
-      return realEvents.map(event => ({
+    return events
+      .filter((event) => formatDate(event.startTime) === dateStr)
+      .map((event) => ({
         title: event.title,
         color: event.color,
         id: event.id,
-        isRealEvent: true
+        isRealEvent: true as const,
       }));
-    }
-    
-    // 为了演示效果，显示示例事件
-    return sampleEvents.filter(event => event.date === dateStr).map(event => ({
-      title: event.title,
-      color: event.color,
-      id: undefined,
-      isRealEvent: false
-    }));
   };
 
   // 获取事件颜色类名
@@ -395,6 +372,7 @@ export default function CalendarPage() {
             }}
             onDateClick={handleDateClick}
             onEventUpdate={updateEventTime}
+            className="border border-white/80 bg-white/80 shadow-xl shadow-indigo-950/5 backdrop-blur-md"
           />
         );
       case CalendarViewType.WEEK:
@@ -413,6 +391,7 @@ export default function CalendarPage() {
             }}
             onDateClick={handleDateClick}
             onEventUpdate={updateEventTime}
+            className="border border-white/80 bg-white/80 shadow-xl shadow-indigo-950/5 backdrop-blur-md"
           />
         );
     }
@@ -421,12 +400,12 @@ export default function CalendarPage() {
   // 渲染月视图
   const renderMonthView = () => {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+      <div className="mb-6 overflow-hidden rounded-3xl border border-white/80 bg-white/80 shadow-xl shadow-indigo-950/5 backdrop-blur-md">
         {/* 使用表格布局确保正确的行列对齐 */}
         <table className="w-full table-fixed">
           {/* 星期标题 */}
           <thead>
-            <tr className="bg-gray-50">
+            <tr className="bg-slate-50/90">
               {monthDates.slice(0, 7).map((date, index) => {
                 const isWeekend = date.getDay() === 0 || date.getDay() === 6;
                 return (
@@ -530,11 +509,11 @@ export default function CalendarPage() {
     const weekDates = getWeekViewDates(currentDate);
     
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+      <div className="mb-6 overflow-hidden rounded-3xl border border-white/80 bg-white/80 shadow-xl shadow-indigo-950/5 backdrop-blur-md">
         <table className="w-full table-fixed">
           {/* 星期标题 */}
           <thead>
-            <tr className="bg-gray-50">
+            <tr className="bg-slate-50/90">
               {weekDates.map((date, index) => {
                 const isWeekend = date.getDay() === 0 || date.getDay() === 6;
                 
@@ -662,9 +641,9 @@ export default function CalendarPage() {
     const isTodayDate = isToday(currentDate);
     
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+      <div className="mb-6 overflow-hidden rounded-3xl border border-white/80 bg-white/80 shadow-xl shadow-indigo-950/5 backdrop-blur-md">
         {/* 日期标题 */}
-        <div className="bg-gray-50 p-4 border-b border-gray-200">
+        <div className="border-b border-slate-200/80 bg-slate-50/90 p-4">
           <div className="text-center">
             <div className="text-sm text-gray-600 mb-1">
               {currentDate.toLocaleDateString('zh-CN', { weekday: 'long' })}
@@ -751,19 +730,30 @@ export default function CalendarPage() {
   }, [createEnhancedEvent]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto p-4 lg:p-6">
-        {/* 页面标题和Tab导航 */}
-        <div className="mb-6">
-           <div className="flex justify-between items-start mb-4">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-stone-50 via-violet-50/35 to-indigo-100/55">
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.45]"
+        aria-hidden
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 1px 1px, rgb(148 163 184 / 0.2) 1px, transparent 0)',
+          backgroundSize: '26px 26px',
+        }}
+      />
+      <div className="relative mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-10">
+        <div className="mb-8">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">日历管理</h1>
-              <p className="text-gray-600">
-                功能完整的日历应用，支持事件管理、提醒、重复事件等功能
+              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.22em] text-violet-600/85">
+                Pencil · Studio
+              </p>
+              <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+                日历
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
+                月 / 周 / 日视图与事件列表、设置、日期工具（间隔与推算）统一在同一套柔和卡片界面中。
               </p>
             </div>
-            
-            {/* 用户认证区域 */}
             <div className="flex items-center gap-3">
               {isAuthenticated ? (
                 <UserMenu
@@ -772,62 +762,88 @@ export default function CalendarPage() {
                       id: 'settings',
                       label: '个人设置',
                       icon: Settings,
-                      onClick: () => console.log('个人设置')
-                    }
+                      onClick: () => setActiveTab('settings'),
+                    },
                   ]}
                 />
               ) : (
                 <button
+                  type="button"
                   onClick={handleShowLogin}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-medium text-white shadow-md shadow-violet-500/25 transition hover:bg-violet-700"
                 >
                   登录
                 </button>
               )}
             </div>
           </div>
-          
-          {/* Tab 导航 */}
-          <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit">
+
+          <div
+            className="inline-flex w-full flex-wrap gap-1 rounded-2xl border border-white/70 bg-white/55 p-1 shadow-sm backdrop-blur-md sm:w-auto"
+            role="tablist"
+            aria-label="日历模块主导航"
+          >
             <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'calendar'}
               onClick={() => setActiveTab('calendar')}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-medium transition sm:flex-none sm:px-4 ${
                 activeTab === 'calendar'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-violet-600 text-white shadow-md shadow-violet-500/25'
+                  : 'text-slate-600 hover:bg-white/70'
               }`}
             >
-              📅 日历视图
+              日历视图
             </button>
             <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'events'}
               onClick={() => setActiveTab('events')}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-medium transition sm:flex-none sm:px-4 ${
                 activeTab === 'events'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-violet-600 text-white shadow-md shadow-violet-500/25'
+                  : 'text-slate-600 hover:bg-white/70'
               }`}
             >
-              📋 事件列表
+              事件列表
             </button>
             <button
-              onClick={() => setActiveTab('settings')}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                activeTab === 'settings'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'tools'}
+              onClick={() => setActiveTab('tools')}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-medium transition sm:flex-none sm:px-4 ${
+                activeTab === 'tools'
+                  ? 'bg-violet-600 text-white shadow-md shadow-violet-500/25'
+                  : 'text-slate-600 hover:bg-white/70'
               }`}
             >
-              ⚙️ 设置
+              <Calculator className="h-4 w-4 shrink-0 opacity-90" aria-hidden />
+              日期工具
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'settings'}
+              onClick={() => setActiveTab('settings')}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-medium transition sm:flex-none sm:px-4 ${
+                activeTab === 'settings'
+                  ? 'bg-violet-600 text-white shadow-md shadow-violet-500/25'
+                  : 'text-slate-600 hover:bg-white/70'
+              }`}
+            >
+              设置
             </button>
           </div>
         </div>
 
-        {/* 错误提示 */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="mb-6 rounded-2xl border border-red-200/80 bg-red-50/90 p-4 shadow-sm backdrop-blur-sm">
             <div className="flex items-start">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="mt-0.5 h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
               </div>
@@ -835,8 +851,9 @@ export default function CalendarPage() {
                 <h3 className="text-sm font-medium text-red-800">操作失败</h3>
                 <p className="mt-1 text-sm text-red-700">{error}</p>
                 <button
+                  type="button"
                   onClick={clearError}
-                  className="mt-2 text-sm text-red-600 hover:text-red-800 font-medium"
+                  className="mt-2 text-sm font-medium text-red-600 hover:text-red-800"
                 >
                   关闭
                 </button>
@@ -848,21 +865,20 @@ export default function CalendarPage() {
         {/* Tab内容区域 */}
         {activeTab === 'calendar' && (
           <>
-            {/* 功能状态提示 */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <div className="flex items-start">
+            <div className="mb-6 rounded-2xl border border-violet-100/90 bg-gradient-to-r from-violet-50/90 to-indigo-50/80 p-4 shadow-sm backdrop-blur-sm">
+              <div className="flex items-start gap-3">
                 <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-blue-400 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                  <svg className="mt-0.5 h-5 w-5 text-violet-500" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                   </svg>
                 </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-blue-800">功能说明</h3>
-                  <p className="mt-1 text-sm text-blue-700">
-                    点击日历上的任意日期可以创建新事件。当前已支持完整的事件管理功能，包括创建、编辑、删除等操作。
+                <div>
+                  <h3 className="text-sm font-medium text-violet-900">使用说明</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-violet-900/80">
+                    点击日期创建事件；月视图支持在桌面端拖拽调整时间。
                     {!isAuthenticated && (
-                      <span className="block mt-2 text-orange-700 font-medium">
-                        💡 提示：请先登录以使用完整的事件管理功能
+                      <span className="mt-2 block font-medium text-amber-800">
+                        请先登录以保存事件。
                       </span>
                     )}
                   </p>
@@ -870,172 +886,74 @@ export default function CalendarPage() {
               </div>
             </div>
 
-        {/* 日历控制栏 */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            {/* 导航 */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={goToPrevious}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                aria-label="向前"
-              >
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              
-              <h2 className="text-xl font-semibold text-gray-900 min-w-[160px] text-center">
-                {getViewTitle()}
-              </h2>
-              
-              <button
-                onClick={goToNext}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                aria-label="向后"
-              >
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-
-            {/* 操作按钮 */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={goToToday}
-                className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
-              >
-                今天
-              </button>
-              
-              <div className="flex items-center bg-gray-100 rounded-lg p-1">
-                {(['month', 'week', 'day'] as const).map((view) => (
+            <div className="mb-6 rounded-3xl border border-white/80 bg-white/75 p-4 shadow-xl shadow-indigo-950/5 backdrop-blur-md sm:p-5">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center justify-center gap-2 sm:justify-start">
                   <button
-                    key={view}
-                    onClick={() => setViewType(CalendarViewType[view.toUpperCase() as keyof typeof CalendarViewType])}
-                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                      viewType === CalendarViewType[view.toUpperCase() as keyof typeof CalendarViewType]
-                        ? 'bg-white text-gray-900 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
+                    type="button"
+                    onClick={goToPrevious}
+                    className="rounded-xl border border-slate-200/80 bg-white p-2 text-slate-600 shadow-sm transition hover:border-violet-200 hover:text-violet-700"
+                    aria-label="向前"
                   >
-                    {view === 'month' ? '月' : view === 'week' ? '周' : '日'}
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
                   </button>
-                ))}
+                  <h2 className="min-w-[10rem] text-center text-lg font-semibold text-slate-900 sm:text-xl">
+                    {getViewTitle()}
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={goToNext}
+                    className="rounded-xl border border-slate-200/80 bg-white p-2 text-slate-600 shadow-sm transition hover:border-violet-200 hover:text-violet-700"
+                    aria-label="向后"
+                  >
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={goToToday}
+                    className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-medium text-white shadow-md shadow-violet-500/20 transition hover:bg-violet-700"
+                  >
+                    今天
+                  </button>
+                  <div className="inline-flex rounded-2xl border border-slate-200/80 bg-slate-50/80 p-1">
+                    {(['month', 'week', 'day'] as const).map((view) => (
+                      <button
+                        key={view}
+                        type="button"
+                        onClick={() =>
+                          setViewType(
+                            CalendarViewType[view.toUpperCase() as keyof typeof CalendarViewType]
+                          )
+                        }
+                        className={`rounded-xl px-3 py-1.5 text-sm font-medium transition ${
+                          viewType ===
+                          CalendarViewType[view.toUpperCase() as keyof typeof CalendarViewType]
+                            ? 'bg-white text-slate-900 shadow-sm'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        {view === 'month' ? '月' : view === 'week' ? '周' : '日'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+
+            {renderCalendarView()}
+          </>
+        )}
+
+      {activeTab === 'tools' && (
+        <div className="rounded-3xl border border-white/80 bg-white/75 p-4 shadow-xl shadow-indigo-950/5 backdrop-blur-md sm:p-6">
+          <DateCalculatorTool variant="embedded" />
         </div>
-
-        {/* 调试组件已移除 - 星期匹配问题已修复 */}
-        
-        {/* 日历视图 */}
-        {renderCalendarView()}
-
-        {/* 功能预览卡片 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          {/* 事件管理 */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center mb-4">
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="ml-3 text-lg font-semibold text-gray-900">事件管理</h3>
-            </div>
-            <p className="text-gray-600 text-sm mb-4">
-              创建、编辑、删除日历事件，支持拖拽调整时间，多种颜色标识。
-            </p>
-            <div className="flex items-center justify-between">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                开发中
-              </span>
-              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                了解更多 →
-              </button>
-            </div>
-          </div>
-
-          {/* 重复事件 */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center mb-4">
-              <div className="bg-green-100 p-3 rounded-lg">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              </div>
-              <h3 className="ml-3 text-lg font-semibold text-gray-900">重复事件</h3>
-            </div>
-            <p className="text-gray-600 text-sm mb-4">
-              支持日、周、月、年重复模式，灵活的重复规则配置。
-            </p>
-            <div className="flex items-center justify-between">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                开发中
-              </span>
-              <button className="text-green-600 hover:text-green-800 text-sm font-medium">
-                了解更多 →
-              </button>
-            </div>
-          </div>
-
-          {/* 提醒功能 */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center mb-4">
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4 7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V7z" />
-                </svg>
-              </div>
-              <h3 className="ml-3 text-lg font-semibold text-gray-900">智能提醒</h3>
-            </div>
-            <p className="text-gray-600 text-sm mb-4">
-              邮件、通知、短信多种提醒方式，自定义提醒时间。
-            </p>
-            <div className="flex items-center justify-between">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                开发中
-              </span>
-              <button className="text-purple-600 hover:text-purple-800 text-sm font-medium">
-                了解更多 →
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* 技术特性 */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">技术特性</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center text-sm text-gray-600">
-              <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              完整的TypeScript类型定义
-            </div>
-            <div className="flex items-center text-sm text-gray-600">
-              <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              响应式设计 (TailwindCSS)
-            </div>
-            <div className="flex items-center text-sm text-gray-600">
-              <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              Drizzle ORM + PostgreSQL
-            </div>
-            <div className="flex items-center text-sm text-gray-600">
-              <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              模块化架构设计
-            </div>
-          </div>
-        </div>
-        </>
       )}
 
       {/* 事件列表Tab */}

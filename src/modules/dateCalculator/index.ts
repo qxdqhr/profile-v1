@@ -1,4 +1,5 @@
 export { DateCalculatorTool } from './components'
+export type { DateCalculatorToolProps } from './components'
 export type { DateCalculatorMode, DateShiftUnit, IntervalResult, DateBreakdown } from './types'
 export {
   parseYmd,

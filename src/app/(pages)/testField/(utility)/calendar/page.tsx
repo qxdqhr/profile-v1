@@ -1,42 +1,11 @@
 /**
- * 实验田日历页面
- * 
- * 这是使用 sa2kit 版本的日历入口页面
+ * 实验田日历页面 — 使用本仓库 @/modules/calendar（Pencil 风格外壳 + 日期工具集成）
  */
 
-'use client';
+'use client'
 
-import { CalendarPage } from 'sa2kit/calendar';
-import { useAuth, LoginModal } from 'sa2kit/auth/legacy';
-import { useState } from 'react';
+import { CalendarPage } from '@/modules/calendar'
 
 export default function TestFieldCalendarPage() {
-  const { user, isAuthenticated, refreshUser } = useAuth();
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-
-  // 将 auth 模块的用户对象转换为 CalendarPage 期望的结构
-  const calendarUser = user ? { 
-    id: user.id, 
-    name: user.name || user.phone || 'User' 
-  } : null;
-
-  const handleLoginSuccess = () => {
-    setIsLoginModalOpen(false);
-    refreshUser(); // 刷新用户信息
-  };
-
-  return (
-    <>
-      <CalendarPage 
-        user={calendarUser} 
-        isAuthenticated={isAuthenticated} 
-        onShowLogin={() => setIsLoginModalOpen(true)}
-      />
-      <LoginModal 
-        isOpen={isLoginModalOpen} 
-        onClose={() => setIsLoginModalOpen(false)} 
-        onSuccess={handleLoginSuccess}
-      />
-    </>
-  );
-} 
+  return <CalendarPage />
+}

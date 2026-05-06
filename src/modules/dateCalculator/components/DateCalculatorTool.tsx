@@ -21,7 +21,15 @@ const UNITS: { id: DateShiftUnit; label: string }[] = [
   { id: 'year', label: '年' },
 ]
 
-export default function DateCalculatorTool() {
+export type DateCalculatorToolProps = {
+  /** page：独立整页；embedded：嵌入日历等容器，不铺全屏背景 */
+  variant?: 'page' | 'embedded'
+}
+
+export default function DateCalculatorTool({
+  variant = 'page',
+}: DateCalculatorToolProps) {
+  const embedded = variant === 'embedded'
   const [mode, setMode] = useState<DateCalculatorMode>('interval')
   const [startDate, setStartDate] = useState(todayYmd())
   const [endDate, setEndDate] = useState(todayYmd())
@@ -45,26 +53,54 @@ export default function DateCalculatorTool() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-stone-50 via-violet-50/40 to-indigo-100/60 px-4 py-8 sm:py-12">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.55]"
-        aria-hidden
-        style={{
-          backgroundImage:
-            'radial-gradient(circle at 1px 1px, rgb(148 163 184 / 0.22) 1px, transparent 0)',
-          backgroundSize: '28px 28px',
-        }}
-      />
-      <div className="relative mx-auto max-w-3xl">
-        <header className="mb-8 text-center sm:mb-10">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-violet-600/80">
-            Pencil · Studio
-          </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+    <div
+      className={
+        embedded
+          ? 'relative px-0 py-0'
+          : 'relative min-h-screen overflow-hidden bg-gradient-to-br from-stone-50 via-violet-50/40 to-indigo-100/60 px-4 py-8 sm:py-12'
+      }
+    >
+      {!embedded && (
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.55]"
+          aria-hidden
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 1px 1px, rgb(148 163 184 / 0.22) 1px, transparent 0)',
+            backgroundSize: '28px 28px',
+          }}
+        />
+      )}
+      <div className={embedded ? 'relative mx-auto max-w-4xl' : 'relative mx-auto max-w-3xl'}>
+        <header
+          className={
+            embedded
+              ? 'mb-6 border-b border-slate-200/80 pb-4'
+              : 'mb-8 text-center sm:mb-10'
+          }
+        >
+          {!embedded && (
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-violet-600/80">
+              Pencil · Studio
+            </p>
+          )}
+          <h1
+            className={
+              embedded
+                ? 'text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl'
+                : 'text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl text-center'
+            }
+          >
             日期计算器
           </h1>
-          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-slate-600 sm:text-base">
-            间隔与推算两种模式，本地即时计算；界面采用柔和卡片与紫罗兰强调色，适配桌面与移动端。
+          <p
+            className={
+              embedded
+                ? 'mt-2 max-w-2xl text-sm leading-relaxed text-slate-600'
+                : 'mx-auto mt-3 max-w-lg text-center text-sm leading-relaxed text-slate-600 sm:text-base'
+            }
+          >
+            间隔与推算两种模式，本地即时计算；与日历模块共用 Pencil 风格界面。
           </p>
         </header>
 
@@ -300,9 +336,11 @@ export default function DateCalculatorTool() {
           </section>
         )}
 
-        <footer className="mt-10 text-center text-xs text-slate-500">
-          使用本机日期；跨年与大小月由 dayjs 按日历规则处理。
-        </footer>
+        {!embedded && (
+          <footer className="mt-10 text-center text-xs text-slate-500">
+            使用本机日期；跨年与大小月由 dayjs 按日历规则处理。
+          </footer>
+        )}
       </div>
     </div>
   )
