@@ -601,5 +601,16 @@ export const experiments: ExperimentItem[] = [
     isCompleted: true,
     createdAt: '2026-05-06',
     updatedAt: '2026-05-06'
+  },
+  {
+    id: "ticket-booking-mvp",
+    title: "演出票务预定 MVP",
+    description: "选择演出、平面选座、订单确认与模拟支付；纯前端演示，无真实库存",
+    path: "/testField/TicketBooking",
+    tags: ["票务", "选座", "演出", "订单"],
+    category: "leisure",
+    isCompleted: true,
+    createdAt: '2026-05-10',
+    updatedAt: '2026-05-10'
   }
 ];

@@ -1,0 +1,1848 @@
+{
+  "version": "2.11",
+  "children": [
+    {
+      "type": "frame",
+      "id": "Ht2BY",
+      "x": 40,
+      "y": 40,
+      "name": "演出列表 (Performance List)",
+      "width": 375,
+      "fill": "#F8FAFC",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "Qx33G",
+          "name": "s1Header",
+          "width": "fill_container",
+          "fill": "#FFFFFF",
+          "gap": 12,
+          "padding": 16,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "hZncE",
+              "name": "s1Title",
+              "fill": "#1E293B",
+              "content": "演出列表",
+              "fontFamily": "Inter",
+              "fontSize": 22,
+              "fontWeight": "700"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "NaPVG",
+          "name": "s1Sub",
+          "width": "fill_container",
+          "gap": 8,
+          "padding": [
+            16,
+            8
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "Qgyql",
+              "name": "s1HotTag",
+              "fill": "#EFF6FF",
+              "cornerRadius": 6,
+              "padding": [
+                8,
+                4
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "6ICth",
+                  "name": "s1HotText",
+                  "fill": "#2563EB",
+                  "content": "热门演出",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "dLDaY",
+              "name": "s1AllTag",
+              "fill": "#F1F5F9",
+              "cornerRadius": 6,
+              "padding": [
+                8,
+                4
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "iN9i1",
+                  "name": "s1AllText",
+                  "fill": "#64748B",
+                  "content": "全部",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "vjHmT",
+          "name": "card1",
+          "width": "fill_container",
+          "fill": "#FFFFFF",
+          "gap": 16,
+          "padding": [
+            12,
+            16
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "ZaIO7",
+              "name": "poster1",
+              "width": 90,
+              "height": 126,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "./images/generated-1778373905384.png",
+                "mode": "fill"
+              },
+              "cornerRadius": 8
+            },
+            {
+              "type": "frame",
+              "id": "l0eUW",
+              "name": "info1",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "justifyContent": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "WZ6g1",
+                  "name": "i1Title",
+                  "fill": "#1E293B",
+                  "content": "天鹅湖",
+                  "fontFamily": "Inter",
+                  "fontSize": 17,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "er8Ez",
+                  "name": "i1Date",
+                  "fill": "#64748B",
+                  "content": "2026年5月20日 19:30",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "WpiBJ",
+                  "name": "i1Venue",
+                  "fill": "#64748B",
+                  "content": "国家大剧院·戏剧厅",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "p6N1P",
+                  "name": "i1PriceRow",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "FmGHP",
+                      "name": "i1Price",
+                      "fill": "#EF4444",
+                      "content": "¥280 起",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ABugA",
+                      "name": "i1Btn",
+                      "fill": "#2563EB",
+                      "cornerRadius": 6,
+                      "padding": [
+                        12,
+                        6
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "oKuFh",
+                          "name": "i1BtnText",
+                          "fill": "#FFFFFF",
+                          "content": "购买",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "TGfai",
+          "name": "sep1",
+          "width": "fill_container",
+          "height": 1,
+          "fill": "#F1F5F9"
+        },
+        {
+          "type": "frame",
+          "id": "6TgcT",
+          "name": "card2",
+          "width": "fill_container",
+          "fill": "#FFFFFF",
+          "gap": 16,
+          "padding": [
+            12,
+            16
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "oKSOL",
+              "name": "poster2",
+              "width": 90,
+              "height": 126,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "./images/generated-1778373961267.png",
+                "mode": "fill"
+              },
+              "cornerRadius": 8
+            },
+            {
+              "type": "frame",
+              "id": "IOC75",
+              "name": "info2",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "justifyContent": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "USL3v",
+                  "name": "i2Title",
+                  "fill": "#1E293B",
+                  "content": "红楼梦·舞台剧",
+                  "fontFamily": "Inter",
+                  "fontSize": 17,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "L1ORD",
+                  "name": "i2Date",
+                  "fill": "#64748B",
+                  "content": "2026年6月5日 19:30",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "x7spw",
+                  "name": "i2Venue",
+                  "fill": "#64748B",
+                  "content": "天桥艺术中心·大剧场",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "fpbQq",
+                  "name": "i2PriceRow",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "IwwzU",
+                      "name": "i2Price",
+                      "fill": "#EF4444",
+                      "content": "¥180 起",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "OeJI0",
+                      "name": "i2Btn",
+                      "fill": "#2563EB",
+                      "cornerRadius": 6,
+                      "padding": [
+                        12,
+                        6
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "0NSmp",
+                          "name": "i2BtnText",
+                          "fill": "#FFFFFF",
+                          "content": "购买",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "66dgw",
+          "name": "sep2",
+          "width": "fill_container",
+          "height": 1,
+          "fill": "#F1F5F9"
+        },
+        {
+          "type": "frame",
+          "id": "1nazn",
+          "name": "card3",
+          "width": "fill_container",
+          "fill": "#FFFFFF",
+          "gap": 16,
+          "padding": [
+            12,
+            16
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "tU0VP",
+              "name": "poster3",
+              "width": 90,
+              "height": 126,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "./images/generated-1778373953400.png",
+                "mode": "fill"
+              },
+              "cornerRadius": 8
+            },
+            {
+              "type": "frame",
+              "id": "hjARl",
+              "name": "info3",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "justifyContent": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "h8mTT",
+                  "name": "i3Title",
+                  "fill": "#1E293B",
+                  "content": "只此青绿",
+                  "fontFamily": "Inter",
+                  "fontSize": 17,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "vhK4U",
+                  "name": "i3Date",
+                  "fill": "#64748B",
+                  "content": "2026年6月12日 20:00",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "JsMkf",
+                  "name": "i3Venue",
+                  "fill": "#64748B",
+                  "content": "保利剧院",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "uJKiE",
+                  "name": "i3PriceRow",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "g4jLX",
+                      "name": "i3Price",
+                      "fill": "#EF4444",
+                      "content": "¥380 起",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "w7gfy",
+                      "name": "i3Btn",
+                      "fill": "#2563EB",
+                      "cornerRadius": 6,
+                      "padding": [
+                        12,
+                        6
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "e0jrg",
+                          "name": "i3BtnText",
+                          "fill": "#FFFFFF",
+                          "content": "购买",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Wb8Y2",
+          "name": "sep3",
+          "width": "fill_container",
+          "height": 1,
+          "fill": "#F1F5F9"
+        },
+        {
+          "type": "frame",
+          "id": "2c4Kt",
+          "name": "card4",
+          "width": "fill_container",
+          "fill": "#FFFFFF",
+          "gap": 16,
+          "padding": [
+            12,
+            16
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "xUVGS",
+              "name": "poster4",
+              "width": 90,
+              "height": 126,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "./images/generated-1778373949841.png",
+                "mode": "fill"
+              },
+              "cornerRadius": 8
+            },
+            {
+              "type": "frame",
+              "id": "R9jsB",
+              "name": "info4",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "justifyContent": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "EPG41",
+                  "name": "i4Title",
+                  "fill": "#1E293B",
+                  "content": "维也纳新春音乐会",
+                  "fontFamily": "Inter",
+                  "fontSize": 17,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "WXeBU",
+                  "name": "i4Date",
+                  "fill": "#64748B",
+                  "content": "2026年12月31日 22:30",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "EbvM1",
+                  "name": "i4Venue",
+                  "fill": "#64748B",
+                  "content": "北京音乐厅",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "7mMPa",
+                  "name": "i4PriceRow",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "dJ0hv",
+                      "name": "i4Price",
+                      "fill": "#EF4444",
+                      "content": "¥480 起",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "qidbg",
+                      "name": "i4Btn",
+                      "fill": "#2563EB",
+                      "cornerRadius": 6,
+                      "padding": [
+                        12,
+                        6
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Ph1LB",
+                          "name": "i4BtnText",
+                          "fill": "#FFFFFF",
+                          "content": "购买",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "hOkCj",
+      "x": 430,
+      "y": 40,
+      "name": "座位图 (Seat Map)",
+      "width": 375,
+      "fill": "#F8FAFC",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "J6nNk",
+          "name": "s2Header",
+          "width": "fill_container",
+          "fill": "#FFFFFF",
+          "gap": 12,
+          "padding": 16,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "lxthX",
+              "name": "s2Title",
+              "fill": "#1E293B",
+              "content": "选择座位",
+              "fontFamily": "Inter",
+              "fontSize": 22,
+              "fontWeight": "700"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "tEZu1",
+          "name": "s2PerfInfo",
+          "width": "fill_container",
+          "fill": "#FFFFFF",
+          "layout": "vertical",
+          "gap": 4,
+          "padding": [
+            16,
+            12
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "AMWoq",
+              "name": "s2PerfTitle",
+              "fill": "#1E293B",
+              "content": "天鹅湖",
+              "fontFamily": "Inter",
+              "fontSize": 16,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "ZAUQ1",
+              "name": "s2PerfDetail",
+              "fill": "#64748B",
+              "content": "国家大剧院·戏剧厅 | 2026年5月20日 19:30",
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "NAYwJ",
+          "name": "stageArea",
+          "width": "fill_container",
+          "padding": [
+            16,
+            12
+          ],
+          "justifyContent": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "NuWlC",
+              "name": "stageBar",
+              "width": 180,
+              "height": 36,
+              "fill": "#1E293B",
+              "cornerRadius": [
+                18,
+                18,
+                0,
+                0
+              ],
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "AoSuC",
+                  "name": "stageText",
+                  "fill": "#FFFFFF",
+                  "content": "舞 台",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "600",
+                  "letterSpacing": 8
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "dITGq",
+          "name": "zone1Label",
+          "width": "fill_container",
+          "padding": [
+            16,
+            8,
+            16,
+            4
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "sWTeU",
+              "name": "z1Text",
+              "fill": "#64748B",
+              "content": "一楼池座",
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "HBsTM",
+          "name": "row1",
+          "width": "fill_container",
+          "gap": 6,
+          "padding": [
+            16,
+            4
+          ],
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "8YXca",
+              "name": "r1Label",
+              "fill": "#64748B",
+              "content": "A",
+              "textAlign": "center",
+              "fontFamily": "Inter",
+              "fontSize": 11,
+              "fontWeight": "600"
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "gacRg",
+              "name": "r1s1",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "OhWaH",
+              "name": "r1s2",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "gWAjg",
+              "name": "r1s3",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "vRFcN",
+              "name": "r1s4",
+              "fill": "#F59E0B",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "iSj9C",
+              "name": "r1s5",
+              "fill": "#F59E0B",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "WiUUl",
+              "name": "r1s6",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "7Bn77",
+              "name": "r1s7",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "KY2Rc",
+              "name": "r1s8",
+              "fill": "#CBD5E1",
+              "width": 32,
+              "height": 32
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "JNAq0",
+          "name": "row2",
+          "width": "fill_container",
+          "gap": 6,
+          "padding": [
+            16,
+            4
+          ],
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "uAoOI",
+              "name": "r2Label",
+              "fill": "#64748B",
+              "content": "B",
+              "textAlign": "center",
+              "fontFamily": "Inter",
+              "fontSize": 11,
+              "fontWeight": "600"
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "6Xza2",
+              "name": "r2s1",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "hhabt",
+              "name": "r2s2",
+              "fill": "#F59E0B",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "DYraL",
+              "name": "r2s3",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "LYe6E",
+              "name": "r2s4",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "2M7Pm",
+              "name": "r2s5",
+              "fill": "#CBD5E1",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "COA8f",
+              "name": "r2s6",
+              "fill": "#CBD5E1",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "2NDu7",
+              "name": "r2s7",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "aO3Ef",
+              "name": "r2s8",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "9xjHy",
+          "name": "row3",
+          "width": "fill_container",
+          "gap": 6,
+          "padding": [
+            16,
+            4
+          ],
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "eizvF",
+              "name": "r3Label",
+              "fill": "#64748B",
+              "content": "C",
+              "textAlign": "center",
+              "fontFamily": "Inter",
+              "fontSize": 11,
+              "fontWeight": "600"
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "JuGke",
+              "name": "r3s1",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "sJDna",
+              "name": "r3s2",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "kI42N",
+              "name": "r3s3",
+              "fill": "#CBD5E1",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "498nV",
+              "name": "r3s4",
+              "fill": "#CBD5E1",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "yuOWH",
+              "name": "r3s5",
+              "fill": "#CBD5E1",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "nFtqy",
+              "name": "r3s6",
+              "fill": "#F59E0B",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "ruF0S",
+              "name": "r3s7",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "ZbhJ3",
+              "name": "r3s8",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "CYwsl",
+          "name": "row4",
+          "width": "fill_container",
+          "gap": 6,
+          "padding": [
+            16,
+            4
+          ],
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "XEQjh",
+              "name": "r4Label",
+              "fill": "#64748B",
+              "content": "D",
+              "textAlign": "center",
+              "fontFamily": "Inter",
+              "fontSize": 11,
+              "fontWeight": "600"
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "GUuZd",
+              "name": "r4s1",
+              "fill": "#CBD5E1",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "mCUwf",
+              "name": "r4s2",
+              "fill": "#CBD5E1",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "zU3eW",
+              "name": "r4s3",
+              "fill": "#CBD5E1",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "Fae85",
+              "name": "r4s4",
+              "fill": "#F59E0B",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "XRXUQ",
+              "name": "r4s5",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "E6DNX",
+              "name": "r4s6",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "UMu38",
+              "name": "r4s7",
+              "fill": "#CBD5E1",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "cBszq",
+              "name": "r4s8",
+              "fill": "#CBD5E1",
+              "width": 32,
+              "height": 32
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "O8Kry",
+          "name": "zone2Label",
+          "width": "fill_container",
+          "padding": [
+            16,
+            8,
+            16,
+            4
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "j9YbS",
+              "name": "z2Text",
+              "fill": "#64748B",
+              "content": "二楼楼座",
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "8NMf1",
+          "name": "row5",
+          "width": "fill_container",
+          "gap": 6,
+          "padding": [
+            16,
+            4
+          ],
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "760Tr",
+              "name": "r5Label",
+              "fill": "#64748B",
+              "content": "E",
+              "textAlign": "center",
+              "fontFamily": "Inter",
+              "fontSize": 11,
+              "fontWeight": "600"
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "qx4WJ",
+              "name": "r5s1",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "EVHMV",
+              "name": "r5s2",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "F7hg1",
+              "name": "r5s3",
+              "fill": "#CBD5E1",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "s4f5W",
+              "name": "r5s4",
+              "fill": "#CBD5E1",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "NVg4b",
+              "name": "r5s5",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "GlE0E",
+              "name": "r5s6",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "8hF6c",
+              "name": "r5s7",
+              "fill": "#10B981",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 4,
+              "id": "uLdgb",
+              "name": "r5s8",
+              "fill": "#CBD5E1",
+              "width": 32,
+              "height": 32
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Z9WAP",
+          "name": "legend",
+          "width": "fill_container",
+          "fill": "#FFFFFF",
+          "gap": 16,
+          "padding": [
+            16,
+            12
+          ],
+          "justifyContent": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "jeMoT",
+              "name": "legAvail",
+              "gap": 6,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "rectangle",
+                  "cornerRadius": 3,
+                  "id": "VcmxL",
+                  "name": "legAvailDot",
+                  "fill": "#10B981",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "text",
+                  "id": "nq2o3",
+                  "name": "legAvailText",
+                  "fill": "#64748B",
+                  "content": "可选",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "aSGyE",
+              "name": "legSel",
+              "gap": 6,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "rectangle",
+                  "cornerRadius": 3,
+                  "id": "OgNHC",
+                  "name": "legSelDot",
+                  "fill": "#F59E0B",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "text",
+                  "id": "KrYBz",
+                  "name": "legSelText",
+                  "fill": "#64748B",
+                  "content": "已选",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "RZnq7",
+              "name": "legSold",
+              "gap": 6,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "rectangle",
+                  "cornerRadius": 3,
+                  "id": "PTN9B",
+                  "name": "legSoldDot",
+                  "fill": "#CBD5E1",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "text",
+                  "id": "yPzXz",
+                  "name": "legSoldText",
+                  "fill": "#64748B",
+                  "content": "已售",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "fiONn",
+          "name": "s2Bottom",
+          "width": "fill_container",
+          "fill": "#FFFFFF",
+          "gap": 12,
+          "padding": 16,
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "kRMW6",
+              "name": "s2CountInfo",
+              "layout": "vertical",
+              "gap": 2,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "qYvUh",
+                  "name": "s2CountLabel",
+                  "fill": "#1E293B",
+                  "content": "已选 3 个座位",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "fZKxO",
+                  "name": "s2CountPrice",
+                  "fill": "#EF4444",
+                  "content": "合计 ¥840",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "hsQ32",
+              "name": "s2ConfirmBtn",
+              "fill": "#2563EB",
+              "cornerRadius": 8,
+              "padding": [
+                20,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "XT66e",
+                  "name": "s2ConfirmText",
+                  "fill": "#FFFFFF",
+                  "content": "确认选择",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "JqxX8",
+      "x": 820,
+      "y": 40,
+      "name": "订单摘要 (Order Summary)",
+      "width": 375,
+      "fill": "#F8FAFC",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "eZ3Oe",
+          "name": "s3Header",
+          "width": "fill_container",
+          "fill": "#FFFFFF",
+          "gap": 12,
+          "padding": 16,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "sUaow",
+              "name": "s3Title",
+              "fill": "#1E293B",
+              "content": "订单确认",
+              "fontFamily": "Inter",
+              "fontSize": 22,
+              "fontWeight": "700"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "84iKj",
+          "name": "s3PerfCard",
+          "width": "fill_container",
+          "fill": "#FFFFFF",
+          "gap": 14,
+          "padding": 16,
+          "children": [
+            {
+              "type": "frame",
+              "id": "2ioam",
+              "name": "s3Poster",
+              "width": 60,
+              "height": 84,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "./images/generated-1778374120180.png",
+                "mode": "fill"
+              },
+              "cornerRadius": 6
+            },
+            {
+              "type": "frame",
+              "id": "WsWW0",
+              "name": "s3PerfInfo",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 4,
+              "justifyContent": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "DY56A",
+                  "name": "s3PerfTitle",
+                  "fill": "#1E293B",
+                  "content": "天鹅湖",
+                  "fontFamily": "Inter",
+                  "fontSize": 17,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "rK1Us",
+                  "name": "s3PerfDate",
+                  "fill": "#64748B",
+                  "content": "2026年5月20日 19:30",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "Ne9Hr",
+                  "name": "s3PerfVenue",
+                  "fill": "#64748B",
+                  "content": "国家大剧院·戏剧厅",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "aJuwo",
+          "name": "s3SectionTitle",
+          "width": "fill_container",
+          "padding": [
+            16,
+            12,
+            16,
+            8
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "uRJRq",
+              "name": "s3SectionText",
+              "fill": "#1E293B",
+              "content": "已选座位",
+              "fontFamily": "Inter",
+              "fontSize": 15,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "taI2O",
+          "name": "s3Seat1",
+          "width": "fill_container",
+          "fill": "#FFFFFF",
+          "gap": 12,
+          "padding": [
+            16,
+            12
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "ibmMV",
+              "name": "s3Seat1Area",
+              "fill": "#EFF6FF",
+              "cornerRadius": 4,
+              "padding": [
+                6,
+                4
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Z8LqS",
+                  "name": "s3Seat1AreaText",
+                  "fill": "#2563EB",
+                  "content": "一楼池座",
+                  "fontFamily": "Inter",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "yqThl",
+              "name": "s3Seat1Name",
+              "fill": "#1E293B",
+              "content": "A排04号",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "fUNik",
+              "name": "s3Seat1Price",
+              "fill": "#EF4444",
+              "content": "¥280",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "vROnI",
+          "name": "s3Seat2",
+          "width": "fill_container",
+          "fill": "#FFFFFF",
+          "gap": 12,
+          "padding": [
+            16,
+            12
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "OHss1",
+              "name": "s3Seat2Area",
+              "fill": "#EFF6FF",
+              "cornerRadius": 4,
+              "padding": [
+                6,
+                4
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "OHd4d",
+                  "name": "s3Seat2AreaText",
+                  "fill": "#2563EB",
+                  "content": "一楼池座",
+                  "fontFamily": "Inter",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "4GCsh",
+              "name": "s3Seat2Name",
+              "fill": "#1E293B",
+              "content": "A排05号",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "6I8VN",
+              "name": "s3Seat2Price",
+              "fill": "#EF4444",
+              "content": "¥280",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "YJuLi",
+          "name": "s3Seat3",
+          "width": "fill_container",
+          "fill": "#FFFFFF",
+          "gap": 12,
+          "padding": [
+            16,
+            12
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "aUuIB",
+              "name": "s3Seat3Area",
+              "fill": "#FFF7ED",
+              "cornerRadius": 4,
+              "padding": [
+                6,
+                4
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Ah0zR",
+                  "name": "s3Seat3AreaText",
+                  "fill": "#F59E0B",
+                  "content": "一楼池座",
+                  "fontFamily": "Inter",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "Hhre7",
+              "name": "s3Seat3Name",
+              "fill": "#1E293B",
+              "content": "B排02号",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "tGggx",
+              "name": "s3Seat3Price",
+              "fill": "#EF4444",
+              "content": "¥280",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "8vg5E",
+          "name": "s3Divider",
+          "width": "fill_container",
+          "height": 1,
+          "fill": "#F1F5F9"
+        },
+        {
+          "type": "frame",
+          "id": "FdVnm",
+          "name": "s3PriceSection",
+          "width": "fill_container",
+          "fill": "#FFFFFF",
+          "layout": "vertical",
+          "gap": 8,
+          "padding": 16,
+          "children": [
+            {
+              "type": "frame",
+              "id": "si4K4",
+              "name": "s3SubRow",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "xEO7I",
+                  "name": "s3SubLabel",
+                  "fill": "#64748B",
+                  "content": "小计（3张）",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "w7ngT",
+                  "name": "s3SubValue",
+                  "fill": "#1E293B",
+                  "content": "¥840",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "YAHlK",
+              "name": "s3FeeRow",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "aifvs",
+                  "name": "s3FeeLabel",
+                  "fill": "#64748B",
+                  "content": "服务费",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "BEfAh",
+                  "name": "s3FeeValue",
+                  "fill": "#1E293B",
+                  "content": "¥15",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "WbjFE",
+              "name": "s3TotalDivider",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "#E2E8F0"
+            },
+            {
+              "type": "frame",
+              "id": "Dmkh8",
+              "name": "s3TotalRow",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "vGZBY",
+                  "name": "s3TotalLabel",
+                  "fill": "#1E293B",
+                  "content": "总计",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "hmVXk",
+                  "name": "s3TotalValue",
+                  "fill": "#EF4444",
+                  "content": "¥855",
+                  "fontFamily": "Inter",
+                  "fontSize": 18,
+                  "fontWeight": "700"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "uR28Z",
+          "name": "s3Bottom",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 8,
+          "padding": 16,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "a0I0h",
+              "name": "s3PayBtn",
+              "width": "fill_container",
+              "fill": "#2563EB",
+              "cornerRadius": 8,
+              "padding": [
+                16,
+                14
+              ],
+              "justifyContent": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "11Lyg",
+                  "name": "s3PayText",
+                  "fill": "#FFFFFF",
+                  "content": "模拟支付 ¥855",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "kSZaT",
+              "name": "s3Hint",
+              "fill": "#94A3B8",
+              "content": "此为演示版本，不会产生真实扣费",
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
