@@ -5,5 +5,6 @@ export { default as ExperimentGrid } from './ExperimentGrid';
 export { default as EmptyState } from './EmptyState';
 export { default as SortControl } from './SortControl';
 export { default as SortModeToggle } from './SortModeToggle';
+export { default as TestFieldSearchBox } from './TestFieldSearchBox';
 export { DraggableExperimentGrid } from './DraggableExperimentGrid';
 export { SortableExperimentItem } from './SortableExperimentItem';

@@ -9,7 +9,7 @@ import {
   getExperimentCounts
 } from '../utils';
 
-import { SearchBox, SearchResultHint } from 'sa2kit/components';
+import { SearchResultHint } from 'sa2kit/components';
 import {
   CategoryFilter,
   CompletionFilter as CompletionFilterComponent,
@@ -18,6 +18,7 @@ import {
   EmptyState,
   SortControl,
   SortModeToggle,
+  TestFieldSearchBox,
   DraggableExperimentGrid,
 } from '../components';
 import { UserInfoBar } from '../components/UserInfoBar';
@@ -148,7 +149,7 @@ export default function TestFieldPage() {
         {/* 搜索和筛选 */}
         <div className="mb-6 sm:mb-8 space-y-3 sm:space-y-4">
           {/* 搜索框 */}
-          <SearchBox 
+          <TestFieldSearchBox
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
           />

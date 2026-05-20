@@ -6,12 +6,14 @@ interface CompletionFilterProps {
   completionFilter: CompletionFilter;
   onCompletionFilterChange: (filter: CompletionFilter) => void;
   counts: { all: number; completed: number; inProgress: number };
+  className?: string;
 }
 
 export default function CompletionFilter({ 
   completionFilter, 
   onCompletionFilterChange, 
-  counts 
+  counts,
+  className
 }: CompletionFilterProps) {
   const options = [
     {
@@ -55,6 +57,7 @@ export default function CompletionFilter({
       value={completionFilter}
       options={options}
       onChange={onCompletionFilterChange}
+      className={className}
     />
   );
 }

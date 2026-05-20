@@ -6,12 +6,14 @@ interface CategoryFilterProps {
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
   counts: { utility: number; leisure: number };
+  className?: string;
 }
 
 export default function CategoryFilter({ 
   viewMode, 
   onViewModeChange, 
-  counts 
+  counts,
+  className
 }: CategoryFilterProps) {
   const options = [
     {
@@ -54,6 +56,7 @@ export default function CategoryFilter({
       value={viewMode}
       options={options}
       onChange={onViewModeChange}
+      className={className}
     />
   );
 }

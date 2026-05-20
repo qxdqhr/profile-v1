@@ -1,0 +1,17 @@
+---
+description: profile-v1 的 src/modules 结构、样式与全栈模块模板
+globs: src/modules/**/*.{tsx,ts}
+alwaysApply: false
+---
+
+# 模块与组件
+
+编写或修改 `src/modules` 时遵守：
+
+- **SSOT**：`.cursor/KNOWLEDGE_BASE.md`
+- **样式**：Tailwind；新界面兼顾桌面与移动端
+- **客户端组件**：文件顶部 `'use client'`
+- **无数据库工具模块**：流程见 `.cursor/skills/build-utility-module/SKILL.md`（含 `DEVELOPMENT.md`、薄路由、`experimentData`）
+- **含 DB + API 模块**：目录与转发模式参照 **`src/modules/ideaList/`**（`db/schema.ts`、`api/`、`hooks/`、`pages/`、`index.ts` 导出）；`src/db/index.ts` 注册 schema；迁移命令见 `package.json`
+- **可复用泛型 UI**：抽到 `src/components/`
+- **包管理**：`pnpm`

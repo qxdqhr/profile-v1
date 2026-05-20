@@ -1,0 +1,15 @@
+---
+description: profile-v1 Next.js App Router、testField 分组与 API 转发约定
+globs: src/app/**/*.{tsx,ts}
+alwaysApply: false
+---
+
+# App Router 与 API
+
+编写或修改 `src/app` 下文件时遵守项目知识库：
+
+- 完整说明：`.cursor/KNOWLEDGE_BASE.md`（可用 `@` 引用）
+- 实验田页面位于 `src/app/(pages)/testField/` 下子分组：`(utility)`、`(sa2kit)`、`(game)`、`(cyhj)`；**URL 不含括号段名**
+- `page.tsx` 保持薄封装：默认导出从 `@/modules/<模块>` 导入页面组件
+- 模块内实现的 API：`src/app/api/.../route.ts` 仅 re-export `@/modules/<模块>/api/...`（参照 `ideaList` 与 `src/app/api/ideaLists/`）
+- 在 `testField` 下新增、且需在实验田列表展示的入口：更新 `src/modules/testField/utils/experimentData.ts`，`category` 仅 `utility` | `leisure`，`path` 与真实路由一致

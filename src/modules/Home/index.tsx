@@ -1,17 +1,20 @@
 'use client';
 
-import React, { useEffect, useState } from "react";
-import { Navigation as NavigationContainer, NavigationToggle } from "sa2kit/navigation";
-import { About, Home as HomeSection, ProjectCarousel, Contact } from "sa2kit/portfolio";
-import type { NavigationConfig } from "sa2kit/navigation";
-import type { HomeConfig, ProjectsConfig } from "sa2kit/portfolio";
-import type { TimelineConfig, CollisionBallsConfig } from "sa2kit/components";
+import React, { useEffect, useState } from 'react';
+import { Navigation as NavigationContainer, NavigationToggle } from 'sa2kit/navigation';
+import { About, Home as HomeSection, ProjectCarousel, Contact } from 'sa2kit/portfolio';
+import type { NavigationConfig } from 'sa2kit/navigation';
+import type { HomeConfig, ProjectsConfig } from 'sa2kit/portfolio';
+import type { TimelineConfig, CollisionBallsConfig } from 'sa2kit/components';
+import { LoadingSpinner } from './components/LoadingSpinner';
+import { ErrorMessage } from './components/ErrorMessage';
+import { SectionReveal } from './components/SectionReveal';
+import { HomeAmbientBackground } from './components/HomeAmbientBackground';
+import './home-page.css';
 
-
-// 整体配置类型
 interface Config {
   navConfig: {
-    direction: "vertical" | "horizontal";
+    direction: 'vertical' | 'horizontal';
     items: Array<{
       id: string;
       label: string;
@@ -24,8 +27,6 @@ interface Config {
   collisionBallsConfig: CollisionBallsConfig;
   projectsConfig: ProjectsConfig;
 }
-
-
 
 const HomePage: React.FC = () => {
   const [config, setConfig] = useState<Config | null>(null);
@@ -44,11 +45,10 @@ const HomePage: React.FC = () => {
         }
         const data = await response.json();
         setConfig(data);
-        
-        // 配置加载完成后，设置默认活动项为第一个锚点链接
+
         if (data.navConfig.items.length > 0) {
-          const firstAnchorItem = data.navConfig.items.find((item: any) => 
-            item.href.startsWith('#')
+          const firstAnchorItem = data.navConfig.items.find((item: { href: string }) =>
+            item.href.startsWith('#'),
           );
           if (firstAnchorItem) {
             setActiveNavId(firstAnchorItem.id);
@@ -65,131 +65,102 @@ const HomePage: React.FC = () => {
     fetchConfig();
   }, []);
 
-  // 新增：监听滚动事件，自动更新活动导航项
   useEffect(() => {
     if (!config) return;
 
-    let isScrolling = false;
-    let scrollTimeout: NodeJS.Timeout;
-
     const handleScroll = () => {
-      // 标记正在滚动
-      isScrolling = true;
-      
-      // 清除之前的超时
-      clearTimeout(scrollTimeout);
-      
-      // 设置超时，在滚动停止后一段时间重置滚动状态
-      scrollTimeout = setTimeout(() => {
-        isScrolling = false;
-      }, 100);
+      const scrollPosition = window.scrollY + 100;
 
-      const scrollPosition = window.scrollY + 100; // 偏移量，提前触发
-      
-      // 获取所有锚点导航项
-      const anchorItems = config.navConfig.items.filter((item: any) => 
-        item.href.startsWith('#')
+      const anchorItems = config.navConfig.items.filter((item) =>
+        item.href.startsWith('#'),
       );
-      
+
       let currentActiveId = '';
-      
-      // 检查每个section的位置
+
       for (const item of anchorItems) {
         const element = document.getElementById(item.id);
         if (element) {
           const elementTop = element.offsetTop;
           const elementBottom = elementTop + element.offsetHeight;
-          
+
           if (scrollPosition >= elementTop && scrollPosition < elementBottom) {
             currentActiveId = item.id;
-            break; // 找到就直接跳出，不继续遍历
+            break;
           }
         }
       }
-      
-      // 如果在页面顶部且没有找到section，默认选中第一个
+
       if (!currentActiveId && scrollPosition < 200 && anchorItems.length > 0) {
         currentActiveId = anchorItems[0].id;
       }
-      
-      // 仅当滚动引起的变化且活动项确实不同时才更新（排除用户点击期间）
+
       if (currentActiveId && currentActiveId !== activeNavId && !isUserClicking) {
         setActiveNavId(currentActiveId);
       }
     };
 
-    // 节流处理，减少频繁调用
     let throttleTimeout: NodeJS.Timeout;
     const throttledHandleScroll = () => {
       if (throttleTimeout) return;
-      
+
       throttleTimeout = setTimeout(() => {
         handleScroll();
-        throttleTimeout = null as any;
-      }, 50); // 50ms 节流
+        throttleTimeout = null as unknown as NodeJS.Timeout;
+      }, 50);
     };
 
     window.addEventListener('scroll', throttledHandleScroll, { passive: true });
-    
-    // 初始检查（仅在配置首次加载时）
+
     if (activeNavId === '') {
       handleScroll();
     }
-    
+
     return () => {
       window.removeEventListener('scroll', throttledHandleScroll);
-      clearTimeout(scrollTimeout);
       if (throttleTimeout) clearTimeout(throttleTimeout);
     };
   }, [config, activeNavId, isUserClicking]);
 
-  // 处理导航项点击
-  const handleItemClick = (item: any) => {
+  const handleItemClick = (item: { id: string }) => {
     setIsUserClicking(true);
     setActiveNavId(item.id);
-    
-    // 1.5秒后重新启用滚动监听
+
     setTimeout(() => {
       setIsUserClicking(false);
     }, 1500);
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (error || !config) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-red-500">
-        加载配置失败: {error}
-      </div>
-    );
+    return <ErrorMessage message={error ?? '配置为空'} />;
   }
 
-  // 转换配置格式为新导航栏组件所需
   const navigationConfig: NavigationConfig = {
     direction: config.navConfig.direction,
     position: config.navConfig.direction === 'vertical' ? 'left' : 'top',
-    items: config.navConfig.items.map(item => ({
+    items: config.navConfig.items.map((item) => ({
       id: item.id,
       label: item.label,
       href: item.href,
       isExternal: item.href.startsWith('//') || item.href.startsWith('http'),
-      target: item.href.startsWith('//') || item.href.startsWith('http') ? '_blank' : '_self'
+      target:
+        item.href.startsWith('//') || item.href.startsWith('http')
+          ? '_blank'
+          : '_self',
     })),
     avatar: {
       src: config.navConfig.avatar,
-      alt: '头像'
-    }
+      alt: '头像',
+    },
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* 新的通用导航栏组件 */}
+    <div className="home-page relative min-h-screen overflow-x-hidden text-foreground antialiased">
+      <HomeAmbientBackground />
+
       <NavigationToggle
         isOpen={isNavOpen}
         onClick={() => setIsNavOpen(!isNavOpen)}
@@ -203,16 +174,32 @@ const HomePage: React.FC = () => {
         onToggle={() => setIsNavOpen(!isNavOpen)}
       />
 
-      {/* 主内容 */}
-      <main className="min-h-screen">
-        <div className="container mx-auto px-4 py-4">
-          <HomeSection homeConfig={config.homeConfig} />
-          <About
-            timelineConfig={config.timelineConfig}
-            collisionBallsConfig={config.collisionBallsConfig}
-          />
-          <ProjectCarousel projects={config.projectsConfig.projects} />
-          <Contact />
+      <main className="relative min-h-screen">
+        <div className="container mx-auto px-4 py-2 sm:px-6 lg:px-8">
+          <SectionReveal delay={0}>
+            <HomeSection
+              homeConfig={config.homeConfig}
+              className="!bg-transparent min-h-[min(100vh,900px)]"
+            />
+          </SectionReveal>
+
+          <SectionReveal delay={100}>
+            <About
+              timelineConfig={config.timelineConfig}
+              collisionBallsConfig={config.collisionBallsConfig}
+            />
+          </SectionReveal>
+
+          <SectionReveal delay={200}>
+            <ProjectCarousel
+              projects={config.projectsConfig.projects}
+              className="!bg-transparent py-20"
+            />
+          </SectionReveal>
+
+          <SectionReveal delay={300}>
+            <Contact />
+          </SectionReveal>
         </div>
       </main>
     </div>

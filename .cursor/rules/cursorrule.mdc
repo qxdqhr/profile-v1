@@ -1,23 +1,24 @@
 ---
-description: 
-globs: 
+description: profile-v1 全局栈与构建习惯（Next / Drizzle / Tailwind / pnpm）
 alwaysApply: true
 ---
 本项目是一个nextJS项目
 数据库采用的是drizzle orm + postgress
 生成页面的时候css都采用tailwindcss方式生成
 
+架构、路由分组、模块与实验田约定由规则 `profile-v1-knowledge-ssot.mdc` 经 `@.cursor/KNOWLEDGE_BASE.md` 自动注入；需要时也可在对话中手动 `@.cursor/KNOWLEDGE_BASE.md`。
+
 运行项目 参照package.json中的命令并使用pnpm执行
 build项目 参照package.json中的命令并使用pnpm执行
 生成新的数据库迁移文件 参照package.json中的命令并使用pnpm执行
 
-构建新的模块时,参照module/auth模块的目录结构构建
+构建新的模块时,参照 src/modules/ideaList 模块的目录结构构建（含数据库与 API 时）；纯工具无库表模块参照 .cursor/skills/build-utility-module/SKILL.md
 构建新模块时,不仅需要构建前端界面URL 还要构建后端路由 
-构建新模块时,在实际路径中使用对应模块的前端导出,可以参照showmasterpiece 模块
-构建新模块时,在实际路径中使用对应模块的后端导出,可以参照showmasterpiece 模块
+构建新模块时,在实际路径中使用对应模块的前端导出,薄 page.tsx 参照 ideaList、qrCode 等模块在 app 下的用法
+构建新模块时,后端 API 在 src/app/api 中转发模块内 route 实现,参照 ideaList 与 src/app/api/ideaLists 目录
 构建新模块时,先在对应模块/功能目录下创建一个分步骤markdown文档并逐步构建且每次执行时需要同步更新文档
 
 构建前端页面样式时,需要适配桌面端和移动端
 如果新增加了模块表在src/db/index.ts中引用新模块中的db/schema.ts中的表结构,并记得自动更新测试环境表结构以及生产环境表结构(分别对应 package.json中的两个命令)
 如果生成了较为通用的UI组件,需要按照支持泛型的方式提取出公共组件并将公共组件放置在components目录下
-添加了新模块,需要在实验田模块中添加新模块项目的路由json
+添加了新模块,若需在实验田展示入口,在 src/modules/testField/utils/experimentData.ts 的 experiments 数组中追加条目

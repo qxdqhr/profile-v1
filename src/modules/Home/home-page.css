@@ -1,0 +1,115 @@
+/* Home page polish — scoped under .home-page */
+
+.home-page {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.home-page #home h1 {
+  text-wrap: balance;
+  letter-spacing: -0.02em;
+}
+
+.home-page #home p {
+  text-wrap: pretty;
+}
+
+.home-page #home img {
+  outline: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 1rem;
+}
+
+.home-page #home a[class*='bg-blue'] {
+  border-radius: 0.75rem;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 4px 12px rgba(37, 99, 235, 0.2);
+  transition-property: transform, background-color, box-shadow;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+.home-page #home a[class*='bg-blue']:hover {
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.08),
+    0 8px 20px rgba(37, 99, 235, 0.28);
+}
+
+.home-page #home a[class*='bg-blue']:active {
+  transform: scale(0.96);
+}
+
+.home-page section h2 {
+  text-wrap: balance;
+  letter-spacing: -0.025em;
+}
+
+.home-page #about,
+.home-page #projects,
+.home-page #contact {
+  background: transparent !important;
+}
+
+.home-page #about .rounded-lg,
+.home-page #contact .rounded-lg,
+.home-page #contact form + div .rounded-lg {
+  border: none;
+  border-radius: 1rem;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.05),
+    0 12px 28px rgba(0, 0, 0, 0.04);
+}
+
+.home-page #about [class*='text-sm'],
+.home-page #about time,
+.home-page #projects [class*='text-xs'] {
+  font-variant-numeric: tabular-nums;
+}
+
+.home-page #projects .overflow-hidden.rounded-lg {
+  border-radius: 1.25rem;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.home-page #projects button {
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  border-radius: 9999px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+  transition-property: transform, background-color, box-shadow;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+.home-page #projects button:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+.home-page #contact button[type='submit'] {
+  transition-property: transform, background-color;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+.home-page #contact button[type='submit']:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.home-page #contact input,
+.home-page #contact textarea {
+  border-radius: 0.625rem;
+  transition-property: border-color, box-shadow;
+  transition-duration: 200ms;
+}
+
+.home-page #contact input:focus,
+.home-page #contact textarea:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}

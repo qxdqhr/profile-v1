@@ -1,18 +1,21 @@
 'use client';
 
-import React from 'react';
-
 interface ErrorMessageProps {
   message: string;
 }
 
-export const ErrorMessage: React.FC<ErrorMessageProps> = ({ message }) => {
+export function ErrorMessage({ message }: ErrorMessageProps) {
   return (
-    <div className="tw-flex tw-items-center tw-justify-center tw-min-h-screen">
-      <div className="tw-bg-red-100 tw-border tw-border-red-400 tw-text-red-700 tw-px-4 tw-py-3 tw-rounded tw-relative" role="alert">
-        <strong className="tw-font-bold">错误：</strong>
-        <span className="tw-block sm:tw-inline">{message}</span>
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 antialiased">
+      <div
+        className="max-w-md rounded-2xl bg-card px-6 py-5 text-center shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.08)]"
+        role="alert"
+      >
+        <p className="text-sm font-medium text-destructive">无法加载首页</p>
+        <p className="mt-2 text-pretty text-sm text-muted-foreground">
+          {message}
+        </p>
       </div>
     </div>
   );
-}; 
+}
