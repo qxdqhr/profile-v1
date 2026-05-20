@@ -1,5 +1,6 @@
 # ShowMasterpiece 模块优化计划
 
+> **状态**：profile-v1 侧 P0/P1 已迁至 [`src/modules/showmasterpiece/FIX_CHECKLIST.md`](../../../modules/showmasterpiece/FIX_CHECKLIST.md) 并落地；下文为历史记录，sa2kit 项仍在 Phase 2/3。  
 > 创建时间：2026-04-06  
 > 范围：profile-v1（API 层）+ sa2kit（业务逻辑 / UI 层）
 

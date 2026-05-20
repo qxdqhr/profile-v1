@@ -12,25 +12,25 @@ import {
   TagsDbService,
 } from 'sa2kit/showmasterpiece/server';
 
-let showmasterpieceFileServicePromise: Promise<{
-  getFileUrl: (fileId: string) => Promise<string>;
-}> | null = null;
+const globalAny = globalThis as typeof globalThis & {
+  __sa2kitShowmasterpieceResolveFileUrl?: (
+    fileId: string,
+  ) => Promise<string | null | undefined>;
+};
 
-async function resolveShowmasterpieceFileUrl(fileId: string): Promise<string | null> {
-  if (!showmasterpieceFileServicePromise) {
-    showmasterpieceFileServicePromise = (async () => {
-      const { getShowMasterpieceFileConfig } = await import('sa2kit/showmasterpiece/server');
-      const configManager = await getShowMasterpieceFileConfig();
-      const { UniversalFileService } = await import('sa2kit/universalFile/server');
-      const fileService = new UniversalFileService(configManager.getConfig());
-      await fileService.initialize();
-      return fileService;
-    })();
+async function resolveShowmasterpieceFileUrl(
+  fileId: string,
+): Promise<string | null> {
+  const resolver = globalAny.__sa2kitShowmasterpieceResolveFileUrl;
+  if (!resolver) {
+    console.warn(
+      '[showmasterpiece] 文件 URL 解析未初始化，请先 import sa2kit-init',
+    );
+    return null;
   }
-
   try {
-    const fileService = await showmasterpieceFileServicePromise;
-    return await fileService.getFileUrl(fileId);
+    const url = await resolver(fileId);
+    return url ?? null;
   } catch {
     return null;
   }
