@@ -7,7 +7,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { showmasterConfigService } from '@/modules/showmasterpiece/configService';
 import { isAuthFailure, requireAdmin } from '../../lib/auth';
+import {
+  defaultConfigEnvironment,
+  resolveConfigEnvironment,
+} from '../../lib/configEnvironment';
 import { handleRouteError } from '../../lib/response';
+import { routeDebug, routeWarn } from '../../lib/routeLog';
+import { logRouteError } from '../../lib/response';
 
 // 获取showmasterpiece模块配置项列表
 async function getConfigItems(request: NextRequest) {
@@ -18,15 +24,17 @@ async function getConfigItems(request: NextRequest) {
     const isActive = searchParams.get('isActive') !== 'false';
     const page = parseInt(searchParams.get('page') || '1');
     const pageSize = parseInt(searchParams.get('pageSize') || '50'); // 默认显示更多项
-    const environment = searchParams.get('environment') || 'development';
+    const environment = resolveConfigEnvironment(
+      searchParams.get('environment'),
+    );
     const keys = searchParams.get('keys'); // 新增：支持按键名筛选
 
-    console.log(`🎨 [ShowMasterpiece Config] 获取 ${environment} 环境的配置项`);
+    routeDebug(`🎨 [ShowMasterpiece Config] 获取 ${environment} 环境的配置项`);
 
     // 如果指定了keys，直接查询这些配置项
     if (keys) {
       const keyList = keys.split(',').map(k => k.trim());
-      console.log(`🎨 [ShowMasterpiece Config] 按键名筛选: ${keyList.join(', ')}`);
+      routeDebug(`🎨 [ShowMasterpiece Config] 按键名筛选: ${keyList.join(', ')}`);
       
       const items = await Promise.all(
         keyList.map(key => showmasterConfigService.getConfigItemByKey(key, environment))
@@ -93,7 +101,8 @@ async function createConfigItem(request: NextRequest) {
       isRequired, 
       isSensitive, 
       validation, 
-      sortOrder 
+      sortOrder,
+      environment: environmentInput,
     } = body;
     
     if (!key || !displayName || !type) {
@@ -125,7 +134,7 @@ async function createConfigItem(request: NextRequest) {
         categoryId = newGeneralCategory?.id;
       }
     } catch (catError) {
-      console.warn('⚠️ [ShowMasterpiece Config] 处理分类时出错，使用undefined:', catError);
+      routeWarn('⚠️ [ShowMasterpiece Config] 处理分类时出错，使用undefined:', catError);
     }
 
     const configItem = await showmasterConfigService.createConfigItem({
@@ -140,11 +149,14 @@ async function createConfigItem(request: NextRequest) {
       isSensitive: isSensitive || false,
       validation: validation ? JSON.stringify(validation) : null,
       sortOrder: sortOrder || 0,
-      environment: 'development', // 默认为开发环境
+      environment: resolveConfigEnvironment(
+        typeof environmentInput === 'string' ? environmentInput : undefined,
+        defaultConfigEnvironment(),
+      ),
       isActive: true
     });
     
-    console.log('✅ [ShowMasterpiece Config] 配置项创建成功:', configItem.key);
+    routeDebug('✅ [ShowMasterpiece Config] 配置项创建成功:', configItem.key);
     
     return NextResponse.json({
       success: true,
@@ -152,7 +164,7 @@ async function createConfigItem(request: NextRequest) {
       message: '配置项创建成功'
     });
   } catch (error) {
-    console.error('❌ [ShowMasterpiece Config] 创建配置项失败:', error);
+    logRouteError('❌ [ShowMasterpiece Config] 创建配置项失败:', error);
     return NextResponse.json(
       { 
         success: false,

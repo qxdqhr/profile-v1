@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { artworksDbService } from '@/modules/showmasterpiece/masterpiecesDbService';
 import { isAuthFailure, requireAdmin } from '../../../../lib/auth';
+import { apiError, logRouteError } from '../../../../lib/response';
 
 export async function PUT(
   request: NextRequest,
@@ -27,18 +28,11 @@ export async function PUT(
     const updatedArtwork = await artworksDbService.updateArtwork(collectionId, artworkId, artworkData);
     return NextResponse.json(updatedArtwork);
   } catch (error) {
-    console.error('更新作品失败:', error);
-    // 检查是否是请求体过大的错误
+    logRouteError('更新作品失败:', error);
     if (error instanceof Error && error.message.includes('body')) {
-      return NextResponse.json(
-        { error: '请求数据太大，请压缩图片后重试' },
-        { status: 413 }
-      );
+      return apiError('请求数据太大，请压缩图片后重试', 413);
     }
-    return NextResponse.json(
-      { error: '更新作品失败' },
-      { status: 500 }
-    );
+    return apiError('更新作品失败', 500);
   }
 }
 
@@ -58,10 +52,7 @@ export async function DELETE(
     await artworksDbService.deleteArtwork(collectionId, artworkId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('删除作品失败:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : '删除作品失败' },
-      { status: 500 }
-    );
+    logRouteError('删除作品失败:', error);
+    return apiError('删除作品失败', 500);
   }
 } 

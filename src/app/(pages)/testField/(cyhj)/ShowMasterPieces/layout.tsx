@@ -1,3 +1,5 @@
+import '@/modules/showmasterpiece/sa2kit-init';
+
 export const metadata = {
   title: '葱韵环京魔法屋',
   description: '探索精美的艺术作品，感受创作的魅力',

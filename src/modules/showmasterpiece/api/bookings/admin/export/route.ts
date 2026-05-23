@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { isAuthFailure, requireAdmin } from '../../../lib/auth';
 import { bookingQueryService } from '../../../lib/bookingServices';
 import { apiError, logRouteError } from '../../../lib/response';
+import { routeDebug } from '../../../lib/routeLog';
 
 /**
  * 导出预订数据为CSV格式
@@ -42,10 +43,7 @@ async function GET(request: NextRequest) {
     const fileName = `bookings_${new Date().toISOString().split('T')[0]}.csv`;
     headers.set('Content-Disposition', `attachment; filename="${fileName}"`);
     
-    console.log('✅ 预订数据导出成功:', { 
-      format: 'csv',
-      timestamp: new Date().toISOString()
-    });
+    routeDebug('✅ 预订数据导出成功', { format: 'csv' });
 
     return new NextResponse(csvContent, {
       status: 200,

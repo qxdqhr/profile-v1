@@ -157,29 +157,12 @@ ENABLE_COMPRESSION=true
 2. **上传模式切换**：可以在传统模式和文件服务模式之间切换
 3. **上传状态提示**：显示上传进度和结果
 
-## 🔄 数据迁移
+## 🔄 历史 Base64 数据
 
-### 批量迁移现有数据
+本仓库**不再提供**画集作品批量迁移 CLI（原 `migration:artwork` / `migration:oss` / `migrate:multi-events` 已移除）。
 
-如果您有现有的Base64图片数据，可以使用迁移工具：
-
-```bash
-# 试运行迁移（查看将要迁移的数据）
-pnpm migration:artwork --dry-run
-
-# 执行实际迁移
-pnpm migration:artwork
-
-# 验证迁移结果
-pnpm migration:artwork --verify
-```
-
-### 迁移特性
-
-- **安全可靠**: 支持试运行和回滚
-- **批量处理**: 自动处理所有作品
-- **文件验证**: 确保文件完整性
-- **统计报告**: 详细的迁移统计
+- **新作品**：请通过管理端上传，走 Universal File + OSS。
+- **已有 Base64**：API 仍可只读返回；如需迁到 OSS，请在外部一次性工具或手工处理，不在 profile-v1 维护。
 
 ## 📊 性能提升
 

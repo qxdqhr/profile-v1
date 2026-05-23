@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { popupConfigService } from '@/modules/showmasterpiece/popupConfigService';
 import { isAdminUser, isAuthFailure, requireAdmin } from '../lib/auth';
 import { apiError, apiFail, handleRouteError } from '../lib/response';
+import { routeDebug } from '../lib/routeLog';
 import { validateApiAuth } from '@/lib/auth/legacy';
 type NewPopupConfig = any;
 
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest) {
       configs = await popupConfigService.getAllPopupConfigs();
     }
 
-    console.log(`✅ [API] 获取到 ${configs.length} 个弹窗配置`);
+    routeDebug(`✅ [API] 获取到 ${configs.length} 个弹窗配置`);
 
     return NextResponse.json({
       success: true,
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    console.log('➕ [API] 创建弹窗配置请求:', {
+    routeDebug('➕ [API] 创建弹窗配置请求:', {
       name: body.name,
       type: body.type,
       businessModule: body.businessModule,
@@ -93,7 +94,7 @@ export async function POST(request: NextRequest) {
 
     const config = await popupConfigService.createPopupConfig(configData);
 
-    console.log('✅ [API] 弹窗配置创建成功:', config.id);
+    routeDebug('✅ [API] 弹窗配置创建成功:', config.id);
 
     return NextResponse.json({
       success: true,

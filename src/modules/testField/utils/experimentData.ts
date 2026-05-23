@@ -175,7 +175,7 @@ export const experiments: ExperimentItem[] = [
   {
     id: "ticket-monitor",
     title: "开票信息聚合监控",
-    description: "聚合 eplus / asobistore / piapro 的开票信息，支持关键词与状态筛选并跳转官网",
+    description: "后台定时同步开票数据，飞书通知新演出与截止提醒，支持多档天数与平台配置",
     path: "/testField/ticketMonitor",
     tags: ["开票", "聚合", "票务", "动漫演出"],
     category: "utility",

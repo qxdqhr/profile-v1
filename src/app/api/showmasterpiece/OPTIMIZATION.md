@@ -1,40 +1,56 @@
 # ShowMasterpiece 模块优化计划
 
-> **状态**：profile-v1 侧 P0/P1 已迁至 [`src/modules/showmasterpiece/FIX_CHECKLIST.md`](../../../modules/showmasterpiece/FIX_CHECKLIST.md) 并落地；下文为历史记录，sa2kit 项仍在 Phase 2/3。  
-> 创建时间：2026-04-06  
-> 范围：profile-v1（API 层）+ sa2kit（业务逻辑 / UI 层）
+> **进度 SSOT**：[`src/modules/showmasterpiece/FIX_CHECKLIST.md`](../../../modules/showmasterpiece/FIX_CHECKLIST.md)  
+> 本文件保留**问题全景、优先级说明与历史记录**；任务状态以 FIX_CHECKLIST 为准。  
+> 最后同步：**2026-05-21**（P1 契约/初始化 + P2 日志）
+
+**范围**：profile-v1（API / 脚本 / 薄页面）+ sa2kit（业务逻辑 / UI）
 
 ---
 
-## 一、问题全景
+## 一、问题全景（含 2026-05-21 审计新增）
 
-### 🔴 P0 安全问题
+### 🔴 P0 — 安全（待办）
 
-| # | 问题 | 影响接口 | 状态 |
-|---|------|----------|------|
-| S1 | 管理端预订接口完全无鉴权 | `GET/DELETE /bookings/admin`, `DELETE /bookings/admin/[id]`, `PUT /bookings/admin/[id]/status`, `GET /bookings/admin/export` | ⬜ 待修 |
-| S2 | 普通预订查询接口无鉴权，携带 QQ/手机号可查全量数据 | `GET /bookings` | ⬜ 待修 |
-| S3 | 弹窗配置写操作无鉴权 | `POST/PUT/DELETE /popup-configs` | ⬜ 待修 |
-| S4 | 系统配置项 CRUD 无鉴权 | `POST/PUT/DELETE /config/items` | ⬜ 待修 |
-| S5 | `showmaster_config_permissions` 表存在但从未被 API 层使用 | 所有 `/config` 相关 | ⬜ 待修 |
-| S6 | 500 响应中有时会暴露 `error.stack` | `/bookings/admin/export`, `/admin/refresh` | ⬜ 待修 |
+| ID | 问题 | 影响 | 状态 |
+|----|------|------|------|
+| S9 | 批量预订限流 + 体校验 + 最多 50 项/次 | `POST /bookings/batch` | ✅ |
+| S10 | 创建预订 IP/凭证限流 | `POST /bookings` | ✅ |
+| S11 | 宿主 `deleteBookingWithCredentialGuard`；sa2kit Command 仍待 T6 | `bookingDelete.ts` | ✅ 宿主 |
+| S5 | `showmaster_config_permissions` 表未使用 | `/config/**` | ⏸ 产品设计 |
 
-### 🟠 P1 API 设计问题
+### 🔴 P0 — 安全（已完成）
 
-| # | 问题 | 接口 | 状态 |
-|---|------|------|------|
-| A1 | `GET /bookings/admin/refresh` 有副作用（执行 DB 重连），语义应为 POST | `/bookings/admin/refresh` | ⬜ 待修 |
-| A2 | 重复路由：`DELETE /bookings/[id]` 与 `DELETE /bookings/admin/[id]` 调用同一方法，且前者无任何鉴权 | `/bookings/[id]` DELETE | ⬜ 待修 |
-| A3 | `GET /bookings/admin` 与 `/bookings/admin/refresh` 功能重叠，多一个维护点 | 两个路由 | ⬜ 待修 |
+| ID | 问题 | 状态 |
+|----|------|------|
+| S1 | 管理端预订接口鉴权 | ✅ |
+| S2 | `GET /bookings` 须 QQ+手机 | ✅ |
+| S2b | `GET/PUT/DELETE /bookings/[id]` | ✅ |
+| S3 | 弹窗写操作与全量列表鉴权 | ✅ |
+| S4 | `config/items` CRUD 鉴权 | ✅ |
+| S6 | 500 不暴露 stack | ✅ |
+| S7/S8 | 画集等写操作 + 管理员角色 | ✅ |
+| T6-host | 用户删单 route 层凭证匹配 | ✅ |
 
-### 🟡 P2 响应格式不统一
+### 🟠 P1 — API 设计（已完成）
 
-| # | 问题 | 状态 |
-|---|------|------|
-| R1 | 部分接口用 `{ message }` 表示错误，部分用 `{ error }`，部分用 `{ success, error, details }` | ⬜ 待修 |
-| R2 | 部分接口成功响应有 `success: true`，部分没有 | ⬜ 待修 |
+| ID | 问题 | 状态 |
+|----|------|------|
+| A1 | `/admin/refresh` 改 POST | ✅ |
+| A2 | 用户删单与 admin 删单语义分离 | ✅ |
+| A3 | 合并 refresh 至 `POST /bookings/admin` | ✅ |
 
-建议统一为：
+### 🟡 P2 — 响应格式（部分完成，仍有债）
+
+| ID | 问题 | 状态 |
+|----|------|------|
+| R1 | 提供 `apiOk` / `apiFail` / `handleRouteError` | ✅ |
+| R2 | 500 无 details 外泄 | ✅ |
+| R3 | `apiData`/`apiErrorWithCode`；预订公开成功体仍裸对象；DELETE → `{ data }` | ✅ 宿主 |
+| R4 | admin 预订仍裸对象（sa2kit）；其余列表 `{ success, data }` | ✅ 约定 |
+
+建议目标契约：
+
 ```typescript
 // 成功
 { data: T }
@@ -43,137 +59,98 @@
 { error: { code: string; message: string } }
 ```
 
-### 🔵 P3 前端技术债（sa2kit）
+### 🔵 P3 — 前端（sa2kit，大部分已完成）
 
-| # | 问题 | 文件 | 状态 |
-|---|------|------|------|
-| F1 | `ArtworkViewer` 和 `ThumbnailSidebar` 被 import 但从未渲染（桌面布局遗留） | `ShowMasterPiecesPage.tsx` | ⬜ 待修 |
-| F2 | 购物车状态同时用 `CartContext` + 自定义事件总线 + `localStorage` 三套机制，复杂度冗余 | `useCart.ts`, `CartContext.tsx` | ⬜ 待修 |
-| F3 | `config/page.tsx` 是千行级 Mega Component，难以维护 | `ui/web/pages/config/page.tsx` | ⬜ 待修 |
-| F4 | 所有数据获取为手写 `useEffect + setState`，缺少统一的缓存/重试/失效机制 | 所有 hooks | ⬜ 待修 |
+| ID | 问题 | 状态 |
+|----|------|------|
+| F1 | 未使用的 `ArtworkViewer` / `ThumbnailSidebar` import | ✅ sa2kit |
+| F2 | 购物车三套状态机制 | ✅ sa2kit |
+| F3 | config Mega Component 拆分 | ✅ sa2kit |
+| F4 | 统一 SWR 等数据层 | N/A |
+| FE1 | 宿主仅薄封装，UI 深度优化依赖 sa2kit 发版 | ⏸ |
+| FE2 | config/history 经 layout 加载 init | ✅ |
 
-### ⚪ P4 架构优化
+### ⚪ P4 — 架构与性能
 
-| # | 问题 | 状态 |
-|---|------|------|
-| AR1 | 各 API 路由每次请求重复实例化服务（`createBookingQueryService(db)`） | ⬜ 待修 |
-| AR2 | `UniversalExportService` 使用实例级内存缓存，Next.js 多实例下失效 | ✅ 已修复（改用 config 对象直传） |
-| AR3 | `bookings.id` 在 Drizzle schema 中未声明 `.primaryKey()`，需与迁移文件核对 | ⬜ 待查 |
+| ID | 问题 | 状态 |
+|----|------|------|
+| AR1 | 服务模块顶层单例 | ✅ |
+| AR2 | UniversalExport 多实例缓存 | ✅ |
+| AR3 | `bookings.id` primaryKey + 迁移 0055 | ✅ |
+| INIT1 | layout 统一 `sa2kit-init` | ✅ |
+| IMG1 | 图片 Base64（暂不改动） | ⏸ |
+| IMG2 | 历史 Base64 只读 | ⏸ |
+| PERF1 | collections overview + `nocache` | ✅ |
 
----
+### 🛠 P5 — 运维脚本（已弃用）
 
-## 二、子任务分解与执行计划
+| ID | 问题 | 状态 |
+|----|------|------|
+| OPS1–OPS4 | 活动/OSS/作品批量迁移 CLI | N/A 已移除（2026-05-21） |
+| G2 | 脚本曾迁至 `scripts/`，迁移类已删 | ✅ |
 
-### Phase 1：安全加固（P0，最高优先）
+### 📝 P6 — 配置与日志
 
-#### ✅ Task S1 — 管理端预订接口加鉴权
-- [ ] `bookings/admin/route.ts` GET 加 `validateApiAuth`
-- [ ] `bookings/admin/[id]/route.ts` DELETE 加 `validateApiAuth`
-- [ ] `bookings/admin/[id]/status/route.ts` PUT 加 `validateApiAuth`
-- [ ] `bookings/admin/export/route.ts` GET 加 `validateApiAuth`
-- [ ] `bookings/admin/refresh/route.ts` GET 加 `validateApiAuth`
+| ID | 问题 | 状态 |
+|----|------|------|
+| CFG1 | `configEnvironment` 解析 environment | ✅ |
+| LOG1 | `routeDebug` 生产静默 | ✅ 全 API |
+| LOG2 | 删画集失败不泄露 message | ✅ |
+| LOG3 | GET config 不打印全文 | ✅ |
+| API1 | categories/tags 移除无用 searchParams | ✅ |
+| DOC1 | 双文档状态一致（本次已同步） | ✅ |
 
-#### ✅ Task S2 — 普通预订查询加鉴权
-- [ ] `bookings/route.ts` GET 加 `validateApiAuth`（管理端查询）
+### sa2kit 包内（Phase 2）
 
-#### ✅ Task S3 — 弹窗配置写操作加鉴权
-- [ ] `popup-configs/route.ts` POST 加 `validateApiAuth`
-- [ ] `popup-configs/[id]/route.ts` PUT / DELETE 加 `validateApiAuth`
+详见 [`SA2KIT_PLAN.md`](../../../modules/showmasterpiece/SA2KIT_PLAN.md)、[`SA2KIT_PUBLISH_CHECKLIST.md`](../../../modules/showmasterpiece/SA2KIT_PUBLISH_CHECKLIST.md)。
 
-#### ✅ Task S4 — 系统配置项 CRUD 加鉴权
-- [ ] `config/items/route.ts` POST 加 `validateApiAuth`
-- [ ] `config/items/[id]/route.ts` PUT / DELETE 加 `validateApiAuth`
-
-#### ✅ Task S6 — 移除 stack 信息泄露
-- [ ] 所有 500 响应中移除 `error.stack` / `error.message` 的原始暴露
-
----
-
-### Phase 2：API 设计修正（P1）
-
-#### ✅ Task A1 — GET /admin/refresh 改为 POST
-- [ ] 将 `bookings/admin/refresh/route.ts` 从 `GET` 改为 `POST`
-- [ ] 同步修改 sa2kit `BookingAdminPanel.tsx` 中的前端调用方式
-
-#### ✅ Task A2 — 删除重复路由
-- [ ] 删除 `bookings/[id]/route.ts` 中的 `DELETE` handler（或改为用户自删预订，加鉴权后仅允许删自己的）
-- [ ] 保留 `bookings/admin/[id]/route.ts` 的 DELETE（加鉴权后使用）
-
-#### ✅ Task A3 — 合并 /admin 与 /admin/refresh
-- [x] 将 POST 合并至主 admin 路由（GET=普通查询，POST=强制刷新）
-- [x] 删除 `/bookings/admin/refresh` 路由文件
-- [x] 同步更新 sa2kit bookingAdminService.ts 调用路径
+| ID | 问题 | 状态 |
+|----|------|------|
+| T6-sa2kit-cmd | `deleteBooking(id, options?)` | 🔄 代码在 sa2kit 仓，**npm 待发 1.6.115** |
+| T1-host | profile-v1 类型补丁 | ✅ |
+| T1-sa2kit / T4 | 导出收紧、`masterpiecesDbService` 去全局 db | ⬜ |
+| T5 | migration 子包 | N/A |
+| T2/T3/T6-web | 查询精确匹配、前端删单凭证 | ✅ |
 
 ---
 
-### Phase 3：响应格式统一（P2）
+## 二、模块架构速览
 
-#### ✅ Task R1+R2 — 统一错误响应格式
-- [x] 创建 `src/lib/api-response.ts` 通用响应工具函数
-- [x] 批量将所有 booking 路由错误响应从 `{ message }` 统一为 `{ error }`
-
----
-
-### Phase 4：前端清理（P3，在 sa2kit 中进行）
-
-#### ✅ Task F1 — 移除未使用 import
-- [ ] `ShowMasterPiecesPage.tsx` 移除 `ArtworkViewer` / `ThumbnailSidebar` import
-- [ ] 构建 sa2kit 并发布
-
-#### ✅ Task F2 — 统一购物车状态（较大重构，单独评估）
-- [x] 确认所有 UI 组件已使用 useCartContext（无 useCart 直接依赖）
-- [x] 移除 CartContext 中冗余的 cartUpdateEvents 事件总线监听
-- [x] 修复 useCartContext 的 require 模式为标准 ES import
-
-#### ✅ Task F3 — 拆分 config/page.tsx（较大重构）
-- [x] 拆分为 GeneralConfigTab / HomeTabsTab / CollectionsTab / ArtworksTab 4个组件
-- [x] 主文件从 1445 行缩减至 547 行（-62%）
-
-#### ✅ Task F4 — 统一数据获取（较大重构）
-- [N/A] 当前 useMasterpiecesConfig 等 hooks 内置 useEffect 数据获取模式较成熟；
-  引入 SWR 收益有限，暂不处理（可在下次大重构时评估）
+| 层级 | 路径 | 说明 |
+|------|------|------|
+| 页面 | `src/app/(pages)/testField/(cyhj)/ShowMasterPieces/` | re-export sa2kit 页面 |
+| API 实现 | `src/modules/showmasterpiece/api/` | 鉴权、响应、转发服务 |
+| 对外 URL | `src/app/api/showmasterpiece/**` | 薄 re-export |
+| 初始化 | `src/modules/showmasterpiece/sa2kit-init.ts` | 文件 URL global 解析 |
+| 业务/UI | `sa2kit@^1.6.114` | 画集、预订、管理端 |
 
 ---
 
-### Phase 5：架构清理（P4）
+## 三、历史执行记录（2026-04-06）
 
-#### ✅ Task AR1 — 服务实例复用
-- [x] 核查确认：所有路由文件均已在模块顶层初始化服务（const service = createXxxService(db)），无需修改
-
-#### ✅ Task AR3 — 核查 bookings.id 主键
-- [x] 确认 Drizzle schema 缺少 .primaryKey()，且数据库快照显示 primaryKey: false
-- [x] 在 sa2kit schema 中补充 id: serial('id').primaryKey()
-- [x] 在 profile-v1 中创建迁移 0055_bookings_add_primary_key.sql 修复数据库
+- ✅ 管理端预订、弹窗、config items 鉴权；移除 stack 泄露
+- ✅ refresh → POST；合并 admin 路由
+- ✅ booking 错误响应统一为 `{ error }`（部分路由，全量见 R3）
+- ✅ sa2kit：F1–F3 前端清理；AR3 主键迁移
+- ✅ AR2 universalExport 缓存修复
 
 ---
 
-## 三、进度跟踪
+## 四、2026-05-21 审计摘要
 
-| Phase | 任务 | 完成情况 |
-|-------|------|----------|
-| P0 安全 | S1 管理端预订鉴权（admin GET/DELETE/PUT/export） | ✅ 2026-04-06 |
-| P0 安全 | S2 普通预订查询鉴权 | ⬜ |
-| P0 安全 | S3 弹窗配置写操作鉴权 | ✅ 2026-04-06 |
-| P0 安全 | S4 系统配置项鉴权 | ✅ 2026-04-06 |
-| P0 安全 | S6 移除 export 接口 stack 泄露 | ✅ 2026-04-06 |
-| P1 API | A1 refresh 改 POST + 加鉴权 | ✅ 2026-04-06 |
-| P1 API | A2 删除重复 DELETE /bookings/[id] 路由 | ✅ 2026-04-06 |
-| P1 API | A3 合并 refresh 路由 | ✅ 2026-04-06 |
-| P2 规范 | R1+R2 统一响应格式 | ✅ 2026-04-06 |
-| P3 前端 | F1 移除 ArtworkViewer/ThumbnailSidebar 死代码 | ✅ 2026-04-06 (sa2kit) |
-| P3 前端 | F2 购物车状态统一 | ✅ 2026-04-06 (sa2kit) |
-| P3 前端 | F3 拆分 Mega Component | ✅ 2026-04-06 (sa2kit) |
-| P3 前端 | F4 统一数据获取 | N/A - 暂不引入 SWR |
-| P4 架构 | AR1 服务实例复用 | ✅ 已核查，模块顶层初始化，无需改动 |
-| P4 架构 | AR3 核查主键声明 | ✅ 2026-04-06 |
+**已完成且稳定**：Phase 0/1 安全与 API 分层、预订单例、图片 global 解析器、用户查单 QQ+手机、管理端 `requireAdmin`。
 
-> **已完成（全部）：**
-> - ✅ AR2：universalExport 缓存问题已修复（2026-04-06）
-> - ✅ S1/S3/S4/S6：管理端接口全量加鉴权，移除 stack 泄露（2026-04-06）
-> - ✅ A1/A2：refresh 改为 POST，删除重复删除路由（2026-04-06）
-> - ✅ A3：合并 /admin/refresh 到主 admin 路由（2026-04-06）
-> - ✅ R1+R2：统一所有 booking 路由错误响应为 { error }（2026-04-06）
-> - ✅ F1-F3：移除死代码 import，统一购物车 Context，拆分 Mega Component（2026-04-06）
-> - ✅ AR1：服务实例已在模块顶层初始化，无需改动（2026-04-06）
-> - ✅ AR3：补充 bookings.id primaryKey 声明 + 创建修复迁移（2026-04-06）
-> - ✅ F1：移除 ShowMasterPiecesPage 中从未渲染的组件 import（2026-04-06）
+**仍需处理（已写入 FIX_CHECKLIST Phase 4–8）**：
+
+1. ~~公开写接口防刷（S9、S10）~~ ✅
+2. ~~删单 Command 凭证（T6-sa2kit-cmd）~~ ✅ 1.6.115
+3. ~~迁移脚本~~ 已按产品决定移除（OPS N/A）
+4. ~~响应格式与 config 环境（R3、R4、CFG1）~~ ✅ 宿主侧
+5. ~~`sa2kit-init`、主要路由日志（INIT1、LOG*）~~ ✅；图片 Base64（IMG*）仍待
+6. 类型补丁（T1）；migration 子包不再接入（T5 N/A）
+
+---
+
+## 五、验证
+
+见 FIX_CHECKLIST「验证命令」一节。

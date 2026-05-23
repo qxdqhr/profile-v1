@@ -20,6 +20,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { isAuthFailure, requireAdmin } from '../lib/auth';
 import { apiError, logRouteError } from '../lib/response';
+import { routeDebug } from '../lib/routeLog';
 import { asc, eq } from 'drizzle-orm';
 import { comicUniverseCategories, comicUniverseConfigs } from 'sa2kit/showmasterpiece/server';
 
@@ -118,16 +119,16 @@ export async function GET() {
         .values(buildDefaultConfig(categories))
         .returning();
       const config = toConfigResponse(created[0], categories);
-      console.log('获取配置成功:', config);
+      routeDebug('获取配置成功');
       return NextResponse.json(config);
     }
 
     const config = toConfigResponse(existing[0], categories);
-    console.log('获取配置成功:', config);
+    routeDebug('获取配置成功');
     return NextResponse.json(config);
   } catch (error) {
-    console.error('获取配置失败:', error);
-    return NextResponse.json({ error: '获取配置失败' }, { status: 500 });
+    logRouteError('获取配置失败:', error);
+    return apiError('获取配置失败', 500);
   }
 }
 
@@ -257,7 +258,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(toConfigResponse(updated[0], await loadCategories()));
   } catch (error) {
-    console.error('更新配置失败:', error);
+    logRouteError('更新配置失败:', error);
     return NextResponse.json({ error: '更新配置失败' }, { status: 500 });
   }
 }
@@ -278,7 +279,7 @@ export async function DELETE(request: NextRequest) {
       .returning();
     return NextResponse.json(toConfigResponse(created[0], categories));
   } catch (error) {
-    console.error('重置配置失败:', error);
+    logRouteError('重置配置失败:', error);
     return NextResponse.json({ error: '重置配置失败' }, { status: 500 });
   }
 }

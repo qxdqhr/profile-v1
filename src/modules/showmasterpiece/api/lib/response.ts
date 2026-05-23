@@ -1,8 +1,33 @@
 import { NextResponse } from 'next/server';
 
-/** 简单错误（部分旧接口仅 `{ error }`） */
+/**
+ * 目标契约（管理端 / 新接口）：
+ * - 成功：`{ data: T }`
+ * - 错误：`{ error: string }` 或 `{ error: { code, message } }`
+ *
+ * 预订公开写读（sa2kit 1.6.114）仍依赖裸对象或 string `error`，勿改成功体。
+ */
+
+/** 简单错误（sa2kit parseErrorMessage 识别 string `error`） */
 export function apiError(message: string, status: number = 500) {
   return NextResponse.json({ error: message }, { status });
+}
+
+/** 目标成功体 `{ data }` */
+export function apiData<T>(data: T, init?: ResponseInit) {
+  return NextResponse.json({ data }, init);
+}
+
+/** 带 code 的结构化错误（同时保留 string `error` 供旧客户端） */
+export function apiErrorWithCode(
+  code: string,
+  message: string,
+  status: number = 500,
+) {
+  return NextResponse.json(
+    { error: message, errorDetail: { code, message } },
+    { status },
+  );
 }
 
 /** 与 sa2kit 管理端兼容：`{ success, error, ... }`，500 不附带 details */

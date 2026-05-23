@@ -1,16 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { tagsDbService } from '@/modules/showmasterpiece/masterpiecesDbService';
 import '@/modules/showmasterpiece/sa2kit-init';
 import { apiError, logRouteError } from '../lib/response';
+import { routeDebug } from '../lib/routeLog';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    console.log('📋 [标签API] 获取标签列表');
+    routeDebug('📋 [标签API] 获取标签列表');
 
     const tags = await tagsDbService.getTags();
     
-    console.log(`✅ [标签API] 获取到 ${tags.length} 个标签`);
+    routeDebug(`✅ [标签API] 获取到 ${tags.length} 个标签`);
     
     return NextResponse.json({
       success: true,

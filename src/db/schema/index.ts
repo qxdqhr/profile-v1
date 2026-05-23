@@ -34,6 +34,9 @@ export * from 'sa2kit/festivalCard/server';
 // 导出配置管理相关的表
 export * from '@/modules/configManager/db/schema';
 
+// 导出售票监控相关的表
+export * from '@/modules/ticketMonitor/db/schema';
+
 // 导出购买游戏相关的表
 export * from '@/modules/purchaseGame/db/schema';
 

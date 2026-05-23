@@ -3,14 +3,15 @@ import { categoriesDbService } from '@/modules/showmasterpiece/masterpiecesDbSer
 import { isAuthFailure, requireAdmin } from '../lib/auth';
 import { logRouteError, apiError } from '../lib/response';
 
-export async function GET(request: NextRequest) {
+import { routeDebug } from '../lib/routeLog';
+
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    console.log('📋 [分类API] 获取分类列表');
+    routeDebug('📋 [分类API] 获取分类列表');
 
     const categories = await categoriesDbService.getCategories();
     
-    console.log(`✅ [分类API] 获取到 ${categories.length} 个分类`);
+    routeDebug(`✅ [分类API] 获取到 ${categories.length} 个分类`);
     
     return NextResponse.json({
       success: true,
@@ -18,11 +19,8 @@ export async function GET(request: NextRequest) {
       total: categories.length
     });
   } catch (error) {
-    console.error('获取分类失败:', error);
-    return NextResponse.json(
-      { error: '获取分类失败' },
-      { status: 500 }
-    );
+    logRouteError('获取分类失败:', error);
+    return apiError('获取分类失败', 500);
   }
 } 
 
@@ -46,10 +44,7 @@ export async function POST(request: NextRequest) {
     await categoriesDbService.createCategory(name, description);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('创建分类失败:', error);
-    return NextResponse.json(
-      { error: '创建分类失败' },
-      { status: 500 }
-    );
+    logRouteError('创建分类失败:', error);
+    return apiError('创建分类失败', 500);
   }
 }

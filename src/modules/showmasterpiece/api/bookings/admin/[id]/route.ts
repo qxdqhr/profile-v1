@@ -10,7 +10,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { BookingCommandError } from 'sa2kit/showmasterpiece/server';
 import { isAuthFailure, requireAdmin } from '../../../lib/auth';
 import { bookingCommandService } from '../../../lib/bookingServices';
-import { apiError, logRouteError } from '../../../lib/response';
+import { apiData, apiError, logRouteError } from '../../../lib/response';
+import { routeDebug } from '../../../lib/routeLog';
 
 /**
  * 删除预订
@@ -37,14 +38,11 @@ async function DELETE(
       );
     }
 
-    await bookingCommandService.deleteBooking(id);
+    await bookingCommandService.deleteBooking(id, { asAdmin: true });
 
-    console.log('✅ 预订删除成功:', { bookingId: id });
+    routeDebug('✅ 预订删除成功', { bookingId: id });
 
-    return NextResponse.json({
-      message: '预订删除成功',
-      bookingId: id
-    });
+    return apiData({ message: '预订删除成功', bookingId: id });
 
   } catch (error) {
     if (error instanceof BookingCommandError) {

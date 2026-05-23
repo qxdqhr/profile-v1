@@ -6210,7 +6210,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 20.17.12
+      '@types/node': 20.19.41
 
   '@types/long@4.0.2': {}
 
@@ -6229,7 +6229,6 @@ snapshots:
   '@types/node@20.19.41':
     dependencies:
       undici-types: 6.21.0
-    optional: true
 
   '@types/node@22.15.17':
     dependencies:
@@ -6275,7 +6274,7 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 20.17.12
+      '@types/node': 20.19.41
 
   '@types/stats.js@0.17.4': {}
 
@@ -8946,7 +8945,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.1
-      '@types/node': 20.17.12
+      '@types/node': 20.19.41
       long: 5.3.2
 
   proxy-agent@6.5.0:

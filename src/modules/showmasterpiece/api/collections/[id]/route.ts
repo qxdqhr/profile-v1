@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { collectionsDbService } from '@/modules/showmasterpiece/masterpiecesDbService';
 import { isAuthFailure, requireAdmin } from '../../lib/auth';
+import { apiError, logRouteError } from '../../lib/response';
 
 export async function PUT(
   request: NextRequest,
@@ -26,7 +27,7 @@ export async function PUT(
     const updatedCollection = await collectionsDbService.updateCollection(collectionId, collectionData);
     return NextResponse.json(updatedCollection);
   } catch (error) {
-    console.error('更新画集失败:', error);
+    logRouteError('更新画集失败:', error);
     // 检查是否是请求体过大的错误
     if (error instanceof Error && error.message.includes('body')) {
       return NextResponse.json(
@@ -56,10 +57,7 @@ export async function DELETE(
     await collectionsDbService.deleteCollection(collectionId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('删除画集失败:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : '删除画集失败' },
-      { status: 500 }
-    );
+    logRouteError('删除画集失败:', error);
+    return apiError('删除画集失败', 500);
   }
 } 

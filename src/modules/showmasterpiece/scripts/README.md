@@ -1,11 +1,7 @@
 # ShowMasterpiece 运维脚本
 
-历史脚本曾放在 `src/modules/showmasterpiece/migration/`，已移除。
+本目录曾存放画集 OSS / 多活动数据迁移脚本，**已移除**。
 
-| package.json 命令 | 说明 |
-|-------------------|------|
-| `migration:artwork` | 见 `run-artwork-migration.ts`（依赖 sa2kit 是否导出 migration） |
-| `migration:oss*` | 见 `migrate-to-oss.ts` |
-| `migrate:multi-events` | 见 `migrate-to-multi-events.ts` |
+当前系统**不再支持**活动迁移与批量数据迁移 CLI；新环境请通过管理端与 Universal File 上传维护画集与作品。
 
-若 `sa2kit/showmasterpiece/migration` 在当前安装版本无构建产物，请在 [sa2kit](https://github.com) 源码仓执行迁移或升级 `sa2kit` 后重试。
+数据库结构变更仍使用项目根目录的 Drizzle 命令（`devdb:migrate` / `prodb:migrate`），与画集业务数据迁移无关。

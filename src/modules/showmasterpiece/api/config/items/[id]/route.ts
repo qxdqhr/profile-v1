@@ -7,7 +7,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { showmasterConfigService } from '@/modules/showmasterpiece/configService';
 import { isAuthFailure, requireAdmin } from '../../../lib/auth';
-import { handleRouteError } from '../../../lib/response';
+import { handleRouteError, logRouteError } from '../../../lib/response';
+import { routeDebug } from '../../../lib/routeLog';
 
 // 获取单个配置项
 export async function GET(
@@ -20,7 +21,7 @@ export async function GET(
   try {
     const { id } = await params;
     
-    console.log('🎨 [ShowMasterpiece Config] 获取配置项:', id);
+    routeDebug('🎨 [ShowMasterpiece Config] 获取配置项:', id);
     
     const configItem = await showmasterConfigService.getConfigItemById(id);
     
@@ -60,7 +61,7 @@ export async function PUT(
     const body = await request.json();
     const { value, environment } = body;
     
-    console.log('🎨 [ShowMasterpiece Config] 更新配置项:', id, '环境:', environment);
+    routeDebug('🎨 [ShowMasterpiece Config] 更新配置项:', { id, environment });
     
     // 获取现有配置项
     const existingItem = await showmasterConfigService.getConfigItemById(id);
@@ -100,7 +101,7 @@ export async function PUT(
       value: value
     }, 'api-user');
     
-    console.log('✅ [ShowMasterpiece Config] 配置项更新成功:', updatedItem.key);
+    routeDebug('✅ [ShowMasterpiece Config] 配置项更新成功:', updatedItem.key);
     
     return NextResponse.json({
       success: true,
@@ -108,7 +109,7 @@ export async function PUT(
       message: '配置项更新成功'
     });
   } catch (error) {
-    console.error('❌ [ShowMasterpiece Config] 更新配置项失败:', error);
+    logRouteError('❌ [ShowMasterpiece Config] 更新配置项失败:', error);
     return NextResponse.json(
       { 
         success: false,
@@ -130,7 +131,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     
-    console.log('🎨 [ShowMasterpiece Config] 删除配置项:', id);
+    routeDebug('🎨 [ShowMasterpiece Config] 删除配置项:', id);
     
     // 检查配置项是否存在
     const existingItem = await showmasterConfigService.getConfigItemById(id);
@@ -157,14 +158,14 @@ export async function DELETE(
     
     await showmasterConfigService.deleteConfigItem(id, 'api-user');
     
-    console.log('✅ [ShowMasterpiece Config] 配置项删除成功:', existingItem.key);
+    routeDebug('✅ [ShowMasterpiece Config] 配置项删除成功:', existingItem.key);
     
     return NextResponse.json({
       success: true,
       message: '配置项删除成功'
     });
   } catch (error) {
-    console.error('❌ [ShowMasterpiece Config] 删除配置项失败:', error);
+    logRouteError('❌ [ShowMasterpiece Config] 删除配置项失败:', error);
     return NextResponse.json(
       { 
         success: false,

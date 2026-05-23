@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { artworksDbService, collectionsDbService } from '@/modules/showmasterpiece/masterpiecesDbService';
 import { isAuthFailure, requireAdmin } from '../../../lib/auth';
+import { apiError, logRouteError } from '../../../lib/response';
+import { routeDebug } from '../../../lib/routeLog';
 
 export async function POST(
   request: NextRequest,
@@ -8,107 +10,49 @@ export async function POST(
 ) {
   try {
     const resolvedParams = await params;
-    console.log('🎨 开始创建作品，画集ID:', resolvedParams.id);
-
     const auth = await requireAdmin(request);
     if (isAuthFailure(auth)) return auth;
-    console.log('✅ 管理员授权通过:', auth.id);
 
-    // 检查请求体大小
     const contentLength = request.headers.get('content-length');
-    if (contentLength && parseInt(contentLength) > 10 * 1024 * 1024) { // 10MB 限制
-      console.log('❌ 请求体过大:', contentLength);
-      return NextResponse.json(
-        { error: '请求数据太大，请压缩图片后重试' },
-        { status: 413 }
-      );
+    if (contentLength && parseInt(contentLength, 10) > 10 * 1024 * 1024) {
+      return apiError('请求数据太大，请压缩图片后重试', 413);
     }
-    console.log('✅ 请求体大小检查通过:', contentLength, 'bytes');
 
-    const collectionId = parseInt(resolvedParams.id);
-    console.log('📊 画集ID解析:', collectionId);
-    
-    // 🔍 新增：检查画集是否存在
-    console.log('🔍 检查画集是否存在...');
-    try {
-      const collections = await collectionsDbService.getAllCollections(false); // 强制从数据库查询
-      const targetCollection = collections.find((c: any) => c.id === collectionId);
-      
-      if (!targetCollection) {
-        console.error('❌ 画集不存在:', {
-          requestedId: collectionId,
-          existingIds: collections.map((c: any) => c.id)
-        });
-        return NextResponse.json(
-          { error: `画集不存在 (ID: ${collectionId})，请刷新页面后重试` },
-          { status: 404 }
-        );
-      }
-      
-      console.log('✅ 画集存在验证通过:', {
-        id: targetCollection.id,
-        title: targetCollection.title,
-        artworkCount: targetCollection.pages.length
-      });
-    } catch (checkError) {
-      console.error('❌ 检查画集存在性时发生错误:', checkError);
-      return NextResponse.json(
-        { error: '检查画集状态失败，请稍后重试' },
-        { status: 500 }
+    const collectionId = parseInt(resolvedParams.id, 10);
+    routeDebug('🎨 创建作品', { collectionId });
+
+    const collections = await collectionsDbService.getAllCollections(false);
+    const targetCollection = collections.find(
+      (c: { id: number }) => c.id === collectionId,
+    );
+    if (!targetCollection) {
+      return apiError(
+        `画集不存在 (ID: ${collectionId})，请刷新页面后重试`,
+        404,
       );
     }
-    
+
     const artworkData = await request.json();
-    console.log('📄 作品数据接收:', {
-      title: artworkData.title,
-              number: artworkData.number,
-      fileId: artworkData.fileId || 'null',
-      description: artworkData.description?.substring(0, 50) + '...'
-    });
-    
-    // 强制使用通用文件服务，不再支持Base64图片
     if (!artworkData.fileId) {
-      console.error('❌ 缺少fileId，必须使用通用文件服务上传图片');
-      return NextResponse.json(
-        { error: '必须使用文件服务上传图片，不支持Base64图片' },
-        { status: 400 }
-      );
+      return apiError('必须使用文件服务上传图片，不支持Base64图片', 400);
     }
-    
-    console.log('💾 开始保存作品到数据库...');
-    const artwork = await artworksDbService.addArtworkToCollection(collectionId, artworkData);
-    
-    console.log('✅ 作品保存成功:', {
-      id: artwork.id,
-      title: artwork.title,
-              number: artwork.number
-    });
-    
+
+    const artwork = await artworksDbService.addArtworkToCollection(
+      collectionId,
+      artworkData,
+    );
+    routeDebug('✅ 作品保存成功', { id: artwork.id, collectionId });
+
     return NextResponse.json(artwork);
   } catch (error) {
-    console.error('❌ 添加作品失败:', error);
-    console.error('错误详情:', error instanceof Error ? error.message : error);
-    
-    // 检查是否是外键约束错误
+    logRouteError('添加作品失败:', error);
     if (error instanceof Error && error.message.includes('foreign key constraint')) {
-      console.error('🚨 外键约束违反 - 画集可能已被删除');
-      return NextResponse.json(
-        { error: '画集不存在或已被删除，请刷新页面后重试' },
-        { status: 409 }
-      );
+      return apiError('画集不存在或已被删除，请刷新页面后重试', 409);
     }
-    
-    // 检查是否是请求体过大的错误
     if (error instanceof Error && error.message.includes('body')) {
-      return NextResponse.json(
-        { error: '请求数据太大，请压缩图片后重试' },
-        { status: 413 }
-      );
+      return apiError('请求数据太大，请压缩图片后重试', 413);
     }
-    return NextResponse.json(
-      { error: '添加作品失败' },
-      { status: 500 }
-    );
+    return apiError('添加作品失败', 500);
   }
 }
 
@@ -200,7 +144,7 @@ export async function PATCH(
     );
     
   } catch (error) {
-    console.error('作品排序操作失败:', error);
+    logRouteError('作品排序操作失败:', error);
     
     // 根据错误类型返回适当的状态码
     const errorMessage = error instanceof Error ? error.message : '操作失败';
@@ -250,13 +194,9 @@ export async function GET(
       );
     }
 
-    console.log('📋 [API] 获取作品列表:', { collectionId });
+    routeDebug('📋 [API] 获取作品列表', { collectionId });
     const artworks = await artworksDbService.getArtworksByCollection(collectionId);
-    console.log('📋 [API] 作品列表获取成功:', { 
-      collectionId, 
-      count: artworks.length,
-      orders: artworks.map((a: any) => ({ id: a.id, pageOrder: a.pageOrder }))
-    });
+    routeDebug('📋 [API] 作品列表获取成功', { collectionId, count: artworks.length });
     
     // 设置不缓存的响应头，确保总是返回最新数据
     const response = NextResponse.json(artworks);
@@ -265,10 +205,7 @@ export async function GET(
     response.headers.set('Expires', '0');
     return response;
   } catch (error) {
-    console.error('获取作品列表失败:', error);
-    return NextResponse.json(
-      { error: '获取作品列表失败' },
-      { status: 500 }
-    );
+    logRouteError('获取作品列表失败:', error);
+    return apiError('获取作品列表失败', 500);
   }
 } 

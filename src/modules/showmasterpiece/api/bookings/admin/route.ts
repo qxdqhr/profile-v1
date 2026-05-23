@@ -13,6 +13,7 @@ import type { BookingStatus } from 'sa2kit/showmasterpiece';
 import { isAuthFailure, requireAdmin } from '../../lib/auth';
 import { bookingQueryService } from '../../lib/bookingServices';
 import { handleRouteError } from '../../lib/response';
+import { routeDebug } from '../../lib/routeLog';
 
 /** 解析通用查询参数 */
 function parseSearchParams(request: NextRequest) {
@@ -72,12 +73,12 @@ async function POST(request: NextRequest) {
   if (isAuthFailure(auth)) return auth;
 
   try {
-    console.log('🔄 强制刷新预订数据 - 开始执行...');
+    routeDebug('🔄 强制刷新预订数据 - 开始执行...');
 
     const { qqNumber, phoneNumber, status } = parseSearchParams(request);
 
     const connectionStatus = await getDatabaseConnectionStatus();
-    console.log('数据库连接状态:', connectionStatus);
+    routeDebug('数据库连接状态:', connectionStatus);
 
     await forceRefreshDatabaseConnection();
 
@@ -88,7 +89,7 @@ async function POST(request: NextRequest) {
       applyFiltersToStats: false,
     });
 
-    console.log('🔄 强制刷新完成:', { bookingsCount: result.bookings.length });
+    routeDebug('🔄 强制刷新完成:', { bookingsCount: result.bookings.length });
 
     const response = NextResponse.json({
       bookings: result.bookings,

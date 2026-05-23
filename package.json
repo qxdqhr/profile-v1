@@ -27,17 +27,12 @@
     "prodb:queryusers": "dotenv -e .env.production -- npx tsx scripts/query-all-users.ts",
     "devdb:migrate:festivalcard": "dotenv -e .env.development -- npx tsx scripts/migrate-festival-card.ts",
     "prodb:migrate:festivalcard": "dotenv -e .env.production -- npx tsx scripts/migrate-festival-card.ts",
-    "migration:artwork": "dotenv -e .env.development -- npx tsx src/modules/showmasterpiece/scripts/run-artwork-migration.ts",
-    "migration:oss": "dotenv -e .env.development -- npx tsx src/modules/showmasterpiece/scripts/migrate-to-oss.ts",
-    "migration:oss:dry": "dotenv -e .env.development -- npx tsx src/modules/showmasterpiece/scripts/migrate-to-oss.ts --dry-run",
-    "migration:oss:verify": "dotenv -e .env.development -- npx tsx src/modules/showmasterpiece/scripts/migrate-to-oss.ts --verify",
-    "migrate:multi-events": "dotenv -e .env.development -- npx tsx src/modules/showmasterpiece/scripts/migrate-to-multi-events.ts",
-    "migrate:multi-events:prod": "dotenv -e .env.production -- npx tsx src/modules/showmasterpiece/scripts/migrate-to-multi-events.ts",
     "test:oss": "node scripts/test-oss-config.js",
     "test:upload": "dotenv -e .env.development -- npx tsx scripts/test-upload.ts",
     "test:skill-manager:validation": "tsx scripts/skill-manager-validation-test.ts",
     "fix:storage-provider": "dotenv -e .env.development -- npx tsx scripts/fix-default-storage-provider.ts",
-    "fix:storage-provider:prod": "dotenv -e .env.production -- npx tsx scripts/fix-default-storage-provider.ts"
+    "fix:storage-provider:prod": "dotenv -e .env.production -- npx tsx scripts/fix-default-storage-provider.ts",
+    "ticket-monitor:sync": "dotenv -e .env.development -- tsx src/modules/ticketMonitor/scripts/run-sync.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

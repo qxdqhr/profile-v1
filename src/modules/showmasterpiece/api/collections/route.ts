@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { collectionsDbService } from '@/modules/showmasterpiece/masterpiecesDbService';
 import { validateApiAuth } from '@/lib/auth/legacy';
 import { isAuthFailure, requireAdmin } from '../lib/auth';
-import { handleRouteError } from '../lib/response';
+import { apiError, handleRouteError, logRouteError } from '../lib/response';
+import { applyCollectionsCacheHeaders } from '../lib/collectionCache';
+import { routeDebug } from '../lib/routeLog';
 import '@/modules/showmasterpiece/sa2kit-init';
 
 /**
@@ -23,14 +25,14 @@ export async function GET(request: NextRequest) {
   try {
     // 尝试验证用户权限，但不强制要求
     const user = await validateApiAuth(request);
-    console.log('🔐 [collections] 用户认证状态:', user ? '已登录' : '未登录');
+    routeDebug('🔐 [collections] 用户认证状态:', user ? '已登录' : '未登录');
 
     const searchParams = request.nextUrl.searchParams;
     const overview = searchParams.get('overview') === 'true';
     const nocache = searchParams.get('nocache') === 'true'; // 检查是否强制不使用缓存
     const includeImages = searchParams.get('includeImages') === 'true'; // 检查是否包含图片数据
     
-    console.log('📋 [collections] 获取画集列表参数:', { overview, nocache, includeImages });
+    routeDebug('📋 [collections] 获取画集列表参数:', { overview, nocache, includeImages });
     
     // 如果请求overview，返回不包含作品详情的快速响应
     // 这种模式适用于首页展示、列表页等场景，大幅提升加载速度
@@ -43,8 +45,7 @@ export async function GET(request: NextRequest) {
         data: collectionsOverview,
         total: collectionsOverview.length
       });
-      response.headers.set('Cache-Control', 'public, max-age=120, stale-while-revalidate=300');
-      return response;
+      return applyCollectionsCacheHeaders(response, { overview: true, nocache });
     }
     
     // 完整的画集数据（包含所有作品）
@@ -57,12 +58,7 @@ export async function GET(request: NextRequest) {
       data: collections,
       total: collections.length
     });
-    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    response.headers.set('Pragma', 'no-cache');
-    response.headers.set('Expires', '0');
-    response.headers.set('Surrogate-Control', 'no-store');
-    
-    return response;
+    return applyCollectionsCacheHeaders(response, { overview: false, nocache });
   } catch (error) {
     return handleRouteError('获取画集列表失败:', error, '获取画集列表失败');
   }
@@ -104,18 +100,11 @@ export async function POST(request: NextRequest) {
     const newCollection = await collectionsDbService.createCollection(collectionData);
     return NextResponse.json(newCollection);
   } catch (error) {
-    console.error('创建画集失败:', error);
-    // 检查是否是请求体过大的错误
+    logRouteError('创建画集失败:', error);
     if (error instanceof Error && error.message.includes('body')) {
-      return NextResponse.json(
-        { error: '请求数据太大，请压缩图片后重试' },
-        { status: 413 }
-      );
+      return apiError('请求数据太大，请压缩图片后重试', 413);
     }
-    return NextResponse.json(
-      { error: '创建画集失败' },
-      { status: 500 }
-    );
+    return apiError('创建画集失败', 500);
   }
 }
 
@@ -220,9 +209,7 @@ export async function PATCH(request: NextRequest) {
     );
     
   } catch (error) {
-    console.error('画集排序操作失败:', error);
-    
-    // 根据错误类型返回适当的状态码和错误信息
+    logRouteError('画集排序操作失败:', error);
     const errorMessage = error instanceof Error ? error.message : '操作失败';
     
     // 检查是否是边界条件错误（已在最前/最后位置）

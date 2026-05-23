@@ -11,8 +11,13 @@ import {
   bookingCommandService,
   bookingQueryService,
 } from '../lib/bookingServices';
+import { enforceBookingWriteRateLimit } from '../lib/bookingRateLimit';
 import { apiError, logRouteError } from '../lib/response';
 import { validateApiAuth } from '@/lib/auth/legacy';
+
+function credentialKey(qqNumber: string, phoneNumber: string): string {
+  return `${qqNumber}:${phoneNumber}`;
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -48,8 +53,22 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const ipLimited = enforceBookingWriteRateLimit(request, 'create');
+  if (ipLimited) return ipLimited;
+
   try {
     const body: CreateBookingRequest = await request.json();
+    const qq = String(body?.qqNumber ?? '').trim();
+    const phone = String(body?.phoneNumber ?? '').trim();
+    if (qq && phone) {
+      const credLimited = enforceBookingWriteRateLimit(
+        request,
+        'create',
+        credentialKey(qq, phone),
+      );
+      if (credLimited) return credLimited;
+    }
+
     const result = await bookingCommandService.createBooking(body);
     return NextResponse.json(result, { status: 201 });
   } catch (error) {

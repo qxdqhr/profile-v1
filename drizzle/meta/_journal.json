@@ -393,6 +393,13 @@
       "when": 1777188249881,
       "tag": "0055_organic_doctor_faustus",
       "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1779515444254,
+      "tag": "0056_heavy_serpent_society",
+      "breakpoints": true
     }
   ]
 }
