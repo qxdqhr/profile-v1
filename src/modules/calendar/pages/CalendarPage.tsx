@@ -27,39 +27,49 @@ import CalendarDayView from '../components/CalendarDayView';
 import DayEventsSheet from '../components/DayEventsSheet';
 import CalendarToast from '../components/CalendarToast';
 import CalendarHeaderNav, { type CalendarMainTab } from '../components/CalendarHeaderNav';
-import type { CalendarSettings as CalendarSettingsType } from '../components/CalendarSettings';
+import {
+  CalendarSettingsProvider,
+  useCalendarSettings,
+} from '../context/CalendarSettingsContext';
+import {
+  getThemeCssProperties,
+  formatViewTitleDay,
+  formatViewTitleMonth,
+  type CalendarSettings,
+} from '../utils/calendarSettingsCore';
 import { EventData, EventType } from '../services/eventTypeService';
 import { useDeviceType } from '../utils/deviceUtils';
 import { mapStringToEventPriority } from '../utils/eventDisplay';
 import type { CalendarEvent } from '../types';
 
-function getViewTitle(viewType: CalendarViewType, currentDate: Date): string {
+function getViewTitle(
+  viewType: CalendarViewType,
+  currentDate: Date,
+  settings: CalendarSettings
+): string {
   switch (viewType) {
     case CalendarViewType.MONTH:
-      return currentDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' });
+      return formatViewTitleMonth(currentDate, settings);
     case CalendarViewType.WEEK: {
-      const [weekStart, weekEnd] = [
-        getWeekViewDates(currentDate)[0],
-        getWeekViewDates(currentDate)[6],
-      ];
+      const weekDates = getWeekViewDates(currentDate, settings.weekStartsOn);
+      const weekStart = weekDates[0];
+      const weekEnd = weekDates[6];
       if (weekStart.getMonth() === weekEnd.getMonth()) {
-        return `${weekStart.getFullYear()}年${weekStart.getMonth() + 1}月`;
+        return weekStart.toLocaleDateString(settings.language, {
+          year: 'numeric',
+          month: 'long',
+        });
       }
-      return `${weekStart.getMonth() + 1}/${weekStart.getDate()} – ${weekEnd.getMonth() + 1}/${weekEnd.getDate()}`;
+      return `${weekStart.toLocaleDateString(settings.language, { month: 'numeric', day: 'numeric' })} – ${weekEnd.toLocaleDateString(settings.language, { month: 'numeric', day: 'numeric' })}`;
     }
     case CalendarViewType.DAY:
-      return currentDate.toLocaleDateString('zh-CN', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        weekday: 'long',
-      });
+      return formatViewTitleDay(currentDate, settings);
     default:
       return '';
   }
 }
 
-export default function CalendarPage() {
+function CalendarPageContent() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState<CalendarViewType>(CalendarViewType.MONTH);
   const [activeTab, setActiveTab] = useState<CalendarMainTab>('calendar');
@@ -72,7 +82,9 @@ export default function CalendarPage() {
     null
   );
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
-  const [, setCalendarSettings] = useState<CalendarSettingsType | null>(null);
+
+  const { settings } = useCalendarSettings();
+  const themeStyle = useMemo(() => getThemeCssProperties(settings), [settings]);
 
   const { isMobile } = useDeviceType();
   const { isAuthenticated } = useAuth();
@@ -111,11 +123,11 @@ export default function CalendarPage() {
     let start: Date;
     let end: Date;
     if (viewType === CalendarViewType.MONTH) {
-      const dates = getMonthViewDates(currentDate);
+      const dates = getMonthViewDates(currentDate, settings.weekStartsOn);
       start = dates[0];
       end = dates[dates.length - 1];
     } else if (viewType === CalendarViewType.WEEK) {
-      const dates = getWeekViewDates(currentDate);
+      const dates = getWeekViewDates(currentDate, settings.weekStartsOn);
       start = dates[0];
       end = dates[6];
     } else {
@@ -125,15 +137,15 @@ export default function CalendarPage() {
       end.setHours(23, 59, 59, 999);
     }
     fetchEvents(start, end).catch(() => {});
-  }, [currentDate, viewType, fetchEvents]);
+  }, [currentDate, viewType, fetchEvents, settings.weekStartsOn]);
 
   useEffect(() => {
     loadRangeForView();
   }, [loadRangeForView]);
 
   const viewTitle = useMemo(
-    () => getViewTitle(viewType, currentDate),
-    [viewType, currentDate]
+    () => getViewTitle(viewType, currentDate, settings),
+    [viewType, currentDate, settings]
   );
 
   const goToPrevious = () => {
@@ -372,7 +384,10 @@ export default function CalendarPage() {
                 onToday={() => setCurrentDate(new Date())}
                 onViewTypeChange={setViewType}
               />
-              <div className="min-h-0 flex-1 overflow-auto rounded-2xl bg-white/90 shadow-[0_1px_3px_rgba(15,23,42,0.06),0_8px_24px_rgba(15,23,42,0.04)]">
+              <div
+                className="min-h-0 flex-1 overflow-auto rounded-2xl bg-white/90 shadow-[0_1px_3px_rgba(15,23,42,0.06),0_8px_24px_rgba(15,23,42,0.04)]"
+                style={themeStyle}
+              >
                 {loading && events.length === 0 ? (
                   <div className="flex justify-center py-16">
                     <div
@@ -411,7 +426,7 @@ export default function CalendarPage() {
 
           {activeTab === 'settings' && (
             <div className="mt-3 min-h-0 flex-1 overflow-auto">
-              <CalendarSettings onSettingsChange={setCalendarSettings} />
+              <CalendarSettings />
             </div>
           )}
       </main>
@@ -470,5 +485,13 @@ export default function CalendarPage() {
 
       <CalendarToast message={toast?.message ?? null} variant={toast?.variant} />
     </div>
+  );
+}
+
+export default function CalendarPage() {
+  return (
+    <CalendarSettingsProvider>
+      <CalendarPageContent />
+    </CalendarSettingsProvider>
   );
 }

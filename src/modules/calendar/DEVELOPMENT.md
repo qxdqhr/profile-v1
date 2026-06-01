@@ -30,4 +30,4 @@
 
 ### 待办
 - [ ] 编辑模式完整支持多天/重复事件元数据
-- [ ] 设置项真正作用于视图（`CalendarSettings` 持久化）
+- [x] 设置项作用于视图：`CalendarSettingsProvider` + `calendarSettingsCore`，主题/周起始/时间格式/语言/周数/农历/默认时长/工作时间全局生效

@@ -26,6 +26,8 @@ import {
   secondaryButtonClass,
 } from './eventModal/styles';
 import { DEFAULT_FORM_DATA, type EventModalFormData } from './eventModal/types';
+import { useCalendarSettings } from '../context/CalendarSettingsContext';
+import { buildDefaultEventTimes } from '../utils/calendarSettingsCore';
 
 interface ImprovedEventModalProps {
   isOpen: boolean;
@@ -66,6 +68,7 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const { settings } = useCalendarSettings();
   const isEditMode = !!event;
 
   useEffect(() => {
@@ -99,11 +102,10 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
         recurrenceEndTime: formatDateTimeLocal(endDate),
       });
     } else if (initialDate) {
-      const startDateTime = new Date(initialDate);
-      startDateTime.setHours(9, 0, 0, 0);
-
-      const endDateTime = new Date(startDateTime);
-      endDateTime.setHours(10, 0, 0, 0);
+      const { start: startDateTime, end: endDateTime } = buildDefaultEventTimes(
+        initialDate,
+        settings
+      );
 
       setFormData((prev) => ({
         ...prev,
@@ -116,7 +118,7 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
         recurrenceEndTime: formatDateTimeLocal(endDateTime),
       }));
     }
-  }, [event, initialDate]);
+  }, [event, initialDate, settings]);
 
   const buildEventData = (): EventData => {
     switch (eventType) {

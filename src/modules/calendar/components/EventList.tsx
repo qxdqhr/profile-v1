@@ -11,6 +11,8 @@ import {
   EventPriority 
 } from '../types';
 import { getEventSurfaceClasses, getPriorityLabel } from '../utils/eventDisplay';
+import { useCalendarSettings } from '../context/CalendarSettingsContext';
+import { formatTimeForSettings } from '../utils/calendarSettingsCore';
 
 /**
  * 事件列表组件
@@ -28,6 +30,13 @@ export default function EventList({
   loading = false,
   className = ''
 }: EventListProps) {
+  const { settings } = useCalendarSettings();
+
+  const formatEventDateTime = (event: CalendarEvent) => {
+    const datePart = event.startTime.toLocaleDateString(settings.language);
+    if (event.allDay) return datePart;
+    return `${datePart} ${formatTimeForSettings(event.startTime, settings)}`;
+  };
   
   // 批量选择状态
   const [selectedEventIds, setSelectedEventIds] = useState<Set<number>>(new Set());
@@ -317,11 +326,7 @@ export default function EventList({
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      <span>
-                        {event.startTime.toLocaleDateString('zh-CN')} {
-                          !event.allDay && event.startTime.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
-                        }
-                      </span>
+                      <span>{formatEventDateTime(event)}</span>
                     </div>
                     
                     {event.location && (
@@ -412,11 +417,7 @@ export default function EventList({
                 <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span className="truncate">
-                  {event.startTime.toLocaleDateString('zh-CN')} {
-                    !event.allDay && event.startTime.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
-                  }
-                </span>
+                <span className="truncate">{formatEventDateTime(event)}</span>
               </div>
               
               {event.location && (

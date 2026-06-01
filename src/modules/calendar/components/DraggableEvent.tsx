@@ -3,7 +3,8 @@
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CalendarEvent } from '../types';
-import { formatTime } from '../utils/dateUtils';
+import { useCalendarSettings } from '../context/CalendarSettingsContext';
+import { formatTimeForSettings } from '../utils/calendarSettingsCore';
 import { useDeviceType } from '../utils/deviceUtils';
 import { getEventSurfaceClasses } from '../utils/eventDisplay';
 import { EventPriority } from '../types';
@@ -35,6 +36,7 @@ export const DraggableEvent: React.FC<DraggableEventProps> = ({
 }) => {
   // 检测设备类型
   const { isMobile, dragSupported } = useDeviceType();
+  const { settings } = useCalendarSettings();
   
   // 只在支持拖拽的设备上启用拖拽功能
   const {
@@ -57,9 +59,9 @@ export const DraggableEvent: React.FC<DraggableEventProps> = ({
   } : undefined;
 
   // 格式化显示时间
-  const displayTime = event.allDay 
-    ? '全天' 
-    : `${formatTime(new Date(event.startTime))} - ${formatTime(new Date(event.endTime))}`;
+  const displayTime = event.allDay
+    ? '全天'
+    : `${formatTimeForSettings(new Date(event.startTime), settings)} - ${formatTimeForSettings(new Date(event.endTime), settings)}`;
 
   const showPriorityDot =
     event.priority === EventPriority.HIGH || event.priority === EventPriority.URGENT;
@@ -123,7 +125,7 @@ export const DraggableEvent: React.FC<DraggableEventProps> = ({
         </span>
         {!event.allDay && (
           <span className="text-xs opacity-60 whitespace-nowrap">
-            {formatTime(new Date(event.startTime))}
+            {formatTimeForSettings(new Date(event.startTime), settings)}
           </span>
         )}
       </div>

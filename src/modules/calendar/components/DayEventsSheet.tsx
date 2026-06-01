@@ -4,8 +4,10 @@ import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, X, Pencil, Trash2, MapPin, Clock } from 'lucide-react';
 import { CalendarEvent } from '../types';
-import { formatDate, formatTime, isToday } from '../utils/dateUtils';
+import { formatDate, isToday } from '../utils/dateUtils';
 import { getEventSurfaceClasses, getPriorityLabel } from '../utils/eventDisplay';
+import { useCalendarSettings } from '../context/CalendarSettingsContext';
+import { formatTimeForSettings } from '../utils/calendarSettingsCore';
 
 export interface DayEventsSheetProps {
   date: Date | null;
@@ -30,6 +32,8 @@ export default function DayEventsSheet({
   isAuthenticated,
   onRequireLogin,
 }: DayEventsSheetProps) {
+  const { settings } = useCalendarSettings();
+
   useEffect(() => {
     if (!isOpen) return;
     const prev = document.body.style.overflow;
@@ -46,7 +50,7 @@ export default function DayEventsSheet({
     : [];
 
   const title = date
-    ? date.toLocaleDateString('zh-CN', {
+    ? date.toLocaleDateString(settings.language, {
         month: 'long',
         day: 'numeric',
         weekday: 'short',
@@ -152,7 +156,7 @@ export default function DayEventsSheet({
                                 <Clock className="h-3.5 w-3.5 shrink-0 opacity-70" />
                                 {event.allDay
                                   ? '全天'
-                                  : `${formatTime(new Date(event.startTime))} – ${formatTime(new Date(event.endTime))}`}
+                                  : `${formatTimeForSettings(new Date(event.startTime), settings)} – ${formatTimeForSettings(new Date(event.endTime), settings)}`}
                               </span>
                               {event.location && (
                                 <span className="inline-flex min-w-0 items-center gap-1">

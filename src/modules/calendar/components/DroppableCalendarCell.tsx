@@ -4,6 +4,8 @@ import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { CalendarEvent } from '../types';
 import { formatDate, isSameDay, isToday } from '../utils/dateUtils';
+import { useCalendarSettings } from '../context/CalendarSettingsContext';
+import { getLunarDayLabel } from '../utils/calendarSettingsCore';
 import DraggableEvent from './DraggableEvent';
 import { useDeviceType } from '../utils/deviceUtils';
 
@@ -47,9 +49,14 @@ export const DroppableCalendarCell: React.FC<DroppableCalendarCellProps> = ({
   const dayEvents = events.filter((event) =>
     isSameDay(new Date(event.startTime), date)
   );
+  const { settings } = useCalendarSettings();
   const visibleEvents = dayEvents.slice(0, maxVisibleEvents);
   const overflowCount = dayEvents.length - visibleEvents.length;
   const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+  const lunarLabel = settings.showLunarCalendar
+    ? getLunarDayLabel(date, settings.language)
+    : null;
+  const todayCell = isToday(date) && isCurrentMonth;
 
   const handleCellClick = () => {
     if (isMobile && dayEvents.length > 0) {
@@ -74,23 +81,48 @@ export const DroppableCalendarCell: React.FC<DroppableCalendarCellProps> = ({
       className={[
         'relative flex h-full min-h-[3.5rem] w-full flex-col p-1 sm:min-h-[5.5rem] sm:p-1.5',
         'cursor-pointer transition-[background-color,box-shadow] duration-200',
-        !isCurrentMonth ? 'bg-slate-50/90 text-slate-400' : 'bg-white',
-        isToday(date) && isCurrentMonth ? 'bg-violet-50/90' : '',
         isSelected ? 'ring-2 ring-inset ring-violet-400' : '',
-        isOver ? 'bg-violet-100/90 ring-2 ring-inset ring-violet-300' : '',
+        isOver ? 'ring-2 ring-inset ring-violet-300' : '',
         className,
       ].join(' ')}
+      style={{
+        backgroundColor: isOver
+          ? 'color-mix(in srgb, var(--cal-primary, #7c3aed) 12%, var(--cal-cell-bg, #ffffff))'
+          : !isCurrentMonth
+            ? 'var(--cal-other-month-bg, #f8fafc)'
+            : todayCell
+              ? 'var(--cal-today-bg, #f5f3ff)'
+              : isWeekend
+                ? 'var(--cal-weekend-bg, #ffffff)'
+                : 'var(--cal-cell-bg, #ffffff)',
+        color: !isCurrentMonth
+          ? 'var(--cal-text-muted, #94a3b8)'
+          : isWeekend
+            ? 'var(--cal-weekend-text, #dc2626)'
+            : 'var(--cal-text, #1e293b)',
+      }}
     >
       <div className="mb-0.5 flex items-center justify-between gap-0.5">
-        <span
-          className={[
-            'inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold tabular-nums sm:h-7 sm:w-7 sm:text-sm',
-            !isCurrentMonth ? 'text-slate-400' : isWeekend ? 'text-red-600' : 'text-slate-800',
-            isToday(date) && isCurrentMonth ? 'bg-violet-600 text-white shadow-sm' : '',
-          ].join(' ')}
-        >
-          {date.getDate()}
-        </span>
+        <div className="flex min-w-0 flex-col items-start leading-none">
+          <span
+            className={[
+              'inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold tabular-nums sm:h-7 sm:w-7 sm:text-sm',
+              todayCell ? 'text-white shadow-sm' : '',
+            ].join(' ')}
+            style={
+              todayCell
+                ? { backgroundColor: 'var(--cal-primary, #7c3aed)' }
+                : undefined
+            }
+          >
+            {date.getDate()}
+          </span>
+          {lunarLabel && isCurrentMonth && (
+            <span className="mt-0.5 max-w-[2.5rem] truncate text-[9px] text-slate-400 sm:text-[10px]">
+              {lunarLabel}
+            </span>
+          )}
+        </div>
         {dayEvents.length > 0 && isCurrentMonth && (
           <button
             type="button"
@@ -98,7 +130,8 @@ export const DroppableCalendarCell: React.FC<DroppableCalendarCellProps> = ({
               e.stopPropagation();
               onShowDayEvents?.(date);
             }}
-            className="flex h-6 min-w-[1.25rem] items-center justify-center rounded-full bg-violet-600/90 px-1 text-[10px] font-semibold tabular-nums text-white sm:h-7 sm:min-w-[1.5rem] sm:text-xs"
+            className="flex h-6 min-w-[1.25rem] items-center justify-center rounded-full px-1 text-[10px] font-semibold tabular-nums text-white sm:h-7 sm:min-w-[1.5rem] sm:text-xs"
+            style={{ backgroundColor: 'var(--cal-primary, #7c3aed)' }}
             aria-label={`${dayEvents.length} 个活动，点击查看`}
           >
             {dayEvents.length}
