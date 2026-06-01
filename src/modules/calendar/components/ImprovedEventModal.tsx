@@ -4,14 +4,16 @@ import React, { useState, useEffect } from 'react';
 import { Modal, ConfirmModal } from 'sa2kit/components';
 import { EventType, RecurrencePattern, EventData, EventTypeService } from '../services/eventTypeService';
 import { CalendarEvent, EventPriority } from '../types';
+import { EVENT_COLOR_PRESETS } from '../utils/eventDisplay';
 
 interface ImprovedEventModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (eventData: EventData) => Promise<void>;
-  onDelete?: (eventId: number) => Promise<void>;
+  onDelete?: (eventId: number) => void;
   event?: CalendarEvent | null;
   initialDate?: Date;
+  isMobile?: boolean;
 }
 
 const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
@@ -21,6 +23,7 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
   onDelete,
   event,
   initialDate,
+  isMobile = false,
 }) => {
   const [eventType, setEventType] = useState<EventType>(EventType.SINGLE);
   const [formData, setFormData] = useState({
@@ -238,21 +241,10 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
     }
   };
 
-  // 处理事件删除
-  const handleDelete = async () => {
+  const handleDeleteRequest = () => {
     if (!event?.id || !onDelete) return;
-    
-    setIsLoading(true);
-    try {
-      await onDelete(event.id);
-      setShowDeleteConfirm(false);
-      onClose();
-    } catch (error) {
-      console.error('删除事件失败:', error);
-      setErrors({ submit: '删除事件失败，请重试' });
-    } finally {
-      setIsLoading(false);
-    }
+    onDelete(event.id);
+    setShowDeleteConfirm(false);
   };
 
   // 重置表单
@@ -275,10 +267,10 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
         <button
           type="button"
           onClick={() => setEventType(EventType.SINGLE)}
-          className={`group relative p-4 rounded-xl border-2 transition-all duration-300 transform hover:scale-105 ${
+          className={`relative rounded-xl border-2 p-4 transition-[border-color,background-color,box-shadow] active:scale-[0.96] ${
             eventType === EventType.SINGLE
-              ? 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-300 shadow-lg ring-2 ring-blue-200'
-              : 'bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-sm hover:shadow-md'
+              ? 'border-violet-300 bg-violet-50 shadow-sm ring-2 ring-violet-200/80'
+              : 'border-slate-200 bg-white hover:border-slate-300'
           }`}
         >
           <div className="text-center">
@@ -308,10 +300,10 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
         <button
           type="button"
           onClick={() => setEventType(EventType.MULTI_DAY)}
-          className={`group relative p-4 rounded-xl border-2 transition-all duration-300 transform hover:scale-105 ${
+          className={`relative rounded-xl border-2 p-4 transition-[border-color,background-color,box-shadow] active:scale-[0.96] ${
             eventType === EventType.MULTI_DAY
-              ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-300 shadow-lg ring-2 ring-green-200'
-              : 'bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-sm hover:shadow-md'
+              ? 'border-emerald-300 bg-emerald-50 shadow-sm ring-2 ring-emerald-200/80'
+              : 'border-slate-200 bg-white hover:border-slate-300'
           }`}
         >
           <div className="text-center">
@@ -341,10 +333,10 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
         <button
           type="button"
           onClick={() => setEventType(EventType.RECURRING)}
-          className={`group relative p-4 rounded-xl border-2 transition-all duration-300 transform hover:scale-105 ${
+          className={`relative rounded-xl border-2 p-4 transition-[border-color,background-color,box-shadow] active:scale-[0.96] ${
             eventType === EventType.RECURRING
-              ? 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-300 shadow-lg ring-2 ring-purple-200'
-              : 'bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-sm hover:shadow-md'
+              ? 'border-violet-300 bg-violet-50/80 shadow-sm ring-2 ring-violet-200/80'
+              : 'border-slate-200 bg-white hover:border-slate-300'
           }`}
         >
           <div className="text-center">
@@ -549,7 +541,7 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
             
             {/* 预设颜色 */}
             <div className="flex space-x-2">
-              {['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'].map((color) => (
+              {EVENT_COLOR_PRESETS.map((color) => (
                 <button
                   key={color}
                   type="button"
@@ -872,8 +864,13 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={handleClose} width="800px" height="auto">
-        <div className="relative">
+      <Modal
+        isOpen={isOpen}
+        onClose={handleClose}
+        width={isMobile ? '100%' : '720px'}
+        height="auto"
+      >
+        <div className={`relative ${isMobile ? 'max-h-[100dvh] flex flex-col' : ''}`}>
           {/* 头部 */}
           <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
             <div className="flex items-center justify-between">
@@ -903,7 +900,7 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
           </div>
 
           {/* 表单内容 */}
-          <div className="px-6 py-6 max-h-[70vh] overflow-y-auto">
+          <div className={`overflow-y-auto px-4 py-5 sm:px-6 ${isMobile ? 'max-h-[calc(100dvh-8rem)] flex-1' : 'max-h-[70vh]'}`}>
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* 事件类型选择器 */}
               {!isEditMode && (
@@ -1009,7 +1006,7 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
       <ConfirmModal
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={handleDelete}
+        onConfirm={handleDeleteRequest}
         title="确认删除"
         message="确定要删除这个事件吗？此操作无法撤销。"
         confirmText="删除"

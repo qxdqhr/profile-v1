@@ -10,6 +10,7 @@ import {
   SortDirection, 
   EventPriority 
 } from '../types';
+import { getEventSurfaceClasses, getPriorityLabel } from '../utils/eventDisplay';
 
 /**
  * 事件列表组件
@@ -175,36 +176,6 @@ export default function EventList({
     return selectedEventIds.size > 0 && !isAllSelected;
   }, [selectedEventIds.size, isAllSelected]);
   
-  // 获取优先级显示
-  const getPriorityDisplay = (priority: EventPriority) => {
-    switch (priority) {
-      case EventPriority.URGENT:
-        return { text: '紧急', color: 'bg-red-100 text-red-800 border-red-200' };
-      case EventPriority.HIGH:
-        return { text: '高', color: 'bg-orange-100 text-orange-800 border-orange-200' };
-      case EventPriority.NORMAL:
-        return { text: '普通', color: 'bg-blue-100 text-blue-800 border-blue-200' };
-      case EventPriority.LOW:
-        return { text: '低', color: 'bg-gray-100 text-gray-800 border-gray-200' };
-      default:
-        return { text: '普通', color: 'bg-gray-100 text-gray-800 border-gray-200' };
-    }
-  };
-  
-  // 获取事件颜色类名
-  const getEventColorClass = (color: string) => {
-    const colorMap: Record<string, string> = {
-      '#3B82F6': 'border-blue-500 bg-blue-50',
-      '#10B981': 'border-green-500 bg-green-50',
-      '#8B5CF6': 'border-purple-500 bg-purple-50',
-      '#EF4444': 'border-red-500 bg-red-50',
-      '#F59E0B': 'border-yellow-500 bg-yellow-50',
-      '#EC4899': 'border-pink-500 bg-pink-50',
-      '#6366F1': 'border-indigo-500 bg-indigo-50',
-      '#6B7280': 'border-gray-500 bg-gray-50',
-    };
-    return colorMap[color] || 'border-gray-500 bg-gray-50';
-  };
   
   // 处理排序变更
   const handleSortChange = (field: EventSortField) => {
@@ -309,15 +280,15 @@ export default function EventList({
   const renderListMode = () => (
     <div className="space-y-4">
       {paginatedEvents.map((event) => {
-        const priorityDisplay = getPriorityDisplay(event.priority);
+        const priorityDisplay = getPriorityLabel(event.priority);
         const isSelected = selectedEventIds.has(event.id);
         
         return (
           <div
             key={event.id}
-            className={`p-4 rounded-lg border-l-4 cursor-pointer hover:shadow-md transition-all ${
-              getEventColorClass(event.color)
-            } ${isSelected ? 'ring-2 ring-blue-500 ring-opacity-50' : ''}`}
+            className={`cursor-pointer rounded-xl p-4 transition-[box-shadow,transform] hover:shadow-md active:scale-[0.99] ${
+              getEventSurfaceClasses(event.color)
+            } ${isSelected ? 'ring-2 ring-violet-500/50' : ''}`}
             onClick={() => !isSelectionMode && onEventClick(event)}
           >
             <div className="flex items-start justify-between">
@@ -332,7 +303,7 @@ export default function EventList({
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
-                    <span className={`px-2 py-1 text-xs font-medium rounded border ${priorityDisplay.color}`}>
+                    <span className={`rounded-md px-2 py-1 text-xs font-medium ${priorityDisplay.className}`}>
                       {priorityDisplay.text}
                     </span>
                   </div>
@@ -374,7 +345,7 @@ export default function EventList({
                       e.stopPropagation();
                       onEventEdit(event);
                     }}
-                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-400 transition-transform hover:bg-violet-50 hover:text-violet-700 active:scale-[0.96]"
                     title="编辑事件"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -387,7 +358,7 @@ export default function EventList({
                       e.stopPropagation();
                       onEventDelete(event.id);
                     }}
-                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-400 transition-transform hover:bg-red-50 hover:text-red-600 active:scale-[0.96]"
                     title="删除事件"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -407,15 +378,15 @@ export default function EventList({
   const renderGridMode = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {paginatedEvents.map((event) => {
-        const priorityDisplay = getPriorityDisplay(event.priority);
+        const priorityDisplay = getPriorityLabel(event.priority);
         const isSelected = selectedEventIds.has(event.id);
         
         return (
           <div
             key={event.id}
-            className={`p-4 rounded-lg border cursor-pointer hover:shadow-lg transition-all ${
-              getEventColorClass(event.color)
-            } border-l-4 ${isSelected ? 'ring-2 ring-blue-500 ring-opacity-50' : ''}`}
+            className={`cursor-pointer rounded-xl p-4 transition-[box-shadow,transform] hover:shadow-lg active:scale-[0.99] ${
+              getEventSurfaceClasses(event.color)
+            } ${isSelected ? 'ring-2 ring-violet-500/50' : ''}`}
             onClick={() => !isSelectionMode && onEventClick(event)}
           >
             <div className="flex items-start justify-between mb-3">
@@ -427,7 +398,7 @@ export default function EventList({
               )}
               
               <h3 className="text-lg font-semibold text-gray-900 flex-1 pr-2">{event.title}</h3>
-              <span className={`px-2 py-1 text-xs font-medium rounded border flex-shrink-0 ${priorityDisplay.color}`}>
+              <span className={`shrink-0 rounded-md px-2 py-1 text-xs font-medium ${priorityDisplay.className}`}>
                 {priorityDisplay.text}
               </span>
             </div>

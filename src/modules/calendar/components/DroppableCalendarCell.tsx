@@ -5,6 +5,7 @@ import { useDroppable } from '@dnd-kit/core';
 import { CalendarEvent } from '../types';
 import { formatDate, isSameDay, isToday } from '../utils/dateUtils';
 import DraggableEvent from './DraggableEvent';
+import { useDeviceType } from '../utils/deviceUtils';
 
 interface DroppableCalendarCellProps {
   date: Date;
@@ -14,19 +15,12 @@ interface DroppableCalendarCellProps {
   dragOverPreview?: string | null;
   onEventClick?: (event: CalendarEvent) => void;
   onDateClick?: (date: Date) => void;
+  onShowDayEvents?: (date: Date) => void;
   className?: string;
   disableDrop?: boolean;
+  maxVisibleEvents?: number;
 }
 
-/**
- * 可放置的日历单元格组件
- * 
- * 功能特性：
- * - 支持拖拽事件到此日期
- * - 显示当前日期的所有事件
- * - 拖拽悬停时显示预览
- * - 响应式设计
- */
 export const DroppableCalendarCell: React.FC<DroppableCalendarCellProps> = ({
   date,
   events,
@@ -35,147 +29,120 @@ export const DroppableCalendarCell: React.FC<DroppableCalendarCellProps> = ({
   dragOverPreview,
   onEventClick,
   onDateClick,
+  onShowDayEvents,
   className = '',
-  disableDrop = false
+  disableDrop = false,
+  maxVisibleEvents = 2,
 }) => {
+  const { isMobile } = useDeviceType();
   const dateStr = formatDate(date);
   const dropId = `date-${dateStr}`;
-  
-  // 只在支持拖拽时启用可放置功能
-  const {
-    isOver,
-    setNodeRef,
-  } = useDroppable({
+
+  const { isOver, setNodeRef } = useDroppable({
     id: dropId,
-    data: {
-      date,
-      dateStr,
-    },
+    data: { date, dateStr },
     disabled: disableDrop,
   });
 
-  // 调试日志
-  if (isOver) {
-    console.log('📍 拖拽悬停在单元格:', {
-      dropId,
-      date: dateStr,
-      isCurrentMonth,
-      dayOfWeek: date.getDay()
-    });
-  }
-
-  // 获取当前日期的事件
-  const dayEvents = events.filter(event => 
+  const dayEvents = events.filter((event) =>
     isSameDay(new Date(event.startTime), date)
   );
+  const visibleEvents = dayEvents.slice(0, maxVisibleEvents);
+  const overflowCount = dayEvents.length - visibleEvents.length;
+  const isWeekend = date.getDay() === 0 || date.getDay() === 6;
 
-  // 样式计算
-  const getCellClasses = () => {
-    const baseClasses = [
-      'relative w-full h-full p-2',
-      'transition-all duration-200 ease-in-out',
-      'hover:bg-gray-50 cursor-pointer',
-      className
-    ];
-
-    // 当前月份样式
-    if (!isCurrentMonth) {
-      baseClasses.push('bg-gray-100 text-gray-400');
+  const handleCellClick = () => {
+    if (isMobile && dayEvents.length > 0) {
+      onShowDayEvents?.(date);
+      return;
     }
-
-    // 今天的样式
-    if (isToday(date)) {
-      baseClasses.push('bg-blue-100 ring-2 ring-blue-400 ring-inset');
-    }
-
-    // 选中日期样式
-    if (isSelected) {
-      baseClasses.push('ring-2 ring-blue-400 ring-inset');
-    }
-
-    // 拖拽悬停样式
-    if (isOver) {
-      baseClasses.push('bg-blue-100 ring-2 ring-blue-300 ring-inset shadow-lg');
-    }
-
-    return baseClasses.join(' ');
+    onDateClick?.(date);
   };
 
   return (
     <div
       ref={disableDrop ? undefined : setNodeRef}
-      className={getCellClasses()}
-      onClick={() => onDateClick?.(date)}
+      role="button"
+      tabIndex={0}
+      onClick={handleCellClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleCellClick();
+        }
+      }}
+      className={[
+        'relative flex h-full min-h-[3.5rem] w-full flex-col p-1 sm:min-h-[5.5rem] sm:p-1.5',
+        'cursor-pointer transition-[background-color,box-shadow] duration-200',
+        !isCurrentMonth ? 'bg-slate-50/90 text-slate-400' : 'bg-white',
+        isToday(date) && isCurrentMonth ? 'bg-violet-50/90' : '',
+        isSelected ? 'ring-2 ring-inset ring-violet-400' : '',
+        isOver ? 'bg-violet-100/90 ring-2 ring-inset ring-violet-300' : '',
+        className,
+      ].join(' ')}
     >
-      {/* 日期数字 */}
-      <div className="flex items-center justify-between mb-2">
-        <span className={`
-          inline-flex items-center justify-center text-sm font-semibold w-6 h-6
-          ${!isCurrentMonth ? 'text-gray-400' : 
-            (date.getDay() === 0 || date.getDay() === 6) ? 'text-red-600' : 'text-gray-900'}
-          ${isToday(date) ? 'bg-blue-600 text-white rounded-full shadow-md' : ''}
-        `}>
+      <div className="mb-0.5 flex items-center justify-between gap-0.5">
+        <span
+          className={[
+            'inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold tabular-nums sm:h-7 sm:w-7 sm:text-sm',
+            !isCurrentMonth ? 'text-slate-400' : isWeekend ? 'text-red-600' : 'text-slate-800',
+            isToday(date) && isCurrentMonth ? 'bg-violet-600 text-white shadow-sm' : '',
+          ].join(' ')}
+        >
           {date.getDate()}
         </span>
-        
-        {/* 事件数量指示器 */}
-        {dayEvents.length > 0 && (
-          <span className="bg-yellow-500 inline-flex items-center justify-center text-sm font-semibold w-6 h-6 border border-white 'bg-blue-600 text-white rounded-full shadow-md">
-            {dayEvents.length}
-          </span>
-        )}
-      </div>
-
-      {/* 事件列表 */}
-      <div className="space-y-1">
-        {dayEvents.slice(0, 3).map((event) => (
-          <DraggableEvent
-            key={event.id}
-            event={event}
-            className="text-xs"
-            onClick={() => {
-              onEventClick?.(event);
+        {dayEvents.length > 0 && isCurrentMonth && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onShowDayEvents?.(date);
             }}
-          />
-        ))}
-        
-        {/* 更多事件指示器 */}
-        {dayEvents.length > 3 && (
-          <div className="text-xs text-gray-500 px-2 py-1 bg-gray-100 rounded">
-            +{dayEvents.length - 3} 更多
-          </div>
+            className="flex h-6 min-w-[1.25rem] items-center justify-center rounded-full bg-violet-600/90 px-1 text-[10px] font-semibold tabular-nums text-white sm:h-7 sm:min-w-[1.5rem] sm:text-xs"
+            aria-label={`${dayEvents.length} 个活动，点击查看`}
+          >
+            {dayEvents.length}
+          </button>
         )}
       </div>
 
-      {/* 拖拽预览 */}
-      {isOver && dragOverPreview && (
-        <div className="absolute inset-0 flex items-center justify-center bg-blue-50 bg-opacity-90 rounded-lg border-2 border-dashed border-blue-300">
-          <div className="text-center">
-            <div className="text-sm font-medium text-blue-600 mb-1">
-              移动到 {date.getMonth() + 1}/{date.getDate()}
+      <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
+        {isCurrentMonth &&
+          visibleEvents.map((event) => (
+            <div
+              key={event.id}
+              className="min-w-0"
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+            >
+              <DraggableEvent
+                event={event}
+                className="text-[10px] sm:text-xs"
+                onClick={() => onEventClick?.(event)}
+              />
             </div>
-            <div className="text-xs text-blue-500">
-              {dragOverPreview}
-            </div>
-          </div>
-        </div>
-      )}
+          ))}
+        {overflowCount > 0 && isCurrentMonth && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onShowDayEvents?.(date);
+            }}
+            className="rounded-md px-1 py-0.5 text-left text-[10px] font-medium text-violet-700 hover:bg-violet-100 sm:text-xs"
+          >
+            +{overflowCount} 项
+          </button>
+        )}
+      </div>
 
-      {/* 新建事件提示 */}
-      {isOver && !dragOverPreview && (
-        <div className="absolute inset-0 flex items-center justify-center bg-green-50 bg-opacity-90 rounded-lg border-2 border-dashed border-green-300">
-          <div className="text-center">
-            <div className="text-sm font-medium text-green-600">
-              点击创建事件
-            </div>
-            <div className="text-xs text-green-500">
-              {date.getMonth() + 1}/{date.getDate()}
-            </div>
-          </div>
+      {isOver && dragOverPreview && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg border-2 border-dashed border-violet-300 bg-violet-50/90">
+          <span className="text-xs font-medium text-violet-700">{dragOverPreview}</span>
         </div>
       )}
     </div>
   );
 };
 
-export default DroppableCalendarCell; 
+export default DroppableCalendarCell;
