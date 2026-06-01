@@ -33,17 +33,46 @@ export default function CalendarHeaderNav({
   onOpenSettings,
 }: CalendarHeaderNavProps) {
   return (
-    <header className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-        <h1 className="shrink-0 text-balance text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
+    <header className="mb-4 space-y-3 sm:mb-5">
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="min-w-0 shrink-0 text-balance text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
           日历
         </h1>
 
-        <nav
-          className="flex gap-1 overflow-x-auto rounded-2xl bg-slate-100/80 p-1 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.04)]"
-          role="tablist"
-          aria-label="日历功能导航"
-        >
+        <div className="flex shrink-0 items-center">
+          {isAuthenticated ? (
+            <UserMenu
+              customMenuItems={
+                onOpenSettings
+                  ? [
+                      {
+                        id: 'settings',
+                        label: '个人设置',
+                        icon: Settings,
+                        onClick: onOpenSettings,
+                      },
+                    ]
+                  : undefined
+              }
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={onLoginClick}
+              className="inline-flex h-10 items-center gap-2 rounded-xl bg-violet-600 px-4 text-sm font-medium text-white shadow-sm shadow-violet-500/20 transition-transform hover:bg-violet-700 active:scale-[0.96]"
+            >
+              <LogIn className="h-4 w-4" strokeWidth={2} />
+              登录
+            </button>
+          )}
+        </div>
+      </div>
+
+      <nav
+        className="flex gap-1 overflow-x-auto rounded-2xl bg-slate-100/80 p-1 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.04)]"
+        role="tablist"
+        aria-label="日历功能导航"
+      >
           {NAV_ITEMS.map((item) => {
             const selected = activeTab === item.id;
             const Icon = item.icon;
@@ -66,36 +95,7 @@ export default function CalendarHeaderNav({
               </button>
             );
           })}
-        </nav>
-      </div>
-
-      <div className="flex shrink-0 items-center justify-end">
-        {isAuthenticated ? (
-          <UserMenu
-            customMenuItems={
-              onOpenSettings
-                ? [
-                    {
-                      id: 'settings',
-                      label: '个人设置',
-                      icon: Settings,
-                      onClick: onOpenSettings,
-                    },
-                  ]
-                : undefined
-            }
-          />
-        ) : (
-          <button
-            type="button"
-            onClick={onLoginClick}
-            className="inline-flex h-10 items-center gap-2 rounded-xl bg-violet-600 px-4 text-sm font-medium text-white shadow-sm shadow-violet-500/20 transition-transform hover:bg-violet-700 active:scale-[0.96]"
-          >
-            <LogIn className="h-4 w-4" strokeWidth={2} />
-            登录
-          </button>
-        )}
-      </div>
+      </nav>
     </header>
   );
 }

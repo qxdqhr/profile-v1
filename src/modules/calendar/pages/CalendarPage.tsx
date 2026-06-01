@@ -268,6 +268,24 @@ export default function CalendarPage() {
     [deleteEvent, showToast, loadRangeForView]
   );
 
+  const requestDelete = useCallback(
+    (eventId: number) => {
+      setDeleteTargetId(eventId);
+      if (isEventModalOpen) {
+        setIsEventModalOpen(false);
+      }
+    },
+    [isEventModalOpen]
+  );
+
+  const cancelDelete = useCallback(() => {
+    const reopenEditModal = editingEvent?.id === deleteTargetId;
+    setDeleteTargetId(null);
+    if (reopenEditModal) {
+      setIsEventModalOpen(true);
+    }
+  }, [editingEvent, deleteTargetId]);
+
   const handleModalClose = () => {
     setIsEventModalOpen(false);
     setSelectedDate(null);
@@ -377,7 +395,7 @@ export default function CalendarPage() {
                 onConfigChange={setEventListConfig}
                 onEventClick={openEditModal}
                 onEventEdit={openEditModal}
-                onEventDelete={(id) => setDeleteTargetId(id)}
+                onEventDelete={requestDelete}
                 onBatchDelete={batchDeleteEvents}
                 enableBatchActions
                 loading={loading}
@@ -416,7 +434,7 @@ export default function CalendarPage() {
         onClose={() => setDayPanelDate(null)}
         onCreate={openCreateModal}
         onEdit={openEditModal}
-        onDelete={(id) => setDeleteTargetId(id)}
+        onDelete={requestDelete}
         isAuthenticated={isAuthenticated}
         onRequireLogin={requireAuth}
       />
@@ -425,7 +443,7 @@ export default function CalendarPage() {
         isOpen={isEventModalOpen}
         onClose={handleModalClose}
         onSave={handleEventSave}
-        onDelete={(id) => setDeleteTargetId(id)}
+        onDelete={requestDelete}
         event={editingEvent}
         initialDate={selectedDate ?? undefined}
         isMobile={isMobile}
@@ -433,7 +451,7 @@ export default function CalendarPage() {
 
       <ConfirmModal
         isOpen={deleteTargetId !== null}
-        onClose={() => setDeleteTargetId(null)}
+        onClose={cancelDelete}
         onConfirm={() => deleteTargetId && confirmDelete(deleteTargetId)}
         title="删除活动"
         message="确定删除此活动？此操作无法撤销。"
