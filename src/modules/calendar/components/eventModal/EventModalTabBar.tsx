@@ -50,7 +50,10 @@ export default function EventModalTabBar({
               type="button"
               role="tab"
               aria-selected={selected}
-              onClick={() => onTabChange(tab.id)}
+              onClick={(e) => {
+                onTabChange(tab.id);
+                e.currentTarget.blur();
+              }}
               className={`relative flex h-10 min-w-[4.5rem] flex-1 items-center justify-center gap-1.5 rounded-xl px-3 text-sm font-medium transition-[background-color,color,box-shadow,transform] active:scale-[0.96] sm:min-w-0 ${
                 selected
                   ? 'bg-white text-violet-700 shadow-sm shadow-violet-500/10'

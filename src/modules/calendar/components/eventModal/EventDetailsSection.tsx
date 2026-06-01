@@ -10,7 +10,6 @@ interface EventDetailsSectionProps {
   formData: EventModalFormData;
   errors: Record<string, string>;
   onChange: (field: keyof EventModalFormData, value: string | boolean | number) => void;
-  autoFocus?: boolean;
 }
 
 function FieldBlock({
@@ -47,7 +46,6 @@ export default function EventDetailsSection({
   formData,
   errors,
   onChange,
-  autoFocus = false,
 }: EventDetailsSectionProps) {
   return (
     <div className="space-y-5">
@@ -58,7 +56,6 @@ export default function EventDetailsSection({
           onChange={(e) => onChange('title', e.target.value)}
           className={`${inputClass} ${errors.title ? 'shadow-[inset_0_0_0_2px_rgba(239,68,68,0.5)]' : ''}`}
           placeholder="为活动起个名字"
-          autoFocus={autoFocus}
         />
         {errors.title && <p className="text-sm text-red-600">{errors.title}</p>}
       </FieldBlock>

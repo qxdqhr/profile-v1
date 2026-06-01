@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Modal } from 'sa2kit/components';
-import { AlertCircle, Loader2, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { AlertCircle, Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
 import {
   EventType,
   EventData,
@@ -22,7 +22,6 @@ import {
 } from './eventModal/formUtils';
 import {
   dangerButtonClass,
-  iconButtonClass,
   primaryButtonClass,
   secondaryButtonClass,
 } from './eventModal/styles';
@@ -251,27 +250,19 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
       onClose={handleClose}
       width={isMobile ? '100%' : '720px'}
       height="auto"
+      maskClosable={false}
+      className="gap-0 overflow-hidden border-0 bg-white p-0 shadow-xl sm:max-w-[720px] [&>button.absolute]:hidden [&>div]:py-0"
     >
       <div className={`relative ${isMobile ? 'flex max-h-[100dvh] flex-col' : ''}`}>
-        <header className="flex items-start justify-between gap-3 px-5 py-4 shadow-[0_1px_0_rgba(15,23,42,0.06)]">
-          <div className="flex items-start gap-3">
+        <header className="px-5 py-4 shadow-[0_1px_0_rgba(15,23,42,0.06)]">
+          <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
               {isEditMode ? <Pencil className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
             </div>
-            <div>
-              <h2 className="text-balance text-lg font-semibold text-slate-900">
-                {isEditMode ? '编辑活动' : '创建活动'}
-              </h2>
-            </div>
+            <h2 className="text-balance text-lg font-semibold text-slate-900">
+              {isEditMode ? '编辑活动' : '创建活动'}
+            </h2>
           </div>
-          <button
-            type="button"
-            onClick={handleClose}
-            className={iconButtonClass}
-            aria-label="关闭"
-          >
-            <X className="h-5 w-5" />
-          </button>
         </header>
 
         <div className="px-4 pt-4 sm:px-6">
@@ -315,7 +306,6 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
                     formData={formData}
                     errors={errors}
                     onChange={handleInputChange}
-                    autoFocus
                   />
                 </motion.div>
               )}
