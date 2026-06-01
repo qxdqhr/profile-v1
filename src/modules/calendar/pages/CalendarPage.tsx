@@ -26,16 +26,12 @@ import CalendarWeekView from '../components/CalendarWeekView';
 import CalendarDayView from '../components/CalendarDayView';
 import DayEventsSheet from '../components/DayEventsSheet';
 import CalendarToast from '../components/CalendarToast';
-import CalendarFloatingNav, { type CalendarMainTab } from '../components/CalendarFloatingNav';
+import CalendarHeaderNav, { type CalendarMainTab } from '../components/CalendarHeaderNav';
 import type { CalendarSettings as CalendarSettingsType } from '../components/CalendarSettings';
 import { EventData, EventType } from '../services/eventTypeService';
 import { useDeviceType } from '../utils/deviceUtils';
 import { mapStringToEventPriority } from '../utils/eventDisplay';
 import type { CalendarEvent } from '../types';
-
-const NAV_WIDTH_COLLAPSED = 56;
-const NAV_WIDTH_EXPANDED = 200;
-const NAV_GAP = 16;
 
 function getViewTitle(viewType: CalendarViewType, currentDate: Date): string {
   switch (viewType) {
@@ -67,7 +63,6 @@ export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState<CalendarViewType>(CalendarViewType.MONTH);
   const [activeTab, setActiveTab] = useState<CalendarMainTab>('calendar');
-  const [navCollapsed, setNavCollapsed] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -102,12 +97,6 @@ export default function CalendarPage() {
     fetchEvents,
     clearError,
   } = useEnhancedEvents();
-
-  useEffect(() => {
-    if (isMobile) setNavCollapsed(true);
-  }, [isMobile]);
-
-  const mainOffset = navCollapsed ? NAV_WIDTH_COLLAPSED + NAV_GAP : NAV_WIDTH_EXPANDED + NAV_GAP;
 
   const showToast = useCallback((message: string, variant: 'success' | 'error' = 'success') => {
     setToast({ message, variant });
@@ -325,26 +314,16 @@ export default function CalendarPage() {
 
   return (
     <div className="relative min-h-[100dvh] bg-gradient-to-br from-slate-50 via-white to-violet-50/20">
-      <CalendarFloatingNav
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        isAuthenticated={isAuthenticated}
-        onLoginClick={() => setIsLoginModalOpen(true)}
-        collapsed={navCollapsed}
-        onCollapsedChange={setNavCollapsed}
-        onOpenSettings={() => setActiveTab('settings')}
-      />
+      <main className="mx-auto flex min-h-[100dvh] max-w-7xl flex-col px-3 py-3 sm:px-5 sm:py-4 lg:px-8">
+        <CalendarHeaderNav
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          isAuthenticated={isAuthenticated}
+          onLoginClick={() => setIsLoginModalOpen(true)}
+          onOpenSettings={() => setActiveTab('settings')}
+        />
 
-      <main
-        className="flex min-h-[100dvh] flex-col transition-[padding] duration-300 ease-[cubic-bezier(0.2,0,0,1)]"
-        style={{ paddingLeft: mainOffset }}
-      >
-        <div className="flex min-h-0 flex-1 flex-col px-3 py-3 sm:px-5 sm:py-4 lg:pr-6">
-          <h1 className="text-balance text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
-            日历
-          </h1>
-
-          {error && (
+        {error && (
             <div
               role="alert"
               className="mt-3 flex items-start justify-between gap-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800 shadow-[inset_0_0_0_1px_rgba(239,68,68,0.2)]"
@@ -417,7 +396,6 @@ export default function CalendarPage() {
               <CalendarSettings onSettingsChange={setCalendarSettings} />
             </div>
           )}
-        </div>
       </main>
 
       {activeTab === 'calendar' && isAuthenticated && (

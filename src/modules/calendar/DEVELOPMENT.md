@@ -25,8 +25,8 @@
 - [x] 创建/编辑表单分区 stagger 入场动画（framer-motion，`bounce: 0`）
 - [x] 文案统一为「活动」（替代「事件」）
 - [x] 创建/编辑弹窗 Tab 分区：类型 / 详情 / 时间 / 样式
-- [x] `CalendarFloatingNav` 纵向可折叠悬浮导航，合并登录/UserMenu
-- [x] 顶栏简化为仅「日历」标题，日历视图区占主内容区
+- [x] `CalendarHeaderNav` 水平 Tab 栏置于「日历」标题旁，右侧合并登录/UserMenu
+- [x] 日历视图区占主内容区全宽
 
 ### 待办
 - [ ] 编辑模式完整支持多天/重复事件元数据
