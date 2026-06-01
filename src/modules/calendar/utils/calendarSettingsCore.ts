@@ -101,7 +101,6 @@ export type CalendarThemeKey = keyof typeof COLOR_THEMES;
 
 export interface CalendarSettings {
   theme: CalendarThemeKey;
-  customColors?: Record<string, string>;
   weekStartsOn: number;
   timeFormat: '12h' | '24h';
   language: string;
@@ -147,14 +146,7 @@ export function saveCalendarSettings(settings: CalendarSettings): void {
 }
 
 export function resolveTheme(settings: CalendarSettings) {
-  const base = COLOR_THEMES[settings.theme] ?? COLOR_THEMES.default;
-  return {
-    ...base,
-    colors: {
-      ...base.colors,
-      ...(settings.customColors ?? {}),
-    },
-  };
+  return COLOR_THEMES[settings.theme] ?? COLOR_THEMES.default;
 }
 
 export function getThemeCssProperties(settings: CalendarSettings): Record<string, string> {

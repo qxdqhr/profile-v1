@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
   const result = await runAiTask(body.taskId, body.input, {
     userId: user.id,
     requestId,
+    clientSettings: body.clientSettings,
   });
 
   const status = result.success

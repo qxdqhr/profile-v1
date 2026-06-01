@@ -1,4 +1,4 @@
-import { getAiServerConfig } from './config';
+import { resolveAiServerConfig } from './config';
 import type { AiImageInput } from '../types';
 
 const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
@@ -11,7 +11,7 @@ export function assertValidImageInput(image: AiImageInput): void {
     throw new Error(`不支持的图片格式: ${image.mimeType}`);
   }
 
-  const config = getAiServerConfig();
+  const config = resolveAiServerConfig();
   const maxBytes = config?.maxImageBytes ?? 5 * 1024 * 1024;
   const byteLength = Buffer.byteLength(image.base64, 'base64');
   if (byteLength > maxBytes) {

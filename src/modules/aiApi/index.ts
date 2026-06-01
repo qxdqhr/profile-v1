@@ -22,6 +22,23 @@ export {
 
 export { useAiTask } from './hooks/useAiTask';
 
+export {
+  AiApiSettingsProvider,
+  useAiApiSettings,
+} from './context/AiApiSettingsContext';
+
+export { default as AiApiSettingsPanel } from './components/AiApiSettingsPanel';
+
+export type { AiApiSettings, AiClientSettings } from './utils/aiSettingsCore';
+
+export {
+  DEFAULT_AI_API_SETTINGS,
+  AI_API_SETTINGS_STORAGE_KEY,
+  loadAiApiSettings,
+  saveAiApiSettings,
+  pickClientSettingsFromStorage,
+} from './utils/aiSettingsCore';
+
 export const AI_API_MODULE_VERSION = '1.0.0';
 
 /** 内置通用任务 ID */

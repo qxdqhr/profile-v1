@@ -1,8 +1,11 @@
+import type { AiClientSettings } from '../utils/aiSettingsCore';
+
 /** 统一 AI 任务请求 */
 export interface AiApiRunRequest<TInput = unknown> {
   taskId: string;
   input: TInput;
   options?: AiTaskRunOptions;
+  clientSettings?: AiClientSettings;
 }
 
 export interface AiTaskRunOptions {
@@ -69,6 +72,7 @@ export interface StructuredMultimodalOutput {
 export interface AiTaskContext {
   userId: number;
   requestId: string;
+  clientSettings?: AiClientSettings;
 }
 
 export interface AiTaskDefinition<TInput = unknown, TOutput = unknown> {

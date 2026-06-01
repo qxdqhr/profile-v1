@@ -31,6 +31,7 @@ import {
   CalendarSettingsProvider,
   useCalendarSettings,
 } from '../context/CalendarSettingsContext';
+import { AiApiSettingsProvider } from '@/modules/aiApi';
 import {
   getThemeCssProperties,
   formatViewTitleDay,
@@ -490,8 +491,10 @@ function CalendarPageContent() {
 
 export default function CalendarPage() {
   return (
-    <CalendarSettingsProvider>
-      <CalendarPageContent />
-    </CalendarSettingsProvider>
+    <AiApiSettingsProvider>
+      <CalendarSettingsProvider>
+        <CalendarPageContent />
+      </CalendarSettingsProvider>
+    </AiApiSettingsProvider>
   );
 }

@@ -1,4 +1,5 @@
 import type { AiApiResponse, AiApiRunRequest } from '../types';
+import { pickClientSettingsFromStorage } from '../utils/aiSettingsCore';
 
 export class AiApiClientError extends Error {
   constructor(
@@ -14,9 +15,16 @@ export class AiApiClientError extends Error {
 export async function runAiTask<TInput, TOutput>(
   taskId: string,
   input: TInput,
-  options?: { signal?: AbortSignal }
+  options?: { signal?: AbortSignal; clientSettings?: AiApiRunRequest['clientSettings'] }
 ): Promise<AiApiResponse<TOutput>> {
-  const payload: AiApiRunRequest<TInput> = { taskId, input };
+  const clientSettings =
+    options?.clientSettings ?? pickClientSettingsFromStorage();
+
+  const payload: AiApiRunRequest<TInput> = {
+    taskId,
+    input,
+    ...(clientSettings ? { clientSettings } : {}),
+  };
 
   const response = await fetch('/api/ai/run', {
     method: 'POST',
@@ -33,7 +41,7 @@ export async function runAiTask<TInput, TOutput>(
 export async function runAiTaskOrThrow<TInput, TOutput>(
   taskId: string,
   input: TInput,
-  options?: { signal?: AbortSignal }
+  options?: { signal?: AbortSignal; clientSettings?: AiApiRunRequest['clientSettings'] }
 ): Promise<TOutput> {
   const result = await runAiTask<TInput, TOutput>(taskId, input, options);
   if (!result.success || result.data === undefined) {

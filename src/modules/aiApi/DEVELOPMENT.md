@@ -55,11 +55,19 @@ ideaList/ai/... (未来)          → registerAiTask()
 
 | 变量 | 说明 | 默认 |
 |------|------|------|
-| `AI_API_KEY` | API Key | 回退 `OPENAI_API_KEY` |
+| `AI_API_KEY` | 服务端 API Key（可选） | 回退 `OPENAI_API_KEY` |
 | `AI_BASE_URL` | OpenAI 兼容 base | `https://api.openai.com/v1` |
 | `AI_VISION_MODEL` | 多模态模型 | `gpt-4o-mini` |
 | `AI_TEXT_MODEL` | 纯文本模型 | `gpt-4o-mini` |
 | `AI_MAX_IMAGE_BYTES` | 单图上限 | `5242880` (5MB) |
+
+客户端可在设置页填写 API Key（`localStorage` → 请求体 `clientSettings`）。**优先使用客户端 Key**，未填写时使用服务端环境变量。
+
+## 客户端设置
+
+- `utils/aiSettingsCore.ts` — 持久化与 `pickClientSettingsFromStorage()`
+- `context/AiApiSettingsContext.tsx` — Provider
+- `components/AiApiSettingsPanel.tsx` — 设置 UI（日历设置 Tab「AI」引用）
 
 ## Checklist
 
@@ -68,6 +76,7 @@ ideaList/ai/... (未来)          → registerAiTask()
 - [x] 通用任务 `core.structuredMultimodal`
 - [x] `POST /api/ai/run`
 - [x] 客户端 `aiApiClient` + `useAiTask`
+- [x] 客户端 API Key / Base URL / 模型设置（`AiApiSettingsPanel`）
 - [x] 日历任务 `calendar.eventFromImage` 接入
 - [ ] 限流与审计日志
 - [ ] 更多业务模块示例

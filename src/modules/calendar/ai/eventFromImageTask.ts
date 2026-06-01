@@ -55,7 +55,7 @@ export const calendarEventFromImageTask: AiTaskDefinition<
     assertValidImageInput({ base64: input.imageBase64, mimeType: input.mimeType });
     return input;
   },
-  async execute(input) {
+  async execute(input, ctx) {
     const timezone = input.timezone || 'Asia/Shanghai';
     const locale = input.locale || 'zh-CN';
     const referenceDate = input.referenceDate || new Date().toISOString();
@@ -71,13 +71,16 @@ export const calendarEventFromImageTask: AiTaskDefinition<
       '不要输出 Markdown。',
     ].join('\n');
 
-    const result = await callOpenAiCompatibleVisionChat({
-      systemPrompt,
-      userPrompt: '请识别图片中的活动并输出 JSON。',
-      images: [{ base64: input.imageBase64, mimeType: input.mimeType }],
-      jsonMode: true,
-      temperature: 0.1,
-    });
+    const result = await callOpenAiCompatibleVisionChat(
+      {
+        systemPrompt,
+        userPrompt: '请识别图片中的活动并输出 JSON。',
+        images: [{ base64: input.imageBase64, mimeType: input.mimeType }],
+        jsonMode: true,
+        temperature: 0.1,
+      },
+      ctx.clientSettings
+    );
 
     const json = extractJsonObject(result.content);
     const data = parseOutput(json);

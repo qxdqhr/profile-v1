@@ -28,19 +28,22 @@ export const coreStructuredMultimodalTask: AiTaskDefinition<
     }
     return input;
   },
-  async execute(input) {
+  async execute(input, ctx) {
     const schemaHint = input.jsonSchemaHint
       ? `\n\n请严格输出 JSON 对象，结构参考：\n${input.jsonSchemaHint}`
       : '\n\n请严格输出 JSON 对象，不要包含 Markdown 代码块。';
 
-    const result = await callOpenAiCompatibleVisionChat({
-      systemPrompt: input.systemPrompt,
-      userPrompt: `${input.userPrompt}${schemaHint}`,
-      images: input.images,
-      temperature: input.temperature ?? 0.2,
-      maxTokens: input.maxTokens,
-      jsonMode: true,
-    });
+    const result = await callOpenAiCompatibleVisionChat(
+      {
+        systemPrompt: input.systemPrompt,
+        userPrompt: `${input.userPrompt}${schemaHint}`,
+        images: input.images,
+        temperature: input.temperature ?? 0.2,
+        maxTokens: input.maxTokens,
+        jsonMode: true,
+      },
+      ctx.clientSettings
+    );
 
     const json = extractJsonObject(result.content);
 

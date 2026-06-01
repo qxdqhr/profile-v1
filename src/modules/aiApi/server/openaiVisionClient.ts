@@ -1,4 +1,5 @@
-import { getAiServerConfig } from './config';
+import { resolveAiServerConfig } from './config';
+import type { AiClientSettings } from '../utils/aiSettingsCore';
 import type { AiImageInput } from '../types';
 
 export interface VisionChatParams {
@@ -22,11 +23,12 @@ function joinUrl(baseUrl: string, path: string): string {
 }
 
 export async function callOpenAiCompatibleVisionChat(
-  params: VisionChatParams
+  params: VisionChatParams,
+  clientSettings?: AiClientSettings
 ): Promise<VisionChatResult> {
-  const config = getAiServerConfig();
+  const config = resolveAiServerConfig(clientSettings);
   if (!config) {
-    throw new Error('AI_API_KEY 未配置');
+    throw new Error('未配置 AI API Key，请在设置中填写或配置服务端环境变量');
   }
 
   const model = params.model || (params.images?.length ? config.visionModel : config.textModel);

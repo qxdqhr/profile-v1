@@ -1,4 +1,4 @@
-import { getAiServerConfig } from './config';
+import { resolveAiServerConfig } from './config';
 import { getAiTask } from './taskRegistry';
 import type { AiApiResponse, AiTaskContext } from '../types';
 
@@ -9,13 +9,13 @@ export async function runAiTask<TData = unknown>(
 ): Promise<AiApiResponse<TData>> {
   const started = Date.now();
 
-  if (!getAiServerConfig()) {
+  if (!resolveAiServerConfig(ctx.clientSettings)) {
     return {
       success: false,
       taskId,
       error: {
         code: 'AI_CONFIG_MISSING',
-        message: '服务端未配置 AI_API_KEY（或 OPENAI_API_KEY）',
+        message: '未配置 AI API Key，请在设置中填写或配置服务端环境变量',
       },
     };
   }
