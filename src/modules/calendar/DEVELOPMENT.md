@@ -21,6 +21,9 @@
 - [x] `text-balance` / `text-pretty` 标题与说明
 - [x] 指定 `transition-[property]`，避免 `transition: all`
 - [x] 交互控件最小约 40×40px 点击区域
+- [x] `ImprovedEventModal` 拆分为 `eventModal/*` 子组件，与 `DayEventsSheet` 统一 violet 视觉
+- [x] 创建/编辑表单分区 stagger 入场动画（framer-motion，`bounce: 0`）
+- [x] 文案统一为「活动」（替代「事件」）
 
 ### 待办
 - [ ] 编辑模式完整支持多天/重复事件元数据
