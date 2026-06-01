@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useAuth, UserMenu, LoginModal } from 'sa2kit/auth/legacy';
-import { Settings, Calculator, Plus } from 'lucide-react';
+import { useAuth, LoginModal } from 'sa2kit/auth/legacy';
+import { Plus } from 'lucide-react';
 import { ConfirmModal } from 'sa2kit/components';
 import { DateCalculatorTool } from '@/modules/dateCalculator';
 import {
@@ -26,13 +26,16 @@ import CalendarWeekView from '../components/CalendarWeekView';
 import CalendarDayView from '../components/CalendarDayView';
 import DayEventsSheet from '../components/DayEventsSheet';
 import CalendarToast from '../components/CalendarToast';
+import CalendarFloatingNav, { type CalendarMainTab } from '../components/CalendarFloatingNav';
 import type { CalendarSettings as CalendarSettingsType } from '../components/CalendarSettings';
 import { EventData, EventType } from '../services/eventTypeService';
 import { useDeviceType } from '../utils/deviceUtils';
 import { mapStringToEventPriority } from '../utils/eventDisplay';
 import type { CalendarEvent } from '../types';
 
-type MainTab = 'calendar' | 'events' | 'tools' | 'settings';
+const NAV_WIDTH_COLLAPSED = 56;
+const NAV_WIDTH_EXPANDED = 200;
+const NAV_GAP = 16;
 
 function getViewTitle(viewType: CalendarViewType, currentDate: Date): string {
   switch (viewType) {
@@ -63,7 +66,8 @@ function getViewTitle(viewType: CalendarViewType, currentDate: Date): string {
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState<CalendarViewType>(CalendarViewType.MONTH);
-  const [activeTab, setActiveTab] = useState<MainTab>('calendar');
+  const [activeTab, setActiveTab] = useState<CalendarMainTab>('calendar');
+  const [navCollapsed, setNavCollapsed] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -98,6 +102,12 @@ export default function CalendarPage() {
     fetchEvents,
     clearError,
   } = useEnhancedEvents();
+
+  useEffect(() => {
+    if (isMobile) setNavCollapsed(true);
+  }, [isMobile]);
+
+  const mainOffset = navCollapsed ? NAV_WIDTH_COLLAPSED + NAV_GAP : NAV_WIDTH_EXPANDED + NAV_GAP;
 
   const showToast = useCallback((message: string, variant: 'success' | 'error' = 'success') => {
     setToast({ message, variant });
@@ -313,144 +323,102 @@ export default function CalendarPage() {
     }
   };
 
-  const tabs: { id: MainTab; label: string; icon?: React.ReactNode }[] = [
-    { id: 'calendar', label: '日历' },
-    { id: 'events', label: '全部活动' },
-    { id: 'tools', label: '日期工具', icon: <Calculator className="h-4 w-4 shrink-0" aria-hidden /> },
-    { id: 'settings', label: '设置' },
-  ];
-
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-slate-50 via-violet-50/30 to-slate-100/80">
-      <div className="relative mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-8 lg:px-8">
-        <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-600/90">
-              实验田
-            </p>
-            <h1 className="text-balance text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-              日历
-            </h1>
-            <p className="mt-1 max-w-xl text-pretty text-sm text-slate-600">
-              月 / 周 / 日视图管理活动；移动端点击日期可查看并编辑当日全部安排。
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            {isAuthenticated ? (
-              <UserMenu
-                customMenuItems={[
-                  {
-                    id: 'settings',
-                    label: '个人设置',
-                    icon: Settings,
-                    onClick: () => setActiveTab('settings'),
-                  },
-                ]}
-              />
-            ) : (
+    <div className="relative min-h-[100dvh] bg-gradient-to-br from-slate-50 via-white to-violet-50/20">
+      <CalendarFloatingNav
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        isAuthenticated={isAuthenticated}
+        onLoginClick={() => setIsLoginModalOpen(true)}
+        collapsed={navCollapsed}
+        onCollapsedChange={setNavCollapsed}
+        onOpenSettings={() => setActiveTab('settings')}
+      />
+
+      <main
+        className="flex min-h-[100dvh] flex-col transition-[padding] duration-300 ease-[cubic-bezier(0.2,0,0,1)]"
+        style={{ paddingLeft: mainOffset }}
+      >
+        <div className="flex min-h-0 flex-1 flex-col px-3 py-3 sm:px-5 sm:py-4 lg:pr-6">
+          <h1 className="text-balance text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
+            日历
+          </h1>
+
+          {error && (
+            <div
+              role="alert"
+              className="mt-3 flex items-start justify-between gap-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800 shadow-[inset_0_0_0_1px_rgba(239,68,68,0.2)]"
+            >
+              <span className="text-pretty">{error}</span>
               <button
                 type="button"
-                onClick={() => setIsLoginModalOpen(true)}
-                className="h-10 rounded-xl bg-violet-600 px-4 text-sm font-medium text-white shadow-sm transition-transform hover:bg-violet-700 active:scale-[0.96]"
+                onClick={clearError}
+                className="flex h-10 shrink-0 items-center px-2 font-medium text-red-600 transition-transform active:scale-[0.96]"
               >
-                登录
+                关闭
               </button>
-            )}
-          </div>
-        </header>
+            </div>
+          )}
 
-        <nav
-          className="mb-6 inline-flex w-full gap-1 rounded-2xl bg-white/80 p-1 shadow-sm sm:w-auto"
-          role="tablist"
-          aria-label="日历模块导航"
-        >
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-1 items-center justify-center gap-1 rounded-xl px-3 py-2.5 text-sm font-medium transition-[background-color,color,box-shadow] sm:flex-none sm:px-4 ${
-                activeTab === tab.id
-                  ? 'bg-violet-600 text-white shadow-sm'
-                  : 'text-slate-600 hover:bg-slate-50'
-              }`}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
-        </nav>
-
-        {error && (
-          <div
-            role="alert"
-            className="mb-4 flex items-start justify-between gap-3 rounded-xl border border-red-200/80 bg-red-50 px-4 py-3 text-sm text-red-800"
-          >
-            <span>{error}</span>
-            <button
-              type="button"
-              onClick={clearError}
-              className="shrink-0 font-medium text-red-600 hover:text-red-800"
-            >
-              关闭
-            </button>
-          </div>
-        )}
-
-        {activeTab === 'calendar' && (
-          <div className="space-y-4">
-            {!isAuthenticated && (
-              <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200/80">
-                登录后可创建与保存活动。
-              </p>
-            )}
-            <CalendarToolbar
-              title={viewTitle}
-              viewType={viewType}
-              onPrevious={goToPrevious}
-              onNext={goToNext}
-              onToday={() => setCurrentDate(new Date())}
-              onViewTypeChange={setViewType}
-            />
-            {loading && events.length === 0 ? (
-              <div className="flex justify-center py-16">
-                <div
-                  className="h-8 w-8 animate-spin rounded-full border-2 border-violet-600 border-t-transparent"
-                  aria-label="加载中"
-                />
+          {activeTab === 'calendar' && (
+            <div className="mt-3 flex min-h-0 flex-1 flex-col gap-3">
+              {!isAuthenticated && (
+                <p className="rounded-xl bg-amber-50/90 px-4 py-2.5 text-sm text-amber-900 shadow-[inset_0_0_0_1px_rgba(245,158,11,0.25)]">
+                  登录后可创建与保存活动。
+                </p>
+              )}
+              <CalendarToolbar
+                title={viewTitle}
+                viewType={viewType}
+                onPrevious={goToPrevious}
+                onNext={goToNext}
+                onToday={() => setCurrentDate(new Date())}
+                onViewTypeChange={setViewType}
+              />
+              <div className="min-h-0 flex-1 overflow-auto rounded-2xl bg-white/90 shadow-[0_1px_3px_rgba(15,23,42,0.06),0_8px_24px_rgba(15,23,42,0.04)]">
+                {loading && events.length === 0 ? (
+                  <div className="flex justify-center py-16">
+                    <div
+                      className="h-8 w-8 animate-spin rounded-full border-2 border-violet-600 border-t-transparent"
+                      aria-label="加载中"
+                    />
+                  </div>
+                ) : (
+                  renderCalendarView()
+                )}
               </div>
-            ) : (
-              renderCalendarView()
-            )}
-          </div>
-        )}
+            </div>
+          )}
 
-        {activeTab === 'events' && (
-          <EventList
-            events={events}
-            config={eventListConfig}
-            onConfigChange={setEventListConfig}
-            onEventClick={openEditModal}
-            onEventEdit={openEditModal}
-            onEventDelete={(id) => setDeleteTargetId(id)}
-            onBatchDelete={batchDeleteEvents}
-            enableBatchActions
-            loading={loading}
-          />
-        )}
+          {activeTab === 'events' && (
+            <div className="mt-3 min-h-0 flex-1 overflow-auto">
+              <EventList
+                events={events}
+                config={eventListConfig}
+                onConfigChange={setEventListConfig}
+                onEventClick={openEditModal}
+                onEventEdit={openEditModal}
+                onEventDelete={(id) => setDeleteTargetId(id)}
+                onBatchDelete={batchDeleteEvents}
+                enableBatchActions
+                loading={loading}
+              />
+            </div>
+          )}
 
-        {activeTab === 'tools' && (
-          <div className="rounded-2xl bg-white/90 p-4 shadow-sm sm:p-6">
-            <DateCalculatorTool variant="embedded" />
-          </div>
-        )}
+          {activeTab === 'tools' && (
+            <div className="mt-3 rounded-2xl bg-white/90 p-4 shadow-[0_1px_3px_rgba(15,23,42,0.06),0_8px_24px_rgba(15,23,42,0.04)] sm:p-6">
+              <DateCalculatorTool variant="embedded" />
+            </div>
+          )}
 
-        {activeTab === 'settings' && (
-          <CalendarSettings onSettingsChange={setCalendarSettings} />
-        )}
-      </div>
+          {activeTab === 'settings' && (
+            <div className="mt-3 min-h-0 flex-1 overflow-auto">
+              <CalendarSettings onSettingsChange={setCalendarSettings} />
+            </div>
+          )}
+        </div>
+      </main>
 
       {activeTab === 'calendar' && isAuthenticated && (
         <button
@@ -479,7 +447,7 @@ export default function CalendarPage() {
         isOpen={isEventModalOpen}
         onClose={handleModalClose}
         onSave={handleEventSave}
-        onDelete={editingEvent ? () => setDeleteTargetId(editingEvent.id) : undefined}
+        onDelete={(id) => setDeleteTargetId(id)}
         event={editingEvent}
         initialDate={selectedDate ?? undefined}
         isMobile={isMobile}

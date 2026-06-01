@@ -2,17 +2,19 @@ import { NextRequest } from 'next/server';
 import { calendarDbService } from '../../../server';
 import { validateApiAuth } from '@/lib/auth/legacy';
 
-interface RouteParams {
-  params: {
-    id: string;
-  };
+type RouteContext = { params: Promise<{ id: string }> };
+
+async function resolveEventId(context: RouteContext): Promise<number | null> {
+  const { id } = await context.params;
+  const eventId = parseInt(id, 10);
+  return Number.isNaN(eventId) ? null : eventId;
 }
 
 /**
  * 获取单个事件
  * GET /api/calendar/events/[id]
  */
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(request: NextRequest, context: RouteContext) {
   try {
     // 验证用户身份
     const user = await validateApiAuth(request);
@@ -23,8 +25,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const eventId = parseInt(params.id);
-    if (isNaN(eventId)) {
+    const eventId = await resolveEventId(context);
+    if (eventId === null) {
       return Response.json(
         { success: false, error: '事件ID无效' },
         { status: 400 }
@@ -78,7 +80,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  * 更新事件
  * PUT /api/calendar/events/[id]
  */
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+export async function PUT(request: NextRequest, context: RouteContext) {
   try {
     // 验证用户身份
     const user = await validateApiAuth(request);
@@ -89,8 +91,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const eventId = parseInt(params.id);
-    if (isNaN(eventId)) {
+    const eventId = await resolveEventId(context);
+    if (eventId === null) {
       return Response.json(
         { success: false, error: '事件ID无效' },
         { status: 400 }
@@ -253,7 +255,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
  * 删除事件
  * DELETE /api/calendar/events/[id]
  */
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
     // 验证用户身份
     const user = await validateApiAuth(request);
@@ -264,8 +266,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const eventId = parseInt(params.id);
-    if (isNaN(eventId)) {
+    const eventId = await resolveEventId(context);
+    if (eventId === null) {
       return Response.json(
         { success: false, error: '事件ID无效' },
         { status: 400 }

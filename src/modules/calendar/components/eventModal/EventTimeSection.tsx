@@ -12,6 +12,7 @@ interface EventTimeSectionProps {
   variant: 'single' | 'multi_day' | 'recurring';
   onChange: (field: keyof EventModalFormData, value: string | boolean | number) => void;
   staggerBase?: number;
+  showAllDayToggle?: boolean;
 }
 
 function TimeField({
@@ -51,15 +52,43 @@ export default function EventTimeSection({
   variant,
   onChange,
   staggerBase = 0,
+  showAllDayToggle = true,
 }: EventTimeSectionProps) {
+  const allDayBlock = showAllDayToggle ? (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: staggerBase, type: 'spring', duration: 0.3, bounce: 0 }}
+      className={`${sectionClass} !p-3`}
+    >
+      <label className="flex cursor-pointer items-center justify-between gap-4">
+        <div>
+          <p className={labelClass}>全天活动</p>
+          <p className={hintClass}>不设置具体时间，整天有效</p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={formData.allDay}
+          onClick={() => onChange('allDay', !formData.allDay)}
+          className={`relative h-7 w-12 shrink-0 rounded-full transition-[background-color] ${
+            formData.allDay ? 'bg-violet-600' : 'bg-slate-300'
+          }`}
+        >
+          <span
+            className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow-sm transition-transform ${
+              formData.allDay ? 'translate-x-[22px]' : 'translate-x-0.5'
+            }`}
+          />
+        </button>
+      </label>
+    </motion.div>
+  ) : null;
+
   if (variant === 'single') {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: staggerBase, type: 'spring', duration: 0.3, bounce: 0 }}
-        className="space-y-4"
-      >
+      <div className="space-y-4">
+        {allDayBlock}
         {formData.allDay ? (
           <div className={`${sectionClass} flex items-start gap-3 !p-4`}>
             <Sun className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
@@ -100,179 +129,185 @@ export default function EventTimeSection({
             </div>
           </>
         )}
-      </motion.div>
+      </div>
     );
   }
 
   if (variant === 'multi_day') {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: staggerBase, type: 'spring', duration: 0.3, bounce: 0 }}
-        className="space-y-4"
-      >
-        <div className={`${sectionClass} space-y-4`}>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <TimeField
-              id="startDate"
-              label="开始日期"
-              type="date"
-              value={formData.startDate}
-              onChange={(v) => onChange('startDate', v)}
-              required
-            />
-            <TimeField
-              id="endDate"
-              label="结束日期"
-              type="date"
-              value={formData.endDate}
-              onChange={(v) => onChange('endDate', v)}
-              required
-            />
-          </div>
-
-          {!formData.allDay && (
+      <div className="space-y-4">
+        {allDayBlock}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: staggerBase + 0.08, type: 'spring', duration: 0.3, bounce: 0 }}
+          className="space-y-4"
+        >
+          <div className={`${sectionClass} space-y-4`}>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <TimeField
-                id="dailyStartTime"
-                label="每日开始"
-                type="time"
-                value={formData.dailyStartTime}
-                onChange={(v) => onChange('dailyStartTime', v)}
+                id="startDate"
+                label="开始日期"
+                type="date"
+                value={formData.startDate}
+                onChange={(v) => onChange('startDate', v)}
+                required
               />
               <TimeField
-                id="dailyEndTime"
-                label="每日结束"
-                type="time"
-                value={formData.dailyEndTime}
-                onChange={(v) => onChange('dailyEndTime', v)}
+                id="endDate"
+                label="结束日期"
+                type="date"
+                value={formData.endDate}
+                onChange={(v) => onChange('endDate', v)}
+                required
               />
             </div>
-          )}
-        </div>
-        <p className={hintClass}>
-          例如：21 日至 23 日的培训，系统会在连续三天各创建一个活动实例。
-        </p>
-      </motion.div>
+
+            {!formData.allDay && (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <TimeField
+                  id="dailyStartTime"
+                  label="每日开始"
+                  type="time"
+                  value={formData.dailyStartTime}
+                  onChange={(v) => onChange('dailyStartTime', v)}
+                />
+                <TimeField
+                  id="dailyEndTime"
+                  label="每日结束"
+                  type="time"
+                  value={formData.dailyEndTime}
+                  onChange={(v) => onChange('dailyEndTime', v)}
+                />
+              </div>
+            )}
+          </div>
+          <p className={hintClass}>
+            例如：21 日至 23 日的培训，系统会在连续三天各创建一个活动实例。
+          </p>
+        </motion.div>
+      </div>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: staggerBase, type: 'spring', duration: 0.3, bounce: 0 }}
-      className="space-y-4"
-    >
-      <div className={`${sectionClass} space-y-4`}>
-        <TimeField
-          id="recurrenceStartDate"
-          label="开始日期"
-          type="date"
-          value={formData.recurrenceStartDate}
-          onChange={(v) => onChange('recurrenceStartDate', v)}
-          required
-        />
+    <div className="space-y-4">
+      {allDayBlock}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: staggerBase + 0.08, type: 'spring', duration: 0.3, bounce: 0 }}
+        className="space-y-4"
+      >
+        <div className={`${sectionClass} space-y-4`}>
+          <TimeField
+            id="recurrenceStartDate"
+            label="开始日期"
+            type="date"
+            value={formData.recurrenceStartDate}
+            onChange={(v) => onChange('recurrenceStartDate', v)}
+            required
+          />
 
-        {!formData.allDay && (
+          {!formData.allDay && (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <TimeField
+                id="recurrenceStartTime"
+                label="开始时间"
+                type="datetime-local"
+                value={formData.recurrenceStartTime}
+                onChange={(v) => onChange('recurrenceStartTime', v)}
+                required
+              />
+              <TimeField
+                id="recurrenceEndTime"
+                label="结束时间"
+                type="datetime-local"
+                value={formData.recurrenceEndTime}
+                onChange={(v) => onChange('recurrenceEndTime', v)}
+                required
+              />
+            </div>
+          )}
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <TimeField
-              id="recurrenceStartTime"
-              label="开始时间"
-              type="datetime-local"
-              value={formData.recurrenceStartTime}
-              onChange={(v) => onChange('recurrenceStartTime', v)}
-              required
-            />
-            <TimeField
-              id="recurrenceEndTime"
-              label="结束时间"
-              type="datetime-local"
-              value={formData.recurrenceEndTime}
-              onChange={(v) => onChange('recurrenceEndTime', v)}
-              required
-            />
+            <div className="space-y-2">
+              <label htmlFor="recurrencePattern" className={labelClass}>
+                重复模式 <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="recurrencePattern"
+                value={formData.recurrencePattern}
+                onChange={(e) =>
+                  onChange('recurrencePattern', e.target.value as RecurrencePattern)
+                }
+                className={inputClass}
+              >
+                <option value="daily">每天</option>
+                <option value="weekly">每周</option>
+                <option value="monthly">每月</option>
+                <option value="yearly">每年</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="recurrenceInterval" className={labelClass}>
+                重复间隔
+              </label>
+              <input
+                id="recurrenceInterval"
+                type="number"
+                min={1}
+                max={365}
+                value={formData.recurrenceInterval}
+                onChange={(e) => onChange('recurrenceInterval', parseInt(e.target.value, 10) || 1)}
+                className={`${inputClass} tabular-nums`}
+              />
+            </div>
           </div>
-        )}
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <label htmlFor="recurrencePattern" className={labelClass}>
-              重复模式 <span className="text-red-500">*</span>
+          <div className="space-y-3">
+            <p className={labelClass}>结束条件</p>
+            <label className="flex min-h-10 cursor-pointer items-center gap-3">
+              <input
+                type="radio"
+                checked={formData.useEndDate}
+                onChange={() => onChange('useEndDate', true)}
+                className="h-4 w-4 text-violet-600 focus:ring-violet-500"
+              />
+              <span className="text-sm text-slate-700">结束日期</span>
             </label>
-            <select
-              id="recurrencePattern"
-              value={formData.recurrencePattern}
-              onChange={(e) =>
-                onChange('recurrencePattern', e.target.value as RecurrencePattern)
-              }
-              className={inputClass}
-            >
-              <option value="daily">每天</option>
-              <option value="weekly">每周</option>
-              <option value="monthly">每月</option>
-              <option value="yearly">每年</option>
-            </select>
-          </div>
-          <div className="space-y-2">
-            <label htmlFor="recurrenceInterval" className={labelClass}>
-              重复间隔
+            {formData.useEndDate && (
+              <input
+                type="date"
+                value={formData.recurrenceEndDate}
+                onChange={(e) => onChange('recurrenceEndDate', e.target.value)}
+                className={`${inputClass} tabular-nums`}
+              />
+            )}
+            <label className="flex min-h-10 cursor-pointer items-center gap-3">
+              <input
+                type="radio"
+                checked={!formData.useEndDate}
+                onChange={() => onChange('useEndDate', false)}
+                className="h-4 w-4 text-violet-600 focus:ring-violet-500"
+              />
+              <span className="text-sm text-slate-700">重复次数</span>
             </label>
-            <input
-              id="recurrenceInterval"
-              type="number"
-              min={1}
-              max={365}
-              value={formData.recurrenceInterval}
-              onChange={(e) => onChange('recurrenceInterval', parseInt(e.target.value, 10) || 1)}
-              className={`${inputClass} tabular-nums`}
-            />
+            {!formData.useEndDate && (
+              <input
+                type="number"
+                min={1}
+                max={999}
+                value={formData.recurrenceCount}
+                onChange={(e) => onChange('recurrenceCount', parseInt(e.target.value, 10) || 0)}
+                className={`${inputClass} tabular-nums`}
+                placeholder="输入重复次数"
+              />
+            )}
           </div>
         </div>
-
-        <div className="space-y-3">
-          <p className={labelClass}>结束条件</p>
-          <label className="flex min-h-10 cursor-pointer items-center gap-3">
-            <input
-              type="radio"
-              checked={formData.useEndDate}
-              onChange={() => onChange('useEndDate', true)}
-              className="h-4 w-4 text-violet-600 focus:ring-violet-500"
-            />
-            <span className="text-sm text-slate-700">结束日期</span>
-          </label>
-          {formData.useEndDate && (
-            <input
-              type="date"
-              value={formData.recurrenceEndDate}
-              onChange={(e) => onChange('recurrenceEndDate', e.target.value)}
-              className={`${inputClass} tabular-nums`}
-            />
-          )}
-          <label className="flex min-h-10 cursor-pointer items-center gap-3">
-            <input
-              type="radio"
-              checked={!formData.useEndDate}
-              onChange={() => onChange('useEndDate', false)}
-              className="h-4 w-4 text-violet-600 focus:ring-violet-500"
-            />
-            <span className="text-sm text-slate-700">重复次数</span>
-          </label>
-          {!formData.useEndDate && (
-            <input
-              type="number"
-              min={1}
-              max={999}
-              value={formData.recurrenceCount}
-              onChange={(e) => onChange('recurrenceCount', parseInt(e.target.value, 10) || 0)}
-              className={`${inputClass} tabular-nums`}
-              placeholder="输入重复次数"
-            />
-          )}
-        </div>
-      </div>
-      <p className={hintClass}>例如：每天重复 3 次，将在连续 3 天各创建一个活动实例。</p>
-    </motion.div>
+        <p className={hintClass}>例如：每天重复 3 次，将在连续 3 天各创建一个活动实例。</p>
+      </motion.div>
+    </div>
   );
 }
