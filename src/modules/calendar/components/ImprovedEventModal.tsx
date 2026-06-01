@@ -15,6 +15,8 @@ import EventDetailsSection from './eventModal/EventDetailsSection';
 import EventTimeSection from './eventModal/EventTimeSection';
 import EventAppearanceSection from './eventModal/EventAppearanceSection';
 import EventModalTabBar, { type EventModalTab } from './eventModal/EventModalTabBar';
+import ImageToEventButton from './ImageToEventButton';
+import type { CalendarEventFromImageOutput } from '../ai/eventFromImageTask.types';
 import {
   formatDateOnly,
   formatDateTimeLocal,
@@ -67,6 +69,7 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
   const [formData, setFormData] = useState<EventModalFormData>(DEFAULT_FORM_DATA);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [aiPreviewUrl, setAiPreviewUrl] = useState<string | null>(null);
 
   const { settings } = useCalendarSettings();
   const isEditMode = !!event;
@@ -236,7 +239,50 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
 
   const handleClose = () => {
     setErrors({});
+    if (aiPreviewUrl) URL.revokeObjectURL(aiPreviewUrl);
+    setAiPreviewUrl(null);
     onClose();
+  };
+
+  const applyAiDraft = (draft: CalendarEventFromImageOutput, previewUrl: string) => {
+    setEventType(EventType.SINGLE);
+    const startDate = new Date(draft.startTime);
+    const endDate = new Date(draft.endTime);
+
+    if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
+      setErrors({ general: '识别的时间格式无效，请手动填写' });
+      URL.revokeObjectURL(previewUrl);
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      title: draft.title,
+      description: draft.description || '',
+      location: draft.location || '',
+      allDay: draft.allDay,
+      startTime: formatDateTimeLocal(startDate),
+      endTime: formatDateTimeLocal(endDate),
+      startDate: formatDateOnly(startDate),
+      endDate: formatDateOnly(endDate),
+      dailyStartTime: formatTimeOnly(startDate),
+      dailyEndTime: formatTimeOnly(endDate),
+      recurrenceStartDate: formatDateOnly(startDate),
+      recurrenceStartTime: formatDateTimeLocal(startDate),
+      recurrenceEndTime: formatDateTimeLocal(endDate),
+    }));
+
+    if (aiPreviewUrl) URL.revokeObjectURL(aiPreviewUrl);
+    setAiPreviewUrl(previewUrl);
+    setActiveTab('details');
+
+    if (draft.confidence < 0.6) {
+      setErrors({
+        general: `识别完成（置信度 ${Math.round(draft.confidence * 100)}%），请核对时间与标题`,
+      });
+    } else {
+      setErrors({});
+    }
   };
 
   const timeVariant =
@@ -264,7 +310,24 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
             <h2 className="text-balance text-lg font-semibold text-slate-900">
               {isEditMode ? '编辑活动' : '创建活动'}
             </h2>
+            {!isEditMode && (
+              <ImageToEventButton
+                className="ml-auto"
+                onResult={applyAiDraft}
+                onError={(message) => setErrors({ general: message })}
+              />
+            )}
           </div>
+          {aiPreviewUrl && !isEditMode && (
+            <div className="mt-3 flex items-center gap-3 rounded-xl bg-violet-50/80 px-3 py-2">
+              <img
+                src={aiPreviewUrl}
+                alt="识图来源"
+                className="h-12 w-12 rounded-lg object-cover"
+              />
+              <p className="text-xs text-violet-800">已根据此图片预填活动信息</p>
+            </div>
+          )}
         </header>
 
         <div className="px-4 pt-4 sm:px-6">
