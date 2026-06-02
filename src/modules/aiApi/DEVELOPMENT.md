@@ -42,6 +42,7 @@ ideaList/ai/... (未来)          → registerAiTask()
 | taskId | 说明 |
 |--------|------|
 | `core.structuredMultimodal` | 通用：system/user prompt + 可选图片 → JSON |
+| `core.connectivityTest` | 轻量连通性探测（设置页「测试连接」） |
 
 ## 业务模块接入步骤
 

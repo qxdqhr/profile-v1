@@ -29,6 +29,12 @@ export {
 
 export { default as AiApiSettingsPanel } from './components/AiApiSettingsPanel';
 
+export { default as AiApiConnectivityTest } from './components/AiApiConnectivityTest';
+
+export type { ConnectivityTestOutput } from './types/connectivityTest';
+
+export { CORE_CONNECTIVITY_TEST_TASK_ID } from './types/connectivityTest';
+
 export type { AiApiSettings, AiClientSettings } from './utils/aiSettingsCore';
 
 export {
@@ -44,4 +50,5 @@ export const AI_API_MODULE_VERSION = '1.0.0';
 /** 内置通用任务 ID */
 export const AI_TASK_IDS = {
   structuredMultimodal: 'core.structuredMultimodal',
+  connectivityTest: 'core.connectivityTest',
 } as const;

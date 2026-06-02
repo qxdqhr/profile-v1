@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useAiApiSettings } from '../context/AiApiSettingsContext';
+import AiApiConnectivityTest from './AiApiConnectivityTest';
 
 export default function AiApiSettingsPanel() {
   const { settings, updateSettings } = useAiApiSettings();
@@ -54,6 +55,8 @@ export default function AiApiSettingsPanel() {
         />
         <p className="mt-1.5 text-xs text-gray-500">需支持图片输入的多模态模型。</p>
       </div>
+
+      <AiApiConnectivityTest />
     </div>
   );
 }
