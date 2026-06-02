@@ -70,6 +70,13 @@ ideaList/ai/... (未来)          → registerAiTask()
 - `context/AiApiSettingsContext.tsx` — Provider
 - `components/AiApiSettingsPanel.tsx` — 设置 UI（日历设置 Tab「AI」引用）
 
+## 模型列表自动选择
+
+- `POST /api/ai/models` — 代理 OpenAI 兼容 `/models` 接口
+- `utils/modelHeuristics.ts` — 过滤对话/视觉模型与默认选型
+- `hooks/useAiModels.ts` — Key / Base URL 变更后 debounce 拉取并自动写入 `visionModel`
+- 设置页 `AiApiSettingsPanel` 展示下拉选择与手动刷新
+
 ## Checklist
 
 - [x] 类型 `AiApiRunRequest` / `AiApiResponse`
@@ -78,6 +85,7 @@ ideaList/ai/... (未来)          → registerAiTask()
 - [x] `POST /api/ai/run`
 - [x] 客户端 `aiApiClient` + `useAiTask`
 - [x] 客户端 API Key / Base URL / 模型设置（`AiApiSettingsPanel`）
+- [x] 自动拉取模型列表并选择视觉模型（`POST /api/ai/models`）
 - [x] 日历任务 `calendar.eventFromImage` 接入
 - [ ] 限流与审计日志
 - [ ] 更多业务模块示例

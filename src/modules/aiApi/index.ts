@@ -22,6 +22,11 @@ export {
 
 export { useAiTask } from './hooks/useAiTask';
 
+export { useAiModels } from './hooks/useAiModels';
+export type { UseAiModelsResult } from './hooks/useAiModels';
+
+export { fetchAiModels } from './services/fetchModels';
+
 export {
   AiApiSettingsProvider,
   useAiApiSettings,
@@ -32,6 +37,11 @@ export { default as AiApiSettingsPanel } from './components/AiApiSettingsPanel';
 export { default as AiApiConnectivityTest } from './components/AiApiConnectivityTest';
 
 export type { ConnectivityTestOutput } from './types/connectivityTest';
+
+export type {
+  AiModelsListRequest,
+  AiModelsListResponse,
+} from './types/models';
 
 export { CORE_CONNECTIVITY_TEST_TASK_ID } from './types/connectivityTest';
 

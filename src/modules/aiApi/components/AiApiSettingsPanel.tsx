@@ -1,11 +1,28 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
+import { Loader2, RefreshCw } from 'lucide-react';
 import { useAiApiSettings } from '../context/AiApiSettingsContext';
+import { useAiModels } from '../hooks/useAiModels';
 import AiApiConnectivityTest from './AiApiConnectivityTest';
 
 export default function AiApiSettingsPanel() {
   const { settings, updateSettings } = useAiApiSettings();
+
+  const handleSuggestedModel = useCallback(
+    (model: string) => {
+      updateSettings({ visionModel: model });
+    },
+    [updateSettings]
+  );
+
+  const { visionModels, allModels, loading, error, refresh } = useAiModels(
+    settings,
+    handleSuggestedModel
+  );
+
+  const selectableModels = visionModels.length > 0 ? visionModels : allModels;
+  const showDropdown = selectableModels.length > 0;
 
   return (
     <div className="space-y-6">
@@ -39,21 +56,78 @@ export default function AiApiSettingsPanel() {
           placeholder="https://api.openai.com/v1"
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        <p className="mt-1.5 text-xs text-gray-500">
+          填写 Key 与地址后将自动拉取可用模型并选择合适的视觉模型。
+        </p>
       </div>
 
       <div>
-        <label htmlFor="ai-vision-model" className="mb-2 block text-sm font-medium text-gray-700">
-          视觉模型
-        </label>
-        <input
-          id="ai-vision-model"
-          type="text"
-          value={settings.visionModel}
-          onChange={(e) => updateSettings({ visionModel: e.target.value })}
-          placeholder="gpt-4o-mini"
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <p className="mt-1.5 text-xs text-gray-500">需支持图片输入的多模态模型。</p>
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <label htmlFor="ai-vision-model" className="text-sm font-medium text-gray-700">
+            视觉模型
+          </label>
+          <button
+            type="button"
+            onClick={() => void refresh()}
+            disabled={loading}
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50"
+          >
+            {loading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="h-3.5 w-3.5" />
+            )}
+            刷新模型
+          </button>
+        </div>
+
+        {showDropdown ? (
+          <select
+            id="ai-vision-model"
+            value={settings.visionModel}
+            onChange={(e) => updateSettings({ visionModel: e.target.value })}
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {selectableModels.map((model) => (
+              <option key={model} value={model}>
+                {model}
+              </option>
+            ))}
+            {settings.visionModel && !selectableModels.includes(settings.visionModel) && (
+              <option value={settings.visionModel}>{settings.visionModel}（当前）</option>
+            )}
+          </select>
+        ) : (
+          <input
+            id="ai-vision-model"
+            type="text"
+            value={settings.visionModel}
+            onChange={(e) => updateSettings({ visionModel: e.target.value })}
+            placeholder="gpt-4o-mini"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        )}
+
+        {loading && (
+          <p className="mt-1.5 flex items-center gap-1.5 text-xs text-gray-500">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            正在读取可用模型…
+          </p>
+        )}
+        {!loading && error && (
+          <p className="mt-1.5 text-xs text-amber-600">
+            无法自动获取模型列表：{error}。可手动填写模型名称。
+          </p>
+        )}
+        {!loading && !error && showDropdown && (
+          <p className="mt-1.5 text-xs text-gray-500">
+            已加载 {selectableModels.length} 个
+            {visionModels.length > 0 ? '视觉' : '对话'}模型，可手动切换。
+          </p>
+        )}
+        {!loading && !error && !showDropdown && (
+          <p className="mt-1.5 text-xs text-gray-500">需支持图片输入的多模态模型。</p>
+        )}
       </div>
 
       <AiApiConnectivityTest />
