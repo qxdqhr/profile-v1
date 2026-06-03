@@ -31,7 +31,9 @@ export function resolveAiServerConfig(client?: AiClientSettings): AiServerConfig
       DEFAULT_VISION_MODEL,
     textModel:
       client?.textModel?.trim() ||
+      client?.visionModel?.trim() ||
       process.env.AI_TEXT_MODEL?.trim() ||
+      process.env.AI_VISION_MODEL?.trim() ||
       DEFAULT_TEXT_MODEL,
     timeoutMs: Number(process.env.AI_TIMEOUT_MS || 60000),
     maxImageBytes: Number(process.env.AI_MAX_IMAGE_BYTES || 5 * 1024 * 1024),

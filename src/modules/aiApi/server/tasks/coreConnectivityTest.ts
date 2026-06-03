@@ -1,4 +1,5 @@
 import type { AiTaskDefinition } from '../../types';
+import { resolveAiServerConfig } from '../config';
 import { callOpenAiCompatibleVisionChat } from '../openaiVisionClient';
 import { extractJsonObject } from '../jsonUtils';
 import {
@@ -17,10 +18,16 @@ export const coreConnectivityTestTask: AiTaskDefinition<Record<string, never>, C
       return {};
     },
     async execute(_input, ctx) {
+      const config = resolveAiServerConfig(ctx.clientSettings);
+      if (!config) {
+        throw new Error('未配置 AI API Key');
+      }
+
       const result = await callOpenAiCompatibleVisionChat(
         {
           systemPrompt: 'You are a connectivity probe. Reply with JSON only.',
           userPrompt: 'Return JSON: {"ok":true,"reply":"OK"}',
+          model: config.visionModel,
           temperature: 0,
           maxTokens: 32,
           jsonMode: true,

@@ -40,7 +40,12 @@ export function toClientSettings(settings: AiApiSettings): AiClientSettings | un
   const client: AiClientSettings = {};
   if (settings.apiKey.trim()) client.apiKey = settings.apiKey.trim();
   if (settings.baseUrl.trim()) client.baseUrl = settings.baseUrl.trim();
-  if (settings.visionModel.trim()) client.visionModel = settings.visionModel.trim();
+  const model = settings.visionModel.trim();
+  if (model) {
+    // 设置页仅暴露一个模型字段，文本与多模态请求共用所选模型
+    client.visionModel = model;
+    client.textModel = model;
+  }
   return Object.keys(client).length > 0 ? client : undefined;
 }
 
