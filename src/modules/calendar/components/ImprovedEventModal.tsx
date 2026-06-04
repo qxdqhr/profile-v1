@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Modal } from 'sa2kit/components';
-import { AlertCircle, Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
+import { AlertCircle, Copy, Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
 import {
   EventType,
   EventData,
@@ -39,6 +39,22 @@ interface ImprovedEventModalProps {
   event?: CalendarEvent | null;
   initialDate?: Date;
   isMobile?: boolean;
+}
+
+async function copyTextToClipboard(text: string): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const el = document.createElement('textarea');
+    el.value = text;
+    el.setAttribute('readonly', '');
+    el.style.position = 'fixed';
+    el.style.left = '-9999px';
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+  }
 }
 
 function resolveTabForError(message: string, isEditMode: boolean): EventModalTab {
@@ -194,7 +210,7 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
     }
 
     const firstError = validationErrors[0];
-    setErrors({ general: firstError });
+    setErrors({ general: validationErrors.join('\n') });
     setActiveTab(resolveTabForError(firstError, isEditMode));
     return false;
   };
@@ -416,16 +432,51 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
                 {errors.general && (
                   <div className="flex items-start gap-3 rounded-xl bg-red-50 px-4 py-3 shadow-[inset_0_0_0_1px_rgba(239,68,68,0.2)]">
                     <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
-                    <div>
-                      <p className="text-sm font-medium text-red-800">请检查表单</p>
-                      <p className="text-pretty text-sm text-red-600">{errors.general}</p>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium text-red-800">请检查表单</p>
+                        <button
+                          type="button"
+                          onClick={() => void copyTextToClipboard(errors.general)}
+                          className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-red-700 transition-colors hover:bg-red-100"
+                          aria-label="复制错误信息"
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                          复制
+                        </button>
+                      </div>
+                      <p
+                        className="mt-1 cursor-text select-text whitespace-pre-wrap break-words text-sm text-red-600"
+                        role="status"
+                      >
+                        {errors.general}
+                      </p>
                     </div>
                   </div>
                 )}
                 {errors.submit && (
                   <div className="flex items-start gap-3 rounded-xl bg-red-50 px-4 py-3 shadow-[inset_0_0_0_1px_rgba(239,68,68,0.2)]">
                     <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
-                    <p className="text-pretty text-sm text-red-600">{errors.submit}</p>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium text-red-800">保存失败</p>
+                        <button
+                          type="button"
+                          onClick={() => void copyTextToClipboard(errors.submit)}
+                          className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-red-700 transition-colors hover:bg-red-100"
+                          aria-label="复制错误信息"
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                          复制
+                        </button>
+                      </div>
+                      <p
+                        className="mt-1 cursor-text select-text whitespace-pre-wrap break-words text-sm text-red-600"
+                        role="status"
+                      >
+                        {errors.submit}
+                      </p>
+                    </div>
                   </div>
                 )}
               </motion.div>

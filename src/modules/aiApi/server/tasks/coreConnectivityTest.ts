@@ -35,6 +35,7 @@ export const coreConnectivityTestTask: AiTaskDefinition<Record<string, never>, C
         ctx.clientSettings
       );
 
+      console.log(result)
       let ok = false;
       let reply = result.content.trim();
 

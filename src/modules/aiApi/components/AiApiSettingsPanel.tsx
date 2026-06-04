@@ -21,8 +21,9 @@ export default function AiApiSettingsPanel() {
     handleSuggestedModel
   );
 
-  const selectableModels = visionModels.length > 0 ? visionModels : allModels;
+  const selectableModels = visionModels;
   const showDropdown = selectableModels.length > 0;
+  const showAllModelsFallback = visionModels.length === 0 && allModels.length > 0;
 
   return (
     <div className="space-y-6">
@@ -125,7 +126,12 @@ export default function AiApiSettingsPanel() {
             {visionModels.length > 0 ? '视觉' : '对话'}模型，可手动切换。
           </p>
         )}
-        {!loading && !error && !showDropdown && (
+        {!loading && !error && showAllModelsFallback && (
+          <p className="mt-1.5 text-xs text-amber-600">
+            未识别到视觉模型，请手动填写支持识图的模型名（勿使用 deepseek-chat 等纯文本模型）。
+          </p>
+        )}
+        {!loading && !error && !showDropdown && !showAllModelsFallback && (
           <p className="mt-1.5 text-xs text-gray-500">需支持图片输入的多模态模型。</p>
         )}
       </div>

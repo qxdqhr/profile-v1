@@ -55,14 +55,31 @@ export function isLikelyVisionModel(id: string): boolean {
   return VISION_HINT_PATTERNS.some((pattern) => pattern.test(id));
 }
 
+/** 明确不支持图片的对话模型（与 visionMessageFormats 中规则保持一致） */
+const TEXT_ONLY_MODEL_PATTERNS = [
+  /^deepseek-chat/i,
+  /^deepseek-reasoner/i,
+  /^deepseek-r1/i,
+  /^deepseek-v[34](?!.*vl)/i,
+  /^gpt-3\.5/i,
+  /^o1-mini/i,
+  /^o3-mini/i,
+];
+
+export function isKnownTextOnlyModel(id: string): boolean {
+  const trimmed = id.trim();
+  if (!trimmed) return false;
+  return TEXT_ONLY_MODEL_PATTERNS.some((pattern) => pattern.test(trimmed));
+}
+
 export function filterChatModels(modelIds: string[]): string[] {
   return modelIds.filter(isChatModel).sort((a, b) => a.localeCompare(b));
 }
 
 export function filterVisionModels(modelIds: string[]): string[] {
-  const chat = filterChatModels(modelIds);
-  const vision = chat.filter(isLikelyVisionModel);
-  return vision.length > 0 ? vision : chat;
+  return filterChatModels(modelIds)
+    .filter((id) => isLikelyVisionModel(id) && !isKnownTextOnlyModel(id))
+    .sort((a, b) => a.localeCompare(b));
 }
 
 function matchesPreferred(modelId: string, preferred: string): boolean {
