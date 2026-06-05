@@ -78,7 +78,7 @@ export const experiments: ExperimentItem[] = [
     id: "home-page-config",
     title: "首页配置",
     description: "首页配置",
-    path: "/testField/HomePageConfig",
+    path: "/homePage/config",
     tags: ["配置页面", "首页"],
     category: "utility",
     isCompleted: false,

@@ -1,0 +1,135 @@
+.home-config-page--loading {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.home-config-page {
+  min-height: 100vh;
+  padding: 1.5rem 1rem 3rem;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -8%, rgba(125, 195, 149, 0.42), transparent 58%),
+    #f8f8f0;
+  color: #725d42;
+}
+
+.home-config-page__inner {
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+.home-config-page__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.home-config-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.home-config-page__secret-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.home-config-page__secret-row > :first-child {
+  flex: 1 1 16rem;
+}
+
+.home-config-page__message {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 18px;
+  font-weight: 600;
+}
+
+.home-config-page__message.is-success {
+  background: #edf7e4;
+  color: #3d5a1a;
+}
+
+.home-config-page__message.is-error {
+  background: #fceaea;
+  color: #c94444;
+}
+
+.home-config-page__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.home-config-page__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #794f27;
+}
+
+.home-config-page__row {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.home-config-page__item-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.home-config-page__item-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.home-config-page__item-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #794f27;
+}
+
+.home-config-page__tags-input {
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.65rem 1rem;
+  border: 2.5px solid #c4b89e;
+  border-radius: 18px;
+  background: rgb(247, 243, 223);
+  color: #725d42;
+  font: inherit;
+}
+
+.home-config-page__tags-input:focus {
+  outline: none;
+  border-color: #ffcc00;
+  box-shadow:
+    0 3px 0 0 #e0b800,
+    0 0 0 3px rgba(255, 204, 0, 0.15);
+}
+
+@media (min-width: 768px) {
+  .home-config-page {
+    padding: 2rem 1.5rem 3rem;
+  }
+
+  .home-config-page__row--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-config-page__row--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

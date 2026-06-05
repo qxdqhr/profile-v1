@@ -1,4 +1,16 @@
-import type { CollisionBallsConfig, TimelineConfig } from 'sa2kit/components';
+import type { CollisionBallsConfig } from 'sa2kit/components';
+
+export interface HomeTimelineItem {
+  id?: string;
+  date: string;
+  title: string;
+  description: string;
+  tags?: string[];
+}
+
+export interface HomeTimelineConfig {
+  items: HomeTimelineItem[];
+}
 
 export interface NavItem {
   id: string;
@@ -22,6 +34,13 @@ export interface ProjectItem {
   link?: string;
 }
 
+export interface HomeContactConfig {
+  feishuWebhookUrl: string | null;
+  feishuSignSecret: string | null;
+  qqUserId: number | null;
+  qqGroupId: number | null;
+}
+
 export interface HomePageConfig {
   navConfig: {
     direction: 'vertical' | 'horizontal';
@@ -29,9 +48,10 @@ export interface HomePageConfig {
     avatar: string;
   };
   homeConfig: HomeConfig;
-  timelineConfig: TimelineConfig;
+  timelineConfig: HomeTimelineConfig;
   collisionBallsConfig: CollisionBallsConfig;
   projectsConfig: {
     projects: ProjectItem[];
   };
+  contactConfig: HomeContactConfig;
 }

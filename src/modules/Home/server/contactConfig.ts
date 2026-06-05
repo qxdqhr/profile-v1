@@ -1,3 +1,5 @@
+import { getHomePageConfig } from './homePageConfigService';
+
 export interface HomeContactChannelConfig {
   feishuWebhookUrl: string | null;
   feishuSignSecret: string | null;
@@ -15,7 +17,7 @@ function parsePositiveInt(value: string | undefined): number | null {
   return parsed;
 }
 
-export function getHomeContactChannelConfig(): HomeContactChannelConfig {
+function getEnvHomeContactChannelConfig(): HomeContactChannelConfig {
   return {
     feishuWebhookUrl: process.env.HOME_CONTACT_FEISHU_WEBHOOK_URL?.trim() || null,
     feishuSignSecret: process.env.HOME_CONTACT_FEISHU_SIGN_SECRET?.trim() || null,
@@ -25,6 +27,28 @@ export function getHomeContactChannelConfig(): HomeContactChannelConfig {
     napCatToken: process.env.NAPCAT_TOKEN?.trim() || undefined,
     napCatTimeoutMs: Number(process.env.NAPCAT_TIMEOUT_MS || 12000),
   };
+}
+
+export async function getHomeContactChannelConfig(): Promise<HomeContactChannelConfig> {
+  const envConfig = getEnvHomeContactChannelConfig();
+
+  try {
+    const pageConfig = await getHomePageConfig();
+    const stored = pageConfig.contactConfig;
+
+    return {
+      feishuWebhookUrl: stored.feishuWebhookUrl || envConfig.feishuWebhookUrl,
+      feishuSignSecret: stored.feishuSignSecret || envConfig.feishuSignSecret,
+      qqUserId: stored.qqUserId ?? envConfig.qqUserId,
+      qqGroupId: stored.qqGroupId ?? envConfig.qqGroupId,
+      napCatBaseUrl: envConfig.napCatBaseUrl,
+      napCatToken: envConfig.napCatToken,
+      napCatTimeoutMs: envConfig.napCatTimeoutMs,
+    };
+  } catch (error) {
+    console.error('[homeContact] load config from DB failed, fallback to env:', error);
+    return envConfig;
+  }
 }
 
 export function hasAnyHomeContactChannel(config: HomeContactChannelConfig): boolean {

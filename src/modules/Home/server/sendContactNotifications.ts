@@ -102,13 +102,13 @@ async function sendQq(
 export async function sendContactNotifications(
   submission: ContactSubmission,
 ): Promise<ContactNotifyResult> {
-  const config = getHomeContactChannelConfig();
+  const config = await getHomeContactChannelConfig();
 
   if (!hasAnyHomeContactChannel(config)) {
     return {
       ok: false,
       channels: { feishu: 'skipped', qq: 'skipped' },
-      errors: ['未配置 HOME_CONTACT_FEISHU_WEBHOOK_URL 或 HOME_CONTACT_QQ_USER_ID / HOME_CONTACT_QQ_GROUP_ID'],
+      errors: ['未配置飞书 Webhook 或 QQ 通知渠道，请在首页配置页填写'],
     };
   }
 
