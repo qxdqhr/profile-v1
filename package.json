@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "rm -rf ./.next && pnpm up sa2kit@latest && pnpm install && next dev --webpack",
+    "dev": "next dev --webpack",
+    "dev:sync-sa2kit": "rm -rf ./.next && gg pnpm up sa2kit@latest && gg pnpm install && next dev --webpack",
     "dev:3002": "NEXT_DIST_DIR=.next-3002 next dev --webpack -p 3002",
     "dev:3003": "NEXT_DIST_DIR=.next-3003 next dev --webpack -p 3003",
     "dev:https": "next dev --webpack --experimental-https",
@@ -64,6 +65,7 @@
     "@typescript-eslint/parser": "^8.20.0",
     "@xenova/transformers": "^2.17.2",
     "adm-zip": "^0.5.16",
+    "animal-island-ui": "file:../animal-island-ui",
     "ali-oss": "^6.23.0",
     "axios": "^1.8.1",
     "bcryptjs": "^3.0.2",

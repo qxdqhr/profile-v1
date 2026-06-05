@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     output: 'standalone', // Docker 部署需要
     
     // sa2kit 需要转译以正确加载样式和组件
-    transpilePackages: ["sa2kit"],
+    transpilePackages: ["sa2kit", "animal-island-ui"],
     
     // 临时禁用TypeScript检查，因为sa2kit类型定义问题
     typescript: {
@@ -48,6 +48,15 @@ const nextConfig: NextConfig = {
             generator: {
                 filename: 'static/media/[name][ext]'
             }
+        });
+
+        // animal-island-ui 打包产物内含 woff2 / png / webp / svg 资源
+        config.module.rules.push({
+            test: /\.(woff2?|webp|png|svg)$/i,
+            type: 'asset/resource',
+            generator: {
+                filename: 'static/media/[name].[hash][ext]',
+            },
         });
         
         // 添加 SA2Kit 路径别名
