@@ -183,6 +183,17 @@ export const experiments: ExperimentItem[] = [
     createdAt: "2026-03-08",
     updatedAt: "2026-03-08"
   },
+  {
+    id: "fitness-plan",
+    title: "健身计划",
+    description: "训练计划、日历排期、力量/有氧记录、饮食截图、跨模块打卡与数据统计（animal-island-ui）",
+    path: "/testField/fitnessPlan",
+    tags: ["健身", "训练", "饮食", "打卡", "计划"],
+    category: "utility",
+    isCompleted: false,
+    createdAt: "2026-06-08",
+    updatedAt: "2026-06-08"
+  },
 
   // 休闲娱乐类
   {

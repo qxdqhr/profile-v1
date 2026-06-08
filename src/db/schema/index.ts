@@ -14,6 +14,9 @@ export * from '@/modules/calendar/db/schema';
 // 导出想法清单相关的表
 export * from '@/modules/ideaList/db/schema';
 
+// 导出健身计划相关的表
+export * from '@/modules/fitnessPlan/db/schema';
+
 // 导出MMD相关的表
 export * from '@/modules/mmd/db/schema';
 
