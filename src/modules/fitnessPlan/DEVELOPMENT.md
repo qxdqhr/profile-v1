@@ -40,7 +40,7 @@
 - [x] `pnpm devdb:push` 测试环境表结构
 - [x] 构建通过
 
-## Phase 2 — 动作库 + 计划（当前）
+## Phase 2 — 动作库 + 计划
 
 - [x] seed 内置动作 JSON（45 条）
 - [x] 动作 CRUD API + 动作库 Modal
@@ -48,11 +48,12 @@
 - [x] 3 套系统模板 seed（推拉腿 / Upper-Lower / 有氧力量）
 - [x] settings 页档案编辑
 
-## Phase 3 — 训练日历
+## Phase 3 — 训练日历（当前）
 
-- [ ] 从 `calendar` 复制组件到 `components/calendar/`
-- [ ] 周循环模板 + 单日 override API
-- [ ] schedule 页月视图 + Day Sheet
+- [x] 复制 calendar 日期工具 + 健身月视图组件（无拖拽）
+- [x] 周循环模板 API + 单日 override API
+- [x] schedule 页月视图 + Day Sheet
+- [x] 单元格角标（训练/饮食/打卡）
 
 ## Phase 4 — 训练执行
 

@@ -184,3 +184,83 @@ export const EXERCISE_TYPE_LABELS: Record<ExerciseType, string> = {
   strength: '力量',
   cardio: '有氧',
 };
+
+export type WeekDayKey = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
+
+export const WEEK_DAY_KEYS: WeekDayKey[] = [
+  'mon',
+  'tue',
+  'wed',
+  'thu',
+  'fri',
+  'sat',
+  'sun',
+];
+
+export const WEEK_DAY_LABELS: Record<WeekDayKey, string> = {
+  mon: '周一',
+  tue: '周二',
+  wed: '周三',
+  thu: '周四',
+  fri: '周五',
+  sat: '周六',
+  sun: '周日',
+};
+
+export interface ScheduleTemplateRecord {
+  id: number;
+  userId: number;
+  name: string;
+  isActive: boolean;
+  cycleWeeks: number;
+  weekPattern: Record<WeekDayKey, number | 'rest' | null>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ScheduleDayBadge {
+  workout: boolean;
+  diet: boolean;
+  daily: boolean;
+}
+
+export interface ScheduleDayInfo {
+  date: string;
+  planId: number | null;
+  planName: string | null;
+  isRest: boolean;
+  isOverride: boolean;
+  badges: ScheduleDayBadge;
+}
+
+export interface MonthSchedulePayload {
+  month: string;
+  template: ScheduleTemplateRecord;
+  days: ScheduleDayInfo[];
+}
+
+export interface ScheduleOverrideInput {
+  date: string;
+  planId?: number | null;
+  isRest?: boolean;
+  clear?: boolean;
+}
+
+export interface ScheduleTemplateInput {
+  name?: string;
+  cycleWeeks?: number;
+  weekPattern?: Partial<Record<WeekDayKey, number | 'rest' | null>>;
+}
+
+export function dateToWeekDayKey(date: Date): WeekDayKey {
+  const map: Record<number, WeekDayKey> = {
+    0: 'sun',
+    1: 'mon',
+    2: 'tue',
+    3: 'wed',
+    4: 'thu',
+    5: 'fri',
+    6: 'sat',
+  };
+  return map[date.getDay()];
+}

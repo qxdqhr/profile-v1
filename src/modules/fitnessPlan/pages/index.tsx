@@ -9,6 +9,7 @@ import { useFitnessPlanStore } from '../store/fitnessPlanStore';
 
 export { PlansPage } from './PlansPage';
 export { PlanDetailPage } from './PlanDetailPage';
+export { SchedulePage } from './SchedulePage';
 
 function SubPageShell({
   title,
@@ -114,17 +115,6 @@ export function TodayPage() {
         <p style={{ margin: 0, fontWeight: 600 }}>Phase 6 将完善今日训练计划与饮食摘要</p>
       </Card>
     </div>
-  );
-}
-
-export function SchedulePage() {
-  return (
-    <SubPageShell
-      title="训练日历"
-      color="app-orange"
-      phase={3}
-      description="月视图排期，复制 calendar 组件并展示训练/饮食/打卡角标。"
-    />
   );
 }
 

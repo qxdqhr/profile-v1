@@ -138,6 +138,32 @@ export const fitnessPlanClient = {
     ).then((res) => res.data);
   },
 
+  getMonthSchedule(month: string) {
+    return request<{ success: boolean; data: import('../types').MonthSchedulePayload }>(
+      `/api/fitnessPlan/schedule?month=${month}`,
+    ).then((res) => res.data);
+  },
+
+  getScheduleTemplate() {
+    return request<{ success: boolean; data: import('../types').ScheduleTemplateRecord }>(
+      '/api/fitnessPlan/schedule/template',
+    ).then((res) => res.data);
+  },
+
+  updateScheduleTemplate(data: import('../types').ScheduleTemplateInput) {
+    return request<{ success: boolean; data: import('../types').ScheduleTemplateRecord }>(
+      '/api/fitnessPlan/schedule/template',
+      { method: 'PUT', body: JSON.stringify(data) },
+    ).then((res) => res.data);
+  },
+
+  setScheduleOverride(data: import('../types').ScheduleOverrideInput) {
+    return request<{ success: boolean; data: import('../types').MonthSchedulePayload }>(
+      '/api/fitnessPlan/schedule/overrides',
+      { method: 'PUT', body: JSON.stringify(data) },
+    ).then((res) => res.data);
+  },
+
   getTemplatesStatic() {
     return PLAN_TEMPLATES;
   },

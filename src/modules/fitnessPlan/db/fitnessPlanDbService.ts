@@ -1,11 +1,14 @@
 import { db } from '@/db';
-import { and, asc, desc, eq, ilike, isNull, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, ilike, isNull, lte, or, sql } from 'drizzle-orm';
 import systemExercises from '../data/systemExercises.json';
 import { PLAN_TEMPLATES } from '../data/planTemplates';
 import {
   dailyCheckins,
+  dietLogs,
   exercises,
   fitnessProfiles,
+  scheduleOverrides,
+  scheduleTemplates,
   workoutPlanItems,
   workoutPlans,
 } from './schema';
@@ -16,13 +19,20 @@ import type {
   ExerciseRecord,
   FitnessGoal,
   FitnessProfileFormData,
+  MonthSchedulePayload,
   PlanItemInput,
+  ScheduleDayInfo,
+  ScheduleOverrideInput,
+  ScheduleTemplateInput,
+  ScheduleTemplateRecord,
+  WeekDayKey,
   WorkoutPlanDetail,
   WorkoutPlanFormData,
   WorkoutPlanRecord,
   WorkoutPlanStatus,
 } from '../types';
-import { formatDateKey } from '../types';
+import { dateToWeekDayKey, formatDateKey } from '../types';
+import { formatCalendarDate, getMonthViewDates } from '../utils/calendarDateUtils';
 
 function mapExercise(row: typeof exercises.$inferSelect): ExerciseRecord {
   return {
@@ -460,6 +470,222 @@ class FitnessPlanDbService {
     }
     return created;
   }
+
+  async getOrCreateActiveScheduleTemplate(userId: number): Promise<ScheduleTemplateRecord> {
+    const existing = await db.query.scheduleTemplates.findFirst({
+      where: and(
+        eq(scheduleTemplates.userId, userId),
+        eq(scheduleTemplates.isActive, true),
+      ),
+    });
+
+    if (existing) return mapScheduleTemplate(existing);
+
+    const [created] = await db
+      .insert(scheduleTemplates)
+      .values({
+        userId,
+        name: '默认周循环',
+        isActive: true,
+        cycleWeeks: 4,
+        weekPattern: emptyWeekPattern(),
+      })
+      .returning();
+
+    return mapScheduleTemplate(created);
+  }
+
+  async updateScheduleTemplate(userId: number, input: ScheduleTemplateInput) {
+    const current = await this.getOrCreateActiveScheduleTemplate(userId);
+
+    const [updated] = await db
+      .update(scheduleTemplates)
+      .set({
+        name: input.name?.trim() || current.name,
+        cycleWeeks: input.cycleWeeks ?? current.cycleWeeks,
+        weekPattern: input.weekPattern
+          ? { ...current.weekPattern, ...input.weekPattern }
+          : current.weekPattern,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(scheduleTemplates.id, current.id), eq(scheduleTemplates.userId, userId)))
+      .returning();
+
+    return mapScheduleTemplate(updated);
+  }
+
+  async getMonthSchedule(userId: number, monthKey: string): Promise<MonthSchedulePayload> {
+    const [yearStr, monthStr] = monthKey.split('-');
+    const year = Number(yearStr);
+    const month = Number(monthStr);
+    const anchor = new Date(year, month - 1, 1);
+    const gridDates = getMonthViewDates(anchor, 1);
+    const startDate = formatCalendarDate(gridDates[0]);
+    const endDate = formatCalendarDate(gridDates[gridDates.length - 1]);
+
+    const template = await this.getOrCreateActiveScheduleTemplate(userId);
+
+    const [overrides, checkinRows, dietRows, planRows] = await Promise.all([
+      db
+        .select()
+        .from(scheduleOverrides)
+        .where(
+          and(
+            eq(scheduleOverrides.userId, userId),
+            gte(scheduleOverrides.scheduleDate, startDate),
+            lte(scheduleOverrides.scheduleDate, endDate),
+          ),
+        ),
+      db
+        .select()
+        .from(dailyCheckins)
+        .where(
+          and(
+            eq(dailyCheckins.userId, userId),
+            gte(dailyCheckins.checkinDate, startDate),
+            lte(dailyCheckins.checkinDate, endDate),
+          ),
+        ),
+      db
+        .select({ logDate: dietLogs.logDate })
+        .from(dietLogs)
+        .where(
+          and(
+            eq(dietLogs.userId, userId),
+            gte(dietLogs.logDate, startDate),
+            lte(dietLogs.logDate, endDate),
+          ),
+        ),
+      db
+        .select({ id: workoutPlans.id, name: workoutPlans.name })
+        .from(workoutPlans)
+        .where(eq(workoutPlans.userId, userId)),
+    ]);
+
+    const overrideMap = new Map(
+      overrides.map((row) => [String(row.scheduleDate), row]),
+    );
+    const planNameMap = new Map(planRows.map((row) => [row.id, row.name]));
+
+    const badgeMap = new Map<string, { workout: boolean; diet: boolean; daily: boolean }>();
+    for (const date of gridDates) {
+      badgeMap.set(formatCalendarDate(date), { workout: false, diet: false, daily: false });
+    }
+    for (const row of checkinRows) {
+      const key = String(row.checkinDate);
+      const badges = badgeMap.get(key) ?? { workout: false, diet: false, daily: false };
+      if (row.type === 'workout') badges.workout = true;
+      if (row.type === 'diet') badges.diet = true;
+      if (row.type === 'daily') badges.daily = true;
+      badgeMap.set(key, badges);
+    }
+    for (const row of dietRows) {
+      const key = String(row.logDate);
+      const badges = badgeMap.get(key) ?? { workout: false, diet: false, daily: false };
+      badges.diet = true;
+      badgeMap.set(key, badges);
+    }
+
+    const days: ScheduleDayInfo[] = gridDates.map((date) => {
+      const dateKey = formatCalendarDate(date);
+      const override = overrideMap.get(dateKey);
+      const weekKey = dateToWeekDayKey(date);
+      const patternValue = template.weekPattern[weekKey];
+
+      let planId: number | null = null;
+      let isRest = false;
+      let isOverride = false;
+
+      if (override) {
+        isOverride = true;
+        isRest = override.isRest;
+        planId = override.planId;
+      } else if (patternValue === 'rest') {
+        isRest = true;
+      } else if (typeof patternValue === 'number') {
+        planId = patternValue;
+      }
+
+      return {
+        date: dateKey,
+        planId,
+        planName: planId ? planNameMap.get(planId) ?? '未知计划' : null,
+        isRest,
+        isOverride,
+        badges: badgeMap.get(dateKey) ?? { workout: false, diet: false, daily: false },
+      };
+    });
+
+    return { month: monthKey, template, days };
+  }
+
+  async setScheduleOverride(userId: number, input: ScheduleOverrideInput) {
+    if (input.clear) {
+      await db
+        .delete(scheduleOverrides)
+        .where(
+          and(
+            eq(scheduleOverrides.userId, userId),
+            eq(scheduleOverrides.scheduleDate, input.date),
+          ),
+        );
+      return { success: true };
+    }
+
+    const existing = await db.query.scheduleOverrides.findFirst({
+      where: and(
+        eq(scheduleOverrides.userId, userId),
+        eq(scheduleOverrides.scheduleDate, input.date),
+      ),
+    });
+
+    const payload = {
+      planId: input.isRest ? null : input.planId ?? null,
+      isRest: Boolean(input.isRest),
+      updatedAt: new Date(),
+    };
+
+    if (existing) {
+      await db
+        .update(scheduleOverrides)
+        .set(payload)
+        .where(eq(scheduleOverrides.id, existing.id));
+    } else {
+      await db.insert(scheduleOverrides).values({
+        userId,
+        scheduleDate: input.date,
+        ...payload,
+      });
+    }
+
+    return { success: true };
+  }
+}
+
+function emptyWeekPattern(): Record<WeekDayKey, number | 'rest' | null> {
+  return {
+    mon: null,
+    tue: null,
+    wed: null,
+    thu: null,
+    fri: null,
+    sat: null,
+    sun: null,
+  };
+}
+
+function mapScheduleTemplate(row: typeof scheduleTemplates.$inferSelect): ScheduleTemplateRecord {
+  const pattern = row.weekPattern as Record<WeekDayKey, number | 'rest' | null> | null;
+  return {
+    id: row.id,
+    userId: row.userId,
+    name: row.name,
+    isActive: row.isActive,
+    cycleWeeks: row.cycleWeeks,
+    weekPattern: { ...emptyWeekPattern(), ...(pattern ?? {}) },
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
 }
 
 export const fitnessPlanDbService = new FitnessPlanDbService();
