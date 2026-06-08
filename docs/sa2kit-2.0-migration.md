@@ -11,6 +11,8 @@
 | alpha 稳定后 | `"sa2kit": "^2.0.0-alpha.0"` | 锁定 alpha 范围 |
 | 2.0 stable | `"sa2kit": "^2.0.0"` | 生产可用 |
 
+> **sa2kit 本地联调**：`pnpm install` 默认仅构建 common（`prepare → build:common`）。需要 business subpath 时在 sa2kit 目录执行 `SA2KIT_WITH_BUSINESS=1 pnpm install` 或 `pnpm build`。
+
 ## 迁移任务
 
 | ID | 任务 | sa2kit 对应 | 状态 |
