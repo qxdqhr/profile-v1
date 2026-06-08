@@ -12,6 +12,7 @@ export { PlanDetailPage } from './PlanDetailPage';
 export { SchedulePage } from './SchedulePage';
 export { WorkoutListPage } from './WorkoutListPage';
 export { WorkoutSessionPage } from './WorkoutSessionPage';
+export { DietPage } from './DietPage';
 
 function SubPageShell({
   title,
@@ -123,17 +124,6 @@ export function TodayPage() {
         <p style={{ margin: 0, fontWeight: 600 }}>Phase 6 将完善今日训练计划与饮食摘要</p>
       </Card>
     </div>
-  );
-}
-
-export function DietPage() {
-  return (
-    <SubPageShell
-      title="饮食记录"
-      color="app-pink"
-      phase={5}
-      description="按日记录餐次、热量与饮食截图（不上线 OCR）。"
-    />
   );
 }
 

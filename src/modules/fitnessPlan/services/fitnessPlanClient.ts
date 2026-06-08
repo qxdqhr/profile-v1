@@ -230,6 +230,61 @@ export const fitnessPlanClient = {
     ).then((res) => res.data);
   },
 
+  listFoodItems(params?: { search?: string }) {
+    const query = params?.search ? `?search=${encodeURIComponent(params.search)}` : '';
+    return request<{ success: boolean; data: import('../types').FoodItemRecord[] }>(
+      `/api/fitnessPlan/foods${query}`,
+    ).then((res) => res.data);
+  },
+
+  createFoodItem(data: import('../types').FoodItemFormData) {
+    return request<{ success: boolean; data: import('../types').FoodItemRecord }>(
+      '/api/fitnessPlan/foods',
+      { method: 'POST', body: JSON.stringify(data) },
+    ).then((res) => res.data);
+  },
+
+  getDietDay(date: string) {
+    return request<{ success: boolean; data: import('../types').DietDayPayload }>(
+      `/api/fitnessPlan/diet?date=${encodeURIComponent(date)}`,
+    ).then((res) => res.data);
+  },
+
+  addDietEntry(data: import('../types').DietEntryInput) {
+    return request<{ success: boolean; data: import('../types').DietDayPayload }>(
+      '/api/fitnessPlan/diet/entries',
+      { method: 'POST', body: JSON.stringify(data) },
+    ).then((res) => res.data);
+  },
+
+  updateDietEntry(entryId: number, data: import('../types').DietEntryUpdateInput) {
+    return request<{ success: boolean; data: import('../types').DietDayPayload }>(
+      `/api/fitnessPlan/diet/entries/${entryId}`,
+      { method: 'PUT', body: JSON.stringify(data) },
+    ).then((res) => res.data);
+  },
+
+  deleteDietEntry(entryId: number) {
+    return request<{ success: boolean; data: import('../types').DietDayPayload }>(
+      `/api/fitnessPlan/diet/entries/${entryId}`,
+      { method: 'DELETE' },
+    ).then((res) => res.data);
+  },
+
+  async uploadDietImage(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch('/api/fitnessPlan/diet/upload', {
+      method: 'POST',
+      body: formData,
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error ?? payload.message ?? '图片上传失败');
+    }
+    return payload.data as { imageUrl: string; fileId: string };
+  },
+
   getTemplatesStatic() {
     return PLAN_TEMPLATES;
   },

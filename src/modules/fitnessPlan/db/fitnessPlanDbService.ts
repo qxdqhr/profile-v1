@@ -1,12 +1,15 @@
 import { db } from '@/db';
 import { and, asc, desc, eq, gte, ilike, isNull, lte, or, sql } from 'drizzle-orm';
 import systemExercises from '../data/systemExercises.json';
+import systemFoods from '../data/systemFoods.json';
 import { PLAN_TEMPLATES } from '../data/planTemplates';
 import {
   dailyCheckins,
+  dietLogEntries,
   dietLogs,
   exercises,
   fitnessProfiles,
+  foodItems,
   scheduleOverrides,
   scheduleTemplates,
   workoutPlanItems,
@@ -19,10 +22,16 @@ import type {
   CheckinTodayState,
   CheckinType,
   CompleteWorkoutInput,
+  DietDayPayload,
+  DietEntryInput,
+  DietEntryUpdateInput,
+  DietLogEntryRecord,
   ExerciseFormData,
   ExerciseRecord,
   FitnessGoal,
   FitnessProfileFormData,
+  FoodItemFormData,
+  FoodItemRecord,
   MonthSchedulePayload,
   PlanItemInput,
   ScheduleDayInfo,
@@ -58,6 +67,36 @@ function mapExercise(row: typeof exercises.$inferSelect): ExerciseRecord {
   };
 }
 
+function mapFoodItem(row: typeof foodItems.$inferSelect): FoodItemRecord {
+  return {
+    id: row.id,
+    userId: row.userId,
+    name: row.name,
+    calories: row.calories,
+    protein: row.protein != null ? Number(row.protein) : null,
+    carbs: row.carbs != null ? Number(row.carbs) : null,
+    fat: row.fat != null ? Number(row.fat) : null,
+    isCustom: row.userId != null,
+  };
+}
+
+function mapDietEntry(row: typeof dietLogEntries.$inferSelect): DietLogEntryRecord {
+  return {
+    id: row.id,
+    dietLogId: row.dietLogId,
+    mealType: row.mealType as DietLogEntryRecord['mealType'],
+    foodName: row.foodName,
+    foodItemId: row.foodItemId,
+    calories: row.calories,
+    protein: row.protein != null ? Number(row.protein) : null,
+    carbs: row.carbs != null ? Number(row.carbs) : null,
+    fat: row.fat != null ? Number(row.fat) : null,
+    imageUrl: row.imageUrl,
+    sortOrder: row.sortOrder,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
+
 class FitnessPlanDbService {
   async ensureSystemExercisesSeeded() {
     const [{ count }] = await db
@@ -78,6 +117,28 @@ class FitnessPlanDbService {
         equipment: item.equipment ?? null,
         cardioType: item.cardioType ?? null,
         description: item.description ?? null,
+      })),
+    );
+  }
+
+  async ensureSystemFoodsSeeded() {
+    const [{ count }] = await db
+      .select({ count: sql<number>`cast(count(*) as int)` })
+      .from(foodItems)
+      .where(isNull(foodItems.userId));
+
+    if ((count ?? 0) > 0) {
+      return;
+    }
+
+    await db.insert(foodItems).values(
+      systemFoods.map((item) => ({
+        userId: null,
+        name: item.name,
+        calories: item.calories,
+        protein: item.protein != null ? String(item.protein) : null,
+        carbs: item.carbs != null ? String(item.carbs) : null,
+        fat: item.fat != null ? String(item.fat) : null,
       })),
     );
   }
@@ -1059,6 +1120,207 @@ class FitnessPlanDbService {
     }
 
     return this.getSessionDetail(userId, sessionId);
+  }
+
+  async listFoodItems(
+    userId: number,
+    filters: { search?: string } = {},
+  ): Promise<FoodItemRecord[]> {
+    await this.ensureSystemFoodsSeeded();
+
+    const conditions = [
+      or(isNull(foodItems.userId), eq(foodItems.userId, userId)),
+    ];
+
+    if (filters.search?.trim()) {
+      conditions.push(ilike(foodItems.name, `%${filters.search.trim()}%`));
+    }
+
+    const rows = await db
+      .select()
+      .from(foodItems)
+      .where(and(...conditions))
+      .orderBy(asc(foodItems.name))
+      .limit(100);
+
+    return rows.map(mapFoodItem);
+  }
+
+  async createFoodItem(userId: number, data: FoodItemFormData) {
+    const [created] = await db
+      .insert(foodItems)
+      .values({
+        userId,
+        name: data.name.trim(),
+        calories: data.calories,
+        protein: data.protein != null ? String(data.protein) : null,
+        carbs: data.carbs != null ? String(data.carbs) : null,
+        fat: data.fat != null ? String(data.fat) : null,
+      })
+      .returning();
+
+    return mapFoodItem(created);
+  }
+
+  async getDietDay(userId: number, logDate: string): Promise<DietDayPayload> {
+    const profile = await this.getOrCreateProfile(userId);
+    const log = await db.query.dietLogs.findFirst({
+      where: and(eq(dietLogs.userId, userId), eq(dietLogs.logDate, logDate)),
+    });
+
+    if (!log) {
+      return {
+        logDate,
+        logId: null,
+        entries: [],
+        totals: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+        calorieGoal: profile.dailyCalorieGoal,
+      };
+    }
+
+    const entryRows = await db
+      .select()
+      .from(dietLogEntries)
+      .where(eq(dietLogEntries.dietLogId, log.id))
+      .orderBy(asc(dietLogEntries.sortOrder), asc(dietLogEntries.id));
+
+    const entries = entryRows.map(mapDietEntry);
+    const totals = entries.reduce(
+      (acc, entry) => ({
+        calories: acc.calories + entry.calories,
+        protein: acc.protein + (entry.protein ?? 0),
+        carbs: acc.carbs + (entry.carbs ?? 0),
+        fat: acc.fat + (entry.fat ?? 0),
+      }),
+      { calories: 0, protein: 0, carbs: 0, fat: 0 },
+    );
+
+    return {
+      logDate,
+      logId: log.id,
+      entries,
+      totals,
+      calorieGoal: profile.dailyCalorieGoal,
+    };
+  }
+
+  private async getOrCreateDietLog(userId: number, logDate: string) {
+    const existing = await db.query.dietLogs.findFirst({
+      where: and(eq(dietLogs.userId, userId), eq(dietLogs.logDate, logDate)),
+    });
+
+    if (existing) return existing;
+
+    const [created] = await db
+      .insert(dietLogs)
+      .values({ userId, logDate })
+      .returning();
+
+    return created;
+  }
+
+  private async ensureDietCheckin(userId: number, dietLogId: number, dateKey: string) {
+    const existing = await db.query.dailyCheckins.findFirst({
+      where: and(
+        eq(dailyCheckins.userId, userId),
+        eq(dailyCheckins.checkinDate, dateKey),
+        eq(dailyCheckins.type, 'diet'),
+      ),
+    });
+
+    if (existing) return;
+
+    await db.insert(dailyCheckins).values({
+      userId,
+      checkinDate: dateKey,
+      type: 'diet',
+      refId: dietLogId,
+    });
+  }
+
+  async addDietEntry(userId: number, input: DietEntryInput) {
+    if (!input.foodName?.trim()) throw new Error('食物名称不能为空');
+    if (!Number.isFinite(input.calories) || input.calories < 0) {
+      throw new Error('热量无效');
+    }
+
+    const log = await this.getOrCreateDietLog(userId, input.logDate);
+    const hadEntries = await db
+      .select({ count: sql<number>`cast(count(*) as int)` })
+      .from(dietLogEntries)
+      .where(eq(dietLogEntries.dietLogId, log.id));
+
+    const sortOrder = hadEntries[0]?.count ?? 0;
+
+    await db.insert(dietLogEntries).values({
+      dietLogId: log.id,
+      mealType: input.mealType,
+      foodName: input.foodName.trim(),
+      foodItemId: input.foodItemId ?? null,
+      calories: input.calories,
+      protein: input.protein != null ? String(input.protein) : null,
+      carbs: input.carbs != null ? String(input.carbs) : null,
+      fat: input.fat != null ? String(input.fat) : null,
+      imageUrl: input.imageUrl ?? null,
+      sortOrder,
+    });
+
+    if ((hadEntries[0]?.count ?? 0) === 0) {
+      await this.ensureDietCheckin(userId, log.id, input.logDate);
+    }
+
+    return this.getDietDay(userId, input.logDate);
+  }
+
+  async updateDietEntry(userId: number, entryId: number, input: DietEntryUpdateInput) {
+    const entry = await db.query.dietLogEntries.findFirst({
+      where: eq(dietLogEntries.id, entryId),
+    });
+    if (!entry) throw new Error('饮食记录不存在');
+
+    const log = await db.query.dietLogs.findFirst({
+      where: and(eq(dietLogs.id, entry.dietLogId), eq(dietLogs.userId, userId)),
+    });
+    if (!log) throw new Error('无权修改该记录');
+
+    const patch: Partial<typeof dietLogEntries.$inferInsert> = {};
+    if (input.mealType) patch.mealType = input.mealType;
+    if (input.foodName != null) patch.foodName = input.foodName.trim();
+    if (input.calories != null) patch.calories = input.calories;
+    if (input.protein !== undefined) {
+      patch.protein = input.protein == null ? null : String(input.protein);
+    }
+    if (input.carbs !== undefined) {
+      patch.carbs = input.carbs == null ? null : String(input.carbs);
+    }
+    if (input.fat !== undefined) {
+      patch.fat = input.fat == null ? null : String(input.fat);
+    }
+    if (input.imageUrl !== undefined) patch.imageUrl = input.imageUrl;
+
+    await db.update(dietLogEntries).set(patch).where(eq(dietLogEntries.id, entryId));
+
+    const dateKey =
+      typeof log.logDate === 'string' ? log.logDate : formatDateKey(new Date(log.logDate));
+    return this.getDietDay(userId, dateKey);
+  }
+
+  async deleteDietEntry(userId: number, entryId: number) {
+    const entry = await db.query.dietLogEntries.findFirst({
+      where: eq(dietLogEntries.id, entryId),
+    });
+    if (!entry) throw new Error('饮食记录不存在');
+
+    const log = await db.query.dietLogs.findFirst({
+      where: and(eq(dietLogs.id, entry.dietLogId), eq(dietLogs.userId, userId)),
+    });
+    if (!log) throw new Error('无权删除该记录');
+
+    await db.delete(dietLogEntries).where(eq(dietLogEntries.id, entryId));
+
+    const dateKey =
+      typeof log.logDate === 'string' ? log.logDate : formatDateKey(new Date(log.logDate));
+    return this.getDietDay(userId, dateKey);
   }
 }
 

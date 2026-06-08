@@ -65,11 +65,11 @@
 
 ## Phase 5 — 饮食
 
-- [ ] seed 食物库（≥80）
-- [ ] 饮食 CRUD API
-- [ ] 截图上传 `POST /diet/upload`
-- [ ] diet 页按日查看 + 缩略图
-- [ ] 首条饮食 → 饮食打卡
+- [x] seed 食物库（92 条）
+- [x] 饮食 CRUD API
+- [x] 截图上传 `POST /diet/upload`
+- [x] diet 页按日查看 + 缩略图
+- [x] 首条饮食 → 饮食打卡
 
 ## Phase 6 — 打卡 + 今日首页
 

@@ -66,6 +66,8 @@ export const MEAL_TYPE_LABELS: Record<MealType, string> = {
   snack: '加餐',
 };
 
+export const MEAL_TYPE_ORDER: MealType[] = ['breakfast', 'lunch', 'dinner', 'snack'];
+
 export interface FitnessNavItem {
   id: string;
   label: string;
@@ -335,4 +337,75 @@ export interface WorkoutSessionSummary {
   completedSets: number;
   strengthVolume: number;
   cardioMinutes: number;
+}
+
+export interface FoodItemRecord {
+  id: number;
+  userId: number | null;
+  name: string;
+  calories: number;
+  protein: number | null;
+  carbs: number | null;
+  fat: number | null;
+  isCustom: boolean;
+}
+
+export interface FoodItemFormData {
+  name: string;
+  calories: number;
+  protein?: number | null;
+  carbs?: number | null;
+  fat?: number | null;
+}
+
+export interface DietLogEntryRecord {
+  id: number;
+  dietLogId: number;
+  mealType: MealType;
+  foodName: string;
+  foodItemId: number | null;
+  calories: number;
+  protein: number | null;
+  carbs: number | null;
+  fat: number | null;
+  imageUrl: string | null;
+  sortOrder: number;
+  createdAt: string;
+}
+
+export interface DietDayTotals {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
+export interface DietDayPayload {
+  logDate: string;
+  logId: number | null;
+  entries: DietLogEntryRecord[];
+  totals: DietDayTotals;
+  calorieGoal: number;
+}
+
+export interface DietEntryInput {
+  logDate: string;
+  mealType: MealType;
+  foodName: string;
+  foodItemId?: number;
+  calories: number;
+  protein?: number | null;
+  carbs?: number | null;
+  fat?: number | null;
+  imageUrl?: string | null;
+}
+
+export interface DietEntryUpdateInput {
+  mealType?: MealType;
+  foodName?: string;
+  calories?: number;
+  protein?: number | null;
+  carbs?: number | null;
+  fat?: number | null;
+  imageUrl?: string | null;
 }
