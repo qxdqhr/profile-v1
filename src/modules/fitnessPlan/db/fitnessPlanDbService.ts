@@ -24,6 +24,7 @@ import type {
   CheckinStreakInfo,
   CheckinTodayState,
   CheckinType,
+  StatsBodyPartSlice,
   CompleteWorkoutInput,
   DietDayPayload,
   DietEntryInput,
@@ -43,6 +44,9 @@ import type {
   ScheduleTemplateInput,
   ScheduleTemplateRecord,
   StartWorkoutInput,
+  StatsOverviewPayload,
+  StatsPrRecord,
+  StatsTrendPoint,
   TodayOverviewPayload,
   UpdateWorkoutSetInput,
   WeekDayKey,
@@ -55,7 +59,7 @@ import type {
   WorkoutSessionSummary,
   WorkoutSetRecord,
 } from '../types';
-import { dateToWeekDayKey, formatDateKey } from '../types';
+import { dateToWeekDayKey, formatDateKey, BODY_PART_LABELS } from '../types';
 import { formatCalendarDate, getMonthViewDates } from '../utils/calendarDateUtils';
 
 function mapExercise(row: typeof exercises.$inferSelect): ExerciseRecord {
@@ -1574,6 +1578,207 @@ class FitnessPlanDbService {
         entryCount: dietDay.entries.length,
       },
       activeSessionId: activeSession?.id ?? null,
+    };
+  }
+
+  async getStatsOverview(userId: number, rangeDays = 30): Promise<StatsOverviewPayload> {
+    const safeDays = Math.min(Math.max(rangeDays, 7), 180);
+    const endDate = formatDateKey(new Date());
+    const startDate = shiftDateKey(endDate, -(safeDays - 1));
+    const rangeStart = new Date(`${startDate}T00:00:00`);
+    const rangeEnd = new Date(`${endDate}T23:59:59`);
+
+    const trendMap = new Map<string, StatsTrendPoint>();
+    let cursor = startDate;
+    while (cursor <= endDate) {
+      trendMap.set(cursor, {
+        date: cursor,
+        workoutVolume: 0,
+        workoutMinutes: 0,
+        dietCalories: 0,
+        workoutSessions: 0,
+      });
+      cursor = shiftDateKey(cursor, 1);
+    }
+
+    const [sessions, dietRows, dailyCheckinRows, setRows, allTimeSetRows] = await Promise.all([
+      db
+        .select()
+        .from(workoutSessions)
+        .where(
+          and(
+            eq(workoutSessions.userId, userId),
+            eq(workoutSessions.status, 'completed'),
+            gte(workoutSessions.startedAt, rangeStart),
+            lte(workoutSessions.startedAt, rangeEnd),
+          ),
+        ),
+      db
+        .select({
+          logDate: dietLogs.logDate,
+          calories: sql<number>`coalesce(sum(${dietLogEntries.calories}), 0)`,
+        })
+        .from(dietLogEntries)
+        .innerJoin(dietLogs, eq(dietLogEntries.dietLogId, dietLogs.id))
+        .where(
+          and(
+            eq(dietLogs.userId, userId),
+            gte(dietLogs.logDate, startDate),
+            lte(dietLogs.logDate, endDate),
+          ),
+        )
+        .groupBy(dietLogs.logDate),
+      db
+        .select({ checkinDate: dailyCheckins.checkinDate })
+        .from(dailyCheckins)
+        .where(
+          and(
+            eq(dailyCheckins.userId, userId),
+            eq(dailyCheckins.type, 'daily'),
+            gte(dailyCheckins.checkinDate, startDate),
+            lte(dailyCheckins.checkinDate, endDate),
+          ),
+        ),
+      db
+        .select({
+          exerciseId: exercises.id,
+          exerciseName: exercises.name,
+          bodyPart: exercises.bodyPart,
+          exerciseType: exercises.type,
+          weight: workoutSets.weight,
+          reps: workoutSets.reps,
+          endedAt: workoutSessions.endedAt,
+          startedAt: workoutSessions.startedAt,
+        })
+        .from(workoutSets)
+        .innerJoin(workoutSessionItems, eq(workoutSets.sessionItemId, workoutSessionItems.id))
+        .innerJoin(workoutSessions, eq(workoutSessionItems.sessionId, workoutSessions.id))
+        .innerJoin(exercises, eq(workoutSessionItems.exerciseId, exercises.id))
+        .where(
+          and(
+            eq(workoutSessions.userId, userId),
+            eq(workoutSessions.status, 'completed'),
+            eq(workoutSets.isCompleted, true),
+            eq(exercises.type, 'strength'),
+            gte(workoutSessions.startedAt, rangeStart),
+            lte(workoutSessions.startedAt, rangeEnd),
+          ),
+        ),
+      db
+        .select({
+          exerciseId: exercises.id,
+          exerciseName: exercises.name,
+          bodyPart: exercises.bodyPart,
+          weight: workoutSets.weight,
+          reps: workoutSets.reps,
+          endedAt: workoutSessions.endedAt,
+          startedAt: workoutSessions.startedAt,
+        })
+        .from(workoutSets)
+        .innerJoin(workoutSessionItems, eq(workoutSets.sessionItemId, workoutSessionItems.id))
+        .innerJoin(workoutSessions, eq(workoutSessionItems.sessionId, workoutSessions.id))
+        .innerJoin(exercises, eq(workoutSessionItems.exerciseId, exercises.id))
+        .where(
+          and(
+            eq(workoutSessions.userId, userId),
+            eq(workoutSessions.status, 'completed'),
+            eq(workoutSets.isCompleted, true),
+            eq(exercises.type, 'strength'),
+          ),
+        ),
+    ]);
+
+    let totalVolume = 0;
+    let totalCardioMinutes = 0;
+
+    for (const session of sessions) {
+      const when = session.endedAt ?? session.startedAt;
+      const key = formatDateKey(new Date(when));
+      const point = trendMap.get(key);
+      if (!point) continue;
+
+      point.workoutSessions += 1;
+      point.workoutMinutes += Math.round((session.durationSeconds ?? 0) / 60);
+
+      const summary = session.summaryJson as WorkoutSessionSummary | null;
+      if (summary) {
+        point.workoutVolume += summary.strengthVolume ?? 0;
+        totalVolume += summary.strengthVolume ?? 0;
+        totalCardioMinutes += summary.cardioMinutes ?? 0;
+      }
+    }
+
+    for (const row of dietRows) {
+      const key = String(row.logDate);
+      const point = trendMap.get(key);
+      if (point) point.dietCalories = Number(row.calories ?? 0);
+    }
+
+    const bodyPartMap = new Map<string, { setCount: number; volume: number }>();
+    const prMap = new Map<number, StatsPrRecord>();
+
+    for (const row of setRows) {
+      const weight = row.weight != null ? Number(row.weight) : 0;
+      const reps = row.reps ?? 0;
+      const volume = weight * reps;
+      const bodyPart = row.bodyPart ?? 'other';
+
+      const slice = bodyPartMap.get(bodyPart) ?? { setCount: 0, volume: 0 };
+      slice.setCount += 1;
+      slice.volume += volume;
+      bodyPartMap.set(bodyPart, slice);
+    }
+
+    for (const row of allTimeSetRows) {
+      const weight = row.weight != null ? Number(row.weight) : 0;
+      const reps = row.reps ?? 0;
+      const volume = weight * reps;
+      const achievedAt = (row.endedAt ?? row.startedAt).toISOString();
+      const existing = prMap.get(row.exerciseId);
+      if (!existing || weight > existing.weight) {
+        prMap.set(row.exerciseId, {
+          exerciseId: row.exerciseId,
+          exerciseName: row.exerciseName,
+          bodyPart: row.bodyPart,
+          weight,
+          reps,
+          volume,
+          achievedAt,
+        });
+      }
+    }
+
+    const trends = Array.from(trendMap.values()).sort((a, b) => a.date.localeCompare(b.date));
+    const dietDaysWithData = trends.filter((point) => point.dietCalories > 0).length;
+    const totalDietCalories = trends.reduce((sum, point) => sum + point.dietCalories, 0);
+
+    const bodyParts: StatsBodyPartSlice[] = Array.from(bodyPartMap.entries())
+      .map(([bodyPart, data]) => ({
+        bodyPart,
+        label: BODY_PART_LABELS[bodyPart] ?? bodyPart,
+        setCount: data.setCount,
+        volume: Math.round(data.volume),
+      }))
+      .sort((a, b) => b.volume - a.volume);
+
+    const prs = Array.from(prMap.values())
+      .filter((item) => item.weight > 0)
+      .sort((a, b) => b.weight - a.weight)
+      .slice(0, 12);
+
+    return {
+      rangeDays: safeDays,
+      totals: {
+        workoutSessions: sessions.length,
+        totalVolume: Math.round(totalVolume),
+        totalCardioMinutes,
+        avgDailyCalories:
+          dietDaysWithData > 0 ? Math.round(totalDietCalories / dietDaysWithData) : 0,
+        checkinDays: dailyCheckinRows.length,
+      },
+      trends,
+      prs,
+      bodyParts,
     };
   }
 }

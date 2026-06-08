@@ -319,6 +319,12 @@ export const fitnessPlanClient = {
     ).then((res) => res.data);
   },
 
+  getStatsOverview(days = 30) {
+    return request<{ success: boolean; data: import('../types').StatsOverviewPayload }>(
+      `/api/fitnessPlan/stats?days=${days}`,
+    ).then((res) => res.data);
+  },
+
   getTemplatesStatic() {
     return PLAN_TEMPLATES;
   },

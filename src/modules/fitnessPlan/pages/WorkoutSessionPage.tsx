@@ -330,19 +330,19 @@ export function WorkoutSessionPage({ sessionId }: WorkoutSessionPageProps) {
 
   if (loading) {
     return (
-      <div className="fp-page">
-        <p style={{ color: '#9f927d' }}>加载训练会话…</p>
+      <div className="fp-page fp-workout-session fp-workout-session--focus">
+        <p className="fp-state-card">加载训练会话…</p>
       </div>
     );
   }
 
   if (error && !session) {
     return (
-      <div className="fp-page">
+      <div className="fp-page fp-workout-session fp-workout-session--focus">
         <Title size="middle" color="app-green">
           训练会话
         </Title>
-        <p style={{ color: '#e05a5a' }}>{error}</p>
+        <p className="fp-state-card is-error">{error}</p>
         <Link href="/testField/fitnessPlan/workout">
           <Button type="default">返回列表</Button>
         </Link>
@@ -353,7 +353,7 @@ export function WorkoutSessionPage({ sessionId }: WorkoutSessionPageProps) {
   if (!session) return null;
 
   return (
-    <div className="fp-page fp-workout-session">
+    <div className="fp-page fp-workout-session fp-workout-session--focus">
       <div className="fp-workout-session__head">
         <div>
           <Link href="/testField/fitnessPlan/workout" className="fp-workout-session__back">

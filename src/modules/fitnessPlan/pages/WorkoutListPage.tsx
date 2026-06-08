@@ -167,7 +167,7 @@ export function WorkoutListPage() {
         ))}
         {!loading && sessions.length === 0 ? (
           <Card pattern="default" type="dashed">
-            <p style={{ margin: 0, color: '#9f927d' }}>还没有训练记录，点上方按钮开始第一次训练吧。</p>
+            <p className="fp-state-card">还没有训练记录，点上方按钮开始第一次训练吧。</p>
           </Card>
         ) : null}
       </div>

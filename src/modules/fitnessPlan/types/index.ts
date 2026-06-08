@@ -458,3 +458,44 @@ export interface TodayOverviewPayload {
   diet: TodayDietSummary;
   activeSessionId: number | null;
 }
+
+export interface StatsTrendPoint {
+  date: string;
+  workoutVolume: number;
+  workoutMinutes: number;
+  dietCalories: number;
+  workoutSessions: number;
+}
+
+export interface StatsPrRecord {
+  exerciseId: number;
+  exerciseName: string;
+  bodyPart: string | null;
+  weight: number;
+  reps: number;
+  volume: number;
+  achievedAt: string;
+}
+
+export interface StatsBodyPartSlice {
+  bodyPart: string;
+  label: string;
+  setCount: number;
+  volume: number;
+}
+
+export interface StatsTotals {
+  workoutSessions: number;
+  totalVolume: number;
+  totalCardioMinutes: number;
+  avgDailyCalories: number;
+  checkinDays: number;
+}
+
+export interface StatsOverviewPayload {
+  rangeDays: number;
+  totals: StatsTotals;
+  trends: StatsTrendPoint[];
+  prs: StatsPrRecord[];
+  bodyParts: StatsBodyPartSlice[];
+}

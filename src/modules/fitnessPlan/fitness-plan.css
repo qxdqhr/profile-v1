@@ -1171,3 +1171,192 @@
   color: #725d42;
   text-align: center;
 }
+
+.fp-state-card {
+  margin: 12px 0 0;
+  color: #9f927d;
+  line-height: 1.6;
+}
+
+.fp-state-card.is-error {
+  color: #e05a5a;
+}
+
+@media (max-width: 1023px) {
+  .fp-workout-session--focus {
+    margin-left: -16px;
+    margin-right: -16px;
+    width: calc(100% + 32px);
+    min-height: calc(100dvh - 120px);
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .fp-workout-session--focus .fp-rest-countdown {
+    top: 8px;
+  }
+}
+
+.fp-stats-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (min-width: 768px) {
+  .fp-stats-summary {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.fp-stats-summary strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 24px;
+  color: #794f27;
+  font-variant-numeric: tabular-nums;
+}
+
+.fp-stats-summary__label {
+  font-size: 12px;
+  color: #8a7b66;
+}
+
+.fp-stats-chart {
+  margin-top: 12px;
+}
+
+.fp-stats-chart__legend {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: #725d42;
+}
+
+.fp-stats-chart__key::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 6px;
+}
+
+.fp-stats-chart__key--volume::before {
+  background: #6fba2c;
+}
+
+.fp-stats-chart__key--diet::before {
+  background: #f08a9a;
+}
+
+.fp-stats-chart__bars {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  min-height: 160px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.fp-stats-chart__col {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  min-width: 28px;
+}
+
+.fp-stats-chart__pair {
+  display: flex;
+  gap: 3px;
+  align-items: flex-end;
+  height: 120px;
+}
+
+.fp-stats-chart__bar {
+  width: 10px;
+  border-radius: 6px 6px 2px 2px;
+  min-height: 6px;
+}
+
+.fp-stats-chart__bar--volume {
+  background: linear-gradient(180deg, #8fd44a, #6fba2c);
+}
+
+.fp-stats-chart__bar--diet {
+  background: linear-gradient(180deg, #f08a9a, #e05a5a);
+}
+
+.fp-stats-chart__label {
+  font-size: 10px;
+  color: #9f927d;
+}
+
+.fp-body-part-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.fp-body-part-row {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+  color: #725d42;
+}
+
+.fp-body-part-row__bar-wrap {
+  height: 10px;
+  border-radius: 50px;
+  background: rgba(114, 93, 66, 0.1);
+  overflow: hidden;
+}
+
+.fp-body-part-row__bar {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #19c8b9, #0cc0b5);
+}
+
+.fp-body-part-row__meta {
+  font-size: 11px;
+  color: #9f927d;
+  white-space: nowrap;
+}
+
+.fp-pr-grid {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+@media (min-width: 640px) {
+  .fp-pr-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.fp-pr-card {
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.fp-pr-card strong {
+  color: #794f27;
+}
+
+.fp-pr-card__value {
+  margin: 6px 0 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #6fba2c;
+}
+
+.fp-pr-card__meta {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #9f927d;
+}

@@ -22,7 +22,7 @@
 | `/testField/fitnessPlan/workout/[sessionId]` | 训练执行 | 4 |
 | `/testField/fitnessPlan/diet` | 饮食记录 | 5 |
 | `/testField/fitnessPlan/checkin` | 打卡中心 | 6 |
-| `/testField/fitnessPlan/stats` | 数据统计 | 7 |
+| `/testField/fitnessPlan/stats` | 数据统计 | 7 ✓ |
 | `/testField/fitnessPlan/settings` | 设置 | 1 ✓ / 2 |
 
 ---
@@ -80,9 +80,9 @@
 
 ## Phase 7 — 统计 + 打磨
 
-- [ ] stats API + 趋势图
-- [ ] PR 墙、部位分布
-- [ ] 移动端训练全屏、空态、错误态
+- [x] stats API + 趋势图（`GET /stats?days=`）
+- [x] PR 墙、部位分布
+- [x] 移动端训练全屏、空态、错误态样式
 
 ---
 
