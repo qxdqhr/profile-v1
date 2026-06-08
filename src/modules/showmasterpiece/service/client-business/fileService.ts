@@ -1,5 +1,5 @@
 /**
- * ShowMasterpiece 文件服务 — 委托 sa2kit/ossFile，避免重复 OSS 配置与上传逻辑。
+ * ShowMasterpiece 文件服务 — 委托 sa2kit/common/file，避免重复 OSS 配置与上传逻辑。
  */
 export {
   uploadArtworkImage,
@@ -8,14 +8,14 @@ export {
   getModuleFileAccessUrl,
   universalFileClient,
   createFileClient,
-} from 'sa2kit/ossFile';
+} from 'sa2kit/common/file';
 
 import {
   shouldUseOssFileService,
   getOssStorageModeDisplayName,
   clearOssFileConfigCache,
   refreshOssFileConfigCache,
-} from 'sa2kit/ossFile';
+} from 'sa2kit/common/file';
 
 function getShowmasterpieceItemsApiUrl(): string {
   const environment =

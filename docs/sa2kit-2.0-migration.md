@@ -16,11 +16,11 @@
 | ID | 任务 | sa2kit 对应 | 状态 |
 |----|------|-------------|------|
 | PV2-001 | showmasterpiece 完全本地化，不再 import `sa2kit/showmasterpiece` | R2-401 | ✅ |
-| PV2-002 | 文件链路统一 `sa2kit/ossFile`（或未来的 `sa2kit/common/file`） | R2-501 | 🔄 |
+| PV2-002 | 文件链路统一 `sa2kit/common/file` | R2-501 | ✅ |
 | PV2-007 | 移除 globalThis，使用 `fileUrl.ts` 显式解析器 | R2-203 | ✅ |
-| PV2-003 | 删除 `src/types/sa2kit.d.ts` 中 `export * from 'sa2kit'` 兜底 | R2-502 | ⬜ |
+| PV2-003 | 删除 `src/types/sa2kit.d.ts` 中 file 相关过度兜底 | R2-502 | ✅ |
 | PV2-004 | universal-file API routes 使用 ossFile bootstrap | R2-205 | ✅ |
-| PV2-005 | skill-manager / fitnessPlan / vocaloidBooth 走 ossFile | R2-504 | 🔄 |
+| PV2-005 | skill-manager / fitnessPlan / vocaloidBooth 走 common/file | R2-504 | ✅ |
 | PV2-006 | 创建 `docs/sa2kit-2.0-migration.md` 与 smoke 扩展 | R2-506 | ✅ |
 
 ## import 替换对照（目标）
@@ -29,13 +29,14 @@
 |----------|-----------------|
 | `sa2kit/universalFile` | `sa2kit/common/file` |
 | `sa2kit/universalFile/server` | `sa2kit/common/file/server` |
-| `sa2kit/ossFile` | `sa2kit/common/file`（等价） |
+| `sa2kit/ossFile` | `sa2kit/common/file` |
 | `sa2kit/ossFile/server` | `sa2kit/common/file/server` |
 | `sa2kit/logger` | `sa2kit/common/logger` |
 | `sa2kit/showmasterpiece/*` | `@/modules/showmasterpiece`（本地模块） |
 
 ## 验收
 
-- [ ] `rg 'sa2kit/universalFile' src/` 为零（docs 除外）
-- [ ] `rg 'sa2kit/showmasterpiece' src/` 为零
+- [x] `rg 'sa2kit/universalFile' src/` 为零（docs 除外）
+- [x] `rg 'sa2kit/showmasterpiece' src/` 为零（docs 除外）
+- [x] `rg 'sa2kit/ossFile' src/` 为零（统一 common/file）
 - [ ] smoke 脚本覆盖 universal-file 上传/下载

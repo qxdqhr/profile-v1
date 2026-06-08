@@ -1,4 +1,4 @@
-import type { FileUrlResolver } from 'sa2kit/ossFile/server';
+import type { FileUrlResolver } from 'sa2kit/common/file/server';
 import { getProfileOssFileBootstrap } from '@/lib/ossFile/env';
 
 let defaultResolver: FileUrlResolver | null = null;

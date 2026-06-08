@@ -1,7 +1,7 @@
 import {
   uploadFileAndResolveAccessUrl,
   type AliyunOSSConfig,
-} from 'sa2kit/ossFile/server';
+} from 'sa2kit/common/file/server';
 import {
   createProfilePersistentFileService,
   loadEnvAndCreateOssFileConfigManager,

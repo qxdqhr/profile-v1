@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { ApiResponseHelper, ApiErrorFactory, ValidationHelper, FileDbService, FolderCreateParams, FolderUpdateParams } from 'sa2kit/ossFile/server';
+import { ApiResponseHelper, ApiErrorFactory, ValidationHelper, FileDbService, FolderCreateParams, FolderUpdateParams } from 'sa2kit/common/file/server';
 import { db } from '@/db';
 
 // 初始化服务

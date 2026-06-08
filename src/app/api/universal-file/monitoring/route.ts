@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { cacheManager, performanceMonitor, queryOptimizer, ApiResponse } from 'sa2kit/ossFile/server';
+import { cacheManager, performanceMonitor, queryOptimizer, ApiResponse } from 'sa2kit/common/file/server';
 
 /**
  * GET /api/universal-file/monitoring

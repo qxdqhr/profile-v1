@@ -42,4 +42,4 @@ export {
 
 export {
   createOssFileConfigManagerFromEnv as getShowMasterpieceFileConfig,
-} from 'sa2kit/ossFile/server';
+} from 'sa2kit/common/file/server';

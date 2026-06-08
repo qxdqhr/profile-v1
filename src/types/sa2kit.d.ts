@@ -30,18 +30,6 @@ declare module 'sa2kit/testYourself' {
   export * from 'sa2kit';
 }
 
-declare module 'sa2kit/ossFile' {
-  export * from 'sa2kit';
-}
-
-declare module 'sa2kit/ossFile/server' {
-  export * from 'sa2kit';
-}
-
-declare module 'sa2kit/universalFile' {
-  export * from 'sa2kit';
-}
-
 declare module 'sa2kit/mikuFusionGame' {
   export * from 'sa2kit';
 }
@@ -49,5 +37,3 @@ declare module 'sa2kit/mikuFusionGame' {
 declare module 'sa2kit/mikuFireworks3D' {
   export * from 'sa2kit';
 }
-
-

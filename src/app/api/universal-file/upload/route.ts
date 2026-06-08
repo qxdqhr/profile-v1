@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { uploadFileAndResolveAccessUrl } from 'sa2kit/ossFile/server';
+import {
+  uploadFileAndResolveAccessUrl,
+  resolveUploadFolderPathFromFormData,
+} from 'sa2kit/common/file/server';
 import { validateApiAuth } from '@/lib/auth/legacy';
 import {
   createProfilePersistentFileService,
@@ -20,9 +23,6 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const moduleId = formData.get('moduleId') as string;
-    const businessId = formData.get('businessId') as string;
-    const folderPath = (formData.get('folderPath') || formData.get('customPath')) as string;
-    const needsProcessing = formData.get('needsProcessing') === 'true';
 
     if (!file) {
       return NextResponse.json({ error: '未提供文件' }, { status: 400 });
@@ -31,6 +31,14 @@ export async function POST(request: NextRequest) {
     if (!moduleId) {
       return NextResponse.json({ error: '未指定模块ID' }, { status: 400 });
     }
+
+    const businessIdValue = (formData.get('businessId') as string) || 'default';
+    const folderPath = resolveUploadFolderPathFromFormData(formData, {
+      moduleId,
+      businessId: businessIdValue,
+      fileName: file.name,
+    });
+    const needsProcessing = formData.get('needsProcessing') === 'true';
 
     const bootstrap = getProfileOssFileBootstrap();
     const configManager = await bootstrap.getConfigManager();
@@ -68,8 +76,8 @@ export async function POST(request: NextRequest) {
       {
         file,
         moduleId,
-        businessId: businessId || 'default',
-        customPath: folderPath || `${moduleId}/${businessId || 'default'}`,
+        businessId: businessIdValue,
+        customPath: folderPath,
         metadata: {
           uploadedBy: user.id || 'anonymous',
           uploadedAt: new Date().toISOString(),

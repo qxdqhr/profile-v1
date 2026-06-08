@@ -33,7 +33,7 @@ export * from '@/modules/mikutap/db/schema';
 export * from '@/modules/skillManager/db/schema';
 
 // 导出通用文件服务相关的表
-export * from 'sa2kit/ossFile/server';
+export * from 'sa2kit/common/file/server';
 // 导出节日贺卡相关的表
 export * from 'sa2kit/festivalCard/server';
 

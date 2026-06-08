@@ -2,7 +2,7 @@ import AdmZip from 'adm-zip';
 import {
   uploadFileAndResolveAccessUrl,
   FileDbService,
-} from 'sa2kit/ossFile/server';
+} from 'sa2kit/common/file/server';
 import {
   createProfileFileService,
   getProfileOssFileBootstrap,

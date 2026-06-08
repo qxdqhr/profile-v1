@@ -687,7 +687,7 @@ export default function TestYourselfAdminV2Page() {
               当前使用 Base64 临时方案。生产环境应该集成 UniversalFile 模块上传到 OSS：
             </p>
             <pre className="bg-yellow-100 dark:bg-yellow-900 p-3 rounded mt-2 text-xs overflow-x-auto">
-{`import { universalFileClient } from 'sa2kit/ossFile';
+{`import { universalFileClient } from 'sa2kit/common/file';
 
 const metadata = await universalFileClient.uploadFile({
   file: uploadedFile,

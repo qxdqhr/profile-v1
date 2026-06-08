@@ -4,7 +4,7 @@ import {
   createOssFileConfigManagerFromEnv,
   fileMetadata,
   fileStorageProviders,
-} from 'sa2kit/ossFile/server';
+} from 'sa2kit/common/file/server';
 import { db } from '@/db';
 
 let bootstrap: ReturnType<typeof createOssFileBootstrap> | null = null;

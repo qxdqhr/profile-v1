@@ -8,4 +8,4 @@ export {
   getShowMasterpieceFileConfig,
 } from './fileUrl';
 
-export type { FileUrlResolver } from 'sa2kit/ossFile/server';
+export type { FileUrlResolver } from 'sa2kit/common/file/server';
