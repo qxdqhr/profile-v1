@@ -225,3 +225,177 @@
 .fp-checkin-item.is-pending {
   color: #9f927d;
 }
+
+.fp-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.fp-filter-row {
+  display: grid;
+  gap: 8px;
+}
+
+@media (min-width: 768px) {
+  .fp-filter-row {
+    grid-template-columns: 2fr 1fr 1fr auto;
+    align-items: center;
+  }
+}
+
+.fp-exercise-list {
+  display: grid;
+  gap: 10px;
+  max-height: 420px;
+  overflow: auto;
+}
+
+.fp-exercise-item__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fp-exercise-item__desc {
+  margin: 8px 0 0;
+  color: #8a7b66;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.fp-exercise-item__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.fp-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 50px;
+  background: rgba(114, 93, 66, 0.08);
+  color: #725d42;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.fp-template-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+@media (min-width: 768px) {
+  .fp-template-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.fp-template-card {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.fp-template-card p {
+  margin: 0;
+  color: #8a7b66;
+  font-size: 13px;
+}
+
+.fp-plan-grid {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .fp-plan-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.fp-plan-card__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #794f27;
+  text-decoration: none;
+}
+
+.fp-plan-card__desc {
+  margin: 8px 0 0;
+  color: #8a7b66;
+  line-height: 1.5;
+}
+
+.fp-plan-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #9f927d;
+}
+
+.fp-plan-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.fp-settings-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.fp-field {
+  display: grid;
+  gap: 6px;
+}
+
+.fp-field span {
+  font-size: 13px;
+  font-weight: 600;
+  color: #794f27;
+}
+
+.fp-plan-items {
+  display: grid;
+  gap: 12px;
+}
+
+.fp-plan-item-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fp-item-fields {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+@media (min-width: 768px) {
+  .fp-item-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.fp-item-fields label {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #794f27;
+}

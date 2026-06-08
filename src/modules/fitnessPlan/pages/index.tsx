@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { Button, Card, Title } from 'animal-island-ui';
-import { CHECKIN_TYPE_LABELS } from '../types';
+import { ProfileSettingsForm } from '../components/ProfileSettingsForm';
+import { CHECKIN_TYPE_LABELS, FITNESS_GOAL_LABELS } from '../types';
+import type { FitnessGoal } from '../types';
 import { useFitnessPlanStore } from '../store/fitnessPlanStore';
 
-interface SubPageShellProps {
+export { PlansPage } from './PlansPage';
+export { PlanDetailPage } from './PlanDetailPage';
+
+function SubPageShell({
+  title,
+  color = 'app-teal',
+  description,
+  phase,
+  actions,
+}: {
   title: string;
   color?:
     | 'app-teal'
@@ -17,15 +28,7 @@ interface SubPageShellProps {
   description: string;
   phase: number;
   actions?: React.ReactNode;
-}
-
-export function SubPageShell({
-  title,
-  color = 'app-teal',
-  description,
-  phase,
-  actions,
-}: SubPageShellProps) {
+}) {
   return (
     <div className="fp-page">
       <Title size="middle" color={color}>
@@ -47,6 +50,9 @@ export function TodayPage() {
   const checkinToday = useFitnessPlanStore((s) => s.checkinToday);
   const selectedDate = useFitnessPlanStore((s) => s.ui.selectedDate);
   const profile = useFitnessPlanStore((s) => s.profile);
+  const goalLabel = profile?.goal
+    ? FITNESS_GOAL_LABELS[profile.goal as FitnessGoal] ?? profile.goal
+    : '维持';
 
   return (
     <div className="fp-page">
@@ -54,16 +60,7 @@ export function TodayPage() {
         今日
       </Title>
       <p className="fp-page__desc">
-        {selectedDate} · 目标：
-        {profile?.goal === 'muscle_gain'
-          ? '增肌'
-          : profile?.goal === 'fat_loss'
-            ? '减脂'
-            : profile?.goal === 'strength'
-              ? '力量'
-              : profile?.goal === 'endurance'
-                ? '耐力'
-                : '维持'}
+        {selectedDate} · 目标：{goalLabel}
       </p>
 
       <div className="fp-grid-2">
@@ -104,9 +101,9 @@ export function TodayPage() {
                 记录饮食
               </Button>
             </Link>
-            <Link href="/testField/fitnessPlan/schedule">
+            <Link href="/testField/fitnessPlan/plans">
               <Button type="default" size="small">
-                查看日历
+                训练计划
               </Button>
             </Link>
           </div>
@@ -117,33 +114,6 @@ export function TodayPage() {
         <p style={{ margin: 0, fontWeight: 600 }}>Phase 6 将完善今日训练计划与饮食摘要</p>
       </Card>
     </div>
-  );
-}
-
-export function PlansPage() {
-  return (
-    <SubPageShell
-      title="训练计划"
-      color="app-blue"
-      phase={2}
-      description="管理推拉腿、Upper/Lower 等计划模板与个人计划。"
-      actions={
-        <Link href="/testField/fitnessPlan/plans/new">
-          <Button type="primary">新建计划（Phase 2）</Button>
-        </Link>
-      }
-    />
-  );
-}
-
-export function PlanDetailPage({ planId }: { planId: string }) {
-  return (
-    <SubPageShell
-      title={`计划 #${planId}`}
-      color="app-blue"
-      phase={2}
-      description="编排力量/有氧动作、组数、休息与目标参数。"
-    />
   );
 }
 
@@ -219,7 +189,6 @@ export function StatsPage() {
 }
 
 export function SettingsPage() {
-  const profile = useFitnessPlanStore((s) => s.profile);
   const profileError = useFitnessPlanStore((s) => s.profileError);
 
   return (
@@ -227,33 +196,11 @@ export function SettingsPage() {
       <Title size="middle" color="app-teal">
         设置
       </Title>
-      <p className="fp-page__desc">健身档案与每日热量目标（Phase 2 开放编辑表单）。</p>
-
-      <Card pattern="app-teal">
-        <dl style={{ margin: 0, display: 'grid', gap: 8 }}>
-          <div>
-            <dt style={{ fontSize: 12, color: '#9f927d' }}>健身目标</dt>
-            <dd style={{ margin: '4px 0 0', fontWeight: 700 }}>{profile?.goal ?? '—'}</dd>
-          </div>
-          <div>
-            <dt style={{ fontSize: 12, color: '#9f927d' }}>每日热量目标</dt>
-            <dd style={{ margin: '4px 0 0', fontWeight: 700 }}>
-              {profile?.dailyCalorieGoal ?? '—'} kcal
-            </dd>
-          </div>
-          <div>
-            <dt style={{ fontSize: 12, color: '#9f927d' }}>当前体重</dt>
-            <dd style={{ margin: '4px 0 0', fontWeight: 700 }}>
-              {profile?.currentWeight != null
-                ? `${profile.currentWeight} ${profile.weightUnit}`
-                : '未设置'}
-            </dd>
-          </div>
-        </dl>
-        {profileError ? (
-          <p style={{ margin: '12px 0 0', color: '#e05a5a' }}>{profileError}</p>
-        ) : null}
-      </Card>
+      <p className="fp-page__desc">健身档案、体重与每日热量目标。</p>
+      <ProfileSettingsForm />
+      {profileError ? (
+        <p style={{ color: '#e05a5a', margin: 0 }}>{profileError}</p>
+      ) : null}
     </div>
   );
 }

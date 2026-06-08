@@ -27,7 +27,7 @@
 
 ---
 
-## Phase 1 — 脚手架（当前）
+## Phase 1 — 脚手架
 
 - [x] 模块目录与 `DEVELOPMENT.md`
 - [x] Drizzle schema（全表）+ `src/db/schema/index.ts` 注册
@@ -40,13 +40,13 @@
 - [x] `pnpm devdb:push` 测试环境表结构
 - [x] 构建通过
 
-## Phase 2 — 动作库 + 计划
+## Phase 2 — 动作库 + 计划（当前）
 
-- [ ] seed 内置动作 JSON（≥40）
-- [ ] 动作 CRUD API + 列表页组件
-- [ ] 计划 CRUD + 计划详情编排
-- [ ] 3 套系统模板 seed
-- [ ] settings 页档案编辑
+- [x] seed 内置动作 JSON（45 条）
+- [x] 动作 CRUD API + 动作库 Modal
+- [x] 计划 CRUD + 计划详情编排
+- [x] 3 套系统模板 seed（推拉腿 / Upper-Lower / 有氧力量）
+- [x] settings 页档案编辑
 
 ## Phase 3 — 训练日历
 

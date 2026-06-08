@@ -106,3 +106,81 @@ export function parseProfileNumbers(profile: FitnessProfile) {
       profile.currentWeight != null ? Number(profile.currentWeight) : null,
   };
 }
+
+export interface ExerciseRecord {
+  id: number;
+  userId: number | null;
+  name: string;
+  type: ExerciseType;
+  bodyPart: string | null;
+  equipment: string | null;
+  cardioType: string | null;
+  description: string | null;
+  isCustom: boolean;
+}
+
+export interface ExerciseFormData {
+  name: string;
+  type: ExerciseType;
+  bodyPart?: string;
+  equipment?: string;
+  cardioType?: string;
+  description?: string;
+}
+
+export interface PlanItemInput {
+  exerciseId?: number;
+  exerciseName?: string;
+  targetSets?: number;
+  targetReps?: number;
+  targetWeight?: number;
+  restSeconds?: number;
+  targetDurationMinutes?: number;
+  targetDistance?: number;
+  targetCalories?: number;
+}
+
+export interface WorkoutPlanRecord {
+  id: number;
+  userId: number;
+  name: string;
+  description: string | null;
+  goalTags: string[];
+  status: WorkoutPlanStatus;
+  isTemplate: boolean;
+  sourceTemplateId: number | null;
+  itemCount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WorkoutPlanItemRecord extends PlanItemInput {
+  id: number;
+  planId: number;
+  sortOrder: number;
+  exercise?: ExerciseRecord;
+}
+
+export interface WorkoutPlanDetail extends WorkoutPlanRecord {
+  items: WorkoutPlanItemRecord[];
+}
+
+export interface WorkoutPlanFormData {
+  name: string;
+  description?: string;
+  goalTags?: string[];
+}
+
+export const BODY_PART_LABELS: Record<string, string> = {
+  chest: '胸',
+  back: '背',
+  legs: '腿',
+  shoulder: '肩',
+  arms: '臂',
+  core: '核心',
+};
+
+export const EXERCISE_TYPE_LABELS: Record<ExerciseType, string> = {
+  strength: '力量',
+  cardio: '有氧',
+};
