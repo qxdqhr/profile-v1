@@ -1,9 +1,9 @@
+export * from './types';
+export * as logic from './logic';
+export * as service from './service';
+
 export {
-  masterpiecesConfigDbService,
-  categoriesDbService,
-  tagsDbService,
-  collectionsDbService,
-  artworksDbService,
-} from './masterpiecesDbService';
-export { showmasterConfigService } from './configService';
-export { popupConfigService } from './popupConfigService';
+  ShowMasterPiecesPage,
+  ShowMasterPiecesConfigPage,
+  ShowMasterPiecesHistoryPage,
+} from './ui/web';

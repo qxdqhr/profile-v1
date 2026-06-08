@@ -2,7 +2,10 @@ import { relations } from 'drizzle-orm';
 import { serial, text, timestamp, pgTable, json, integer, primaryKey } from 'drizzle-orm/pg-core';
 
 // 导出画集相关的表
-export * from 'sa2kit/showmasterpiece/server';
+export * from '@/modules/showmasterpiece/db/schema/masterpieces';
+export * from '@/modules/showmasterpiece/db/schema/bookings';
+export * from '@/modules/showmasterpiece/db/schema/popupConfig';
+export * from '@/modules/showmasterpiece/db/schema/config';
 // 导出认证相关的表
 export * from '@/lib/auth/schema';
 
@@ -30,7 +33,7 @@ export * from '@/modules/mikutap/db/schema';
 export * from '@/modules/skillManager/db/schema';
 
 // 导出通用文件服务相关的表
-export * from 'sa2kit/universalFile/server';
+export * from 'sa2kit/ossFile/server';
 // 导出节日贺卡相关的表
 export * from 'sa2kit/festivalCard/server';
 

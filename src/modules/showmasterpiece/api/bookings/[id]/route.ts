@@ -6,8 +6,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import type { UpdateBookingRequest } from 'sa2kit/showmasterpiece';
-import { BookingCommandError } from 'sa2kit/showmasterpiece/server';
+import type { UpdateBookingRequest } from '@/modules/showmasterpiece/types/booking';
+import { BookingCommandError } from '@/modules/showmasterpiece/server';
 import { isAdminUser, isAuthFailure, requireAdmin } from '../../lib/auth';
 import { bookingMatchesLookup } from '../../lib/bookingAccess';
 import {

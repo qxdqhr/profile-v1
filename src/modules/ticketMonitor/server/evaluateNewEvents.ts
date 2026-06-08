@@ -2,7 +2,7 @@ import type { TicketEvent, TicketSource } from '../types';
 import type { ticketMonitorConfig } from '../db/schema';
 import { ticketMonitorDb } from '../db/ticketMonitorDbService';
 import { buildNewEventMessage } from './notifications/buildTicketMessage';
-import { sendFeishuPostMessage } from './notifications/feishuNotifier';
+import { sendFeishuPostMessage } from '@sa2kit/feishu-bot';
 
 type ConfigRow = typeof ticketMonitorConfig.$inferSelect;
 

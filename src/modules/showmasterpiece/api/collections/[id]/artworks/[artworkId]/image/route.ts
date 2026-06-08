@@ -1,26 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db/index';
 import { eq, and } from 'drizzle-orm';
-import '@/modules/showmasterpiece/sa2kit-init';
+import { resolveShowmasterpieceFileUrl } from '@/modules/showmasterpiece/fileUrl';
 import { apiError, logRouteError } from '@/modules/showmasterpiece/api/lib/response';
 
 const getComicUniverseArtworks = async () => {
-  const module = await import('sa2kit/showmasterpiece/server');
+  const module = await import('@/modules/showmasterpiece/server');
   return module.comicUniverseArtworks;
 };
 
-const globalAny = globalThis as typeof globalThis & {
-  __sa2kitShowmasterpieceResolveFileUrl?: (
-    fileId: string,
-  ) => Promise<string | null | undefined>;
-};
-
 async function resolveArtworkFileUrl(fileId: string): Promise<string | null> {
-  const resolver = globalAny.__sa2kitShowmasterpieceResolveFileUrl;
-  if (!resolver) return null;
   try {
-    const url = await resolver(fileId);
-    return url ?? null;
+    return await resolveShowmasterpieceFileUrl(fileId);
   } catch (error) {
     logRouteError('通过 fileId 获取图片失败:', error);
     return null;

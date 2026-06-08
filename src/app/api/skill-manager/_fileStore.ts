@@ -1,6 +1,11 @@
 import AdmZip from 'adm-zip';
-import { EnvConfigService } from '@/modules/configManager/services/envConfigService';
-import { createUniversalFileServiceWithConfigManager, FileDbService } from 'sa2kit/universalFile/server';
+import {
+  createUniversalFileServiceFromConfigManager,
+  uploadFileAndResolveAccessUrl,
+  getFileUrlByFileId,
+  FileDbService,
+} from 'sa2kit/ossFile/server';
+import { loadEnvAndCreateOssFileConfigManager } from '@/lib/ossFile/env';
 import { db } from '@/db';
 
 const MODULE_ID = 'skill-manager';
@@ -38,10 +43,8 @@ export async function createFileDbService(): Promise<FileDbService> {
 }
 
 export async function createFileService() {
-  const envConfigService = EnvConfigService.getInstance();
-  const envConfig = await envConfigService.loadConfigFromDatabase();
-  envConfigService.setEnvironmentVariables(envConfig);
-  return createUniversalFileServiceWithConfigManager();
+  const configManager = await loadEnvAndCreateOssFileConfigManager();
+  return createUniversalFileServiceFromConfigManager(configManager);
 }
 
 function toIso(value: string | Date | null | undefined): string {
@@ -140,8 +143,12 @@ export async function getSkillFileByRelativePath(skillId: string, relativePath: 
 }
 
 export async function getFileAccessUrl(fileId: string): Promise<string> {
-  const fileService = await createFileService();
-  return fileService.getFileUrl(fileId);
+  const configManager = await loadEnvAndCreateOssFileConfigManager();
+  const url = await getFileUrlByFileId(fileId, { configManager });
+  if (!url) {
+    throw new Error(`无法解析文件 URL: ${fileId}`);
+  }
+  return url;
 }
 
 export async function readTextFileById(fileId: string): Promise<string> {
@@ -164,21 +171,23 @@ export async function uploadSkillFile(input: {
   const fileService = await createFileService();
   const name = input.relativePath.split('/').pop() || 'SKILL.md';
   const file = new File([input.content], name, { type: 'text/markdown' });
-  const uploaded = await fileService.uploadFile({
-    file,
-    moduleId: MODULE_ID,
-    businessId: input.skillId,
-    customPath: `${MODULE_ID}/${input.skillId}/${input.relativePath}`,
-    metadata: {
-      relativePath: input.relativePath,
-      source: input.source,
-      status: input.status,
-      uploadedBy: input.uploaderId || 'unknown',
-      uploadedAt: new Date().toISOString()
-    }
-  });
-  const accessUrl = uploaded.cdnUrl || (await fileService.getFileUrl(uploaded.id));
-  return { fileId: uploaded.id, accessUrl };
+  return uploadFileAndResolveAccessUrl(
+    fileService,
+    {
+      file,
+      moduleId: MODULE_ID,
+      businessId: input.skillId,
+      customPath: `${MODULE_ID}/${input.skillId}/${input.relativePath}`,
+      metadata: {
+        relativePath: input.relativePath,
+        source: input.source,
+        status: input.status,
+        uploadedBy: input.uploaderId || 'unknown',
+        uploadedAt: new Date().toISOString()
+      }
+    },
+    input.uploaderId,
+  );
 }
 
 export async function buildSkillZip(skillId: string): Promise<Buffer> {
@@ -208,4 +217,3 @@ export async function buildBatchZip(skillIds: string[]): Promise<Buffer> {
   }
   return zip.toBuffer();
 }
-

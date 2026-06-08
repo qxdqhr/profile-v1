@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getOSSProvider } from '@/lib/examples/oss';
-import { UploadFileInfo } from 'sa2kit/universalFile/server/types';
+import { UploadFileInfo } from 'sa2kit/ossFile/server';
 
 export async function POST(req: NextRequest) {
   try {

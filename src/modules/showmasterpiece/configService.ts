@@ -2,7 +2,7 @@ import { db } from '@/db';
 import {
   ShowmasterConfigService,
   createShowmasterConfigService,
-} from 'sa2kit/showmasterpiece/server';
+} from '@/modules/showmasterpiece/server';
 
 export { ShowmasterConfigService, createShowmasterConfigService };
 

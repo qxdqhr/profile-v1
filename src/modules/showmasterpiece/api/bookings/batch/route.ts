@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { BookingCommandError } from 'sa2kit/showmasterpiece/server';
+import { BookingCommandError } from '@/modules/showmasterpiece/server';
 import { bookingCommandService } from '../../lib/bookingServices';
 import { enforceBookingWriteRateLimit } from '../../lib/bookingRateLimit';
 import { apiError, logRouteError } from '../../lib/response';

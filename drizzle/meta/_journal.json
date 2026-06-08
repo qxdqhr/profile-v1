@@ -400,6 +400,13 @@
       "when": 1779515444254,
       "tag": "0056_heavy_serpent_society",
       "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "7",
+      "when": 1780890679770,
+      "tag": "0057_typical_titania",
+      "breakpoints": true
     }
   ]
 }

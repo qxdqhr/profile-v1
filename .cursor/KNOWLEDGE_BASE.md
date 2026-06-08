@@ -56,9 +56,9 @@ export default function XxxRoute() {
 }
 ```
 
-需要模块级副作用（如初始化）时，优先在 **layout** 统一 `import '@/modules/.../sa2kit-init'`（ShowMasterPieces 已采用）；薄 `page.tsx` 仅 re-export 组件。
+需要模块级副作用（如初始化）时，优先在 **layout** 统一 `import '@/modules/.../init'`（ShowMasterPieces 已采用）；薄 `page.tsx` 仅 re-export 组件。
 
-ShowMasterpiece 与 sa2kit 发版联动见 `src/modules/showmasterpiece/SA2KIT_PLAN.md`。
+ShowMasterpiece 已自 sa2kit 迁入 `src/modules/showmasterpiece/`，见 `MIGRATION_FROM_SA2KIT.md`。
 
 ### 2.4 API 路由与模块代码的对应关系
 

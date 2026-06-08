@@ -5,7 +5,7 @@
  */
 
 import { fileTransferDbService } from '../db/fileTransferDbService';
-import { CacheManager, PerformanceMonitor } from 'sa2kit/universalFile/server';
+import { CacheManager, PerformanceMonitor } from 'sa2kit/ossFile/server';
 import type { FileTransfer, FileTransferConfig, TransferStatus } from '../types';
 import { validateFileType, validateFileSize } from '../utils/fileValidation';
 

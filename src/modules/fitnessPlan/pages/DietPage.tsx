@@ -2,20 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Card, Input, Modal, Select, Title } from 'animal-island-ui';
-import { FoodSearchPanel } from '../components/diet/FoodSearchPanel';
 import { fitnessPlanClient } from '../services/fitnessPlanClient';
 import { useFitnessPlanStore } from '../store/fitnessPlanStore';
-import type {
-  DietDayPayload,
-  DietLogEntryRecord,
-  FoodItemRecord,
-  MealType,
-} from '../types';
-import {
-  MEAL_TYPE_LABELS,
-  MEAL_TYPE_ORDER,
-  formatDateKey,
-} from '../types';
+import type { DietDayPayload, DietLogEntryRecord, MealType } from '../types';
+import { MEAL_TYPE_LABELS, MEAL_TYPE_ORDER, formatDateKey } from '../types';
 
 function shiftDate(dateKey: string, delta: number) {
   const date = new Date(`${dateKey}T12:00:00`);
@@ -59,7 +49,6 @@ export function DietPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
-  const [foodSearchOpen, setFoodSearchOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -67,11 +56,6 @@ export function DietPage() {
   const [form, setForm] = useState({
     mealType: 'lunch' as MealType,
     foodName: '',
-    foodItemId: null as number | null,
-    calories: '',
-    protein: '',
-    carbs: '',
-    fat: '',
     imageUrl: null as string | null,
   });
 
@@ -97,34 +81,14 @@ export function DietPage() {
     [day?.entries],
   );
 
-  const caloriePercent = day
-    ? Math.min(100, Math.round((day.totals.calories / Math.max(day.calorieGoal, 1)) * 100))
-    : 0;
+  const entryCount = day?.entries.length ?? 0;
 
   const resetForm = () => {
     setForm({
       mealType: 'lunch',
       foodName: '',
-      foodItemId: null,
-      calories: '',
-      protein: '',
-      carbs: '',
-      fat: '',
       imageUrl: null,
     });
-  };
-
-  const handleSelectFood = (food: FoodItemRecord) => {
-    setFoodSearchOpen(false);
-    setForm((prev) => ({
-      ...prev,
-      foodName: food.name,
-      foodItemId: food.id,
-      calories: String(food.calories),
-      protein: food.protein != null ? String(food.protein) : '',
-      carbs: food.carbs != null ? String(food.carbs) : '',
-      fat: food.fat != null ? String(food.fat) : '',
-    }));
   };
 
   const handleUpload = async (file: File) => {
@@ -142,12 +106,7 @@ export function DietPage() {
 
   const handleAddEntry = async () => {
     if (!form.foodName.trim()) {
-      setError('请填写食物名称');
-      return;
-    }
-    const calories = Number(form.calories);
-    if (!Number.isFinite(calories) || calories < 0) {
-      setError('请填写有效热量');
+      setError('请填写名称');
       return;
     }
 
@@ -158,11 +117,6 @@ export function DietPage() {
         logDate: selectedDate,
         mealType: form.mealType,
         foodName: form.foodName.trim(),
-        foodItemId: form.foodItemId ?? undefined,
-        calories,
-        protein: form.protein === '' ? null : Number(form.protein),
-        carbs: form.carbs === '' ? null : Number(form.carbs),
-        fat: form.fat === '' ? null : Number(form.fat),
         imageUrl: form.imageUrl,
       });
       setDay(data);
@@ -193,7 +147,7 @@ export function DietPage() {
       <Title size="middle" color="app-pink">
         饮食记录
       </Title>
-      <p className="fp-page__desc">按日记录餐次、热量与饮食截图（不上线 OCR）。</p>
+      <p className="fp-page__desc">按日记录餐次、名称与饮食截图（不上线 OCR）。</p>
 
       <div className="fp-diet-toolbar">
         <Button type="default" size="small" onClick={() => setSelectedDate(shiftDate(selectedDate, -1))}>
@@ -214,20 +168,12 @@ export function DietPage() {
       <Card pattern="app-pink">
         <div className="fp-diet-summary">
           <div>
-            <span className="fp-diet-summary__label">今日摄入</span>
+            <span className="fp-diet-summary__label">今日记录</span>
             <strong className="fp-diet-summary__value">
-              {day?.totals.calories ?? 0}
-              <small> / {day?.calorieGoal ?? 2000} kcal</small>
+              {entryCount}
+              <small> 条</small>
             </strong>
           </div>
-          <div className="fp-diet-summary__macros">
-            <span>蛋白 {Math.round(day?.totals.protein ?? 0)}g</span>
-            <span>碳水 {Math.round(day?.totals.carbs ?? 0)}g</span>
-            <span>脂肪 {Math.round(day?.totals.fat ?? 0)}g</span>
-          </div>
-        </div>
-        <div className="fp-diet-progress">
-          <div className="fp-diet-progress__bar" style={{ width: `${caloriePercent}%` }} />
         </div>
       </Card>
 
@@ -273,10 +219,6 @@ export function DietPage() {
                   )}
                   <div className="fp-diet-entry__body">
                     <strong>{entry.foodName}</strong>
-                    <p>
-                      {entry.calories} kcal
-                      {entry.protein != null ? ` · 蛋白 ${entry.protein}g` : ''}
-                    </p>
                   </div>
                   <Button type="default" size="small" onClick={() => void handleDelete(entry.id)}>
                     删除
@@ -288,7 +230,7 @@ export function DietPage() {
         );
       })}
 
-      {!loading && (day?.entries.length ?? 0) === 0 ? (
+      {!loading && entryCount === 0 ? (
         <Card pattern="default" type="dashed">
           <p style={{ margin: 0, color: '#9f927d' }}>
             今天还没有饮食记录，点击「添加饮食」开始记录吧。
@@ -307,61 +249,14 @@ export function DietPage() {
             />
           </label>
 
-          <div className="fp-action-row">
+          <label className="fp-field">
+            <span>名称</span>
             <Input
               value={form.foodName}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  foodName: e.target.value,
-                  foodItemId: null,
-                }))
-              }
-              placeholder="食物名称"
+              onChange={(e) => setForm((prev) => ({ ...prev, foodName: e.target.value }))}
+              placeholder="例如：公司午餐、蛋白粉"
             />
-            <Button type="default" onClick={() => setFoodSearchOpen(true)}>
-              从食物库选
-            </Button>
-          </div>
-
-          <div className="fp-diet-form__grid">
-            <label className="fp-field">
-              <span>热量 (kcal)</span>
-              <Input
-                type="number"
-                min={0}
-                value={form.calories}
-                onChange={(e) => setForm((prev) => ({ ...prev, calories: e.target.value }))}
-              />
-            </label>
-            <label className="fp-field">
-              <span>蛋白 (g)</span>
-              <Input
-                type="number"
-                min={0}
-                value={form.protein}
-                onChange={(e) => setForm((prev) => ({ ...prev, protein: e.target.value }))}
-              />
-            </label>
-            <label className="fp-field">
-              <span>碳水 (g)</span>
-              <Input
-                type="number"
-                min={0}
-                value={form.carbs}
-                onChange={(e) => setForm((prev) => ({ ...prev, carbs: e.target.value }))}
-              />
-            </label>
-            <label className="fp-field">
-              <span>脂肪 (g)</span>
-              <Input
-                type="number"
-                min={0}
-                value={form.fat}
-                onChange={(e) => setForm((prev) => ({ ...prev, fat: e.target.value }))}
-              />
-            </label>
-          </div>
+          </label>
 
           <div className="fp-diet-upload">
             <input
@@ -406,12 +301,6 @@ export function DietPage() {
           </div>
         </div>
       </Modal>
-
-      <FoodSearchPanel
-        open={foodSearchOpen}
-        onClose={() => setFoodSearchOpen(false)}
-        onSelect={handleSelectFood}
-      />
     </div>
   );
 }

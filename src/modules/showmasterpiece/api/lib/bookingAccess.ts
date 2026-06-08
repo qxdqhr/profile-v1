@@ -1,4 +1,4 @@
-import type { BookingListParams } from 'sa2kit/showmasterpiece';
+import type { BookingListParams } from '@/modules/showmasterpiece/types/booking';
 
 /**
  * 用户自助查询须同时提供 QQ 与手机号，降低枚举他人订单的风险。

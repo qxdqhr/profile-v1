@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
 
     const body = (await request.json()) as DietEntryInput;
     if (!body.logDate || !body.mealType || !body.foodName?.trim()) {
-      return NextResponse.json({ error: '请填写完整饮食信息' }, { status: 400 });
+      return NextResponse.json({ error: '请填写餐次和名称' }, { status: 400 });
     }
 
     const data = await fitnessPlanDbService.addDietEntry(user.id, body);

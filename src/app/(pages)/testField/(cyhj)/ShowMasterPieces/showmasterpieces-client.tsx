@@ -1,6 +1,6 @@
 'use client';
 
-import { ShowMasterPiecesPage } from 'sa2kit/showmasterpiece';
+import { ShowMasterPiecesPage } from '@/modules/showmasterpiece';
 
 export default function ShowMasterPiecesClient() {
   return <ShowMasterPiecesPage />;

@@ -2,7 +2,7 @@ import { db } from '@/db';
 import {
   PopupConfigService,
   createPopupConfigService,
-} from 'sa2kit/showmasterpiece/server';
+} from '@/modules/showmasterpiece/server';
 
 export { PopupConfigService, createPopupConfigService };
 

@@ -1,0 +1,19 @@
+{
+  "name": "@sa2kit/feishu-bot",
+  "version": "0.1.0",
+  "description": "飞书自定义机器人 Webhook 消息发送（支持签名校验与富文本 post 消息）",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "keywords": [
+    "feishu",
+    "lark",
+    "webhook",
+    "bot"
+  ],
+  "license": "MIT"
+}

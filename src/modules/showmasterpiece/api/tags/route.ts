@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { tagsDbService } from '@/modules/showmasterpiece/masterpiecesDbService';
-import '@/modules/showmasterpiece/sa2kit-init';
+import '@/modules/showmasterpiece/init';
 import { apiError, logRouteError } from '../lib/response';
 import { routeDebug } from '../lib/routeLog';
 

@@ -61,15 +61,6 @@ export function TodayPage() {
         ? `/testField/fitnessPlan/workout/${activeWorkout.sessionId}`
         : '/testField/fitnessPlan/workout';
 
-  const caloriePercent = overview
-    ? Math.min(
-        100,
-        Math.round(
-          (overview.diet.calories / Math.max(overview.diet.calorieGoal, 1)) * 100,
-        ),
-      )
-    : 0;
-
   return (
     <div className="fp-page">
       <Title size="large" color="app-green">
@@ -150,12 +141,8 @@ export function TodayPage() {
             今日饮食
           </Title>
           <p style={{ marginTop: 12, color: '#725d42' }}>
-            {overview?.diet.calories ?? 0} / {overview?.diet.calorieGoal ?? 2000} kcal
-            {overview ? ` · ${overview.diet.entryCount} 条记录` : ''}
+            已记录 {overview?.diet.entryCount ?? 0} 条饮食
           </p>
-          <div className="fp-diet-progress" style={{ marginTop: 12 }}>
-            <div className="fp-diet-progress__bar" style={{ width: `${caloriePercent}%` }} />
-          </div>
           <Link href="/testField/fitnessPlan/diet" style={{ marginTop: 12, display: 'inline-block' }}>
             <Button type="default" size="small">
               记录饮食

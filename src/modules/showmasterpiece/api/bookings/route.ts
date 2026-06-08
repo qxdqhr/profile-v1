@@ -3,8 +3,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import type { CreateBookingRequest, BookingListParams } from 'sa2kit/showmasterpiece';
-import { BookingCommandError } from 'sa2kit/showmasterpiece/server';
+import type { CreateBookingRequest, BookingListParams } from '@/modules/showmasterpiece/types/booking';
+import { BookingCommandError } from '@/modules/showmasterpiece/server';
 import { isAdminUser } from '../lib/auth';
 import { validatePublicBookingLookup } from '../lib/bookingAccess';
 import {

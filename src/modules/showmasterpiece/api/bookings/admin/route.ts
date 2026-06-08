@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { forceRefreshDatabaseConnection, getDatabaseConnectionStatus } from '@/db';
-import type { BookingStatus } from 'sa2kit/showmasterpiece';
+import type { BookingStatus } from '@/modules/showmasterpiece/types/booking';
 import { isAuthFailure, requireAdmin } from '../../lib/auth';
 import { bookingQueryService } from '../../lib/bookingServices';
 import { handleRouteError } from '../../lib/response';

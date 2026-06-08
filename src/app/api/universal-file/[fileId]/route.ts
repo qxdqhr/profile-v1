@@ -1,61 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createUniversalFileServiceWithConfigManager } from 'sa2kit/universalFile/server';
-import { EnvConfigService } from '@/modules/configManager/services/envConfigService';
+import { getFileUrlByFileId } from 'sa2kit/ossFile/server';
+import { loadEnvAndCreateOssFileConfigManager } from '@/lib/ossFile/env';
 
 /**
- * 通用文件获取API端点
  * GET /api/universal-file/[fileId]
- * 
- * 获取文件信息和访问URL
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ fileId: string }> }
+  { params }: { params: Promise<{ fileId: string }> },
 ) {
   try {
     const { fileId } = await params;
-    
-    console.log('📄 [通用文件服务] 收到文件获取请求:', fileId);
 
     if (!fileId) {
-      return NextResponse.json(
-        { error: '文件ID不能为空' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '文件ID不能为空' }, { status: 400 });
     }
 
-    // 初始化文件服务
-    const envConfigService = EnvConfigService.getInstance();
-    const envConfig = await envConfigService.loadConfigFromDatabase();
-    envConfigService.setEnvironmentVariables(envConfig);
-    const fileService = await createUniversalFileServiceWithConfigManager();
+    const configManager = await loadEnvAndCreateOssFileConfigManager();
+    const accessUrl = await getFileUrlByFileId(fileId, { configManager });
 
-    // 生成访问URL
-    const accessUrl = await fileService.getFileUrl(fileId);
+    if (!accessUrl) {
+      return NextResponse.json({ error: '文件不存在或无法解析访问地址' }, { status: 404 });
+    }
 
-    console.log('✅ [通用文件服务] 文件URL获取成功:', {
-      fileId,
-      accessUrl
-    });
-
-    // 返回文件信息（简化版本，只返回访问URL）
     return NextResponse.json({
       success: true,
       data: {
         fileId,
-        accessUrl
-      }
-    });
-
-  } catch (error) {
-    console.error('❌ [通用文件服务] 文件获取失败:', error);
-    
-    return NextResponse.json(
-      { 
-        error: '文件获取失败',
-        details: error instanceof Error ? error.message : '未知错误'
+        accessUrl,
       },
-      { status: 500 }
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: '文件获取失败',
+        details: error instanceof Error ? error.message : '未知错误',
+      },
+      { status: 500 },
     );
   }
-} 
+}

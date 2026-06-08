@@ -1,4 +1,4 @@
-import { AliyunOSSProvider, loadOSSConfigFromEnv } from 'sa2kit/universalFile/server';
+import { AliyunOSSProvider, loadOSSConfigFromEnv } from 'sa2kit/ossFile/server';
 
 let ossProvider: AliyunOSSProvider | null = null;
 

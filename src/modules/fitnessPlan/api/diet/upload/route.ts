@@ -1,17 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createUniversalFileServiceWithConfigManager } from 'sa2kit/universalFile/server';
 import { validateApiAuth } from '@/lib/auth/legacy';
-import { EnvConfigService } from '@/modules/configManager/services/envConfigService';
+import { DietUploadError, uploadDietImageToOss } from '@/modules/fitnessPlan/services/dietUploadService';
 
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
 const MAX_SIZE = 10 * 1024 * 1024;
-
-async function getFileService() {
-  const envConfigService = EnvConfigService.getInstance();
-  const envConfig = await envConfigService.loadConfigFromDatabase();
-  envConfigService.setEnvironmentVariables(envConfig);
-  return createUniversalFileServiceWithConfigManager();
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,31 +25,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '图片大小不能超过 10MB' }, { status: 400 });
     }
 
-    const fileService = await getFileService();
-    const uploadResult = await fileService.uploadFile({
+    const result = await uploadDietImageToOss({
       file,
-      moduleId: 'fitnessPlan',
-      businessId: String(user.id),
-      customPath: `fitnessPlan/diet/${user.id}`,
-      metadata: {
-        uploadedBy: String(user.id),
-        uploadedAt: new Date().toISOString(),
-      },
+      userId: user.id,
     });
-
-    const imageUrl =
-      uploadResult.cdnUrl ||
-      (await fileService.getFileUrl(uploadResult.id, String(user.id)));
 
     return NextResponse.json({
       success: true,
-      data: {
-        imageUrl,
-        fileId: uploadResult.id,
-      },
+      data: result,
     });
   } catch (error) {
     console.error('[fitnessPlan/diet/upload POST]', error);
+
+    if (error instanceof DietUploadError) {
+      const status = error.code === 'OSS_NOT_CONFIGURED' ? 503 : 500;
+      return NextResponse.json({ error: error.message }, { status });
+    }
+
     return NextResponse.json({ error: '图片上传失败' }, { status: 500 });
   }
 }

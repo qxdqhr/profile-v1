@@ -7,7 +7,7 @@ import {
 import {
   BookingCommandError,
   type DeleteBookingOptions,
-} from 'sa2kit/showmasterpiece/server';
+} from '@/modules/showmasterpiece/server';
 
 /**
  * 删单：宿主先校验（兼容 sa2kit@1.6.114）；1.6.115+ Command 层二次校验。

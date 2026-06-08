@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { universalFileClient } from 'sa2kit/universalFile';
+import { uploadModuleFile } from 'sa2kit/ossFile';
 
 interface Props {
   onCreated?: (matchCode: string) => void;
@@ -19,18 +19,18 @@ export function BoothUploadCard({ onCreated }: Props) {
     try {
       const uploaded = [] as any[];
       for (const file of files) {
-        const meta = await universalFileClient.uploadFile({
+        const result = await uploadModuleFile({
           file,
           moduleId: 'vocaloid-booth',
           businessId: boothId,
           permission: 'private',
         });
         uploaded.push({
-          fileName: meta.originalName,
-          objectKey: meta.id,
-          size: meta.size,
-          mimeType: meta.mimeType,
-          checksum: meta.hash,
+          fileName: file.name,
+          objectKey: result.fileId,
+          size: file.size,
+          mimeType: file.type,
+          checksum: undefined,
           kind: 'other',
         });
       }
@@ -56,7 +56,7 @@ export function BoothUploadCard({ onCreated }: Props) {
 
   return (
     <div className="rounded-2xl border border-pink-100 bg-pink-50/70 p-4">
-      <h3 className="text-lg font-semibold text-pink-600">上传文件（UniversalFile）</h3>
+      <h3 className="text-lg font-semibold text-pink-600">上传文件（ossFile）</h3>
       <input className="mt-3 w-full rounded border px-3 py-2" value={boothId} onChange={(e) => setBoothId(e.target.value)} placeholder="boothId" />
       <input
         className="mt-3 block w-full text-sm"

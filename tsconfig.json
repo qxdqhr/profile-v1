@@ -31,6 +31,12 @@
       ],
       "@sa2kit/exam/*": [
         "./packages/sa2kit-exam/src/*"
+      ],
+      "@sa2kit/feishu-bot": [
+        "./packages/sa2kit-feishu/src/index.ts"
+      ],
+      "@sa2kit/feishu-bot/*": [
+        "./packages/sa2kit-feishu/src/*"
       ]
     }
   },

@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { MmdAdminPanel } from 'sa2kit/mmd/admin';
-import { universalFileClient } from 'sa2kit/universalFile';
+import { universalFileClient } from 'sa2kit/ossFile';
 
 /**
  * MMD 后台管理页面
@@ -11,7 +11,7 @@ import { universalFileClient } from 'sa2kit/universalFile';
  *
  * 功能：
  * - 可视化配置播放列表与播放节点
- * - 直接上传文件到 OSS（使用 universalFileClient）
+ * - 直接上传文件到 OSS（使用 ossFile / universalFileClient）
  * - 自动完成文件 ID → URL 映射
  *
  * 注意：

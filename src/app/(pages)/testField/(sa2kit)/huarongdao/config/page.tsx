@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { uploadModuleFile } from 'sa2kit/ossFile';
 import {
   buildPersistedConfig,
   DEFAULT_HUARONGDAO_PERSISTED_CONFIG,
@@ -35,24 +36,14 @@ const FLOW_STEPS = [
 ];
 
 const uploadToUniversalFile = async (file: File, folderPath: string) => {
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('moduleId', 'huarongdao');
-  formData.append('businessId', 'game-assets');
-  formData.append('folderPath', folderPath);
-  formData.append('needsProcessing', 'false');
-
-  const res = await fetch('/api/universal-file/upload', {
-    method: 'POST',
-    body: formData,
+  const result = await uploadModuleFile({
+    file,
+    moduleId: 'huarongdao',
+    businessId: 'game-assets',
+    folderPath,
+    needsProcessing: false,
   });
-
-  const json = await res.json();
-  if (!res.ok || !json?.success) {
-    throw new Error(json?.error || json?.details || '上传失败');
-  }
-
-  return json?.data?.accessUrl as string;
+  return result.accessUrl;
 };
 
 export default function HuarongdaoConfigPage() {

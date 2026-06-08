@@ -1,4 +1,4 @@
-import '@/modules/showmasterpiece/sa2kit-init';
+import '@/modules/showmasterpiece/init';
 
 export const metadata = {
   title: '葱韵环京魔法屋',

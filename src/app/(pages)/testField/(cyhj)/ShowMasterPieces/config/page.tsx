@@ -1,5 +1,5 @@
 'use client';
 
-import { ShowMasterPiecesConfigPage } from 'sa2kit/showmasterpiece';
+import { ShowMasterPiecesConfigPage } from '@/modules/showmasterpiece';
 
 export default ShowMasterPiecesConfigPage;

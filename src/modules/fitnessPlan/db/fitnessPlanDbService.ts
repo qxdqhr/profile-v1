@@ -1321,8 +1321,10 @@ class FitnessPlanDbService {
   }
 
   async addDietEntry(userId: number, input: DietEntryInput) {
-    if (!input.foodName?.trim()) throw new Error('食物名称不能为空');
-    if (!Number.isFinite(input.calories) || input.calories < 0) {
+    if (!input.foodName?.trim()) throw new Error('名称不能为空');
+
+    const calories = input.calories ?? 0;
+    if (!Number.isFinite(calories) || calories < 0) {
       throw new Error('热量无效');
     }
 
@@ -1339,7 +1341,7 @@ class FitnessPlanDbService {
       mealType: input.mealType,
       foodName: input.foodName.trim(),
       foodItemId: input.foodItemId ?? null,
-      calories: input.calories,
+      calories,
       protein: input.protein != null ? String(input.protein) : null,
       carbs: input.carbs != null ? String(input.carbs) : null,
       fat: input.fat != null ? String(input.fat) : null,

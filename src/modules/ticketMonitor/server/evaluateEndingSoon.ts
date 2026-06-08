@@ -3,7 +3,7 @@ import { resolveEndingSoonDaysList } from '../types';
 import type { ticketMonitorConfig } from '../db/schema';
 import { ticketMonitorDb } from '../db/ticketMonitorDbService';
 import { buildEndingSoonMessage } from './notifications/buildTicketMessage';
-import { sendFeishuPostMessage } from './notifications/feishuNotifier';
+import { sendFeishuPostMessage } from '@sa2kit/feishu-bot';
 import type { NotifyDispatchResult } from './evaluateNewEvents';
 
 type ConfigRow = typeof ticketMonitorConfig.$inferSelect;

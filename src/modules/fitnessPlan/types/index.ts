@@ -393,7 +393,7 @@ export interface DietEntryInput {
   mealType: MealType;
   foodName: string;
   foodItemId?: number;
-  calories: number;
+  calories?: number;
   protein?: number | null;
   carbs?: number | null;
   fat?: number | null;

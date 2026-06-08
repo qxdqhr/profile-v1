@@ -5,7 +5,7 @@ import { isAuthFailure, requireAdmin } from '../lib/auth';
 import { apiError, handleRouteError, logRouteError } from '../lib/response';
 import { applyCollectionsCacheHeaders } from '../lib/collectionCache';
 import { routeDebug } from '../lib/routeLog';
-import '@/modules/showmasterpiece/sa2kit-init';
+import '@/modules/showmasterpiece/init';
 
 /**
  * 获取画集列表

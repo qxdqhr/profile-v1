@@ -1,11 +1,5 @@
 import { createHmac } from 'crypto';
-import type { FeishuPostMessage } from './buildTicketMessage';
-
-export interface FeishuSendResult {
-  success: boolean;
-  status: number;
-  errorMessage?: string;
-}
+import type { FeishuPostMessage, FeishuSendOptions, FeishuSendResult } from './types';
 
 function buildSignHeaders(secret: string): Record<string, string> {
   const timestamp = Math.floor(Date.now() / 1000).toString();
@@ -19,10 +13,15 @@ function buildSignHeaders(secret: string): Record<string, string> {
   };
 }
 
+/**
+ * 通过飞书自定义机器人 Webhook 发送 post 富文本消息。
+ * @see https://open.feishu.cn/document/client-docs/bot-v3/add-custom-bot
+ */
 export async function sendFeishuPostMessage(
   webhookUrl: string,
   message: FeishuPostMessage,
   signSecret?: string | null,
+  options?: FeishuSendOptions,
 ): Promise<FeishuSendResult> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json; charset=utf-8',
@@ -32,12 +31,14 @@ export async function sendFeishuPostMessage(
     Object.assign(headers, buildSignHeaders(signSecret.trim()));
   }
 
+  const timeoutMs = options?.timeoutMs ?? 15000;
+
   try {
     const response = await fetch(webhookUrl, {
       method: 'POST',
       headers,
       body: JSON.stringify(message),
-      signal: AbortSignal.timeout(15000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
 
     const text = await response.text();

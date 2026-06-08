@@ -1,5 +1,5 @@
 import type { SkillDetail, SkillListResponse, SkillSource, SkillStatus, SkillSyncTask } from '../types';
-import { universalFileClient } from 'sa2kit/universalFile';
+import { uploadModuleFile } from 'sa2kit/ossFile';
 
 export type ConflictPolicy = 'skip' | 'overwrite';
 const UPLOAD_CONCURRENCY = 4;
@@ -33,7 +33,13 @@ async function uploadWithRetry(input: {
 
   while (attempt < MAX_UPLOAD_RETRIES) {
     try {
-      return await universalFileClient.uploadFile(input);
+      return await uploadModuleFile({
+        file: input.file,
+        moduleId: input.moduleId,
+        businessId: input.businessId,
+        folderPath: input.folderPath,
+        permission: input.permission,
+      });
     } catch (error) {
       lastError = error;
       attempt += 1;
@@ -130,8 +136,8 @@ export async function uploadSkillMarkdown(
     ok: true,
     id: skillId,
     skipped: false,
-    fileId: meta.id,
-    accessUrl: (meta as { accessUrl?: string; cdnUrl?: string }).accessUrl || (meta as { cdnUrl?: string }).cdnUrl
+    fileId: meta.fileId,
+    accessUrl: meta.accessUrl
   };
 }
 
@@ -165,8 +171,8 @@ export async function importSkillDirectory(
       return {
         path: normalized,
         status: 'imported' as const,
-        fileId: meta.id,
-        accessUrl: (meta as { accessUrl?: string; cdnUrl?: string }).accessUrl || (meta as { cdnUrl?: string }).cdnUrl
+        fileId: meta.fileId,
+        accessUrl: meta.accessUrl
       };
     } catch (error) {
       return {

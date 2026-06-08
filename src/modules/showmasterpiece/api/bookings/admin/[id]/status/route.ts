@@ -8,7 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { BookingCommandError } from 'sa2kit/showmasterpiece/server';
+import { BookingCommandError } from '@/modules/showmasterpiece/server';
 import { isAuthFailure, requireAdmin } from '../../../../lib/auth';
 import { bookingCommandService } from '../../../../lib/bookingServices';
 import { apiError, logRouteError } from '../../../../lib/response';

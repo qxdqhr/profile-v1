@@ -22,7 +22,7 @@ import { isAuthFailure, requireAdmin } from '../lib/auth';
 import { apiError, logRouteError } from '../lib/response';
 import { routeDebug } from '../lib/routeLog';
 import { asc, eq } from 'drizzle-orm';
-import { comicUniverseCategories, comicUniverseConfigs } from 'sa2kit/showmasterpiece/server';
+import { comicUniverseCategories, comicUniverseConfigs } from '@/modules/showmasterpiece/server';
 
 type HomeTabItem = {
   name: string;
