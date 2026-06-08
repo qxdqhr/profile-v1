@@ -11,10 +11,14 @@ import {
   scheduleTemplates,
   workoutPlanItems,
   workoutPlans,
+  workoutSessionItems,
+  workoutSessions,
+  workoutSets,
 } from './schema';
 import type {
   CheckinTodayState,
   CheckinType,
+  CompleteWorkoutInput,
   ExerciseFormData,
   ExerciseRecord,
   FitnessGoal,
@@ -25,11 +29,17 @@ import type {
   ScheduleOverrideInput,
   ScheduleTemplateInput,
   ScheduleTemplateRecord,
+  StartWorkoutInput,
+  UpdateWorkoutSetInput,
   WeekDayKey,
   WorkoutPlanDetail,
   WorkoutPlanFormData,
   WorkoutPlanRecord,
   WorkoutPlanStatus,
+  WorkoutSessionDetail,
+  WorkoutSessionListItem,
+  WorkoutSessionSummary,
+  WorkoutSetRecord,
 } from '../types';
 import { dateToWeekDayKey, formatDateKey } from '../types';
 import { formatCalendarDate, getMonthViewDates } from '../utils/calendarDateUtils';
@@ -659,6 +669,396 @@ class FitnessPlanDbService {
     }
 
     return { success: true };
+  }
+
+  async listSessions(userId: number, limit = 30): Promise<WorkoutSessionListItem[]> {
+    const rows = await db
+      .select({
+        id: workoutSessions.id,
+        planId: workoutSessions.planId,
+        planName: workoutPlans.name,
+        status: workoutSessions.status,
+        startedAt: workoutSessions.startedAt,
+        endedAt: workoutSessions.endedAt,
+        durationSeconds: workoutSessions.durationSeconds,
+      })
+      .from(workoutSessions)
+      .leftJoin(workoutPlans, eq(workoutSessions.planId, workoutPlans.id))
+      .where(eq(workoutSessions.userId, userId))
+      .orderBy(desc(workoutSessions.startedAt))
+      .limit(limit);
+
+    return rows.map((row) => ({
+      id: row.id,
+      planId: row.planId,
+      planName: row.planName,
+      status: row.status as WorkoutSessionListItem['status'],
+      startedAt: row.startedAt.toISOString(),
+      endedAt: row.endedAt?.toISOString() ?? null,
+      durationSeconds: row.durationSeconds,
+    }));
+  }
+
+  async getActiveSession(userId: number): Promise<WorkoutSessionDetail | null> {
+    const [active] = await db
+      .select()
+      .from(workoutSessions)
+      .where(
+        and(
+          eq(workoutSessions.userId, userId),
+          eq(workoutSessions.status, 'in_progress'),
+        ),
+      )
+      .orderBy(desc(workoutSessions.startedAt))
+      .limit(1);
+
+    if (!active) return null;
+    return this.getSessionDetail(userId, active.id);
+  }
+
+  async getSessionDetail(userId: number, sessionId: number): Promise<WorkoutSessionDetail | null> {
+    const session = await db.query.workoutSessions.findFirst({
+      where: and(eq(workoutSessions.id, sessionId), eq(workoutSessions.userId, userId)),
+    });
+
+    if (!session) return null;
+
+    const plan = session.planId
+      ? await db.query.workoutPlans.findFirst({
+          where: eq(workoutPlans.id, session.planId),
+        })
+      : null;
+
+    const planItemRestMap = new Map<number, number>();
+    if (session.planId) {
+      const planItems = await db
+        .select({
+          exerciseId: workoutPlanItems.exerciseId,
+          restSeconds: workoutPlanItems.restSeconds,
+        })
+        .from(workoutPlanItems)
+        .where(eq(workoutPlanItems.planId, session.planId));
+      for (const item of planItems) {
+        planItemRestMap.set(item.exerciseId, item.restSeconds ?? 90);
+      }
+    }
+
+    const itemRows = await db
+      .select({
+        id: workoutSessionItems.id,
+        sessionId: workoutSessionItems.sessionId,
+        exerciseId: workoutSessionItems.exerciseId,
+        sortOrder: workoutSessionItems.sortOrder,
+        exercise: exercises,
+      })
+      .from(workoutSessionItems)
+      .innerJoin(exercises, eq(workoutSessionItems.exerciseId, exercises.id))
+      .where(eq(workoutSessionItems.sessionId, sessionId))
+      .orderBy(asc(workoutSessionItems.sortOrder), asc(workoutSessionItems.id));
+
+    const items: WorkoutSessionDetail['items'] = [];
+    for (const itemRow of itemRows) {
+      const setRows = await db
+        .select()
+        .from(workoutSets)
+        .where(eq(workoutSets.sessionItemId, itemRow.id))
+        .orderBy(asc(workoutSets.setNumber));
+
+      items.push({
+        id: itemRow.id,
+        sessionId: itemRow.sessionId,
+        exerciseId: itemRow.exerciseId,
+        sortOrder: itemRow.sortOrder,
+        restSeconds: planItemRestMap.get(itemRow.exerciseId) ?? 90,
+        exercise: mapExercise(itemRow.exercise),
+        sets: setRows.map((set) => ({
+          id: set.id,
+          sessionItemId: set.sessionItemId,
+          setNumber: set.setNumber,
+          weight: set.weight != null ? Number(set.weight) : null,
+          reps: set.reps,
+          durationMinutes: set.durationMinutes,
+          distance: set.distance != null ? Number(set.distance) : null,
+          calories: set.calories,
+          isCompleted: set.isCompleted,
+        })),
+      });
+    }
+
+    return {
+      id: session.id,
+      userId: session.userId,
+      planId: session.planId,
+      planName: plan?.name ?? null,
+      status: session.status as WorkoutSessionDetail['status'],
+      startedAt: session.startedAt.toISOString(),
+      endedAt: session.endedAt?.toISOString() ?? null,
+      durationSeconds: session.durationSeconds,
+      notes: session.notes,
+      summaryJson: session.summaryJson ?? null,
+      items,
+    };
+  }
+
+  private computeSessionSummary(items: WorkoutSessionDetail['items']): WorkoutSessionSummary {
+    let totalSets = 0;
+    let completedSets = 0;
+    let strengthVolume = 0;
+    let cardioMinutes = 0;
+
+    for (const item of items) {
+      for (const set of item.sets) {
+        totalSets += 1;
+        if (!set.isCompleted) continue;
+        completedSets += 1;
+        if (item.exercise.type === 'cardio') {
+          cardioMinutes += set.durationMinutes ?? 0;
+        } else {
+          strengthVolume += (set.weight ?? 0) * (set.reps ?? 0);
+        }
+      }
+    }
+
+    return { totalSets, completedSets, strengthVolume, cardioMinutes };
+  }
+
+  private async ensureWorkoutCheckin(userId: number, sessionId: number, dateKey: string) {
+    const existing = await db.query.dailyCheckins.findFirst({
+      where: and(
+        eq(dailyCheckins.userId, userId),
+        eq(dailyCheckins.checkinDate, dateKey),
+        eq(dailyCheckins.type, 'workout'),
+      ),
+    });
+
+    if (existing) return;
+
+    await db.insert(dailyCheckins).values({
+      userId,
+      checkinDate: dateKey,
+      type: 'workout',
+      refId: sessionId,
+    });
+  }
+
+  async resolveTodayPlanId(userId: number): Promise<number | null> {
+    const monthKey = formatDateKey(new Date()).slice(0, 7);
+    const schedule = await this.getMonthSchedule(userId, monthKey);
+    const today = formatDateKey(new Date());
+    const day = schedule.days.find((item) => item.date === today);
+    if (!day || day.isRest || !day.planId) return null;
+    return day.planId;
+  }
+
+  async startSession(userId: number, input: StartWorkoutInput) {
+    const active = await this.getActiveSession(userId);
+    if (active) {
+      throw new Error('已有进行中的训练，请先完成或放弃');
+    }
+
+    const planId = input.empty ? null : input.planId ?? null;
+
+    const [session] = await db
+      .insert(workoutSessions)
+      .values({
+        userId,
+        planId,
+        status: 'in_progress',
+      })
+      .returning();
+
+    if (planId) {
+      const plan = await this.getPlanDetail(userId, planId);
+      if (plan) {
+        for (const item of plan.items) {
+          const [sessionItem] = await db
+            .insert(workoutSessionItems)
+            .values({
+              sessionId: session.id,
+              exerciseId: item.exerciseId!,
+              sortOrder: item.sortOrder,
+            })
+            .returning();
+
+          const isCardio = item.exercise?.type === 'cardio';
+          const setCount = isCardio ? 1 : Math.max(item.targetSets ?? 3, 1);
+
+          for (let setNumber = 1; setNumber <= setCount; setNumber += 1) {
+            await db.insert(workoutSets).values({
+              sessionItemId: sessionItem.id,
+              setNumber,
+              weight: item.targetWeight != null ? String(item.targetWeight) : null,
+              reps: item.targetReps ?? null,
+              durationMinutes: item.targetDurationMinutes ?? null,
+              distance: item.targetDistance != null ? String(item.targetDistance) : null,
+              calories: item.targetCalories ?? null,
+              isCompleted: false,
+            });
+          }
+        }
+      }
+    }
+
+    return this.getSessionDetail(userId, session.id);
+  }
+
+  async addSessionExercise(userId: number, sessionId: number, exerciseId: number) {
+    const session = await this.getSessionDetail(userId, sessionId);
+    if (!session || session.status !== 'in_progress') {
+      throw new Error('训练会话不存在或已结束');
+    }
+
+    await this.ensureSystemExercisesSeeded();
+    const exercise = await db.query.exercises.findFirst({
+      where: and(
+        eq(exercises.id, exerciseId),
+        or(isNull(exercises.userId), eq(exercises.userId, userId)),
+      ),
+    });
+    if (!exercise) throw new Error('动作不存在');
+
+    const sortOrder = session.items.length;
+    const [sessionItem] = await db
+      .insert(workoutSessionItems)
+      .values({ sessionId, exerciseId, sortOrder })
+      .returning();
+
+    const isCardio = exercise.type === 'cardio';
+    const setCount = isCardio ? 1 : 3;
+    for (let setNumber = 1; setNumber <= setCount; setNumber += 1) {
+      await db.insert(workoutSets).values({
+        sessionItemId: sessionItem.id,
+        setNumber,
+        isCompleted: false,
+      });
+    }
+
+    return this.getSessionDetail(userId, sessionId);
+  }
+
+  async addWorkoutSet(userId: number, sessionItemId: number) {
+    const item = await db.query.workoutSessionItems.findFirst({
+      where: eq(workoutSessionItems.id, sessionItemId),
+    });
+    if (!item) throw new Error('训练项不存在');
+
+    const session = await this.getSessionDetail(userId, item.sessionId);
+    if (!session || session.status !== 'in_progress') {
+      throw new Error('训练会话不存在或已结束');
+    }
+
+    const maxSet = await db
+      .select({ max: sql<number>`coalesce(max(${workoutSets.setNumber}), 0)` })
+      .from(workoutSets)
+      .where(eq(workoutSets.sessionItemId, sessionItemId));
+
+    const nextNumber = (maxSet[0]?.max ?? 0) + 1;
+    const [created] = await db
+      .insert(workoutSets)
+      .values({ sessionItemId, setNumber: nextNumber, isCompleted: false })
+      .returning();
+
+    return {
+      id: created.id,
+      sessionItemId: created.sessionItemId,
+      setNumber: created.setNumber,
+      weight: null,
+      reps: null,
+      durationMinutes: null,
+      distance: null,
+      calories: null,
+      isCompleted: false,
+    } satisfies WorkoutSetRecord;
+  }
+
+  async updateWorkoutSet(userId: number, setId: number, input: UpdateWorkoutSetInput) {
+    const setRow = await db.query.workoutSets.findFirst({
+      where: eq(workoutSets.id, setId),
+    });
+    if (!setRow) throw new Error('组记录不存在');
+
+    const item = await db.query.workoutSessionItems.findFirst({
+      where: eq(workoutSessionItems.id, setRow.sessionItemId),
+    });
+    if (!item) throw new Error('训练项不存在');
+
+    const session = await this.getSessionDetail(userId, item.sessionId);
+    if (!session || session.status !== 'in_progress') {
+      throw new Error('训练会话不存在或已结束');
+    }
+
+    const patch: Partial<typeof workoutSets.$inferInsert> = {};
+    if (input.weight !== undefined) patch.weight = input.weight == null ? null : String(input.weight);
+    if (input.reps !== undefined) patch.reps = input.reps;
+    if (input.durationMinutes !== undefined) patch.durationMinutes = input.durationMinutes;
+    if (input.distance !== undefined) {
+      patch.distance = input.distance == null ? null : String(input.distance);
+    }
+    if (input.calories !== undefined) patch.calories = input.calories;
+    if (input.isCompleted !== undefined) patch.isCompleted = input.isCompleted;
+
+    const [updated] = await db
+      .update(workoutSets)
+      .set(patch)
+      .where(eq(workoutSets.id, setId))
+      .returning();
+
+    return {
+      id: updated.id,
+      sessionItemId: updated.sessionItemId,
+      setNumber: updated.setNumber,
+      weight: updated.weight != null ? Number(updated.weight) : null,
+      reps: updated.reps,
+      durationMinutes: updated.durationMinutes,
+      distance: updated.distance != null ? Number(updated.distance) : null,
+      calories: updated.calories,
+      isCompleted: updated.isCompleted,
+    } satisfies WorkoutSetRecord;
+  }
+
+  async updateSessionNotes(userId: number, sessionId: number, notes: string | null) {
+    const session = await this.getSessionDetail(userId, sessionId);
+    if (!session || session.status !== 'in_progress') {
+      throw new Error('训练会话不存在或已结束');
+    }
+
+    await db
+      .update(workoutSessions)
+      .set({ notes, updatedAt: new Date() })
+      .where(eq(workoutSessions.id, sessionId));
+
+    return this.getSessionDetail(userId, sessionId);
+  }
+
+  async completeSession(userId: number, sessionId: number, input: CompleteWorkoutInput) {
+    const session = await this.getSessionDetail(userId, sessionId);
+    if (!session) throw new Error('训练会话不存在');
+    if (session.status !== 'in_progress') throw new Error('训练已结束');
+
+    const endedAt = new Date();
+    const durationSeconds = Math.max(
+      0,
+      Math.floor((endedAt.getTime() - new Date(session.startedAt).getTime()) / 1000),
+    );
+    const summary = this.computeSessionSummary(session.items);
+
+    await db
+      .update(workoutSessions)
+      .set({
+        status: input.status,
+        endedAt,
+        durationSeconds,
+        notes: input.notes ?? session.notes,
+        summaryJson: summary,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(workoutSessions.id, sessionId), eq(workoutSessions.userId, userId)));
+
+    if (input.status === 'completed') {
+      await this.ensureWorkoutCheckin(userId, sessionId, formatDateKey(new Date()));
+    }
+
+    return this.getSessionDetail(userId, sessionId);
   }
 }
 

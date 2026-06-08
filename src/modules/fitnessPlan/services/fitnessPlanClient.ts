@@ -164,6 +164,72 @@ export const fitnessPlanClient = {
     ).then((res) => res.data);
   },
 
+  listSessions() {
+    return request<{ success: boolean; data: import('../types').WorkoutSessionListItem[] }>(
+      '/api/fitnessPlan/sessions',
+    ).then((res) => res.data);
+  },
+
+  getActiveSession() {
+    return request<{ success: boolean; data: import('../types').WorkoutSessionDetail | null }>(
+      '/api/fitnessPlan/sessions/active',
+    ).then((res) => res.data);
+  },
+
+  getTodayPlanId() {
+    return request<{ success: boolean; data: { planId: number | null } }>(
+      '/api/fitnessPlan/sessions/today-plan',
+    ).then((res) => res.data.planId);
+  },
+
+  getSession(id: number) {
+    return request<{ success: boolean; data: import('../types').WorkoutSessionDetail }>(
+      `/api/fitnessPlan/sessions/${id}`,
+    ).then((res) => res.data);
+  },
+
+  startSession(input: import('../types').StartWorkoutInput) {
+    return request<{ success: boolean; data: import('../types').WorkoutSessionDetail }>(
+      '/api/fitnessPlan/sessions',
+      { method: 'POST', body: JSON.stringify(input) },
+    ).then((res) => res.data);
+  },
+
+  addSessionExercise(sessionId: number, exerciseId: number) {
+    return request<{ success: boolean; data: import('../types').WorkoutSessionDetail }>(
+      `/api/fitnessPlan/sessions/${sessionId}/exercises`,
+      { method: 'POST', body: JSON.stringify({ exerciseId }) },
+    ).then((res) => res.data);
+  },
+
+  addWorkoutSet(sessionItemId: number) {
+    return request<{ success: boolean; data: import('../types').WorkoutSetRecord }>(
+      `/api/fitnessPlan/sessions/items/${sessionItemId}/sets`,
+      { method: 'POST' },
+    ).then((res) => res.data);
+  },
+
+  updateWorkoutSet(setId: number, input: import('../types').UpdateWorkoutSetInput) {
+    return request<{ success: boolean; data: import('../types').WorkoutSetRecord }>(
+      `/api/fitnessPlan/sessions/sets/${setId}`,
+      { method: 'PUT', body: JSON.stringify(input) },
+    ).then((res) => res.data);
+  },
+
+  updateSessionNotes(sessionId: number, notes: string | null) {
+    return request<{ success: boolean; data: import('../types').WorkoutSessionDetail }>(
+      `/api/fitnessPlan/sessions/${sessionId}`,
+      { method: 'PUT', body: JSON.stringify({ notes }) },
+    ).then((res) => res.data);
+  },
+
+  completeSession(sessionId: number, input: import('../types').CompleteWorkoutInput) {
+    return request<{ success: boolean; data: import('../types').WorkoutSessionDetail }>(
+      `/api/fitnessPlan/sessions/${sessionId}/complete`,
+      { method: 'POST', body: JSON.stringify(input) },
+    ).then((res) => res.data);
+  },
+
   getTemplatesStatic() {
     return PLAN_TEMPLATES;
   },

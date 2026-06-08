@@ -28,6 +28,7 @@ export function useFitnessPlanBootstrap(enabled: boolean) {
   const setProfileLoading = useFitnessPlanStore((s) => s.setProfileLoading);
   const setProfileError = useFitnessPlanStore((s) => s.setProfileError);
   const setCheckinToday = useFitnessPlanStore((s) => s.setCheckinToday);
+  const setActiveWorkout = useFitnessPlanStore((s) => s.setActiveWorkout);
   const resetForLogout = useFitnessPlanStore((s) => s.resetForLogout);
 
   const hydrate = useCallback(async () => {
@@ -35,23 +36,34 @@ export function useFitnessPlanBootstrap(enabled: boolean) {
     setProfileError(null);
 
     try {
-      const [profileRes, checkinRes] = await Promise.all([
+      const [profileRes, checkinRes, activeSession] = await Promise.all([
         fetchJson<{ success: boolean; data: ReturnType<typeof parseProfileNumbers> }>(
           '/api/fitnessPlan/profile',
         ),
         fetchJson<{ success: boolean; data: { daily: boolean; workout: boolean; diet: boolean; weight: boolean } }>(
           '/api/fitnessPlan/checkins/today',
         ),
+        fetchJson<{ success: boolean; data: { id: number; startedAt: string } | null }>(
+          '/api/fitnessPlan/sessions/active',
+        ),
       ]);
 
       setProfile(profileRes.data);
       setCheckinToday(checkinRes.data);
+      if (activeSession.data) {
+        setActiveWorkout({
+          sessionId: activeSession.data.id,
+          startedAt: activeSession.data.startedAt,
+        });
+      } else {
+        setActiveWorkout({ sessionId: null, startedAt: null });
+      }
     } catch (error) {
       setProfileError(error instanceof Error ? error.message : '加载失败');
     } finally {
       setProfileLoading(false);
     }
-  }, [setCheckinToday, setProfile, setProfileError, setProfileLoading]);
+  }, [setActiveWorkout, setCheckinToday, setProfile, setProfileError, setProfileLoading]);
 
   useEffect(() => {
     if (!enabled) {

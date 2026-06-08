@@ -48,7 +48,7 @@
 - [x] 3 套系统模板 seed（推拉腿 / Upper-Lower / 有氧力量）
 - [x] settings 页档案编辑
 
-## Phase 3 — 训练日历（当前）
+## Phase 3 — 训练日历
 
 - [x] 复制 calendar 日期工具 + 健身月视图组件（无拖拽）
 - [x] 周循环模板 API + 单日 override API
@@ -57,10 +57,11 @@
 
 ## Phase 4 — 训练执行
 
-- [ ] 会话 API（开练/组记录/完成）
-- [ ] `activeWorkout` 与 API 恢复
-- [ ] 力量组记录 + 有氧记录 + 组间倒计时
-- [ ] 完成训练 → 自动训练打卡
+- [x] 会话 API（开练/组记录/完成）
+- [x] `activeWorkout` 与 API 恢复
+- [x] 力量组记录 + 有氧记录 + 组间倒计时
+- [x] 完成训练 → 自动训练打卡
+- [x] `WorkoutListPage` / `WorkoutSessionPage`
 
 ## Phase 5 — 饮食
 

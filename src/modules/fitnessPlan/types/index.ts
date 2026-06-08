@@ -264,3 +264,75 @@ export function dateToWeekDayKey(date: Date): WeekDayKey {
   };
   return map[date.getDay()];
 }
+
+export interface WorkoutSetRecord {
+  id: number;
+  sessionItemId: number;
+  setNumber: number;
+  weight?: number | null;
+  reps?: number | null;
+  durationMinutes?: number | null;
+  distance?: number | null;
+  calories?: number | null;
+  isCompleted: boolean;
+}
+
+export interface WorkoutSessionItemDetail {
+  id: number;
+  sessionId: number;
+  exerciseId: number;
+  sortOrder: number;
+  restSeconds: number;
+  exercise: ExerciseRecord;
+  sets: WorkoutSetRecord[];
+}
+
+export interface WorkoutSessionDetail {
+  id: number;
+  userId: number;
+  planId: number | null;
+  planName: string | null;
+  status: WorkoutSessionStatus;
+  startedAt: string;
+  endedAt: string | null;
+  durationSeconds: number | null;
+  notes: string | null;
+  summaryJson: Record<string, unknown> | null;
+  items: WorkoutSessionItemDetail[];
+}
+
+export interface WorkoutSessionListItem {
+  id: number;
+  planId: number | null;
+  planName: string | null;
+  status: WorkoutSessionStatus;
+  startedAt: string;
+  endedAt: string | null;
+  durationSeconds: number | null;
+}
+
+export interface StartWorkoutInput {
+  planId?: number;
+  empty?: boolean;
+}
+
+export interface UpdateWorkoutSetInput {
+  weight?: number | null;
+  reps?: number | null;
+  durationMinutes?: number | null;
+  distance?: number | null;
+  calories?: number | null;
+  isCompleted?: boolean;
+}
+
+export interface CompleteWorkoutInput {
+  status: 'completed' | 'abandoned';
+  notes?: string;
+}
+
+export interface WorkoutSessionSummary {
+  totalSets: number;
+  completedSets: number;
+  strengthVolume: number;
+  cardioMinutes: number;
+}

@@ -10,6 +10,8 @@ import { useFitnessPlanStore } from '../store/fitnessPlanStore';
 export { PlansPage } from './PlansPage';
 export { PlanDetailPage } from './PlanDetailPage';
 export { SchedulePage } from './SchedulePage';
+export { WorkoutListPage } from './WorkoutListPage';
+export { WorkoutSessionPage } from './WorkoutSessionPage';
 
 function SubPageShell({
   title,
@@ -49,11 +51,17 @@ function SubPageShell({
 
 export function TodayPage() {
   const checkinToday = useFitnessPlanStore((s) => s.checkinToday);
+  const activeWorkout = useFitnessPlanStore((s) => s.activeWorkout);
   const selectedDate = useFitnessPlanStore((s) => s.ui.selectedDate);
   const profile = useFitnessPlanStore((s) => s.profile);
   const goalLabel = profile?.goal
     ? FITNESS_GOAL_LABELS[profile.goal as FitnessGoal] ?? profile.goal
     : '维持';
+
+  const workoutHref =
+    activeWorkout.sessionId != null
+      ? `/testField/fitnessPlan/workout/${activeWorkout.sessionId}`
+      : '/testField/fitnessPlan/workout';
 
   return (
     <div className="fp-page">
@@ -92,9 +100,9 @@ export function TodayPage() {
             快捷入口
           </Title>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
-            <Link href="/testField/fitnessPlan/workout">
+            <Link href={workoutHref}>
               <Button type="primary" size="small">
-                开始训练
+                {activeWorkout.sessionId != null ? '继续训练' : '开始训练'}
               </Button>
             </Link>
             <Link href="/testField/fitnessPlan/diet">
@@ -115,33 +123,6 @@ export function TodayPage() {
         <p style={{ margin: 0, fontWeight: 600 }}>Phase 6 将完善今日训练计划与饮食摘要</p>
       </Card>
     </div>
-  );
-}
-
-export function WorkoutListPage() {
-  return (
-    <SubPageShell
-      title="训练记录"
-      color="app-green"
-      phase={4}
-      description="历史训练会话与空训练快速开练。"
-      actions={
-        <Button type="primary" disabled>
-          空训练开练（Phase 4）
-        </Button>
-      }
-    />
-  );
-}
-
-export function WorkoutSessionPage({ sessionId }: { sessionId: string }) {
-  return (
-    <SubPageShell
-      title={`训练 #${sessionId}`}
-      color="app-green"
-      phase={4}
-      description="力量组记录、有氧时长、组间倒计时与完成打卡。"
-    />
   );
 }
 
