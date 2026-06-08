@@ -19,6 +19,9 @@ import {
   workoutSets,
 } from './schema';
 import type {
+  CheckinHeatmapDay,
+  CheckinHeatmapPayload,
+  CheckinStreakInfo,
   CheckinTodayState,
   CheckinType,
   CompleteWorkoutInput,
@@ -32,6 +35,7 @@ import type {
   FitnessProfileFormData,
   FoodItemFormData,
   FoodItemRecord,
+  ManualCheckinInput,
   MonthSchedulePayload,
   PlanItemInput,
   ScheduleDayInfo,
@@ -39,6 +43,7 @@ import type {
   ScheduleTemplateInput,
   ScheduleTemplateRecord,
   StartWorkoutInput,
+  TodayOverviewPayload,
   UpdateWorkoutSetInput,
   WeekDayKey,
   WorkoutPlanDetail,
@@ -95,6 +100,57 @@ function mapDietEntry(row: typeof dietLogEntries.$inferSelect): DietLogEntryReco
     sortOrder: row.sortOrder,
     createdAt: row.createdAt.toISOString(),
   };
+}
+
+function shiftDateKey(dateKey: string, deltaDays: number) {
+  const date = new Date(`${dateKey}T12:00:00`);
+  date.setDate(date.getDate() + deltaDays);
+  return formatDateKey(date);
+}
+
+function computeStreaks(dailyDates: string[]): CheckinStreakInfo {
+  if (dailyDates.length === 0) return { current: 0, best: 0 };
+
+  const sorted = [...new Set(dailyDates)].sort();
+  const dailySet = new Set(sorted);
+
+  let best = 0;
+  let run = 0;
+  let prev: string | null = null;
+  for (const date of sorted) {
+    if (prev && shiftDateKey(prev, 1) === date) {
+      run += 1;
+    } else {
+      run = 1;
+    }
+    best = Math.max(best, run);
+    prev = date;
+  }
+
+  const today = formatDateKey(new Date());
+  const yesterday = shiftDateKey(today, -1);
+  const latest = sorted[sorted.length - 1];
+  if (latest !== today && latest !== yesterday) {
+    return { current: 0, best };
+  }
+
+  let current = 0;
+  let cursor = latest;
+  while (dailySet.has(cursor)) {
+    current += 1;
+    cursor = shiftDateKey(cursor, -1);
+  }
+
+  return { current, best };
+}
+
+function buildHeatmapDay(dateKey: string, state: CheckinTodayState): CheckinHeatmapDay {
+  const score =
+    Number(state.daily) +
+    Number(state.workout) +
+    Number(state.diet) +
+    Number(state.weight);
+  return { date: dateKey, ...state, score };
 }
 
 class FitnessPlanDbService {
@@ -596,7 +652,7 @@ class FitnessPlanDbService {
 
     const template = await this.getOrCreateActiveScheduleTemplate(userId);
 
-    const [overrides, checkinRows, dietRows, planRows] = await Promise.all([
+    const [overrides, checkinRows, dietRows, workoutRows, planRows] = await Promise.all([
       db
         .select()
         .from(scheduleOverrides)
@@ -628,6 +684,20 @@ class FitnessPlanDbService {
           ),
         ),
       db
+        .select({
+          endedAt: workoutSessions.endedAt,
+          startedAt: workoutSessions.startedAt,
+        })
+        .from(workoutSessions)
+        .where(
+          and(
+            eq(workoutSessions.userId, userId),
+            eq(workoutSessions.status, 'completed'),
+            gte(workoutSessions.startedAt, new Date(`${startDate}T00:00:00`)),
+            lte(workoutSessions.startedAt, new Date(`${endDate}T23:59:59`)),
+          ),
+        ),
+      db
         .select({ id: workoutPlans.id, name: workoutPlans.name })
         .from(workoutPlans)
         .where(eq(workoutPlans.userId, userId)),
@@ -654,6 +724,14 @@ class FitnessPlanDbService {
       const key = String(row.logDate);
       const badges = badgeMap.get(key) ?? { workout: false, diet: false, daily: false };
       badges.diet = true;
+      badgeMap.set(key, badges);
+    }
+    for (const row of workoutRows) {
+      const when = row.endedAt ?? row.startedAt;
+      if (!when) continue;
+      const key = formatDateKey(new Date(when));
+      const badges = badgeMap.get(key) ?? { workout: false, diet: false, daily: false };
+      badges.workout = true;
       badgeMap.set(key, badges);
     }
 
@@ -1321,6 +1399,182 @@ class FitnessPlanDbService {
     const dateKey =
       typeof log.logDate === 'string' ? log.logDate : formatDateKey(new Date(log.logDate));
     return this.getDietDay(userId, dateKey);
+  }
+
+  async createManualCheckin(userId: number, input: ManualCheckinInput) {
+    const dateKey = input.date ?? formatDateKey(new Date());
+    if (input.type !== 'daily' && input.type !== 'weight') {
+      throw new Error('仅支持手动综合日打卡或体重打卡');
+    }
+
+    const existing = await db.query.dailyCheckins.findFirst({
+      where: and(
+        eq(dailyCheckins.userId, userId),
+        eq(dailyCheckins.checkinDate, dateKey),
+        eq(dailyCheckins.type, input.type),
+      ),
+    });
+
+    if (!existing) {
+      await db.insert(dailyCheckins).values({
+        userId,
+        checkinDate: dateKey,
+        type: input.type,
+      });
+    }
+
+    if (input.type === 'weight' && input.currentWeight !== undefined) {
+      await this.updateProfile(userId, { currentWeight: input.currentWeight });
+    }
+
+    return this.getTodayCheckins(userId, new Date(`${dateKey}T12:00:00`));
+  }
+
+  async removeManualCheckin(userId: number, dateKey: string, type: 'daily' | 'weight') {
+    await db
+      .delete(dailyCheckins)
+      .where(
+        and(
+          eq(dailyCheckins.userId, userId),
+          eq(dailyCheckins.checkinDate, dateKey),
+          eq(dailyCheckins.type, type),
+        ),
+      );
+
+    return this.getTodayCheckins(userId, new Date(`${dateKey}T12:00:00`));
+  }
+
+  async getCheckinHeatmap(userId: number, weeks = 12): Promise<CheckinHeatmapPayload> {
+    const endDate = formatDateKey(new Date());
+    const startDate = shiftDateKey(endDate, -(weeks * 7 - 1));
+
+    const [allDailyRows, checkinRows, dietRows, workoutRows] = await Promise.all([
+      db
+        .select({ checkinDate: dailyCheckins.checkinDate })
+        .from(dailyCheckins)
+        .where(and(eq(dailyCheckins.userId, userId), eq(dailyCheckins.type, 'daily'))),
+      db
+        .select()
+        .from(dailyCheckins)
+        .where(
+          and(
+            eq(dailyCheckins.userId, userId),
+            gte(dailyCheckins.checkinDate, startDate),
+            lte(dailyCheckins.checkinDate, endDate),
+          ),
+        ),
+      db
+        .select({ logDate: dietLogs.logDate })
+        .from(dietLogs)
+        .where(
+          and(
+            eq(dietLogs.userId, userId),
+            gte(dietLogs.logDate, startDate),
+            lte(dietLogs.logDate, endDate),
+          ),
+        ),
+      db
+        .select({
+          endedAt: workoutSessions.endedAt,
+          startedAt: workoutSessions.startedAt,
+        })
+        .from(workoutSessions)
+        .where(
+          and(
+            eq(workoutSessions.userId, userId),
+            eq(workoutSessions.status, 'completed'),
+            gte(workoutSessions.startedAt, new Date(`${startDate}T00:00:00`)),
+            lte(workoutSessions.startedAt, new Date(`${endDate}T23:59:59`)),
+          ),
+        ),
+    ]);
+
+    const streak = computeStreaks(allDailyRows.map((row) => String(row.checkinDate)));
+
+    const stateMap = new Map<string, CheckinTodayState>();
+    let cursor = startDate;
+    while (cursor <= endDate) {
+      stateMap.set(cursor, {
+        daily: false,
+        workout: false,
+        diet: false,
+        weight: false,
+      });
+      cursor = shiftDateKey(cursor, 1);
+    }
+
+    for (const row of checkinRows) {
+      const key = String(row.checkinDate);
+      const state = stateMap.get(key);
+      if (!state) continue;
+      const type = row.type as CheckinType;
+      if (type in state) state[type] = true;
+    }
+
+    for (const row of dietRows) {
+      const key = String(row.logDate);
+      const state = stateMap.get(key);
+      if (state) state.diet = true;
+    }
+
+    for (const row of workoutRows) {
+      const when = row.endedAt ?? row.startedAt;
+      if (!when) continue;
+      const key = formatDateKey(new Date(when));
+      const state = stateMap.get(key);
+      if (state) state.workout = true;
+    }
+
+    const days = Array.from(stateMap.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, state]) => buildHeatmapDay(date, state));
+
+    return { weeks, startDate, endDate, streak, days };
+  }
+
+  async getTodayOverview(userId: number, dateKey: string): Promise<TodayOverviewPayload> {
+    const monthKey = dateKey.slice(0, 7);
+
+    const [checkins, dietDay, activeRows, schedule] = await Promise.all([
+      this.getTodayCheckins(userId, new Date(`${dateKey}T12:00:00`)),
+      this.getDietDay(userId, dateKey),
+      db
+        .select({ id: workoutSessions.id })
+        .from(workoutSessions)
+        .where(
+          and(
+            eq(workoutSessions.userId, userId),
+            eq(workoutSessions.status, 'in_progress'),
+          ),
+        )
+        .orderBy(desc(workoutSessions.startedAt))
+        .limit(1),
+      this.getMonthSchedule(userId, monthKey),
+    ]);
+
+    const activeSession = activeRows[0] ?? null;
+
+    const daySchedule = schedule.days.find((day) => day.date === dateKey);
+    const completedCount = (Object.keys(checkins) as CheckinType[]).filter(
+      (key) => checkins[key],
+    ).length;
+
+    return {
+      date: dateKey,
+      checkins,
+      completedCount,
+      schedule: {
+        planId: daySchedule?.planId ?? null,
+        planName: daySchedule?.planName ?? null,
+        isRest: daySchedule?.isRest ?? false,
+      },
+      diet: {
+        calories: dietDay.totals.calories,
+        calorieGoal: dietDay.calorieGoal,
+        entryCount: dietDay.entries.length,
+      },
+      activeSessionId: activeSession?.id ?? null,
+    };
   }
 }
 

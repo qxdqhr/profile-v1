@@ -3,8 +3,6 @@
 import Link from 'next/link';
 import { Button, Card, Title } from 'animal-island-ui';
 import { ProfileSettingsForm } from '../components/ProfileSettingsForm';
-import { CHECKIN_TYPE_LABELS, FITNESS_GOAL_LABELS } from '../types';
-import type { FitnessGoal } from '../types';
 import { useFitnessPlanStore } from '../store/fitnessPlanStore';
 
 export { PlansPage } from './PlansPage';
@@ -13,6 +11,8 @@ export { SchedulePage } from './SchedulePage';
 export { WorkoutListPage } from './WorkoutListPage';
 export { WorkoutSessionPage } from './WorkoutSessionPage';
 export { DietPage } from './DietPage';
+export { TodayPage } from './TodayPage';
+export { CheckinPage } from './CheckinPage';
 
 function SubPageShell({
   title,
@@ -47,94 +47,6 @@ function SubPageShell({
         </p>
       </Card>
     </div>
-  );
-}
-
-export function TodayPage() {
-  const checkinToday = useFitnessPlanStore((s) => s.checkinToday);
-  const activeWorkout = useFitnessPlanStore((s) => s.activeWorkout);
-  const selectedDate = useFitnessPlanStore((s) => s.ui.selectedDate);
-  const profile = useFitnessPlanStore((s) => s.profile);
-  const goalLabel = profile?.goal
-    ? FITNESS_GOAL_LABELS[profile.goal as FitnessGoal] ?? profile.goal
-    : '维持';
-
-  const workoutHref =
-    activeWorkout.sessionId != null
-      ? `/testField/fitnessPlan/workout/${activeWorkout.sessionId}`
-      : '/testField/fitnessPlan/workout';
-
-  return (
-    <div className="fp-page">
-      <Title size="large" color="app-green">
-        今日
-      </Title>
-      <p className="fp-page__desc">
-        {selectedDate} · 目标：{goalLabel}
-      </p>
-
-      <div className="fp-grid-2">
-        <Card pattern="app-teal">
-          <Title size="small" color="app-teal">
-            今日打卡
-          </Title>
-          <div className="fp-checkin-grid" style={{ marginTop: 12 }}>
-            {(Object.keys(checkinToday) as Array<keyof typeof checkinToday>).map((key) => (
-              <div
-                key={key}
-                className={`fp-checkin-item ${checkinToday[key] ? 'is-done' : 'is-pending'}`}
-              >
-                <span>{checkinToday[key] ? '✓' : '○'}</span>
-                <span>{CHECKIN_TYPE_LABELS[key]}</span>
-              </div>
-            ))}
-          </div>
-          <Link href="/testField/fitnessPlan/checkin" style={{ marginTop: 12, display: 'inline-block' }}>
-            <Button type="default" size="small">
-              去打卡中心
-            </Button>
-          </Link>
-        </Card>
-
-        <Card pattern="app-yellow">
-          <Title size="small" color="app-yellow">
-            快捷入口
-          </Title>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
-            <Link href={workoutHref}>
-              <Button type="primary" size="small">
-                {activeWorkout.sessionId != null ? '继续训练' : '开始训练'}
-              </Button>
-            </Link>
-            <Link href="/testField/fitnessPlan/diet">
-              <Button type="default" size="small">
-                记录饮食
-              </Button>
-            </Link>
-            <Link href="/testField/fitnessPlan/plans">
-              <Button type="default" size="small">
-                训练计划
-              </Button>
-            </Link>
-          </div>
-        </Card>
-      </div>
-
-      <Card pattern="default" type="dashed">
-        <p style={{ margin: 0, fontWeight: 600 }}>Phase 6 将完善今日训练计划与饮食摘要</p>
-      </Card>
-    </div>
-  );
-}
-
-export function CheckinPage() {
-  return (
-    <SubPageShell
-      title="打卡中心"
-      color="app-yellow"
-      phase={6}
-      description="综合日打卡、训练/饮食/体重打卡与连续天数 streak。"
-    />
   );
 }
 

@@ -409,3 +409,52 @@ export interface DietEntryUpdateInput {
   fat?: number | null;
   imageUrl?: string | null;
 }
+
+export interface ManualCheckinInput {
+  date?: string;
+  type: 'daily' | 'weight';
+  currentWeight?: number | null;
+}
+
+export interface CheckinHeatmapDay {
+  date: string;
+  daily: boolean;
+  workout: boolean;
+  diet: boolean;
+  weight: boolean;
+  score: number;
+}
+
+export interface CheckinStreakInfo {
+  current: number;
+  best: number;
+}
+
+export interface CheckinHeatmapPayload {
+  weeks: number;
+  startDate: string;
+  endDate: string;
+  streak: CheckinStreakInfo;
+  days: CheckinHeatmapDay[];
+}
+
+export interface TodayScheduleSummary {
+  planId: number | null;
+  planName: string | null;
+  isRest: boolean;
+}
+
+export interface TodayDietSummary {
+  calories: number;
+  calorieGoal: number;
+  entryCount: number;
+}
+
+export interface TodayOverviewPayload {
+  date: string;
+  checkins: CheckinTodayState;
+  completedCount: number;
+  schedule: TodayScheduleSummary;
+  diet: TodayDietSummary;
+  activeSessionId: number | null;
+}

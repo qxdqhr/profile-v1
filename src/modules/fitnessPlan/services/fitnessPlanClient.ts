@@ -285,6 +285,40 @@ export const fitnessPlanClient = {
     return payload.data as { imageUrl: string; fileId: string };
   },
 
+  getCheckinsToday(date?: string) {
+    const query = date ? `?date=${encodeURIComponent(date)}` : '';
+    return request<{ success: boolean; data: import('../types').CheckinTodayState }>(
+      `/api/fitnessPlan/checkins/today${query}`,
+    ).then((res) => res.data);
+  },
+
+  createManualCheckin(data: import('../types').ManualCheckinInput) {
+    return request<{ success: boolean; data: import('../types').CheckinTodayState }>(
+      '/api/fitnessPlan/checkins',
+      { method: 'POST', body: JSON.stringify(data) },
+    ).then((res) => res.data);
+  },
+
+  removeManualCheckin(date: string, type: 'daily' | 'weight') {
+    return request<{ success: boolean; data: import('../types').CheckinTodayState }>(
+      `/api/fitnessPlan/checkins?date=${encodeURIComponent(date)}&type=${type}`,
+      { method: 'DELETE' },
+    ).then((res) => res.data);
+  },
+
+  getCheckinHeatmap(weeks = 12) {
+    return request<{ success: boolean; data: import('../types').CheckinHeatmapPayload }>(
+      `/api/fitnessPlan/checkins/heatmap?weeks=${weeks}`,
+    ).then((res) => res.data);
+  },
+
+  getTodayOverview(date?: string) {
+    const query = date ? `?date=${encodeURIComponent(date)}` : '';
+    return request<{ success: boolean; data: import('../types').TodayOverviewPayload }>(
+      `/api/fitnessPlan/today${query}`,
+    ).then((res) => res.data);
+  },
+
   getTemplatesStatic() {
     return PLAN_TEMPLATES;
   },
