@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  createOssFileServiceWithDrizzlePersistence,
-  uploadFileAndResolveAccessUrl,
-  fileMetadata,
-  fileStorageProviders,
-} from 'sa2kit/ossFile/server';
+import { uploadFileAndResolveAccessUrl } from 'sa2kit/ossFile/server';
 import { validateApiAuth } from '@/lib/auth/legacy';
-import { loadEnvAndCreateOssFileConfigManager } from '@/lib/ossFile/env';
-import { db } from '@/db';
+import {
+  createProfilePersistentFileService,
+  getProfileOssFileBootstrap,
+} from '@/lib/ossFile/env';
 
 /**
  * 通用文件上传API端点
@@ -35,7 +32,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '未指定模块ID' }, { status: 400 });
     }
 
-    const configManager = await loadEnvAndCreateOssFileConfigManager();
+    const bootstrap = getProfileOssFileBootstrap();
+    const configManager = await bootstrap.getConfigManager();
     const config = configManager.getConfig();
     const defaultStorageType = config.defaultStorage || 'local';
     const storageConfig = config.storageProviders[defaultStorageType];
@@ -63,10 +61,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const fileService = await createOssFileServiceWithDrizzlePersistence({
-      configManager,
-      persistence: { db, fileMetadata, fileStorageProviders },
-    });
+    const fileService = await createProfilePersistentFileService();
 
     const { fileId, accessUrl, uploadResult } = await uploadFileAndResolveAccessUrl(
       fileService,

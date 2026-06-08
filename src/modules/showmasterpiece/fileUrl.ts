@@ -1,8 +1,5 @@
-import {
-  createFileUrlResolver,
-  type FileUrlResolver,
-} from 'sa2kit/ossFile/server';
-import { loadEnvAndCreateOssFileConfigManager } from '@/lib/ossFile/env';
+import type { FileUrlResolver } from 'sa2kit/ossFile/server';
+import { getProfileOssFileBootstrap } from '@/lib/ossFile/env';
 
 let defaultResolver: FileUrlResolver | null = null;
 
@@ -10,9 +7,7 @@ let defaultResolver: FileUrlResolver | null = null;
  * 创建 ShowMasterpiece 专用 fileId → URL 解析器（显式依赖注入，无 globalThis）。
  */
 export function createShowmasterpieceFileUrlResolver(): FileUrlResolver {
-  return createFileUrlResolver({
-    loadConfigManager: loadEnvAndCreateOssFileConfigManager,
-  });
+  return getProfileOssFileBootstrap().createFileUrlResolver();
 }
 
 /**
@@ -31,5 +26,5 @@ export async function resolveShowmasterpieceFileUrl(
 }
 
 export async function getShowMasterpieceFileConfig() {
-  return loadEnvAndCreateOssFileConfigManager();
+  return getProfileOssFileBootstrap().getConfigManager();
 }

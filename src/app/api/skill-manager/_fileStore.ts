@@ -1,11 +1,12 @@
 import AdmZip from 'adm-zip';
 import {
-  createUniversalFileServiceFromConfigManager,
   uploadFileAndResolveAccessUrl,
-  getFileUrlByFileId,
   FileDbService,
 } from 'sa2kit/ossFile/server';
-import { loadEnvAndCreateOssFileConfigManager } from '@/lib/ossFile/env';
+import {
+  createProfileFileService,
+  getProfileOssFileBootstrap,
+} from '@/lib/ossFile/env';
 import { db } from '@/db';
 
 const MODULE_ID = 'skill-manager';
@@ -43,8 +44,7 @@ export async function createFileDbService(): Promise<FileDbService> {
 }
 
 export async function createFileService() {
-  const configManager = await loadEnvAndCreateOssFileConfigManager();
-  return createUniversalFileServiceFromConfigManager(configManager);
+  return createProfileFileService();
 }
 
 function toIso(value: string | Date | null | undefined): string {
@@ -143,8 +143,7 @@ export async function getSkillFileByRelativePath(skillId: string, relativePath: 
 }
 
 export async function getFileAccessUrl(fileId: string): Promise<string> {
-  const configManager = await loadEnvAndCreateOssFileConfigManager();
-  const url = await getFileUrlByFileId(fileId, { configManager });
+  const url = await getProfileOssFileBootstrap().getFileUrl(fileId);
   if (!url) {
     throw new Error(`无法解析文件 URL: ${fileId}`);
   }

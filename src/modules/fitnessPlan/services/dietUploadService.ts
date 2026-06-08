@@ -1,12 +1,11 @@
 import {
-  createOssFileServiceWithDrizzlePersistence,
   uploadFileAndResolveAccessUrl,
-  fileMetadata,
-  fileStorageProviders,
   type AliyunOSSConfig,
 } from 'sa2kit/ossFile/server';
-import { loadEnvAndCreateOssFileConfigManager } from '@/lib/ossFile/env';
-import { db } from '@/db';
+import {
+  createProfilePersistentFileService,
+  loadEnvAndCreateOssFileConfigManager,
+} from '@/lib/ossFile/env';
 
 const MODULE_ID = 'fitnessPlan';
 const OSS_STORAGE_KEY = 'aliyun-oss';
@@ -85,10 +84,7 @@ async function createOssFileService() {
   const config = configManager.getConfig();
   validateOssConfig(config.storageProviders[OSS_STORAGE_KEY] as AliyunOSSConfig);
 
-  return createOssFileServiceWithDrizzlePersistence({
-    configManager,
-    persistence: { db, fileMetadata, fileStorageProviders },
-  });
+  return createProfilePersistentFileService();
 }
 
 export async function uploadDietImageToOss(input: {

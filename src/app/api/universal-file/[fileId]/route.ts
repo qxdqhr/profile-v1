@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getFileUrlByFileId } from 'sa2kit/ossFile/server';
-import { loadEnvAndCreateOssFileConfigManager } from '@/lib/ossFile/env';
+import { getProfileOssFileBootstrap } from '@/lib/ossFile/env';
 
 /**
  * GET /api/universal-file/[fileId]
@@ -16,8 +15,7 @@ export async function GET(
       return NextResponse.json({ error: '文件ID不能为空' }, { status: 400 });
     }
 
-    const configManager = await loadEnvAndCreateOssFileConfigManager();
-    const accessUrl = await getFileUrlByFileId(fileId, { configManager });
+    const accessUrl = await getProfileOssFileBootstrap().getFileUrl(fileId);
 
     if (!accessUrl) {
       return NextResponse.json({ error: '文件不存在或无法解析访问地址' }, { status: 404 });
