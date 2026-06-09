@@ -7,9 +7,9 @@
 
 | 阶段 | profile-v1 依赖 | 说明 |
 |------|-----------------|------|
-| 当前 | `"sa2kit": "^2.0.0-beta.0"` | common API 冻结（R2-602 / PV2-009） |
+| 当前 | `"sa2kit": "^2.0.0"` | stable（R2-605 / PV2-011） |
 | 本地源码联调 | `pnpm.overrides.sa2kit = file:../sa2kit` | 仅开发机，勿提交生产锁 |
-| 2.0 stable | `"sa2kit": "^2.0.0"` | 生产默认可用 |
+| beta 历史 | `"sa2kit": "^2.0.0-beta.0"` | 联调归档 |
 
 > **sa2kit 本地联调**：`pnpm install` 默认仅构建 common（`prepare → build:common`）。需要 business subpath 时在 sa2kit 目录执行 `SA2KIT_WITH_BUSINESS=1 pnpm install` 或 `pnpm build`。
 
@@ -26,6 +26,8 @@
 | PV2-006 | `scripts/smoke-file-api.sh` 全站文件 API 冒烟 | R2-506 | ✅ |
 | PV2-008 | 锁定 `sa2kit@^2.0.0-alpha.8` | R2-505 | ✅ |
 | PV2-009 | 升级 `sa2kit@^2.0.0-beta.0` | R2-602 | ✅ |
+| PV2-010 | huarongdao / mikuFlick 迁出 sa2kit | R2-406 | ✅ |
+| PV2-011 | 升级 `sa2kit@^2.0.0` stable | R2-605 | ✅ |
 
 ## import 替换对照（目标）
 

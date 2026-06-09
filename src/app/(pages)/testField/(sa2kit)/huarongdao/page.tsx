@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { moveTile, shuffleSolvable } from 'sa2kit/huarongdao';
+import { moveTile, shuffleSolvable } from '@/modules/huarongdao';
 import {
   buildPersistedConfig,
   DEFAULT_HUARONGDAO_LEVEL_CONFIGS,

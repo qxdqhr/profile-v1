@@ -495,7 +495,7 @@ export const experiments: ExperimentItem[] = [
   {
     id: "miku-flick",
     title: "Miku Flick（初版）",
-    description: "体验 sa2kit/mikuFlick 初版能力，支持假名键位滑动方向判定、节奏判定与连击计分",
+    description: "体验本地化 mikuFlick 模块，支持假名键位滑动方向判定、节奏判定与连击计分",
     path: "/testField/mikuFlick",
     tags: ["SA2Kit", "MikuFlick", "小游戏", "节奏输入"],
     category: "leisure",
@@ -528,7 +528,7 @@ export const experiments: ExperimentItem[] = [
   {
     id: "huarongdao-game",
     title: "图片华容道（前台）",
-    description: "测试 sa2kit/huarongdao 图片切块拼图玩法，支持随机可解打乱与通关判断",
+    description: "测试本地化 huarongdao 图片切块拼图玩法，支持随机可解打乱与通关判断",
     path: "/testField/huarongdao",
     tags: ["SA2Kit", "华容道", "拼图", "图片游戏"],
     category: "leisure",
@@ -539,7 +539,7 @@ export const experiments: ExperimentItem[] = [
   {
     id: "huarongdao-config",
     title: "图片华容道（配置后台）",
-    description: "测试 sa2kit/huarongdao 多套配置管理页面（名称、slug、图片、网格参数）",
+    description: "测试 huarongdao 多套配置管理页面（名称、slug、图片、网格参数）",
     path: "/testField/huarongdao/config",
     tags: ["SA2Kit", "华容道", "配置后台"],
     category: "utility",
