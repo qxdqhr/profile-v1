@@ -21,7 +21,7 @@ class CalendarDbService {
   /**
    * 获取用户的所有事件（基础版本）
    */
-  async getAllEvents(userId: number, startDate?: Date, endDate?: Date) {
+  async getAllEvents(userId: string, startDate?: Date, endDate?: Date) {
     const conditions = [eq(calendarEvents.userId, userId)];
     
     if (startDate) {
@@ -65,7 +65,7 @@ class CalendarDbService {
     allDay: boolean;
     location?: string;
     color: string;
-    userId: number;
+    userId: string;
   }) {
     const [newEvent] = await db
       .insert(calendarEvents)
@@ -115,7 +115,7 @@ class CalendarDbService {
   /**
    * 获取用户的日历配置
    */
-  async getUserConfig(userId: number) {
+  async getUserConfig(userId: string) {
     const [config] = await db
       .select()
       .from(calendarConfigs)
@@ -128,7 +128,7 @@ class CalendarDbService {
   /**
    * 创建或更新用户配置
    */
-  async upsertUserConfig(userId: number, configData: {
+  async upsertUserConfig(userId: string, configData: {
     firstDayOfWeek?: number;
     workingHoursStart?: string;
     workingHoursEnd?: string;
@@ -262,7 +262,7 @@ class CalendarDbService {
   /**
    * 获取用户在指定时间范围内的事件数量
    */
-  async getEventCount(userId: number, startDate?: Date, endDate?: Date): Promise<number> {
+  async getEventCount(userId: string, startDate?: Date, endDate?: Date): Promise<number> {
     const conditions = [eq(calendarEvents.userId, userId)];
     
     if (startDate) {
@@ -284,7 +284,7 @@ class CalendarDbService {
   /**
    * 搜索事件
    */
-  async searchEvents(userId: number, searchTerm: string) {
+  async searchEvents(userId: string, searchTerm: string) {
     // 这里使用简单的标题匹配，后续可以扩展为全文搜索
     const events = await db
       .select()
@@ -307,7 +307,7 @@ class CalendarDbService {
   /**
    * 批量删除用户的所有事件
    */
-  async deleteAllUserEvents(userId: number): Promise<void> {
+  async deleteAllUserEvents(userId: string): Promise<void> {
     await db
       .delete(calendarEvents)
       .where(eq(calendarEvents.userId, userId));

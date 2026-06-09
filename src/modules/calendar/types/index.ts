@@ -25,7 +25,7 @@ export interface CalendarEvent {
   location?: string;
   color: string;
   priority: EventPriority;
-  userId: number;
+  userId: string;
   createdAt: Date;
   updatedAt: Date;
   // 关联数据
@@ -221,7 +221,7 @@ export interface GetEventsRequest {
   startDate: string; // ISO string
   endDate: string; // ISO string
   viewType?: CalendarViewType;
-  userId?: number;
+  userId?: string;
 }
 
 /**
@@ -432,7 +432,7 @@ export interface CalendarService {
  * 数据库服务接口
  */
 export interface CalendarDbService {
-  getAllEvents(userId: number, startDate?: Date, endDate?: Date): Promise<CalendarEvent[]>;
+  getAllEvents(userId: string, startDate?: Date, endDate?: Date): Promise<CalendarEvent[]>;
   getEventById(eventId: number): Promise<CalendarEvent | null>;
   createEvent(eventData: Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>): Promise<CalendarEvent>;
   updateEvent(eventId: number, eventData: Partial<CalendarEvent>): Promise<CalendarEvent>;

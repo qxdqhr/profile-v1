@@ -7,7 +7,7 @@
 'use client';
 
 import React from 'react';
-import { useAuth } from 'sa2kit/auth/legacy';
+import { useAuth } from '@/auth/legacy';
 import { LogOut, User, Settings } from 'lucide-react';
 
 export const UserInfoBar: React.FC = () => {

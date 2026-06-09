@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
 import 'animal-island-ui/style';
 import { Button, Card, Footer, Loading, Title } from 'animal-island-ui';
-import { AuthGuard, AuthProvider, UserMenu, useAuth } from 'sa2kit/auth/legacy';
+import { AuthGuard, AuthProvider, UserMenu, useAuth } from '@/auth/legacy';
 import { useFitnessPlanBootstrap } from '../hooks/useFitnessPlanBootstrap';
 import {
   FITNESS_MOBILE_NAV_ITEMS,

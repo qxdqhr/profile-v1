@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useAuth, LoginModal } from 'sa2kit/auth/legacy';
+import { useAuth, LoginRegisterModals } from '@/auth/legacy';
 import { Plus } from 'lucide-react';
 import { ConfirmModal } from 'sa2kit/components';
 import { DateCalculatorTool } from '@/modules/dateCalculator';
@@ -75,6 +75,7 @@ function CalendarPageContent() {
   const [viewType, setViewType] = useState<CalendarViewType>(CalendarViewType.MONTH);
   const [activeTab, setActiveTab] = useState<CalendarMainTab>('calendar');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
@@ -475,11 +476,16 @@ function CalendarPageContent() {
         cancelText="取消"
       />
 
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
+      <LoginRegisterModals
+        loginOpen={isLoginModalOpen}
+        registerOpen={isRegisterModalOpen}
+        onCloseLogin={() => setIsLoginModalOpen(false)}
+        onCloseRegister={() => setIsRegisterModalOpen(false)}
+        onOpenLogin={() => setIsLoginModalOpen(true)}
+        onOpenRegister={() => setIsRegisterModalOpen(true)}
         onSuccess={() => {
           setIsLoginModalOpen(false);
+          setIsRegisterModalOpen(false);
           showToast('登录成功');
         }}
       />

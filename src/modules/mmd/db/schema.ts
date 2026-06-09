@@ -14,7 +14,7 @@ export const mmdModels = pgTable('mmd_models', {
   fileSize: integer('file_size').notNull(), // 文件大小(bytes)
   format: varchar('format', { length: 10 }).notNull(), // 'pmd' | 'pmx'
   uploadTime: timestamp('upload_time').defaultNow().notNull(),
-  userId: integer('user_id').references(() => users.id, { onDelete: 'set null' }),
+  userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
   tags: json('tags').$type<string[]>(), // 标签数组
   isPublic: boolean('is_public').notNull().default(false),
   downloadCount: integer('download_count').notNull().default(0),
@@ -34,7 +34,7 @@ export const mmdAnimations = pgTable('mmd_animations', {
   duration: real('duration').notNull(), // 动画时长(秒)
   frameCount: integer('frame_count').notNull(), // 帧数
   uploadTime: timestamp('upload_time').defaultNow().notNull(),
-  userId: integer('user_id').references(() => users.id, { onDelete: 'set null' }),
+  userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
   tags: json('tags').$type<string[]>(), // 标签数组
   isPublic: boolean('is_public').notNull().default(false),
   compatibleModels: json('compatible_models').$type<string[]>(), // 兼容的模型ID列表
@@ -53,7 +53,7 @@ export const mmdAudios = pgTable('mmd_audios', {
   duration: real('duration').notNull(), // 音频时长(秒)
   format: varchar('format', { length: 10 }).notNull(), // 'wav' | 'mp3' | 'ogg'
   uploadTime: timestamp('upload_time').defaultNow().notNull(),
-  userId: integer('user_id').references(() => users.id, { onDelete: 'set null' }),
+  userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -88,7 +88,7 @@ export const mmdScenes = pgTable('mmd_scenes', {
     type: 'color' | 'image' | 'skybox';
     value: string;
   }>().notNull(),
-  userId: integer('user_id').references(() => users.id, { onDelete: 'set null' }),
+  userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -98,7 +98,7 @@ export const mmdScenes = pgTable('mmd_scenes', {
  */
 export const mmdModelFavorites = pgTable('mmd_model_favorites', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   modelId: integer('model_id').notNull().references(() => mmdModels.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
@@ -108,7 +108,7 @@ export const mmdModelFavorites = pgTable('mmd_model_favorites', {
  */
 export const mmdAnimationFavorites = pgTable('mmd_animation_favorites', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   animationId: integer('animation_id').notNull().references(() => mmdAnimations.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });

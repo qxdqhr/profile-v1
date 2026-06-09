@@ -111,7 +111,7 @@ export function parseProfileNumbers(profile: FitnessProfile) {
 
 export interface ExerciseRecord {
   id: number;
-  userId: number | null;
+  userId: string | null;
   name: string;
   type: ExerciseType;
   bodyPart: string | null;
@@ -144,7 +144,7 @@ export interface PlanItemInput {
 
 export interface WorkoutPlanRecord {
   id: number;
-  userId: number;
+  userId: string;
   name: string;
   description: string | null;
   goalTags: string[];
@@ -211,7 +211,7 @@ export const WEEK_DAY_LABELS: Record<WeekDayKey, string> = {
 
 export interface ScheduleTemplateRecord {
   id: number;
-  userId: number;
+  userId: string;
   name: string;
   isActive: boolean;
   cycleWeeks: number;
@@ -291,7 +291,7 @@ export interface WorkoutSessionItemDetail {
 
 export interface WorkoutSessionDetail {
   id: number;
-  userId: number;
+  userId: string;
   planId: number | null;
   planName: string | null;
   status: WorkoutSessionStatus;
@@ -341,7 +341,7 @@ export interface WorkoutSessionSummary {
 
 export interface FoodItemRecord {
   id: number;
-  userId: number | null;
+  userId: string | null;
   name: string;
   calories: number;
   protein: number | null;

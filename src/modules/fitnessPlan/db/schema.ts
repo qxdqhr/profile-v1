@@ -12,13 +12,13 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { users } from '@/lib/auth/schema';
+import { user } from '@/lib/auth/schema';
 
 export const fitnessProfiles = pgTable('fitness_profiles', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id')
+  userId: text('user_id')
     .notNull()
-    .references(() => users.id, { onDelete: 'cascade' })
+    .references(() => user.id, { onDelete: 'cascade' })
     .unique(),
   goal: varchar('goal', { length: 32 }).notNull().default('maintain'),
   currentWeight: numeric('current_weight', { precision: 6, scale: 2 }),
@@ -30,7 +30,7 @@ export const fitnessProfiles = pgTable('fitness_profiles', {
 
 export const exercises = pgTable('fitness_exercises', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 120 }).notNull(),
   type: varchar('type', { length: 16 }).notNull(),
   bodyPart: varchar('body_part', { length: 32 }),
@@ -43,9 +43,9 @@ export const exercises = pgTable('fitness_exercises', {
 
 export const workoutPlans = pgTable('fitness_workout_plans', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id')
+  userId: text('user_id')
     .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
+    .references(() => user.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 120 }).notNull(),
   description: text('description'),
   goalTags: json('goal_tags').$type<string[]>().default([]),
@@ -76,9 +76,9 @@ export const workoutPlanItems = pgTable('fitness_workout_plan_items', {
 
 export const scheduleTemplates = pgTable('fitness_schedule_templates', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id')
+  userId: text('user_id')
     .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
+    .references(() => user.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 120 }).notNull(),
   isActive: boolean('is_active').notNull().default(true),
   cycleWeeks: integer('cycle_weeks').notNull().default(4),
@@ -94,9 +94,9 @@ export const scheduleOverrides = pgTable(
   'fitness_schedule_overrides',
   {
     id: serial('id').primaryKey(),
-    userId: integer('user_id')
+    userId: text('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade' }),
     scheduleDate: date('schedule_date').notNull(),
     planId: integer('plan_id').references(() => workoutPlans.id, {
       onDelete: 'set null',
@@ -115,9 +115,9 @@ export const scheduleOverrides = pgTable(
 
 export const workoutSessions = pgTable('fitness_workout_sessions', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id')
+  userId: text('user_id')
     .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
+    .references(() => user.id, { onDelete: 'cascade' }),
   planId: integer('plan_id').references(() => workoutPlans.id, {
     onDelete: 'set null',
   }),
@@ -158,7 +158,7 @@ export const workoutSets = pgTable('fitness_workout_sets', {
 
 export const foodItems = pgTable('fitness_food_items', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 120 }).notNull(),
   calories: integer('calories').notNull(),
   protein: numeric('protein', { precision: 6, scale: 2 }),
@@ -172,9 +172,9 @@ export const dietLogs = pgTable(
   'fitness_diet_logs',
   {
     id: serial('id').primaryKey(),
-    userId: integer('user_id')
+    userId: text('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade' }),
     logDate: date('log_date').notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -210,9 +210,9 @@ export const dailyCheckins = pgTable(
   'fitness_daily_checkins',
   {
     id: serial('id').primaryKey(),
-    userId: integer('user_id')
+    userId: text('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade' }),
     checkinDate: date('checkin_date').notNull(),
     type: varchar('type', { length: 16 }).notNull(),
     refId: integer('ref_id'),
@@ -228,16 +228,16 @@ export const dailyCheckins = pgTable(
 );
 
 export const fitnessProfilesRelations = relations(fitnessProfiles, ({ one }) => ({
-  user: one(users, {
+  user: one(user, {
     fields: [fitnessProfiles.userId],
-    references: [users.id],
+    references: [user.id],
   }),
 }));
 
 export const workoutPlansRelations = relations(workoutPlans, ({ one, many }) => ({
-  user: one(users, {
+  user: one(user, {
     fields: [workoutPlans.userId],
-    references: [users.id],
+    references: [user.id],
   }),
   items: many(workoutPlanItems),
 }));
@@ -254,9 +254,9 @@ export const workoutPlanItemsRelations = relations(workoutPlanItems, ({ one }) =
 }));
 
 export const workoutSessionsRelations = relations(workoutSessions, ({ one, many }) => ({
-  user: one(users, {
+  user: one(user, {
     fields: [workoutSessions.userId],
-    references: [users.id],
+    references: [user.id],
   }),
   plan: one(workoutPlans, {
     fields: [workoutSessions.planId],
@@ -266,9 +266,9 @@ export const workoutSessionsRelations = relations(workoutSessions, ({ one, many 
 }));
 
 export const dietLogsRelations = relations(dietLogs, ({ one, many }) => ({
-  user: one(users, {
+  user: one(user, {
     fields: [dietLogs.userId],
-    references: [users.id],
+    references: [user.id],
   }),
   entries: many(dietLogEntries),
 }));

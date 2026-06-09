@@ -1,6 +1,6 @@
 import { pgTable, serial, text, timestamp, boolean, varchar, integer, json } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { users } from '@/lib/auth/schema';
+import { user } from '@/lib/auth/schema';
 
 /**
  * 日历事件表
@@ -15,7 +15,7 @@ export const calendarEvents = pgTable('calendar_events', {
   location: varchar('location', { length: 500 }),
   color: varchar('color', { length: 7 }).notNull().default('#3B82F6'), // 十六进制颜色值
   priority: varchar('priority', { length: 10 }).notNull().default('normal'), // low, normal, high, urgent
-  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -54,7 +54,7 @@ export const reminders = pgTable('reminders', {
  */
 export const calendarConfigs = pgTable('calendar_configs', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }).unique(),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }).unique(),
   firstDayOfWeek: integer('first_day_of_week').notNull().default(1), // 0=周日, 1=周一
   workingHoursStart: varchar('working_hours_start', { length: 5 }).notNull().default('09:00'),
   workingHoursEnd: varchar('working_hours_end', { length: 5 }).notNull().default('18:00'),
@@ -84,8 +84,8 @@ export const calendarConfigs = pgTable('calendar_configs', {
 export const eventShares = pgTable('event_shares', {
   id: serial('id').primaryKey(),
   eventId: integer('event_id').notNull().references(() => calendarEvents.id, { onDelete: 'cascade' }),
-  sharedWithUserId: integer('shared_with_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  sharedByUserId: integer('shared_by_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  sharedWithUserId: text('shared_with_user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  sharedByUserId: text('shared_by_user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
   permission: varchar('permission', { length: 20 }).notNull().default('read'), // read, write
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
@@ -96,9 +96,9 @@ export const eventShares = pgTable('event_shares', {
  * 日历事件关系
  */
 export const calendarEventsRelations = relations(calendarEvents, ({ one, many }) => ({
-  user: one(users, {
+  user: one(user, {
     fields: [calendarEvents.userId],
-    references: [users.id],
+    references: [user.id],
   }),
   recurrenceRule: one(recurrenceRules, {
     fields: [calendarEvents.id],
@@ -132,9 +132,9 @@ export const remindersRelations = relations(reminders, ({ one }) => ({
  * 日历配置关系
  */
 export const calendarConfigsRelations = relations(calendarConfigs, ({ one }) => ({
-  user: one(users, {
+  user: one(user, {
     fields: [calendarConfigs.userId],
-    references: [users.id],
+    references: [user.id],
   }),
 }));
 
@@ -146,13 +146,13 @@ export const eventSharesRelations = relations(eventShares, ({ one }) => ({
     fields: [eventShares.eventId],
     references: [calendarEvents.id],
   }),
-  sharedWithUser: one(users, {
+  sharedWithUser: one(user, {
     fields: [eventShares.sharedWithUserId],
-    references: [users.id],
+    references: [user.id],
   }),
-  sharedByUser: one(users, {
+  sharedByUser: one(user, {
     fields: [eventShares.sharedByUserId],
-    references: [users.id],
+    references: [user.id],
   }),
 }));
 

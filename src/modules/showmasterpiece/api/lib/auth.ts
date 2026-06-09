@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateApiAuth } from '@/lib/auth/legacy';
-import type { User } from 'sa2kit/auth/legacy';
+import type { User } from '@/lib/auth/types';
 
 const ADMIN_ROLES = new Set(['admin', 'super_admin']);
 

@@ -203,7 +203,7 @@ class FitnessPlanDbService {
     );
   }
 
-  async getOrCreateProfile(userId: number) {
+  async getOrCreateProfile(userId: string) {
     const existing = await db.query.fitnessProfiles.findFirst({
       where: eq(fitnessProfiles.userId, userId),
     });
@@ -225,7 +225,7 @@ class FitnessPlanDbService {
     return created;
   }
 
-  async updateProfile(userId: number, data: FitnessProfileFormData) {
+  async updateProfile(userId: string, data: FitnessProfileFormData) {
     await this.getOrCreateProfile(userId);
 
     const patch: Partial<typeof fitnessProfiles.$inferInsert> = {
@@ -249,7 +249,7 @@ class FitnessPlanDbService {
     return updated;
   }
 
-  async getTodayCheckins(userId: number, date = new Date()): Promise<CheckinTodayState> {
+  async getTodayCheckins(userId: string, date = new Date()): Promise<CheckinTodayState> {
     const dateKey = formatDateKey(date);
     const rows = await db
       .select()
@@ -274,7 +274,7 @@ class FitnessPlanDbService {
   }
 
   async listExercises(
-    userId: number,
+    userId: string,
     filters: { search?: string; type?: string; bodyPart?: string } = {},
   ): Promise<ExerciseRecord[]> {
     await this.ensureSystemExercisesSeeded();
@@ -296,7 +296,7 @@ class FitnessPlanDbService {
     return rows.map(mapExercise);
   }
 
-  async createExercise(userId: number, data: ExerciseFormData) {
+  async createExercise(userId: string, data: ExerciseFormData) {
     const [created] = await db
       .insert(exercises)
       .values({
@@ -313,7 +313,7 @@ class FitnessPlanDbService {
     return mapExercise(created);
   }
 
-  async updateExercise(userId: number, exerciseId: number, data: ExerciseFormData) {
+  async updateExercise(userId: string, exerciseId: number, data: ExerciseFormData) {
     const existing = await db.query.exercises.findFirst({
       where: and(eq(exercises.id, exerciseId), eq(exercises.userId, userId)),
     });
@@ -337,7 +337,7 @@ class FitnessPlanDbService {
     return mapExercise(updated);
   }
 
-  async deleteExercise(userId: number, exerciseId: number) {
+  async deleteExercise(userId: string, exerciseId: number) {
     const existing = await db.query.exercises.findFirst({
       where: and(eq(exercises.id, exerciseId), eq(exercises.userId, userId)),
     });
@@ -348,7 +348,7 @@ class FitnessPlanDbService {
     return true;
   }
 
-  async listPlans(userId: number, status: WorkoutPlanStatus = 'active') {
+  async listPlans(userId: string, status: WorkoutPlanStatus = 'active') {
     const rows = await db
       .select({
         id: workoutPlans.id,
@@ -377,7 +377,7 @@ class FitnessPlanDbService {
     })) as WorkoutPlanRecord[];
   }
 
-  async getPlanDetail(userId: number, planId: number): Promise<WorkoutPlanDetail | null> {
+  async getPlanDetail(userId: string, planId: number): Promise<WorkoutPlanDetail | null> {
     const plan = await db.query.workoutPlans.findFirst({
       where: and(eq(workoutPlans.id, planId), eq(workoutPlans.userId, userId)),
     });
@@ -432,7 +432,7 @@ class FitnessPlanDbService {
     };
   }
 
-  private async resolveExerciseId(userId: number, item: PlanItemInput) {
+  private async resolveExerciseId(userId: string, item: PlanItemInput) {
     if (item.exerciseId) return item.exerciseId;
 
     if (!item.exerciseName) {
@@ -451,7 +451,7 @@ class FitnessPlanDbService {
     return found.id;
   }
 
-  private async insertPlanItems(planId: number, userId: number, items: PlanItemInput[]) {
+  private async insertPlanItems(planId: number, userId: string, items: PlanItemInput[]) {
     if (items.length === 0) return;
 
     const values = [];
@@ -475,7 +475,7 @@ class FitnessPlanDbService {
     await db.insert(workoutPlanItems).values(values);
   }
 
-  async createPlan(userId: number, data: WorkoutPlanFormData, items: PlanItemInput[] = []) {
+  async createPlan(userId: string, data: WorkoutPlanFormData, items: PlanItemInput[] = []) {
     const [plan] = await db
       .insert(workoutPlans)
       .values({
@@ -491,7 +491,7 @@ class FitnessPlanDbService {
     return this.getPlanDetail(userId, plan.id);
   }
 
-  async updatePlan(userId: number, planId: number, data: Partial<WorkoutPlanFormData> & { status?: WorkoutPlanStatus }) {
+  async updatePlan(userId: string, planId: number, data: Partial<WorkoutPlanFormData> & { status?: WorkoutPlanStatus }) {
     const existing = await db.query.workoutPlans.findFirst({
       where: and(eq(workoutPlans.id, planId), eq(workoutPlans.userId, userId)),
     });
@@ -521,7 +521,7 @@ class FitnessPlanDbService {
     } as WorkoutPlanRecord;
   }
 
-  async deletePlan(userId: number, planId: number) {
+  async deletePlan(userId: string, planId: number) {
     const result = await db
       .delete(workoutPlans)
       .where(and(eq(workoutPlans.id, planId), eq(workoutPlans.userId, userId)))
@@ -530,7 +530,7 @@ class FitnessPlanDbService {
     return result.length > 0;
   }
 
-  async copyPlan(userId: number, planId: number) {
+  async copyPlan(userId: string, planId: number) {
     const source = await this.getPlanDetail(userId, planId);
     if (!source) return null;
 
@@ -554,7 +554,7 @@ class FitnessPlanDbService {
     );
   }
 
-  async setPlanItems(userId: number, planId: number, items: PlanItemInput[]) {
+  async setPlanItems(userId: string, planId: number, items: PlanItemInput[]) {
     const existing = await db.query.workoutPlans.findFirst({
       where: and(eq(workoutPlans.id, planId), eq(workoutPlans.userId, userId)),
     });
@@ -571,7 +571,7 @@ class FitnessPlanDbService {
     return this.getPlanDetail(userId, planId);
   }
 
-  async copyFromTemplate(userId: number, templateId: string) {
+  async copyFromTemplate(userId: string, templateId: string) {
     const template = PLAN_TEMPLATES.find((item) => item.id === templateId);
     if (!template) return null;
 
@@ -586,7 +586,7 @@ class FitnessPlanDbService {
     );
   }
 
-  async copyTemplateGroup(userId: number, groupId: string) {
+  async copyTemplateGroup(userId: string, groupId: string) {
     const templates =
       groupId === 'push-pull-legs'
         ? PLAN_TEMPLATES.filter((item) => item.id.startsWith('push-pull-legs-'))
@@ -602,7 +602,7 @@ class FitnessPlanDbService {
     return created;
   }
 
-  async getOrCreateActiveScheduleTemplate(userId: number): Promise<ScheduleTemplateRecord> {
+  async getOrCreateActiveScheduleTemplate(userId: string): Promise<ScheduleTemplateRecord> {
     const existing = await db.query.scheduleTemplates.findFirst({
       where: and(
         eq(scheduleTemplates.userId, userId),
@@ -626,7 +626,7 @@ class FitnessPlanDbService {
     return mapScheduleTemplate(created);
   }
 
-  async updateScheduleTemplate(userId: number, input: ScheduleTemplateInput) {
+  async updateScheduleTemplate(userId: string, input: ScheduleTemplateInput) {
     const current = await this.getOrCreateActiveScheduleTemplate(userId);
 
     const [updated] = await db
@@ -645,7 +645,7 @@ class FitnessPlanDbService {
     return mapScheduleTemplate(updated);
   }
 
-  async getMonthSchedule(userId: number, monthKey: string): Promise<MonthSchedulePayload> {
+  async getMonthSchedule(userId: string, monthKey: string): Promise<MonthSchedulePayload> {
     const [yearStr, monthStr] = monthKey.split('-');
     const year = Number(yearStr);
     const month = Number(monthStr);
@@ -772,7 +772,7 @@ class FitnessPlanDbService {
     return { month: monthKey, template, days };
   }
 
-  async setScheduleOverride(userId: number, input: ScheduleOverrideInput) {
+  async setScheduleOverride(userId: string, input: ScheduleOverrideInput) {
     if (input.clear) {
       await db
         .delete(scheduleOverrides)
@@ -814,7 +814,7 @@ class FitnessPlanDbService {
     return { success: true };
   }
 
-  async listSessions(userId: number, limit = 30): Promise<WorkoutSessionListItem[]> {
+  async listSessions(userId: string, limit = 30): Promise<WorkoutSessionListItem[]> {
     const rows = await db
       .select({
         id: workoutSessions.id,
@@ -842,7 +842,7 @@ class FitnessPlanDbService {
     }));
   }
 
-  async getActiveSession(userId: number): Promise<WorkoutSessionDetail | null> {
+  async getActiveSession(userId: string): Promise<WorkoutSessionDetail | null> {
     const [active] = await db
       .select()
       .from(workoutSessions)
@@ -859,7 +859,7 @@ class FitnessPlanDbService {
     return this.getSessionDetail(userId, active.id);
   }
 
-  async getSessionDetail(userId: number, sessionId: number): Promise<WorkoutSessionDetail | null> {
+  async getSessionDetail(userId: string, sessionId: number): Promise<WorkoutSessionDetail | null> {
     const session = await db.query.workoutSessions.findFirst({
       where: and(eq(workoutSessions.id, sessionId), eq(workoutSessions.userId, userId)),
     });
@@ -965,7 +965,7 @@ class FitnessPlanDbService {
     return { totalSets, completedSets, strengthVolume, cardioMinutes };
   }
 
-  private async ensureWorkoutCheckin(userId: number, sessionId: number, dateKey: string) {
+  private async ensureWorkoutCheckin(userId: string, sessionId: number, dateKey: string) {
     const existing = await db.query.dailyCheckins.findFirst({
       where: and(
         eq(dailyCheckins.userId, userId),
@@ -984,7 +984,7 @@ class FitnessPlanDbService {
     });
   }
 
-  async resolveTodayPlanId(userId: number): Promise<number | null> {
+  async resolveTodayPlanId(userId: string): Promise<number | null> {
     const monthKey = formatDateKey(new Date()).slice(0, 7);
     const schedule = await this.getMonthSchedule(userId, monthKey);
     const today = formatDateKey(new Date());
@@ -993,7 +993,7 @@ class FitnessPlanDbService {
     return day.planId;
   }
 
-  async startSession(userId: number, input: StartWorkoutInput) {
+  async startSession(userId: string, input: StartWorkoutInput) {
     const active = await this.getActiveSession(userId);
     if (active) {
       throw new Error('已有进行中的训练，请先完成或放弃');
@@ -1045,7 +1045,7 @@ class FitnessPlanDbService {
     return this.getSessionDetail(userId, session.id);
   }
 
-  async addSessionExercise(userId: number, sessionId: number, exerciseId: number) {
+  async addSessionExercise(userId: string, sessionId: number, exerciseId: number) {
     const session = await this.getSessionDetail(userId, sessionId);
     if (!session || session.status !== 'in_progress') {
       throw new Error('训练会话不存在或已结束');
@@ -1079,7 +1079,7 @@ class FitnessPlanDbService {
     return this.getSessionDetail(userId, sessionId);
   }
 
-  async addWorkoutSet(userId: number, sessionItemId: number) {
+  async addWorkoutSet(userId: string, sessionItemId: number) {
     const item = await db.query.workoutSessionItems.findFirst({
       where: eq(workoutSessionItems.id, sessionItemId),
     });
@@ -1114,7 +1114,7 @@ class FitnessPlanDbService {
     } satisfies WorkoutSetRecord;
   }
 
-  async updateWorkoutSet(userId: number, setId: number, input: UpdateWorkoutSetInput) {
+  async updateWorkoutSet(userId: string, setId: number, input: UpdateWorkoutSetInput) {
     const setRow = await db.query.workoutSets.findFirst({
       where: eq(workoutSets.id, setId),
     });
@@ -1159,7 +1159,7 @@ class FitnessPlanDbService {
     } satisfies WorkoutSetRecord;
   }
 
-  async updateSessionNotes(userId: number, sessionId: number, notes: string | null) {
+  async updateSessionNotes(userId: string, sessionId: number, notes: string | null) {
     const session = await this.getSessionDetail(userId, sessionId);
     if (!session || session.status !== 'in_progress') {
       throw new Error('训练会话不存在或已结束');
@@ -1173,7 +1173,7 @@ class FitnessPlanDbService {
     return this.getSessionDetail(userId, sessionId);
   }
 
-  async completeSession(userId: number, sessionId: number, input: CompleteWorkoutInput) {
+  async completeSession(userId: string, sessionId: number, input: CompleteWorkoutInput) {
     const session = await this.getSessionDetail(userId, sessionId);
     if (!session) throw new Error('训练会话不存在');
     if (session.status !== 'in_progress') throw new Error('训练已结束');
@@ -1205,7 +1205,7 @@ class FitnessPlanDbService {
   }
 
   async listFoodItems(
-    userId: number,
+    userId: string,
     filters: { search?: string } = {},
   ): Promise<FoodItemRecord[]> {
     await this.ensureSystemFoodsSeeded();
@@ -1228,7 +1228,7 @@ class FitnessPlanDbService {
     return rows.map(mapFoodItem);
   }
 
-  async createFoodItem(userId: number, data: FoodItemFormData) {
+  async createFoodItem(userId: string, data: FoodItemFormData) {
     const [created] = await db
       .insert(foodItems)
       .values({
@@ -1244,7 +1244,7 @@ class FitnessPlanDbService {
     return mapFoodItem(created);
   }
 
-  async getDietDay(userId: number, logDate: string): Promise<DietDayPayload> {
+  async getDietDay(userId: string, logDate: string): Promise<DietDayPayload> {
     const profile = await this.getOrCreateProfile(userId);
     const log = await db.query.dietLogs.findFirst({
       where: and(eq(dietLogs.userId, userId), eq(dietLogs.logDate, logDate)),
@@ -1286,7 +1286,7 @@ class FitnessPlanDbService {
     };
   }
 
-  private async getOrCreateDietLog(userId: number, logDate: string) {
+  private async getOrCreateDietLog(userId: string, logDate: string) {
     const existing = await db.query.dietLogs.findFirst({
       where: and(eq(dietLogs.userId, userId), eq(dietLogs.logDate, logDate)),
     });
@@ -1301,7 +1301,7 @@ class FitnessPlanDbService {
     return created;
   }
 
-  private async ensureDietCheckin(userId: number, dietLogId: number, dateKey: string) {
+  private async ensureDietCheckin(userId: string, dietLogId: number, dateKey: string) {
     const existing = await db.query.dailyCheckins.findFirst({
       where: and(
         eq(dailyCheckins.userId, userId),
@@ -1320,7 +1320,7 @@ class FitnessPlanDbService {
     });
   }
 
-  async addDietEntry(userId: number, input: DietEntryInput) {
+  async addDietEntry(userId: string, input: DietEntryInput) {
     if (!input.foodName?.trim()) throw new Error('名称不能为空');
 
     const calories = input.calories ?? 0;
@@ -1356,7 +1356,7 @@ class FitnessPlanDbService {
     return this.getDietDay(userId, input.logDate);
   }
 
-  async updateDietEntry(userId: number, entryId: number, input: DietEntryUpdateInput) {
+  async updateDietEntry(userId: string, entryId: number, input: DietEntryUpdateInput) {
     const entry = await db.query.dietLogEntries.findFirst({
       where: eq(dietLogEntries.id, entryId),
     });
@@ -1389,7 +1389,7 @@ class FitnessPlanDbService {
     return this.getDietDay(userId, dateKey);
   }
 
-  async deleteDietEntry(userId: number, entryId: number) {
+  async deleteDietEntry(userId: string, entryId: number) {
     const entry = await db.query.dietLogEntries.findFirst({
       where: eq(dietLogEntries.id, entryId),
     });
@@ -1407,7 +1407,7 @@ class FitnessPlanDbService {
     return this.getDietDay(userId, dateKey);
   }
 
-  async createManualCheckin(userId: number, input: ManualCheckinInput) {
+  async createManualCheckin(userId: string, input: ManualCheckinInput) {
     const dateKey = input.date ?? formatDateKey(new Date());
     if (input.type !== 'daily' && input.type !== 'weight') {
       throw new Error('仅支持手动综合日打卡或体重打卡');
@@ -1436,7 +1436,7 @@ class FitnessPlanDbService {
     return this.getTodayCheckins(userId, new Date(`${dateKey}T12:00:00`));
   }
 
-  async removeManualCheckin(userId: number, dateKey: string, type: 'daily' | 'weight') {
+  async removeManualCheckin(userId: string, dateKey: string, type: 'daily' | 'weight') {
     await db
       .delete(dailyCheckins)
       .where(
@@ -1450,7 +1450,7 @@ class FitnessPlanDbService {
     return this.getTodayCheckins(userId, new Date(`${dateKey}T12:00:00`));
   }
 
-  async getCheckinHeatmap(userId: number, weeks = 12): Promise<CheckinHeatmapPayload> {
+  async getCheckinHeatmap(userId: string, weeks = 12): Promise<CheckinHeatmapPayload> {
     const endDate = formatDateKey(new Date());
     const startDate = shiftDateKey(endDate, -(weeks * 7 - 1));
 
@@ -1538,7 +1538,7 @@ class FitnessPlanDbService {
     return { weeks, startDate, endDate, streak, days };
   }
 
-  async getTodayOverview(userId: number, dateKey: string): Promise<TodayOverviewPayload> {
+  async getTodayOverview(userId: string, dateKey: string): Promise<TodayOverviewPayload> {
     const monthKey = dateKey.slice(0, 7);
 
     const [checkins, dietDay, activeRows, schedule] = await Promise.all([
@@ -1583,7 +1583,7 @@ class FitnessPlanDbService {
     };
   }
 
-  async getStatsOverview(userId: number, rangeDays = 30): Promise<StatsOverviewPayload> {
+  async getStatsOverview(userId: string, rangeDays = 30): Promise<StatsOverviewPayload> {
     const safeDays = Math.min(Math.max(rangeDays, 7), 180);
     const endDate = formatDateKey(new Date());
     const startDate = shiftDateKey(endDate, -(safeDays - 1));

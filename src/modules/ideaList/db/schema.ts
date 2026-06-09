@@ -8,7 +8,7 @@ import { users } from '@/lib/auth/schema';
  */
 export const ideaLists = pgTable('idea_lists', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 100 }).notNull(),
   description: text('description'),
   color: varchar('color', { length: 20 }).default('blue'), // 清单颜色主题

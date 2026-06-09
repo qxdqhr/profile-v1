@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useAuth } from 'sa2kit/auth/legacy';
+import { useAuth } from '@/auth/legacy';
 import {
   createSyncTask,
   downloadBatchSkills,

@@ -1,6 +1,6 @@
 'use client';
 
-import { AuthProvider } from 'sa2kit/auth/legacy';
+import { AuthProvider } from '@/auth/legacy';
 import type { ReactNode } from 'react';
 
 export default function TestFieldLayout({

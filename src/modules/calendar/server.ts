@@ -125,7 +125,7 @@ export function validateEventData(eventData: any): { valid: boolean; errors: str
   }
 
   // 验证用户ID
-  if (!eventData.userId || typeof eventData.userId !== 'number' || eventData.userId <= 0) {
+  if (!eventData.userId || typeof eventData.userId !== 'string' || eventData.userId.length === 0) {
     errors.push('用户ID无效');
   }
 
@@ -269,7 +269,7 @@ export function createSuccessResponse(data: any, message?: string): Response {
  */
 export async function checkEventPermission(
   eventId: number,
-  userId: number,
+  userId: string,
   requiredPermission: 'read' | 'write' = 'read'
 ): Promise<boolean> {
   try {
