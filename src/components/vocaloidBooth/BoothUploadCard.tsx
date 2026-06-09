@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { uploadModuleFile } from 'sa2kit/common/file';
+import { uploadModuleFile } from 'sa2kit/common/file/client';
 
 interface Props {
   onCreated?: (matchCode: string) => void;

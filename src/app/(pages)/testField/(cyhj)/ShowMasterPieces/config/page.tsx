@@ -1,5 +1,5 @@
-'use client';
+import ShowMasterPiecesConfigPage from '@/modules/showmasterpiece/ui/web/pages/config/page';
 
-import { ShowMasterPiecesConfigPage } from '@/modules/showmasterpiece';
+export const dynamic = 'force-dynamic';
 
 export default ShowMasterPiecesConfigPage;

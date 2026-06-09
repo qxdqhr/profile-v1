@@ -13,7 +13,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { uploadModuleFile } from 'sa2kit/common/file';
+import { uploadModuleFile } from 'sa2kit/common/file/client';
 
 interface UniversalImageUploadProps {
   /** 当前图片值（URL） */

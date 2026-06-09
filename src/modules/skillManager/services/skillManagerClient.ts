@@ -1,5 +1,5 @@
 import type { SkillDetail, SkillListResponse, SkillSource, SkillStatus, SkillSyncTask } from '../types';
-import { uploadModuleFile } from 'sa2kit/common/file';
+import { uploadModuleFile } from 'sa2kit/common/file/client';
 
 export type ConflictPolicy = 'skip' | 'overwrite';
 const UPLOAD_CONCURRENCY = 4;

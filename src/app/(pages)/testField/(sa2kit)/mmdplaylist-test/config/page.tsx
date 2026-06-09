@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { MmdAdminPanel } from 'sa2kit/mmd/admin';
-import { universalFileClient } from 'sa2kit/common/file';
+import { universalFileClient } from 'sa2kit/common/file/client';
 
 /**
  * MMD 后台管理页面

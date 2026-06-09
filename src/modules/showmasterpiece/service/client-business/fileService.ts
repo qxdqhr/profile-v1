@@ -8,14 +8,14 @@ export {
   getModuleFileAccessUrl,
   universalFileClient,
   createFileClient,
-} from 'sa2kit/common/file';
+} from 'sa2kit/common/file/client';
 
 import {
   shouldUseOssFileService,
   getOssStorageModeDisplayName,
   clearOssFileConfigCache,
   refreshOssFileConfigCache,
-} from 'sa2kit/common/file';
+} from 'sa2kit/common/file/client';
 
 function getShowmasterpieceItemsApiUrl(): string {
   const environment =

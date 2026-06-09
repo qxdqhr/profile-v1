@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { uploadModuleFile } from 'sa2kit/common/file';
+import { uploadModuleFile } from 'sa2kit/common/file/client';
 import {
   buildPersistedConfig,
   DEFAULT_HUARONGDAO_PERSISTED_CONFIG,
