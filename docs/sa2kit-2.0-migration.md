@@ -7,9 +7,9 @@
 
 | 阶段 | profile-v1 依赖 | 说明 |
 |------|-----------------|------|
-| 联调期 | `"sa2kit": "file:../sa2kit"` | 本地 alpha 联调 |
-| alpha 稳定后 | `"sa2kit": "^2.0.0-alpha.0"` | 锁定 alpha 范围 |
-| 2.0 stable | `"sa2kit": "^2.0.0"` | 生产可用 |
+| 当前 | `"sa2kit": "^2.0.0-beta.0"` | common API 冻结（R2-602 / PV2-009） |
+| 本地源码联调 | `pnpm.overrides.sa2kit = file:../sa2kit` | 仅开发机，勿提交生产锁 |
+| 2.0 stable | `"sa2kit": "^2.0.0"` | 生产默认可用 |
 
 > **sa2kit 本地联调**：`pnpm install` 默认仅构建 common（`prepare → build:common`）。需要 business subpath 时在 sa2kit 目录执行 `SA2KIT_WITH_BUSINESS=1 pnpm install` 或 `pnpm build`。
 
@@ -23,7 +23,9 @@
 | PV2-003 | 删除 `src/types/sa2kit.d.ts` 中 file 相关过度兜底 | R2-502 | ✅ |
 | PV2-004 | universal-file API routes 使用 ossFile bootstrap | R2-205 | ✅ |
 | PV2-005 | skill-manager / fitnessPlan / vocaloidBooth 走 common/file | R2-504 | ✅ |
-| PV2-006 | 创建 `docs/sa2kit-2.0-migration.md` 与 smoke 扩展 | R2-506 | ✅ |
+| PV2-006 | `scripts/smoke-file-api.sh` 全站文件 API 冒烟 | R2-506 | ✅ |
+| PV2-008 | 锁定 `sa2kit@^2.0.0-alpha.8` | R2-505 | ✅ |
+| PV2-009 | 升级 `sa2kit@^2.0.0-beta.0` | R2-602 | ✅ |
 
 ## import 替换对照（目标）
 
@@ -34,11 +36,12 @@
 | `sa2kit/ossFile` | `sa2kit/common/file` |
 | `sa2kit/ossFile/server` | `sa2kit/common/file/server` |
 | `sa2kit/logger` | `sa2kit/common/logger` |
-| `sa2kit/showmasterpiece/*` | `@/modules/showmasterpiece`（本地模块） |
+| `sa2kit/auth/legacy` | `sa2kit/auth/legacy`（legacy 暂留原路径） |
+| `sa2kit/auth/*`（新 API 内核） | `sa2kit/common/auth` / `sa2kit/common/auth/server` |
 
 ## 验收
 
 - [x] `rg 'sa2kit/universalFile' src/` 为零（docs 除外）
 - [x] `rg 'sa2kit/showmasterpiece' src/` 为零（docs 除外）
 - [x] `rg 'sa2kit/ossFile' src/` 为零（统一 common/file）
-- [ ] smoke 脚本覆盖 universal-file 上传/下载
+- [x] smoke 脚本覆盖 universal-file 路由（`scripts/smoke-file-api.sh`）
