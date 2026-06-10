@@ -5,6 +5,7 @@ import { spawn } from 'node:child_process';
 import postgres from 'postgres';
 
 const USER_ROLE_DROP_ERROR = 'cannot drop type "UserRole"';
+const PACKAGE_EXPORT_ERROR = 'ERR_PACKAGE_PATH_NOT_EXPORTED';
 
 async function verifyAuthSchema(): Promise<boolean> {
   const connectionString = process.env.DATABASE_URL;
@@ -69,6 +70,14 @@ async function runDrizzlePush(): Promise<{ code: number; output: string }> {
 async function main() {
   const { code, output } = await runDrizzlePush();
   const hasUserRoleDropBug = output.includes(USER_ROLE_DROP_ERROR);
+  const hasExportError = output.includes(PACKAGE_EXPORT_ERROR);
+
+  if (hasExportError) {
+    console.error(
+      '✗ drizzle-kit push 失败：schema 引用了 sa2kit 未导出的子路径（请改用 sa2kit/festivalCard/server 等正式 export）。',
+    );
+    process.exit(1);
+  }
 
   if (hasUserRoleDropBug) {
     const ok = await verifyAuthSchema();
