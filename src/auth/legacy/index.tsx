@@ -56,8 +56,7 @@ export function useAuth(): UseAuthReturn {
         return { success: false, message: result.error ?? '登录失败' };
       }
       await ctx.refreshSession();
-      const nextUser = mapSessionUser(ctx.user as Record<string, unknown> | null);
-      return { success: true, user: nextUser ?? undefined };
+      return { success: true };
     },
     [ctx],
   );

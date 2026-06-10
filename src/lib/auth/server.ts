@@ -1,19 +1,25 @@
-import { createSa2kitAuth } from 'sa2kit/common/auth/server';
+import { createSa2kitAuth, type Sa2kitAuthInstance } from 'sa2kit/common/auth/server';
 import { db } from '@/db/index';
+
+/** 避免 Next 构建期内联 env，Docker 运行时才能读到 --env-file */
+function readRuntimeEnv(key: string): string | undefined {
+  const value = process.env[key];
+  return value && value.length > 0 ? value : undefined;
+}
 
 function resolveAuthBaseUrl(): string {
   return (
-    process.env.BETTER_AUTH_URL ??
-    process.env.NEXT_PUBLIC_APP_URL ??
-    process.env.NEXTAUTH_URL ??
+    readRuntimeEnv('BETTER_AUTH_URL') ??
+    readRuntimeEnv('NEXT_PUBLIC_APP_URL') ??
+    readRuntimeEnv('NEXTAUTH_URL') ??
     'http://localhost:3000'
   );
 }
 
 function resolveAuthSecret(): string {
   const secret =
-    process.env.BETTER_AUTH_SECRET ??
-    process.env.NEXTAUTH_SECRET ??
+    readRuntimeEnv('BETTER_AUTH_SECRET') ??
+    readRuntimeEnv('NEXTAUTH_SECRET') ??
     'dev-better-auth-secret-min-32-chars!!';
   if (secret.length < 32) {
     throw new Error('BETTER_AUTH_SECRET 至少 32 字符');
@@ -21,14 +27,43 @@ function resolveAuthSecret(): string {
   return secret;
 }
 
-const baseURL = resolveAuthBaseUrl();
+function resolveTrustedOrigins(baseURL: string): string[] {
+  const fromEnv = readRuntimeEnv('BETTER_AUTH_TRUSTED_ORIGINS');
+  const defaults = [
+    baseURL,
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'https://qhr062.top',
+    'https://www.qhr062.top',
+  ];
 
-export const auth = createSa2kitAuth({
-  db,
-  baseURL,
-  secret: resolveAuthSecret(),
-  trustedOrigins: [baseURL, 'http://localhost:3000', 'http://127.0.0.1:3000'].filter(
+  const extra = fromEnv
+    ? fromEnv
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean)
+    : [];
+
+  return [...defaults, ...extra].filter(
     (origin, index, list) => list.indexOf(origin) === index,
-  ),
-  logOtpInDev: process.env.NODE_ENV !== 'production',
-});
+  );
+}
+
+let authInstance: Sa2kitAuthInstance | undefined;
+
+export function getAuth(): Sa2kitAuthInstance {
+  if (!authInstance) {
+    const baseURL = resolveAuthBaseUrl();
+    authInstance = createSa2kitAuth({
+      db,
+      baseURL,
+      secret: resolveAuthSecret(),
+      trustedOrigins: resolveTrustedOrigins(baseURL),
+      logOtpInDev: process.env.NODE_ENV !== 'production',
+    });
+  }
+  return authInstance;
+}
+
+/** 兼容现有 import { auth } */
+export const auth = getAuth();

@@ -45,13 +45,33 @@ jobs:
           docker push crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:${NEW_TAG}
 
       - name: Deploy to remote server
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           NEW_TAG=${{ github.run_number }}
           echo "${{ secrets.DEPLOY_SERVER_SSH_KEY }}" > /tmp/ssh_key
           chmod 600 /tmp/ssh_key
           ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key ${{ secrets.DEPLOY_SERVER_USERNAME }}@${{ secrets.DEPLOY_SERVER_HOST }} << EOF
+            set -e
+            echo "=== 部署前磁盘 ==="
+            df -h /
+            echo "=== 清理远端未使用镜像（保留运行中容器）==="
+            docker image prune -a -f || true
+            echo "=== 清理后磁盘 ==="
+            df -h /
             docker pull crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:${NEW_TAG}
             docker stop my_container || true
             docker rm my_container || true
-            docker run -d -p 3000:3000 --name my_container crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:${NEW_TAG}
+            if [ ! -f /root/profile-v1.env ]; then
+              echo "ERROR: /root/profile-v1.env 不存在，请先配置生产环境变量文件" >&2
+              exit 1
+            fi
+            docker run -d \
+              -p 3000:3000 \
+              --name my_container \
+              --restart unless-stopped \
+              --env-file /root/profile-v1.env \
+              crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:${NEW_TAG}
+            echo "=== 部署完成 ==="
+            docker ps --filter name=my_container
+            df -h /
           EOF
