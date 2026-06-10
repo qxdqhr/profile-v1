@@ -6,8 +6,8 @@
  */
 
 import React, { useState } from 'react';
-import { FXParser, FXViewer, exportFXToMarkdown, exportFXToJSON } from 'sa2kit/mmd';
-import type { FXEffect } from 'sa2kit/mmd';
+import { FXParser, FXViewer, exportFXToMarkdown, exportFXToJSON } from 'sa2kit/business/mmd';
+import type { FXEffect } from 'sa2kit/business/mmd';
 import Link from 'next/link';
 import './FXViewer.css';
 
@@ -348,7 +348,7 @@ export default function FXParserDemoPage() {
               padding: '1rem',
               borderRadius: '6px',
               overflow: 'auto',
-            }}>{`import { FXParser } from 'sa2kit/mmd/fx';
+            }}>{`import { FXParser } from 'sa2kit/business/mmd/fx';
 
 // 方法1: 从URL加载
 const parser = new FXParser();
@@ -370,7 +370,7 @@ console.log('控制器:', effect.controllers);`}</pre>
               padding: '1rem',
               borderRadius: '6px',
               overflow: 'auto',
-            }}>{`import { FXViewer } from 'sa2kit/mmd/fx';
+            }}>{`import { FXViewer } from 'sa2kit/business/mmd/fx';
 
 <FXViewer
   source="/effects/PAToon.fx"

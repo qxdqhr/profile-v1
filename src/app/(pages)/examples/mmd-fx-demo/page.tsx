@@ -6,8 +6,8 @@
  */
 
 import React, { useState, useRef } from 'react';
-import { MMDPlayerBase } from 'sa2kit/mmd';
-import type { MMDPlayerBaseRef, MMDResources, MMDStage } from 'sa2kit/mmd';
+import { MMDPlayerBase } from 'sa2kit/business/mmd';
+import type { MMDPlayerBaseRef, MMDResources, MMDStage } from 'sa2kit/business/mmd';
 import Link from 'next/link';
 
 export default function MMDFXDemoPage() {
@@ -264,7 +264,7 @@ export default function MMDFXDemoPage() {
               padding: '1rem',
               borderRadius: '6px',
               overflow: 'auto',
-            }}>{`import { MMDPlayerBase } from 'sa2kit/mmd';
+            }}>{`import { MMDPlayerBase } from 'sa2kit/business/mmd';
 
 <MMDPlayerBase
   resources={{

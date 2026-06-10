@@ -107,7 +107,7 @@ interface MMDPlaylistProps {
 ### 基础用法
 
 ```tsx
-import { MMDPlaylist, type MMDPlaylistConfig } from 'sa2kit/mmd';
+import { MMDPlaylist, type MMDPlaylistConfig } from 'sa2kit/business/mmd';
 
 const playlist: MMDPlaylistConfig = {
   id: 'my-playlist',

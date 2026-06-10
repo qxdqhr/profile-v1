@@ -9,8 +9,8 @@
  * - /test-yourself?configId=xxx - 使用指定配置
  */
 
-import { TestYourself } from 'sa2kit/testYourself';
-import type { TestConfig, TestResult } from 'sa2kit/testYourself';
+import { TestYourself } from 'sa2kit/business/testYourself';
+import type { TestConfig, TestResult } from 'sa2kit/business/testYourself';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 

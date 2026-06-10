@@ -1,4 +1,4 @@
-import { BackButton } from 'sa2kit/components';
+import { BackButton } from 'sa2kit/common/components';
 
 interface PageHeaderProps {
   counts: { all: number; utility: number; leisure: number; completed: number };

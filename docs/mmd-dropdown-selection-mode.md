@@ -75,7 +75,7 @@ interface MMDPlayerEnhancedProps {
 ### 基础用法
 
 ```typescript
-import { MMDPlayerEnhanced, type MMDResourceOptions } from 'sa2kit/mmd';
+import { MMDPlayerEnhanced, type MMDResourceOptions } from 'sa2kit/business/mmd';
 
 const resourceOptions: MMDResourceOptions = {
   models: [

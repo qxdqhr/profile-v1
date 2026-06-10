@@ -16,7 +16,7 @@
 | 类型补丁 | ~~`src/types/sa2kit-showmasterpiece*.d.ts`~~ | ✅ 已删除 |
 | Schema 挂载 | `src/db/schema/index.ts` re-export 模块内 schema | ✅ |
 
-**外部依赖（保留）**：`sa2kit/universalFile`（文件存储）、`sa2kit/auth/legacy`（管理端鉴权）、`@/services/universalExport`（预订导出）。
+**外部依赖（保留）**：`sa2kit/common/universalFile`（文件存储）、`sa2kit/auth/legacy`（管理端鉴权）、`@/services/universalExport`（预订导出）。
 
 ---
 
@@ -68,7 +68,7 @@ src/modules/showmasterpiece/
 | P2-1 | 复制 `logic/` | hooks、CartContext | ✅ |
 | P2-2 | 复制 `service/` | api client、bookingService 等 | ✅ |
 | P2-3 | 复制 `ui/web/` | 保留原目录层级 | ✅ |
-| P2-4 | 修正 `fileService.ts` → `sa2kit/universalFile/server` | 客户端配置辅助 | ✅ |
+| P2-4 | 修正 `fileService.ts` → `sa2kit/common/universalFile/server` | 客户端配置辅助 | ✅ |
 | P2-5 | 修正 `exportConfig.ts` → `@/services/universalExport/types` | ✅ |
 | P2-6 | 薄页面改 import `@/modules/showmasterpiece` | ShowMasterPieces 三页 | ✅ |
 | P2-7 | 删除 `sa2kit-showmasterpiece.d.ts` | ✅ |

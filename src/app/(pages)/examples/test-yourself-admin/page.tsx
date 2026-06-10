@@ -11,8 +11,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ConfigManager, ConfigList } from 'sa2kit/testYourself/admin';
-import { createConfigService } from 'sa2kit/testYourself/server';
+import { ConfigManager, ConfigList } from 'sa2kit/business/testYourself/admin';
+import { createConfigService } from 'sa2kit/business/testYourself/server';
 import { clsx } from 'clsx';
 
 export default function TestYourselfAdminPage() {
@@ -249,7 +249,7 @@ export default function TestYourselfAdminPage() {
           <h2 className="text-lg font-semibold text-white mb-3">📝 代码示例</h2>
           <pre className="text-sm text-gray-300">
             <code>{`// 1. 在页面中使用 TestYourself 组件
-import { TestYourself } from 'sa2kit/testYourself';
+import { TestYourself } from 'sa2kit/business/testYourself';
 
 function TestPage() {
   const searchParams = useSearchParams();
@@ -266,7 +266,7 @@ function TestPage() {
 }
 
 // 2. 创建配置管理页面
-import { ConfigManager, createConfigService } from 'sa2kit/testYourself';
+import { ConfigManager, createConfigService } from 'sa2kit/business/testYourself';
 
 const configService = createConfigService();
 

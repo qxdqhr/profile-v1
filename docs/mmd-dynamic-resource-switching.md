@@ -74,7 +74,7 @@ interface MMDPlayerEnhancedProps {
 适用于需要展示多个模型或多个舞蹈动作的场景。
 
 ```typescript
-import { MMDPlayerEnhanced, type MMDResourceItem } from 'sa2kit/mmd';
+import { MMDPlayerEnhanced, type MMDResourceItem } from 'sa2kit/business/mmd';
 
 const resourcesList: MMDResourceItem[] = [
   {
@@ -125,7 +125,7 @@ export default function MMDPage() {
 适用于只需要显示一个固定模型的场景。
 
 ```typescript
-import { MMDPlayerEnhanced } from 'sa2kit/mmd';
+import { MMDPlayerEnhanced } from 'sa2kit/business/mmd';
 
 const resources = {
   modelPath: '/mikutalking/models/YYB_Z6SakuraMiku/miku.pmx',

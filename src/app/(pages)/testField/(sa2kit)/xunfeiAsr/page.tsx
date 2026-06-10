@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BackButton } from 'sa2kit/components';
+import { BackButton } from 'sa2kit/common/components';
 
 const TARGET_SAMPLE_RATE = 16000;
 const BUFFER_SIZE = 4096;

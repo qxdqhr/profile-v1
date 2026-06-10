@@ -19,7 +19,7 @@ import {
   DialogueBoxTheme,
   MMDStage,
   ModelOption,
-} from 'sa2kit/mmd';
+} from 'sa2kit/business/mmd';
 
 // CDN 路径配置
 const CDN_BIGFILE_BASE_PATH = 'https://cdn.bigfile.qhr062.top';

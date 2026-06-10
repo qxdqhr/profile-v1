@@ -16,7 +16,7 @@ import {
   configureMaterialsForMMD,
   fullSphereDiagnostic,
   addDefaultSphereTextures
-} from 'sa2kit/mmd';
+} from 'sa2kit/business/mmd';
 
 export default function MMDLightingDebugDemoPage() {
   const containerRef = useRef<HTMLDivElement>(null);

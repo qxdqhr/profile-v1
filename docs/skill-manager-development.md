@@ -98,7 +98,7 @@
 
 参考现有链路：
 
-- 前端上传入口：`sa2kit/universalFile` 客户端能力
+- 前端上传入口：`sa2kit/common/universalFile` 客户端能力
 - 服务端上传入口：`/api/universal-file/upload`
 - 服务端文件能力：`UniversalFileService`
 

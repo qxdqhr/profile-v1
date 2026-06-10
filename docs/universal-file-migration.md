@@ -1,7 +1,7 @@
 # UniversalFile 迁移到 sa2kit 方案
 
 ## 目标
-将 `profile-v1` 中的文件上传相关代码统一封装到 `sa2kit/universalFile` 模块中,实现代码复用和统一维护。
+将 `profile-v1` 中的文件上传相关代码统一封装到 `sa2kit/common/universalFile` 模块中,实现代码复用和统一维护。
 
 ## 当前状态
 
@@ -22,7 +22,7 @@
 ## 迁移策略
 
 ### 阶段1: 补全 sa2kit 中缺失的方法 ✅ 正在进行
-1. 在 `sa2kit/universalFile/server/UniversalFileService.ts` 中添加:
+1. 在 `sa2kit/common/universalFile/server/UniversalFileService.ts` 中添加:
    - `downloadFile()` - 文件下载
    - `deleteFile()` - 文件删除  
    - `getFileUrl()` - 获取访问URL
@@ -43,15 +43,15 @@
 - 复用现有的 `db/schema.ts` 和 `db/services/fileDbService.ts`
 
 ### 阶段3: 更新 profile-v1 API 路由 ✅ 待执行  
-修改以下文件使用 `sa2kit/universalFile/server`:
+修改以下文件使用 `sa2kit/common/universalFile/server`:
 - `src/app/api/universal-file/upload/route.ts`
 - `src/app/api/universal-file/[fileId]/route.ts`
 - 保留 `src/services/universalFile/config/` (配置管理器)
 - 删除 `src/services/universalFile/UniversalFileService.ts`
 
 ### 阶段4: 整合 MMD 上传 ✅ 待执行
-- 将 `src/app/api/mmd/upload/models/route.ts` 中的上传逻辑整合到 `sa2kit/mmd/server`
-- 使用 `sa2kit/universalFile/server` 的 `UniversalFileService` 进行实际上传
+- 将 `src/app/api/mmd/upload/models/route.ts` 中的上传逻辑整合到 `sa2kit/business/mmd/server`
+- 使用 `sa2kit/common/universalFile/server` 的 `UniversalFileService` 进行实际上传
 - 保留 MMD 特有的 ZIP 处理逻辑
 
 ### 阶段5: 测试验证 ✅ 待执行
@@ -66,7 +66,7 @@
 
 ```typescript
 // src/app/api/universal-file/upload/route.ts
-import { UniversalFileService } from 'sa2kit/universalFile/server';
+import { UniversalFileService } from 'sa2kit/common/universalFile/server';
 import { createFileServiceConfigWithConfigManager } from '@/services/universalFile/config';
 import { createDrizzleFileRepository } from '@/services/universalFile/adapters/drizzleAdapter';
 
@@ -112,13 +112,13 @@ export async function POST(request: NextRequest) {
 ## 优点
 
 1. **统一维护**: 所有核心上传逻辑在 `sa2kit` 中维护
-2. **可复用**: 其他项目可以直接使用 `sa2kit/universalFile`
+2. **可复用**: 其他项目可以直接使用 `sa2kit/common/universalFile`
 3. **灵活配置**: `profile-v1` 保留自己的配置管理器,可以从数据库加载配置
 4. **渐进式迁移**: 可以逐步迁移,不影响现有功能
 
 ## 下一步
 
-1. 完善 `sa2kit/universalFile/server/UniversalFileService.ts`
+1. 完善 `sa2kit/common/universalFile/server/UniversalFileService.ts`
 2. 创建 `profile-v1` 的数据库适配器
 3. 更新 API 路由
 4. 测试验证

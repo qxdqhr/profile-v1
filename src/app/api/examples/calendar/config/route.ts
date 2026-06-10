@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createConfigHandler } from 'sa2kit/calendar/routes';
+import { createConfigHandler } from 'sa2kit/business/calendar/routes';
 import { db, isDatabaseAvailable } from '@/lib/examples/db';
 
 const useFactoryHandlers = isDatabaseAvailable() && Boolean(db);

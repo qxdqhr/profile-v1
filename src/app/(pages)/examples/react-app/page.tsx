@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useLocalStorage } from 'sa2kit/storage';
+import { useLocalStorage } from 'sa2kit/common/storage';
 import { clsx } from 'clsx';
 
 // 用户类型

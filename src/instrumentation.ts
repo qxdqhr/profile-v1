@@ -1,6 +1,6 @@
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
-    const { configureCalendarApiAuth } = await import('sa2kit/calendar/routes');
+    const { configureCalendarApiAuth } = await import('sa2kit/business/calendar/routes');
     const { getApiSessionUser } = await import('@/lib/auth/session');
 
     configureCalendarApiAuth(async (request) => {

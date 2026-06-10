@@ -2,7 +2,7 @@
 
 ## 概述
 
-本文档说明如何通过本地依赖的方式在项目中使用 `@sa2kit/mmd` 模块。
+本文档说明如何通过本地依赖的方式在项目中使用 `@sa2kit/business/mmd` 模块。
 
 ## 配置步骤
 
@@ -29,7 +29,7 @@ pnpm install
 ### 基本使用
 
 ```tsx
-import { MMDPlayer, defaultMMDPreset } from 'sa2kit/mmd';
+import { MMDPlayer, defaultMMDPreset } from 'sa2kit/business/mmd';
 
 export default function MyPage() {
   return (
@@ -46,7 +46,7 @@ export default function MyPage() {
 
 ### 使用预设
 
-sa2kit/mmd 提供了以下预设：
+sa2kit/business/mmd 提供了以下预设：
 
 1. **catchTheWavePreset** - 完整的MMD表演（模型+动作+相机+音频）
 2. **defaultMMDPreset** - 默认模型（仅模型，无动作）
@@ -57,7 +57,7 @@ import {
   MMDPlayer, 
   availableMMDPresets,
   catchTheWavePreset 
-} from 'sa2kit/mmd';
+} from 'sa2kit/business/mmd';
 
 export default function MyPage() {
   return (
@@ -74,7 +74,7 @@ export default function MyPage() {
 ### 自定义配置
 
 ```tsx
-import { MMDPlayer } from 'sa2kit/mmd';
+import { MMDPlayer } from 'sa2kit/business/mmd';
 
 export default function MyPage() {
   return (

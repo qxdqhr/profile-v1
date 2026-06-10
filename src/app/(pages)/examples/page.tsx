@@ -254,7 +254,7 @@ export default function Home() {
               AI LLM 对话框
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              测试 `sa2kit/ai/llm` 与 `sa2kit/ai/llm/ui/web`，支持 API Key 配置和弹窗对话。
+              测试 `sa2kit/common/ai/llm` 与 `sa2kit/common/ai/llm/ui/web`，支持 API Key 配置和弹窗对话。
             </p>
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-200 rounded-full text-sm">

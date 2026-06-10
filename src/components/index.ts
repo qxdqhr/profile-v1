@@ -30,4 +30,4 @@ export {
   TabsList,
   TabsTrigger,
   Textarea,
-} from 'sa2kit/components';
+} from 'sa2kit/common/components';
