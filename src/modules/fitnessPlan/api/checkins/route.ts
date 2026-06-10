@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { fitnessPlanDbService } from '@/modules/fitnessPlan/db/fitnessPlanDbService';
 import type { ManualCheckinInput } from '@/modules/fitnessPlan/types';
 import { formatDateKey } from '@/modules/fitnessPlan/types';
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) return NextResponse.json({ error: '未授权访问' }, { status: 401 });
 
     const body = (await request.json()) as ManualCheckinInput;
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) return NextResponse.json({ error: '未授权访问' }, { status: 401 });
 
     const date = request.nextUrl.searchParams.get('date') ?? formatDateKey(new Date());

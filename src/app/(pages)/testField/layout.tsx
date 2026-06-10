@@ -1,6 +1,6 @@
 'use client';
 
-import { AuthProvider } from '@/auth/legacy';
+import { AuthProvider } from '@/lib/auth';
 import type { ReactNode } from 'react';
 
 export default function TestFieldLayout({

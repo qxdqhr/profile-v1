@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Calculator, CalendarDays, List, LogIn, Settings } from 'lucide-react';
-import { UserMenu } from '@/auth/legacy';
+import { UserMenu } from '@/lib/auth';
 
 export type CalendarMainTab = 'calendar' | 'events' | 'tools' | 'settings';
 

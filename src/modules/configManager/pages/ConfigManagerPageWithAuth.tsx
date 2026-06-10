@@ -7,7 +7,7 @@
 'use client';
 
 import React from 'react';
-import { AuthProvider, AuthGuard } from '@/auth/legacy';
+import { AuthProvider, AuthGuard } from '@/lib/auth';
 import { ConfigManagerPage } from './ConfigManagerPage';
 import { PermissionGuard } from '../components/PermissionGuard';
 
@@ -15,7 +15,7 @@ export const ConfigManagerPageWithAuth: React.FC = () => {
   return (
     <AuthProvider>
       <AuthGuard requireAuth={true}>
-        <PermissionGuard requiredRole="admin">
+        <PermissionGuard requiredRole="ADMIN">
           <ConfigManagerPage />
         </PermissionGuard>
       </AuthGuard>

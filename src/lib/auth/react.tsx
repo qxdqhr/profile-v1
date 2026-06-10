@@ -1,6 +1,30 @@
 'use client';
 
-import { LoginModal, RegisterModal } from 'sa2kit/common/auth/components';
+import {
+  AuthProvider as Sa2kitAuthProvider,
+  useAuthContext,
+} from 'sa2kit/common/auth/react';
+import {
+  AuthGuard,
+  ForgotPasswordModal,
+  LoginModal,
+  RegisterModal,
+  UserMenu,
+} from 'sa2kit/common/auth/components';
+import { authClient } from '@/lib/auth/client';
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  return <Sa2kitAuthProvider authClient={authClient}>{children}</Sa2kitAuthProvider>;
+}
+
+export {
+  useAuthContext,
+  AuthGuard,
+  LoginModal,
+  RegisterModal,
+  ForgotPasswordModal,
+  UserMenu,
+};
 
 type LoginRegisterModalsProps = {
   loginOpen: boolean;

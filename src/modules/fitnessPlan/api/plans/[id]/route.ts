@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { fitnessPlanDbService } from '../../../db/fitnessPlanDbService';
 import type { WorkoutPlanFormData, WorkoutPlanStatus } from '../../../types';
 
@@ -9,7 +9,7 @@ interface RouteParams {
 
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
-    const user = await validateApiAuth(_request);
+    const user = await getApiSessionUser(_request);
     if (!user) return NextResponse.json({ error: '未授权访问' }, { status: 401 });
 
     const { id } = await params;
@@ -26,7 +26,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) return NextResponse.json({ error: '未授权访问' }, { status: 401 });
 
     const { id } = await params;
@@ -47,7 +47,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   try {
-    const user = await validateApiAuth(_request);
+    const user = await getApiSessionUser(_request);
     if (!user) return NextResponse.json({ error: '未授权访问' }, { status: 401 });
 
     const { id } = await params;

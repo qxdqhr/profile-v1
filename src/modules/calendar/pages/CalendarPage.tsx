@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useAuth, LoginRegisterModals } from '@/auth/legacy';
+import { useAuthContext, LoginRegisterModals } from '@/lib/auth';
 import { Plus } from 'lucide-react';
 import { ConfirmModal } from 'sa2kit/components';
 import { DateCalculatorTool } from '@/modules/dateCalculator';
@@ -89,7 +89,7 @@ function CalendarPageContent() {
   const themeStyle = useMemo(() => getThemeCssProperties(settings), [settings]);
 
   const { isMobile } = useDeviceType();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuthContext();
 
   const [eventListConfig, setEventListConfig] = useState<EventListConfig>({
     displayMode: EventListDisplayMode.LIST,

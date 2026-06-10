@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { fitnessPlanDbService } from '@/modules/fitnessPlan/db/fitnessPlanDbService';
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) return NextResponse.json({ error: '未授权访问' }, { status: 401 });
 
     const weeks = Number(request.nextUrl.searchParams.get('weeks') ?? 12);

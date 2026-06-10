@@ -13,7 +13,7 @@ import {
 } from '../lib/bookingServices';
 import { enforceBookingWriteRateLimit } from '../lib/bookingRateLimit';
 import { apiError, logRouteError } from '../lib/response';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 
 function credentialKey(qqNumber: string, phoneNumber: string): string {
   return `${qqNumber}:${phoneNumber}`;
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!, 10) : 20,
     };
 
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (isAdminUser(user)) {
       const result = await bookingQueryService.getBookingsList(params);
       return NextResponse.json(result);

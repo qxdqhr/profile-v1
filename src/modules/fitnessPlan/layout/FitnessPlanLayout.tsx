@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
 import 'animal-island-ui/style';
 import { Button, Card, Footer, Loading, Title } from 'animal-island-ui';
-import { AuthGuard, AuthProvider, UserMenu, useAuth } from '@/auth/legacy';
+import { AuthGuard, AuthProvider, UserMenu, useAuthContext } from '@/lib/auth';
 import { useFitnessPlanBootstrap } from '../hooks/useFitnessPlanBootstrap';
 import {
   FITNESS_MOBILE_NAV_ITEMS,
@@ -32,7 +32,7 @@ function resolveActiveNavId(pathname: string): string {
 
 function FitnessPlanShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuthContext();
   const profileLoading = useFitnessPlanStore((s) => s.profileLoading);
   const mobileMoreOpen = useFitnessPlanStore((s) => s.ui.mobileMoreOpen);
   const setMobileMoreOpen = useFitnessPlanStore((s) => s.setMobileMoreOpen);

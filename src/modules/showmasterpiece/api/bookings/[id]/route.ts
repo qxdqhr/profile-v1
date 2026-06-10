@@ -23,7 +23,7 @@ import {
   bookingQueryService,
 } from '../../lib/bookingServices';
 import { apiData, apiError, logRouteError } from '../../lib/response';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 
 export async function GET(
   request: NextRequest,
@@ -42,7 +42,7 @@ export async function GET(
       return apiError('预订不存在', 404);
     }
 
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (isAdminUser(user)) {
       return NextResponse.json(booking);
     }
@@ -106,7 +106,7 @@ export async function DELETE(
       return apiError('无效的预订ID', 400);
     }
 
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     const isAdmin = isAdminUser(user);
     const credentials = isAdmin ? null : await parseBookingCredentials(request);
 

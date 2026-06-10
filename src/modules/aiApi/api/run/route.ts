@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { registerCoreAiTasks } from '../../server/registerCoreTasks';
 import { runAiTask } from '../../server/runTask';
 import type { AiApiRunRequest } from '../types';
@@ -12,7 +12,7 @@ registerCoreAiTasks();
  * Body: { taskId, input, options? }
  */
 export async function POST(request: NextRequest) {
-  const user = await validateApiAuth(request);
+  const user = await getApiSessionUser(request);
   if (!user) {
     return Response.json(
       {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { envConfigService } from '../../services/envConfigService';
 
 /**
@@ -16,7 +16,7 @@ import { envConfigService } from '../../services/envConfigService';
 export async function GET(request: NextRequest) {
   try {
     // 验证用户权限
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) {
       return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // 验证用户权限
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) {
       return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }

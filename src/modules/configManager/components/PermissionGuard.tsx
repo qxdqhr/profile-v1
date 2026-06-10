@@ -7,7 +7,7 @@
 'use client';
 
 import React from 'react';
-import { useAuth } from '@/auth/legacy';
+import { useAuthContext } from '@/lib/auth';
 import { Shield, AlertTriangle } from 'lucide-react';
 
 interface PermissionGuardProps {
@@ -18,10 +18,10 @@ interface PermissionGuardProps {
 
 export const PermissionGuard: React.FC<PermissionGuardProps> = ({
   children,
-  requiredRole = 'admin',
+  requiredRole = 'ADMIN',
   fallback
 }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuthContext();
 
   // 检查用户是否有权限
   const hasPermission = () => {
@@ -30,7 +30,7 @@ export const PermissionGuard: React.FC<PermissionGuardProps> = ({
     }
 
     // 检查用户角色
-    if (user.role === 'admin' || user.role === 'super_admin') {
+    if (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') {
       return true;
     }
 

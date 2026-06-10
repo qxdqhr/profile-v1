@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { fitnessPlanDbService } from '../../db/fitnessPlanDbService';
 import type { FitnessProfileFormData } from '../../types';
 import { parseProfileNumbers } from '../../types';
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) {
       return NextResponse.json({ error: '未授权访问' }, { status: 401 });
     }
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) {
       return NextResponse.json({ error: '未授权访问' }, { status: 401 });
     }

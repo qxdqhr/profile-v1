@@ -19,7 +19,7 @@ import { PopupConfigManagement } from '../../components/PopupConfigManagement';
 import { SystemConfigManager } from '../../components/SystemConfigManager';
 import { shouldUseUniversalFileService, getStorageModeDisplayName } from '../../../../service/client-business/fileService';
 import { createCategory as createCategoryService } from '../../../../service/client-business/masterpiecesConfigService';
-import { AuthGuard, AuthProvider } from '@/auth/legacy';
+import { AuthGuard, AuthProvider } from '@/lib/auth';
 import {
   Button,
   Tabs, TabsContent, TabsList, TabsTrigger,

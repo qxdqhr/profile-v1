@@ -7,7 +7,7 @@
 'use client';
 
 import React from 'react';
-import { AuthProvider, AuthGuard } from '@/auth/legacy';
+import { AuthProvider, AuthGuard } from '@/lib/auth';
 import TestFieldPage from './TestFieldPage';
 import { PermissionGuard } from '../components/PermissionGuard';
 

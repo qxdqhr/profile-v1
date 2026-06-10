@@ -35,7 +35,7 @@ import { CartModal } from '../components/CartModal';
 import { CartButton } from '../components/CartButton';
 import { DeadlinePopupManager } from '../components/DeadlinePopup';
 import { CartProvider } from '../../../logic/contexts/CartContext';
-import { AuthProvider, useAuth, UserMenu, CustomMenuItem } from '@/auth/legacy';
+import { AuthProvider, useAuthContext, UserMenu } from '@/lib/auth';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components';
 import { sm, smCn } from '../../shared/theme';
 
@@ -71,7 +71,7 @@ function ShowMasterPiecesContent() {
   } = useMasterpieces();
 
   /** 获取用户认证状态和信息 */
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user } = useAuthContext();
   
   /** 系统配置状态 */
   const [config, setConfig] = useState<MasterpiecesConfig | null>(null);
@@ -172,7 +172,7 @@ function ShowMasterPiecesContent() {
    * - 用户ID为1（临时管理员）
    */
   const hasAdminAccess = useMemo(() => {
-    return isAuthenticated && (user?.role === 'admin' || user?.id === 1);
+    return isAuthenticated && (user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN');
   }, [isAuthenticated, user?.role, user?.id]);
 
   // ===== 事件处理函数 =====

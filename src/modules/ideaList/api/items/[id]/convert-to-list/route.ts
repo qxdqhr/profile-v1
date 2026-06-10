@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { ideaLists, ideaItems } from '@/db/schema';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { eq } from 'drizzle-orm';
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

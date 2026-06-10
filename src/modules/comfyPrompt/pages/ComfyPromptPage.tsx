@@ -16,7 +16,7 @@ import {
   Wand2,
   Workflow,
 } from 'lucide-react';
-import { AuthGuard, AuthProvider, UserMenu } from '@/auth/legacy';
+import { AuthGuard, AuthProvider, UserMenu } from '@/lib/auth';
 import { useComfyPromptData } from '../hooks/useComfyPromptData';
 import { buildPromptString, formatPromptSegment, parseTagsInput, tagsToInput } from '../utils/buildPrompt';
 import type {

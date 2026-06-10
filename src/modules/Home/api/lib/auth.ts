@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateApiAuth } from '@/lib/auth/legacy';
-import type { User } from '@/lib/auth/types';
+import { getApiSessionUser } from '@/lib/auth/session';
+import type { SessionUser } from '@/lib/auth/session';
 
 export async function requireAuth(
   request: NextRequest,
-): Promise<User | NextResponse> {
-  const user = await validateApiAuth(request);
+): Promise<SessionUser | NextResponse> {
+  const user = await getApiSessionUser(request);
   if (!user) {
     return NextResponse.json(
       { success: false, error: '未授权的访问，请先登录' },
@@ -16,7 +16,7 @@ export async function requireAuth(
 }
 
 export function isAuthFailure(
-  result: User | NextResponse,
+  result: SessionUser | NextResponse,
 ): result is NextResponse {
   return result instanceof NextResponse;
 }

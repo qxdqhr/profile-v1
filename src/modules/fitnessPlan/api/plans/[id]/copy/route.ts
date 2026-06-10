@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { fitnessPlanDbService } from '../../../../db/fitnessPlanDbService';
 
 interface RouteParams {
@@ -8,7 +8,7 @@ interface RouteParams {
 
 export async function POST(_request: NextRequest, { params }: RouteParams) {
   try {
-    const user = await validateApiAuth(_request);
+    const user = await getApiSessionUser(_request);
     if (!user) return NextResponse.json({ error: '未授权访问' }, { status: 401 });
 
     const { id } = await params;

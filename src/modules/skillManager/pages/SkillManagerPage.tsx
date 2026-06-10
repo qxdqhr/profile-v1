@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useAuth } from '@/auth/legacy';
+import { useAuthContext } from '@/lib/auth';
 import {
   createSyncTask,
   downloadBatchSkills,
@@ -78,8 +78,8 @@ function getAllowedAdminSources(): SkillSource[] {
 }
 
 export default function SkillManagerPage() {
-  const { user } = useAuth();
-  const isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
+  const { user } = useAuthContext();
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
 
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');

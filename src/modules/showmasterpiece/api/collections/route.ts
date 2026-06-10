@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { collectionsDbService } from '@/modules/showmasterpiece/masterpiecesDbService';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { isAuthFailure, requireAdmin } from '../lib/auth';
 import { apiError, handleRouteError, logRouteError } from '../lib/response';
 import { applyCollectionsCacheHeaders } from '../lib/collectionCache';
@@ -24,7 +24,7 @@ import '@/modules/showmasterpiece/init';
 export async function GET(request: NextRequest) {
   try {
     // 尝试验证用户权限，但不强制要求
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     routeDebug('🔐 [collections] 用户认证状态:', user ? '已登录' : '未登录');
 
     const searchParams = request.nextUrl.searchParams;

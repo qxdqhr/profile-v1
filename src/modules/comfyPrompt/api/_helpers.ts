@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 
 export async function requireAuthUser(request: Request) {
-  const user = await validateApiAuth(request);
+  const user = await getApiSessionUser(request);
   if (!user) {
     return { user: null, response: NextResponse.json({ success: false, message: '未授权访问' }, { status: 401 }) };
   }

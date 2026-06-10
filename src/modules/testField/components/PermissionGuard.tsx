@@ -7,7 +7,7 @@
 'use client';
 
 import React from 'react';
-import { useAuth } from '@/auth/legacy';
+import { useAuthContext } from '@/lib/auth';
 import { Shield, AlertTriangle } from 'lucide-react';
 
 interface PermissionGuardProps {
@@ -19,7 +19,7 @@ export const PermissionGuard: React.FC<PermissionGuardProps> = ({
   children,
   fallback
 }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuthContext();
 
   // 检查用户是否有权限（所有登录用户都可以访问实验田）
   const hasPermission = () => {

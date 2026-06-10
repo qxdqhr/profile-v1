@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { listOpenAiCompatibleModels } from '../../server/listModels';
 import type { AiModelsListRequest, AiModelsListResponse } from '../../types/models';
 
@@ -9,7 +9,7 @@ import type { AiModelsListRequest, AiModelsListResponse } from '../../types/mode
  * Body: { clientSettings? }
  */
 export async function POST(request: NextRequest) {
-  const user = await validateApiAuth(request);
+  const user = await getApiSessionUser(request);
   if (!user) {
     return Response.json(
       {

@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { fileTransferService } from '../../services/fileTransferService';
 
 /**
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   
   try {
     // 验证用户权限
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) {
       return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
   
   try {
     // 验证用户权限
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) {
       return NextResponse.json({ 
         success: false,
@@ -180,7 +180,7 @@ export async function DELETE(request: NextRequest) {
   
   try {
     // 验证用户权限
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) {
       return NextResponse.json({ 
         success: false,

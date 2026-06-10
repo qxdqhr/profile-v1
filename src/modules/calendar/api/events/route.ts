@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { calendarDbService } from '../../server';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 
 /**
  * 获取用户的日历事件
@@ -9,7 +9,7 @@ import { validateApiAuth } from '@/lib/auth/legacy';
 export async function GET(request: NextRequest) {
   try {
     // 验证用户身份
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) {
       return Response.json(
         { success: false, error: '未授权访问' },
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // 验证用户身份
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) {
       return Response.json(
         { success: false, error: '未授权访问' },

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ideaListDbService } from '../../db/ideaListDbService';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 import type { IdeaItemFormData } from '../../types';
 
 /**
@@ -10,7 +10,7 @@ import type { IdeaItemFormData } from '../../types';
 export async function GET(request: NextRequest) {
   try {
     // 验证用户身份
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) {
       return NextResponse.json(
         { success: false, message: '未授权访问' },
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // 验证用户身份
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) {
       return NextResponse.json(
         { success: false, message: '未授权访问' },

@@ -11,7 +11,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, CloudUpload, FileIcon, Lock, Shield, Sparkles, Zap } from 'lucide-react';
 import { FileTransferCard } from '../components/FileTransferCard';
 import { FileUploader } from '../components/FileUploader';
-import { AuthProvider, useAuth, UserMenu } from '@/auth/legacy';
+import { AuthProvider, useAuthContext, UserMenu } from '@/lib/auth';
 import type { FileTransfer } from '../types';
 
 /**
@@ -19,7 +19,7 @@ import type { FileTransfer } from '../types';
  * 需要在AuthProvider包装器内使用
  */
 function FileTransferContent() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user } = useAuthContext();
   const [transfers, setTransfers] = useState<FileTransfer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

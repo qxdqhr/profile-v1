@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { parseSkillFrontmatter, validateSkillMarkdownContent } from '@/modules/skillManager/services/skillMarkdown';
 import { getSkillFileByRelativePath, listSkillFiles, readMeta, readTextFileById, uploadSkillFile } from '../../_fileStore';
 
@@ -45,7 +45,7 @@ function normalizeStatus(status: unknown): SkillStatus {
 }
 
 function isAdminUser(user: AuthUser): boolean {
-  return user?.role === 'admin' || user?.role === 'super_admin';
+  return user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
 }
 
 function getAllowedAdminSources(): SkillSource[] {
@@ -106,7 +106,7 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
     if (validationError) return NextResponse.json({ error: validationError }, { status: 400 });
 
     if (body.source !== undefined) {
-      const user = (await validateApiAuth(request)) as AuthUser;
+      const user = (await getApiSessionUser(request)) as AuthUser;
       if (!user) return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
       if (!isAdminUser(user)) return NextResponse.json({ error: 'source 仅管理员可修改' }, { status: 403 });
       const allowedSources = getAllowedAdminSources();
@@ -122,7 +122,7 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
       source: body.source ? normalizeSource(body.source) : prevMeta.source,
       status: body.status ? normalizeStatus(body.status) : prevMeta.status
     };
-    const uploader = (await validateApiAuth(request)) as AuthUser;
+    const uploader = (await getApiSessionUser(request)) as AuthUser;
     const uploaded = await uploadSkillFile({
       skillId: id,
       relativePath: 'SKILL.md',

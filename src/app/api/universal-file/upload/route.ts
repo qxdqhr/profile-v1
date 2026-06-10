@@ -3,7 +3,7 @@ import {
   uploadFileAndResolveAccessUrl,
   resolveUploadFolderPathFromFormData,
 } from 'sa2kit/common/file/server';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 import {
   createProfilePersistentFileService,
   getProfileOssFileBootstrap,
@@ -15,7 +15,7 @@ import {
  */
 export async function POST(request: NextRequest) {
   try {
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) {
       return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }

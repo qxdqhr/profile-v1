@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 
 /**
  * GET /api/filetransfer/collections/:id
@@ -20,7 +20,7 @@ export async function GET(
   
   try {
     // 验证用户权限
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) {
       console.log('❌ [API/collections/:id] 未授权的访问');
       return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
@@ -66,7 +66,7 @@ export async function PUT(
   
   try {
     // 验证用户权限
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) {
       console.log('❌ [API/collections/:id] 未授权的访问');
       return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
@@ -129,7 +129,7 @@ export async function DELETE(
   
   try {
     // 验证用户权限
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) {
       console.log('❌ [API/collections/:id] 未授权的访问');
       return NextResponse.json({ error: '未授权的访问' }, { status: 401 });

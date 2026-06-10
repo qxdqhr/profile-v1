@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { fileTransferDbService } from '../../../db/fileTransferDbService';
 import { fileTransferService } from '../../../services/fileTransferService';
 import { readFile } from 'fs/promises';
@@ -22,7 +22,7 @@ export async function GET(
 ) {
   try {
     // 验证用户权限
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) {
       return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }

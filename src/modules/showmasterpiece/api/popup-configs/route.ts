@@ -11,7 +11,7 @@ import { popupConfigService } from '@/modules/showmasterpiece/popupConfigService
 import { isAdminUser, isAuthFailure, requireAdmin } from '../lib/auth';
 import { apiError, apiFail, handleRouteError } from '../lib/response';
 import { routeDebug } from '../lib/routeLog';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 type NewPopupConfig = any;
 
 /**
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     if (enabledOnly && businessScene) {
       configs = await popupConfigService.getEnabledPopupConfigs(businessModule, businessScene);
     } else {
-      const user = await validateApiAuth(request);
+      const user = await getApiSessionUser(request);
       if (!isAdminUser(user)) {
         return apiError('需要管理员权限', 403);
       }

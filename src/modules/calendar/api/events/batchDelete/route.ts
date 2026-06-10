@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { calendarDbService } from '../../../server';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 
 /**
  * 批量删除日历事件
@@ -9,7 +9,7 @@ import { validateApiAuth } from '@/lib/auth/legacy';
 export async function DELETE(request: NextRequest) {
   try {
     // 验证用户身份
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) {
       return Response.json(
         { success: false, error: '未授权访问' },

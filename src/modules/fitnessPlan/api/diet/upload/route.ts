@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateApiAuth } from '@/lib/auth/legacy';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { DietUploadError, uploadDietImageToOss } from '@/modules/fitnessPlan/services/dietUploadService';
 
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
@@ -7,7 +7,7 @@ const MAX_SIZE = 10 * 1024 * 1024;
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await validateApiAuth(request);
+    const user = await getApiSessionUser(request);
     if (!user) return NextResponse.json({ error: '未授权访问' }, { status: 401 });
 
     const formData = await request.formData();

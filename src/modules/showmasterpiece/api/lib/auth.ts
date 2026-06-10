@@ -1,19 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateApiAuth } from '@/lib/auth/legacy';
-import type { User } from '@/lib/auth/types';
+import { getApiSessionUser, isAdminRole, type SessionUser } from '@/lib/auth/session';
 
-const ADMIN_ROLES = new Set(['admin', 'super_admin']);
-
-export function isAdminUser(user: User | null): boolean {
-  if (!user) return false;
-  return ADMIN_ROLES.has(String(user.role));
+export function isAdminUser(user: SessionUser | null): boolean {
+  return isAdminRole(user?.role);
 }
 
 /** 已登录即可 */
 export async function requireAuth(
   request: NextRequest,
-): Promise<User | NextResponse> {
-  const user = await validateApiAuth(request);
+): Promise<SessionUser | NextResponse> {
+  const user = await getApiSessionUser(request);
   if (!user) {
     return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
   }
@@ -23,8 +19,8 @@ export async function requireAuth(
 /** 管理员（admin / super_admin） */
 export async function requireAdmin(
   request: NextRequest,
-): Promise<User | NextResponse> {
-  const user = await validateApiAuth(request);
+): Promise<SessionUser | NextResponse> {
+  const user = await getApiSessionUser(request);
   if (!user) {
     return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
   }
@@ -35,7 +31,7 @@ export async function requireAdmin(
 }
 
 export function isAuthFailure(
-  result: User | NextResponse,
+  result: SessionUser | NextResponse,
 ): result is NextResponse {
   return result instanceof NextResponse;
 }

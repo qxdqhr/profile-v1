@@ -7,15 +7,16 @@
 'use client';
 
 import React from 'react';
-import { useAuth } from '@/auth/legacy';
+import { useAuthContext } from '@/lib/auth';
 import { LogOut, User, Settings } from 'lucide-react';
 
 export const UserInfoBar: React.FC = () => {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, signOut, refreshSession, isAuthenticated } = useAuthContext();
 
   const handleLogout = async () => {
     try {
-      await logout();
+      await signOut();
+      await refreshSession();
       // 登出后重定向到首页
       window.location.href = '/';
     } catch (error) {
