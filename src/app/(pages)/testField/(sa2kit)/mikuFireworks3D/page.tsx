@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { MikuFireworks3D } from 'sa2kit/mikuFireworks3D';
+import { MikuFireworks3D } from 'sa2kit/business/mikuFireworks3D';
 
 type SyncEventType = 'launch' | 'danmaku';
 

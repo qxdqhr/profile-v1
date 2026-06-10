@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import { MmdAdminPanel } from 'sa2kit/mmd/admin';
+import { MmdAdminPanel } from 'sa2kit/business/mmd/admin';
 import { universalFileClient } from 'sa2kit/common/file/client';
 
 /**

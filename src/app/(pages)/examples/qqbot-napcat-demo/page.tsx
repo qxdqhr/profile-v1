@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { NapCatConsole } from 'sa2kit/qqbot/ui/web';
+import { NapCatConsole } from 'sa2kit/business/qqbot/ui/web';
 
 export default function QqbotNapCatDemoPage() {
   return (

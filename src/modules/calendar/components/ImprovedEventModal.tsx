@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Modal } from 'sa2kit/components';
+import { Modal } from 'sa2kit/common/components';
 import { AlertCircle, Copy, Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
 import {
   EventType,

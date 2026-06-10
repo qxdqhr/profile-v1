@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { MMDARPlayer } from 'sa2kit/mmd';
-import type { ModelPreset, MotionPreset, AudioPreset } from 'sa2kit/mmd';
+import { MMDARPlayer } from 'sa2kit/business/mmd';
+import type { ModelPreset, MotionPreset, AudioPreset } from 'sa2kit/business/mmd';
 
 const CDN_BASE_PATH = 'https://cdn.qhr062.top';
 const CDN_BIGFILE_BASE_PATH = 'https://cdn.bigfile.qhr062.top'

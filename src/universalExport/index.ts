@@ -3,11 +3,11 @@ export {
   UniversalExportButton,
   UniversalExportClient,
   universalExportClient,
-} from 'sa2kit/universalExport/client';
+} from 'sa2kit/common/universalExport/client';
 
 export type {
   ExportResult,
   ExportConfig,
   ExportField,
   UniversalExportButtonProps,
-} from 'sa2kit/universalExport/client';
+} from 'sa2kit/common/universalExport/client';

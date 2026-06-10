@@ -6,8 +6,8 @@
  * Test Yourself Game - Example Page
  */
 
-import { TestYourself } from 'sa2kit/testYourself';
-import type { TestConfig, TestResult } from 'sa2kit/testYourself';
+import { TestYourself } from 'sa2kit/business/testYourself';
+import type { TestConfig, TestResult } from 'sa2kit/business/testYourself';
 
 export default function TestYourselfPage() {
   const config: TestConfig = {

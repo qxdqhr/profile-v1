@@ -24,8 +24,8 @@ import {
   Plus,
   X,
 } from 'lucide-react';
-import { createConfigService } from 'sa2kit/testYourself/server';
-import type { SavedConfig, TestResult } from 'sa2kit/testYourself';
+import { createConfigService } from 'sa2kit/business/testYourself/server';
+import type { SavedConfig, TestResult } from 'sa2kit/business/testYourself';
 
 // 模拟 UniversalFile 客户端（后续会替换为真实实现）
 interface UploadedFile {

@@ -157,7 +157,7 @@ export const experiments: ExperimentItem[] = [
   {
     id: "mmd-test-playground",
     title: "MMD 功能测试场",
-    description: "基于 sa2kit/mmd 的MMD播放器测试页面，封装所有逻辑，仅需传入配置即可使用",
+    description: "基于 sa2kit/business/mmd 的MMD播放器测试页面，封装所有逻辑，仅需传入配置即可使用",
     path: "/testField/mmdTest",
     tags: ["3D", "MMD", "测试", "SA2Kit"],
     category: "utility",
@@ -473,7 +473,7 @@ export const experiments: ExperimentItem[] = [
   {
     id: "bubble-shooter",
     title: "泡泡龙（初版）",
-    description: "体验 sa2kit/bubbleShooter 初版能力，支持瞄准发射、同色连消与悬空掉落",
+    description: "体验 sa2kit/business/bubbleShooter 初版能力，支持瞄准发射、同色连消与悬空掉落",
     path: "/testField/bubbleShooter",
     tags: ["SA2Kit", "泡泡龙", "小游戏", "连消"],
     category: "leisure",
@@ -528,7 +528,7 @@ export const experiments: ExperimentItem[] = [
   {
     id: "miku-contest",
     title: "Miku Contest 供稿系统",
-    description: "测试 sa2kit/mikuContest 的观众端、画师端、管理员端页面骨架与路由联通",
+    description: "测试 sa2kit/business/mikuContest 的观众端、画师端、管理员端页面骨架与路由联通",
     path: "/testField/mikuContest",
     tags: ["SA2Kit", "投稿", "投票", "管理后台"],
     category: "utility",

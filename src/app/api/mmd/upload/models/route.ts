@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import { nanoid } from 'nanoid';
-import { processMmdModelArchive, MMD_MODEL_ARCHIVE_MIME_TYPES } from 'sa2kit/mmd/server';
+import { processMmdModelArchive, MMD_MODEL_ARCHIVE_MIME_TYPES } from 'sa2kit/business/mmd/server';
 import { MMDModelsDbService, MMDAnimationsDbService, MMDAudiosDbService } from '@/modules/mmd/db/mmdDbService';
 
 // 支持的MMD文件类型

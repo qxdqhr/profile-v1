@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Modal } from 'sa2kit/components';
+import { Modal } from 'sa2kit/common/components';
 import { SoundType, SOUND_TYPES, SOUND_TYPE_COLORS } from '../types';
 
 interface SoundLibraryItem {

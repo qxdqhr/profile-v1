@@ -7,7 +7,7 @@
 
 import React, { useState } from 'react';
 import { clsx } from 'clsx';
-import { useLocalStorage } from 'sa2kit/storage';
+import { useLocalStorage } from 'sa2kit/common/storage';
 
 export default function BasicUsagePage() {
   return (
@@ -48,7 +48,7 @@ export default function BasicUsagePage() {
             <h2 className="text-2xl font-bold mb-4">代码示例</h2>
             <div className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
               <pre className="text-sm">
-{`import { useLocalStorage } from 'sa2kit/storage';
+{`import { useLocalStorage } from 'sa2kit/common/storage';
 
 function ThemeToggle() {
   const [theme, setTheme] = useLocalStorage('theme', 'light');

@@ -1,6 +1,6 @@
 # FX文件解析器演示页面
 
-这是一个完整的FX文件解析器演示应用，展示了如何使用 `sa2kit/mmd/fx` 模块解析MME效果文件。
+这是一个完整的FX文件解析器演示应用，展示了如何使用 `sa2kit/business/mmd/fx` 模块解析MME效果文件。
 
 ## 📍 访问地址
 
@@ -42,7 +42,7 @@ import {
   FXViewer,           // React可视化组件
   exportFXToJSON,     // JSON导出工具
   exportFXToMarkdown  // Markdown导出工具
-} from 'sa2kit/mmd/fx';
+} from 'sa2kit/business/mmd/fx';
 ```
 
 ### 核心代码示例

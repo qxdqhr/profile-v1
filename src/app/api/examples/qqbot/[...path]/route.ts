@@ -1,4 +1,4 @@
-import { NapCatClient, createNextNapCatRouteHandler } from 'sa2kit/qqbot/server';
+import { NapCatClient, createNextNapCatRouteHandler } from 'sa2kit/business/qqbot/server';
 
 const client = new NapCatClient({
   // Default to NapCat common local HTTP port to avoid accidentally looping back to Next.js app (:3000).

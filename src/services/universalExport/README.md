@@ -44,7 +44,7 @@ src/services/universalExport/
 ├── UniversalExportService.ts # 核心服务类
 └── index.ts                  # 模块入口
 
-src@sa2kit/components/UniversalExport/
+src@sa2kit/common/components/UniversalExport/
 ├── ExportConfigEditor.tsx    # 配置编辑器组件
 ├── UniversalExportButton.tsx # 导出按钮组件
 └── index.ts                  # 组件入口
@@ -56,7 +56,7 @@ src@sa2kit/components/UniversalExport/
 
 ```typescript
 import { UniversalExportService } from '@/services/universalExport';
-import { UniversalExportButton } from '@sa2kit/components/UniversalExport';
+import { UniversalExportButton } from '@sa2kit/common/components/UniversalExport';
 ```
 
 ### 2. 定义字段配置
@@ -102,7 +102,7 @@ const EXPORT_FIELDS: ExportField[] = [
 
 ```typescript
 import { UniversalExportService } from '@/services/universalExport';
-import { UniversalExportButton } from '@sa2kit/components/UniversalExport';
+import { UniversalExportButton } from '@sa2kit/common/components/UniversalExport';
 
 const MyComponent = () => {
   const exportService = new UniversalExportService();
