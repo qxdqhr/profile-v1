@@ -57,10 +57,60 @@ export interface ComfyWorkflow {
   name: string;
   description: string | null;
   workflowJson: Record<string, unknown>;
+  positiveNodeId: string | null;
+  negativeNodeId: string | null;
+  seedNodeId: string | null;
   tags: string[];
   notes: string | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export type ComfyJobStatus =
+  | 'pending'
+  | 'queued'
+  | 'running'
+  | 'success'
+  | 'failed'
+  | 'cancelled';
+
+export interface ComfyJobOutputImage {
+  filename: string;
+  subfolder: string;
+  type: string;
+}
+
+export interface ComfyServer {
+  id: number;
+  userId: string;
+  name: string;
+  baseUrl: string;
+  isDefault: boolean;
+  enabled: boolean;
+  lastCheckAt: Date | null;
+  lastCheckOk: boolean | null;
+  lastError: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ComfyJob {
+  id: number;
+  userId: string;
+  serverId: number;
+  workflowId: number | null;
+  clientId: string;
+  promptId: string | null;
+  status: ComfyJobStatus;
+  positivePrompt: string | null;
+  negativePrompt: string | null;
+  requestJson: Record<string, unknown> | null;
+  responseJson: Record<string, unknown> | null;
+  outputImages: ComfyJobOutputImage[];
+  errorMessage: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  completedAt: Date | null;
 }
 
 export interface PromptGroupFormData {
@@ -93,8 +143,34 @@ export interface WorkflowFormData {
   name: string;
   description?: string;
   workflowJson: Record<string, unknown>;
+  positiveNodeId?: string | null;
+  negativeNodeId?: string | null;
+  seedNodeId?: string | null;
   tags?: string[];
   notes?: string;
+}
+
+export interface ServerFormData {
+  name: string;
+  baseUrl: string;
+  isDefault?: boolean;
+  enabled?: boolean;
+}
+
+export interface SubmitJobFormData {
+  serverId: number;
+  workflowId: number;
+  positivePrompt?: string;
+  negativePrompt?: string;
+  seed?: number;
+}
+
+export const COMFY_RUN_DRAFT_KEY = 'comfyPrompt:runDraft';
+
+export interface ComfyRunDraft {
+  positivePrompt?: string;
+  negativePrompt?: string;
+  workflowId?: number;
 }
 
 export interface BuildPromptOptions {

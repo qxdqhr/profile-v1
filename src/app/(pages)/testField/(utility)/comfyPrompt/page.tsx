@@ -1,3 +1,5 @@
-import { ComfyPromptPage } from '@/modules/comfyPrompt';
+import { redirect } from 'next/navigation';
 
-export default ComfyPromptPage;
+export default function ComfyPromptIndexPage() {
+  redirect('/testField/comfyPrompt/prompts');
+}

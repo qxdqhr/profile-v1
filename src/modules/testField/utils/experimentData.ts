@@ -136,9 +136,9 @@ export const experiments: ExperimentItem[] = [
   },
   {
     id: "comfy-prompt",
-    title: "ComfyUI 提示词工作台",
-    description: "配合 ComfyUI 使用的在线提示词整理工具：管理提示词、分组 Tag、提示词组、工作流 JSON，一键生成可复制 Prompt",
-    path: "/testField/comfyPrompt",
+    title: "ComfyUI 管理",
+    description: "提示词资产 + 远程运行：管理提示词/工作流 JSON，经后端代理提交 ComfyUI 任务（v1 HTTP 轮询出图）",
+    path: "/testField/comfyPrompt/prompts",
     tags: ["ComfyUI", "AI绘画", "提示词", "工作流", "Stable Diffusion"],
     category: "utility",
     isCompleted: true,

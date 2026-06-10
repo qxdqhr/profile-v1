@@ -1,22 +1,29 @@
 import { db } from '@/db';
 import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm';
 import {
+  comfyJobs,
   comfyPromptGroups,
   comfyPrompts,
   comfyPromptSetItems,
   comfyPromptSets,
+  comfyServers,
   comfyWorkflows,
 } from './schema';
 import type {
+  ComfyJob,
+  ComfyJobOutputImage,
+  ComfyJobStatus,
   ComfyPrompt,
   ComfyPromptGroup,
   ComfyPromptSet,
   ComfyPromptSetItem,
+  ComfyServer,
   ComfyWorkflow,
   PromptGroupFormData,
   PromptFormData,
   PromptKind,
   PromptSetFormData,
+  ServerFormData,
   WorkflowFormData,
 } from '../types';
 
@@ -266,7 +273,7 @@ class ComfyPromptDbService {
       .from(comfyWorkflows)
       .where(eq(comfyWorkflows.userId, userId))
       .orderBy(desc(comfyWorkflows.updatedAt));
-    return rows.map((row) => ({ ...row, tags: row.tags ?? [] }));
+    return rows.map(normalizeWorkflow);
   }
 
   async getWorkflowById(userId: string, id: number): Promise<ComfyWorkflow | null> {
@@ -274,7 +281,7 @@ class ComfyPromptDbService {
       .select()
       .from(comfyWorkflows)
       .where(and(eq(comfyWorkflows.id, id), eq(comfyWorkflows.userId, userId)));
-    return row ? { ...row, tags: row.tags ?? [] } : null;
+    return row ? normalizeWorkflow(row) : null;
   }
 
   async createWorkflow(userId: string, data: WorkflowFormData): Promise<ComfyWorkflow> {
@@ -285,12 +292,15 @@ class ComfyPromptDbService {
         name: data.name.trim(),
         description: data.description?.trim() || null,
         workflowJson: data.workflowJson,
+        positiveNodeId: data.positiveNodeId?.trim() || null,
+        negativeNodeId: data.negativeNodeId?.trim() || null,
+        seedNodeId: data.seedNodeId?.trim() || null,
         tags: data.tags ?? [],
         notes: data.notes?.trim() || null,
         updatedAt: new Date(),
       })
       .returning();
-    return { ...row, tags: row.tags ?? [] };
+    return normalizeWorkflow(row);
   }
 
   async updateWorkflow(
@@ -304,13 +314,20 @@ class ComfyPromptDbService {
         ...(data.name !== undefined ? { name: data.name.trim() } : {}),
         ...(data.description !== undefined ? { description: data.description?.trim() || null } : {}),
         ...(data.workflowJson !== undefined ? { workflowJson: data.workflowJson } : {}),
+        ...(data.positiveNodeId !== undefined
+          ? { positiveNodeId: data.positiveNodeId?.trim() || null }
+          : {}),
+        ...(data.negativeNodeId !== undefined
+          ? { negativeNodeId: data.negativeNodeId?.trim() || null }
+          : {}),
+        ...(data.seedNodeId !== undefined ? { seedNodeId: data.seedNodeId?.trim() || null } : {}),
         ...(data.tags !== undefined ? { tags: data.tags } : {}),
         ...(data.notes !== undefined ? { notes: data.notes?.trim() || null } : {}),
         updatedAt: new Date(),
       })
       .where(and(eq(comfyWorkflows.id, id), eq(comfyWorkflows.userId, userId)))
       .returning();
-    return row ? { ...row, tags: row.tags ?? [] } : null;
+    return row ? normalizeWorkflow(row) : null;
   }
 
   async deleteWorkflow(userId: string, id: number): Promise<boolean> {
@@ -330,12 +347,180 @@ class ComfyPromptDbService {
     const map = new Map(rows.map((row) => [row.id, normalizePrompt(row)]));
     return ids.map((id) => map.get(id)).filter(Boolean) as ComfyPrompt[];
   }
+
+  async getServers(userId: string): Promise<ComfyServer[]> {
+    return db
+      .select()
+      .from(comfyServers)
+      .where(eq(comfyServers.userId, userId))
+      .orderBy(desc(comfyServers.isDefault), desc(comfyServers.updatedAt));
+  }
+
+  async getServerById(userId: string, id: number): Promise<ComfyServer | null> {
+    const [row] = await db
+      .select()
+      .from(comfyServers)
+      .where(and(eq(comfyServers.id, id), eq(comfyServers.userId, userId)));
+    return row ?? null;
+  }
+
+  async createServer(userId: string, data: ServerFormData): Promise<ComfyServer> {
+    if (data.isDefault) {
+      await db
+        .update(comfyServers)
+        .set({ isDefault: false, updatedAt: new Date() })
+        .where(eq(comfyServers.userId, userId));
+    }
+
+    const [row] = await db
+      .insert(comfyServers)
+      .values({
+        userId,
+        name: data.name.trim(),
+        baseUrl: data.baseUrl.trim(),
+        isDefault: data.isDefault ?? false,
+        enabled: data.enabled ?? true,
+        updatedAt: new Date(),
+      })
+      .returning();
+    return row;
+  }
+
+  async updateServer(
+    userId: string,
+    id: number,
+    data: Partial<ServerFormData> & {
+      lastCheckAt?: Date | null;
+      lastCheckOk?: boolean | null;
+      lastError?: string | null;
+    },
+  ): Promise<ComfyServer | null> {
+    if (data.isDefault) {
+      await db
+        .update(comfyServers)
+        .set({ isDefault: false, updatedAt: new Date() })
+        .where(eq(comfyServers.userId, userId));
+    }
+
+    const [row] = await db
+      .update(comfyServers)
+      .set({
+        ...(data.name !== undefined ? { name: data.name.trim() } : {}),
+        ...(data.baseUrl !== undefined ? { baseUrl: data.baseUrl.trim() } : {}),
+        ...(data.isDefault !== undefined ? { isDefault: data.isDefault } : {}),
+        ...(data.enabled !== undefined ? { enabled: data.enabled } : {}),
+        ...(data.lastCheckAt !== undefined ? { lastCheckAt: data.lastCheckAt } : {}),
+        ...(data.lastCheckOk !== undefined ? { lastCheckOk: data.lastCheckOk } : {}),
+        ...(data.lastError !== undefined ? { lastError: data.lastError } : {}),
+        updatedAt: new Date(),
+      })
+      .where(and(eq(comfyServers.id, id), eq(comfyServers.userId, userId)))
+      .returning();
+    return row ?? null;
+  }
+
+  async deleteServer(userId: string, id: number): Promise<boolean> {
+    const result = await db
+      .delete(comfyServers)
+      .where(and(eq(comfyServers.id, id), eq(comfyServers.userId, userId)))
+      .returning({ id: comfyServers.id });
+    return result.length > 0;
+  }
+
+  async getJobs(userId: string, limit = 50): Promise<ComfyJob[]> {
+    const rows = await db
+      .select()
+      .from(comfyJobs)
+      .where(eq(comfyJobs.userId, userId))
+      .orderBy(desc(comfyJobs.createdAt))
+      .limit(limit);
+    return rows.map(normalizeJob);
+  }
+
+  async getJobById(userId: string, id: number): Promise<ComfyJob | null> {
+    const [row] = await db
+      .select()
+      .from(comfyJobs)
+      .where(and(eq(comfyJobs.id, id), eq(comfyJobs.userId, userId)));
+    return row ? normalizeJob(row) : null;
+  }
+
+  async createJob(
+    userId: string,
+    data: {
+      serverId: number;
+      workflowId?: number | null;
+      clientId: string;
+      positivePrompt?: string;
+      negativePrompt?: string;
+      requestJson?: Record<string, unknown>;
+    },
+  ): Promise<ComfyJob> {
+    const [row] = await db
+      .insert(comfyJobs)
+      .values({
+        userId,
+        serverId: data.serverId,
+        workflowId: data.workflowId ?? null,
+        clientId: data.clientId,
+        status: 'pending',
+        positivePrompt: data.positivePrompt ?? null,
+        negativePrompt: data.negativePrompt ?? null,
+        requestJson: data.requestJson ?? null,
+        updatedAt: new Date(),
+      })
+      .returning();
+    return normalizeJob(row);
+  }
+
+  async updateJob(
+    userId: string,
+    id: number,
+    data: Partial<{
+      promptId: string | null;
+      status: ComfyJobStatus;
+      responseJson: Record<string, unknown> | null;
+      outputImages: ComfyJobOutputImage[];
+      errorMessage: string | null;
+      completedAt: Date | null;
+    }>,
+  ): Promise<ComfyJob | null> {
+    const [row] = await db
+      .update(comfyJobs)
+      .set({
+        ...(data.promptId !== undefined ? { promptId: data.promptId } : {}),
+        ...(data.status !== undefined ? { status: data.status } : {}),
+        ...(data.responseJson !== undefined ? { responseJson: data.responseJson } : {}),
+        ...(data.outputImages !== undefined ? { outputImages: data.outputImages } : {}),
+        ...(data.errorMessage !== undefined ? { errorMessage: data.errorMessage } : {}),
+        ...(data.completedAt !== undefined ? { completedAt: data.completedAt } : {}),
+        updatedAt: new Date(),
+      })
+      .where(and(eq(comfyJobs.id, id), eq(comfyJobs.userId, userId)))
+      .returning();
+    return row ? normalizeJob(row) : null;
+  }
 }
 
 function normalizePrompt(row: typeof comfyPrompts.$inferSelect): ComfyPrompt {
   return {
     ...row,
     tags: row.tags ?? [],
+  };
+}
+
+function normalizeWorkflow(row: typeof comfyWorkflows.$inferSelect): ComfyWorkflow {
+  return {
+    ...row,
+    tags: row.tags ?? [],
+  };
+}
+
+function normalizeJob(row: typeof comfyJobs.$inferSelect): ComfyJob {
+  return {
+    ...row,
+    status: row.status as ComfyJobStatus,
+    outputImages: row.outputImages ?? [],
   };
 }
 

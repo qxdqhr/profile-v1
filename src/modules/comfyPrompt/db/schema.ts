@@ -79,11 +79,59 @@ export const comfyWorkflows = pgTable('comfy_workflows', {
   name: varchar('name', { length: 200 }).notNull(),
   description: text('description'),
   workflowJson: json('workflow_json').$type<Record<string, unknown>>().notNull(),
+  positiveNodeId: varchar('positive_node_id', { length: 32 }),
+  negativeNodeId: varchar('negative_node_id', { length: 32 }),
+  seedNodeId: varchar('seed_node_id', { length: 32 }),
   tags: json('tags').$type<string[]>().default([]),
   notes: text('notes'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+export const comfyServers = pgTable('comfy_servers', {
+  id: serial('id').primaryKey(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 120 }).notNull(),
+  baseUrl: text('base_url').notNull(),
+  isDefault: boolean('is_default').notNull().default(false),
+  enabled: boolean('enabled').notNull().default(true),
+  lastCheckAt: timestamp('last_check_at'),
+  lastCheckOk: boolean('last_check_ok'),
+  lastError: text('last_error'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const comfyJobs = pgTable('comfy_jobs', {
+  id: serial('id').primaryKey(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  serverId: integer('server_id')
+    .notNull()
+    .references(() => comfyServers.id, { onDelete: 'cascade' }),
+  workflowId: integer('workflow_id').references(() => comfyWorkflows.id, { onDelete: 'set null' }),
+  clientId: varchar('client_id', { length: 64 }).notNull(),
+  promptId: varchar('prompt_id', { length: 64 }),
+  status: varchar('status', { length: 20 }).notNull().default('pending'),
+  positivePrompt: text('positive_prompt'),
+  negativePrompt: text('negative_prompt'),
+  requestJson: json('request_json').$type<Record<string, unknown>>(),
+  responseJson: json('response_json').$type<Record<string, unknown>>(),
+  outputImages: json('output_images').$type<ComfyJobOutputImage[]>().default([]),
+  errorMessage: text('error_message'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  completedAt: timestamp('completed_at'),
+});
+
+export type ComfyJobOutputImage = {
+  filename: string;
+  subfolder: string;
+  type: string;
+};
 
 export const comfyPromptGroupsRelations = relations(comfyPromptGroups, ({ one, many }) => ({
   user: one(users, { fields: [comfyPromptGroups.userId], references: [users.id] }),
@@ -106,6 +154,18 @@ export const comfyPromptSetItemsRelations = relations(comfyPromptSetItems, ({ on
   prompt: one(comfyPrompts, { fields: [comfyPromptSetItems.promptId], references: [comfyPrompts.id] }),
 }));
 
-export const comfyWorkflowsRelations = relations(comfyWorkflows, ({ one }) => ({
+export const comfyWorkflowsRelations = relations(comfyWorkflows, ({ one, many }) => ({
   user: one(users, { fields: [comfyWorkflows.userId], references: [users.id] }),
+  jobs: many(comfyJobs),
+}));
+
+export const comfyServersRelations = relations(comfyServers, ({ one, many }) => ({
+  user: one(users, { fields: [comfyServers.userId], references: [users.id] }),
+  jobs: many(comfyJobs),
+}));
+
+export const comfyJobsRelations = relations(comfyJobs, ({ one }) => ({
+  user: one(users, { fields: [comfyJobs.userId], references: [users.id] }),
+  server: one(comfyServers, { fields: [comfyJobs.serverId], references: [comfyServers.id] }),
+  workflow: one(comfyWorkflows, { fields: [comfyJobs.workflowId], references: [comfyWorkflows.id] }),
 }));

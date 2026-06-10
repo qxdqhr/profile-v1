@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Copy,
   Download,
@@ -16,7 +16,6 @@ import {
   Wand2,
   Workflow,
 } from 'lucide-react';
-import { AuthGuard, AuthProvider, UserMenu } from '@/lib/auth';
 import { useComfyPromptData } from '../hooks/useComfyPromptData';
 import { buildPromptString, formatPromptSegment, parseTagsInput, tagsToInput } from '../utils/buildPrompt';
 import type {
@@ -24,8 +23,10 @@ import type {
   ComfyPromptGroup,
   ComfyPromptSet,
   ComfyWorkflow,
+  ComfyRunDraft,
   PromptKind,
 } from '../types';
+import { COMFY_RUN_DRAFT_KEY } from '../types';
 
 type TabId = 'prompts' | 'groups' | 'sets' | 'workflows' | 'builder';
 
@@ -42,6 +43,7 @@ function copyText(text: string) {
 }
 
 function ComfyPromptPageContent() {
+  const router = useRouter();
   const store = useComfyPromptData();
   const [tab, setTab] = useState<TabId>('builder');
   const [kindFilter, setKindFilter] = useState<PromptKind | 'all'>('all');
@@ -115,35 +117,24 @@ function ComfyPromptPageContent() {
     );
   };
 
+  const sendToRemoteRun = () => {
+    const draft: ComfyRunDraft = {};
+    try {
+      const existing = sessionStorage.getItem(COMFY_RUN_DRAFT_KEY);
+      if (existing) Object.assign(draft, JSON.parse(existing) as ComfyRunDraft);
+    } catch {
+      // ignore
+    }
+    if (builderKind === 'positive') draft.positivePrompt = builtPrompt;
+    else draft.negativePrompt = builtPrompt;
+    sessionStorage.setItem(COMFY_RUN_DRAFT_KEY, JSON.stringify(draft));
+    router.push('/testField/comfyPrompt/run');
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-violet-950 to-slate-900 text-slate-100">
-      <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <Sparkles className="text-violet-400" size={22} />
-              <h1 className="text-xl font-semibold">ComfyUI 提示词工作台</h1>
-            </div>
-            <p className="mt-1 text-sm text-slate-400">
-              管理提示词、分组、提示词组与工作流 JSON，一键生成可复制到 ComfyUI 的 Prompt
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/testField" className="text-sm text-slate-400 hover:text-white">
-              返回实验田
-            </Link>
-            <button
-              type="button"
-              onClick={() => void store.refreshAll()}
-              className="rounded-lg border border-white/10 p-2 hover:bg-white/5"
-              title="刷新"
-            >
-              <RefreshCw size={16} className={store.loading ? 'animate-spin' : ''} />
-            </button>
-            <UserMenu />
-          </div>
-        </div>
-        <nav className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 pb-3">
+    <div>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <nav className="flex gap-2 overflow-x-auto">
           {TABS.map((t) => (
             <button
               key={t.id}
@@ -160,9 +151,15 @@ function ComfyPromptPageContent() {
             </button>
           ))}
         </nav>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-4 py-6">
+        <button
+          type="button"
+          onClick={() => void store.refreshAll()}
+          className="shrink-0 rounded-lg border border-white/10 p-2 hover:bg-white/5"
+          title="刷新"
+        >
+          <RefreshCw size={16} className={store.loading ? 'animate-spin' : ''} />
+        </button>
+      </div>
         {store.error && (
           <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-200">
             {store.error}
@@ -188,6 +185,7 @@ function ComfyPromptPageContent() {
               copyText(builtPrompt);
               showToast('已复制到剪贴板');
             }}
+            onSendToRun={sendToRemoteRun}
           />
         )}
 
@@ -283,8 +281,6 @@ function ComfyPromptPageContent() {
             }}
           />
         )}
-      </main>
-
       {toast && (
         <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-violet-600 px-4 py-2 text-sm shadow-xl">
           {toast}
@@ -309,6 +305,7 @@ function BuilderPanel(props: {
   onTogglePrompt: (id: number) => void;
   onToggleSet: (id: number) => void;
   onCopy: () => void;
+  onSendToRun: () => void;
 }) {
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_420px]">
@@ -379,16 +376,26 @@ function BuilderPanel(props: {
 
       <aside className="space-y-4 lg:sticky lg:top-36 lg:self-start">
         <div className="rounded-2xl border border-violet-400/30 bg-violet-500/10 p-4">
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h3 className="font-semibold">ComfyUI 输出</h3>
-            <button
-              type="button"
-              onClick={props.onCopy}
-              disabled={!props.builtPrompt}
-              className="flex items-center gap-1 rounded-lg bg-violet-500 px-3 py-1.5 text-sm disabled:opacity-40"
-            >
-              <Copy size={14} /> 复制
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={props.onSendToRun}
+                disabled={!props.builtPrompt}
+                className="flex items-center gap-1 rounded-lg border border-violet-400/40 px-3 py-1.5 text-sm disabled:opacity-40"
+              >
+                前往远程运行
+              </button>
+              <button
+                type="button"
+                onClick={props.onCopy}
+                disabled={!props.builtPrompt}
+                className="flex items-center gap-1 rounded-lg bg-violet-500 px-3 py-1.5 text-sm disabled:opacity-40"
+              >
+                <Copy size={14} /> 复制
+              </button>
+            </div>
           </div>
           <textarea
             readOnly
@@ -785,6 +792,10 @@ function WorkflowsPanel(props: {
   const [name, setName] = useState('');
   const [jsonText, setJsonText] = useState('');
   const [tagsInput, setTagsInput] = useState('');
+  const [positiveNodeId, setPositiveNodeId] = useState('');
+  const [negativeNodeId, setNegativeNodeId] = useState('');
+  const [seedNodeId, setSeedNodeId] = useState('');
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const importFile = async (file: File) => {
     const text = await file.text();
@@ -794,14 +805,36 @@ function WorkflowsPanel(props: {
 
   const save = async () => {
     const workflowJson = JSON.parse(jsonText) as Record<string, unknown>;
-    await props.onCreate({
+    const payload = {
       name,
       workflowJson,
       tags: parseTagsInput(tagsInput),
-    });
+      positiveNodeId: positiveNodeId.trim() || null,
+      negativeNodeId: negativeNodeId.trim() || null,
+      seedNodeId: seedNodeId.trim() || null,
+    };
+    if (editingId) {
+      await props.onUpdate(editingId, payload);
+      setEditingId(null);
+    } else {
+      await props.onCreate(payload);
+    }
     setName('');
     setJsonText('');
     setTagsInput('');
+    setPositiveNodeId('');
+    setNegativeNodeId('');
+    setSeedNodeId('');
+  };
+
+  const startEdit = (workflow: ComfyWorkflow) => {
+    setEditingId(workflow.id);
+    setName(workflow.name);
+    setJsonText(JSON.stringify(workflow.workflowJson, null, 2));
+    setTagsInput(tagsToInput(workflow.tags));
+    setPositiveNodeId(workflow.positiveNodeId ?? '');
+    setNegativeNodeId(workflow.negativeNodeId ?? '');
+    setSeedNodeId(workflow.seedNodeId ?? '');
   };
 
   return (
@@ -833,8 +866,26 @@ function WorkflowsPanel(props: {
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="工作流名称" className={inputClass} />
           <input value={tagsInput} onChange={(e) => setTagsInput(e.target.value)} placeholder="Tags" className={inputClass} />
+          <input
+            value={positiveNodeId}
+            onChange={(e) => setPositiveNodeId(e.target.value)}
+            placeholder="正向 CLIP 节点 ID，如 6"
+            className={inputClass}
+          />
+          <input
+            value={negativeNodeId}
+            onChange={(e) => setNegativeNodeId(e.target.value)}
+            placeholder="负向 CLIP 节点 ID，如 7"
+            className={inputClass}
+          />
+          <input
+            value={seedNodeId}
+            onChange={(e) => setSeedNodeId(e.target.value)}
+            placeholder="Seed 节点 ID（可选）"
+            className={inputClass}
+          />
           <button type="button" onClick={() => void save()} className="w-full rounded-xl bg-violet-500 py-2">
-            保存工作流
+            {editingId ? '更新工作流' : '保存工作流'}
           </button>
         </div>
         <div className="space-y-2">
@@ -877,8 +928,16 @@ function WorkflowsPanel(props: {
                 </div>
               </div>
               <div className="mt-1 text-xs text-slate-500">
+                节点 {w.positiveNodeId ?? '-'} / {w.negativeNodeId ?? '-'} ·{' '}
                 {new Date(w.updatedAt).toLocaleString()}
               </div>
+              <button
+                type="button"
+                onClick={() => startEdit(w)}
+                className="mt-2 text-xs text-violet-300 hover:text-violet-200"
+              >
+                编辑映射
+              </button>
             </div>
           ))}
         </div>
@@ -924,11 +983,7 @@ function Modal({
 }
 
 export default function ComfyPromptPage() {
-  return (
-    <AuthProvider>
-      <AuthGuard requireAuth>
-        <ComfyPromptPageContent />
-      </AuthGuard>
-    </AuthProvider>
-  );
+  return <ComfyPromptPageContent />;
 }
+
+export { ComfyPromptPageContent as PromptManagePage };
