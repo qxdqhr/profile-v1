@@ -2,18 +2,20 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  CheckCircle2,
+  Download,
   Loader2,
   Play,
   Plus,
   RefreshCw,
   Server,
+  Settings2,
   Trash2,
   XCircle,
 } from 'lucide-react';
+import { FormField, Modal, modalInputClass } from '../components/Modal';
 import { useComfyPromptData } from '../hooks/useComfyPromptData';
 import { useComfyRemote } from '../hooks/useComfyRemote';
-import type { ComfyJob, ComfyJobStatus } from '../types';
+import type { ComfyJob, ComfyJobStatus, JobOutputKey } from '../types';
 import { COMFY_RUN_DRAFT_KEY, type ComfyRunDraft } from '../types';
 
 const POLL_INTERVAL_MS = 3000;
@@ -31,19 +33,36 @@ function isActiveJob(status: ComfyJobStatus) {
   return status === 'pending' || status === 'queued' || status === 'running';
 }
 
+function outputKey(jobId: number, index: number): JobOutputKey {
+  return `${jobId}:${index}`;
+}
+
+type OutputTile = {
+  key: JobOutputKey;
+  jobId: number;
+  index: number;
+  job: ComfyJob;
+};
+
 export default function RemoteRunPage() {
   const promptStore = useComfyPromptData();
   const remote = useComfyRemote();
 
-  const [serverName, setServerName] = useState('');
-  const [serverUrl, setServerUrl] = useState('http://127.0.0.1:8188');
   const [selectedServerId, setSelectedServerId] = useState<number | ''>('');
   const [selectedWorkflowId, setSelectedWorkflowId] = useState<number | ''>('');
   const [positivePrompt, setPositivePrompt] = useState('');
   const [negativePrompt, setNegativePrompt] = useState('');
   const [seed, setSeed] = useState('');
+  const [width, setWidth] = useState('');
+  const [height, setHeight] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+
+  const [serverModalOpen, setServerModalOpen] = useState(false);
+  const [serverName, setServerName] = useState('');
+  const [serverUrl, setServerUrl] = useState('http://127.0.0.1:8188');
+
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -109,6 +128,8 @@ export default function RemoteRunPage() {
       });
       setSelectedServerId(created.id);
       setServerName('');
+      setServerUrl('http://127.0.0.1:8188');
+      setServerModalOpen(false);
       showToast('服务器已添加');
     } catch (err) {
       showToast(err instanceof Error ? err.message : '添加失败');
@@ -128,7 +149,10 @@ export default function RemoteRunPage() {
         positivePrompt: positivePrompt.trim() || undefined,
         negativePrompt: negativePrompt.trim() || undefined,
         seed: seed.trim() ? Number(seed) : undefined,
+        width: width.trim() ? Number(width) : undefined,
+        height: height.trim() ? Number(height) : undefined,
       });
+      setAdvancedOpen(false);
       showToast('任务已提交');
     } catch (err) {
       showToast(err instanceof Error ? err.message : '提交失败');
@@ -143,7 +167,7 @@ export default function RemoteRunPage() {
   return (
     <div className="space-y-6">
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 rounded-xl bg-violet-600 px-4 py-2 text-sm shadow-lg">
+        <div className="fixed bottom-6 right-6 z-[110] rounded-xl bg-violet-600 px-4 py-2 text-sm shadow-lg">
           {toast}
         </div>
       )}
@@ -157,9 +181,19 @@ export default function RemoteRunPage() {
       <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
         <section className="space-y-4">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-            <h2 className="mb-3 flex items-center gap-2 font-semibold">
-              <Server size={18} /> ComfyUI 服务器
-            </h2>
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <h2 className="flex items-center gap-2 font-semibold">
+                <Server size={18} /> ComfyUI 服务器
+              </h2>
+              <button
+                type="button"
+                onClick={() => setServerModalOpen(true)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500 text-white hover:bg-violet-400"
+                title="添加服务器"
+              >
+                <Plus size={18} />
+              </button>
+            </div>
             <div className="space-y-2">
               {remote.servers.map((server) => (
                 <label
@@ -210,32 +244,9 @@ export default function RemoteRunPage() {
                 </label>
               ))}
               {!remote.servers.length && (
-                <p className="text-sm text-slate-500">尚未配置 ComfyUI 服务器</p>
+                <p className="text-sm text-slate-500">点击右上角 + 添加 ComfyUI 服务器</p>
               )}
             </div>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
-            <h3 className="font-medium">添加服务器</h3>
-            <input
-              value={serverName}
-              onChange={(e) => setServerName(e.target.value)}
-              placeholder="名称，如 本机 Comfy"
-              className={inputClass}
-            />
-            <input
-              value={serverUrl}
-              onChange={(e) => setServerUrl(e.target.value)}
-              placeholder="http://127.0.0.1:8188"
-              className={inputClass}
-            />
-            <button
-              type="button"
-              onClick={() => void handleCreateServer()}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/10 py-2 text-sm hover:bg-white/15"
-            >
-              <Plus size={16} /> 添加
-            </button>
           </div>
         </section>
 
@@ -262,8 +273,10 @@ export default function RemoteRunPage() {
 
             {selectedWorkflow && (
               <p className="text-xs text-slate-500">
-                正向节点: {selectedWorkflow.positiveNodeId ?? '未配置'} · 负向节点:{' '}
-                {selectedWorkflow.negativeNodeId ?? '未配置'}
+                正向: {selectedWorkflow.positiveNodeId ?? '未配置'} · 负向:{' '}
+                {selectedWorkflow.negativeNodeId ?? '未配置'} · Seed:{' '}
+                {selectedWorkflow.seedNodeId ?? '未配置'} · 尺寸:{' '}
+                {selectedWorkflow.latentNodeId ?? '未配置'}
               </p>
             )}
 
@@ -287,114 +300,370 @@ export default function RemoteRunPage() {
                 placeholder="low quality, blurry..."
               />
             </label>
-            <label className="block text-sm">
-              <span className="mb-1 block text-slate-400">Seed（可选）</span>
-              <input
-                value={seed}
-                onChange={(e) => setSeed(e.target.value)}
-                type="number"
-                className={inputClass}
-                placeholder="留空则使用工作流默认值"
-              />
-            </label>
-            <button
-              type="button"
-              disabled={submitting}
-              onClick={() => void handleSubmit()}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-500 py-3 font-medium disabled:opacity-50"
-            >
-              {submitting ? <Loader2 size={18} className="animate-spin" /> : <Play size={18} />}
-              提交到 ComfyUI
-            </button>
+
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setAdvancedOpen(true)}
+                className="flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2 text-sm hover:bg-white/5"
+              >
+                <Settings2 size={16} /> 高级设置
+              </button>
+              <button
+                type="button"
+                disabled={submitting}
+                onClick={() => void handleSubmit()}
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-violet-500 py-2.5 font-medium disabled:opacity-50 min-w-[160px]"
+              >
+                {submitting ? <Loader2 size={18} className="animate-spin" /> : <Play size={18} />}
+                提交到 ComfyUI
+              </button>
+            </div>
             <p className="text-xs text-slate-500">
-              v1 通过 HTTP 每 {POLL_INTERVAL_MS / 1000}s 轮询任务状态；实时进度见 v1.1 WebSocket。
+              高级设置可配置 Seed、宽高；留空 Seed 则自动随机。HTTP 每 {POLL_INTERVAL_MS / 1000}s 轮询任务状态。
             </p>
           </div>
 
-          <JobHistoryPanel
+          <JobHistoryGrid
             jobs={remote.jobs}
             onRefresh={() => void remote.refreshJobs()}
             loading={remote.loading}
+            onDeleteOutputs={remote.deleteJobOutputs}
+            onToast={showToast}
           />
         </section>
       </div>
+
+      {serverModalOpen && (
+        <Modal title="添加 ComfyUI 服务器" onClose={() => setServerModalOpen(false)}>
+          <FormField label="名称">
+            <input
+              value={serverName}
+              onChange={(e) => setServerName(e.target.value)}
+              placeholder="名称，如 本机 Comfy"
+              className={modalInputClass}
+            />
+          </FormField>
+          <FormField label="地址">
+            <input
+              value={serverUrl}
+              onChange={(e) => setServerUrl(e.target.value)}
+              placeholder="http://127.0.0.1:8188"
+              className={modalInputClass}
+            />
+          </FormField>
+          <button
+            type="button"
+            onClick={() => void handleCreateServer()}
+            className="mt-2 w-full rounded-xl bg-violet-500 py-2.5 font-medium"
+          >
+            添加服务器
+          </button>
+        </Modal>
+      )}
+
+      {advancedOpen && (
+        <Modal title="高级设置" onClose={() => setAdvancedOpen(false)}>
+          <FormField label="Seed（可选）">
+            <input
+              value={seed}
+              onChange={(e) => setSeed(e.target.value)}
+              type="number"
+              placeholder="留空则自动随机（需工作流已配置 seed 节点）"
+              className={modalInputClass}
+            />
+          </FormField>
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="宽度（可选）">
+              <input
+                value={width}
+                onChange={(e) => setWidth(e.target.value)}
+                type="number"
+                placeholder="如 512"
+                className={modalInputClass}
+              />
+            </FormField>
+            <FormField label="高度（可选）">
+              <input
+                value={height}
+                onChange={(e) => setHeight(e.target.value)}
+                type="number"
+                placeholder="如 768"
+                className={modalInputClass}
+              />
+            </FormField>
+          </div>
+          <p className="text-xs text-slate-500">
+            宽高注入需在工作流中配置 EmptyLatentImage 节点 ID（latent 节点）。
+          </p>
+          <button
+            type="button"
+            disabled={submitting}
+            onClick={() => void handleSubmit()}
+            className="mt-2 w-full rounded-xl bg-violet-500 py-2.5 font-medium disabled:opacity-50"
+          >
+            {submitting ? '提交中...' : '保存并提交'}
+          </button>
+        </Modal>
+      )}
     </div>
   );
 }
 
-function JobHistoryPanel(props: {
+function JobHistoryGrid({
+  jobs,
+  onRefresh,
+  loading,
+  onDeleteOutputs,
+  onToast,
+}: {
   jobs: ComfyJob[];
   onRefresh: () => void;
   loading: boolean;
+  onDeleteOutputs: (jobId: number, indices: number[]) => Promise<ComfyJob>;
+  onToast: (msg: string) => void;
 }) {
+  const [selected, setSelected] = useState<Set<JobOutputKey>>(new Set());
+  const [busy, setBusy] = useState(false);
+
+  const tiles = useMemo<OutputTile[]>(() => {
+    const list: OutputTile[] = [];
+    for (const job of jobs) {
+      job.outputImages.forEach((_, index) => {
+        list.push({ key: outputKey(job.id, index), jobId: job.id, index, job });
+      });
+    }
+    return list;
+  }, [jobs]);
+
+  const toggleSelect = (key: JobOutputKey) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const selectAll = () => {
+    if (selected.size === tiles.length) setSelected(new Set());
+    else setSelected(new Set(tiles.map((t) => t.key)));
+  };
+
+  const downloadImage = (jobId: number, index: number) => {
+    const a = document.createElement('a');
+    a.href = `/api/comfyPrompt/jobs/${jobId}/output/${index}?download=1`;
+    a.download = '';
+    a.click();
+  };
+
+  const batchDownload = () => {
+    if (!selected.size) {
+      onToast('请先选择图片');
+      return;
+    }
+    for (const key of selected) {
+      const [jobId, index] = key.split(':').map(Number);
+      downloadImage(jobId, index);
+    }
+    onToast(`已开始下载 ${selected.size} 张图片`);
+  };
+
+  const batchDelete = async () => {
+    if (!selected.size) {
+      onToast('请先选择图片');
+      return;
+    }
+    if (!confirm(`确定删除选中的 ${selected.size} 张图片记录？`)) return;
+
+    setBusy(true);
+    try {
+      const byJob = new Map<number, number[]>();
+      for (const key of selected) {
+        const [jobId, index] = key.split(':').map(Number);
+        const arr = byJob.get(jobId) ?? [];
+        arr.push(index);
+        byJob.set(jobId, arr);
+      }
+      await Promise.all(
+        [...byJob.entries()].map(([jobId, indices]) => onDeleteOutputs(jobId, indices)),
+      );
+      setSelected(new Set());
+      onToast('已删除选中图片');
+    } catch (err) {
+      onToast(err instanceof Error ? err.message : '删除失败');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const deleteSingle = async (jobId: number, index: number) => {
+    if (!confirm('确定删除这张图片记录？')) return;
+    setBusy(true);
+    try {
+      await onDeleteOutputs(jobId, [index]);
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.delete(outputKey(jobId, index));
+        return next;
+      });
+      onToast('图片已删除');
+    } catch (err) {
+      onToast(err instanceof Error ? err.message : '删除失败');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const activeJobs = jobs.filter((j) => isActiveJob(j.status));
+
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-semibold">任务历史</h2>
-        <button
-          type="button"
-          onClick={props.onRefresh}
-          className="flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-sm hover:bg-white/5"
-        >
-          <RefreshCw size={14} className={props.loading ? 'animate-spin' : ''} />
-          刷新
-        </button>
-      </div>
-      <div className="space-y-4">
-        {props.jobs.map((job) => (
-          <JobCard key={job.id} job={job} />
-        ))}
-        {!props.jobs.length && (
-          <p className="text-sm text-slate-500">暂无任务记录，提交后将在此显示结果。</p>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function JobCard({ job }: { job: ComfyJob }) {
-  return (
-    <div className="rounded-xl border border-white/10 bg-slate-900/50 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2 text-sm">
-          <StatusIcon status={job.status} />
-          <span>#{job.id}</span>
-          <span className="text-slate-400">{STATUS_LABEL[job.status]}</span>
+        <div className="flex flex-wrap items-center gap-2">
+          {tiles.length > 0 && (
+            <>
+              <button
+                type="button"
+                onClick={selectAll}
+                className="rounded-lg border border-white/10 px-3 py-1.5 text-xs hover:bg-white/5"
+              >
+                {selected.size === tiles.length ? '取消全选' : '全选'}
+              </button>
+              <button
+                type="button"
+                disabled={busy || !selected.size}
+                onClick={batchDownload}
+                className="flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-xs hover:bg-white/5 disabled:opacity-40"
+              >
+                <Download size={14} /> 批量下载
+              </button>
+              <button
+                type="button"
+                disabled={busy || !selected.size}
+                onClick={() => void batchDelete()}
+                className="flex items-center gap-1 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs text-red-200 hover:bg-red-500/20 disabled:opacity-40"
+              >
+                <Trash2 size={14} /> 批量删除
+              </button>
+            </>
+          )}
+          <button
+            type="button"
+            onClick={onRefresh}
+            className="flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-sm hover:bg-white/5"
+          >
+            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+            刷新
+          </button>
         </div>
-        <span className="text-xs text-slate-500">{new Date(job.createdAt).toLocaleString()}</span>
       </div>
-      {job.errorMessage && (
-        <p className="mt-2 text-sm text-red-300">{job.errorMessage}</p>
-      )}
-      {job.outputImages.length > 0 && (
-        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-          {job.outputImages.map((_, index) => (
-            <a
-              key={`${job.id}-${index}`}
-              href={`/api/comfyPrompt/jobs/${job.id}/output/${index}`}
-              target="_blank"
-              rel="noreferrer"
-              className="overflow-hidden rounded-lg border border-white/10 bg-black/30"
+
+      {activeJobs.length > 0 && (
+        <div className="mb-4 flex flex-wrap gap-2">
+          {activeJobs.map((job) => (
+            <span
+              key={job.id}
+              className="inline-flex items-center gap-1.5 rounded-full bg-violet-500/20 px-3 py-1 text-xs text-violet-200"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={`/api/comfyPrompt/jobs/${job.id}/output/${index}`}
-                alt={`输出 ${index + 1}`}
-                className="aspect-square w-full object-cover"
-              />
-            </a>
+              <Loader2 size={12} className="animate-spin" />
+              #{job.id} {STATUS_LABEL[job.status]}
+            </span>
           ))}
         </div>
       )}
+
+      {tiles.length > 0 ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          {tiles.map((tile) => {
+            const isSelected = selected.has(tile.key);
+            return (
+              <div
+                key={tile.key}
+                className={`group relative overflow-hidden rounded-xl border bg-black/30 ${
+                  isSelected ? 'border-violet-400 ring-2 ring-violet-400/50' : 'border-white/10'
+                }`}
+              >
+                <label className="absolute left-2 top-2 z-10">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => toggleSelect(tile.key)}
+                    className="h-4 w-4 rounded border-white/30"
+                  />
+                </label>
+                <a
+                  href={`/api/comfyPrompt/jobs/${tile.jobId}/output/${tile.index}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/api/comfyPrompt/jobs/${tile.jobId}/output/${tile.index}`}
+                    alt={`任务 #${tile.jobId} 输出 ${tile.index + 1}`}
+                    className="aspect-square w-full object-cover"
+                  />
+                </a>
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent px-2 pb-2 pt-6">
+                  <div className="flex items-center justify-between gap-1 text-[10px] text-slate-300">
+                    <span>
+                      #{tile.jobId} · {STATUS_LABEL[tile.job.status]}
+                    </span>
+                    <span>{new Date(tile.job.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+                <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition group-hover:opacity-100">
+                  <button
+                    type="button"
+                    onClick={() => downloadImage(tile.jobId, tile.index)}
+                    className="rounded bg-black/60 p-1.5 hover:bg-black/80"
+                    title="下载"
+                  >
+                    <Download size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void deleteSingle(tile.jobId, tile.index)}
+                    className="rounded bg-red-500/80 p-1.5 hover:bg-red-500"
+                    title="删除"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="text-sm text-slate-500">
+          {jobs.length
+            ? '暂无输出图片，进行中的任务完成后将显示在此。'
+            : '暂无任务记录，提交后将在此显示结果。'}
+        </p>
+      )}
+
+      {jobs.some((j) => j.status === 'failed' && j.errorMessage) && (
+        <div className="mt-4 space-y-2">
+          {jobs
+            .filter((j) => j.status === 'failed' && j.errorMessage)
+            .map((j) => (
+              <div
+                key={j.id}
+                className="flex items-start gap-2 rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-sm text-red-200"
+              >
+                <XCircle size={16} className="mt-0.5 shrink-0" />
+                <span>
+                  #{j.id}: {j.errorMessage}
+                </span>
+              </div>
+            ))}
+        </div>
+      )}
     </div>
   );
-}
-
-function StatusIcon({ status }: { status: ComfyJobStatus }) {
-  if (status === 'success') return <CheckCircle2 size={16} className="text-emerald-400" />;
-  if (status === 'failed') return <XCircle size={16} className="text-red-400" />;
-  if (isActiveJob(status)) return <Loader2 size={16} className="animate-spin text-violet-400" />;
-  return null;
 }
 
 const inputClass =

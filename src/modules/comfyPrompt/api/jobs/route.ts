@@ -36,7 +36,10 @@ export async function POST(request: Request) {
       positiveNodeId: workflow.positiveNodeId,
       negativeNodeId: workflow.negativeNodeId,
       seedNodeId: workflow.seedNodeId,
+      latentNodeId: workflow.latentNodeId,
       seed: body.seed,
+      width: body.width,
+      height: body.height,
     });
   } catch (error) {
     return fail(error instanceof Error ? error.message : '工作流注入失败', 400);

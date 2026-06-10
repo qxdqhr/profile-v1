@@ -28,10 +28,18 @@ export async function GET(
     const contentType = imageResponse.headers.get('content-type') ?? 'image/png';
     const buffer = await imageResponse.arrayBuffer();
 
+    const url = new URL(request.url);
+    const asDownload = url.searchParams.get('download') === '1';
+    const ext = contentType.includes('png') ? 'png' : contentType.includes('jpeg') ? 'jpg' : 'bin';
+    const filename = image.filename || `job-${id}-output-${index}.${ext}`;
+
     return new Response(buffer, {
       headers: {
         'Content-Type': contentType,
         'Cache-Control': 'private, max-age=3600',
+        ...(asDownload
+          ? { 'Content-Disposition': `attachment; filename="${filename}"` }
+          : {}),
       },
     });
   } catch (error) {

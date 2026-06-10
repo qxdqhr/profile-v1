@@ -82,6 +82,7 @@ export const comfyWorkflows = pgTable('comfy_workflows', {
   positiveNodeId: varchar('positive_node_id', { length: 32 }),
   negativeNodeId: varchar('negative_node_id', { length: 32 }),
   seedNodeId: varchar('seed_node_id', { length: 32 }),
+  latentNodeId: varchar('latent_node_id', { length: 32 }),
   tags: json('tags').$type<string[]>().default([]),
   notes: text('notes'),
   createdAt: timestamp('created_at').defaultNow().notNull(),

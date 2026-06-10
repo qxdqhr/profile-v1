@@ -60,6 +60,7 @@ export interface ComfyWorkflow {
   positiveNodeId: string | null;
   negativeNodeId: string | null;
   seedNodeId: string | null;
+  latentNodeId: string | null;
   tags: string[];
   notes: string | null;
   createdAt: Date;
@@ -146,6 +147,7 @@ export interface WorkflowFormData {
   positiveNodeId?: string | null;
   negativeNodeId?: string | null;
   seedNodeId?: string | null;
+  latentNodeId?: string | null;
   tags?: string[];
   notes?: string;
 }
@@ -163,7 +165,11 @@ export interface SubmitJobFormData {
   positivePrompt?: string;
   negativePrompt?: string;
   seed?: number;
+  width?: number;
+  height?: number;
 }
+
+export type JobOutputKey = `${number}:${number}`;
 
 export const COMFY_RUN_DRAFT_KEY = 'comfyPrompt:runDraft';
 

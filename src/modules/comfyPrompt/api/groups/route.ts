@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   const { user, response } = await requireAuthUser(request);
   if (response) return response;
   const body = (await request.json()) as PromptGroupFormData;
-  if (!body.name?.trim()) return fail('分组名称不能为空', 400);
+  if (!body.name?.trim()) return fail('提示词分组名称不能为空', 400);
   const data = await comfyPromptDbService.createGroup(user!.id, body);
   return ok(data);
 }

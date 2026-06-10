@@ -106,6 +106,23 @@ export function useComfyPromptData() {
     await refreshAll();
   }, [refreshAll]);
 
+  const bulkCreatePrompts = useCallback(
+    async (items: PromptFormData[]) => {
+      const created: ComfyPrompt[] = [];
+      for (const item of items) {
+        const res = await request<ComfyPrompt>('/api/comfyPrompt/prompts', {
+          method: 'POST',
+          body: JSON.stringify(item),
+        });
+        if (!res.success) throw new Error(res.message);
+        if (res.data) created.push(res.data);
+      }
+      await refreshAll();
+      return created;
+    },
+    [refreshAll],
+  );
+
   const createSet = useCallback(async (data: PromptSetFormData) => {
     const res = await request<ComfyPromptSet>('/api/comfyPrompt/sets', {
       method: 'POST',
@@ -194,6 +211,7 @@ export function useComfyPromptData() {
     createPrompt,
     updatePrompt,
     deletePrompt,
+    bulkCreatePrompts,
     createSet,
     updateSet,
     deleteSet,

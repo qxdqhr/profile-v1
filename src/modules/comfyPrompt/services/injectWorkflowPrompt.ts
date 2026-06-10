@@ -1,3 +1,10 @@
+import { randomInt } from 'crypto';
+
+/** ComfyUI KSampler 等节点常用 32 位无符号 seed 范围 */
+export function generateComfySeed(): number {
+  return randomInt(0, 2 ** 32);
+}
+
 type ApiNode = {
   class_type?: string;
   inputs?: Record<string, unknown>;
@@ -34,7 +41,10 @@ export function injectWorkflowPrompt(
     positiveNodeId?: string | null;
     negativeNodeId?: string | null;
     seedNodeId?: string | null;
+    latentNodeId?: string | null;
     seed?: number;
+    width?: number;
+    height?: number;
   },
 ): Record<string, unknown> {
   if (!isApiWorkflow(workflowJson)) {
@@ -49,8 +59,17 @@ export function injectWorkflowPrompt(
   if (options.negativePrompt?.trim()) {
     setNodeInput(workflow, options.negativeNodeId, 'text', options.negativePrompt.trim());
   }
-  if (options.seed !== undefined && options.seedNodeId) {
-    setNodeInput(workflow, options.seedNodeId, 'seed', options.seed);
+  if (options.seedNodeId) {
+    const seed = options.seed ?? generateComfySeed();
+    setNodeInput(workflow, options.seedNodeId, 'seed', seed);
+  }
+  if (options.latentNodeId) {
+    if (options.width !== undefined) {
+      setNodeInput(workflow, options.latentNodeId, 'width', options.width);
+    }
+    if (options.height !== undefined) {
+      setNodeInput(workflow, options.latentNodeId, 'height', options.height);
+    }
   }
 
   return workflow;

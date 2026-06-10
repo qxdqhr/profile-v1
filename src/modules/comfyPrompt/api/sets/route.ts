@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   const { user, response } = await requireAuthUser(request);
   if (response) return response;
   const body = (await request.json()) as PromptSetFormData;
-  if (!body.name?.trim()) return fail('提示词组名称不能为空', 400);
+  if (!body.name?.trim()) return fail('提示词模板名称不能为空', 400);
   const data = await comfyPromptDbService.createSet(user!.id, body);
   return ok(data);
 }

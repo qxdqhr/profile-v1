@@ -295,6 +295,7 @@ class ComfyPromptDbService {
         positiveNodeId: data.positiveNodeId?.trim() || null,
         negativeNodeId: data.negativeNodeId?.trim() || null,
         seedNodeId: data.seedNodeId?.trim() || null,
+        latentNodeId: data.latentNodeId?.trim() || null,
         tags: data.tags ?? [],
         notes: data.notes?.trim() || null,
         updatedAt: new Date(),
@@ -321,6 +322,9 @@ class ComfyPromptDbService {
           ? { negativeNodeId: data.negativeNodeId?.trim() || null }
           : {}),
         ...(data.seedNodeId !== undefined ? { seedNodeId: data.seedNodeId?.trim() || null } : {}),
+        ...(data.latentNodeId !== undefined
+          ? { latentNodeId: data.latentNodeId?.trim() || null }
+          : {}),
         ...(data.tags !== undefined ? { tags: data.tags } : {}),
         ...(data.notes !== undefined ? { notes: data.notes?.trim() || null } : {}),
         updatedAt: new Date(),
@@ -499,6 +503,20 @@ class ComfyPromptDbService {
       .where(and(eq(comfyJobs.id, id), eq(comfyJobs.userId, userId)))
       .returning();
     return row ? normalizeJob(row) : null;
+  }
+
+  async removeJobOutputs(
+    userId: string,
+    id: number,
+    indices: number[],
+  ): Promise<ComfyJob | null> {
+    const job = await this.getJobById(userId, id);
+    if (!job) return null;
+
+    const indexSet = new Set(indices);
+    const outputImages = job.outputImages.filter((_, i) => !indexSet.has(i));
+
+    return this.updateJob(userId, id, { outputImages });
   }
 }
 

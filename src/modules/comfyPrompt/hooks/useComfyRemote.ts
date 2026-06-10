@@ -95,6 +95,15 @@ export function useComfyRemote() {
     return job;
   }, []);
 
+  const deleteJobOutputs = useCallback(async (jobId: number, indices: number[]) => {
+    const job = await apiJson<ComfyJob>(`/api/comfyPrompt/jobs/${jobId}/outputs`, {
+      method: 'DELETE',
+      body: JSON.stringify({ indices }),
+    });
+    setJobs((prev) => prev.map((j) => (j.id === jobId ? job : j)));
+    return job;
+  }, []);
+
   return {
     servers,
     jobs,
@@ -109,5 +118,6 @@ export function useComfyRemote() {
     checkServerHealth,
     submitJob,
     refreshJob,
+    deleteJobOutputs,
   };
 }
