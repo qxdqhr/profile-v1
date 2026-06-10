@@ -135,6 +135,17 @@ export const experiments: ExperimentItem[] = [
     isCompleted: false
   },
   {
+    id: "comfy-prompt",
+    title: "ComfyUI 提示词工作台",
+    description: "配合 ComfyUI 使用的在线提示词整理工具：管理提示词、分组 Tag、提示词组、工作流 JSON，一键生成可复制 Prompt",
+    path: "/testField/comfyPrompt",
+    tags: ["ComfyUI", "AI绘画", "提示词", "工作流", "Stable Diffusion"],
+    category: "utility",
+    isCompleted: true,
+    createdAt: '2026-06-09',
+    updatedAt: '2026-06-09'
+  },
+  {
     id: "mmd-viewer",
     title: "MMD模型查看器",
     description: "基于Three.js的MMD(MikuMikuDance)模型查看器，支持PMD/PMX模型格式和VMD动画播放",
