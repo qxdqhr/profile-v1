@@ -1,8 +1,8 @@
-declare module 'sa2kit/business/mmd' {
+declare module 'sa2kit/mmd' {
   export * from 'sa2kit';
 }
 
-declare module 'sa2kit/business/mmd/admin' {
+declare module 'sa2kit/mmd/admin' {
   export * from 'sa2kit';
 }
 
@@ -10,7 +10,7 @@ declare module 'sa2kit/server' {
   export * from 'sa2kit';
 }
 
-declare module 'sa2kit/business/mmd/server' {
+declare module 'sa2kit/mmd/server' {
   export * from 'sa2kit';
 }
 
@@ -18,22 +18,22 @@ declare module 'sa2kit/mikutap' {
   export * from 'sa2kit';
 }
 
-declare module 'sa2kit/business/calendar' {
+declare module 'sa2kit/calendar' {
   export * from 'sa2kit';
 }
 
-declare module 'sa2kit/business/music' {
+declare module 'sa2kit/music' {
   export * from 'sa2kit';
 }
 
-declare module 'sa2kit/business/testYourself' {
+declare module 'sa2kit/testYourself' {
   export * from 'sa2kit';
 }
 
-declare module 'sa2kit/business/mikuFusionGame' {
+declare module 'sa2kit/mikuFusionGame' {
   export * from 'sa2kit';
 }
 
-declare module 'sa2kit/business/mikuFireworks3D' {
+declare module 'sa2kit/mikuFireworks3D' {
   export * from 'sa2kit';
 }

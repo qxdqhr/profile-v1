@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createBatchDeleteEventsHandler } from 'sa2kit/business/calendar/routes';
+import { createBatchDeleteEventsHandler } from 'sa2kit/calendar/routes';
 import { calendarMockDb } from '@/lib/examples/calendar-mock-db';
 import { db, isDatabaseAvailable } from '@/lib/examples/db';
 

@@ -259,8 +259,8 @@ export async function fetchExperiments() {
 - Tailwind CSS
 
 ### 内部依赖
-- `@sa2kit/common/components/BackButton`
-- `@sa2kit/common/components/ExperimentCard`
+- `@sa2kit/components/BackButton`
+- `@sa2kit/components/ExperimentCard`
 
 ## 🚀 性能优化
 

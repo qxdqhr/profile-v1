@@ -6,15 +6,15 @@
  */
 
 import React, { useState, useRef } from 'react';
-import { MMDPlayerBase, MMDPlayerBaseRef } from 'sa2kit/business/mmd';
+import { MMDPlayerBase, MMDPlayerBaseRef } from 'sa2kit/mmd';
 import { clsx } from 'clsx';
 import { 
   configureMaterialsForMMD, 
   createMMDLights,
   configureRendererForMMD,
   diagnoseMaterialsMMD 
-} from 'sa2kit/business/mmd';
-import type { MMDPlayerBaseProps } from 'sa2kit/business/mmd';
+} from 'sa2kit/mmd';
+import type { MMDPlayerBaseProps } from 'sa2kit/mmd';
 
 const CDN_BASE = 'https://cdn.qhr062.top';
 

@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { ImageGridCropper } from 'sa2kit/common/imageCrop';
-import type { CropResult } from 'sa2kit/common/imageCrop';
+import { ImageGridCropper } from 'sa2kit/imageCrop';
+import type { CropResult } from 'sa2kit/imageCrop';
 
 export default function ImageCropPage() {
   const handleExportSuccess = (results: CropResult[]) => {

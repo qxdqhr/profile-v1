@@ -1,4 +1,4 @@
-import { createLyricHandler } from 'sa2kit/business/music/server';
+import { createLyricHandler } from 'sa2kit/music/server';
 
 export const GET = createLyricHandler();
 

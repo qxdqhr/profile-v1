@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { CalendarPage } from 'sa2kit/business/calendar';
+import { CalendarPage } from 'sa2kit/calendar';
 
 /**
  * 日历模块演示页面

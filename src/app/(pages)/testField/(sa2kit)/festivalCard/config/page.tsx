@@ -2,7 +2,7 @@
 
 import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { FestivalCardConfigPage } from 'sa2kit/business/festivalCard';
+import { FestivalCardConfigPage } from 'sa2kit/festivalCard';
 
 function FestivalCardConfigRoutePageContent() {
   const searchParams = useSearchParams();

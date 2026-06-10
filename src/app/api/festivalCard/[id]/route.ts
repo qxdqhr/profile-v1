@@ -2,7 +2,7 @@ import {
   createDeleteFestivalCardHandler,
   createGetFestivalCardHandler,
   createUpsertFestivalCardHandler,
-} from 'sa2kit/business/festivalCard/routes';
+} from 'sa2kit/festivalCard/routes';
 import { db } from '@/db';
 
 const config = { db };

@@ -1,8 +1,8 @@
 'use client';
 
 import { Card, Collapse, Divider, Title } from 'animal-island-ui';
-import { CollisionBalls } from 'sa2kit/common/components';
-import type { CollisionBallsConfig, TimelineConfig } from 'sa2kit/common/components';
+import { CollisionBalls } from 'sa2kit/components';
+import type { CollisionBallsConfig, TimelineConfig } from 'sa2kit/components';
 
 type TimelineEntry = TimelineConfig['items'][number] & {
   id?: string;

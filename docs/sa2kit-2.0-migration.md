@@ -33,17 +33,17 @@
 
 | 旧 (1.x) | 新 (2.0 common) |
 |----------|-----------------|
-| `sa2kit/common/universalFile` | `sa2kit/common/file` |
-| `sa2kit/common/universalFile/server` | `sa2kit/common/file/server` |
-| `sa2kit/common/ossFile` | `sa2kit/common/file` |
-| `sa2kit/common/ossFile/server` | `sa2kit/common/file/server` |
+| `sa2kit/universalFile` | `sa2kit/common/file` |
+| `sa2kit/universalFile/server` | `sa2kit/common/file/server` |
+| `sa2kit/ossFile` | `sa2kit/common/file` |
+| `sa2kit/ossFile/server` | `sa2kit/common/file/server` |
 | `sa2kit/common/logger` | `sa2kit/common/logger` |
 | `sa2kit/auth/legacy` | `sa2kit/auth/legacy`（legacy 暂留原路径） |
 | `sa2kit/auth/*`（新 API 内核） | `sa2kit/common/auth` / `sa2kit/common/auth/server` |
 
 ## 验收
 
-- [x] `rg 'sa2kit/common/universalFile' src/` 为零（docs 除外）
+- [x] `rg 'sa2kit/universalFile' src/` 为零（docs 除外）
 - [x] `rg 'sa2kit/showmasterpiece' src/` 为零（docs 除外）
-- [x] `rg 'sa2kit/common/ossFile' src/` 为零（统一 common/file）
+- [x] `rg 'sa2kit/ossFile' src/` 为零（统一 common/file）
 - [x] smoke 脚本覆盖 universal-file 路由（`scripts/smoke-file-api.sh`）

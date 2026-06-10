@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from 'react';
-import { PMXViewer } from 'sa2kit/business/mmd';
+import { PMXViewer } from 'sa2kit/mmd';
 import { clsx } from 'clsx';
 
 const CDN_BASE_PATH = 'https://cdn.qhr062.top';

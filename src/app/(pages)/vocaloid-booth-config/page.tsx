@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BoothConfigPage, type VocaloidBoothConfig } from 'sa2kit/business/vocaloidBooth/web';
+import { BoothConfigPage, type VocaloidBoothConfig } from 'sa2kit/vocaloidBooth/web';
 
 const STORAGE_KEY = 'vocaloid-booth-config';
 

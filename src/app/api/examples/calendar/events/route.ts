@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
   createCreateEventHandler,
   createGetEventsHandler,
-} from 'sa2kit/business/calendar/routes';
+} from 'sa2kit/calendar/routes';
 import { calendarMockDb } from '@/lib/examples/calendar-mock-db';
 import { db, isDatabaseAvailable } from '@/lib/examples/db';
 

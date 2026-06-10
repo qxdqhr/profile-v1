@@ -3,7 +3,7 @@
 This demo now supports two modes for calendar APIs:
 
 1. Factory mode (recommended)
-- Uses `sa2kit/business/calendar/routes` handlers
+- Uses `sa2kit/calendar/routes` handlers
 - Requires `DATABASE_URL` so `examples/lib/db.ts` can provide a real db
 
 2. Mock mode (fallback)

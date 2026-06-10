@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { MusicPlayer } from 'sa2kit/business/music';
+import { MusicPlayer } from 'sa2kit/music';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 

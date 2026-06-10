@@ -138,7 +138,7 @@ const playlist: MMDPlaylistConfig = {
 ```typescript
 'use client'
 
-import { MMDPlaylist, type MMDPlaylistConfig } from 'sa2kit/business/mmd'
+import { MMDPlaylist, type MMDPlaylistConfig } from 'sa2kit/mmd'
 
 export default function MMDPlaylistTestPage() {
   const ossBasePath = 'https://profile-qhr-resource.oss-cn-beijing.aliyuncs.com/mmd';

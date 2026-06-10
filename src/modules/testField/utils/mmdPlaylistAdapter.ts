@@ -1,5 +1,5 @@
 // @ts-nocheck
-import type { MMDPlaylistConfig, MMDPlaylistNode } from 'sa2kit/business/mmd';
+import type { MMDPlaylistConfig, MMDPlaylistNode } from 'sa2kit/mmd';
 
 type PlaylistNodeWithFiles = {
   id: string;

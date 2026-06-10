@@ -8,7 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getConfigService } from '@/lib/examples/test-config-service';
-import type { SavedConfig } from 'sa2kit/business/testYourself';
+import type { SavedConfig } from 'sa2kit/testYourself';
 
 /**
  * 获取配置列表

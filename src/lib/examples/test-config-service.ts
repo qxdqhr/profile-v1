@@ -8,8 +8,8 @@ import {
   ConfigService,
   createDatabaseConfigAdapter,
   createConfigService as createBaseConfigService,
-} from 'sa2kit/business/testYourself/server';
-import type { ConfigServiceOptions } from 'sa2kit/business/testYourself/server';
+} from 'sa2kit/testYourself/server';
+import type { ConfigServiceOptions } from 'sa2kit/testYourself/server';
 
 /**
  * 创建配置服务

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { MMDMusicPlayer } from 'sa2kit/business/mmd';
+import { MMDMusicPlayer } from 'sa2kit/mmd';
 
 const CDN_BASE_PATH = 'https://cdn.qhr062.top';
 const YYB_Z6SakuraMiku = (CDN_BASE_PATH) + '/mmd/2025/11/25/YYB_Z6SakuraMiku/miku.pmx';

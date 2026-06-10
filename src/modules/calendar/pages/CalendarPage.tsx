@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuthContext, LoginRegisterModals } from '@/lib/auth';
 import { Plus } from 'lucide-react';
-import { ConfirmModal } from 'sa2kit/common/components';
+import { ConfirmModal } from 'sa2kit/components';
 import { DateCalculatorTool } from '@/modules/dateCalculator';
 import {
   CalendarViewType,

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ScreenReceiverPanel } from 'sa2kit/business/screenReceiver';
+import { ScreenReceiverPanel } from 'sa2kit/screenReceiver';
 
 export default function ScreenReceiverTestPage() {
   return (
@@ -11,7 +11,7 @@ export default function ScreenReceiverTestPage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">screenReceiver 测试路由</h1>
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              使用 `sa2kit/business/screenReceiver` 的 `ScreenReceiverPanel` 组件。
+              使用 `sa2kit/screenReceiver` 的 `ScreenReceiverPanel` 组件。
             </p>
           </div>
           <Link href="/examples/" className="text-sm font-semibold text-blue-600 hover:underline dark:text-blue-400">

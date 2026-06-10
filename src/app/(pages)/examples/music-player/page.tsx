@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MMDMusicPlayer } from 'sa2kit/business/mmd';
-import type { MMDMusicPlayerConfig } from 'sa2kit/business/mmd';
+import { MMDMusicPlayer } from 'sa2kit/mmd';
+import type { MMDMusicPlayerConfig } from 'sa2kit/mmd';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 

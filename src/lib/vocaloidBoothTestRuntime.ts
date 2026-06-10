@@ -1,10 +1,10 @@
-import { BoothVaultService } from 'sa2kit/business/vocaloidBooth';
+import { BoothVaultService } from 'sa2kit/vocaloidBooth';
 import {
   BoothRedeemGuard,
   InMemoryBoothAuditSink,
   InMemoryBoothVaultStore,
   createAuditLogger,
-} from 'sa2kit/business/vocaloidBooth/server';
+} from 'sa2kit/vocaloidBooth/server';
 
 const store = new InMemoryBoothVaultStore();
 const auditSink = new InMemoryBoothAuditSink();

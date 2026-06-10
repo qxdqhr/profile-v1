@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { MMDPlaylist, type MMDPlaylistConfig } from 'sa2kit/business/mmd';
+import { MMDPlaylist, type MMDPlaylistConfig } from 'sa2kit/mmd';
 import {
   convertPlaylistToMmdConfig,
   type PlaylistWithFiles,

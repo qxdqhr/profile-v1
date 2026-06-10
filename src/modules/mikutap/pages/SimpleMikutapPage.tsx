@@ -13,8 +13,8 @@ import TestAnimation from '../components/TestAnimation';
 import FullscreenAnimation from '../components/FullscreenAnimation';
 import MikutapButton from '../components/MikutapButton';
 import { RhythmGenerator } from '../utils/rhythmGenerator';
-import { FloatingMenu } from 'sa2kit/business/navigation';
-import { MikutapMusicPlayer, type MikutapMusicTrack } from 'sa2kit/business/music';
+import { FloatingMenu } from 'sa2kit/navigation';
+import { MikutapMusicPlayer, type MikutapMusicTrack } from 'sa2kit/music';
 
 interface SimpleMikutapPageProps {
   className?: string;

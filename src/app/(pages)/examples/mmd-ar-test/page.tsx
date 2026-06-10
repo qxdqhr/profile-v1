@@ -2,13 +2,13 @@
 
 import React, { useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ARMode, MMDARPlayer } from 'sa2kit/business/mmd';
+import { ARMode, MMDARPlayer } from 'sa2kit/mmd';
 import type {
   MMDARPlayerRef,
   ModelPreset,
   MotionPreset,
   AudioPreset
-} from 'sa2kit/business/mmd';
+} from 'sa2kit/mmd';
 
 const CDN_BIGFILE_BASE_PATH = 'https://cdn.bigfile.qhr062.top';
 const HIRO_PATTERN_URL = 'https://raw.githack.com/AR-js-org/AR.js/master/three.js/data/patt.hiro';

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { buildMmdPlaylistFromSources } from 'sa2kit/business/mmd/server';
+import { buildMmdPlaylistFromSources } from 'sa2kit/mmd/server';
 import { MMDModelsDbService, MMDAnimationsDbService } from '@/modules/mmd/db/mmdDbService';
 
 export const runtime = 'nodejs';

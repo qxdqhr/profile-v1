@@ -2,8 +2,8 @@
 
 import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { createAiClient } from 'sa2kit/common/ai/llm';
-import { AiChatDialog, AiConfigPage } from 'sa2kit/common/ai/llm/ui/web';
+import { createAiClient } from 'sa2kit/ai/llm';
+import { AiChatDialog, AiConfigPage } from 'sa2kit/ai/llm/ui/web';
 
 type AiUiConfig = {
   apiKey: string;
@@ -66,7 +66,7 @@ export default function AiLlmDialogPage() {
         <header className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <h1 className="text-2xl font-semibold">AI LLM 对话框示例</h1>
           <p className="mt-2 text-sm text-slate-600">
-            该页面直接引用 `sa2kit/common/ai/llm` 与 `sa2kit/common/ai/llm/ui/web`，用于测试 API Key
+            该页面直接引用 `sa2kit/ai/llm` 与 `sa2kit/ai/llm/ui/web`，用于测试 API Key
             对话链路。
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
