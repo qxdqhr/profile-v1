@@ -47,6 +47,58 @@ const KIND_LABEL: Record<PromptKind, string> = {
   negative: '负向',
 };
 
+function collectBuilderPrompts(
+  kind: PromptKind,
+  prompts: ComfyPrompt[],
+  sets: ComfyPromptSet[],
+  selectedPromptIds: number[],
+  selectedSetIds: number[],
+): ComfyPrompt[] {
+  const fromPrompts = prompts.filter(
+    (p) => selectedPromptIds.includes(p.id) && p.kind === kind,
+  );
+  const fromSets: ComfyPrompt[] = [];
+  for (const setId of selectedSetIds) {
+    const set = sets.find((s) => s.id === setId && s.kind === kind);
+    if (!set?.items) continue;
+    for (const item of set.items) {
+      if (item.enabled && item.prompt && item.prompt.kind === kind) {
+        fromSets.push({
+          ...item.prompt,
+          content: `${item.customPrefix ?? ''}${item.prompt.content}${item.customSuffix ?? ''}`.trim(),
+        });
+      }
+    }
+  }
+  const map = new Map<number, ComfyPrompt>();
+  [...fromSets, ...fromPrompts].forEach((p) => map.set(p.id, p));
+  return [...map.values()];
+}
+
+function SearchInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) {
+  return (
+    <div className="relative min-w-[200px] flex-1">
+      <Search className="absolute left-3 top-2.5 text-slate-500" size={16} />
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full rounded-xl border border-white/10 bg-white/5 py-2 pl-9 pr-3 text-sm"
+      />
+    </div>
+  );
+}
+
+const filterSelectClass = 'rounded-xl border border-white/10 bg-slate-900 px-3 py-2 text-sm';
+
 function ComfyPromptPageContent() {
   const router = useRouter();
   const store = useComfyPromptData();
@@ -57,9 +109,10 @@ function ComfyPromptPageContent() {
   const [search, setSearch] = useState('');
   const [toast, setToast] = useState<string | null>(null);
 
-  const [selectedPromptIds, setSelectedPromptIds] = useState<number[]>([]);
-  const [selectedSetIds, setSelectedSetIds] = useState<number[]>([]);
-  const [builderKind, setBuilderKind] = useState<PromptKind>('positive');
+  const [selectedPositivePromptIds, setSelectedPositivePromptIds] = useState<number[]>([]);
+  const [selectedNegativePromptIds, setSelectedNegativePromptIds] = useState<number[]>([]);
+  const [selectedPositiveSetIds, setSelectedPositiveSetIds] = useState<number[]>([]);
+  const [selectedNegativeSetIds, setSelectedNegativeSetIds] = useState<number[]>([]);
   const [separator, setSeparator] = useState(', ');
   const [wrapWeight, setWrapWeight] = useState(true);
 
@@ -78,31 +131,38 @@ function ComfyPromptPageContent() {
     [store, kindFilter, groupFilter, tagFilter, search],
   );
 
-  const builderPrompts = useMemo(() => {
-    const fromPrompts = store.prompts.filter(
-      (p) => selectedPromptIds.includes(p.id) && p.kind === builderKind,
-    );
-    const fromSets: ComfyPrompt[] = [];
-    for (const setId of selectedSetIds) {
-      const set = store.sets.find((s) => s.id === setId && s.kind === builderKind);
-      if (!set?.items) continue;
-      for (const item of set.items) {
-        if (item.enabled && item.prompt && item.prompt.kind === builderKind) {
-          fromSets.push({
-            ...item.prompt,
-            content: `${item.customPrefix ?? ''}${item.prompt.content}${item.customSuffix ?? ''}`.trim(),
-          });
-        }
-      }
-    }
-    const map = new Map<number, ComfyPrompt>();
-    [...fromSets, ...fromPrompts].forEach((p) => map.set(p.id, p));
-    return [...map.values()];
-  }, [store.prompts, store.sets, selectedPromptIds, selectedSetIds, builderKind]);
+  const positiveBuilderPrompts = useMemo(
+    () =>
+      collectBuilderPrompts(
+        'positive',
+        store.prompts,
+        store.sets,
+        selectedPositivePromptIds,
+        selectedPositiveSetIds,
+      ),
+    [store.prompts, store.sets, selectedPositivePromptIds, selectedPositiveSetIds],
+  );
 
-  const builtPrompt = useMemo(
-    () => buildPromptString(builderPrompts, { separator, wrapWeight }),
-    [builderPrompts, separator, wrapWeight],
+  const negativeBuilderPrompts = useMemo(
+    () =>
+      collectBuilderPrompts(
+        'negative',
+        store.prompts,
+        store.sets,
+        selectedNegativePromptIds,
+        selectedNegativeSetIds,
+      ),
+    [store.prompts, store.sets, selectedNegativePromptIds, selectedNegativeSetIds],
+  );
+
+  const builtPositivePrompt = useMemo(
+    () => buildPromptString(positiveBuilderPrompts, { separator, wrapWeight }),
+    [positiveBuilderPrompts, separator, wrapWeight],
+  );
+
+  const builtNegativePrompt = useMemo(
+    () => buildPromptString(negativeBuilderPrompts, { separator, wrapWeight }),
+    [negativeBuilderPrompts, separator, wrapWeight],
   );
 
   const showToast = (msg: string) => {
@@ -115,14 +175,26 @@ function ComfyPromptPageContent() {
     showToast(ok ? okMsg : '复制失败，请检查浏览器权限');
   };
 
-  const togglePromptSelection = (id: number) => {
-    setSelectedPromptIds((prev) =>
+  const togglePositivePrompt = (id: number) => {
+    setSelectedPositivePromptIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   };
 
-  const toggleSetSelection = (id: number) => {
-    setSelectedSetIds((prev) =>
+  const toggleNegativePrompt = (id: number) => {
+    setSelectedNegativePromptIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
+
+  const togglePositiveSet = (id: number) => {
+    setSelectedPositiveSetIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
+
+  const toggleNegativeSet = (id: number) => {
+    setSelectedNegativeSetIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   };
@@ -135,8 +207,8 @@ function ComfyPromptPageContent() {
     } catch {
       // ignore
     }
-    if (builderKind === 'positive') draft.positivePrompt = builtPrompt;
-    else draft.negativePrompt = builtPrompt;
+    if (builtPositivePrompt) draft.positivePrompt = builtPositivePrompt;
+    if (builtNegativePrompt) draft.negativePrompt = builtNegativePrompt;
     sessionStorage.setItem(COMFY_RUN_DRAFT_KEY, JSON.stringify(draft));
     router.push('/testField/comfyPrompt/run');
   };
@@ -179,20 +251,26 @@ function ComfyPromptPageContent() {
 
       {tab === 'builder' && (
         <BuilderPanel
-          builderKind={builderKind}
-          setBuilderKind={setBuilderKind}
           separator={separator}
           setSeparator={setSeparator}
           wrapWeight={wrapWeight}
           setWrapWeight={setWrapWeight}
-          builtPrompt={builtPrompt}
-          prompts={store.prompts.filter((p) => p.kind === builderKind)}
-          sets={store.sets.filter((s) => s.kind === builderKind)}
-          selectedPromptIds={selectedPromptIds}
-          selectedSetIds={selectedSetIds}
-          onTogglePrompt={togglePromptSelection}
-          onToggleSet={toggleSetSelection}
-          onCopy={() => void handleCopy(builtPrompt)}
+          builtPositivePrompt={builtPositivePrompt}
+          builtNegativePrompt={builtNegativePrompt}
+          positivePrompts={store.prompts.filter((p) => p.kind === 'positive')}
+          negativePrompts={store.prompts.filter((p) => p.kind === 'negative')}
+          positiveSets={store.sets.filter((s) => s.kind === 'positive')}
+          negativeSets={store.sets.filter((s) => s.kind === 'negative')}
+          selectedPositivePromptIds={selectedPositivePromptIds}
+          selectedNegativePromptIds={selectedNegativePromptIds}
+          selectedPositiveSetIds={selectedPositiveSetIds}
+          selectedNegativeSetIds={selectedNegativeSetIds}
+          onTogglePositivePrompt={togglePositivePrompt}
+          onToggleNegativePrompt={toggleNegativePrompt}
+          onTogglePositiveSet={togglePositiveSet}
+          onToggleNegativeSet={toggleNegativeSet}
+          onCopyPositive={() => void handleCopy(builtPositivePrompt, '正向 Prompt 已复制')}
+          onCopyNegative={() => void handleCopy(builtNegativePrompt, '负向 Prompt 已复制')}
           onSendToRun={sendToRemoteRun}
         />
       )}
@@ -306,120 +384,105 @@ function ComfyPromptPageContent() {
 }
 
 function BuilderPanel(props: {
-  builderKind: PromptKind;
-  setBuilderKind: (k: PromptKind) => void;
   separator: string;
   setSeparator: (s: string) => void;
   wrapWeight: boolean;
   setWrapWeight: (v: boolean) => void;
-  builtPrompt: string;
-  prompts: ComfyPrompt[];
-  sets: ComfyPromptSet[];
-  selectedPromptIds: number[];
-  selectedSetIds: number[];
-  onTogglePrompt: (id: number) => void;
-  onToggleSet: (id: number) => void;
-  onCopy: () => void;
+  builtPositivePrompt: string;
+  builtNegativePrompt: string;
+  positivePrompts: ComfyPrompt[];
+  negativePrompts: ComfyPrompt[];
+  positiveSets: ComfyPromptSet[];
+  negativeSets: ComfyPromptSet[];
+  selectedPositivePromptIds: number[];
+  selectedNegativePromptIds: number[];
+  selectedPositiveSetIds: number[];
+  selectedNegativeSetIds: number[];
+  onTogglePositivePrompt: (id: number) => void;
+  onToggleNegativePrompt: (id: number) => void;
+  onTogglePositiveSet: (id: number) => void;
+  onToggleNegativeSet: (id: number) => void;
+  onCopyPositive: () => void;
+  onCopyNegative: () => void;
   onSendToRun: () => void;
 }) {
+  const canSendToRun = Boolean(props.builtPositivePrompt || props.builtNegativePrompt);
+
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_420px]">
-      <div className="space-y-4">
-        <div className="flex flex-wrap gap-2">
-          {(['positive', 'negative'] as PromptKind[]).map((k) => (
-            <button
-              key={k}
-              type="button"
-              onClick={() => props.setBuilderKind(k)}
-              className={`rounded-full px-4 py-2 text-sm ${
-                props.builderKind === k ? 'bg-emerald-500 text-white' : 'bg-white/5'
-              }`}
-            >
-              {KIND_LABEL[k]} Prompt
-            </button>
-          ))}
-        </div>
-
-        <section className="rounded-2xl border border-white/10 bg-white/5 p-4">
-          <h3 className="mb-3 font-medium">选择提示词模板</h3>
-          <div className="flex flex-wrap gap-2">
-            {props.sets.map((set) => (
-              <button
-                key={set.id}
-                type="button"
-                onClick={() => props.onToggleSet(set.id)}
-                className={`rounded-xl px-3 py-2 text-sm ${
-                  props.selectedSetIds.includes(set.id)
-                    ? 'bg-violet-500 text-white'
-                    : 'bg-slate-800/80 hover:bg-slate-700'
-                }`}
-              >
-                {set.name}
-              </button>
-            ))}
-            {!props.sets.length && <span className="text-sm text-slate-500">暂无提示词模板</span>}
-          </div>
-        </section>
-
-        <section className="rounded-2xl border border-white/10 bg-white/5 p-4">
-          <h3 className="mb-3 font-medium">选择单条提示词</h3>
-          <div className="max-h-80 space-y-2 overflow-y-auto">
-            {props.prompts.map((p) => (
-              <label
-                key={p.id}
-                className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 ${
-                  props.selectedPromptIds.includes(p.id)
-                    ? 'border-violet-400 bg-violet-500/10'
-                    : 'border-white/5 bg-slate-900/40'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={props.selectedPromptIds.includes(p.id)}
-                  onChange={() => props.onTogglePrompt(p.id)}
-                  className="mt-1"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="font-medium">{p.title}</div>
-                  <div className="truncate text-sm text-slate-400">{p.content}</div>
-                </div>
-              </label>
-            ))}
-          </div>
-        </section>
+    <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
+      <div className="space-y-6">
+        <BuilderKindSection
+          kind="positive"
+          sets={props.positiveSets}
+          prompts={props.positivePrompts}
+          selectedSetIds={props.selectedPositiveSetIds}
+          selectedPromptIds={props.selectedPositivePromptIds}
+          onToggleSet={props.onTogglePositiveSet}
+          onTogglePrompt={props.onTogglePositivePrompt}
+        />
+        <BuilderKindSection
+          kind="negative"
+          sets={props.negativeSets}
+          prompts={props.negativePrompts}
+          selectedSetIds={props.selectedNegativeSetIds}
+          selectedPromptIds={props.selectedNegativePromptIds}
+          onToggleSet={props.onToggleNegativeSet}
+          onTogglePrompt={props.onToggleNegativePrompt}
+        />
       </div>
 
-      <aside className="space-y-4 lg:sticky lg:top-36 lg:self-start">
+      <aside className="space-y-4 xl:sticky xl:top-24 xl:self-start">
         <div className="rounded-2xl border border-violet-400/30 bg-violet-500/10 p-4">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <h3 className="font-semibold">ComfyUI 输出</h3>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={props.onSendToRun}
-                disabled={!props.builtPrompt}
-                className="flex items-center gap-1 rounded-lg border border-violet-400/40 px-3 py-1.5 text-sm disabled:opacity-40"
-              >
-                前往远程运行
-              </button>
-              <button
-                type="button"
-                onClick={props.onCopy}
-                disabled={!props.builtPrompt}
-                className="flex items-center gap-1 rounded-lg bg-violet-500 px-3 py-1.5 text-sm disabled:opacity-40"
-              >
-                <Copy size={14} /> 复制
-              </button>
-            </div>
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h3 className="font-semibold">正向 ComfyUI 输出</h3>
+            <button
+              type="button"
+              onClick={props.onCopyPositive}
+              disabled={!props.builtPositivePrompt}
+              className="flex items-center gap-1 rounded-lg bg-violet-500 px-3 py-1.5 text-sm disabled:opacity-40"
+            >
+              <Copy size={14} /> 复制
+            </button>
           </div>
           <textarea
             readOnly
-            value={props.builtPrompt}
-            rows={12}
+            value={props.builtPositivePrompt}
+            rows={6}
             className="w-full rounded-xl border border-white/10 bg-slate-950/80 p-3 text-sm leading-relaxed text-slate-200"
-            placeholder="选择提示词或模板后在此生成..."
+            placeholder="选择正向提示词或模板后在此生成..."
           />
         </div>
+
+        <div className="rounded-2xl border border-violet-400/30 bg-violet-500/10 p-4">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h3 className="font-semibold">负向 ComfyUI 输出</h3>
+            <button
+              type="button"
+              onClick={props.onCopyNegative}
+              disabled={!props.builtNegativePrompt}
+              className="flex items-center gap-1 rounded-lg bg-violet-500 px-3 py-1.5 text-sm disabled:opacity-40"
+            >
+              <Copy size={14} /> 复制
+            </button>
+          </div>
+          <textarea
+            readOnly
+            value={props.builtNegativePrompt}
+            rows={6}
+            className="w-full rounded-xl border border-white/10 bg-slate-950/80 p-3 text-sm leading-relaxed text-slate-200"
+            placeholder="选择负向提示词或模板后在此生成..."
+          />
+        </div>
+
+        <button
+          type="button"
+          onClick={props.onSendToRun}
+          disabled={!canSendToRun}
+          className="w-full rounded-xl bg-emerald-500 py-2.5 font-medium text-white hover:bg-emerald-400 disabled:opacity-40"
+        >
+          前往远程运行
+        </button>
+
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm space-y-3">
           <label className="block">
             <span className="text-slate-400">分隔符</span>
@@ -440,6 +503,73 @@ function BuilderPanel(props: {
         </div>
       </aside>
     </div>
+  );
+}
+
+function BuilderKindSection(props: {
+  kind: PromptKind;
+  sets: ComfyPromptSet[];
+  prompts: ComfyPrompt[];
+  selectedSetIds: number[];
+  selectedPromptIds: number[];
+  onToggleSet: (id: number) => void;
+  onTogglePrompt: (id: number) => void;
+}) {
+  return (
+    <section className="space-y-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+      <h3 className="font-medium">{KIND_LABEL[props.kind]} Prompt 组装</h3>
+
+      <div>
+        <h4 className="mb-2 text-sm text-slate-400">选择提示词模板</h4>
+        <div className="flex flex-wrap gap-2">
+          {props.sets.map((set) => (
+            <button
+              key={set.id}
+              type="button"
+              onClick={() => props.onToggleSet(set.id)}
+              className={`rounded-xl px-3 py-2 text-sm ${
+                props.selectedSetIds.includes(set.id)
+                  ? 'bg-violet-500 text-white'
+                  : 'bg-slate-800/80 hover:bg-slate-700'
+              }`}
+            >
+              {set.name}
+            </button>
+          ))}
+          {!props.sets.length && <span className="text-sm text-slate-500">暂无{KIND_LABEL[props.kind]}模板</span>}
+        </div>
+      </div>
+
+      <div>
+        <h4 className="mb-2 text-sm text-slate-400">选择单条提示词</h4>
+        <div className="max-h-64 space-y-2 overflow-y-auto">
+          {props.prompts.map((p) => (
+            <label
+              key={p.id}
+              className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 ${
+                props.selectedPromptIds.includes(p.id)
+                  ? 'border-violet-400 bg-violet-500/10'
+                  : 'border-white/5 bg-slate-900/40'
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={props.selectedPromptIds.includes(p.id)}
+                onChange={() => props.onTogglePrompt(p.id)}
+                className="mt-1"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="font-medium">{p.title}</div>
+                <div className="truncate text-sm text-slate-400">{p.content}</div>
+              </div>
+            </label>
+          ))}
+          {!props.prompts.length && (
+            <span className="text-sm text-slate-500">暂无{KIND_LABEL[props.kind]}提示词</span>
+          )}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -573,19 +703,15 @@ function PromptsPanel(props: {
     <div>
       <PanelToolbar title="提示词库" onAdd={openCreate} addLabel="新建提示词" />
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <div className="relative min-w-[200px] flex-1">
-          <Search className="absolute left-3 top-2.5 text-slate-500" size={16} />
-          <input
-            value={props.search}
-            onChange={(e) => props.setSearch(e.target.value)}
-            placeholder="搜索标题或内容..."
-            className="w-full rounded-xl border border-white/10 bg-white/5 py-2 pl-9 pr-3 text-sm"
-          />
-        </div>
+        <SearchInput
+          value={props.search}
+          onChange={props.setSearch}
+          placeholder="搜索标题或内容..."
+        />
         <select
           value={props.kindFilter}
           onChange={(e) => props.setKindFilter(e.target.value as PromptKind | 'all')}
-          className="rounded-xl border border-white/10 bg-slate-900 px-3 py-2 text-sm"
+          className={filterSelectClass}
         >
           <option value="all">全部类型</option>
           <option value="positive">正向</option>
@@ -596,7 +722,7 @@ function PromptsPanel(props: {
           onChange={(e) =>
             props.setGroupFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))
           }
-          className="rounded-xl border border-white/10 bg-slate-900 px-3 py-2 text-sm"
+          className={filterSelectClass}
         >
           <option value="all">全部分组</option>
           {props.groups.map((g) => (
@@ -608,7 +734,7 @@ function PromptsPanel(props: {
         <select
           value={props.tagFilter}
           onChange={(e) => props.setTagFilter(e.target.value)}
-          className="rounded-xl border border-white/10 bg-slate-900 px-3 py-2 text-sm"
+          className={filterSelectClass}
         >
           <option value="">全部 Tag</option>
           {props.allTags.map((t) => (
@@ -705,6 +831,21 @@ function GroupsPanel(props: {
   const [kind, setKind] = useState<PromptKind>('positive');
   const [description, setDescription] = useState('');
   const [color, setColor] = useState('violet');
+  const [search, setSearch] = useState('');
+  const [kindFilter, setKindFilter] = useState<PromptKind | 'all'>('all');
+
+  const filteredGroups = useMemo(() => {
+    return props.groups.filter((g) => {
+      if (kindFilter !== 'all' && g.kind !== kindFilter) return false;
+      if (search) {
+        const q = search.toLowerCase();
+        if (!g.name.toLowerCase().includes(q) && !(g.description ?? '').toLowerCase().includes(q)) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [props.groups, search, kindFilter]);
 
   const resetForm = () => {
     setEditing(null);
@@ -739,8 +880,20 @@ function GroupsPanel(props: {
   return (
     <div>
       <PanelToolbar title="提示词分组" onAdd={openCreate} addLabel="新建分组" />
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <SearchInput value={search} onChange={setSearch} placeholder="搜索名称或描述..." />
+        <select
+          value={kindFilter}
+          onChange={(e) => setKindFilter(e.target.value as PromptKind | 'all')}
+          className={filterSelectClass}
+        >
+          <option value="all">全部类型</option>
+          <option value="positive">正向</option>
+          <option value="negative">负向</option>
+        </select>
+      </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {props.groups.map((g) => (
+        {filteredGroups.map((g) => (
           <GridCard
             key={g.id}
             title={g.name}
@@ -752,8 +905,10 @@ function GroupsPanel(props: {
             onDelete={() => void props.onDelete(g.id)}
           />
         ))}
-        {!props.groups.length && (
-          <p className="col-span-full text-sm text-slate-500">暂无分组，点击「新建分组」开始添加。</p>
+        {!filteredGroups.length && (
+          <p className="col-span-full text-sm text-slate-500">
+            {props.groups.length ? '没有匹配的分组。' : '暂无分组，点击「新建分组」开始添加。'}
+          </p>
         )}
       </div>
 
@@ -819,6 +974,37 @@ function TemplatesPanel(props: {
   const [importText, setImportText] = useState('');
   const [importSplitToLibrary, setImportSplitToLibrary] = useState(true);
   const [importGroupId, setImportGroupId] = useState<number | ''>('');
+  const [search, setSearch] = useState('');
+  const [kindFilter, setKindFilter] = useState<PromptKind | 'all'>('all');
+  const [tagFilter, setTagFilter] = useState('');
+
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    for (const set of props.sets) (set.tags ?? []).forEach((t) => tagSet.add(t));
+    return [...tagSet].sort();
+  }, [props.sets]);
+
+  const filteredSets = useMemo(() => {
+    return props.sets.filter((set) => {
+      if (kindFilter !== 'all' && set.kind !== kindFilter) return false;
+      if (tagFilter && !(set.tags ?? []).includes(tagFilter)) return false;
+      if (search) {
+        const q = search.toLowerCase();
+        const itemTitles = (set.items ?? [])
+          .map((i) => i.prompt?.title ?? '')
+          .join(' ')
+          .toLowerCase();
+        if (
+          !set.name.toLowerCase().includes(q) &&
+          !(set.description ?? '').toLowerCase().includes(q) &&
+          !itemTitles.includes(q)
+        ) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [props.sets, search, kindFilter, tagFilter]);
 
   const resetForm = () => {
     setEditing(null);
@@ -909,8 +1095,29 @@ function TemplatesPanel(props: {
         }
       />
 
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <SearchInput value={search} onChange={setSearch} placeholder="搜索模板名称、描述或条目..." />
+        <select
+          value={kindFilter}
+          onChange={(e) => setKindFilter(e.target.value as PromptKind | 'all')}
+          className={filterSelectClass}
+        >
+          <option value="all">全部类型</option>
+          <option value="positive">正向</option>
+          <option value="negative">负向</option>
+        </select>
+        <select value={tagFilter} onChange={(e) => setTagFilter(e.target.value)} className={filterSelectClass}>
+          <option value="">全部 Tag</option>
+          {allTags.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {props.sets.map((set) => (
+        {filteredSets.map((set) => (
           <GridCard
             key={set.id}
             title={set.name}
@@ -925,8 +1132,10 @@ function TemplatesPanel(props: {
             onDelete={() => void props.onDelete(set.id)}
           />
         ))}
-        {!props.sets.length && (
-          <p className="col-span-full text-sm text-slate-500">暂无模板，可新建或导入模板。</p>
+        {!filteredSets.length && (
+          <p className="col-span-full text-sm text-slate-500">
+            {props.sets.length ? '没有匹配的模板。' : '暂无模板，可新建或导入模板。'}
+          </p>
         )}
       </div>
 
@@ -1059,6 +1268,32 @@ function WorkflowsPanel(props: {
   const [seedNodeId, setSeedNodeId] = useState('');
   const [latentNodeId, setLatentNodeId] = useState('');
   const [notes, setNotes] = useState('');
+  const [search, setSearch] = useState('');
+  const [tagFilter, setTagFilter] = useState('');
+
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    for (const workflow of props.workflows) (workflow.tags ?? []).forEach((t) => tagSet.add(t));
+    return [...tagSet].sort();
+  }, [props.workflows]);
+
+  const filteredWorkflows = useMemo(() => {
+    return props.workflows.filter((workflow) => {
+      if (tagFilter && !(workflow.tags ?? []).includes(tagFilter)) return false;
+      if (search) {
+        const q = search.toLowerCase();
+        const tagText = (workflow.tags ?? []).join(' ').toLowerCase();
+        if (
+          !workflow.name.toLowerCase().includes(q) &&
+          !(workflow.notes ?? '').toLowerCase().includes(q) &&
+          !tagText.includes(q)
+        ) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [props.workflows, search, tagFilter]);
 
   const resetForm = () => {
     setEditing(null);
@@ -1132,8 +1367,20 @@ function WorkflowsPanel(props: {
     <div>
       <PanelToolbar title="工作流" onAdd={openCreate} addLabel="新建工作流" />
 
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <SearchInput value={search} onChange={setSearch} placeholder="搜索名称、备注或 Tag..." />
+        <select value={tagFilter} onChange={(e) => setTagFilter(e.target.value)} className={filterSelectClass}>
+          <option value="">全部 Tag</option>
+          {allTags.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {props.workflows.map((w) => (
+        {filteredWorkflows.map((w) => (
           <GridCard
             key={w.id}
             title={w.name}
@@ -1161,8 +1408,12 @@ function WorkflowsPanel(props: {
             onDelete={() => void props.onDelete(w.id)}
           />
         ))}
-        {!props.workflows.length && (
-          <p className="col-span-full text-sm text-slate-500">暂无工作流，点击「新建工作流」导入 ComfyUI JSON。</p>
+        {!filteredWorkflows.length && (
+          <p className="col-span-full text-sm text-slate-500">
+            {props.workflows.length
+              ? '没有匹配的工作流。'
+              : '暂无工作流，点击「新建工作流」导入 ComfyUI JSON。'}
+          </p>
         )}
       </div>
 

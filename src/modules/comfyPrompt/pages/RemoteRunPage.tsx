@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Download,
   Loader2,
@@ -19,6 +19,9 @@ import type { ComfyJob, ComfyJobStatus, JobOutputKey } from '../types';
 import { COMFY_RUN_DRAFT_KEY, type ComfyRunDraft } from '../types';
 
 const POLL_INTERVAL_MS = 3000;
+const JOB_ERROR_DISMISS_MS = 8000;
+
+type JobErrorToast = { id: string; message: string };
 
 const STATUS_LABEL: Record<ComfyJobStatus, string> = {
   pending: '等待中',
@@ -57,6 +60,8 @@ export default function RemoteRunPage() {
   const [height, setHeight] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [jobErrorToasts, setJobErrorToasts] = useState<JobErrorToast[]>([]);
+  const shownFailureIdsRef = useRef<Set<number>>(new Set());
 
   const [serverModalOpen, setServerModalOpen] = useState(false);
   const [serverName, setServerName] = useState('');
@@ -115,6 +120,22 @@ export default function RemoteRunPage() {
     return () => clearInterval(timer);
   }, [activeJobIds.length, pollActiveJobs]);
 
+  useEffect(() => {
+    for (const job of remote.jobs) {
+      if (job.status !== 'failed' || !job.errorMessage) continue;
+      if (shownFailureIdsRef.current.has(job.id)) continue;
+      shownFailureIdsRef.current.add(job.id);
+      const toastId = `job-error-${job.id}-${Date.now()}`;
+      setJobErrorToasts((prev) => [
+        ...prev,
+        { id: toastId, message: `#${job.id}: ${job.errorMessage}` },
+      ]);
+      setTimeout(() => {
+        setJobErrorToasts((prev) => prev.filter((t) => t.id !== toastId));
+      }, JOB_ERROR_DISMISS_MS);
+    }
+  }, [remote.jobs]);
+
   const handleCreateServer = async () => {
     if (!serverName.trim() || !serverUrl.trim()) {
       showToast('请填写服务器名称与地址');
@@ -166,6 +187,20 @@ export default function RemoteRunPage() {
 
   return (
     <div className="space-y-6">
+      {jobErrorToasts.length > 0 && (
+        <div className="fixed top-20 right-4 z-[110] flex max-w-md flex-col gap-2">
+          {jobErrorToasts.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-950/95 px-4 py-3 text-sm text-red-200 shadow-lg backdrop-blur-sm"
+            >
+              <XCircle size={16} className="mt-0.5 shrink-0" />
+              <span>{item.message}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {toast && (
         <div className="fixed bottom-6 right-6 z-[110] rounded-xl bg-violet-600 px-4 py-2 text-sm shadow-lg">
           {toast}
@@ -645,23 +680,6 @@ function JobHistoryGrid({
         </p>
       )}
 
-      {jobs.some((j) => j.status === 'failed' && j.errorMessage) && (
-        <div className="mt-4 space-y-2">
-          {jobs
-            .filter((j) => j.status === 'failed' && j.errorMessage)
-            .map((j) => (
-              <div
-                key={j.id}
-                className="flex items-start gap-2 rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-sm text-red-200"
-              >
-                <XCircle size={16} className="mt-0.5 shrink-0" />
-                <span>
-                  #{j.id}: {j.errorMessage}
-                </span>
-              </div>
-            ))}
-        </div>
-      )}
     </div>
   );
 }
