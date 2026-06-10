@@ -1,4 +1,11 @@
 import { randomInt } from 'crypto';
+import {
+  detectWorkflowNodeIds,
+  isApiWorkflow,
+  type WorkflowNodeBindings,
+} from '../utils/detectWorkflowNodeIds';
+
+export { detectWorkflowNodeIds, isApiWorkflow, type WorkflowNodeBindings };
 
 /** ComfyUI KSampler 等节点常用 32 位无符号 seed 范围 */
 export function generateComfySeed(): number {
@@ -10,13 +17,17 @@ type ApiNode = {
   inputs?: Record<string, unknown>;
 };
 
-function isApiWorkflow(workflow: Record<string, unknown>): boolean {
-  if ('nodes' in workflow && Array.isArray(workflow.nodes)) {
-    return false;
-  }
-  return Object.values(workflow).some(
-    (value) => value && typeof value === 'object' && 'class_type' in (value as object),
-  );
+function resolveBindings(
+  workflow: Record<string, ApiNode>,
+  explicit: WorkflowNodeBindings,
+): WorkflowNodeBindings {
+  const detected = detectWorkflowNodeIds(workflow);
+  return {
+    positiveNodeId: explicit.positiveNodeId ?? detected.positiveNodeId,
+    negativeNodeId: explicit.negativeNodeId ?? detected.negativeNodeId,
+    seedNodeId: explicit.seedNodeId ?? detected.seedNodeId,
+    latentNodeId: explicit.latentNodeId ?? detected.latentNodeId,
+  };
 }
 
 function setNodeInput(
@@ -31,6 +42,26 @@ function setNodeInput(
     throw new Error(`工作流中不存在节点 ${nodeId}`);
   }
   node.inputs = { ...(node.inputs ?? {}), [field]: value };
+}
+
+function resolveSeedField(node: ApiNode): string {
+  const inputs = node.inputs ?? {};
+  if ('seed' in inputs) return 'seed';
+  if ('noise_seed' in inputs) return 'noise_seed';
+  return 'seed';
+}
+
+function setSeedInput(
+  workflow: Record<string, ApiNode>,
+  nodeId: string | null | undefined,
+  seed: number,
+) {
+  if (!nodeId) return;
+  const node = workflow[nodeId];
+  if (!node) {
+    throw new Error(`工作流中不存在节点 ${nodeId}`);
+  }
+  setNodeInput(workflow, nodeId, resolveSeedField(node), seed);
 }
 
 export function injectWorkflowPrompt(
@@ -52,23 +83,37 @@ export function injectWorkflowPrompt(
   }
 
   const workflow = structuredClone(workflowJson) as Record<string, ApiNode>;
+  const bindings = resolveBindings(workflow, {
+    positiveNodeId: options.positiveNodeId ?? null,
+    negativeNodeId: options.negativeNodeId ?? null,
+    seedNodeId: options.seedNodeId ?? null,
+    latentNodeId: options.latentNodeId ?? null,
+  });
 
   if (options.positivePrompt?.trim()) {
-    setNodeInput(workflow, options.positiveNodeId, 'text', options.positivePrompt.trim());
+    if (!bindings.positiveNodeId) {
+      throw new Error('无法注入正向 Prompt：工作流未配置正向节点 ID，且未能自动识别 KSampler 正向 CLIP 节点');
+    }
+    setNodeInput(workflow, bindings.positiveNodeId, 'text', options.positivePrompt.trim());
   }
   if (options.negativePrompt?.trim()) {
-    setNodeInput(workflow, options.negativeNodeId, 'text', options.negativePrompt.trim());
+    if (!bindings.negativeNodeId) {
+      throw new Error('无法注入负向 Prompt：工作流未配置负向节点 ID，且未能自动识别 KSampler 负向 CLIP 节点');
+    }
+    setNodeInput(workflow, bindings.negativeNodeId, 'text', options.negativePrompt.trim());
   }
-  if (options.seedNodeId) {
+
+  if (bindings.seedNodeId) {
     const seed = options.seed ?? generateComfySeed();
-    setNodeInput(workflow, options.seedNodeId, 'seed', seed);
+    setSeedInput(workflow, bindings.seedNodeId, seed);
   }
-  if (options.latentNodeId) {
+
+  if (bindings.latentNodeId) {
     if (options.width !== undefined) {
-      setNodeInput(workflow, options.latentNodeId, 'width', options.width);
+      setNodeInput(workflow, bindings.latentNodeId, 'width', options.width);
     }
     if (options.height !== undefined) {
-      setNodeInput(workflow, options.latentNodeId, 'height', options.height);
+      setNodeInput(workflow, bindings.latentNodeId, 'height', options.height);
     }
   }
 

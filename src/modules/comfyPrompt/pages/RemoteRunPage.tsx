@@ -320,7 +320,7 @@ export default function RemoteRunPage() {
               </button>
             </div>
             <p className="text-xs text-slate-500">
-              高级设置可配置 Seed、宽高；留空 Seed 则自动随机。HTTP 每 {POLL_INTERVAL_MS / 1000}s 轮询任务状态。
+              高级设置可配置 Seed、宽高；留空 Seed 则自动随机。未手动配置节点 ID 时，会从 KSampler 等工作流结构自动识别。
             </p>
           </div>
 

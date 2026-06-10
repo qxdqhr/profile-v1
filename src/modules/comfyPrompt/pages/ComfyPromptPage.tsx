@@ -30,6 +30,7 @@ import type {
   PromptKind,
 } from '../types';
 import { COMFY_RUN_DRAFT_KEY } from '../types';
+import { detectWorkflowNodeIds, isApiWorkflow } from '../utils/detectWorkflowNodeIds';
 
 type TabId = 'prompts' | 'groups' | 'sets' | 'workflows' | 'builder';
 
@@ -1089,10 +1090,24 @@ function WorkflowsPanel(props: {
     setFormOpen(true);
   };
 
+  const applyDetectedNodeIds = (workflowJson: Record<string, unknown>) => {
+    if (!isApiWorkflow(workflowJson)) return;
+    const detected = detectWorkflowNodeIds(workflowJson);
+    if (!positiveNodeId && detected.positiveNodeId) setPositiveNodeId(detected.positiveNodeId);
+    if (!negativeNodeId && detected.negativeNodeId) setNegativeNodeId(detected.negativeNodeId);
+    if (!seedNodeId && detected.seedNodeId) setSeedNodeId(detected.seedNodeId);
+    if (!latentNodeId && detected.latentNodeId) setLatentNodeId(detected.latentNodeId);
+  };
+
   const importFile = async (file: File) => {
     const text = await file.text();
     setJsonText(text);
     if (!name) setName(file.name.replace(/\.json$/i, ''));
+    try {
+      applyDetectedNodeIds(JSON.parse(text) as Record<string, unknown>);
+    } catch {
+      // ignore invalid json until save
+    }
   };
 
   const save = async () => {
