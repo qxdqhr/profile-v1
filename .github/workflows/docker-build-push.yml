@@ -79,7 +79,7 @@ jobs:
           echo "=== 同步生产配置到服务器 ==="
           ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1"
           scp $SSH_OPTS "$DEPLOY_CFG_DIR/app.config.yaml" "$REMOTE:/root/profile-v1/app.config.yaml"
-          ssh $SSH_OPTS "$REMOTE" "chmod 600 /root/profile-v1/app.config.yaml"
+          ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml"
 
           ssh $SSH_OPTS "$REMOTE" << EOF
             set -e
