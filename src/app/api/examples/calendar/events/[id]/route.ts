@@ -3,7 +3,7 @@ import {
   createDeleteEventHandler,
   createGetEventByIdHandler,
   createUpdateEventHandler,
-} from 'sa2kit/calendar/routes';
+} from 'sa2kit/business/calendar/routes';
 import { calendarMockDb } from '@/lib/examples/calendar-mock-db';
 import { db, isDatabaseAvailable } from '@/lib/examples/db';
 

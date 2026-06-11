@@ -1,6 +1,6 @@
 /**
  * 将 role 为 admin / super_admin 的用户的密码更新为 ADMIN_NEW_PASSWORD 的 bcrypt(12) 哈希。
- * 用法: ADMIN_NEW_PASSWORD='...' dotenv -e .env.production -- pnpm exec tsx scripts/update-admin-password.ts
+ * 用法: ADMIN_NEW_PASSWORD='...' APP_CONFIG_ENV=production tsx --import ./scripts/preload-app-config.ts scripts/update-admin-password.ts
  */
 import bcrypt from 'bcryptjs';
 import { eq, inArray, or } from 'drizzle-orm';

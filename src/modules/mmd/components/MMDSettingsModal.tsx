@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Modal } from 'sa2kit/components';
+import { Modal } from 'sa2kit/common/components';
 import { FileText } from 'lucide-react';
 
 interface MMDSettingsModalProps {

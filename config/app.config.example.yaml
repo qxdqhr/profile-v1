@@ -1,0 +1,55 @@
+# 复制为 app.config.local.yaml（开发）或通过 SOPS 维护 production.enc.yaml（生产）
+# 文档：config/README.md
+
+app:
+  name: profile-v1
+  env: development
+
+database:
+  url: postgresql://user:password@localhost:5432/dbname
+  poolSize: 10
+  timeout: 5000
+  sslMode: prefer
+
+auth:
+  secret: "build-placeholder-secret-min-32-chars!!"
+  url: http://localhost:3000
+  publicUrl: http://localhost:3000
+  trustedOrigins:
+    - http://localhost:3000
+  logOtpInDev: true
+  sms:
+    provider: console
+    aliyun:
+      accessKeyId: ""
+      accessKeySecret: ""
+      signName: ""
+      templateCode: ""
+
+storage:
+  aliyunOss:
+    enabled: false
+    region: oss-cn-beijing
+    bucket: your-bucket
+    accessKeyId: ""
+    accessKeySecret: ""
+    customDomain: ""
+    secure: true
+    internal: false
+  aliyunCdn:
+    enabled: false
+    domain: ""
+    accessKeyId: ""
+    accessKeySecret: ""
+
+# 业务模块配置（首页、华容道等）；缺省则使用代码内默认值
+business:
+  homePage: {}
+  huarongdao:
+    theme: miku
+    bgmTracks: []
+  qiniu:
+    accessKey: ""
+    secretKey: ""
+    bucketName: ""
+    domain: ""

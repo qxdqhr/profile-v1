@@ -1,8 +1,3 @@
-import { config } from 'dotenv';
-
-config({ path: '.env.development' });
-config();
-
 import { syncTicketMonitorEvents } from '../server/syncEvents';
 
 async function main() {

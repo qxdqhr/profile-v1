@@ -11,7 +11,7 @@ import {
   AudioDetectionDisplay,
   PianoKeyboard,
   useAudioDetection,
-} from 'sa2kit/audioDetection';
+} from 'sa2kit/business/audioDetection';
 
 /**
  * 示例1: 基础使用 - 使用预构建组件

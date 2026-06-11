@@ -61,15 +61,17 @@ jobs:
             docker pull crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:${NEW_TAG}
             docker stop my_container || true
             docker rm my_container || true
-            if [ ! -f /root/profile-v1.env ]; then
-              echo "ERROR: /root/profile-v1.env 不存在，请先配置生产环境变量文件" >&2
+            if [ ! -f /root/profile-v1/app.config.yaml ]; then
+              echo "ERROR: /root/profile-v1/app.config.yaml 不存在" >&2
+              echo "在仓库执行 ./scripts/config-decrypt-production.sh 并 scp 到服务器，或 sops -d config/production.enc.yaml > /root/profile-v1/app.config.yaml" >&2
               exit 1
             fi
             docker run -d \
               -p 3000:3000 \
               --name my_container \
               --restart unless-stopped \
-              --env-file /root/profile-v1.env \
+              -e APP_CONFIG_ENV=production \
+              -v /root/profile-v1/app.config.yaml:/app/config/app.config.production.yaml:ro \
               crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:${NEW_TAG}
             echo "=== 部署完成 ==="
             docker ps --filter name=my_container

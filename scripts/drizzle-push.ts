@@ -74,7 +74,7 @@ async function main() {
 
   if (hasExportError) {
     console.error(
-      '✗ drizzle-kit push 失败：schema 引用了 sa2kit 未导出的子路径（请改用 sa2kit/festivalCard/server 等正式 export）。',
+      '✗ drizzle-kit push 失败：schema 引用了 sa2kit 未导出的子路径（请改用 sa2kit/business/festivalCard/server 等正式 export）。',
     );
     process.exit(1);
   }

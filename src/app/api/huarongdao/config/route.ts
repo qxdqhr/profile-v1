@@ -1,31 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { configDbService } from '@/modules/configManager/db/configDbService';
+import { readBusinessConfig, writeBusinessConfig } from '@/lib/config/business-config';
 import {
   buildPersistedConfig,
   DEFAULT_HUARONGDAO_PERSISTED_CONFIG,
-  HUARONGDAO_CONFIG_KEY,
 } from '@/modules/testField/huarongdao/shared';
 
 export async function GET() {
   try {
-    const item = await configDbService.getConfigItemByKey(HUARONGDAO_CONFIG_KEY);
-    if (!item?.value) {
-      return NextResponse.json({
-        success: true,
-        data: DEFAULT_HUARONGDAO_PERSISTED_CONFIG,
-      });
-    }
-
-    let parsed: unknown = {};
-    try {
-      parsed = JSON.parse(item.value);
-    } catch {
-      parsed = {};
-    }
+    const business = readBusinessConfig();
+    const data = business.huarongdao
+      ? buildPersistedConfig(business.huarongdao)
+      : DEFAULT_HUARONGDAO_PERSISTED_CONFIG;
 
     return NextResponse.json({
       success: true,
-      data: buildPersistedConfig(parsed),
+      data,
     });
   } catch (error) {
     console.error('[huarongdao/config][GET] failed:', error);
@@ -41,27 +30,10 @@ export async function PUT(req: NextRequest) {
     const body = await req.json();
     const normalized = buildPersistedConfig(body);
 
-    const existing = await configDbService.getConfigItemByKey(HUARONGDAO_CONFIG_KEY);
-    const value = JSON.stringify(normalized, null, 2);
-
-    if (existing) {
-      await configDbService.updateConfigItemByKey(HUARONGDAO_CONFIG_KEY, { value });
-    } else {
-      await configDbService.createConfigItem({
-        categoryId: null,
-        key: HUARONGDAO_CONFIG_KEY,
-        displayName: '华容道关卡配置',
-        description: '华容道主题与三关关卡配置（行列、打乱步数、图片）',
-        value,
-        defaultValue: JSON.stringify(DEFAULT_HUARONGDAO_PERSISTED_CONFIG, null, 2),
-        type: 'json',
-        isRequired: false,
-        isSensitive: false,
-        validation: null,
-        sortOrder: 0,
-        isActive: true,
-      });
-    }
+    writeBusinessConfig((business) => ({
+      ...business,
+      huarongdao: normalized,
+    }));
 
     return NextResponse.json({
       success: true,

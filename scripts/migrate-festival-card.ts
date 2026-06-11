@@ -1,20 +1,12 @@
-import { config } from 'dotenv';
 import postgres from 'postgres';
 import fs from 'fs';
 import path from 'path';
 
-const env = process.env.NODE_ENV || 'development';
-if (env === 'development') {
-  config({ path: '.env.development' });
-} else if (env === 'production') {
-  config({ path: '.env.production' });
-} else {
-  config();
-}
+import './preload-app-config';
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
-  throw new Error('DATABASE_URL is required');
+  throw new Error('DATABASE_URL 未设置（请检查 config/app.config.*.yaml）');
 }
 
 async function main() {
@@ -37,4 +29,3 @@ main().catch((error) => {
   console.error(error);
   process.exit(1);
 });
-

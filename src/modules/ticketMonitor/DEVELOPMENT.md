@@ -466,7 +466,7 @@ export function resolveEndingSoonDaysList(raw: number[] | null | undefined): num
 **本地调试：**
 
 ```json
-"ticket-monitor:sync": "dotenv -e .env.development -- tsx src/modules/ticketMonitor/scripts/run-sync.ts"
+"ticket-monitor:sync": "tsx --import ./scripts/preload-app-config.ts src/modules/ticketMonitor/scripts/run-sync.ts"
 ```
 
 ---

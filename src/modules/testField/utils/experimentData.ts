@@ -157,7 +157,7 @@ export const experiments: ExperimentItem[] = [
   {
     id: "mmd-test-playground",
     title: "MMD 功能测试场",
-    description: "基于 sa2kit/mmd 的MMD播放器测试页面，封装所有逻辑，仅需传入配置即可使用",
+    description: "基于 sa2kit/business/mmd 的MMD播放器测试页面，封装所有逻辑，仅需传入配置即可使用",
     path: "/testField/mmdTest",
     tags: ["3D", "MMD", "测试", "SA2Kit"],
     category: "utility",

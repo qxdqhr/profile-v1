@@ -1,46 +1,65 @@
-import type { NextConfig } from "next";
+import { existsSync, readFileSync } from 'node:fs';
+import { parse as parseYaml } from 'yaml';
+import type { NextConfig } from 'next';
+
+function readPublicAppUrl(): string {
+  const explicit = process.env.APP_CONFIG_PATH;
+  const candidates = [
+    explicit,
+    'config/app.config.local.yaml',
+    'config/app.config.production.yaml',
+  ].filter(Boolean) as string[];
+
+  for (const file of candidates) {
+    if (!existsSync(file)) continue;
+    try {
+      const doc = parseYaml(readFileSync(file, 'utf8')) as {
+        auth?: { publicUrl?: string };
+      };
+      if (doc.auth?.publicUrl) return doc.auth.publicUrl;
+    } catch {
+      // ignore invalid yaml during bootstrap
+    }
+  }
+
+  return process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+}
+
+const publicAppUrl = readPublicAppUrl();
 
 const nextConfig: NextConfig = {
-    // 允许同时启动多个 next dev 实例（通过不同 distDir 避免 .next/dev/lock 冲突）
     distDir: process.env.NEXT_DIST_DIR || '.next',
-    output: 'standalone', // Docker 部署需要
-    
-    // sa2kit 需要转译以正确加载样式和组件
+    output: 'standalone',
+
     transpilePackages: ["sa2kit", "animal-island-ui"],
-    
-    // 临时禁用TypeScript检查，因为sa2kit类型定义问题
+
     typescript: {
         ignoreBuildErrors: true,
     },
-    
-    // 环境变量配置
+
     env: {
-        // 设置最大请求体大小
-        MAX_REQUEST_SIZE: '52428800', // 50MB in bytes
+        MAX_REQUEST_SIZE: '52428800',
+        NEXT_PUBLIC_APP_URL: publicAppUrl,
     },
-    
-    // 确保静态资源能够正确处理
+
     images: {
         unoptimized: true
     },
-    
-    // 这些 AI 库包含大型二进制/WASM 文件，应在服务端视为外部包
+
     serverExternalPackages: [
         "sharp",
-        "onnxruntime-node", 
-        "onnxruntime-web", 
-        "@imgly/background-removal", 
+        "onnxruntime-node",
+        "onnxruntime-web",
+        "@imgly/background-removal",
         "@xenova/transformers"
     ],
-    
+
     experimental: {
         externalDir: true,
     },
 
-    // Turbopack 配置（使用 webpack 启动时会被忽略）
     turbopack: {},
-    
-    // 添加你的音频文件到允许的资源类型中
+
     webpack: (config, { isServer }) => {
         config.module.rules.push({
             test: /\.(mp3)$/,
@@ -50,7 +69,6 @@ const nextConfig: NextConfig = {
             }
         });
 
-        // animal-island-ui 打包产物内含 woff2 / png / webp / svg 资源
         config.module.rules.push({
             test: /\.(woff2?|webp|png|svg)$/i,
             type: 'asset/resource',
@@ -58,16 +76,14 @@ const nextConfig: NextConfig = {
                 filename: 'static/media/[name].[hash][ext]',
             },
         });
-        
-        // 添加 SA2Kit 路径别名
+
         config.resolve.alias = {
             ...config.resolve.alias,
             'react-native': false,
             '@tarojs/components': false,
             '@tarojs/taro': false,
         };
-        
-        // 在客户端构建时，排除 Node.js 原生模块
+
         if (!isServer) {
             config.resolve.alias = {
                 ...config.resolve.alias,
@@ -84,11 +100,10 @@ const nextConfig: NextConfig = {
                 'stream/promises': false,
             };
         }
-        
+
         return config;
     },
-    
-    // 允许跨域加载子应用资源
+
     async headers() {
         return [
             {
@@ -100,7 +115,6 @@ const nextConfig: NextConfig = {
                     },
                 ],
             },
-            // 为预订管理API添加缓存控制
             {
                 source: '/api/showmasterpiece/bookings/admin',
                 headers: [
@@ -124,8 +138,7 @@ const nextConfig: NextConfig = {
             },
         ];
     },
-    
-    // 配置子应用的代理（如需要）
+
     async rewrites() {
         return [
             {

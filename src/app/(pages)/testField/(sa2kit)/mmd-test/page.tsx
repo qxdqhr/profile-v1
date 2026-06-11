@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { MMDPlayerEnhanced } from 'sa2kit/mmd';
+import { MMDPlayerEnhanced } from 'sa2kit/business/mmd';
 import { convertPlaylistToMmdConfig } from '@/modules/testField/utils/mmdPlaylistAdapter';
 
 // 简化版：复用后台管理的播放列表配置，取第一个节点作为单曲播放

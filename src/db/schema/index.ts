@@ -38,10 +38,7 @@ export * from '@/modules/comfyPrompt/db/schema';
 // 导出通用文件服务相关的表
 export * from 'sa2kit/common/file/server';
 // 导出节日贺卡相关的表
-export * from 'sa2kit/festivalCard/server';
-
-// 导出配置管理相关的表
-export * from '@/modules/configManager/db/schema';
+export * from 'sa2kit/business/festivalCard/server';
 
 // 导出售票监控相关的表
 export * from '@/modules/ticketMonitor/db/schema';

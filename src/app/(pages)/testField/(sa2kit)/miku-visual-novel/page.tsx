@@ -21,7 +21,7 @@ import {
   VisualNovelScript,
   DialogueBoxTheme,
   MMDStage,
-} from 'sa2kit/mmd';
+} from 'sa2kit/business/mmd';
 
 const OSS_BASE_PATH = 'https://profile-qhr-resource.oss-cn-beijing.aliyuncs.com'
 const CDN_BASE_PATH = 'https://cdn.qhr062.top'
@@ -360,7 +360,7 @@ export default function VisualNovelExample() {
  * 
  * ```typescript
  * import { useEffect, useRef } from 'react';
- * import { MMDPlayerBaseRef } from 'sa2kit/mmd';
+ * import { MMDPlayerBaseRef } from 'sa2kit/business/mmd';
  * 
  * const playerRef = useRef<MMDPlayerBaseRef>(null);
  * 

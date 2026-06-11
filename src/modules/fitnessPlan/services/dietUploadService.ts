@@ -49,7 +49,7 @@ function assertOssPublicUrl(url: string): string {
 function validateOssConfig(config: AliyunOSSConfig | undefined): AliyunOSSConfig {
   if (!config || config.type !== 'aliyun-oss') {
     throw new DietUploadError(
-      '未配置阿里云 OSS，请在配置管理中填写 ALIYUN_OSS_* 后再上传饮食截图',
+      '未配置阿里云 OSS，请在 config/app.config.local.yaml 的 storage.aliyunOss 中填写后再上传饮食截图',
       'OSS_NOT_CONFIGURED',
     );
   }

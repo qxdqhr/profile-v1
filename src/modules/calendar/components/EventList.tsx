@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState, useCallback } from 'react';
-import { SearchBox, ConfirmModal } from 'sa2kit/components';
+import { SearchBox, ConfirmModal } from 'sa2kit/common/components';
 import { 
   CalendarEvent, 
   EventListProps, 

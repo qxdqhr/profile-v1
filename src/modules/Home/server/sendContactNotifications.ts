@@ -1,4 +1,4 @@
-import { NapCatClient } from 'sa2kit/qqbot/server';
+import { NapCatClient } from 'sa2kit/business/qqbot/server';
 import { sendFeishuPostMessage } from '@sa2kit/feishu-bot';
 import {
   buildContactFeishuMessage,

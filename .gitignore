@@ -24,6 +24,16 @@
 .DS_Store
 *.pem
 
+# 配置（明文不进 Git）
+.env
+.env.*
+!.env.example
+config/app.config.local.yaml
+config/app.config.production.yaml
+config/app.config.production.plain.yaml
+config/app.config.test.yaml
+config/keys/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
