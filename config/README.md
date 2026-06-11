@@ -71,7 +71,7 @@ docker run ... \
   ...
 ```
 
-CI **不需要** GitHub Secrets 存 DATABASE_URL / OSS Key；仅需部署 SSH（现有 workflow）。
+CI 从 `production.enc.yaml` 解密并同步到服务器，需在 GitHub Secrets 配置 `SOPS_AGE_KEY`（`config/keys/age-key.txt` 全文）及现有部署 SSH 相关 Secret。无需在 Secrets 中单独存 DATABASE_URL / OSS Key。
 
 ## 环境变量（可选）
 

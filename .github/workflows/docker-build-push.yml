@@ -44,13 +44,44 @@ jobs:
           NEW_TAG=${{ github.run_number }}
           docker push crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:${NEW_TAG}
 
+      - name: Decrypt production config
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        run: |
+          if [ -z "$SOPS_AGE_KEY" ]; then
+            echo "ERROR: GitHub Secret SOPS_AGE_KEY 未配置" >&2
+            echo "请将 config/keys/age-key.txt 全文添加到仓库 Secrets → SOPS_AGE_KEY" >&2
+            exit 1
+          fi
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq age
+          DEPLOY_CFG_DIR=/tmp/profile-v1-deploy
+          mkdir -p "$DEPLOY_CFG_DIR"
+          printf '%s\n' "$SOPS_AGE_KEY" > "$DEPLOY_CFG_DIR/age-key.txt"
+          chmod 600 "$DEPLOY_CFG_DIR/age-key.txt"
+          SOPS_AGE_KEY_FILE="$DEPLOY_CFG_DIR/age-key.txt" \
+            ./scripts/config-decrypt-production.sh "$DEPLOY_CFG_DIR/app.config.yaml"
+
       - name: Deploy to remote server
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           NEW_TAG=${{ github.run_number }}
+          DEPLOY_CFG_DIR=/tmp/profile-v1-deploy
+          DEPLOY_USER="${{ secrets.DEPLOY_SERVER_USERNAME }}"
+          DEPLOY_HOST="${{ secrets.DEPLOY_SERVER_HOST }}"
+          SSH_OPTS="-o StrictHostKeyChecking=no -i /tmp/ssh_key"
+          REMOTE="${DEPLOY_USER}@${DEPLOY_HOST}"
+
           echo "${{ secrets.DEPLOY_SERVER_SSH_KEY }}" > /tmp/ssh_key
           chmod 600 /tmp/ssh_key
-          ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key ${{ secrets.DEPLOY_SERVER_USERNAME }}@${{ secrets.DEPLOY_SERVER_HOST }} << EOF
+
+          echo "=== 同步生产配置到服务器 ==="
+          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1"
+          scp $SSH_OPTS "$DEPLOY_CFG_DIR/app.config.yaml" "$REMOTE:/root/profile-v1/app.config.yaml"
+          ssh $SSH_OPTS "$REMOTE" "chmod 600 /root/profile-v1/app.config.yaml"
+
+          ssh $SSH_OPTS "$REMOTE" << EOF
             set -e
             echo "=== 部署前磁盘 ==="
             df -h /
@@ -61,11 +92,6 @@ jobs:
             docker pull crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:${NEW_TAG}
             docker stop my_container || true
             docker rm my_container || true
-            if [ ! -f /root/profile-v1/app.config.yaml ]; then
-              echo "ERROR: /root/profile-v1/app.config.yaml 不存在" >&2
-              echo "在仓库执行 ./scripts/config-decrypt-production.sh 并 scp 到服务器，或 sops -d config/production.enc.yaml > /root/profile-v1/app.config.yaml" >&2
-              exit 1
-            fi
             docker run -d \
               -p 3000:3000 \
               --name my_container \
@@ -77,3 +103,5 @@ jobs:
             docker ps --filter name=my_container
             df -h /
           EOF
+
+          rm -f /tmp/ssh_key "$DEPLOY_CFG_DIR/age-key.txt" "$DEPLOY_CFG_DIR/app.config.yaml"

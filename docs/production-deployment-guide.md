@@ -11,19 +11,25 @@ pnpm config:encrypt-production
 git add config/production.enc.yaml config/.sops.yaml
 ```
 
-## 2. 服务器解密
+## 2. GitHub Actions 自动解密与同步
+
+在仓库 **Settings → Secrets and variables → Actions** 添加：
+
+| Secret | 内容 |
+|--------|------|
+| `SOPS_AGE_KEY` | `config/keys/age-key.txt` 全文（age 私钥，勿提交 Git） |
+
+推送到 `main` 后，CI 会从 `config/production.enc.yaml` 解密配置并 `scp` 到服务器 `/root/profile-v1/app.config.yaml`，再启动容器。
+
+## 3. 手动部署（可选）
 
 ```bash
-# 复制 age 私钥到服务器（勿进 Git）
-scp config/keys/age-key.txt server:/root/.config/sops/age/keys.txt
-
-# 解密为运行时明文
 ./scripts/config-decrypt-production.sh /root/profile-v1/app.config.yaml
 ```
 
-## 3. Docker 部署
+## 4. Docker 部署
 
-CI 构建镜像后，在服务器运行（见 `.github/workflows/docker-build-push.yml`）：
+CI 构建镜像后自动部署（见 `.github/workflows/docker-build-push.yml`）；手动启动示例：
 
 ```bash
 docker run -d \
@@ -33,7 +39,7 @@ docker run -d \
   ...
 ```
 
-## 4. 检查
+## 5. 检查
 
 ```bash
 pnpm config:doctor
