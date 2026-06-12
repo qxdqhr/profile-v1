@@ -9,6 +9,7 @@ import {
   Pencil,
   RefreshCw,
   Search,
+  Settings2,
   Sparkles,
   Tags,
   Trash2,
@@ -20,7 +21,12 @@ import { FormField, Modal, PanelToolbar, modalInputClass } from '../components/M
 import { useComfyPromptData } from '../hooks/useComfyPromptData';
 import { buildPromptString, formatPromptSegment, parseTagsInput, tagsToInput } from '../utils/buildPrompt';
 import { copyToClipboard } from '../utils/clipboard';
-import { parseTemplateImport } from '../utils/splitTemplatePrompts';
+import {
+  PROMPT_LIBRARY_IMPORT_EXAMPLE,
+  TEMPLATE_IMPORT_EXAMPLE,
+  parsePromptLibraryImport,
+  parseTemplateImport,
+} from '../utils/splitTemplatePrompts';
 import type {
   ComfyPrompt,
   ComfyPromptGroup,
@@ -46,6 +52,11 @@ const KIND_LABEL: Record<PromptKind, string> = {
   positive: '正向',
   negative: '负向',
 };
+
+function getSetPromptIds(set: ComfyPromptSet | undefined): number[] {
+  if (!set?.items) return [];
+  return set.items.filter((i) => i.enabled && i.prompt).map((i) => i.promptId);
+}
 
 function collectBuilderPrompts(
   kind: PromptKind,
@@ -175,28 +186,59 @@ function ComfyPromptPageContent() {
     showToast(ok ? okMsg : '复制失败，请检查浏览器权限');
   };
 
-  const togglePositivePrompt = (id: number) => {
-    setSelectedPositivePromptIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+  const syncSetsAfterPromptChange = (
+    kind: PromptKind,
+    nextPromptIds: number[],
+    setSelectedSetIds: React.Dispatch<React.SetStateAction<number[]>>,
+  ) => {
+    const kindSets = store.sets.filter((s) => s.kind === kind);
+    setSelectedSetIds((prev) =>
+      prev.filter((setId) => {
+        const set = kindSets.find((s) => s.id === setId);
+        const ids = getSetPromptIds(set);
+        return ids.length > 0 && ids.every((pid) => nextPromptIds.includes(pid));
+      }),
     );
+  };
+
+  const togglePositivePrompt = (id: number) => {
+    setSelectedPositivePromptIds((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      syncSetsAfterPromptChange('positive', next, setSelectedPositiveSetIds);
+      return next;
+    });
   };
 
   const toggleNegativePrompt = (id: number) => {
-    setSelectedNegativePromptIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    );
+    setSelectedNegativePromptIds((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      syncSetsAfterPromptChange('negative', next, setSelectedNegativeSetIds);
+      return next;
+    });
   };
 
   const togglePositiveSet = (id: number) => {
-    setSelectedPositiveSetIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    );
+    const set = store.sets.find((s) => s.id === id);
+    const promptIds = getSetPromptIds(set);
+    if (selectedPositiveSetIds.includes(id)) {
+      setSelectedPositiveSetIds((prev) => prev.filter((x) => x !== id));
+      setSelectedPositivePromptIds((prev) => prev.filter((pid) => !promptIds.includes(pid)));
+    } else {
+      setSelectedPositiveSetIds((prev) => [...prev, id]);
+      setSelectedPositivePromptIds((prev) => [...new Set([...prev, ...promptIds])]);
+    }
   };
 
   const toggleNegativeSet = (id: number) => {
-    setSelectedNegativeSetIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    );
+    const set = store.sets.find((s) => s.id === id);
+    const promptIds = getSetPromptIds(set);
+    if (selectedNegativeSetIds.includes(id)) {
+      setSelectedNegativeSetIds((prev) => prev.filter((x) => x !== id));
+      setSelectedNegativePromptIds((prev) => prev.filter((pid) => !promptIds.includes(pid)));
+    } else {
+      setSelectedNegativeSetIds((prev) => [...prev, id]);
+      setSelectedNegativePromptIds((prev) => [...new Set([...prev, ...promptIds])]);
+    }
   };
 
   const sendToRemoteRun = () => {
@@ -301,6 +343,10 @@ function ComfyPromptPageContent() {
             showToast('提示词已删除');
           }}
           onCopy={handleCopy}
+          onBulkCreate={store.bulkCreatePrompts}
+          onBulkAddTags={store.bulkAddTagsToPrompts}
+          onBulkUpdateGroup={store.bulkUpdatePrompts}
+          onCreateSet={store.createSet}
         />
       )}
 
@@ -383,6 +429,46 @@ function ComfyPromptPageContent() {
   );
 }
 
+function BuilderOutputPanel(props: {
+  title: string;
+  value: string;
+  placeholder: string;
+  onCopy: () => void;
+  onOpenAdvanced: () => void;
+}) {
+  return (
+    <div className="flex h-full min-h-[320px] flex-col rounded-2xl border border-violet-400/30 bg-violet-500/10 p-4">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <h3 className="font-semibold">{props.title}</h3>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={props.onOpenAdvanced}
+            className="flex items-center gap-1 rounded-lg border border-white/10 px-2.5 py-1.5 text-xs hover:bg-white/5"
+            title="高级设置"
+          >
+            <Settings2 size={14} /> 高级设置
+          </button>
+          <button
+            type="button"
+            onClick={props.onCopy}
+            disabled={!props.value}
+            className="flex items-center gap-1 rounded-lg bg-violet-500 px-3 py-1.5 text-sm disabled:opacity-40"
+          >
+            <Copy size={14} /> 复制
+          </button>
+        </div>
+      </div>
+      <textarea
+        readOnly
+        value={props.value}
+        className="min-h-0 flex-1 w-full resize-none rounded-xl border border-white/10 bg-slate-950/80 p-3 text-sm leading-relaxed text-slate-200"
+        placeholder={props.placeholder}
+      />
+    </div>
+  );
+}
+
 function BuilderPanel(props: {
   separator: string;
   setSeparator: (s: string) => void;
@@ -406,11 +492,12 @@ function BuilderPanel(props: {
   onCopyNegative: () => void;
   onSendToRun: () => void;
 }) {
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const canSendToRun = Boolean(props.builtPositivePrompt || props.builtNegativePrompt);
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
-      <div className="space-y-6">
+    <div className="space-y-6">
+      <div className="grid gap-4 lg:grid-cols-2 lg:items-stretch">
         <BuilderKindSection
           kind="positive"
           sets={props.positiveSets}
@@ -420,6 +507,16 @@ function BuilderPanel(props: {
           onToggleSet={props.onTogglePositiveSet}
           onTogglePrompt={props.onTogglePositivePrompt}
         />
+        <BuilderOutputPanel
+          title="正向 ComfyUI 输出"
+          value={props.builtPositivePrompt}
+          placeholder="选择正向提示词或模板后在此生成..."
+          onCopy={props.onCopyPositive}
+          onOpenAdvanced={() => setAdvancedOpen(true)}
+        />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2 lg:items-stretch">
         <BuilderKindSection
           kind="negative"
           sets={props.negativeSets}
@@ -429,70 +526,34 @@ function BuilderPanel(props: {
           onToggleSet={props.onToggleNegativeSet}
           onTogglePrompt={props.onToggleNegativePrompt}
         />
+        <BuilderOutputPanel
+          title="负向 ComfyUI 输出"
+          value={props.builtNegativePrompt}
+          placeholder="选择负向提示词或模板后在此生成..."
+          onCopy={props.onCopyNegative}
+          onOpenAdvanced={() => setAdvancedOpen(true)}
+        />
       </div>
 
-      <aside className="space-y-4 xl:sticky xl:top-24 xl:self-start">
-        <div className="rounded-2xl border border-violet-400/30 bg-violet-500/10 p-4">
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <h3 className="font-semibold">正向 ComfyUI 输出</h3>
-            <button
-              type="button"
-              onClick={props.onCopyPositive}
-              disabled={!props.builtPositivePrompt}
-              className="flex items-center gap-1 rounded-lg bg-violet-500 px-3 py-1.5 text-sm disabled:opacity-40"
-            >
-              <Copy size={14} /> 复制
-            </button>
-          </div>
-          <textarea
-            readOnly
-            value={props.builtPositivePrompt}
-            rows={6}
-            className="w-full rounded-xl border border-white/10 bg-slate-950/80 p-3 text-sm leading-relaxed text-slate-200"
-            placeholder="选择正向提示词或模板后在此生成..."
-          />
-        </div>
+      <button
+        type="button"
+        onClick={props.onSendToRun}
+        disabled={!canSendToRun}
+        className="w-full rounded-xl bg-emerald-500 py-2.5 font-medium text-white hover:bg-emerald-400 disabled:opacity-40"
+      >
+        前往远程运行
+      </button>
 
-        <div className="rounded-2xl border border-violet-400/30 bg-violet-500/10 p-4">
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <h3 className="font-semibold">负向 ComfyUI 输出</h3>
-            <button
-              type="button"
-              onClick={props.onCopyNegative}
-              disabled={!props.builtNegativePrompt}
-              className="flex items-center gap-1 rounded-lg bg-violet-500 px-3 py-1.5 text-sm disabled:opacity-40"
-            >
-              <Copy size={14} /> 复制
-            </button>
-          </div>
-          <textarea
-            readOnly
-            value={props.builtNegativePrompt}
-            rows={6}
-            className="w-full rounded-xl border border-white/10 bg-slate-950/80 p-3 text-sm leading-relaxed text-slate-200"
-            placeholder="选择负向提示词或模板后在此生成..."
-          />
-        </div>
-
-        <button
-          type="button"
-          onClick={props.onSendToRun}
-          disabled={!canSendToRun}
-          className="w-full rounded-xl bg-emerald-500 py-2.5 font-medium text-white hover:bg-emerald-400 disabled:opacity-40"
-        >
-          前往远程运行
-        </button>
-
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm space-y-3">
-          <label className="block">
-            <span className="text-slate-400">分隔符</span>
+      {advancedOpen && (
+        <Modal title="组装高级设置" onClose={() => setAdvancedOpen(false)}>
+          <FormField label="分隔符">
             <input
               value={props.separator}
               onChange={(e) => props.setSeparator(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2"
+              className={modalInputClass}
             />
-          </label>
-          <label className="flex items-center gap-2">
+          </FormField>
+          <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={props.wrapWeight}
@@ -500,8 +561,15 @@ function BuilderPanel(props: {
             />
             启用权重语法 (content:1.2)
           </label>
-        </div>
-      </aside>
+          <button
+            type="button"
+            onClick={() => setAdvancedOpen(false)}
+            className="mt-4 w-full rounded-xl bg-violet-500 py-2.5"
+          >
+            确定
+          </button>
+        </Modal>
+      )}
     </div>
   );
 }
@@ -516,56 +584,65 @@ function BuilderKindSection(props: {
   onTogglePrompt: (id: number) => void;
 }) {
   return (
-    <section className="space-y-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+    <section className="flex h-full min-h-[320px] flex-col space-y-4 rounded-2xl border border-white/10 bg-white/5 p-4">
       <h3 className="font-medium">{KIND_LABEL[props.kind]} Prompt 组装</h3>
 
       <div>
         <h4 className="mb-2 text-sm text-slate-400">选择提示词模板</h4>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {props.sets.map((set) => (
             <button
               key={set.id}
               type="button"
               onClick={() => props.onToggleSet(set.id)}
-              className={`rounded-xl px-3 py-2 text-sm ${
+              className={`rounded-xl border px-3 py-2.5 text-left text-sm transition ${
                 props.selectedSetIds.includes(set.id)
-                  ? 'bg-violet-500 text-white'
-                  : 'bg-slate-800/80 hover:bg-slate-700'
+                  ? 'border-violet-400 bg-violet-500 text-white'
+                  : 'border-white/10 bg-slate-800/80 hover:bg-slate-700'
               }`}
             >
-              {set.name}
+              <div className="truncate font-medium">{set.name}</div>
+              <div className="mt-0.5 truncate text-xs opacity-70">
+                {(set.items ?? []).length} 条
+              </div>
             </button>
           ))}
-          {!props.sets.length && <span className="text-sm text-slate-500">暂无{KIND_LABEL[props.kind]}模板</span>}
+          {!props.sets.length && (
+            <span className="col-span-full text-sm text-slate-500">
+              暂无{KIND_LABEL[props.kind]}模板
+            </span>
+          )}
         </div>
       </div>
 
-      <div>
+      <div className="flex min-h-0 flex-1 flex-col">
         <h4 className="mb-2 text-sm text-slate-400">选择单条提示词</h4>
-        <div className="max-h-64 space-y-2 overflow-y-auto">
+        <div className="grid min-h-0 flex-1 grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3">
           {props.prompts.map((p) => (
             <label
               key={p.id}
-              className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 ${
+              className={`flex cursor-pointer flex-col rounded-xl border p-2.5 text-sm transition ${
                 props.selectedPromptIds.includes(p.id)
                   ? 'border-violet-400 bg-violet-500/10'
-                  : 'border-white/5 bg-slate-900/40'
+                  : 'border-white/5 bg-slate-900/40 hover:bg-slate-900/60'
               }`}
             >
-              <input
-                type="checkbox"
-                checked={props.selectedPromptIds.includes(p.id)}
-                onChange={() => props.onTogglePrompt(p.id)}
-                className="mt-1"
-              />
-              <div className="min-w-0 flex-1">
-                <div className="font-medium">{p.title}</div>
-                <div className="truncate text-sm text-slate-400">{p.content}</div>
+              <div className="mb-1 flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  checked={props.selectedPromptIds.includes(p.id)}
+                  onChange={() => props.onTogglePrompt(p.id)}
+                  className="mt-0.5 shrink-0"
+                />
+                <span className="line-clamp-2 font-medium leading-snug">{p.title}</span>
               </div>
+              <span className="line-clamp-3 text-xs text-slate-400">{p.content}</span>
             </label>
           ))}
           {!props.prompts.length && (
-            <span className="text-sm text-slate-500">暂无{KIND_LABEL[props.kind]}提示词</span>
+            <span className="col-span-full text-sm text-slate-500">
+              暂无{KIND_LABEL[props.kind]}提示词
+            </span>
           )}
         </div>
       </div>
@@ -582,6 +659,9 @@ function GridCard({
   onCopy,
   onDownload,
   extra,
+  selectable,
+  selected,
+  onSelectToggle,
 }: {
   title: string;
   subtitle?: string;
@@ -591,13 +671,31 @@ function GridCard({
   onCopy?: () => void;
   onDownload?: () => void;
   extra?: React.ReactNode;
+  selectable?: boolean;
+  selected?: boolean;
+  onSelectToggle?: () => void;
 }) {
   return (
-    <article className="flex h-full flex-col rounded-2xl border border-white/10 bg-white/5 p-4">
+    <article
+      className={`flex h-full flex-col rounded-2xl border p-4 transition ${
+        selected ? 'border-violet-400 bg-violet-500/10' : 'border-white/10 bg-white/5'
+      }`}
+    >
       <div className="mb-2 flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <h3 className="font-medium truncate">{title}</h3>
-          {badges && <div className="mt-1 flex flex-wrap gap-1">{badges}</div>}
+        <div className="flex min-w-0 flex-1 items-start gap-2">
+          {selectable && (
+            <input
+              type="checkbox"
+              checked={selected}
+              onChange={onSelectToggle}
+              className="mt-1 shrink-0"
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
+          <div className="min-w-0 flex-1">
+            <h3 className="truncate font-medium">{title}</h3>
+            {badges && <div className="mt-1 flex flex-wrap gap-1">{badges}</div>}
+          </div>
         </div>
         <div className="flex shrink-0 gap-1">
           {onCopy && (
@@ -644,8 +742,24 @@ function PromptsPanel(props: {
   onUpdate: (id: number, data: Partial<import('../types').PromptFormData>) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
   onCopy: (text: string, msg?: string) => Promise<void>;
+  onBulkCreate: (items: import('../types').PromptFormData[]) => Promise<ComfyPrompt[]>;
+  onBulkAddTags: (ids: number[], tags: string[]) => Promise<void>;
+  onBulkUpdateGroup: (ids: number[], data: Partial<import('../types').PromptFormData>) => Promise<void>;
+  onCreateSet: (data: import('../types').PromptSetFormData) => Promise<ComfyPromptSet>;
 }) {
   const [formOpen, setFormOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [bulkTagOpen, setBulkTagOpen] = useState(false);
+  const [bulkGroupOpen, setBulkGroupOpen] = useState(false);
+  const [bulkSetOpen, setBulkSetOpen] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [importText, setImportText] = useState('');
+  const [importKind, setImportKind] = useState<PromptKind>('positive');
+  const [importGroupId, setImportGroupId] = useState<number | ''>('');
+  const [bulkTagsInput, setBulkTagsInput] = useState('');
+  const [bulkGroupId, setBulkGroupId] = useState<number | ''>('');
+  const [bulkSetName, setBulkSetName] = useState('');
+  const [bulkSetKind, setBulkSetKind] = useState<PromptKind>('positive');
   const [editing, setEditing] = useState<ComfyPrompt | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -654,6 +768,20 @@ function PromptsPanel(props: {
   const [tagsInput, setTagsInput] = useState('');
   const [weight, setWeight] = useState('');
   const [notes, setNotes] = useState('');
+
+  const toggleSelect = (id: number) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
+
+  const selectAllVisible = () => {
+    if (selectedIds.length === props.prompts.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(props.prompts.map((p) => p.id));
+    }
+  };
 
   const resetForm = () => {
     setEditing(null);
@@ -699,9 +827,114 @@ function PromptsPanel(props: {
     resetForm();
   };
 
+  const handleImport = async () => {
+    const entries = parsePromptLibraryImport(importText);
+    await props.onBulkCreate(
+      entries.map((entry) => ({
+        title: entry.name,
+        content: entry.content,
+        kind: importKind,
+        groupId: importGroupId === '' ? null : Number(importGroupId),
+        tags: ['imported'],
+      })),
+    );
+    setImportOpen(false);
+    setImportText('');
+  };
+
+  const handleBulkTag = async () => {
+    const tags = parseTagsInput(bulkTagsInput);
+    if (!tags.length) return;
+    await props.onBulkAddTags(selectedIds, tags);
+    setBulkTagOpen(false);
+    setBulkTagsInput('');
+    setSelectedIds([]);
+  };
+
+  const handleBulkGroup = async () => {
+    await props.onBulkUpdateGroup(selectedIds, {
+      groupId: bulkGroupId === '' ? null : Number(bulkGroupId),
+    });
+    setBulkGroupOpen(false);
+    setBulkGroupId('');
+    setSelectedIds([]);
+  };
+
+  const handleBulkSet = async () => {
+    if (!bulkSetName.trim()) return;
+    await props.onCreateSet({
+      name: bulkSetName.trim(),
+      kind: bulkSetKind,
+      separator: ', ',
+      promptIds: selectedIds,
+    });
+    setBulkSetOpen(false);
+    setBulkSetName('');
+    setSelectedIds([]);
+  };
+
   return (
     <div>
-      <PanelToolbar title="提示词库" onAdd={openCreate} addLabel="新建提示词" />
+      <PanelToolbar
+        title="提示词库"
+        onAdd={openCreate}
+        addLabel="新建提示词"
+        extra={
+          <>
+            <button
+              type="button"
+              onClick={() => setImportOpen(true)}
+              className="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-2 text-sm hover:bg-white/5"
+            >
+              <Upload size={16} /> 批量导入
+            </button>
+            {props.prompts.length > 0 && (
+              <button
+                type="button"
+                onClick={selectAllVisible}
+                className="rounded-xl border border-white/10 px-4 py-2 text-sm hover:bg-white/5"
+              >
+                {selectedIds.length === props.prompts.length ? '取消全选' : '全选'}
+              </button>
+            )}
+          </>
+        }
+      />
+
+      {selectedIds.length > 0 && (
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-violet-400/30 bg-violet-500/10 px-4 py-3">
+          <span className="text-sm text-violet-200">已选 {selectedIds.length} 项</span>
+          <button
+            type="button"
+            onClick={() => setBulkTagOpen(true)}
+            className="rounded-lg bg-violet-500 px-3 py-1.5 text-sm"
+          >
+            设置 Tag
+          </button>
+          <button
+            type="button"
+            onClick={() => setBulkGroupOpen(true)}
+            className="rounded-lg bg-violet-500 px-3 py-1.5 text-sm"
+          >
+            设置分组
+          </button>
+          <button
+            type="button"
+            onClick={() => setBulkSetOpen(true)}
+            className="rounded-lg bg-violet-500 px-3 py-1.5 text-sm"
+          >
+            创建模板
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedIds([])}
+            className="rounded-lg border border-white/10 px-3 py-1.5 text-sm hover:bg-white/5"
+          >
+            取消选择
+          </button>
+        </div>
+      )}
+
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <SearchInput
           value={props.search}
@@ -751,6 +984,9 @@ function PromptsPanel(props: {
             key={p.id}
             title={p.title}
             subtitle={p.content}
+            selectable
+            selected={selectedIds.includes(p.id)}
+            onSelectToggle={() => toggleSelect(p.id)}
             badges={
               <>
                 <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs">{KIND_LABEL[p.kind]}</span>
@@ -812,6 +1048,128 @@ function PromptsPanel(props: {
           </FormField>
           <button type="button" onClick={() => void submit()} className="mt-2 w-full rounded-xl bg-violet-500 py-2.5">
             保存
+          </button>
+        </Modal>
+      )}
+
+      {importOpen && (
+        <Modal title="批量导入提示词" onClose={() => setImportOpen(false)} wide>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs text-slate-400">JSON 数组，每项须包含 name 与 prompts 字段</p>
+            <button
+              type="button"
+              onClick={() => void props.onCopy(PROMPT_LIBRARY_IMPORT_EXAMPLE, '模板规则已复制')}
+              className="flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-xs hover:bg-white/5"
+            >
+              <Copy size={14} /> 复制模板规则
+            </button>
+          </div>
+          <label className="mb-3 flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-white/20 px-4 py-2 text-sm hover:bg-white/5">
+            <Upload size={16} /> 选择 JSON 文件
+            <input
+              type="file"
+              accept="application/json,.json"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void f.text().then(setImportText);
+              }}
+            />
+          </label>
+          <FormField label="导入内容">
+            <textarea
+              value={importText}
+              onChange={(e) => setImportText(e.target.value)}
+              rows={10}
+              placeholder={PROMPT_LIBRARY_IMPORT_EXAMPLE}
+              className={modalInputClass}
+            />
+          </FormField>
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="默认类型">
+              <select
+                value={importKind}
+                onChange={(e) => setImportKind(e.target.value as PromptKind)}
+                className={modalInputClass}
+              >
+                <option value="positive">正向</option>
+                <option value="negative">负向</option>
+              </select>
+            </FormField>
+            <FormField label="导入到分组（可选）">
+              <select
+                value={importGroupId}
+                onChange={(e) => setImportGroupId(e.target.value ? Number(e.target.value) : '')}
+                className={modalInputClass}
+              >
+                <option value="">无</option>
+                {props.groups.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.name}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+          </div>
+          <button type="button" onClick={() => void handleImport()} className="mt-2 w-full rounded-xl bg-violet-500 py-2.5">
+            导入
+          </button>
+        </Modal>
+      )}
+
+      {bulkTagOpen && (
+        <Modal title="批量设置 Tag" onClose={() => setBulkTagOpen(false)}>
+          <p className="mb-3 text-xs text-slate-400">将为选中的 {selectedIds.length} 条提示词追加 Tag</p>
+          <FormField label="Tags（逗号分隔）">
+            <input value={bulkTagsInput} onChange={(e) => setBulkTagsInput(e.target.value)} className={modalInputClass} />
+          </FormField>
+          <button type="button" onClick={() => void handleBulkTag()} className="mt-2 w-full rounded-xl bg-violet-500 py-2.5">
+            应用
+          </button>
+        </Modal>
+      )}
+
+      {bulkGroupOpen && (
+        <Modal title="批量设置分组" onClose={() => setBulkGroupOpen(false)}>
+          <p className="mb-3 text-xs text-slate-400">将为选中的 {selectedIds.length} 条提示词设置分组</p>
+          <FormField label="提示词分组">
+            <select
+              value={bulkGroupId}
+              onChange={(e) => setBulkGroupId(e.target.value ? Number(e.target.value) : '')}
+              className={modalInputClass}
+            >
+              <option value="">无</option>
+              {props.groups.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
+          </FormField>
+          <button type="button" onClick={() => void handleBulkGroup()} className="mt-2 w-full rounded-xl bg-violet-500 py-2.5">
+            应用
+          </button>
+        </Modal>
+      )}
+
+      {bulkSetOpen && (
+        <Modal title="从选中项创建模板" onClose={() => setBulkSetOpen(false)}>
+          <p className="mb-3 text-xs text-slate-400">将选中的 {selectedIds.length} 条提示词创建为模板</p>
+          <FormField label="模板名称">
+            <input value={bulkSetName} onChange={(e) => setBulkSetName(e.target.value)} className={modalInputClass} />
+          </FormField>
+          <FormField label="类型">
+            <select
+              value={bulkSetKind}
+              onChange={(e) => setBulkSetKind(e.target.value as PromptKind)}
+              className={modalInputClass}
+            >
+              <option value="positive">正向</option>
+              <option value="negative">负向</option>
+            </select>
+          </FormField>
+          <button type="button" onClick={() => void handleBulkSet()} className="mt-2 w-full rounded-xl bg-violet-500 py-2.5">
+            创建模板
           </button>
         </Modal>
       )}
@@ -1048,11 +1406,11 @@ function TemplatesPanel(props: {
     );
 
     if (importSplitToLibrary) {
-      const toCreate = parsed.prompts
-        .filter((content) => !contentToId.has(content))
-        .map((content, i) => ({
-          title: `${parsed.name}-${i + 1}`,
-          content,
+      const toCreate = parsed.namedPrompts
+        .filter((entry) => !contentToId.has(entry.content))
+        .map((entry) => ({
+          title: entry.name,
+          content: entry.content,
           kind: parsed.kind,
           groupId: importGroupId === '' ? null : Number(importGroupId),
           tags: ['imported'],
@@ -1063,8 +1421,8 @@ function TemplatesPanel(props: {
       }
     }
 
-    const promptIds = parsed.prompts
-      .map((content) => contentToId.get(content))
+    const promptIds = parsed.namedPrompts
+      .map((entry) => contentToId.get(entry.content))
       .filter((id): id is number => id !== undefined);
 
     await props.onCreate({
@@ -1191,14 +1549,23 @@ function TemplatesPanel(props: {
 
       {importOpen && (
         <Modal title="导入提示词模板" onClose={() => setImportOpen(false)} wide>
-          <p className="text-xs text-slate-400">
-            支持 JSON（含 prompts 数组或 content 字段）或纯文本（按逗号/换行拆解）。
-          </p>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs text-slate-400">
+              JSON 格式，prompts 数组每项须包含 name 与 prompts 字段
+            </p>
+            <button
+              type="button"
+              onClick={() => void copyToClipboard(TEMPLATE_IMPORT_EXAMPLE)}
+              className="flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-xs hover:bg-white/5"
+            >
+              <Copy size={14} /> 复制模板规则
+            </button>
+          </div>
           <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-white/20 px-4 py-2 text-sm hover:bg-white/5">
-            <Upload size={16} /> 选择文件
+            <Upload size={16} /> 选择 JSON 文件
             <input
               type="file"
-              accept="application/json,.json,.txt,.md"
+              accept="application/json,.json"
               className="hidden"
               onChange={(e) => {
                 const f = e.target.files?.[0];
@@ -1212,7 +1579,7 @@ function TemplatesPanel(props: {
               value={importText}
               onChange={(e) => setImportText(e.target.value)}
               rows={10}
-              placeholder={'{"name":"人像模板","kind":"positive","prompts":["1girl","masterpiece"]}\n或：1girl, masterpiece, best quality'}
+              placeholder={TEMPLATE_IMPORT_EXAMPLE}
               className={modalInputClass}
             />
           </FormField>
