@@ -1,22 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createBatchDeleteEventsHandler } from 'sa2kit/business/calendar/routes';
 import { calendarMockDb } from '@/lib/examples/calendar-mock-db';
-import { db, isDatabaseAvailable } from '@/lib/examples/db';
-
-const useFactoryHandlers = isDatabaseAvailable() && Boolean(db);
-
-const routeConfig = {
-  db: db ?? undefined,
-  validateAuth: async (_request: NextRequest) => ({ id: 1 }),
-};
-
-const batchDeleteEventsHandler = createBatchDeleteEventsHandler(routeConfig);
 
 export async function DELETE(request: NextRequest) {
-  if (useFactoryHandlers) {
-    return batchDeleteEventsHandler(request);
-  }
-
   const body = await request.json();
   const { eventIds } = body;
   if (!Array.isArray(eventIds)) {

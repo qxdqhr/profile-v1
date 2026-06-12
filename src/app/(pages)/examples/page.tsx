@@ -239,33 +239,6 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* AI LLM 对话框（API Key） */}
-          <Link
-            href="/examples/ai-llm-dialog"
-            className="group block p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border-2 border-slate-200 dark:border-slate-700"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="text-4xl">💬</div>
-              <span className="px-2 py-1 text-xs bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded font-semibold">
-                LLM
-              </span>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
-              AI LLM 对话框
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              测试 `sa2kit/common/ai/llm` 与 `sa2kit/common/ai/llm/ui/web`，支持 API Key 配置和弹窗对话。
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-200 rounded-full text-sm">
-                API Key
-              </span>
-              <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm">
-                Dialog UI
-              </span>
-            </div>
-          </Link>
-
           {/* MMD 音乐播放器 */}
           <Link
             href="/examples/music-player"

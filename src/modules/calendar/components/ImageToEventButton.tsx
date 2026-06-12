@@ -4,7 +4,7 @@ import React, { useRef, useState } from 'react';
 import { ImagePlus, Loader2 } from 'lucide-react';
 import {
   analyzeCalendarEventFromImage,
-  fileToBase64Image,
+  buildCalendarImageInput,
   type CalendarEventFromImageOutput,
 } from '../services/calendarAiService';
 
@@ -34,7 +34,7 @@ export default function ImageToEventButton({
     const previewUrl = URL.createObjectURL(file);
 
     try {
-      const { imageBase64, mimeType } = await fileToBase64Image(file);
+      const { imageBase64, mimeType } = await buildCalendarImageInput(file);
       const draft = await analyzeCalendarEventFromImage({
         imageBase64,
         mimeType,

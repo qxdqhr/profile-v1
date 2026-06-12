@@ -1,4 +1,5 @@
 import { createAiTaskRunner } from '@/modules/aiApi';
+import { fileToAiImageInput } from 'sa2kit/common/aiApi';
 import {
   CALENDAR_AI_TASK_IDS,
   type CalendarEventFromImageInput,
@@ -10,15 +11,12 @@ export const analyzeCalendarEventFromImage = createAiTaskRunner<
   CalendarEventFromImageOutput
 >(CALENDAR_AI_TASK_IDS.eventFromImage);
 
-export async function fileToBase64Image(file: File): Promise<{ imageBase64: string; mimeType: string }> {
-  const buffer = await file.arrayBuffer();
-  const imageBase64 = btoa(
-    new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
-  );
-  return {
-    imageBase64,
-    mimeType: file.type || 'image/jpeg',
-  };
+/** 将上传图片转为识图任务输入 */
+export async function buildCalendarImageInput(
+  file: File
+): Promise<Pick<CalendarEventFromImageInput, 'imageBase64' | 'mimeType'>> {
+  const image = await fileToAiImageInput(file);
+  return { imageBase64: image.base64, mimeType: image.mimeType };
 }
 
 export type { CalendarEventFromImageInput, CalendarEventFromImageOutput };

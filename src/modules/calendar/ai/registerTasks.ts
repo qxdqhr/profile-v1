@@ -1,4 +1,4 @@
-import { registerAiTask } from '@/modules/aiApi/server/taskRegistry';
+import { registerAiTask } from 'sa2kit/common/aiApi';
 import { calendarEventFromImageTask } from './eventFromImageTask';
 
 let registered = false;

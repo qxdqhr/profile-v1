@@ -1,6 +1,4 @@
-export const CORE_CONNECTIVITY_TEST_TASK_ID = 'core.connectivityTest';
-
-export interface ConnectivityTestOutput {
-  ok: boolean;
-  reply: string;
-}
+export {
+  CORE_CONNECTIVITY_TEST_TASK_ID,
+  type ConnectivityTestOutput,
+} from 'sa2kit/common/aiApi';

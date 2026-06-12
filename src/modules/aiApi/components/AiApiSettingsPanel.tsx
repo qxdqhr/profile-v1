@@ -136,6 +136,38 @@ export default function AiApiSettingsPanel() {
         )}
       </div>
 
+      <div>
+        <label htmlFor="ai-text-model" className="mb-2 block text-sm font-medium text-gray-700">
+          文本模型
+        </label>
+        <input
+          id="ai-text-model"
+          type="text"
+          value={settings.textModel ?? settings.visionModel}
+          onChange={(e) => updateSettings({ textModel: e.target.value })}
+          placeholder="gpt-4o-mini"
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <p className="mt-1.5 text-xs text-gray-500">纯文本与 STT 转写后的对话；默认同视觉模型。</p>
+      </div>
+
+      <div>
+        <label htmlFor="ai-audio-model" className="mb-2 block text-sm font-medium text-gray-700">
+          语音转写模型（STT）
+        </label>
+        <input
+          id="ai-audio-model"
+          type="text"
+          value={settings.audioModel ?? 'whisper-1'}
+          onChange={(e) => updateSettings({ audioModel: e.target.value })}
+          placeholder="whisper-1"
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <p className="mt-1.5 text-xs text-gray-500">
+          多模态 auto 模式下，不支持内嵌音频时将用此模型转写（Whisper 等）。
+        </p>
+      </div>
+
       <AiApiConnectivityTest />
     </div>
   );

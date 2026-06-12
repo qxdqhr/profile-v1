@@ -1,15 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createConfigHandler } from 'sa2kit/business/calendar/routes';
-import { db, isDatabaseAvailable } from '@/lib/examples/db';
-
-const useFactoryHandlers = isDatabaseAvailable() && Boolean(db);
-
-const routeConfig = {
-  db: db ?? undefined,
-  validateAuth: async (_request: NextRequest) => ({ id: 1 }),
-};
-
-const configHandlers = createConfigHandler(routeConfig);
 
 const mockConfig = {
   firstDayOfWeek: 1,
@@ -29,19 +18,11 @@ const mockConfig = {
   },
 };
 
-export async function GET(request: NextRequest) {
-  if (useFactoryHandlers) {
-    return configHandlers.GET(request);
-  }
-
+export async function GET() {
   return NextResponse.json({ success: true, data: mockConfig });
 }
 
 export async function PUT(request: NextRequest) {
-  if (useFactoryHandlers) {
-    return configHandlers.PUT(request);
-  }
-
   const body = await request.json();
   return NextResponse.json({
     success: true,

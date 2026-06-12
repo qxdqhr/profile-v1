@@ -10,6 +10,9 @@ export type {
   AiTaskDefinition,
   AiTaskContext,
   AiTaskRunOptions,
+  AiModelsListRequest,
+  AiModelsListResponse,
+  ConnectivityTestOutput,
 } from './types';
 
 export {
@@ -36,14 +39,15 @@ export { default as AiApiSettingsPanel } from './components/AiApiSettingsPanel';
 
 export { default as AiApiConnectivityTest } from './components/AiApiConnectivityTest';
 
-export type { ConnectivityTestOutput } from './types/connectivityTest';
+export type { AiModelsListRequest, AiModelsListResponse } from './types/models';
 
-export type {
-  AiModelsListRequest,
-  AiModelsListResponse,
-} from './types/models';
+export {
+  CORE_CONNECTIVITY_TEST_TASK_ID,
+  CORE_STRUCTURED_MULTIMODAL_TASK_ID,
+  CORE_LLM_COMPLETION_TASK_ID,
+} from 'sa2kit/common/aiApi';
 
-export { CORE_CONNECTIVITY_TEST_TASK_ID } from './types/connectivityTest';
+export { fileToAiImageInput, callMultimodalChat } from 'sa2kit/common/aiApi';
 
 export type { AiApiSettings, AiClientSettings } from './utils/aiSettingsCore';
 
@@ -55,10 +59,11 @@ export {
   pickClientSettingsFromStorage,
 } from './utils/aiSettingsCore';
 
-export const AI_API_MODULE_VERSION = '1.0.0';
+export const AI_API_MODULE_VERSION = '2.0.0';
 
-/** 内置通用任务 ID */
+/** 内置通用任务 ID（SSOT: sa2kit/common/aiApi） */
 export const AI_TASK_IDS = {
+  llmCompletion: 'core.llmCompletion',
   structuredMultimodal: 'core.structuredMultimodal',
   connectivityTest: 'core.connectivityTest',
 } as const;

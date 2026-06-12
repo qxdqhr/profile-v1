@@ -1,7 +1,5 @@
 import type { AiTaskDefinition } from '@/modules/aiApi/types';
-import { assertValidImageInput } from '@/modules/aiApi/server/imageUtils';
-import { callOpenAiCompatibleVisionChat } from '@/modules/aiApi/server/openaiVisionClient';
-import { extractJsonObject } from '@/modules/aiApi/server/jsonUtils';
+import { assertValidImageInput, callMultimodalChat, extractJsonObject } from 'sa2kit/common/aiApi';
 import {
   CALENDAR_AI_TASK_IDS,
   type CalendarEventFromImageInput,
@@ -71,11 +69,11 @@ export const calendarEventFromImageTask: AiTaskDefinition<
       '不要输出 Markdown。',
     ].join('\n');
 
-    const result = await callOpenAiCompatibleVisionChat(
+    const result = await callMultimodalChat(
       {
         systemPrompt,
         userPrompt: '请识别图片中的活动并输出 JSON。',
-        images: [{ base64: input.imageBase64, mimeType: input.mimeType }],
+        media: [{ kind: 'image', base64: input.imageBase64, mimeType: input.mimeType }],
         jsonMode: true,
         temperature: 0.1,
       },
