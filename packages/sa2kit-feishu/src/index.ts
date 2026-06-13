@@ -12,3 +12,8 @@ export {
   buildContactFeishuMessage,
   type ContactSubmission,
 } from './templates/contactMessage';
+export {
+  buildCiFeishuMessage,
+  type CiNotifyContext,
+  type CiNotifyStatus,
+} from './templates/ciMessage';
