@@ -28,6 +28,8 @@ export { useAiTask } from './hooks/useAiTask';
 export { useAiModels } from './hooks/useAiModels';
 export type { UseAiModelsResult } from './hooks/useAiModels';
 
+export { useAiServerConfig } from './hooks/useAiServerConfig';
+
 export { fetchAiModels } from './services/fetchModels';
 
 export {
@@ -58,6 +60,8 @@ export {
   saveAiApiSettings,
   pickClientSettingsFromStorage,
 } from './utils/aiSettingsCore';
+
+export { toServerClientSettings } from './utils/toServerClientSettings';
 
 export const AI_API_MODULE_VERSION = '2.0.0';
 

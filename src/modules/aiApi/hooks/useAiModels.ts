@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AiApiSettings } from '../utils/aiSettingsCore';
-import { toClientSettings } from '../utils/aiSettingsCore';
+import { toServerClientSettings } from '../utils/toServerClientSettings';
 import { fetchAiModels } from '../services/fetchModels';
 
 export interface UseAiModelsResult {
@@ -38,7 +38,7 @@ export function useAiModels(
     const currentSettings = settingsRef.current;
 
     try {
-      const clientSettings = toClientSettings(currentSettings);
+      const clientSettings = toServerClientSettings(currentSettings);
       const result = await fetchAiModels(clientSettings, { signal: controller.signal });
 
       if (controller.signal.aborted) return;

@@ -4,7 +4,7 @@ import React, { useCallback, useState } from 'react';
 import { CheckCircle2, Loader2, Wifi, XCircle } from 'lucide-react';
 import { useAiApiSettings } from '../context/AiApiSettingsContext';
 import { runAiTask } from '../services/aiApiClient';
-import { toClientSettings } from '../utils/aiSettingsCore';
+import { toServerClientSettings } from '../utils/toServerClientSettings';
 import {
   CORE_CONNECTIVITY_TEST_TASK_ID,
   type ConnectivityTestOutput,
@@ -24,7 +24,7 @@ export default function AiApiConnectivityTest() {
     setMeta(null);
 
     const started = Date.now();
-    const clientSettings = toClientSettings(settings);
+    const clientSettings = toServerClientSettings(settings);
 
     try {
       const result = await runAiTask<Record<string, never>, ConnectivityTestOutput>(
@@ -58,7 +58,7 @@ export default function AiApiConnectivityTest() {
         <div>
           <h3 className="text-sm font-medium text-slate-900">连通性测试</h3>
           <p className="mt-1 text-xs text-slate-500">
-            使用当前填写的 Key、Base URL 与模型发起一次轻量请求（需已登录）。
+            使用当前填写的 Key、Base URL 与模型发起一次轻量请求（需已登录）。未填写 Key 时将使用服务端配置。
           </p>
         </div>
         <button

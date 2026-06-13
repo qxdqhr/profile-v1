@@ -6,7 +6,7 @@ import {
   type StructuredMultimodalInput,
   type StructuredMultimodalOutput,
 } from 'sa2kit/common/aiApi';
-import { useAiTask } from 'sa2kit/common/aiApi/client';
+import { useAiTask } from '@/modules/aiApi/hooks/useAiTask';
 import { useAiApiSettings } from '@/modules/aiApi';
 import { toServerClientSettings } from '@/modules/aiApi/utils/toServerClientSettings';
 import {
@@ -37,7 +37,7 @@ export function useCalendarEventFromImage() {
           media: [{ kind: 'image', base64: input.imageBase64, mimeType: input.mimeType }],
           temperature: 0.1,
         },
-        { clientSettings }
+        { clientSettings: clientSettings }
       );
 
       if (!response.success || !response.data) {
