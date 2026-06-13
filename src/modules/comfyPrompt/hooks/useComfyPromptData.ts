@@ -123,6 +123,39 @@ export function useComfyPromptData() {
     [refreshAll],
   );
 
+  const bulkUpdatePrompts = useCallback(
+    async (ids: number[], data: Partial<PromptFormData>) => {
+      for (const id of ids) {
+        const res = await request<ComfyPrompt>(`/api/comfyPrompt/prompts/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify(data),
+        });
+        if (!res.success) throw new Error(res.message);
+      }
+      await refreshAll();
+    },
+    [refreshAll],
+  );
+
+  const bulkAddTagsToPrompts = useCallback(
+    async (ids: number[], newTags: string[]) => {
+      const tagSet = new Set(newTags.map((t) => t.trim()).filter(Boolean));
+      if (!tagSet.size) return;
+      for (const id of ids) {
+        const prompt = prompts.find((p) => p.id === id);
+        if (!prompt) continue;
+        const merged = [...new Set([...(prompt.tags ?? []), ...tagSet])];
+        const res = await request<ComfyPrompt>(`/api/comfyPrompt/prompts/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify({ tags: merged }),
+        });
+        if (!res.success) throw new Error(res.message);
+      }
+      await refreshAll();
+    },
+    [prompts, refreshAll],
+  );
+
   const createSet = useCallback(async (data: PromptSetFormData) => {
     const res = await request<ComfyPromptSet>('/api/comfyPrompt/sets', {
       method: 'POST',
@@ -212,6 +245,8 @@ export function useComfyPromptData() {
     updatePrompt,
     deletePrompt,
     bulkCreatePrompts,
+    bulkUpdatePrompts,
+    bulkAddTagsToPrompts,
     createSet,
     updateSet,
     deleteSet,

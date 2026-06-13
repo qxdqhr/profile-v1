@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Copy,
   Download,
+  FileText,
   Loader2,
   Play,
   Plus,
@@ -10,12 +12,15 @@ import {
   Server,
   Settings2,
   Trash2,
+  Upload,
   XCircle,
 } from 'lucide-react';
 import { FormField, Modal, modalInputClass } from '../components/Modal';
 import { useComfyPromptData } from '../hooks/useComfyPromptData';
 import { useComfyRemote } from '../hooks/useComfyRemote';
-import type { ComfyJob, ComfyJobStatus, JobOutputKey } from '../types';
+import { copyToClipboard } from '../utils/clipboard';
+import { PROMPT_LIBRARY_IMPORT_EXAMPLE } from '../utils/splitTemplatePrompts';
+import type { ComfyJob, ComfyJobStatus, JobOutputKey, PromptKind } from '../types';
 import { COMFY_RUN_DRAFT_KEY, type ComfyRunDraft } from '../types';
 
 const POLL_INTERVAL_MS = 3000;
@@ -61,7 +66,7 @@ export default function RemoteRunPage() {
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [jobErrorToasts, setJobErrorToasts] = useState<JobErrorToast[]>([]);
-  const shownFailureIdsRef = useRef<Set<number>>(new Set());
+  const prevJobStatusRef = useRef<Map<number, ComfyJobStatus>>(new Map());
 
   const [serverModalOpen, setServerModalOpen] = useState(false);
   const [serverName, setServerName] = useState('');
@@ -121,17 +126,25 @@ export default function RemoteRunPage() {
   }, [activeJobIds.length, pollActiveJobs]);
 
   useEffect(() => {
+    const currentIds = new Set(remote.jobs.map((j) => j.id));
+    for (const id of prevJobStatusRef.current.keys()) {
+      if (!currentIds.has(id)) prevJobStatusRef.current.delete(id);
+    }
+
     for (const job of remote.jobs) {
+      const prev = prevJobStatusRef.current.get(job.id);
+      prevJobStatusRef.current.set(job.id, job.status);
+
       if (job.status !== 'failed' || !job.errorMessage) continue;
-      if (shownFailureIdsRef.current.has(job.id)) continue;
-      shownFailureIdsRef.current.add(job.id);
+      if (!prev || !isActiveJob(prev)) continue;
+
       const toastId = `job-error-${job.id}-${Date.now()}`;
-      setJobErrorToasts((prev) => [
-        ...prev,
+      setJobErrorToasts((prevToasts) => [
+        ...prevToasts,
         { id: toastId, message: `#${job.id}: ${job.errorMessage}` },
       ]);
       setTimeout(() => {
-        setJobErrorToasts((prev) => prev.filter((t) => t.id !== toastId));
+        setJobErrorToasts((prevToasts) => prevToasts.filter((t) => t.id !== toastId));
       }, JOB_ERROR_DISMISS_MS);
     }
   }, [remote.jobs]);
@@ -213,9 +226,9 @@ export default function RemoteRunPage() {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
-        <section className="space-y-4">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+      <div className="flex min-h-[calc(100vh-8rem)] flex-col gap-6">
+        <div className="grid shrink-0 gap-4 lg:grid-cols-2">
+          <section className="rounded-2xl border border-white/10 bg-white/5 p-4">
             <div className="mb-3 flex items-center justify-between gap-2">
               <h2 className="flex items-center gap-2 font-semibold">
                 <Server size={18} /> ComfyUI 服务器
@@ -229,7 +242,7 @@ export default function RemoteRunPage() {
                 <Plus size={18} />
               </button>
             </div>
-            <div className="space-y-2">
+            <div className="max-h-48 space-y-2 overflow-y-auto">
               {remote.servers.map((server) => (
                 <label
                   key={server.id}
@@ -282,11 +295,9 @@ export default function RemoteRunPage() {
                 <p className="text-sm text-slate-500">点击右上角 + 添加 ComfyUI 服务器</p>
               )}
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section className="space-y-4">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-4">
+          <section className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-4">
             <h2 className="font-semibold">提交任务</h2>
             <label className="block text-sm">
               <span className="mb-1 block text-slate-400">工作流</span>
@@ -320,7 +331,7 @@ export default function RemoteRunPage() {
               <textarea
                 value={positivePrompt}
                 onChange={(e) => setPositivePrompt(e.target.value)}
-                rows={4}
+                rows={3}
                 className={inputClass}
                 placeholder="1girl, masterpiece..."
               />
@@ -330,7 +341,7 @@ export default function RemoteRunPage() {
               <textarea
                 value={negativePrompt}
                 onChange={(e) => setNegativePrompt(e.target.value)}
-                rows={3}
+                rows={2}
                 className={inputClass}
                 placeholder="low quality, blurry..."
               />
@@ -354,19 +365,18 @@ export default function RemoteRunPage() {
                 提交到 ComfyUI
               </button>
             </div>
-            <p className="text-xs text-slate-500">
-              高级设置可配置 Seed、宽高；留空 Seed 则自动随机。未手动配置节点 ID 时，会从 KSampler 等工作流结构自动识别。
-            </p>
-          </div>
+          </section>
+        </div>
 
-          <JobHistoryGrid
-            jobs={remote.jobs}
-            onRefresh={() => void remote.refreshJobs()}
-            loading={remote.loading}
-            onDeleteOutputs={remote.deleteJobOutputs}
-            onToast={showToast}
-          />
-        </section>
+        <JobHistoryGrid
+          className="min-h-0 flex-1"
+          jobs={remote.jobs}
+          onRefresh={() => void remote.refreshJobs()}
+          loading={remote.loading}
+          onDeleteOutputs={remote.deleteJobOutputs}
+          onToast={showToast}
+          onBulkCreatePrompts={promptStore.bulkCreatePrompts}
+        />
       </div>
 
       {serverModalOpen && (
@@ -445,21 +455,41 @@ export default function RemoteRunPage() {
   );
 }
 
+function splitPromptToEntries(text: string, prefix: string): { name: string; content: string }[] {
+  const parts = text
+    .split(/[,，;\n]+/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  if (!parts.length) return [];
+  return parts.map((content, i) => ({
+    name: `${prefix}-${i + 1}`,
+    content,
+  }));
+}
+
 function JobHistoryGrid({
   jobs,
   onRefresh,
   loading,
   onDeleteOutputs,
   onToast,
+  onBulkCreatePrompts,
+  className,
 }: {
   jobs: ComfyJob[];
   onRefresh: () => void;
   loading: boolean;
   onDeleteOutputs: (jobId: number, indices: number[]) => Promise<ComfyJob>;
   onToast: (msg: string) => void;
+  onBulkCreatePrompts: (
+    items: import('../types').PromptFormData[],
+  ) => Promise<import('../types').ComfyPrompt[]>;
+  className?: string;
 }) {
   const [selected, setSelected] = useState<Set<JobOutputKey>>(new Set());
   const [busy, setBusy] = useState(false);
+  const [promptJob, setPromptJob] = useState<ComfyJob | null>(null);
+  const [importKind, setImportKind] = useState<PromptKind>('positive');
 
   const tiles = useMemo<OutputTile[]>(() => {
     const list: OutputTile[] = [];
@@ -552,8 +582,31 @@ function JobHistoryGrid({
 
   const activeJobs = jobs.filter((j) => isActiveJob(j.status));
 
+  const importJobPrompts = async (job: ComfyJob, kind: PromptKind) => {
+    const text = kind === 'positive' ? job.positivePrompt : job.negativePrompt;
+    if (!text?.trim()) {
+      onToast(`该任务无${kind === 'positive' ? '正向' : '负向'}提示词`);
+      return;
+    }
+    const entries = splitPromptToEntries(text, `任务${job.id}-${kind === 'positive' ? '正向' : '负向'}`);
+    if (!entries.length) {
+      onToast('未能解析提示词');
+      return;
+    }
+    await onBulkCreatePrompts(
+      entries.map((entry) => ({
+        title: entry.name,
+        content: entry.content,
+        kind,
+        tags: ['from-job'],
+      })),
+    );
+    onToast(`已导入 ${entries.length} 条${kind === 'positive' ? '正向' : '负向'}提示词`);
+    setPromptJob(null);
+  };
+
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+    <div className={`flex flex-col rounded-2xl border border-white/10 bg-white/5 p-4 ${className ?? ''}`}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-semibold">任务历史</h2>
         <div className="flex flex-wrap items-center gap-2">
@@ -652,6 +705,14 @@ function JobHistoryGrid({
                 <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition group-hover:opacity-100">
                   <button
                     type="button"
+                    onClick={() => setPromptJob(tile.job)}
+                    className="rounded bg-black/60 p-1.5 hover:bg-black/80"
+                    title="查看提示词"
+                  >
+                    <FileText size={14} />
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => downloadImage(tile.jobId, tile.index)}
                     className="rounded bg-black/60 p-1.5 hover:bg-black/80"
                     title="下载"
@@ -680,6 +741,70 @@ function JobHistoryGrid({
         </p>
       )}
 
+      {promptJob && (
+        <Modal title={`任务 #${promptJob.id} 提示词`} onClose={() => setPromptJob(null)} wide>
+          <FormField label="正向 Prompt">
+            <textarea
+              readOnly
+              value={promptJob.positivePrompt ?? ''}
+              rows={5}
+              className={modalInputClass}
+              placeholder="无"
+            />
+          </FormField>
+          <FormField label="负向 Prompt">
+            <textarea
+              readOnly
+              value={promptJob.negativePrompt ?? ''}
+              rows={4}
+              className={modalInputClass}
+              placeholder="无"
+            />
+          </FormField>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setImportKind('positive')}
+              className={`rounded-lg px-3 py-1.5 text-sm ${
+                importKind === 'positive' ? 'bg-violet-500' : 'bg-slate-800'
+              }`}
+            >
+              导入正向
+            </button>
+            <button
+              type="button"
+              onClick={() => setImportKind('negative')}
+              className={`rounded-lg px-3 py-1.5 text-sm ${
+                importKind === 'negative' ? 'bg-violet-500' : 'bg-slate-800'
+              }`}
+            >
+              导入负向
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                void copyToClipboard(PROMPT_LIBRARY_IMPORT_EXAMPLE).then((ok) =>
+                  onToast(ok ? '模板规则已复制' : '复制失败'),
+                )
+              }
+              className="flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-sm hover:bg-white/5"
+            >
+              <Copy size={14} /> 复制模板规则
+            </button>
+          </div>
+          <p className="mt-2 text-xs text-slate-500">
+            导入时将按逗号/换行拆分为多条命名提示词写入提示词库
+          </p>
+          <button
+            type="button"
+            onClick={() => void importJobPrompts(promptJob, importKind)}
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-violet-500 py-2.5 font-medium"
+          >
+            <Upload size={16} />
+            批量导入到提示词库（{importKind === 'positive' ? '正向' : '负向'}）
+          </button>
+        </Modal>
+      )}
     </div>
   );
 }

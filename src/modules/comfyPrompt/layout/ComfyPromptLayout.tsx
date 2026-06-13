@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, Rocket, Sparkles, X } from 'lucide-react';
+import { LayoutGrid, Menu, Rocket, Sparkles, X } from 'lucide-react';
 import { useState } from 'react';
 import { AuthGuard, AuthProvider, UserMenu } from '@/lib/auth';
 
 const NAV_ITEMS = [
   { href: '/testField/comfyPrompt/prompts', label: '提示词管理', icon: Sparkles },
+  { href: '/testField/comfyPrompt/plaza', label: '提示词广场', icon: LayoutGrid },
   { href: '/testField/comfyPrompt/run', label: '远程运行', icon: Rocket },
 ] as const;
 

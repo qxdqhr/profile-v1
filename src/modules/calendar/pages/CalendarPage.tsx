@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useAuthContext, LoginRegisterModals } from '@/lib/auth';
+import { AuthProvider, useAuthContext, LoginRegisterModals } from '@/lib/auth';
 import { Plus } from 'lucide-react';
 import { ConfirmModal } from 'sa2kit/common/components';
 import { DateCalculatorTool } from '@/modules/dateCalculator';
@@ -497,10 +497,12 @@ function CalendarPageContent() {
 
 export default function CalendarPage() {
   return (
-    <AiApiSettingsProvider>
-      <CalendarSettingsProvider>
-        <CalendarPageContent />
-      </CalendarSettingsProvider>
-    </AiApiSettingsProvider>
+    <AuthProvider>
+      <AiApiSettingsProvider>
+        <CalendarSettingsProvider>
+          <CalendarPageContent />
+        </CalendarSettingsProvider>
+      </AiApiSettingsProvider>
+    </AuthProvider>
   );
 }
