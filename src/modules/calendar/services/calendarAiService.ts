@@ -4,7 +4,8 @@ import {
   type StructuredMultimodalInput,
   type StructuredMultimodalOutput,
 } from 'sa2kit/common/aiApi';
-import { createAiTaskRunner, fileToAiImageInput } from 'sa2kit/common/aiApi/client';
+import { fileToAiImageInput } from 'sa2kit/common/aiApi';
+import { createAiTaskRunner } from 'sa2kit/common/aiApi/client';
 import {
   buildEventFromImagePrompt,
   parseEventFromImageOutput,
