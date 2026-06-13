@@ -37,7 +37,7 @@ export default function AiApiSettingsPanel() {
           autoComplete="off"
           value={settings.apiKey}
           onChange={(e) => updateSettings({ apiKey: e.target.value })}
-          placeholder="sk-..."
+          placeholder="sk-… 或 tp-…（小米 MiMo）"
           className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <p className="mt-1.5 text-xs text-gray-500">
@@ -54,7 +54,7 @@ export default function AiApiSettingsPanel() {
           type="url"
           value={settings.baseUrl}
           onChange={(e) => updateSettings({ baseUrl: e.target.value })}
-          placeholder="https://api.openai.com/v1"
+          placeholder="https://api.xiaomimimo.com/v1"
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <p className="mt-1.5 text-xs text-gray-500">
@@ -104,7 +104,7 @@ export default function AiApiSettingsPanel() {
             type="text"
             value={settings.visionModel}
             onChange={(e) => updateSettings({ visionModel: e.target.value })}
-            placeholder="gpt-4o-mini"
+            placeholder="mimo-v2.5"
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         )}
@@ -145,7 +145,7 @@ export default function AiApiSettingsPanel() {
           type="text"
           value={settings.textModel ?? settings.visionModel}
           onChange={(e) => updateSettings({ textModel: e.target.value })}
-          placeholder="gpt-4o-mini"
+          placeholder="mimo-v2.5"
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <p className="mt-1.5 text-xs text-gray-500">纯文本与 STT 转写后的对话；默认同视觉模型。</p>

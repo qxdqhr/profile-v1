@@ -6,8 +6,9 @@ import {
   type StructuredMultimodalInput,
   type StructuredMultimodalOutput,
 } from 'sa2kit/common/aiApi';
-import { toClientSettings, useAiTask } from 'sa2kit/common/aiApi/client';
+import { useAiTask } from 'sa2kit/common/aiApi/client';
 import { useAiApiSettings } from '@/modules/aiApi';
+import { toServerClientSettings } from '@/modules/aiApi/utils/toServerClientSettings';
 import {
   buildEventFromImagePrompt,
   parseEventFromImageOutput,
@@ -26,7 +27,7 @@ export function useCalendarEventFromImage() {
       input: CalendarEventFromImageInput
     ): Promise<CalendarEventFromImageOutput> => {
       const { systemPrompt, userPrompt, jsonSchemaHint } = buildEventFromImagePrompt(input);
-      const clientSettings = toClientSettings(settings);
+      const clientSettings = toServerClientSettings(settings);
 
       const response = await execute(
         {

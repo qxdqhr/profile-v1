@@ -39,7 +39,8 @@
     "test:skill-manager:validation": "tsx scripts/skill-manager-validation-test.ts",
     "fix:storage-provider": "tsx --import ./scripts/preload-app-config.ts scripts/fix-default-storage-provider.ts",
     "fix:storage-provider:prod": "APP_CONFIG_ENV=production tsx --import ./scripts/preload-app-config.ts scripts/fix-default-storage-provider.ts",
-    "ticket-monitor:sync": "tsx --import ./scripts/preload-app-config.ts src/modules/ticketMonitor/scripts/run-sync.ts"
+    "ticket-monitor:sync": "tsx --import ./scripts/preload-app-config.ts src/modules/ticketMonitor/scripts/run-sync.ts",
+    "ai:test-mimo": "tsx --import ./scripts/preload-app-config.ts scripts/test-ai-mimo.ts"
   },
   "dependencies": {
     "@alicloud/pop-core": "^1.8.0",

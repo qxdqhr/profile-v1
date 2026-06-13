@@ -53,3 +53,10 @@ business:
     secretKey: ""
     bucketName: ""
     domain: ""
+
+# 小米 MiMo（日历 AI 识图等）；明文不进 Git，见 app.config.local.yaml
+ai:
+  apiKey: ""
+  baseUrl: https://api.xiaomimimo.com/v1
+  visionModel: mimo-v2.5
+  textModel: mimo-v2.5

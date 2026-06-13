@@ -38,6 +38,18 @@ calendar/ai/eventFromImageTask  → re-export / UI          → common/ai/api
 
 见 `sa2kit/docs/ai-api.md`（`AI_API_KEY`、`AI_BASE_URL` 等）。
 
+profile-v1 额外支持在 `config/app.config.*.yaml` 的 `ai:` 节配置（启动时同步为 `AI_*` 环境变量），
+本地 / 生产明文 YAML 已 gitignore。也可使用根目录 `.env.local` 覆盖。
+
+MiMo 推荐值：
+
+| 变量 | 值 |
+|------|-----|
+| `AI_BASE_URL` | `https://api.xiaomimimo.com/v1` |
+| `AI_VISION_MODEL` | `mimo-v2.5`（识图，勿用 mimo-v2.5-pro） |
+
+验证：`pnpm ai:test-mimo`
+
 ## profile-v1 保留内容
 
 - `components/` — 设置面板、连通性测试 UI

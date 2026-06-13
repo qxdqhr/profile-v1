@@ -21,6 +21,7 @@ cp config/app.config.example.yaml config/app.config.local.yaml
 # 编辑 database / auth / storage / business
 pnpm config:doctor
 pnpm config:verify-business   # 验证首页/华容道 YAML 读写与 configManager 表已删除
+pnpm ai:test-mimo           # 验证 MiMo API 连通性（需 ai.apiKey）
 pnpm dev
 ```
 
@@ -31,6 +32,7 @@ pnpm dev
 | `business.homePage` | 个人主页 Hero、导航、时间线等（缺省用代码默认值） |
 | `business.huarongdao` | 华容道主题、关卡、BGM 列表 |
 | `business.qiniu` | 七牛云（可选，未启用 OSS 时备用） |
+| `ai` | 小米 MiMo 等 AI API（`apiKey` / `baseUrl` / `visionModel`）→ 同步为 `AI_*` 环境变量 |
 
 管理页保存（首页配置、华容道配置）会**写回**当前环境的 YAML 文件。
 

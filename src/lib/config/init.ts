@@ -1,4 +1,5 @@
 import { getAppConfig, loadAppConfig, type AppConfig } from 'sa2kit/common/config/bootstrap';
+import { applyAiConfigFromYaml } from '@/lib/config/apply-ai-env';
 
 let initialized = false;
 
@@ -6,6 +7,7 @@ let initialized = false;
 export function ensureAppConfigLoaded(): AppConfig {
   if (!initialized) {
     loadAppConfig({ logDoctor: process.env.NODE_ENV !== 'test' });
+    applyAiConfigFromYaml();
     initialized = true;
   }
   return getAppConfig();
