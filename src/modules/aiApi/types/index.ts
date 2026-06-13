@@ -16,6 +16,7 @@ export type {
   TextCompletionInput,
   TextCompletionOutput,
   ConnectivityTestOutput,
+  AiServerConfigStatus,
   AiModelsListRequest,
   AiModelsListResponse,
   CORE_LLM_COMPLETION_TASK_ID,

@@ -6,7 +6,7 @@ import {
   type StructuredMultimodalInput,
   type StructuredMultimodalOutput,
 } from 'sa2kit/common/aiApi';
-import { useAiTask } from '@/modules/aiApi/hooks/useAiTask';
+import { useAiTask } from 'sa2kit/common/aiApi/client';
 import { useAiApiSettings } from '@/modules/aiApi';
 import { toServerClientSettings } from '@/modules/aiApi/utils/toServerClientSettings';
 import {

@@ -31,7 +31,7 @@ import {
   CalendarSettingsProvider,
   useCalendarSettings,
 } from '../context/CalendarSettingsContext';
-import { AiApiSettingsProvider } from '@/modules/aiApi';
+import { AiApiSettingsProvider, DEFAULT_AI_API_SETTINGS } from '@/modules/aiApi';
 import {
   getThemeCssProperties,
   formatViewTitleDay,
@@ -498,7 +498,7 @@ function CalendarPageContent() {
 export default function CalendarPage() {
   return (
     <AuthProvider>
-      <AiApiSettingsProvider>
+      <AiApiSettingsProvider defaultSettings={DEFAULT_AI_API_SETTINGS}>
         <CalendarSettingsProvider>
           <CalendarPageContent />
         </CalendarSettingsProvider>

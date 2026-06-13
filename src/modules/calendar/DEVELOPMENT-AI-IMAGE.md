@@ -10,7 +10,7 @@
 1. **sa2kit 通用层** — `core.structuredMultimodal`（`sa2kit/common/aiApi`）
 2. **日历域提示词** — `src/modules/calendar/ai/eventFromImagePrompt.ts`
 3. **客户端** — `useCalendarEventFromImage`（`useAiTask`）+ `ImageToEventButton`
-4. **设置 UI** — 仍复用 `@/modules/aiApi` 的 `AiApiSettingsProvider` / `AiApiSettingsPanel`
+4. **设置 UI** — sa2kit `AiApiSettingsProvider` / `AiApiSettingsPanel`（profile 传入 MiMo 默认）
 
 ```mermaid
 sequenceDiagram

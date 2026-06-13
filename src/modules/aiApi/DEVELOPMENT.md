@@ -52,10 +52,11 @@ MiMo 推荐值：
 
 ## profile-v1 保留内容
 
-- `components/` — 设置面板、连通性测试 UI
-- `context/` — React Provider
-- `hooks/useAiModels.ts` — 模型列表 debounce（待迁 sa2kit AI-203）
-- `api/run|models/route.ts` — Next.js 鉴权薄封装
+- `api/run|models|config/route.ts` — Next.js 鉴权薄封装 + 服务端 MiMo 任务覆盖
+- `utils/aiSettingsCore.ts` — MiMo 默认配置
+- `server/mimoStructuredMultimodalTask.ts` — MiMo 识图兼容
+
+设置 UI（`AiApiSettingsPanel`、`AiApiConnectivityTest`、`AiApiSettingsProvider`、`useAiModels`）已迁入 **sa2kit 3.8+**（AI-203 ✅），本模块仅 re-export。
 
 ## 后续
 

@@ -13,6 +13,7 @@ export type {
   AiModelsListRequest,
   AiModelsListResponse,
   ConnectivityTestOutput,
+  AiServerConfigStatus,
 } from './types';
 
 export {
@@ -26,9 +27,10 @@ export {
 export { useAiTask } from './hooks/useAiTask';
 
 export { useAiModels } from './hooks/useAiModels';
-export type { UseAiModelsResult } from './hooks/useAiModels';
+export type { UseAiModelsOptions, UseAiModelsResult } from './hooks/useAiModels';
 
 export { useAiServerConfig } from './hooks/useAiServerConfig';
+export type { UseAiServerConfigOptions } from './hooks/useAiServerConfig';
 
 export { fetchAiModels } from './services/fetchModels';
 
@@ -36,10 +38,16 @@ export {
   AiApiSettingsProvider,
   useAiApiSettings,
 } from './context/AiApiSettingsContext';
+export type {
+  AiApiSettingsProviderProps,
+  AiApiSettingsContextValue,
+} from './context/AiApiSettingsContext';
 
-export { default as AiApiSettingsPanel } from './components/AiApiSettingsPanel';
+export { AiApiSettingsPanel } from './components/AiApiSettingsPanel';
+export type { AiApiSettingsPanelProps } from './components/AiApiSettingsPanel';
 
-export { default as AiApiConnectivityTest } from './components/AiApiConnectivityTest';
+export { AiApiConnectivityTest } from './components/AiApiConnectivityTest';
+export type { AiApiConnectivityTestProps } from './components/AiApiConnectivityTest';
 
 export type { AiModelsListRequest, AiModelsListResponse } from './types/models';
 
@@ -59,11 +67,10 @@ export {
   loadAiApiSettings,
   saveAiApiSettings,
   pickClientSettingsFromStorage,
+  toServerClientSettings,
 } from './utils/aiSettingsCore';
 
-export { toServerClientSettings } from './utils/toServerClientSettings';
-
-export const AI_API_MODULE_VERSION = '2.0.0';
+export const AI_API_MODULE_VERSION = '2.1.0';
 
 /** 内置通用任务 ID（SSOT: sa2kit/common/aiApi） */
 export const AI_TASK_IDS = {

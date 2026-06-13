@@ -261,7 +261,20 @@ export default function CalendarSettings() {
           </div>
         )}
 
-        {activeTab === 'ai' && <AiApiSettingsPanel />}
+        {activeTab === 'ai' && (
+          <AiApiSettingsPanel
+            apiKeyPlaceholder="sk-… 或 tp-…（小米 MiMo）"
+            baseUrlPlaceholder="https://api.xiaomimimo.com/v1"
+            visionModelPlaceholder="mimo-v2.5"
+            serverMissingHint={
+              <>
+                请在{' '}
+                <code className="rounded bg-amber-100 px-1">config/app.config.*.yaml</code> 的{' '}
+                <code className="rounded bg-amber-100 px-1">ai:</code> 节填写 apiKey，或在下方的浏览器设置中填写。
+              </>
+            }
+          />
+        )}
 
         <div className="border-t border-gray-200 pt-6">
           <button

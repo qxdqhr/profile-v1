@@ -1,14 +1,8 @@
 import { NextRequest } from 'next/server';
 import { resolveAiConnectionConfig } from 'sa2kit/common/aiApi/server';
+import type { AiServerConfigStatus } from 'sa2kit/common/aiApi';
 import { ensureAppConfigLoaded } from '@/lib/config/init';
 import { getApiSessionUser } from '@/lib/auth/session';
-
-export interface AiServerConfigStatus {
-  serverConfigured: boolean;
-  baseUrl?: string;
-  visionModel?: string;
-  textModel?: string;
-}
 
 /**
  * 查询服务端是否已配置 AI（不暴露 apiKey）
