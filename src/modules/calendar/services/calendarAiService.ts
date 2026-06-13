@@ -1,15 +1,43 @@
-import { createAiTaskRunner } from '@/modules/aiApi';
-import { fileToAiImageInput } from 'sa2kit/common/aiApi';
 import {
-  CALENDAR_AI_TASK_IDS,
-  type CalendarEventFromImageInput,
-  type CalendarEventFromImageOutput,
+  CORE_STRUCTURED_MULTIMODAL_TASK_ID,
+  type AiClientSettings,
+  type StructuredMultimodalInput,
+  type StructuredMultimodalOutput,
+} from 'sa2kit/common/aiApi';
+import { createAiTaskRunner, fileToAiImageInput } from 'sa2kit/common/aiApi/client';
+import {
+  buildEventFromImagePrompt,
+  parseEventFromImageOutput,
+} from '../ai/eventFromImagePrompt';
+import type {
+  CalendarEventFromImageInput,
+  CalendarEventFromImageOutput,
 } from '../ai/eventFromImageTask.types';
 
-export const analyzeCalendarEventFromImage = createAiTaskRunner<
-  CalendarEventFromImageInput,
-  CalendarEventFromImageOutput
->(CALENDAR_AI_TASK_IDS.eventFromImage);
+const runStructuredMultimodal = createAiTaskRunner<
+  StructuredMultimodalInput,
+  StructuredMultimodalOutput
+>(CORE_STRUCTURED_MULTIMODAL_TASK_ID);
+
+export async function analyzeCalendarEventFromImage(
+  input: CalendarEventFromImageInput,
+  options?: { signal?: AbortSignal; clientSettings?: AiClientSettings }
+): Promise<CalendarEventFromImageOutput> {
+  const { systemPrompt, userPrompt, jsonSchemaHint } = buildEventFromImagePrompt(input);
+
+  const result = await runStructuredMultimodal(
+    {
+      systemPrompt,
+      userPrompt,
+      jsonSchemaHint,
+      media: [{ kind: 'image', base64: input.imageBase64, mimeType: input.mimeType }],
+      temperature: 0.1,
+    },
+    options
+  );
+
+  return parseEventFromImageOutput(result.json);
+}
 
 /** 将上传图片转为识图任务输入 */
 export async function buildCalendarImageInput(

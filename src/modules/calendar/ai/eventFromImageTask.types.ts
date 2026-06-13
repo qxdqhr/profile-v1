@@ -1,7 +1,3 @@
-export const CALENDAR_AI_TASK_IDS = {
-  eventFromImage: 'calendar.eventFromImage',
-} as const;
-
 export interface CalendarEventFromImageInput {
   imageBase64: string;
   mimeType: string;

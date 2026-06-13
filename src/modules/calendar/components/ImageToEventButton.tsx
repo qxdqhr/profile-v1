@@ -1,12 +1,9 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { ImagePlus, Loader2 } from 'lucide-react';
-import {
-  analyzeCalendarEventFromImage,
-  buildCalendarImageInput,
-  type CalendarEventFromImageOutput,
-} from '../services/calendarAiService';
+import { buildCalendarImageInput, type CalendarEventFromImageOutput } from '../services/calendarAiService';
+import { useCalendarEventFromImage } from '../hooks/useCalendarEventFromImage';
 
 interface ImageToEventButtonProps {
   onResult: (draft: CalendarEventFromImageOutput, previewUrl: string) => void;
@@ -22,7 +19,7 @@ export default function ImageToEventButton({
   className = '',
 }: ImageToEventButtonProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [loading, setLoading] = useState(false);
+  const { analyzeFromImage, loading } = useCalendarEventFromImage();
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -30,12 +27,11 @@ export default function ImageToEventButton({
       return;
     }
 
-    setLoading(true);
     const previewUrl = URL.createObjectURL(file);
 
     try {
       const { imageBase64, mimeType } = await buildCalendarImageInput(file);
-      const draft = await analyzeCalendarEventFromImage({
+      const draft = await analyzeFromImage({
         imageBase64,
         mimeType,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -47,7 +43,6 @@ export default function ImageToEventButton({
       URL.revokeObjectURL(previewUrl);
       onError(err instanceof Error ? err.message : '识图失败，请重试');
     } finally {
-      setLoading(false);
       if (inputRef.current) inputRef.current.value = '';
     }
   };
