@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { calendarDbService } from '../../../server';
 import { getApiSessionUser } from '@/lib/auth/session';
-import { parseLocalISOString } from '../../../utils/dateUtils';
+import { parseWireLocalISOString } from '../../../utils/dateUtils';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -136,7 +136,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     }
 
     if (body.startTime !== undefined) {
-      const startTime = parseLocalISOString(String(body.startTime));
+      const startTime = parseWireLocalISOString(String(body.startTime));
       if (isNaN(startTime.getTime())) {
         return Response.json(
           { success: false, error: '开始时间格式无效' },
@@ -147,7 +147,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     }
 
     if (body.endTime !== undefined) {
-      const endTime = parseLocalISOString(String(body.endTime));
+      const endTime = parseWireLocalISOString(String(body.endTime));
       if (isNaN(endTime.getTime())) {
         return Response.json(
           { success: false, error: '结束时间格式无效' },

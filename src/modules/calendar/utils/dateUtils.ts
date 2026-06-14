@@ -63,9 +63,43 @@ export function toLocalISOString(date: Date): string {
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}`;
 }
 
+/** API 传输时使用的固定时区偏移（与 calendarConfigs.timeZone 默认一致） */
+export const CALENDAR_WIRE_TIMEZONE_OFFSET = '+08:00';
+
+const DEFAULT_MIN_EVENT_DURATION_MS = 60 * 60 * 1000;
+
+function normalizeTimePartForWire(timePart: string): string {
+  const segments = timePart.split(':');
+  const hours = segments[0] ?? '00';
+  const minutes = segments[1] ?? '00';
+  const secPart = segments[2] ?? '00';
+  const [seconds, ms = '000'] = secPart.split('.');
+  return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}:${seconds.padStart(2, '0')}.${ms.padEnd(3, '0').slice(0, 3)}`;
+}
+
+/**
+ * 解析 API 请求体中的本地时间字符串（固定东八区）
+ * 避免 Docker/Node 以 UTC 解析导致日期写入错误。
+ */
+export function parseWireLocalISOString(
+  value: string,
+  offset: string = CALENDAR_WIRE_TIMEZONE_OFFSET
+): Date {
+  const trimmed = value.trim();
+  if (!trimmed) return new Date(NaN);
+
+  if (/[zZ]$|[+-]\d{2}:\d{2}$/.test(trimmed)) {
+    return new Date(trimmed);
+  }
+
+  const [datePart, timePart = '00:00:00'] = trimmed.split('T');
+  const normalizedTime = normalizeTimePartForWire(timePart);
+  return new Date(`${datePart}T${normalizedTime}${offset}`);
+}
+
 /**
  * 解析无时区后缀的本地时间字符串（与 toLocalISOString 配对）
- * 避免 Node 与浏览器对 ISO 字符串解析不一致。
+ * 浏览器端使用系统本地时区；服务端解析 wire 格式请用 parseWireLocalISOString。
  */
 export function parseLocalISOString(value: string): Date {
   const trimmed = value.trim();
@@ -130,6 +164,26 @@ export function allDayBoundsFromDate(date: Date): { start: Date; end: Date } {
   const start = getDayStart(date);
   const end = getDayEnd(date);
   return { start, end };
+}
+
+/**
+ * 保证结束时间晚于开始时间；若用户只改了开始日期，按原时长顺延结束时间。
+ */
+export function ensureEndAfterStart(
+  startTime: Date,
+  endTime: Date,
+  minDurationMs: number = DEFAULT_MIN_EVENT_DURATION_MS
+): { startTime: Date; endTime: Date } {
+  if (Number.isNaN(startTime.getTime()) || Number.isNaN(endTime.getTime())) {
+    return { startTime, endTime };
+  }
+  if (endTime.getTime() > startTime.getTime()) {
+    return { startTime, endTime };
+  }
+  return {
+    startTime,
+    endTime: new Date(startTime.getTime() + minDurationMs),
+  };
 }
 
 /**

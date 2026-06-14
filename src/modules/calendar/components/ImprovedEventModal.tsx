@@ -22,7 +22,7 @@ import {
   formatDateTimeLocal,
   formatTimeOnly,
 } from './eventModal/formUtils';
-import { allDayBoundsFromDate, parseEventDateTime, parseLocalISOString } from '../utils/dateUtils';
+import { allDayBoundsFromDate, ensureEndAfterStart, parseEventDateTime, parseLocalISOString } from '../utils/dateUtils';
 import {
   dangerButtonClass,
   primaryButtonClass,
@@ -122,7 +122,7 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
       recurrenceStartTime: formatDateTimeLocal(startDate),
       recurrenceEndTime: formatDateTimeLocal(endDate),
     });
-  }, [isOpen, event?.id, event?.updatedAt]);
+  }, [isOpen, event?.id, event?.updatedAt ? new Date(event.updatedAt).getTime() : 0]);
 
   useEffect(() => {
     if (!isOpen || event || !initialDate) return;
@@ -162,6 +162,9 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
             endTime: end,
           };
         }
+        const parsedStart = parseLocalISOString(formData.startTime);
+        const parsedEnd = parseLocalISOString(formData.endTime);
+        const { startTime, endTime } = ensureEndAfterStart(parsedStart, parsedEnd);
         return {
           type: EventType.SINGLE,
           title: formData.title.trim(),
@@ -170,8 +173,8 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
           color: formData.color,
           priority: formData.priority,
           allDay: false,
-          startTime: parseLocalISOString(formData.startTime),
-          endTime: parseLocalISOString(formData.endTime),
+          startTime,
+          endTime,
         };
       }
 
@@ -259,7 +262,54 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
     field: keyof EventModalFormData,
     value: string | boolean | number
   ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      const next: EventModalFormData = { ...prev, [field]: value } as EventModalFormData;
+
+      if (prev.allDay && field === 'startDate' && typeof value === 'string') {
+        next.endDate = value;
+      }
+
+      if (
+        !prev.allDay &&
+        field === 'startTime' &&
+        typeof value === 'string' &&
+        prev.startTime &&
+        prev.endTime
+      ) {
+        const oldStart = parseLocalISOString(prev.startTime);
+        const oldEnd = parseLocalISOString(prev.endTime);
+        const newStart = parseLocalISOString(value);
+        if (!Number.isNaN(oldStart.getTime()) && !Number.isNaN(oldEnd.getTime()) && !Number.isNaN(newStart.getTime())) {
+          const durationMs = Math.max(oldEnd.getTime() - oldStart.getTime(), 60 * 60 * 1000);
+          next.endTime = formatDateTimeLocal(new Date(newStart.getTime() + durationMs));
+        }
+      }
+
+      if (!prev.allDay && field === 'startDate' && typeof value === 'string') {
+        const applyDate = (dateTime: string) => {
+          if (!dateTime) return dateTime;
+          const parsed = parseLocalISOString(dateTime);
+          if (Number.isNaN(parsed.getTime())) return dateTime;
+          const [year, month, day] = value.split('-').map(Number);
+          parsed.setFullYear(year, month - 1, day);
+          return formatDateTimeLocal(parsed);
+        };
+        const oldStart = prev.startTime ? parseLocalISOString(prev.startTime) : null;
+        const oldEnd = prev.endTime ? parseLocalISOString(prev.endTime) : null;
+        next.startTime = applyDate(prev.startTime);
+        if (oldStart && oldEnd && !Number.isNaN(oldStart.getTime()) && !Number.isNaN(oldEnd.getTime())) {
+          const durationMs = Math.max(oldEnd.getTime() - oldStart.getTime(), 60 * 60 * 1000);
+          const newStart = parseLocalISOString(next.startTime);
+          next.endTime = formatDateTimeLocal(new Date(newStart.getTime() + durationMs));
+        } else {
+          next.endTime = applyDate(prev.endTime);
+        }
+        next.startDate = value;
+        next.endDate = value;
+      }
+
+      return next;
+    });
 
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: '' }));

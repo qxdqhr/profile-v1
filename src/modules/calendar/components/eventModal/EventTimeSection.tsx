@@ -110,6 +110,14 @@ export default function EventTimeSection({
         ) : (
           <>
             <div className={`${sectionClass} space-y-4`}>
+              <TimeField
+                id="eventDate"
+                label="活动日期"
+                type="date"
+                value={formData.startDate}
+                onChange={(v) => onChange('startDate', v)}
+                required
+              />
               <div className="flex items-center gap-2 text-sm font-medium text-slate-800">
                 <Clock className="h-4 w-4 text-violet-500" />
                 时间段

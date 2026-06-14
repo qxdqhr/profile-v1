@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { calendarDbService } from '../../server';
 import { getApiSessionUser } from '@/lib/auth/session';
-import { parseLocalISOString } from '../../utils/dateUtils';
+import { parseWireLocalISOString } from '../../utils/dateUtils';
 
 /**
  * 获取用户的日历事件
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     let endDate: Date | undefined;
 
     if (startDateStr) {
-      startDate = parseLocalISOString(startDateStr);
+      startDate = parseWireLocalISOString(startDateStr);
       if (isNaN(startDate.getTime())) {
         return Response.json(
           { success: false, error: '开始日期格式无效' },
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (endDateStr) {
-      endDate = parseLocalISOString(endDateStr);
+      endDate = parseWireLocalISOString(endDateStr);
       if (isNaN(endDate.getTime())) {
         return Response.json(
           { success: false, error: '结束日期格式无效' },
@@ -106,8 +106,8 @@ export async function POST(request: NextRequest) {
     }
 
     // 解析和验证时间
-    const startTime = parseLocalISOString(String(body.startTime));
-    const endTime = parseLocalISOString(String(body.endTime));
+    const startTime = parseWireLocalISOString(String(body.startTime));
+    const endTime = parseWireLocalISOString(String(body.endTime));
 
     if (isNaN(startTime.getTime())) {
       return Response.json(

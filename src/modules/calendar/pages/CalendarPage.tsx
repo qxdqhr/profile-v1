@@ -252,8 +252,9 @@ function CalendarPageContent() {
         setIsEventModalOpen(false);
         setEditingEvent(null);
         setSelectedDate(null);
-      } catch {
+      } catch (err) {
         showToast('保存失败，请重试', 'error');
+        throw err;
       }
     },
     [
