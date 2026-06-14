@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useMemo, useState, useCallback } from 'react';
-import { SearchBox, ConfirmModal } from 'sa2kit/common/components';
+import { SearchBox } from 'sa2kit/common/components';
+import { Button, Loading, Modal } from 'animal-island-ui';
 import { 
   CalendarEvent, 
   EventListProps, 
@@ -239,9 +240,7 @@ export default function EventList({
     return (
       <button
         onClick={() => handleSortChange(field)}
-        className={`flex items-center px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-          isActive ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
-        }`}
+        className={`cal-sort-btn${isActive ? ' is-active' : ''}`}
       >
         {label}
         <svg 
@@ -270,7 +269,7 @@ export default function EventList({
           e.stopPropagation();
           handleSelectEvent(eventId, e.target.checked);
         }}
-        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        className="cal-checkbox"
       />
     );
   };
@@ -285,7 +284,7 @@ export default function EventList({
           if (input) input.indeterminate = isPartiallySelected;
         }}
         onChange={(e) => handleSelectAll(e.target.checked)}
-        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        className="cal-checkbox"
       />
     );
   };
@@ -298,7 +297,7 @@ export default function EventList({
         e.stopPropagation();
         setNavigationDestination(location);
       }}
-      className={`flex min-w-0 items-center gap-1 text-left text-blue-600 underline decoration-blue-300/70 underline-offset-2 transition-colors hover:text-blue-700 hover:decoration-blue-500 ${truncate ? 'max-w-full' : ''}`}
+      className={`cal-location-link${truncate ? ' max-w-full' : ''}`}
       title="选择地图应用导航"
     >
       <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -319,9 +318,9 @@ export default function EventList({
         return (
           <div
             key={event.id}
-            className={`rounded-xl p-4 transition-[box-shadow,transform] hover:shadow-md ${
-              getEventSurfaceClasses(event.color)
-            } ${isSelected ? 'ring-2 ring-violet-500/50' : ''}`}
+            className={`cal-event-card ${getEventSurfaceClasses(event.color)}${
+              isSelected ? ' cal-selected-ring' : ''
+            }`}
           >
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-3 flex-1">
@@ -334,17 +333,17 @@ export default function EventList({
                 
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
+                    <h3 className="cal-text-heading text-lg">{event.title}</h3>
                     <span className={`rounded-md px-2 py-1 text-xs font-medium ${priorityDisplay.className}`}>
                       {priorityDisplay.text}
                     </span>
                   </div>
                   
                   {event.description && (
-                    <p className="text-gray-600 mb-2 line-clamp-2">{event.description}</p>
+                    <p className="cal-text-body mb-2 line-clamp-2">{event.description}</p>
                   )}
                   
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <div className="cal-text-muted flex items-center gap-4 text-sm">
                     <div className="flex items-center gap-1">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -359,32 +358,33 @@ export default function EventList({
               
               {/* 操作按钮 */}
               {!isSelectionMode && (
-                <div className="flex items-center gap-2 ml-4">
-                  <button
+                <div className="ml-4 flex items-center gap-2">
+                  <Button
+                    type="text"
+                    size="small"
                     onClick={(e) => {
                       e.stopPropagation();
                       onEventEdit(event);
                     }}
-                    className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-400 transition-transform hover:bg-violet-50 hover:text-violet-700 active:scale-[0.96]"
                     title="编辑事件"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
-                  </button>
-                  
-                  <button
+                  </Button>
+                  <Button
+                    type="text"
+                    size="small"
                     onClick={(e) => {
                       e.stopPropagation();
                       onEventDelete(event.id);
                     }}
-                    className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-400 transition-transform hover:bg-red-50 hover:text-red-600 active:scale-[0.96]"
                     title="删除事件"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -404,9 +404,9 @@ export default function EventList({
         return (
           <div
             key={event.id}
-            className={`rounded-xl p-4 transition-[box-shadow,transform] hover:shadow-lg ${
-              getEventSurfaceClasses(event.color)
-            } ${isSelected ? 'ring-2 ring-violet-500/50' : ''}`}
+            className={`cal-event-card ${getEventSurfaceClasses(event.color)}${
+              isSelected ? ' cal-selected-ring' : ''
+            }`}
           >
             <div className="flex items-start justify-between mb-3">
               {/* 选择框 */}
@@ -416,17 +416,17 @@ export default function EventList({
                 </div>
               )}
               
-              <h3 className="text-lg font-semibold text-gray-900 flex-1 pr-2">{event.title}</h3>
+              <h3 className="cal-text-heading flex-1 pr-2 text-lg">{event.title}</h3>
               <span className={`shrink-0 rounded-md px-2 py-1 text-xs font-medium ${priorityDisplay.className}`}>
                 {priorityDisplay.text}
               </span>
             </div>
             
             {event.description && (
-              <p className="text-gray-600 text-sm mb-3 line-clamp-3">{event.description}</p>
+              <p className="cal-text-body mb-3 line-clamp-3 text-sm">{event.description}</p>
             )}
             
-            <div className="space-y-2 text-sm text-gray-500">
+            <div className="cal-text-muted space-y-2 text-sm">
               <div className="flex items-center gap-1">
                 <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -438,32 +438,33 @@ export default function EventList({
             </div>
             
             {!isSelectionMode && (
-              <div className="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-gray-200">
-                <button
+              <div className="cal-divider-top mt-4 flex items-center justify-end gap-2 pt-3">
+                <Button
+                  type="text"
+                  size="small"
                   onClick={(e) => {
                     e.stopPropagation();
                     onEventEdit(event);
                   }}
-                  className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
                   title="编辑事件"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
-                </button>
-                
-                <button
+                </Button>
+                <Button
+                  type="text"
+                  size="small"
                   onClick={(e) => {
                     e.stopPropagation();
                     onEventDelete(event.id);
                   }}
-                  className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                   title="删除事件"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -475,7 +476,7 @@ export default function EventList({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* 工具栏 */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div className="cal-panel cal-list-toolbar">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           {/* 搜索框 */}
           <div className="flex-1 max-w-md">
@@ -493,39 +494,27 @@ export default function EventList({
             {enableBatchActions && onBatchDelete && (
               <>
                 {!isSelectionMode ? (
-                  <button
-                    onClick={toggleSelectionMode}
-                    className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
-                  >
+                  <Button type="default" size="small" onClick={toggleSelectionMode}>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     批量操作
-                  </button>
+                  </Button>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={exitSelectionMode}
-                      className="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
-                    >
+                    <Button type="default" size="small" onClick={exitSelectionMode}>
                       取消
-                    </button>
-                    
+                    </Button>
+
                     {selectedEventIds.size > 0 && (
-                      <button
+                      <Button
+                        type="danger-primary"
+                        size="small"
+                        loading={batchDeleteLoading}
                         onClick={() => setShowBatchDeleteConfirm(true)}
-                        disabled={batchDeleteLoading}
-                        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-red-600 border border-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
-                        {batchDeleteLoading ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        ) : (
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        )}
                         删除选中({selectedEventIds.size})
-                      </button>
+                      </Button>
                     )}
                   </div>
                 )}
@@ -534,24 +523,20 @@ export default function EventList({
             
             {/* 显示模式切换 */}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-700 mr-2">显示模式:</span>
-              <div className="flex items-center bg-gray-100 rounded-lg p-1">
+              <span className="cal-text-body mr-2 text-sm">显示模式:</span>
+              <div className="cal-segmented">
                 <button
                   onClick={() => handleDisplayModeChange(EventListDisplayMode.LIST)}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                    config.displayMode === EventListDisplayMode.LIST
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
+                  className={`cal-segmented__btn${
+                    config.displayMode === EventListDisplayMode.LIST ? ' is-active' : ''
                   }`}
                 >
                   列表
                 </button>
                 <button
                   onClick={() => handleDisplayModeChange(EventListDisplayMode.GRID)}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                    config.displayMode === EventListDisplayMode.GRID
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
+                  className={`cal-segmented__btn${
+                    config.displayMode === EventListDisplayMode.GRID ? ' is-active' : ''
                   }`}
                 >
                   网格
@@ -563,13 +548,13 @@ export default function EventList({
         
         {/* 选择模式信息栏 */}
         {isSelectionMode && (
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+          <div className="cal-divider-top mt-4 flex items-center justify-between pt-4">
             <div className="flex items-center gap-3">
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+              <label className="cal-label flex items-center gap-2 text-sm">
                 {renderSelectAllCheckbox()}
                 全选当前页
               </label>
-              <span className="text-sm text-gray-600">
+              <span className="cal-text-muted text-sm">
                 已选择 {selectedEventIds.size} 个事件
               </span>
             </div>
@@ -578,8 +563,8 @@ export default function EventList({
         
         {/* 排序选项 */}
         {!isSelectionMode && (
-          <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-200">
-            <span className="text-sm text-gray-700 mr-2">排序:</span>
+          <div className="cal-divider-top mt-4 flex flex-wrap items-center gap-2 pt-4">
+            <span className="cal-text-body mr-2 text-sm">排序:</span>
             {renderSortButton(EventSortField.START_TIME, '日期')}
             {renderSortButton(EventSortField.TITLE, '标题')}
             {renderSortButton(EventSortField.PRIORITY, '优先级')}
@@ -591,7 +576,7 @@ export default function EventList({
       
       {/* 事件统计 */}
       <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-600">
+        <div className="cal-stats">
           共 {sortedAndFilteredEvents.length} 个事件
           {config.filter.searchText && ` (搜索: "${config.filter.searchText}")`}
         </div>
@@ -599,8 +584,8 @@ export default function EventList({
       
       {/* 加载状态 */}
       {loading && (
-        <div className="flex justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="cal-loading-wrap">
+          <Loading active />
         </div>
       )}
       
@@ -612,21 +597,21 @@ export default function EventList({
           {/* 分页 */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between pt-6">
-              <div className="text-sm text-gray-600">
+              <div className="cal-stats">
                 第 {config.currentPage} 页，共 {totalPages} 页
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handlePageChange(config.currentPage - 1)}
                   disabled={config.currentPage === 1}
-                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="cal-pagination-btn"
                 >
                   上一页
                 </button>
                 <button
                   onClick={() => handlePageChange(config.currentPage + 1)}
                   disabled={config.currentPage === totalPages}
-                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="cal-pagination-btn"
                 >
                   下一页
                 </button>
@@ -638,12 +623,9 @@ export default function EventList({
       
       {/* 空状态 */}
       {!loading && paginatedEvents.length === 0 && (
-        <div className="text-center py-12">
-          <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">暂无事件</h3>
-          <p className="text-gray-600">
+        <div className="cal-empty">
+          <h3 className="cal-text-heading mb-2 text-lg">暂无事件</h3>
+          <p className="cal-text-muted">
             {config.filter.searchText || config.filter.priority || config.filter.color || config.filter.dateRange
               ? '没有找到符合条件的事件'
               : '还没有创建任何事件'
@@ -653,16 +635,29 @@ export default function EventList({
       )}
       
       {/* 批量删除确认弹窗 */}
-      <ConfirmModal
-        isOpen={showBatchDeleteConfirm}
+      <Modal
+        open={showBatchDeleteConfirm}
         onClose={() => setShowBatchDeleteConfirm(false)}
-        onConfirm={handleBatchDelete}
         title="确认批量删除"
-        message={`确定要删除选中的 ${selectedEventIds.size} 个事件吗？此操作无法撤销。`}
-        confirmText="删除"
-        cancelText="取消"
-        isLoading={batchDeleteLoading}
-      />
+        typewriter={false}
+        footer={
+          <div className="cal-modal-actions">
+            <Button type="default" size="small" onClick={() => setShowBatchDeleteConfirm(false)}>
+              取消
+            </Button>
+            <Button
+              type="danger-primary"
+              size="small"
+              loading={batchDeleteLoading}
+              onClick={() => void handleBatchDelete()}
+            >
+              删除
+            </Button>
+          </div>
+        }
+      >
+        确定要删除选中的 {selectedEventIds.size} 个事件吗？此操作无法撤销。
+      </Modal>
 
       <MapNavigationPickerModal
         isOpen={navigationDestination !== null}

@@ -14,10 +14,10 @@ interface EventAppearanceSectionProps {
 }
 
 const PRIORITY_OPTIONS = [
-  { value: EventPriority.LOW, label: '低', tone: 'text-slate-700 bg-slate-50 ring-slate-200/80' },
-  { value: EventPriority.NORMAL, label: '普通', tone: 'text-violet-700 bg-violet-50 ring-violet-200/80' },
-  { value: EventPriority.HIGH, label: '高', tone: 'text-amber-700 bg-amber-50 ring-amber-200/80' },
-  { value: EventPriority.URGENT, label: '紧急', tone: 'text-red-700 bg-red-50 ring-red-200/80' },
+  { value: EventPriority.LOW, label: '低' },
+  { value: EventPriority.NORMAL, label: '普通' },
+  { value: EventPriority.HIGH, label: '高' },
+  { value: EventPriority.URGENT, label: '紧急' },
 ] as const;
 
 export default function EventAppearanceSection({
@@ -33,7 +33,7 @@ export default function EventAppearanceSection({
         className="space-y-3"
       >
         <label className={`inline-flex items-center gap-2 ${labelClass}`}>
-          <Palette className="h-4 w-4 text-slate-400" aria-hidden />
+          <Palette className="h-4 w-4 text-[#9f927d]" aria-hidden />
           活动颜色
         </label>
         <div className="flex items-center gap-3">
@@ -49,7 +49,7 @@ export default function EventAppearanceSection({
               aria-label="选择自定义颜色"
             />
           </label>
-          <span className="tabular-nums text-sm font-medium text-slate-700">
+          <span className="cal-text-body tabular-nums text-sm font-medium">
             {formData.color.toUpperCase()}
           </span>
         </div>
@@ -63,9 +63,9 @@ export default function EventAppearanceSection({
               transition={{ delay: index * 0.04, type: 'spring', duration: 0.3, bounce: 0 }}
               onClick={() => onChange('color', color)}
               aria-label={`选择颜色 ${color}`}
-              className={`h-10 w-10 rounded-xl transition-[transform,box-shadow] active:scale-[0.96] ${
+              className={`h-10 w-10 rounded-[18px] transition-[transform,box-shadow] active:scale-[0.96] ${
                 formData.color === color
-                  ? 'shadow-[0_0_0_2px_rgba(124,58,237,0.5),inset_0_0_0_1px_rgba(0,0,0,0.1)]'
+                  ? 'shadow-[0_0_0_2px_#19c8b9,inset_0_0_0_1px_rgba(0,0,0,0.1)]'
                   : 'shadow-[inset_0_0_0_1px_rgba(0,0,0,0.1)] hover:scale-105'
               }`}
               style={{ backgroundColor: color }}
@@ -81,7 +81,7 @@ export default function EventAppearanceSection({
         className="space-y-2"
       >
         <label className={`inline-flex items-center gap-2 ${labelClass}`}>
-          <Star className="h-4 w-4 text-slate-400" aria-hidden />
+          <Star className="h-4 w-4 text-[#9f927d]" aria-hidden />
           优先级
         </label>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -98,10 +98,8 @@ export default function EventAppearanceSection({
                   className="sr-only"
                 />
                 <span
-                  className={`flex h-10 items-center justify-center rounded-xl text-sm font-medium transition-[background-color,box-shadow,transform] active:scale-[0.96] ${
-                    selected
-                      ? `${option.tone} shadow-[inset_0_0_0_1px_rgba(0,0,0,0.06)] ring-2 ring-current/15`
-                      : 'bg-slate-50/80 text-slate-600 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.06)] hover:bg-slate-50'
+                  className={`cal-priority-chip flex h-10 items-center justify-center${
+                    selected ? ' is-active' : ''
                   }`}
                 >
                   {option.label}

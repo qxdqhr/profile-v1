@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Switch } from 'animal-island-ui';
 import { Clock, Sun, Info } from 'lucide-react';
 import { RecurrencePattern } from '../../services/eventTypeService';
 import type { EventModalFormData } from './types';
@@ -66,21 +67,10 @@ export default function EventTimeSection({
           <p className={labelClass}>全天活动</p>
           <p className={hintClass}>不设置具体时间，整天有效</p>
         </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={formData.allDay}
-          onClick={() => onChange('allDay', !formData.allDay)}
-          className={`relative h-7 w-12 shrink-0 rounded-full transition-[background-color] ${
-            formData.allDay ? 'bg-violet-600' : 'bg-slate-300'
-          }`}
-        >
-          <span
-            className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow-sm transition-transform ${
-              formData.allDay ? 'translate-x-[22px]' : 'translate-x-0.5'
-            }`}
-          />
-        </button>
+        <Switch
+          checked={formData.allDay}
+          onChange={(checked) => onChange('allDay', checked)}
+        />
       </label>
     </motion.div>
   ) : null;
@@ -94,7 +84,7 @@ export default function EventTimeSection({
             <div className="flex items-start gap-3">
               <Sun className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
               <div>
-                <p className="text-sm font-medium text-slate-800">全天模式</p>
+                <p className="cal-label text-sm">全天模式</p>
                 <p className={`mt-1 ${hintClass}`}>选择活动日期，将在该日全天显示。</p>
               </div>
             </div>
@@ -118,8 +108,8 @@ export default function EventTimeSection({
                 onChange={(v) => onChange('startDate', v)}
                 required
               />
-              <div className="flex items-center gap-2 text-sm font-medium text-slate-800">
-                <Clock className="h-4 w-4 text-violet-500" />
+              <div className="cal-label flex items-center gap-2 text-sm">
+                <Clock className="h-4 w-4 text-[#19c8b9]" />
                 时间段
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -141,8 +131,8 @@ export default function EventTimeSection({
                 />
               </div>
             </div>
-            <div className="flex items-start gap-2 rounded-xl bg-violet-50/80 px-3 py-2.5">
-              <Info className="mt-0.5 h-4 w-4 shrink-0 text-violet-500" />
+            <div className="cal-info-box">
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#19c8b9]" />
               <p className={hintClass}>请确保结束时间晚于开始时间。</p>
             </div>
           </>
@@ -290,9 +280,9 @@ export default function EventTimeSection({
                 type="radio"
                 checked={formData.useEndDate}
                 onChange={() => onChange('useEndDate', true)}
-                className="h-4 w-4 text-violet-600 focus:ring-violet-500"
+                className="cal-checkbox"
               />
-              <span className="text-sm text-slate-700">结束日期</span>
+              <span className="cal-text-body text-sm">结束日期</span>
             </label>
             {formData.useEndDate && (
               <input
@@ -307,9 +297,9 @@ export default function EventTimeSection({
                 type="radio"
                 checked={!formData.useEndDate}
                 onChange={() => onChange('useEndDate', false)}
-                className="h-4 w-4 text-violet-600 focus:ring-violet-500"
+                className="cal-checkbox"
               />
-              <span className="text-sm text-slate-700">重复次数</span>
+              <span className="cal-text-body text-sm">重复次数</span>
             </label>
             {!formData.useEndDate && (
               <input

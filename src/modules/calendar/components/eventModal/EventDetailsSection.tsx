@@ -33,7 +33,7 @@ function FieldBlock({
       className="space-y-2"
     >
       <label className={`inline-flex items-center gap-2 ${labelClass}`}>
-        <Icon className="h-4 w-4 text-slate-400" aria-hidden />
+        <Icon className="h-4 w-4 text-[#9f927d]" aria-hidden />
         {label}
         {required && <span className="text-red-500">*</span>}
       </label>

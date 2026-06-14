@@ -65,12 +65,12 @@ export default function CalendarWeekView({
 
   return (
     <div
-      className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl bg-white/90 shadow-[0_1px_3px_rgba(15,23,42,0.06),0_8px_24px_rgba(15,23,42,0.04)]"
-      style={{ backgroundColor: 'var(--cal-bg, #ffffff)' }}
+      className="cal-month-wrap flex h-full min-h-0 flex-col overflow-hidden"
+      style={{ backgroundColor: 'var(--cal-bg, rgb(247, 243, 223))' }}
     >
-      <header className="shrink-0 border-b border-slate-100 bg-slate-50/80 px-4 py-3 sm:px-5">
-        <p className="text-sm font-medium text-slate-600">本周日程</p>
-        <p className="mt-0.5 text-xs text-slate-400 tabular-nums">
+      <header className="cal-week-header">
+        <p className="cal-text-body text-sm font-semibold">本周日程</p>
+        <p className="cal-text-muted mt-0.5 text-xs tabular-nums">
           {weekStart.toLocaleDateString(settings.language, {
             year: 'numeric',
             month: 'long',
@@ -86,7 +86,7 @@ export default function CalendarWeekView({
       </header>
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-        <div className="divide-y divide-slate-100">
+        <div className="cal-week-day-row divide-y">
         {weekDates.map((date) => {
           const dateKey = formatDate(date);
           const dayEvents = eventsByDate.get(dateKey) ?? [];
@@ -138,13 +138,13 @@ export default function CalendarWeekView({
                   </span>
                 </div>
                 <div className="min-w-0 sm:w-full">
-                  <p className="text-xs text-slate-500 tabular-nums">
+                  <p className="cal-text-muted text-xs tabular-nums">
                     {date.toLocaleDateString(settings.language, { month: 'short', day: 'numeric' })}
                   </p>
                   {lunarLabel && (
-                    <p className="mt-0.5 text-[10px] text-slate-400">农历 {lunarLabel}</p>
+                    <p className="cal-text-muted mt-0.5 text-[10px]">农历 {lunarLabel}</p>
                   )}
-                  <p className="mt-1 hidden text-[10px] text-violet-600 opacity-0 transition-opacity group-hover:opacity-100 sm:block">
+                  <p className="cal-text-muted mt-1 hidden text-[10px] text-[#11a89b] opacity-0 transition-opacity group-hover:opacity-100 sm:block">
                     点击新建
                   </p>
                 </div>
@@ -155,10 +155,7 @@ export default function CalendarWeekView({
                   <button
                     type="button"
                     onClick={() => onDateClick(date)}
-                    className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed text-sm text-slate-400 transition-colors hover:border-violet-300 hover:text-violet-600"
-                    style={{
-                      borderColor: 'color-mix(in srgb, var(--cal-primary, #7c3aed) 20%, #e2e8f0)',
-                    }}
+                    className="cal-add-dashed h-12"
                   >
                     <Plus className="h-4 w-4" />
                     暂无活动，点击添加
@@ -172,14 +169,14 @@ export default function CalendarWeekView({
                           <button
                             type="button"
                             onClick={() => onEventClick(event)}
-                            className={`w-full rounded-xl px-3 py-2.5 text-left transition-transform active:scale-[0.99] sm:px-4 sm:py-3 ${getEventSurfaceClasses(event.color)}`}
+                            className={`cal-event-card w-full px-3 py-2.5 text-left sm:px-4 sm:py-3 ${getEventSurfaceClasses(event.color)}`}
                           >
                             <div className="flex flex-wrap items-start justify-between gap-2">
                               <div className="min-w-0 flex-1">
-                                <h3 className="truncate text-sm font-semibold text-slate-900 sm:text-base">
+                                <h3 className="cal-text-heading truncate text-sm sm:text-base">
                                   {event.title}
                                 </h3>
-                                <p className="mt-0.5 text-xs tabular-nums text-slate-600 sm:text-sm">
+                                <p className="cal-text-muted mt-0.5 text-xs tabular-nums sm:text-sm">
                                   {formatEventTimeRange(event, settings)}
                                 </p>
                               </div>
@@ -190,12 +187,12 @@ export default function CalendarWeekView({
                               </span>
                             </div>
                             {event.description && (
-                              <p className="mt-1.5 line-clamp-2 text-xs text-slate-600">
+                              <p className="cal-text-body mt-1.5 line-clamp-2 text-xs">
                                 {event.description}
                               </p>
                             )}
                             {event.location && (
-                              <p className="mt-1 flex items-center gap-1 text-xs text-slate-500">
+                              <p className="cal-text-muted mt-1 flex items-center gap-1 text-xs">
                                 <MapPin className="h-3 w-3 shrink-0" />
                                 <span className="truncate">{event.location}</span>
                               </p>
@@ -211,7 +208,7 @@ export default function CalendarWeekView({
                   <button
                     type="button"
                     onClick={() => onShowDayEvents(date)}
-                    className="mt-2 text-xs font-medium text-violet-700 hover:underline"
+                    className="cal-cell-overflow mt-2 text-xs"
                   >
                     查看全部 {dayEvents.length} 项
                   </button>

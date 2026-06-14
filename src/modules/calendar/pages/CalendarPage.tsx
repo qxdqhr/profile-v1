@@ -3,7 +3,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { AuthProvider, useAuthContext, LoginRegisterModals } from '@/lib/auth';
 import { Plus } from 'lucide-react';
-import { ConfirmModal } from 'sa2kit/common/components';
+import 'animal-island-ui/style';
+import { Button, Cursor, Loading, Modal } from 'animal-island-ui';
+import '../calendar-module.css';
 import { DateCalculatorTool } from '@/modules/dateCalculator';
 import {
   CalendarViewType,
@@ -350,38 +352,30 @@ function CalendarPageContent() {
   };
 
   return (
-    <div className="relative h-[100dvh] overflow-hidden bg-gradient-to-br from-slate-50 via-white to-violet-50/20">
-      <main className="mx-auto flex h-full max-w-7xl flex-col overflow-hidden px-3 py-3 sm:px-5 sm:py-4 lg:px-8">
-        <CalendarHeaderNav
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          isAuthenticated={isAuthenticated}
-          onLoginClick={() => setIsLoginModalOpen(true)}
-          onOpenSettings={() => setActiveTab('settings')}
-        />
+    <Cursor>
+      <div className="cal-root relative" style={themeStyle}>
+        <main className="cal-main">
+          <CalendarHeaderNav
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            isAuthenticated={isAuthenticated}
+            onLoginClick={() => setIsLoginModalOpen(true)}
+            onOpenSettings={() => setActiveTab('settings')}
+          />
 
-        {error && (
-            <div
-              role="alert"
-              className="mt-3 flex items-start justify-between gap-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800 shadow-[inset_0_0_0_1px_rgba(239,68,68,0.2)]"
-            >
+          {error && (
+            <div role="alert" className="cal-alert cal-alert--error">
               <span className="text-pretty">{error}</span>
-              <button
-                type="button"
-                onClick={clearError}
-                className="flex h-10 shrink-0 items-center px-2 font-medium text-red-600 transition-transform active:scale-[0.96]"
-              >
+              <Button type="text" size="small" onClick={clearError}>
                 关闭
-              </button>
+              </Button>
             </div>
           )}
 
           {activeTab === 'calendar' && (
             <div className="mt-3 flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
               {!isAuthenticated && (
-                <p className="rounded-xl bg-amber-50/90 px-4 py-2.5 text-sm text-amber-900 shadow-[inset_0_0_0_1px_rgba(245,158,11,0.25)]">
-                  登录后可创建与保存活动。
-                </p>
+                <p className="cal-alert cal-alert--warn">登录后可创建与保存活动。</p>
               )}
               <CalendarToolbar
                 title={viewTitle}
@@ -392,19 +386,13 @@ function CalendarPageContent() {
                 onViewTypeChange={setViewType}
               />
               <div
-                className={`min-h-0 flex-1 rounded-2xl bg-white/90 shadow-[0_1px_3px_rgba(15,23,42,0.06),0_8px_24px_rgba(15,23,42,0.04)] ${
-                  viewType === CalendarViewType.WEEK
-                    ? 'flex flex-col overflow-hidden'
-                    : 'overflow-auto'
+                className={`cal-surface${
+                  viewType === CalendarViewType.WEEK ? ' cal-surface--week' : ''
                 }`}
-                style={themeStyle}
               >
                 {loading && events.length === 0 ? (
-                  <div className="flex justify-center py-16">
-                    <div
-                      className="h-8 w-8 animate-spin rounded-full border-2 border-violet-600 border-t-transparent"
-                      aria-label="加载中"
-                    />
+                  <div className="cal-loading-wrap">
+                    <Loading active />
                   </div>
                 ) : (
                   renderCalendarView()
@@ -429,7 +417,7 @@ function CalendarPageContent() {
           )}
 
           {activeTab === 'tools' && (
-            <div className="mt-3 rounded-2xl bg-white/90 p-4 shadow-[0_1px_3px_rgba(15,23,42,0.06),0_8px_24px_rgba(15,23,42,0.04)] sm:p-6">
+            <div className="cal-panel mt-3 p-4 sm:p-6">
               <DateCalculatorTool variant="embedded" />
             </div>
           )}
@@ -439,67 +427,83 @@ function CalendarPageContent() {
               <CalendarSettings />
             </div>
           )}
-      </main>
+        </main>
 
-      {activeTab === 'calendar' && isAuthenticated && (
-        <button
-          type="button"
-          onClick={() => openCreateModal(currentDate)}
-          className="fixed bottom-6 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg shadow-violet-500/30 transition-transform hover:bg-violet-700 active:scale-[0.96] sm:bottom-8 sm:right-8"
-          aria-label="新建活动"
+        {activeTab === 'calendar' && isAuthenticated && (
+          <div className="cal-fab">
+            <Button
+              type="primary"
+              size="large"
+              onClick={() => openCreateModal(currentDate)}
+              aria-label="新建活动"
+              style={{ width: 56, height: 56, borderRadius: '50%', padding: 0 }}
+            >
+              <Plus className="h-6 w-6" />
+            </Button>
+          </div>
+        )}
+
+        <DayEventsSheet
+          date={dayPanelDate}
+          events={events}
+          isOpen={dayPanelDate !== null}
+          onClose={() => setDayPanelDate(null)}
+          onCreate={openCreateModal}
+          onEdit={openEditModal}
+          onDelete={requestDelete}
+          isAuthenticated={isAuthenticated}
+          onRequireLogin={requireAuth}
+        />
+
+        <ImprovedEventModal
+          isOpen={isEventModalOpen}
+          onClose={handleModalClose}
+          onSave={handleEventSave}
+          onDelete={requestDelete}
+          event={editingEvent}
+          initialDate={selectedDate ?? undefined}
+          isMobile={isMobile}
+        />
+
+        <Modal
+          open={deleteTargetId !== null}
+          onClose={cancelDelete}
+          title="删除活动"
+          typewriter={false}
+          footer={
+            <div className="cal-modal-actions">
+              <Button type="default" onClick={cancelDelete}>
+                取消
+              </Button>
+              <Button
+                type="danger-primary"
+                onClick={() => deleteTargetId && void confirmDelete(deleteTargetId)}
+              >
+                删除
+              </Button>
+            </div>
+          }
         >
-          <Plus className="h-6 w-6" />
-        </button>
-      )}
+          确定删除此活动？此操作无法撤销。
+        </Modal>
 
-      <DayEventsSheet
-        date={dayPanelDate}
-        events={events}
-        isOpen={dayPanelDate !== null}
-        onClose={() => setDayPanelDate(null)}
-        onCreate={openCreateModal}
-        onEdit={openEditModal}
-        onDelete={requestDelete}
-        isAuthenticated={isAuthenticated}
-        onRequireLogin={requireAuth}
-      />
+        <LoginRegisterModals
+          loginOpen={isLoginModalOpen}
+          registerOpen={isRegisterModalOpen}
+          onCloseLogin={() => setIsLoginModalOpen(false)}
+          onCloseRegister={() => setIsRegisterModalOpen(false)}
+          onOpenLogin={() => setIsLoginModalOpen(true)}
+          onOpenRegister={() => setIsRegisterModalOpen(true)}
+          onSuccess={() => {
+            setIsLoginModalOpen(false);
+            setIsRegisterModalOpen(false);
+            showToast('登录成功');
+          }}
+        />
 
-      <ImprovedEventModal
-        isOpen={isEventModalOpen}
-        onClose={handleModalClose}
-        onSave={handleEventSave}
-        onDelete={requestDelete}
-        event={editingEvent}
-        initialDate={selectedDate ?? undefined}
-        isMobile={isMobile}
-      />
-
-      <ConfirmModal
-        isOpen={deleteTargetId !== null}
-        onClose={cancelDelete}
-        onConfirm={() => deleteTargetId && confirmDelete(deleteTargetId)}
-        title="删除活动"
-        message="确定删除此活动？此操作无法撤销。"
-        confirmText="删除"
-        cancelText="取消"
-      />
-
-      <LoginRegisterModals
-        loginOpen={isLoginModalOpen}
-        registerOpen={isRegisterModalOpen}
-        onCloseLogin={() => setIsLoginModalOpen(false)}
-        onCloseRegister={() => setIsRegisterModalOpen(false)}
-        onOpenLogin={() => setIsLoginModalOpen(true)}
-        onOpenRegister={() => setIsRegisterModalOpen(true)}
-        onSuccess={() => {
-          setIsLoginModalOpen(false);
-          setIsRegisterModalOpen(false);
-          showToast('登录成功');
-        }}
-      />
-
-      <CalendarToast message={toast?.message ?? null} variant={toast?.variant} />
-    </div>
+        <CalendarToast message={toast?.message ?? null} variant={toast?.variant} />
+      </div>
+    </Cursor>
   );
 }
 

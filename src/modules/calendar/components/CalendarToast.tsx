@@ -21,11 +21,7 @@ export default function CalendarToast({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 4 }}
           transition={{ duration: 0.2 }}
-          className={`fixed bottom-6 left-1/2 z-[60] max-w-[90vw] -translate-x-1/2 rounded-xl px-4 py-3 text-sm font-medium shadow-lg ${
-            variant === 'error'
-              ? 'bg-red-600 text-white'
-              : 'bg-slate-900 text-white'
-          }`}
+          className={`cal-toast${variant === 'error' ? ' cal-toast--error' : ''}`}
         >
           {message}
         </motion.div>

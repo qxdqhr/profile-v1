@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Modal } from 'sa2kit/common/components';
-import { AlertCircle, Copy, Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Modal, Button } from 'animal-island-ui';
+import { AlertCircle, Copy, Pencil, Plus, Trash2 } from 'lucide-react';
 import {
   EventType,
   EventData,
@@ -23,11 +23,6 @@ import {
   formatTimeOnly,
 } from './eventModal/formUtils';
 import { allDayBoundsFromDate, ensureEndAfterStart, parseEventDateTime, parseLocalISOString } from '../utils/dateUtils';
-import {
-  dangerButtonClass,
-  primaryButtonClass,
-  secondaryButtonClass,
-} from './eventModal/styles';
 import { DEFAULT_FORM_DATA, type EventModalFormData } from './eventModal/types';
 import { useCalendarSettings } from '../context/CalendarSettingsContext';
 import { buildDefaultEventTimes, type CalendarSettings } from '../utils/calendarSettingsCore';
@@ -399,53 +394,64 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
 
   return (
     <Modal
-      isOpen={isOpen}
+      open={isOpen}
       onClose={handleClose}
-      width={isMobile ? '100%' : '720px'}
-      height="auto"
+      title={isEditMode ? '编辑活动' : '创建活动'}
+      width={isMobile ? '100%' : 720}
       maskClosable={false}
-      className="gap-0 overflow-hidden border-0 bg-white p-0 shadow-xl sm:max-w-[720px] [&>button.absolute]:hidden [&>div]:py-0"
-    >
-      <div className={`relative ${isMobile ? 'flex max-h-[100dvh] flex-col' : ''}`}>
-        <header className="px-5 py-4 shadow-[0_1px_0_rgba(15,23,42,0.06)]">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
-              {isEditMode ? <Pencil className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-            </div>
-            <h2 className="text-balance text-lg font-semibold text-slate-900">
-              {isEditMode ? '编辑活动' : '创建活动'}
-            </h2>
-            {!isEditMode && (
-              <ImageToEventButton
-                className="ml-auto"
-                onResult={applyAiDraft}
-                onError={(message) => setErrors({ general: message })}
-              />
+      typewriter={false}
+      footer={
+        <div className="cal-modal-actions cal-modal-actions--between">
+          <div>
+            {isEditMode && onDelete && (
+              <Button type="danger-primary" size="small" onClick={handleDeleteRequest}>
+                <Trash2 className="h-4 w-4" />
+                删除
+              </Button>
             )}
           </div>
-          {aiPreviewUrl && !isEditMode && (
-            <div className="mt-3 flex items-center gap-3 rounded-xl bg-violet-50/80 px-3 py-2">
-              <img
-                src={aiPreviewUrl}
-                alt="识图来源"
-                className="h-12 w-12 rounded-lg object-cover"
-              />
-              <p className="text-xs text-violet-800">已根据此图片预填活动信息</p>
-            </div>
-          )}
-        </header>
-
-        <div className="px-4 pt-4 sm:px-6">
-          <EventModalTabBar
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            isEditMode={isEditMode}
-          />
+          <div className="cal-modal-actions">
+            <Button type="default" size="small" onClick={handleClose}>
+              取消
+            </Button>
+            <Button
+              type="primary"
+              size="small"
+              loading={isLoading}
+              onClick={handleSubmit}
+            >
+              {!isLoading && (isEditMode ? <Pencil className="h-4 w-4" /> : <Plus className="h-4 w-4" />)}
+              {isLoading ? '保存中…' : isEditMode ? '保存更改' : '创建活动'}
+            </Button>
+          </div>
         </div>
+      }
+    >
+      <div className={isMobile ? 'flex max-h-[100dvh] flex-col' : ''}>
+        {!isEditMode && (
+          <div className="mb-3 flex justify-end">
+            <ImageToEventButton
+              onResult={applyAiDraft}
+              onError={(message) => setErrors({ general: message })}
+            />
+          </div>
+        )}
+        {aiPreviewUrl && !isEditMode && (
+          <div className="cal-ai-preview">
+            <img src={aiPreviewUrl} alt="识图来源" />
+            <p>已根据此图片预填活动信息</p>
+          </div>
+        )}
+
+        <EventModalTabBar
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          isEditMode={isEditMode}
+        />
 
         <div
-          className={`overflow-y-auto px-4 py-4 sm:px-6 sm:py-5 ${
-            isMobile ? 'max-h-[calc(100dvh-11rem)] flex-1' : 'max-h-[58vh] min-h-[280px]'
+          className={`cal-event-modal-body${
+            isMobile ? ' cal-event-modal-body--mobile' : ''
           }`}
         >
           <form onSubmit={handleSubmit}>
@@ -519,23 +525,22 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
                 className="mt-4 space-y-2"
               >
                 {errors.general && (
-                  <div className="flex items-start gap-3 rounded-xl bg-red-50 px-4 py-3 shadow-[inset_0_0_0_1px_rgba(239,68,68,0.2)]">
-                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                  <div className="cal-error-box">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-sm font-medium text-red-800">请检查表单</p>
-                        <button
-                          type="button"
+                        <p className="text-sm font-semibold">请检查表单</p>
+                        <Button
+                          type="text"
+                          size="small"
                           onClick={() => void copyTextToClipboard(errors.general)}
-                          className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-red-700 transition-colors hover:bg-red-100"
-                          aria-label="复制错误信息"
                         >
                           <Copy className="h-3.5 w-3.5" />
                           复制
-                        </button>
+                        </Button>
                       </div>
                       <p
-                        className="mt-1 cursor-text select-text whitespace-pre-wrap break-words text-sm text-red-600"
+                        className="mt-1 cursor-text select-text whitespace-pre-wrap break-words text-sm"
                         role="status"
                       >
                         {errors.general}
@@ -544,23 +549,22 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
                   </div>
                 )}
                 {errors.submit && (
-                  <div className="flex items-start gap-3 rounded-xl bg-red-50 px-4 py-3 shadow-[inset_0_0_0_1px_rgba(239,68,68,0.2)]">
-                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                  <div className="cal-error-box">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-sm font-medium text-red-800">保存失败</p>
-                        <button
-                          type="button"
+                        <p className="text-sm font-semibold">保存失败</p>
+                        <Button
+                          type="text"
+                          size="small"
                           onClick={() => void copyTextToClipboard(errors.submit)}
-                          className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-red-700 transition-colors hover:bg-red-100"
-                          aria-label="复制错误信息"
                         >
                           <Copy className="h-3.5 w-3.5" />
                           复制
-                        </button>
+                        </Button>
                       </div>
                       <p
-                        className="mt-1 cursor-text select-text whitespace-pre-wrap break-words text-sm text-red-600"
+                        className="mt-1 cursor-text select-text whitespace-pre-wrap break-words text-sm"
                         role="status"
                       >
                         {errors.submit}
@@ -572,37 +576,6 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
             )}
           </form>
         </div>
-
-        <footer className="flex items-center justify-between gap-3 px-5 py-4 shadow-[0_-1px_0_rgba(15,23,42,0.06)]">
-          <div>
-            {isEditMode && onDelete && (
-              <button type="button" onClick={handleDeleteRequest} className={dangerButtonClass}>
-                <Trash2 className="h-4 w-4" />
-                删除
-              </button>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <button type="button" onClick={handleClose} className={secondaryButtonClass}>
-              取消
-            </button>
-            <button
-              type="submit"
-              disabled={isLoading}
-              onClick={handleSubmit}
-              className={primaryButtonClass}
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : isEditMode ? (
-                <Pencil className="h-4 w-4" />
-              ) : (
-                <Plus className="h-4 w-4" />
-              )}
-              {isLoading ? '保存中…' : isEditMode ? '保存更改' : '创建活动'}
-            </button>
-          </div>
-        </footer>
       </div>
     </Modal>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Button, Select, Switch, Title } from 'animal-island-ui';
 import { COLOR_THEMES, type CalendarThemeKey } from '../utils/calendarSettingsCore';
 import { useCalendarSettings } from '../context/CalendarSettingsContext';
 import { AiApiSettingsPanel } from '@/modules/aiApi';
@@ -27,50 +28,42 @@ export default function CalendarSettings() {
   const [activeTab, setActiveTab] = useState<'theme' | 'general' | 'time' | 'ai'>('theme');
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
-      <div className="border-b border-gray-200">
-        <nav className="flex space-x-6 overflow-x-auto px-6 sm:space-x-8">
-          {[
-            { key: 'theme', label: '主题样式', icon: '🎨' },
-            { key: 'general', label: '常规设置', icon: '⚙️' },
-            { key: 'time', label: '时间设置', icon: '⏰' },
-            { key: 'ai', label: 'AI', icon: '🤖' },
-          ].map(({ key, label, icon }) => (
-            <button
-              key={key}
-              onClick={() => setActiveTab(key as 'theme' | 'general' | 'time' | 'ai')}
-              className={`shrink-0 border-b-2 py-4 text-sm font-medium transition-colors ${
-                activeTab === key
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-              }`}
-            >
-              <span className="mr-2">{icon}</span>
-              {label}
-            </button>
-          ))}
-        </nav>
+    <div className="cal-panel cal-panel--flush">
+      <div className="cal-settings-tabs">
+        {[
+          { key: 'theme', label: '主题样式', icon: '🎨' },
+          { key: 'general', label: '常规设置', icon: '⚙️' },
+          { key: 'time', label: '时间设置', icon: '⏰' },
+          { key: 'ai', label: 'AI', icon: '🤖' },
+        ].map(({ key, label, icon }) => (
+          <button
+            key={key}
+            onClick={() => setActiveTab(key as 'theme' | 'general' | 'time' | 'ai')}
+            className={`cal-settings-tab${activeTab === key ? ' is-active' : ''}`}
+          >
+            <span className="mr-2">{icon}</span>
+            {label}
+          </button>
+        ))}
       </div>
 
       <div className="p-6">
         {activeTab === 'theme' && (
           <div>
-            <h3 className="text-md mb-4 font-medium text-gray-900">预设主题</h3>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <Title size="small" color="app-yellow">
+              预设主题
+            </Title>
+            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
               {Object.entries(COLOR_THEMES).map(([key, theme]) => (
                 <div
                   key={key}
                   onClick={() => updateSettings({ theme: key as CalendarThemeKey })}
-                  className={`cursor-pointer rounded-lg border-2 p-4 transition-all ${
-                    settings.theme === key
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
+                  className={`cal-theme-card${settings.theme === key ? ' is-selected' : ''}`}
                 >
                   <div className="mb-3 flex items-center justify-between">
-                    <h4 className="font-medium text-gray-900">{theme.name}</h4>
+                    <h4 className="cal-text-heading font-medium">{theme.name}</h4>
                     {settings.theme === key && (
-                      <svg className="h-5 w-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="h-5 w-5 text-[#19c8b9]" fill="currentColor" viewBox="0 0 20 20">
                         <path
                           fillRule="evenodd"
                           d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -134,63 +127,48 @@ export default function CalendarSettings() {
         {activeTab === 'general' && (
           <div className="space-y-6">
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">一周开始于</label>
-              <select
-                value={settings.weekStartsOn}
-                onChange={(e) => updateSettings({ weekStartsOn: Number(e.target.value) })}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {WEEK_START_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              <label className="cal-label mb-2 block">一周开始于</label>
+              <Select
+                value={String(settings.weekStartsOn)}
+                onChange={(value) => updateSettings({ weekStartsOn: Number(value) })}
+                options={WEEK_START_OPTIONS.map((o) => ({
+                  label: o.label,
+                  key: String(o.value),
+                }))}
+              />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">语言</label>
-              <select
+              <label className="cal-label mb-2 block">语言</label>
+              <Select
                 value={settings.language}
-                onChange={(e) => updateSettings({ language: e.target.value })}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {LANGUAGE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => updateSettings({ language: value })}
+                options={LANGUAGE_OPTIONS.map((o) => ({ label: o.label, key: o.value }))}
+              />
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-md font-medium text-gray-900">显示选项</h3>
+              <h3 className="cal-text-heading text-base">显示选项</h3>
 
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
+              <label className="flex items-center gap-3">
+                <Switch
                   checked={settings.showWeekNumbers}
-                  onChange={(e) => updateSettings({ showWeekNumbers: e.target.checked })}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  onChange={(checked) => updateSettings({ showWeekNumbers: checked })}
                 />
-                <span className="ml-2 text-sm text-gray-700">显示周数</span>
+                <span className="cal-text-body text-sm">显示周数</span>
               </label>
 
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
+              <label className="flex items-center gap-3">
+                <Switch
                   checked={settings.showLunarCalendar}
-                  onChange={(e) => updateSettings({ showLunarCalendar: e.target.checked })}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  onChange={(checked) => updateSettings({ showLunarCalendar: checked })}
                 />
-                <span className="ml-2 text-sm text-gray-700">显示农历</span>
+                <span className="cal-text-body text-sm">显示农历</span>
               </label>
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                默认活动时长（分钟）
-              </label>
+              <label className="cal-label mb-2 block">默认活动时长（分钟）</label>
               <input
                 type="number"
                 min="15"
@@ -198,7 +176,7 @@ export default function CalendarSettings() {
                 step="15"
                 value={settings.defaultEventDuration}
                 onChange={(e) => updateSettings({ defaultEventDuration: Number(e.target.value) })}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="cal-input"
               />
             </div>
           </div>
@@ -207,25 +185,21 @@ export default function CalendarSettings() {
         {activeTab === 'time' && (
           <div className="space-y-6">
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">时间格式</label>
-              <select
+              <label className="cal-label mb-2 block">时间格式</label>
+              <Select
                 value={settings.timeFormat}
-                onChange={(e) => updateSettings({ timeFormat: e.target.value as '12h' | '24h' })}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {TIME_FORMAT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => updateSettings({ timeFormat: value as '12h' | '24h' })}
+                options={TIME_FORMAT_OPTIONS.map((o) => ({ label: o.label, key: o.value }))}
+              />
             </div>
 
             <div>
-              <h3 className="text-md mb-4 font-medium text-gray-900">工作时间</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <Title size="small" color="app-teal">
+                工作时间
+              </Title>
+              <div className="mt-4 grid grid-cols-2 gap-4">
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">开始时间</label>
+                  <label className="cal-label mb-2 block">开始时间</label>
                   <input
                     type="time"
                     value={settings.workingHours.start}
@@ -237,11 +211,11 @@ export default function CalendarSettings() {
                         },
                       })
                     }
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="cal-input"
                   />
                 </div>
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">结束时间</label>
+                  <label className="cal-label mb-2 block">结束时间</label>
                   <input
                     type="time"
                     value={settings.workingHours.end}
@@ -253,7 +227,7 @@ export default function CalendarSettings() {
                         },
                       })
                     }
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="cal-input"
                   />
                 </div>
               </div>
@@ -276,13 +250,10 @@ export default function CalendarSettings() {
           />
         )}
 
-        <div className="border-t border-gray-200 pt-6">
-          <button
-            onClick={resetSettings}
-            className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
-          >
+        <div className="cal-divider-top pt-6">
+          <Button type="default" size="small" onClick={resetSettings}>
             重置日历设置为默认
-          </button>
+          </Button>
         </div>
       </div>
     </div>

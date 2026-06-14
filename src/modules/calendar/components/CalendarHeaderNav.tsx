@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Calculator, CalendarDays, List, LogIn, Settings } from 'lucide-react';
+import { Button, Title } from 'animal-island-ui';
 import { UserMenu } from '@/lib/auth';
 
 export type CalendarMainTab = 'calendar' | 'events' | 'tools' | 'settings';
@@ -33,11 +34,11 @@ export default function CalendarHeaderNav({
   onOpenSettings,
 }: CalendarHeaderNavProps) {
   return (
-    <header className="mb-4 space-y-3 sm:mb-5">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="min-w-0 shrink-0 text-balance text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
+    <header className="cal-header">
+      <div className="cal-header__row">
+        <Title size="small" color="app-teal">
           日历
-        </h1>
+        </Title>
 
         <div className="flex shrink-0 items-center">
           {isAuthenticated ? (
@@ -56,45 +57,33 @@ export default function CalendarHeaderNav({
               }
             />
           ) : (
-            <button
-              type="button"
-              onClick={onLoginClick}
-              className="inline-flex h-10 items-center gap-2 rounded-xl bg-violet-600 px-4 text-sm font-medium text-white shadow-sm shadow-violet-500/20 transition-transform hover:bg-violet-700 active:scale-[0.96]"
-            >
+            <Button type="primary" size="small" onClick={onLoginClick}>
               <LogIn className="h-4 w-4" strokeWidth={2} />
               登录
-            </button>
+            </Button>
           )}
         </div>
       </div>
 
-      <nav
-        className="flex gap-1 overflow-x-auto rounded-2xl bg-slate-100/80 p-1 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.04)]"
-        role="tablist"
-        aria-label="日历功能导航"
-      >
-          {NAV_ITEMS.map((item) => {
-            const selected = activeTab === item.id;
-            const Icon = item.icon;
+      <nav className="cal-nav" role="tablist" aria-label="日历功能导航">
+        {NAV_ITEMS.map((item) => {
+          const selected = activeTab === item.id;
+          const Icon = item.icon;
 
-            return (
-              <button
-                key={item.id}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                onClick={() => onTabChange(item.id)}
-                className={`inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl px-3 text-sm font-medium transition-[background-color,color,box-shadow,transform] active:scale-[0.96] sm:px-4 ${
-                  selected
-                    ? 'bg-white text-violet-700 shadow-sm shadow-violet-500/10'
-                    : 'text-slate-600 hover:bg-white/60 hover:text-slate-900'
-                }`}
-              >
-                <Icon className="h-4 w-4 shrink-0" strokeWidth={selected ? 2.25 : 2} />
-                <span className="whitespace-nowrap">{item.label}</span>
-              </button>
-            );
-          })}
+          return (
+            <button
+              key={item.id}
+              type="button"
+              role="tab"
+              aria-selected={selected}
+              onClick={() => onTabChange(item.id)}
+              className={`cal-nav__item${selected ? ' is-active' : ''}`}
+            >
+              <Icon className="h-4 w-4 shrink-0" strokeWidth={selected ? 2.25 : 2} />
+              <span className="whitespace-nowrap">{item.label}</span>
+            </button>
+          );
+        })}
       </nav>
     </header>
   );

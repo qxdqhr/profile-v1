@@ -81,8 +81,8 @@ export const DroppableCalendarCell: React.FC<DroppableCalendarCellProps> = ({
       className={[
         'relative flex h-full min-h-[3.5rem] w-full flex-col p-1 sm:min-h-[5.5rem] sm:p-1.5',
         'cursor-pointer transition-[background-color,box-shadow] duration-200',
-        isSelected ? 'ring-2 ring-inset ring-violet-400' : '',
-        isOver ? 'ring-2 ring-inset ring-violet-300' : '',
+        isSelected ? 'cal-selected-ring' : '',
+        isOver ? 'cal-selected-ring' : '',
         className,
       ].join(' ')}
       style={{
@@ -118,7 +118,7 @@ export const DroppableCalendarCell: React.FC<DroppableCalendarCellProps> = ({
             {date.getDate()}
           </span>
           {lunarLabel && isCurrentMonth && (
-            <span className="mt-0.5 max-w-[2.5rem] truncate text-[9px] text-slate-400 sm:text-[10px]">
+            <span className="cal-text-muted mt-0.5 max-w-[2.5rem] truncate text-[9px] sm:text-[10px]">
               {lunarLabel}
             </span>
           )}
@@ -161,7 +161,7 @@ export const DroppableCalendarCell: React.FC<DroppableCalendarCellProps> = ({
               e.stopPropagation();
               onShowDayEvents?.(date);
             }}
-            className="rounded-md px-1 py-0.5 text-left text-[10px] font-medium text-violet-700 hover:bg-violet-100 sm:text-xs"
+            className="cal-cell-overflow"
           >
             +{overflowCount} 项
           </button>
@@ -169,8 +169,8 @@ export const DroppableCalendarCell: React.FC<DroppableCalendarCellProps> = ({
       </div>
 
       {isOver && dragOverPreview && (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg border-2 border-dashed border-violet-300 bg-violet-50/90">
-          <span className="text-xs font-medium text-violet-700">{dragOverPreview}</span>
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg border-2 border-dashed border-[#19c8b9] bg-[rgba(230,249,246,0.85)]">
+          <span className="text-xs font-semibold text-[#117a72]">{dragOverPreview}</span>
         </div>
       )}
     </div>

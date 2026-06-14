@@ -65,7 +65,7 @@ export const DraggableMonthView: React.FC<DraggableMonthViewProps> = ({
     <div className="overflow-x-auto">
       <table className="w-full min-w-[320px] table-fixed border-collapse">
         <thead>
-          <tr className="border-b border-slate-100 bg-slate-50/90">
+          <tr className="cal-month-thead">
             {settings.showWeekNumbers && (
               <th className="w-10 py-2 text-center text-xs font-semibold text-slate-500 sm:text-sm">
                 周
@@ -93,9 +93,9 @@ export const DraggableMonthView: React.FC<DraggableMonthViewProps> = ({
             const weekNumber = rowStart ? getISOWeekNumber(rowStart.date) : null;
 
             return (
-              <tr key={weekIndex} className="divide-x divide-slate-100">
+              <tr key={weekIndex} className="cal-month-row">
                 {settings.showWeekNumbers && (
-                  <td className="border-b border-slate-100 bg-slate-50/80 py-2 text-center align-middle text-xs font-medium tabular-nums text-slate-500 sm:text-sm">
+                  <td className="cal-week-num border-b py-2 text-center align-middle text-xs sm:text-sm">
                     {weekNumber}
                   </td>
                 )}
@@ -138,11 +138,11 @@ export const DraggableMonthView: React.FC<DraggableMonthViewProps> = ({
 
   return (
     <div
-      className={`overflow-hidden rounded-2xl bg-white/90 shadow-[0_1px_3px_rgba(15,23,42,0.06),0_8px_24px_rgba(15,23,42,0.04)] ${className}`}
-      style={{ backgroundColor: 'var(--cal-bg, #ffffff)' }}
+      className={`cal-month-wrap overflow-hidden ${className}`}
+      style={{ backgroundColor: 'var(--cal-bg, rgb(247, 243, 223))' }}
     >
       {dragSupported && !isMobile && (
-        <p className="hidden border-b border-slate-100 px-4 py-2 text-xs text-slate-500 md:block">
+        <p className="cal-grid-hint">
           桌面端可拖拽活动调整日期
         </p>
       )}
@@ -160,7 +160,7 @@ export const DraggableMonthView: React.FC<DraggableMonthViewProps> = ({
                 <DraggableEvent
                   event={dragState.draggedEvent}
                   isDragging
-                  className="shadow-lg ring-1 ring-violet-400"
+                  className="shadow-lg ring-1 ring-[#19c8b9]"
                 />
               </div>
             )}
@@ -171,10 +171,7 @@ export const DraggableMonthView: React.FC<DraggableMonthViewProps> = ({
       )}
 
       {dragSupported && dragState.isDragging && (
-        <div
-          className="fixed bottom-20 right-4 z-50 rounded-xl px-4 py-2 text-sm text-white shadow-lg"
-          style={{ backgroundColor: 'var(--cal-primary, #7c3aed)' }}
-        >
+        <div className="cal-drag-hint">
           拖到目标日期以移动「{dragState.draggedEvent?.title}」
         </div>
       )}

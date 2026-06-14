@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { ImagePlus, Loader2 } from 'lucide-react';
+import { ImagePlus } from 'lucide-react';
+import { Button } from 'animal-island-ui';
 import { buildCalendarImageInput, type CalendarEventFromImageOutput } from '../services/calendarAiService';
 import { useCalendarEventFromImage } from '../hooks/useCalendarEventFromImage';
 
@@ -59,23 +60,17 @@ export default function ImageToEventButton({
           if (file) void handleFile(file);
         }}
       />
-      <button
-        type="button"
-        disabled={disabled || loading}
+      <Button
+        type="default"
+        size="small"
+        disabled={disabled}
+        loading={loading}
         onClick={() => inputRef.current?.click()}
-        className={[
-          'inline-flex h-10 items-center gap-2 rounded-xl border border-violet-200 bg-violet-50/80 px-3 text-sm font-medium text-violet-700',
-          'transition-transform hover:bg-violet-100 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60',
-          className,
-        ].join(' ')}
+        className={className}
       >
-        {loading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <ImagePlus className="h-4 w-4" />
-        )}
+        {!loading && <ImagePlus className="h-4 w-4" />}
         {loading ? '识别中…' : '从图片识别'}
-      </button>
+      </Button>
     </>
   );
 }
