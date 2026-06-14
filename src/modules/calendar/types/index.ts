@@ -510,7 +510,7 @@ export interface EventListProps {
   events: CalendarEvent[];
   config: EventListConfig;
   onConfigChange: (config: EventListConfig) => void;
-  onEventClick: (event: CalendarEvent) => void;
+  onEventClick?: (event: CalendarEvent) => void;
   onEventEdit: (event: CalendarEvent) => void;
   onEventDelete: (eventId: number) => void;
   onBatchDelete?: (eventIds: number[]) => Promise<void>;

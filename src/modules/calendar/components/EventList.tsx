@@ -11,6 +11,7 @@ import {
   EventPriority 
 } from '../types';
 import { getEventSurfaceClasses, getPriorityLabel } from '../utils/eventDisplay';
+import { openAmapNavigation } from '../utils/amapNavigation';
 import { useCalendarSettings } from '../context/CalendarSettingsContext';
 import { formatTimeForSettings } from '../utils/calendarSettingsCore';
 
@@ -22,7 +23,6 @@ export default function EventList({
   events,
   config,
   onConfigChange,
-  onEventClick,
   onEventEdit,
   onEventDelete,
   onBatchDelete,
@@ -285,6 +285,25 @@ export default function EventList({
     );
   };
   
+  // 渲染可点击的地点（唤起高德导航）
+  const renderLocation = (location: string, truncate = false) => (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        openAmapNavigation(location);
+      }}
+      className={`flex min-w-0 items-center gap-1 text-left text-blue-600 underline decoration-blue-300/70 underline-offset-2 transition-colors hover:text-blue-700 hover:decoration-blue-500 ${truncate ? 'max-w-full' : ''}`}
+      title="使用高德地图导航"
+    >
+      <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      <span className={truncate ? 'truncate' : ''}>{location}</span>
+    </button>
+  );
+
   // 渲染列表模式
   const renderListMode = () => (
     <div className="space-y-4">
@@ -295,10 +314,9 @@ export default function EventList({
         return (
           <div
             key={event.id}
-            className={`cursor-pointer rounded-xl p-4 transition-[box-shadow,transform] hover:shadow-md active:scale-[0.99] ${
+            className={`rounded-xl p-4 transition-[box-shadow,transform] hover:shadow-md ${
               getEventSurfaceClasses(event.color)
             } ${isSelected ? 'ring-2 ring-violet-500/50' : ''}`}
-            onClick={() => !isSelectionMode && onEventClick(event)}
           >
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-3 flex-1">
@@ -329,15 +347,7 @@ export default function EventList({
                       <span>{formatEventDateTime(event)}</span>
                     </div>
                     
-                    {event.location && (
-                      <div className="flex items-center gap-1">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <span>{event.location}</span>
-                      </div>
-                    )}
+                    {event.location && renderLocation(event.location)}
                   </div>
                 </div>
               </div>
@@ -389,10 +399,9 @@ export default function EventList({
         return (
           <div
             key={event.id}
-            className={`cursor-pointer rounded-xl p-4 transition-[box-shadow,transform] hover:shadow-lg active:scale-[0.99] ${
+            className={`rounded-xl p-4 transition-[box-shadow,transform] hover:shadow-lg ${
               getEventSurfaceClasses(event.color)
             } ${isSelected ? 'ring-2 ring-violet-500/50' : ''}`}
-            onClick={() => !isSelectionMode && onEventClick(event)}
           >
             <div className="flex items-start justify-between mb-3">
               {/* 选择框 */}
@@ -420,15 +429,7 @@ export default function EventList({
                 <span className="truncate">{formatEventDateTime(event)}</span>
               </div>
               
-              {event.location && (
-                <div className="flex items-center gap-1">
-                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span className="truncate">{event.location}</span>
-                </div>
-              )}
+              {event.location && renderLocation(event.location, true)}
             </div>
             
             {!isSelectionMode && (

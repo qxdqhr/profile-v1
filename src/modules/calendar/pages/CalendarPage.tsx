@@ -419,7 +419,6 @@ function CalendarPageContent() {
                 events={events}
                 config={eventListConfig}
                 onConfigChange={setEventListConfig}
-                onEventClick={openEditModal}
                 onEventEdit={openEditModal}
                 onEventDelete={requestDelete}
                 onBatchDelete={batchDeleteEvents}
