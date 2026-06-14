@@ -4,7 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { AlignLeft, MapPin } from 'lucide-react';
 import type { EventModalFormData } from './types';
-import { hintClass, inputClass, labelClass } from './styles';
+import { hintClass, labelClass, scrollableShortTextClass, scrollableTextAreaClass } from './styles';
 
 interface EventDetailsSectionProps {
   formData: EventModalFormData;
@@ -50,11 +50,11 @@ export default function EventDetailsSection({
   return (
     <div className="space-y-5">
       <FieldBlock index={0} label="活动标题" icon={AlignLeft} required>
-        <input
-          type="text"
+        <textarea
           value={formData.title}
           onChange={(e) => onChange('title', e.target.value)}
-          className={`${inputClass} ${errors.title ? 'shadow-[inset_0_0_0_2px_rgba(239,68,68,0.5)]' : ''}`}
+          rows={2}
+          className={`${scrollableShortTextClass} ${errors.title ? 'shadow-[inset_0_0_0_2px_rgba(239,68,68,0.5)]' : ''}`}
           placeholder="为活动起个名字"
         />
         {errors.title && <p className="text-sm text-red-600">{errors.title}</p>}
@@ -65,7 +65,7 @@ export default function EventDetailsSection({
           value={formData.description}
           onChange={(e) => onChange('description', e.target.value)}
           rows={4}
-          className={`${inputClass} resize-none`}
+          className={scrollableTextAreaClass}
           placeholder="补充说明（可选）"
         />
         {formData.description.length > 0 && (
@@ -74,11 +74,11 @@ export default function EventDetailsSection({
       </FieldBlock>
 
       <FieldBlock index={2} label="地点" icon={MapPin}>
-        <input
-          type="text"
+        <textarea
           value={formData.location}
           onChange={(e) => onChange('location', e.target.value)}
-          className={inputClass}
+          rows={2}
+          className={scrollableShortTextClass}
           placeholder="活动举办地点（可选）"
         />
       </FieldBlock>

@@ -5,6 +5,11 @@ export const sectionClass =
 export const inputClass =
   'w-full rounded-xl border-0 bg-slate-50/80 px-4 py-3 text-slate-900 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.08)] transition-[box-shadow,background-color] placeholder:text-slate-400 hover:bg-slate-50 focus:bg-white focus:shadow-[inset_0_0_0_2px_rgba(124,58,237,0.4)] focus:outline-none';
 
+/** 固定高度、超长自动换行并显示纵向滚动条（无需聚焦即可浏览全文） */
+export const scrollableShortTextClass = `${inputClass} box-border min-h-[4.5rem] max-h-[4.5rem] resize-none overflow-x-hidden overflow-y-auto break-words leading-relaxed`;
+
+export const scrollableTextAreaClass = `${inputClass} box-border min-h-[7.5rem] max-h-[10rem] resize-none overflow-x-hidden overflow-y-auto break-words leading-relaxed`;
+
 export const labelClass = 'text-sm font-medium text-slate-800';
 
 export const hintClass = 'text-pretty text-xs text-slate-500';

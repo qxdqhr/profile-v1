@@ -30,7 +30,28 @@ import {
 } from './eventModal/styles';
 import { DEFAULT_FORM_DATA, type EventModalFormData } from './eventModal/types';
 import { useCalendarSettings } from '../context/CalendarSettingsContext';
-import { buildDefaultEventTimes } from '../utils/calendarSettingsCore';
+import { buildDefaultEventTimes, type CalendarSettings } from '../utils/calendarSettingsCore';
+
+function buildFreshCreateFormData(
+  initialDate: Date | undefined,
+  settings: CalendarSettings
+): EventModalFormData {
+  if (!initialDate) {
+    return { ...DEFAULT_FORM_DATA };
+  }
+
+  const { start: startDateTime, end: endDateTime } = buildDefaultEventTimes(initialDate, settings);
+  return {
+    ...DEFAULT_FORM_DATA,
+    startTime: formatDateTimeLocal(startDateTime),
+    endTime: formatDateTimeLocal(endDateTime),
+    startDate: formatDateOnly(startDateTime),
+    endDate: formatDateOnly(startDateTime),
+    recurrenceStartDate: formatDateOnly(startDateTime),
+    recurrenceStartTime: formatDateTimeLocal(startDateTime),
+    recurrenceEndTime: formatDateTimeLocal(endDateTime),
+  };
+}
 
 interface ImprovedEventModalProps {
   isOpen: boolean;
@@ -125,24 +146,14 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
   }, [isOpen, event?.id, event?.updatedAt ? new Date(event.updatedAt).getTime() : 0]);
 
   useEffect(() => {
-    if (!isOpen || event || !initialDate) return;
+    if (!isOpen || event) return;
 
-    const { start: startDateTime, end: endDateTime } = buildDefaultEventTimes(
-      initialDate,
-      settings
-    );
-
-    setFormData((prev) => ({
-      ...prev,
-      startTime: formatDateTimeLocal(startDateTime),
-      endTime: formatDateTimeLocal(endDateTime),
-      startDate: formatDateOnly(startDateTime),
-      endDate: formatDateOnly(startDateTime),
-      recurrenceStartDate: formatDateOnly(startDateTime),
-      recurrenceStartTime: formatDateTimeLocal(startDateTime),
-      recurrenceEndTime: formatDateTimeLocal(endDateTime),
-    }));
-  }, [isOpen, event, initialDate, settings]);
+    setEventType(EventType.SINGLE);
+    setActiveTab('type');
+    setFormData(buildFreshCreateFormData(initialDate, settings));
+    if (aiPreviewUrl) URL.revokeObjectURL(aiPreviewUrl);
+    setAiPreviewUrl(null);
+  }, [isOpen, event, initialDate?.getTime(), settings]);
 
   const buildEventData = (): EventData => {
     switch (eventType) {
@@ -249,7 +260,7 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
     try {
       const eventData = buildEventData();
       await onSave(eventData);
-      onClose();
+      handleClose();
     } catch (error) {
       console.error('保存活动失败:', error);
       setErrors({ submit: '保存活动失败，请重试' });
@@ -328,6 +339,13 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
     setErrors({});
     if (aiPreviewUrl) URL.revokeObjectURL(aiPreviewUrl);
     setAiPreviewUrl(null);
+
+    if (!event) {
+      setEventType(EventType.SINGLE);
+      setActiveTab('type');
+      setFormData(buildFreshCreateFormData(undefined, settings));
+    }
+
     onClose();
   };
 
