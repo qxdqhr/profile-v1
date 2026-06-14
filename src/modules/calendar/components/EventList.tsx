@@ -11,7 +11,11 @@ import {
   EventPriority 
 } from '../types';
 import { getEventSurfaceClasses, getPriorityLabel } from '../utils/eventDisplay';
-import { openAmapNavigation } from '../utils/amapNavigation';
+import MapNavigationPickerModal from './MapNavigationPickerModal';
+import {
+  openMapNavigation,
+  type MapNavigationProviderId,
+} from '../utils/mapNavigation';
 import { useCalendarSettings } from '../context/CalendarSettingsContext';
 import { formatTimeForSettings } from '../utils/calendarSettingsCore';
 
@@ -43,6 +47,7 @@ export default function EventList({
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [showBatchDeleteConfirm, setShowBatchDeleteConfirm] = useState(false);
   const [batchDeleteLoading, setBatchDeleteLoading] = useState(false);
+  const [navigationDestination, setNavigationDestination] = useState<string | null>(null);
   
   // 排序和过滤事件
   const sortedAndFilteredEvents = useMemo(() => {
@@ -285,16 +290,16 @@ export default function EventList({
     );
   };
   
-  // 渲染可点击的地点（唤起高德导航）
+  // 渲染可点击的地点（弹出地图选择器）
   const renderLocation = (location: string, truncate = false) => (
     <button
       type="button"
       onClick={(e) => {
         e.stopPropagation();
-        openAmapNavigation(location);
+        setNavigationDestination(location);
       }}
       className={`flex min-w-0 items-center gap-1 text-left text-blue-600 underline decoration-blue-300/70 underline-offset-2 transition-colors hover:text-blue-700 hover:decoration-blue-500 ${truncate ? 'max-w-full' : ''}`}
-      title="使用高德地图导航"
+      title="选择地图应用导航"
     >
       <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -657,6 +662,18 @@ export default function EventList({
         confirmText="删除"
         cancelText="取消"
         isLoading={batchDeleteLoading}
+      />
+
+      <MapNavigationPickerModal
+        isOpen={navigationDestination !== null}
+        destination={navigationDestination ?? ''}
+        onClose={() => setNavigationDestination(null)}
+        onSelect={(provider: MapNavigationProviderId) => {
+          if (navigationDestination) {
+            openMapNavigation(provider, navigationDestination);
+          }
+          setNavigationDestination(null);
+        }}
       />
     </div>
   );
