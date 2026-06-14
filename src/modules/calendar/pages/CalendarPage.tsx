@@ -325,13 +325,15 @@ function CalendarPageContent() {
         );
       case CalendarViewType.WEEK:
         return (
-          <CalendarWeekView
-            currentDate={currentDate}
-            events={events}
-            onDateClick={handleDateClick}
-            onEventClick={openEditModal}
-            onShowDayEvents={setDayPanelDate}
-          />
+          <div className="h-full min-h-0">
+            <CalendarWeekView
+              currentDate={currentDate}
+              events={events}
+              onDateClick={handleDateClick}
+              onEventClick={openEditModal}
+              onShowDayEvents={setDayPanelDate}
+            />
+          </div>
         );
       case CalendarViewType.DAY:
         return (
@@ -348,8 +350,8 @@ function CalendarPageContent() {
   };
 
   return (
-    <div className="relative min-h-[100dvh] bg-gradient-to-br from-slate-50 via-white to-violet-50/20">
-      <main className="mx-auto flex min-h-[100dvh] max-w-7xl flex-col px-3 py-3 sm:px-5 sm:py-4 lg:px-8">
+    <div className="relative h-[100dvh] overflow-hidden bg-gradient-to-br from-slate-50 via-white to-violet-50/20">
+      <main className="mx-auto flex h-full max-w-7xl flex-col overflow-hidden px-3 py-3 sm:px-5 sm:py-4 lg:px-8">
         <CalendarHeaderNav
           activeTab={activeTab}
           onTabChange={setActiveTab}
@@ -375,7 +377,7 @@ function CalendarPageContent() {
           )}
 
           {activeTab === 'calendar' && (
-            <div className="mt-3 flex min-h-0 flex-1 flex-col gap-3">
+            <div className="mt-3 flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
               {!isAuthenticated && (
                 <p className="rounded-xl bg-amber-50/90 px-4 py-2.5 text-sm text-amber-900 shadow-[inset_0_0_0_1px_rgba(245,158,11,0.25)]">
                   登录后可创建与保存活动。
@@ -390,7 +392,11 @@ function CalendarPageContent() {
                 onViewTypeChange={setViewType}
               />
               <div
-                className="min-h-0 flex-1 overflow-auto rounded-2xl bg-white/90 shadow-[0_1px_3px_rgba(15,23,42,0.06),0_8px_24px_rgba(15,23,42,0.04)]"
+                className={`min-h-0 flex-1 rounded-2xl bg-white/90 shadow-[0_1px_3px_rgba(15,23,42,0.06),0_8px_24px_rgba(15,23,42,0.04)] ${
+                  viewType === CalendarViewType.WEEK
+                    ? 'flex flex-col overflow-hidden'
+                    : 'overflow-auto'
+                }`}
                 style={themeStyle}
               >
                 {loading && events.length === 0 ? (

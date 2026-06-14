@@ -65,10 +65,10 @@ export default function CalendarWeekView({
 
   return (
     <div
-      className="overflow-hidden rounded-2xl bg-white/90 shadow-[0_1px_3px_rgba(15,23,42,0.06),0_8px_24px_rgba(15,23,42,0.04)]"
+      className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl bg-white/90 shadow-[0_1px_3px_rgba(15,23,42,0.06),0_8px_24px_rgba(15,23,42,0.04)]"
       style={{ backgroundColor: 'var(--cal-bg, #ffffff)' }}
     >
-      <header className="border-b border-slate-100 bg-slate-50/80 px-4 py-3 sm:px-5">
+      <header className="shrink-0 border-b border-slate-100 bg-slate-50/80 px-4 py-3 sm:px-5">
         <p className="text-sm font-medium text-slate-600">本周日程</p>
         <p className="mt-0.5 text-xs text-slate-400 tabular-nums">
           {weekStart.toLocaleDateString(settings.language, {
@@ -85,7 +85,8 @@ export default function CalendarWeekView({
         </p>
       </header>
 
-      <div className="divide-y divide-slate-100">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        <div className="divide-y divide-slate-100">
         {weekDates.map((date) => {
           const dateKey = formatDate(date);
           const dayEvents = eventsByDate.get(dateKey) ?? [];
@@ -219,6 +220,7 @@ export default function CalendarWeekView({
             </section>
           );
         })}
+        </div>
       </div>
     </div>
   );
