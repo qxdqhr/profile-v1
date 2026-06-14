@@ -14,6 +14,7 @@ import {
   EventListConfig,
   getMonthViewDates,
   getWeekViewDates,
+  getDayEnd,
   addDays,
   useEnhancedEvents,
 } from '../index';
@@ -127,11 +128,11 @@ function CalendarPageContent() {
     if (viewType === CalendarViewType.MONTH) {
       const dates = getMonthViewDates(currentDate, settings.weekStartsOn);
       start = dates[0];
-      end = dates[dates.length - 1];
+      end = getDayEnd(dates[dates.length - 1]);
     } else if (viewType === CalendarViewType.WEEK) {
       const dates = getWeekViewDates(currentDate, settings.weekStartsOn);
       start = dates[0];
-      end = dates[6];
+      end = getDayEnd(dates[6]);
     } else {
       start = new Date(currentDate);
       start.setHours(0, 0, 0, 0);
@@ -198,12 +199,13 @@ function CalendarPageContent() {
         requireAuth();
         return;
       }
-      setEditingEvent(event);
+      const latest = events.find((e) => e.id === event.id) ?? event;
+      setEditingEvent(latest);
       setSelectedDate(null);
       setIsEventModalOpen(true);
       setDayPanelDate(null);
     },
-    [isAuthenticated, requireAuth]
+    [isAuthenticated, requireAuth, events]
   );
 
   const handleDateClick = useCallback(
@@ -245,11 +247,11 @@ function CalendarPageContent() {
           showToast(
             created.length > 1 ? `已创建 ${created.length} 个活动` : '活动已创建'
           );
+          loadRangeForView();
         }
         setIsEventModalOpen(false);
         setEditingEvent(null);
         setSelectedDate(null);
-        loadRangeForView();
       } catch {
         showToast('保存失败，请重试', 'error');
       }

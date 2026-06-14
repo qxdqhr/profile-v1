@@ -90,12 +90,22 @@ export default function EventTimeSection({
       <div className="space-y-4">
         {allDayBlock}
         {formData.allDay ? (
-          <div className={`${sectionClass} flex items-start gap-3 !p-4`}>
-            <Sun className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
-            <div>
-              <p className="text-sm font-medium text-slate-800">全天模式</p>
-              <p className={`mt-1 ${hintClass}`}>活动将在选定日期全天显示，无需设置具体时间。</p>
+          <div className={`${sectionClass} space-y-4`}>
+            <div className="flex items-start gap-3">
+              <Sun className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
+              <div>
+                <p className="text-sm font-medium text-slate-800">全天模式</p>
+                <p className={`mt-1 ${hintClass}`}>选择活动日期，将在该日全天显示。</p>
+              </div>
             </div>
+            <TimeField
+              id="allDayDate"
+              label="活动日期"
+              type="date"
+              value={formData.startDate}
+              onChange={(v) => onChange('startDate', v)}
+              required
+            />
           </div>
         ) : (
           <>

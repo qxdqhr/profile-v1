@@ -22,6 +22,7 @@ import {
   formatDateTimeLocal,
   formatTimeOnly,
 } from './eventModal/formUtils';
+import { allDayBoundsFromDate, parseEventDateTime, parseLocalISOString } from '../utils/dateUtils';
 import {
   dangerButtonClass,
   primaryButtonClass,
@@ -97,51 +98,70 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
   }, [isOpen, isEditMode]);
 
   useEffect(() => {
-    if (event) {
-      const startDate = new Date(event.startTime);
-      const endDate = new Date(event.endTime);
+    if (!isOpen || !event) return;
 
-      setEventType(EventType.SINGLE);
-      setFormData({
-        ...DEFAULT_FORM_DATA,
-        title: event.title,
-        description: event.description || '',
-        location: event.location || '',
-        color: event.color || '#3b82f6',
-        priority: event.priority || EventPriority.NORMAL,
-        allDay: event.allDay,
-        startTime: formatDateTimeLocal(startDate),
-        endTime: formatDateTimeLocal(endDate),
-        startDate: formatDateOnly(startDate),
-        endDate: formatDateOnly(endDate),
-        dailyStartTime: formatTimeOnly(startDate),
-        dailyEndTime: formatTimeOnly(endDate),
-        recurrenceStartDate: formatDateOnly(startDate),
-        recurrenceStartTime: formatDateTimeLocal(startDate),
-        recurrenceEndTime: formatDateTimeLocal(endDate),
-      });
-    } else if (initialDate) {
-      const { start: startDateTime, end: endDateTime } = buildDefaultEventTimes(
-        initialDate,
-        settings
-      );
+    const startDate = new Date(event.startTime);
+    const endDate = new Date(event.endTime);
 
-      setFormData((prev) => ({
-        ...prev,
-        startTime: formatDateTimeLocal(startDateTime),
-        endTime: formatDateTimeLocal(endDateTime),
-        startDate: formatDateOnly(startDateTime),
-        endDate: formatDateOnly(startDateTime),
-        recurrenceStartDate: formatDateOnly(startDateTime),
-        recurrenceStartTime: formatDateTimeLocal(startDateTime),
-        recurrenceEndTime: formatDateTimeLocal(endDateTime),
-      }));
-    }
-  }, [event, initialDate, settings]);
+    setEventType(EventType.SINGLE);
+    setFormData({
+      ...DEFAULT_FORM_DATA,
+      title: event.title,
+      description: event.description || '',
+      location: event.location || '',
+      color: event.color || '#3b82f6',
+      priority: event.priority || EventPriority.NORMAL,
+      allDay: event.allDay,
+      startTime: formatDateTimeLocal(startDate),
+      endTime: formatDateTimeLocal(endDate),
+      startDate: formatDateOnly(startDate),
+      endDate: formatDateOnly(endDate),
+      dailyStartTime: formatTimeOnly(startDate),
+      dailyEndTime: formatTimeOnly(endDate),
+      recurrenceStartDate: formatDateOnly(startDate),
+      recurrenceStartTime: formatDateTimeLocal(startDate),
+      recurrenceEndTime: formatDateTimeLocal(endDate),
+    });
+  }, [isOpen, event?.id, event?.updatedAt]);
+
+  useEffect(() => {
+    if (!isOpen || event || !initialDate) return;
+
+    const { start: startDateTime, end: endDateTime } = buildDefaultEventTimes(
+      initialDate,
+      settings
+    );
+
+    setFormData((prev) => ({
+      ...prev,
+      startTime: formatDateTimeLocal(startDateTime),
+      endTime: formatDateTimeLocal(endDateTime),
+      startDate: formatDateOnly(startDateTime),
+      endDate: formatDateOnly(startDateTime),
+      recurrenceStartDate: formatDateOnly(startDateTime),
+      recurrenceStartTime: formatDateTimeLocal(startDateTime),
+      recurrenceEndTime: formatDateTimeLocal(endDateTime),
+    }));
+  }, [isOpen, event, initialDate, settings]);
 
   const buildEventData = (): EventData => {
     switch (eventType) {
-      case EventType.SINGLE:
+      case EventType.SINGLE: {
+        if (formData.allDay) {
+          const [year, month, day] = formData.startDate.split('-').map(Number);
+          const { start, end } = allDayBoundsFromDate(new Date(year, month - 1, day));
+          return {
+            type: EventType.SINGLE,
+            title: formData.title.trim(),
+            description: formData.description.trim() || undefined,
+            location: formData.location.trim() || undefined,
+            color: formData.color,
+            priority: formData.priority,
+            allDay: true,
+            startTime: start,
+            endTime: end,
+          };
+        }
         return {
           type: EventType.SINGLE,
           title: formData.title.trim(),
@@ -149,10 +169,11 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
           location: formData.location.trim() || undefined,
           color: formData.color,
           priority: formData.priority,
-          allDay: formData.allDay,
-          startTime: new Date(formData.startTime),
-          endTime: new Date(formData.endTime),
+          allDay: false,
+          startTime: parseLocalISOString(formData.startTime),
+          endTime: parseLocalISOString(formData.endTime),
         };
+      }
 
       case EventType.MULTI_DAY:
         return {
@@ -262,8 +283,8 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
 
   const applyAiDraft = (draft: CalendarEventFromImageOutput, previewUrl: string) => {
     setEventType(EventType.SINGLE);
-    const startDate = new Date(draft.startTime);
-    const endDate = new Date(draft.endTime);
+    const startDate = parseEventDateTime(draft.startTime);
+    const endDate = parseEventDateTime(draft.endTime);
 
     if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
       setErrors({ general: '识别的时间格式无效，请手动填写' });

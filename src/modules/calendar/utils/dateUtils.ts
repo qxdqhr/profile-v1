@@ -64,6 +64,75 @@ export function toLocalISOString(date: Date): string {
 }
 
 /**
+ * 解析无时区后缀的本地时间字符串（与 toLocalISOString 配对）
+ * 避免 Node 与浏览器对 ISO 字符串解析不一致。
+ */
+export function parseLocalISOString(value: string): Date {
+  const trimmed = value.trim();
+  if (/[zZ]$|[+-]\d{2}:\d{2}$/.test(trimmed)) {
+    return new Date(trimmed);
+  }
+
+  const [datePart, timePart = '00:00:00'] = trimmed.split('T');
+  const [year, month, day] = datePart.split('-').map(Number);
+  const timeSegments = timePart.split(':');
+  const hours = Number(timeSegments[0]) || 0;
+  const minutes = Number(timeSegments[1]) || 0;
+  const secPart = timeSegments[2] ?? '0';
+  const [seconds, ms = '0'] = secPart.split('.');
+
+  return new Date(
+    year,
+    month - 1,
+    day,
+    hours,
+    minutes,
+    Number(seconds) || 0,
+    Number(ms) || 0
+  );
+}
+
+/**
+ * 解析活动日期时间（AI 输出 / 用户输入）
+ * - 仅日期 YYYY-MM-DD → 本地当天 00:00
+ * - 带 Z 或 offset → 标准解析后转本地分量重建（避免显示偏移）
+ */
+export function parseEventDateTime(value: string): Date {
+  const trimmed = value.trim();
+  if (!trimmed) return new Date(NaN);
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    const [year, month, day] = trimmed.split('-').map(Number);
+    return new Date(year, month - 1, day, 0, 0, 0, 0);
+  }
+
+  if (/[zZ]$|[+-]\d{2}:\d{2}$/.test(trimmed)) {
+    const parsed = new Date(trimmed);
+    if (isNaN(parsed.getTime())) return parsed;
+    return new Date(
+      parsed.getFullYear(),
+      parsed.getMonth(),
+      parsed.getDate(),
+      parsed.getHours(),
+      parsed.getMinutes(),
+      parsed.getSeconds(),
+      parsed.getMilliseconds()
+    );
+  }
+
+  return parseLocalISOString(trimmed);
+}
+
+/**
+ * 全天活动的起止时间（本地日界）
+ */
+export function allDayBoundsFromDate(date: Date): { start: Date; end: Date } {
+  const start = getDayStart(date);
+  const end = getDayEnd(date);
+  return { start, end };
+}
+
+/**
  * 获取月份的第一天
  */
 export function getMonthStart(date: Date): Date {

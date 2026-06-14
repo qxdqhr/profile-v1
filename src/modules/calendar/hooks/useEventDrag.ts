@@ -20,19 +20,51 @@ export interface UseEventDragReturn {
   resetDragState: () => void;
 }
 
+function parseTargetDateFromOverId(overId: string | number | undefined): Date | null {
+  if (!overId || typeof overId !== 'string' || !overId.startsWith('date-')) {
+    return null;
+  }
+  const dateStr = overId.replace('date-', '');
+  const [year, month, day] = dateStr.split('-').map(Number);
+  if (!year || !month || !day) return null;
+  const targetDate = new Date(year, month - 1, day);
+  return isNaN(targetDate.getTime()) ? null : targetDate;
+}
+
+function computeMovedTimes(
+  draggedEvent: CalendarEvent,
+  targetDate: Date
+): { newStartTime: Date; newEndTime: Date } {
+  const originalStart = new Date(draggedEvent.startTime);
+  const originalEnd = new Date(draggedEvent.endTime);
+
+  if (draggedEvent.allDay) {
+    const newStartTime = new Date(targetDate);
+    newStartTime.setHours(0, 0, 0, 0);
+    const newEndTime = new Date(targetDate);
+    newEndTime.setHours(23, 59, 59, 999);
+    return { newStartTime, newEndTime };
+  }
+
+  const newStartTime = new Date(targetDate);
+  newStartTime.setHours(
+    originalStart.getHours(),
+    originalStart.getMinutes(),
+    originalStart.getSeconds(),
+    originalStart.getMilliseconds()
+  );
+  const duration = originalEnd.getTime() - originalStart.getTime();
+  const newEndTime = new Date(newStartTime.getTime() + duration);
+  return { newStartTime, newEndTime };
+}
+
 /**
- * 事件拖拽Hook
- * 
- * 提供事件拖拽功能，支持：
- * - 拖拽事件到不同日期
- * - 拖拽时显示预览信息
- * - 拖拽状态管理
+ * 事件拖拽 Hook
  */
 export function useEventDrag(
   events: CalendarEvent[],
   onEventUpdate: (eventId: number, newStartTime: Date, newEndTime: Date) => Promise<void>
 ): UseEventDragReturn {
-  
   const [dragState, setDragState] = useState<DragState>({
     isDragging: false,
     draggedEvent: null,
@@ -40,167 +72,76 @@ export function useEventDrag(
     previewTime: null,
   });
 
-  // 处理拖拽开始
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    const eventId = parseInt(event.active.id as string);
-    const draggedEvent = events.find(e => e.id === eventId);
-    
-    console.log('🎯 拖拽开始:', {
-      activeId: event.active.id,
-      eventId,
-      draggedEvent: draggedEvent ? {
-        id: draggedEvent.id,
-        title: draggedEvent.title,
-        originalStartTime: draggedEvent.startTime,
-        originalDate: formatDate(new Date(draggedEvent.startTime))
-      } : null
-    });
-    
-    if (draggedEvent) {
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      const eventId = parseInt(event.active.id as string, 10);
+      const draggedEvent = events.find((e) => e.id === eventId);
+
+      if (draggedEvent) {
+        setDragState({
+          isDragging: true,
+          draggedEvent,
+          dragOverDate: null,
+          previewTime: null,
+        });
+      }
+    },
+    [events]
+  );
+
+  const handleDragOver = useCallback(
+    (event: DragOverEvent) => {
+      const { over } = event;
+      const draggedEvent = dragState.draggedEvent;
+      if (!over || !draggedEvent) return;
+
+      const targetDate = parseTargetDateFromOverId(over.id);
+      if (!targetDate) return;
+
+      const { newStartTime, newEndTime } = computeMovedTimes(draggedEvent, targetDate);
+      const previewTime = draggedEvent.allDay
+        ? '全天'
+        : `${formatTime(newStartTime)} - ${formatTime(newEndTime)}`;
+
+      setDragState((prev) => ({
+        ...prev,
+        dragOverDate: targetDate,
+        previewTime,
+      }));
+    },
+    [dragState.draggedEvent]
+  );
+
+  const handleDragEnd = useCallback(
+    async (event: DragEndEvent) => {
+      const { active, over } = event;
+      const eventId = parseInt(active.id as string, 10);
+      const draggedEvent = events.find((e) => e.id === eventId);
+
+      const targetDate = parseTargetDateFromOverId(over?.id);
+
+      if (draggedEvent && targetDate) {
+        const originalStart = new Date(draggedEvent.startTime);
+        if (!isSameDay(originalStart, targetDate)) {
+          try {
+            const { newStartTime, newEndTime } = computeMovedTimes(draggedEvent, targetDate);
+            await onEventUpdate(draggedEvent.id, newStartTime, newEndTime);
+          } catch (error) {
+            console.error('拖拽更新事件失败:', error);
+          }
+        }
+      }
+
       setDragState({
-        isDragging: true,
-        draggedEvent,
+        isDragging: false,
+        draggedEvent: null,
         dragOverDate: null,
         previewTime: null,
       });
-    }
-  }, [events]);
+    },
+    [events, onEventUpdate]
+  );
 
-  // 处理拖拽悬停
-  const handleDragOver = useCallback((event: DragOverEvent) => {
-    const { over } = event;
-    
-    console.log('🔍 拖拽悬停:', {
-      overId: over?.id,
-      hasOver: !!over,
-      hasDraggedEvent: !!dragState.draggedEvent
-    });
-    
-    if (over && dragState.draggedEvent) {
-      const targetDateStr = over.id as string;
-      
-      console.log('📅 解析目标日期:', {
-        targetDateStr,
-        startsWithDate: targetDateStr.startsWith('date-')
-      });
-      
-      // 解析目标日期 (格式: "date-2024-12-28")
-      if (targetDateStr.startsWith('date-')) {
-        const dateStr = targetDateStr.replace('date-', '');
-        // 使用本地时区解析日期，避免时区偏移
-        const [year, month, day] = dateStr.split('-').map(Number);
-        const targetDate = new Date(year, month - 1, day);
-        
-        console.log('🗓️ 日期解析结果:', {
-          dateStr,
-          parsedComponents: { year, month: month - 1, day },
-          targetDate: targetDate.toISOString(),
-          isValidDate: !isNaN(targetDate.getTime()),
-          formattedTargetDate: formatDate(targetDate)
-        });
-        
-        if (!isNaN(targetDate.getTime())) {
-          const originalStart = new Date(dragState.draggedEvent.startTime);
-          const originalEnd = new Date(dragState.draggedEvent.endTime);
-          
-          // 计算新的开始和结束时间，保持原有的时间部分
-          const newStartTime = new Date(targetDate);
-          newStartTime.setHours(originalStart.getHours(), originalStart.getMinutes(), originalStart.getSeconds(), originalStart.getMilliseconds());
-          
-          const duration = originalEnd.getTime() - originalStart.getTime();
-          const newEndTime = new Date(newStartTime.getTime() + duration);
-          
-          // 生成预览时间文本
-          const previewTime = dragState.draggedEvent.allDay 
-            ? '全天'
-            : `${formatTime(newStartTime)} - ${formatTime(newEndTime)}`;
-          
-          console.log('⏰ 计算新时间:', {
-            originalStart: dragState.draggedEvent.startTime,
-            originalEnd: dragState.draggedEvent.endTime,
-            newStartTime: newStartTime.toISOString(),
-            newEndTime: newEndTime.toISOString(),
-            duration: duration / (1000 * 60), // 转换为分钟
-            previewTime
-          });
-          
-          setDragState(prev => ({
-            ...prev,
-            dragOverDate: targetDate,
-            previewTime,
-          }));
-        }
-      }
-    }
-  }, [dragState.draggedEvent]);
-
-  // 处理拖拽结束
-  const handleDragEnd = useCallback(async (event: DragEndEvent) => {
-    const { over } = event;
-    
-    console.log('🎯 拖拽结束:', {
-      overId: over?.id,
-      hasOver: !!over,
-      hasDraggedEvent: !!dragState.draggedEvent,
-      hasDragOverDate: !!dragState.dragOverDate,
-      dragOverDate: dragState.dragOverDate ? formatDate(dragState.dragOverDate) : null
-    });
-    
-    if (over && dragState.draggedEvent && dragState.dragOverDate) {
-      const originalStart = new Date(dragState.draggedEvent.startTime);
-      const originalEnd = new Date(dragState.draggedEvent.endTime);
-      const targetDate = dragState.dragOverDate;
-      
-      // 检查是否真的移动到了不同的日期
-      const isSameDayResult = isSameDay(originalStart, targetDate);
-      console.log('📊 日期比较:', {
-        originalDate: formatDate(originalStart),
-        targetDate: formatDate(targetDate),
-        isSameDay: isSameDayResult
-      });
-      
-      if (!isSameDayResult) {
-        try {
-          // 计算新的开始和结束时间，保持原有的时间部分
-          const newStartTime = new Date(targetDate);
-          newStartTime.setHours(originalStart.getHours(), originalStart.getMinutes(), originalStart.getSeconds(), originalStart.getMilliseconds());
-          
-          const duration = originalEnd.getTime() - originalStart.getTime();
-          const newEndTime = new Date(newStartTime.getTime() + duration);
-          
-          // 调用更新函数
-          console.log('✅ 执行拖拽更新事件:', {
-            eventId: dragState.draggedEvent.id,
-            originalDate: formatDate(originalStart),
-            targetDate: formatDate(targetDate),
-            originalStartTime: originalStart.toISOString(),
-            originalEndTime: originalEnd.toISOString(),
-            newStartTime: newStartTime.toISOString(),
-            newEndTime: newEndTime.toISOString(),
-            duration: duration / (1000 * 60) // 分钟
-          });
-          await onEventUpdate(dragState.draggedEvent.id, newStartTime, newEndTime);
-        } catch (error) {
-          console.error('❌ 拖拽更新事件失败:', error);
-          // 这里可以显示错误提示
-        }
-      } else {
-        console.log('⚠️ 跳过更新 - 日期相同或条件不满足');
-      }
-    } else {
-      console.log('⚠️ 拖拽结束但缺少必要条件:', {
-        hasOver: !!over,
-        hasDraggedEvent: !!dragState.draggedEvent,
-        hasDragOverDate: !!dragState.dragOverDate
-      });
-    }
-    
-    // 重置拖拽状态
-    console.log('🔄 重置拖拽状态');
-    resetDragState();
-  }, [dragState.draggedEvent, dragState.dragOverDate, onEventUpdate]);
-
-  // 重置拖拽状态
   const resetDragState = useCallback(() => {
     setDragState({
       isDragging: false,
@@ -219,11 +160,10 @@ export function useEventDrag(
   };
 }
 
-// 辅助函数：格式化时间
 function formatTime(date: Date): string {
   return date.toLocaleTimeString('zh-CN', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
   });
-} 
+}

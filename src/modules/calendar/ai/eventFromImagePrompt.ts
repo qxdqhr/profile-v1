@@ -2,6 +2,7 @@ import type {
   CalendarEventFromImageInput,
   CalendarEventFromImageOutput,
 } from './eventFromImageTask.types';
+import { parseEventDateTime } from '../utils/dateUtils';
 
 const EVENT_JSON_SCHEMA_HINT = [
   'title(string), description?(string), startTime(ISO8601), endTime(ISO8601),',
@@ -38,11 +39,19 @@ export function parseEventFromImageOutput(
   json: Record<string, unknown>
 ): CalendarEventFromImageOutput {
   const title = String(json.title ?? '').trim();
-  const startTime = String(json.startTime ?? '').trim();
-  const endTime = String(json.endTime ?? '').trim();
+  const startRaw = String(json.startTime ?? '').trim();
+  const endRaw = String(json.endTime ?? '').trim();
 
   if (!title) throw new Error('未能识别活动标题');
-  if (!startTime || !endTime) throw new Error('未能识别活动时间，请手动填写');
+  if (!startRaw || !endRaw) throw new Error('未能识别活动时间，请手动填写');
+
+  const allDay = Boolean(json.allDay);
+  const startDate = parseEventDateTime(startRaw);
+  const endDate = parseEventDateTime(endRaw);
+
+  if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
+    throw new Error('未能识别有效的活动时间，请手动填写');
+  }
 
   const confidenceRaw = Number(json.confidence);
   const confidence = Number.isFinite(confidenceRaw)
@@ -52,9 +61,9 @@ export function parseEventFromImageOutput(
   return {
     title,
     description: json.description ? String(json.description) : undefined,
-    startTime,
-    endTime,
-    allDay: Boolean(json.allDay),
+    startTime: startDate.toISOString(),
+    endTime: endDate.toISOString(),
+    allDay,
     location: json.location ? String(json.location) : undefined,
     confidence,
     rawSummary: json.rawSummary ? String(json.rawSummary) : undefined,

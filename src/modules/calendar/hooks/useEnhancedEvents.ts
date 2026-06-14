@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { CalendarEvent, EventFormData, CreateEventRequest, EventPriority, RecurrenceType } from '../types';
 import { EventData, EventType, EventTypeService } from '../services/eventTypeService';
-import { toLocalISOString, formatDate } from '../utils/dateUtils';
+import { toLocalISOString, formatDate, getDayEnd } from '../utils/dateUtils';
 
 export interface UseEnhancedEventsReturn {
   events: CalendarEvent[];
@@ -72,23 +72,18 @@ export function useEnhancedEvents(): UseEnhancedEventsReturn {
         eventIds: eventsWithDates.map((e: CalendarEvent) => e.id)
       });
 
-      // 智能合并事件：保留不在当前查询范围内的事件，替换范围内的事件
-      setEvents(prev => {
-        // 过滤出不在当前查询时间范围内的现有事件
-        const eventsOutsideRange = prev.filter(event => {
-          const eventDate = new Date(event.startTime);
-          return eventDate < startDate || eventDate > endDate;
+      // 按 id 合并：范围内以接口数据为准，范围外保留未出现在本次结果中的事件
+      setEvents((prev) => {
+        const fetchedIds = new Set(eventsWithDates.map((e: CalendarEvent) => e.id));
+        const endMs = endDate.getTime();
+
+        const outsideRange = prev.filter((event) => {
+          const eventMs = new Date(event.startTime).getTime();
+          const inRange = eventMs >= startDate.getTime() && eventMs <= endMs;
+          return !inRange && !fetchedIds.has(event.id);
         });
 
-        console.log('🔄 事件合并策略:', {
-          previousEventCount: prev.length,
-          eventsOutsideRange: eventsOutsideRange.length,
-          newEventsInRange: eventsWithDates.length,
-          finalEventCount: eventsOutsideRange.length + eventsWithDates.length
-        });
-
-        // 合并范围外的事件和新获取的事件
-        return [...eventsOutsideRange, ...eventsWithDates];
+        return [...outsideRange, ...eventsWithDates];
       });
     } catch (err) {
       console.error('获取事件失败:', err);
