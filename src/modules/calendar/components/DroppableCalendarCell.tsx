@@ -123,7 +123,7 @@ export const DroppableCalendarCell: React.FC<DroppableCalendarCellProps> = ({
             </span>
           )}
         </div>
-        {dayEvents.length > 0 && isCurrentMonth && (
+        {dayEvents.length > 0 && (
           <button
             type="button"
             onClick={(e) => {
@@ -140,22 +140,21 @@ export const DroppableCalendarCell: React.FC<DroppableCalendarCellProps> = ({
       </div>
 
       <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
-        {isCurrentMonth &&
-          visibleEvents.map((event) => (
-            <div
-              key={event.id}
-              className="min-w-0"
-              onClick={(e) => e.stopPropagation()}
-              onKeyDown={(e) => e.stopPropagation()}
-            >
-              <DraggableEvent
-                event={event}
-                className="text-[10px] sm:text-xs"
-                onClick={() => onEventClick?.(event)}
-              />
-            </div>
-          ))}
-        {overflowCount > 0 && isCurrentMonth && (
+        {visibleEvents.map((event) => (
+          <div
+            key={event.id}
+            className="min-w-0"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+          >
+            <DraggableEvent
+              event={event}
+              className="text-[10px] sm:text-xs"
+              onClick={() => onEventClick?.(event)}
+            />
+          </div>
+        ))}
+        {overflowCount > 0 && (
           <button
             type="button"
             onClick={(e) => {

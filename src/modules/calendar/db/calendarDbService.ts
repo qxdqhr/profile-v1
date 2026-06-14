@@ -23,13 +23,14 @@ class CalendarDbService {
    */
   async getAllEvents(userId: string, startDate?: Date, endDate?: Date) {
     const conditions = [eq(calendarEvents.userId, userId)];
-    
+
+    // 与月视图网格一致：返回与查询区间有交集的活动（而非完全被区间包含）
     if (startDate) {
-      conditions.push(gte(calendarEvents.startTime, startDate));
+      conditions.push(gte(calendarEvents.endTime, startDate));
     }
-    
+
     if (endDate) {
-      conditions.push(lte(calendarEvents.endTime, endDate));
+      conditions.push(lte(calendarEvents.startTime, endDate));
     }
 
     const events = await db
