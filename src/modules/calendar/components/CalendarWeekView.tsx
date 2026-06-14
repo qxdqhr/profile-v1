@@ -71,17 +71,17 @@ export default function CalendarWeekView({
       <header className="border-b border-slate-100 bg-slate-50/80 px-4 py-3 sm:px-5">
         <p className="text-sm font-medium text-slate-600">本周日程</p>
         <p className="mt-0.5 text-xs text-slate-400 tabular-nums">
-          {weekStart.toLocaleDateString(settings.language, { month: 'long', day: 'numeric' })}
+          {weekStart.toLocaleDateString(settings.language, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
           {' – '}
           {weekEnd.toLocaleDateString(settings.language, {
-            month: weekStart.getMonth() === weekEnd.getMonth() ? undefined : 'long',
+            year: 'numeric',
+            month: 'long',
             day: 'numeric',
-            year: weekStart.getFullYear() === weekEnd.getFullYear() ? undefined : 'numeric',
           })}
-          {weekStart.getFullYear() !== weekEnd.getFullYear() ||
-          weekStart.getMonth() !== weekEnd.getMonth()
-            ? `，${weekEnd.getFullYear()}年`
-            : ''}
         </p>
       </header>
 
