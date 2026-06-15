@@ -60,6 +60,7 @@ function readRequiredNumber(name, fallback = 0) {
 }
 
 const DISPLAY_TIMEZONE = 'Asia/Shanghai';
+const EMPTY_BEFORE_SHA = '0000000000000000000000000000000000000000';
 
 function formatDateTime(iso) {
   if (!iso) return '—';
@@ -107,6 +108,11 @@ function splitMultiline(value) {
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean);
+}
+
+function firstCommitLine(message) {
+  if (!message) return undefined;
+  return message.split(/\r?\n/)[0]?.trim() || undefined;
 }
 
 function buildCiFeishuMessage(context) {
@@ -177,6 +183,149 @@ function buildSignHeaders(secret) {
   return { timestamp, sign };
 }
 
+async function githubFetch(path, token) {
+  const apiUrl = process.env.GITHUB_API_URL?.trim() || 'https://api.github.com';
+  const response = await fetch(`${apiUrl}${path}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+    },
+    signal: AbortSignal.timeout(15000),
+  });
+
+  const text = await response.text();
+  if (!response.ok) {
+    throw new Error(`GitHub API ${response.status}: ${text || response.statusText}`);
+  }
+
+  return text ? JSON.parse(text) : null;
+}
+
+async function fetchRunStartedAt(repository, runId, token) {
+  try {
+    const data = await githubFetch(`/repos/${repository}/actions/runs/${runId}`, token);
+    return data?.run_started_at || undefined;
+  } catch (error) {
+    console.warn('[ci-feishu] 读取 run 开始时间失败:', error.message || error);
+    return undefined;
+  }
+}
+
+async function fetchCommitMessage(repository, sha, token) {
+  try {
+    const data = await githubFetch(`/repos/${repository}/commits/${sha}`, token);
+    return firstCommitLine(data?.commit?.message);
+  } catch (error) {
+    console.warn('[ci-feishu] 读取 commit 信息失败:', error.message || error);
+    return undefined;
+  }
+}
+
+async function fetchChangeSummary(repository, sha, beforeSha, eventName, token) {
+  const formatCommit = (commit) => {
+    const title = firstCommitLine(commit?.commit?.message) || '无标题提交';
+    const shortSha = commit?.sha?.slice(0, 7) || 'unknown';
+    return `• ${title} (${shortSha})`;
+  };
+
+  const useCompare =
+    eventName === 'push'
+    && beforeSha
+    && beforeSha !== EMPTY_BEFORE_SHA
+    && beforeSha !== sha;
+
+  if (useCompare) {
+    try {
+      const data = await githubFetch(
+        `/repos/${repository}/compare/${beforeSha}...${sha}`,
+        token,
+      );
+      const commits = Array.isArray(data?.commits) ? data.commits : [];
+      if (commits.length > 0) {
+        return {
+          commitCount: data.total_commits || commits.length,
+          changeSummary: commits.slice(0, 20).map(formatCommit).join('\n'),
+        };
+      }
+    } catch (error) {
+      console.warn('[ci-feishu] compare API 失败，回退到单条 commit:', error.message || error);
+    }
+  }
+
+  try {
+    const data = await githubFetch(`/repos/${repository}/commits/${sha}`, token);
+    return {
+      commitCount: 1,
+      changeSummary: formatCommit(data),
+    };
+  } catch (error) {
+    console.warn('[ci-feishu] 读取变更摘要失败:', error.message || error);
+    return {
+      commitCount: undefined,
+      changeSummary: undefined,
+    };
+  }
+}
+
+async function collectCiContext() {
+  const repository = process.env.GITHUB_REPOSITORY?.trim() || 'unknown/unknown';
+  const sha = process.env.GITHUB_SHA?.trim() || 'unknown';
+  const runId = readRequiredNumber('GITHUB_RUN_ID');
+  const token = readOptionalString('GITHUB_TOKEN');
+  const finishedAt = new Date().toISOString();
+
+  let startedAt;
+  let commitMessage;
+  let changeSummary;
+  let commitCount;
+
+  if (token) {
+    startedAt = await fetchRunStartedAt(repository, runId, token);
+    commitMessage = await fetchCommitMessage(repository, sha, token);
+    const summary = await fetchChangeSummary(
+      repository,
+      sha,
+      readOptionalString('GITHUB_BEFORE_SHA'),
+      process.env.GITHUB_EVENT_NAME?.trim() || 'unknown',
+      token,
+    );
+    changeSummary = summary.changeSummary;
+    commitCount = summary.commitCount;
+  } else {
+    console.warn('[ci-feishu] GITHUB_TOKEN 未配置，跳过 GitHub API 元数据读取');
+    startedAt = readOptionalString('CI_RUN_STARTED_AT');
+    commitMessage = readOptionalString('CI_COMMIT_MESSAGE');
+    changeSummary = readOptionalString('CI_CHANGE_SUMMARY');
+    commitCount = readRequiredNumber('CI_COMMIT_COUNT', 0) || undefined;
+  }
+
+  const buildDurationRaw = readOptionalString('CI_BUILD_DURATION_SECONDS');
+  const buildDurationSeconds = buildDurationRaw ? Number(buildDurationRaw) : undefined;
+
+  return {
+    status: readStatus(),
+    repository,
+    workflow: process.env.GITHUB_WORKFLOW?.trim() || 'CI',
+    runNumber: readRequiredNumber('GITHUB_RUN_NUMBER'),
+    runId,
+    eventName: process.env.GITHUB_EVENT_NAME?.trim() || 'unknown',
+    refName: process.env.GITHUB_REF_NAME?.trim() || process.env.GITHUB_REF?.trim() || 'unknown',
+    sha,
+    actor: process.env.GITHUB_ACTOR?.trim() || 'unknown',
+    serverUrl: process.env.GITHUB_SERVER_URL?.trim() || 'https://github.com',
+    startedAt,
+    finishedAt,
+    buildDurationSeconds: Number.isFinite(buildDurationSeconds)
+      ? buildDurationSeconds
+      : computeDurationSeconds(startedAt, finishedAt),
+    commitMessage,
+    changeSummary,
+    commitCount,
+    imageTag: readOptionalString('CI_IMAGE_TAG'),
+  };
+}
+
 async function sendFeishuPostMessage(webhookUrl, message, signSecret) {
   const headers = {
     'Content-Type': 'application/json; charset=utf-8',
@@ -216,31 +365,8 @@ async function main() {
     return;
   }
 
-  const finishedAt = readOptionalString('CI_FINISHED_AT') || new Date().toISOString();
-  const startedAt = readOptionalString('CI_RUN_STARTED_AT');
-  const buildDurationRaw = readOptionalString('CI_BUILD_DURATION_SECONDS');
-  const buildDurationSeconds = buildDurationRaw ? Number(buildDurationRaw) : undefined;
-
-  const message = buildCiFeishuMessage({
-    status: readStatus(),
-    repository: process.env.GITHUB_REPOSITORY?.trim() || 'unknown/unknown',
-    workflow: process.env.GITHUB_WORKFLOW?.trim() || 'CI',
-    runNumber: readRequiredNumber('GITHUB_RUN_NUMBER'),
-    runId: readRequiredNumber('GITHUB_RUN_ID'),
-    eventName: process.env.GITHUB_EVENT_NAME?.trim() || 'unknown',
-    refName: process.env.GITHUB_REF_NAME?.trim() || process.env.GITHUB_REF?.trim() || 'unknown',
-    sha: process.env.GITHUB_SHA?.trim() || 'unknown',
-    actor: process.env.GITHUB_ACTOR?.trim() || 'unknown',
-    serverUrl: process.env.GITHUB_SERVER_URL?.trim() || 'https://github.com',
-    startedAt,
-    finishedAt,
-    buildDurationSeconds: Number.isFinite(buildDurationSeconds) ? buildDurationSeconds : undefined,
-    commitMessage: readOptionalString('CI_COMMIT_MESSAGE'),
-    changeSummary: readOptionalString('CI_CHANGE_SUMMARY'),
-    commitCount: readRequiredNumber('CI_COMMIT_COUNT', 0) || undefined,
-    imageTag: readOptionalString('CI_IMAGE_TAG'),
-  });
-
+  const context = await collectCiContext();
+  const message = buildCiFeishuMessage(context);
   const result = await sendFeishuPostMessage(webhookUrl, message, readSignSecret());
   if (!result.success) {
     console.error('[ci-feishu] 发送失败:', result.errorMessage || `HTTP ${result.status}`);
