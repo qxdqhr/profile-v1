@@ -115,6 +115,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Decrypt production config for Feishu webhook
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        run: |
+          if [ -z "$SOPS_AGE_KEY" ]; then
+            echo "SOPS_AGE_KEY 未配置，跳过解密（将使用 FEISHU_WEBHOOK_URL Secret）"
+            exit 0
+          fi
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq age
+          DEPLOY_CFG_DIR=/tmp/profile-v1-notify
+          mkdir -p "$DEPLOY_CFG_DIR"
+          printf '%s\n' "$SOPS_AGE_KEY" > "$DEPLOY_CFG_DIR/age-key.txt"
+          chmod 600 "$DEPLOY_CFG_DIR/age-key.txt"
+          SOPS_AGE_KEY_FILE="$DEPLOY_CFG_DIR/age-key.txt" \
+            ./scripts/config-decrypt-production.sh "$DEPLOY_CFG_DIR/app.config.yaml"
+          echo "APP_CONFIG_PATH=$DEPLOY_CFG_DIR/app.config.yaml" >> "$GITHUB_ENV"
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
@@ -134,4 +152,13 @@ jobs:
           FEISHU_SIGN_SECRET: ${{ secrets.FEISHU_SIGN_SECRET }}
           CI_NOTIFY_STATUS: ${{ needs.build.result }}
           CI_IMAGE_TAG: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.build.result == 'success' && format('crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:{0}', github.run_number) || '' }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
         run: pnpm exec tsx scripts/send-ci-feishu-notify.ts

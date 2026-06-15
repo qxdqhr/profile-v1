@@ -1,18 +1,59 @@
+import { readFileSync } from 'node:fs';
+import { parse as parseYaml } from 'yaml';
 import {
   buildCiFeishuMessage,
   sendFeishuPostMessage,
   type CiNotifyStatus,
 } from '@sa2kit/feishu-bot';
 
+function readWebhookFromAppConfig(): string | null {
+  const configPath = process.env.APP_CONFIG_PATH?.trim();
+  if (!configPath) return null;
+
+  try {
+    const parsed = parseYaml(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
+    const business = parsed.business as Record<string, unknown> | undefined;
+    const homePage = business?.homePage as Record<string, unknown> | undefined;
+    const contact = homePage?.contactConfig as Record<string, unknown> | undefined;
+    const webhook = typeof contact?.feishuWebhookUrl === 'string'
+      ? contact.feishuWebhookUrl.trim()
+      : '';
+    return webhook || null;
+  } catch (error) {
+    console.warn('[ci-feishu] 读取 APP_CONFIG_PATH 失败:', error);
+    return null;
+  }
+}
+
 function readWebhookUrl(): string | null {
   return process.env.FEISHU_WEBHOOK_URL?.trim()
     || process.env.CI_FEISHU_WEBHOOK_URL?.trim()
+    || readWebhookFromAppConfig()
     || null;
+}
+
+function readSignSecretFromAppConfig(): string | null {
+  const configPath = process.env.APP_CONFIG_PATH?.trim();
+  if (!configPath) return null;
+
+  try {
+    const parsed = parseYaml(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
+    const business = parsed.business as Record<string, unknown> | undefined;
+    const homePage = business?.homePage as Record<string, unknown> | undefined;
+    const contact = homePage?.contactConfig as Record<string, unknown> | undefined;
+    const secret = typeof contact?.feishuSignSecret === 'string'
+      ? contact.feishuSignSecret.trim()
+      : '';
+    return secret || null;
+  } catch {
+    return null;
+  }
 }
 
 function readSignSecret(): string | null {
   return process.env.FEISHU_SIGN_SECRET?.trim()
     || process.env.CI_FEISHU_SIGN_SECRET?.trim()
+    || readSignSecretFromAppConfig()
     || null;
 }
 
