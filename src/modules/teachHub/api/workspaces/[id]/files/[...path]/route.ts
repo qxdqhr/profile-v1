@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
   putWorkspaceFileText,
   readWorkspaceFileText,
+  repairWorkspaceSeedFilesIfMissing,
 } from '@/modules/teachHub/services/teachHubFileStore';
-import { updateWorkspaceMeta } from '@/modules/teachHub/services/teachHubDbService';
+import { getWorkspaceForUser, updateWorkspaceMeta } from '@/modules/teachHub/services/teachHubDbService';
 import {
   contentTypeForPath,
   rewriteTeachHtmlLinks,
@@ -35,6 +36,11 @@ export async function GET(request: NextRequest, context: RouteContext) {
   if (!relativePath) return jsonError('非法文件路径');
 
   try {
+    const workspace = await getWorkspaceForUser(auth.user.id, workspaceId);
+    if (workspace) {
+      await repairWorkspaceSeedFilesIfMissing(auth.user.id, workspace);
+    }
+
     let content = await readWorkspaceFileText(auth.user.id, workspaceId, relativePath);
     const params = new URL(request.url).searchParams;
     const raw = params.get('raw') === '1';

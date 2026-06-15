@@ -3,10 +3,7 @@ import {
   uploadFileAndResolveAccessUrl,
   FileDbService,
 } from 'sa2kit/common/file/server';
-import {
-  createProfileFileService,
-  getProfileOssFileBootstrap,
-} from '@/lib/ossFile/env';
+import { createProfilePersistentFileService } from '@/lib/ossFile/env';
 import { db } from '@/db';
 import type { LessonIndex, TeachStoredFile } from '../types';
 import {
@@ -14,6 +11,7 @@ import {
   getTeachHubLocalFileService,
   isOssUploadError,
 } from '../utils/storageFallback';
+import { persistTeachHubUploadMetadata } from '../utils/teachHubFilePersistence';
 import {
   TEACH_HUB_MODULE_ID,
   buildBusinessId,
@@ -22,6 +20,13 @@ import {
 } from '../utils/teachWorkspacePaths';
 import { listLessonsFromPaths } from '../utils/lessonIndex';
 import { shouldSkipZipEntry, validateWorkspacePaths } from '../utils/workspaceValidator';
+import type { TeachWorkspace } from '../types';
+import {
+  buildWorkspaceMeta,
+  composeMissionMarkdown,
+  DEFAULT_NOTES_MD,
+  DEFAULT_RESOURCES_MD,
+} from '../utils/workspaceTemplates';
 
 type RawFile = {
   id: string;
@@ -75,7 +80,26 @@ async function createFileDbService(): Promise<FileDbService> {
 }
 
 async function createFileService() {
-  return createProfileFileService();
+  return createProfilePersistentFileService();
+}
+
+async function readFileBufferById(fileId: string, userId?: string): Promise<Buffer> {
+  const fileService = await createFileService();
+  return fileService.downloadFile(fileId, userId);
+}
+
+async function uploadAndPersistFile(
+  fileService: Awaited<ReturnType<typeof createFileService>>,
+  uploadPayload: Parameters<typeof uploadFileAndResolveAccessUrl>[1],
+  uploaderId: string,
+): Promise<{ fileId: string; accessUrl: string }> {
+  const { fileId, accessUrl, uploadResult } = await uploadFileAndResolveAccessUrl(
+    fileService,
+    uploadPayload,
+    uploaderId,
+  );
+  await persistTeachHubUploadMetadata(uploadResult, uploaderId);
+  return { fileId, accessUrl };
 }
 
 function mapRawFile(raw: RawFile): TeachStoredFile {
@@ -128,14 +152,6 @@ export async function getWorkspaceFileByPath(
   return files.find((f) => f.relativePath === safePath) || null;
 }
 
-async function getFileAccessUrl(fileId: string): Promise<string> {
-  const url = await getProfileOssFileBootstrap().getFileUrl(fileId);
-  if (!url) {
-    throw new Error(`无法解析文件 URL: ${fileId}`);
-  }
-  return url;
-}
-
 export async function readWorkspaceFileText(
   userId: string,
   workspaceId: string,
@@ -145,12 +161,8 @@ export async function readWorkspaceFileText(
   if (!file) {
     throw new Error(`文件不存在: ${relativePath}`);
   }
-  const url = await getFileAccessUrl(file.id);
-  const response = await fetch(url, { cache: 'no-store' });
-  if (!response.ok) {
-    throw new Error(`读取文件失败: ${response.status}`);
-  }
-  return response.text();
+  const buffer = await readFileBufferById(file.id, userId);
+  return buffer.toString('utf8');
 }
 
 export async function putWorkspaceFileText(input: {
@@ -183,14 +195,14 @@ export async function putWorkspaceFileText(input: {
 
   try {
     const fileService = await createFileService();
-    return await uploadFileAndResolveAccessUrl(fileService, uploadPayload, uploader);
+    return await uploadAndPersistFile(fileService, uploadPayload, uploader);
   } catch (primaryError) {
     if (!isOssUploadError(primaryError)) {
       throw primaryError;
     }
     try {
       const localService = await getTeachHubLocalFileService();
-      return await uploadFileAndResolveAccessUrl(localService, uploadPayload, uploader);
+      return await uploadAndPersistFile(localService, uploadPayload, uploader);
     } catch (fallbackError) {
       throw new Error(formatTeachHubStorageError(fallbackError));
     }
@@ -277,13 +289,45 @@ export async function buildWorkspaceZip(
   const files = await listWorkspaceFiles(userId, workspaceId);
   const zip = new AdmZip();
   for (const file of files) {
-    const url = await getFileAccessUrl(file.id);
-    const response = await fetch(url, { cache: 'no-store' });
-    if (!response.ok) continue;
-    const bytes = await response.arrayBuffer();
-    zip.addFile(file.relativePath, Buffer.from(bytes));
+    try {
+      const bytes = await readFileBufferById(file.id, userId);
+      zip.addFile(file.relativePath, bytes);
+    } catch {
+      // skip unreadable files
+    }
   }
   return zip.toBuffer();
+}
+
+const DEFAULT_MISSION_PLACEHOLDER = '（请填写你学习这个主题的原因）';
+
+/** 修复早期未写入 file_metadata 的工作区，补全 MISSION 等种子文件 */
+export async function repairWorkspaceSeedFilesIfMissing(
+  userId: string,
+  workspace: Pick<TeachWorkspace, 'id' | 'title' | 'topic' | 'missionSummary'>,
+): Promise<boolean> {
+  const files = await listWorkspaceFiles(userId, workspace.id);
+  if (files.some((f) => f.relativePath === 'MISSION.md')) {
+    return false;
+  }
+
+  const summary = workspace.missionSummary?.trim() || '';
+  await initEmptyWorkspaceFiles({
+    userId,
+    workspaceId: workspace.id,
+    title: workspace.title,
+    topic: workspace.topic ?? null,
+    missionMarkdown: composeMissionMarkdown({
+      why: summary && summary !== DEFAULT_MISSION_PLACEHOLDER ? summary : '',
+    }),
+    resourcesMarkdown: DEFAULT_RESOURCES_MD,
+    notesMarkdown: DEFAULT_NOTES_MD,
+    metaJson: buildWorkspaceMeta({
+      title: workspace.title,
+      topic: workspace.topic ?? null,
+    }),
+  });
+  return true;
 }
 
 export async function initEmptyWorkspaceFiles(input: {

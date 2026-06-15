@@ -39,8 +39,11 @@ export function MissionPage({ workspaceId }: MissionPageProps) {
 
   const handleSave = async (markdown: string) => {
     setSaving(true);
+    setError('');
     try {
       await putWorkspaceFileText(workspaceId, 'MISSION.md', markdown);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '保存失败');
     } finally {
       setSaving(false);
     }

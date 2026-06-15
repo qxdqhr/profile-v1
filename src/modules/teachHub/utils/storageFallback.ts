@@ -14,7 +14,7 @@ export function getTeachHubLocalFileService() {
       createOssFileConfigManager({ ossConfig: null, fallbackToLocal: true }),
     persistence: { db, fileMetadata, fileStorageProviders },
   });
-  return localFallbackBootstrap.createFileService();
+  return localFallbackBootstrap.createPersistentFileService();
 }
 
 export function formatTeachHubStorageError(error: unknown): string {

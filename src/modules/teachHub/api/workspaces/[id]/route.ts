@@ -7,7 +7,10 @@ import {
   touchWorkspaceOpened,
   updateWorkspaceMeta,
 } from '@/modules/teachHub/services/teachHubDbService';
-import { listWorkspaceLessons } from '@/modules/teachHub/services/teachHubFileStore';
+import {
+  listWorkspaceLessons,
+  repairWorkspaceSeedFilesIfMissing,
+} from '@/modules/teachHub/services/teachHubFileStore';
 import type { WorkspaceStatus } from '@/modules/teachHub/types';
 import { jsonError, jsonOk, parseWorkspaceId, requireUser, requireWorkspace } from '@/modules/teachHub/api/_helpers';
 
@@ -26,10 +29,14 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
   try {
     await touchWorkspaceOpened(auth.user.id, workspaceId);
+    let workspace = await getWorkspaceForUser(auth.user.id, workspaceId);
+    if (workspace) {
+      await repairWorkspaceSeedFilesIfMissing(auth.user.id, workspace);
+      workspace = await getWorkspaceForUser(auth.user.id, workspaceId);
+    }
     await syncWorkspaceLessonCache(auth.user.id, workspaceId);
     const lessons = await listWorkspaceLessons(auth.user.id, workspaceId);
     const progress = await ensureLessonProgressRows(auth.user.id, workspaceId);
-    const workspace = await getWorkspaceForUser(auth.user.id, workspaceId);
 
     return jsonOk({
       workspace,
