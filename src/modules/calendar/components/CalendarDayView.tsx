@@ -10,6 +10,8 @@ import {
   formatTimeForSettings,
   getLunarDayLabel,
 } from '../utils/calendarSettingsCore';
+import { cal } from '../calendarStyles';
+import { cn } from '@/lib/utils';
 
 export interface CalendarDayViewProps {
   currentDate: Date;
@@ -37,11 +39,11 @@ export default function CalendarDayView({
 
   return (
     <div
-      className="cal-month-wrap overflow-hidden"
+      className={`${cal.monthWrap} overflow-hidden`}
       style={{ backgroundColor: 'var(--cal-bg, rgb(247, 243, 223))' }}
     >
-      <header className="cal-day-header">
-        <p className="cal-text-muted text-xs font-semibold">
+      <header className={cal.dayHeader}>
+        <p className={`${cal.textMuted} text-xs font-semibold`}>
           {currentDate.toLocaleDateString(settings.language, { weekday: 'long' })}
         </p>
         <p
@@ -50,26 +52,26 @@ export default function CalendarDayView({
         >
           {currentDate.getDate()}
         </p>
-        <p className="cal-text-body text-sm">
+        <p className={`${cal.textBody} text-sm`}>
           {currentDate.toLocaleDateString(settings.language, {
             year: 'numeric',
             month: 'long',
           })}
         </p>
-        {lunarLabel && <p className="cal-text-muted mt-1 text-xs">农历 {lunarLabel}</p>}
-        <p className="cal-text-muted mt-2 text-xs">
+        {lunarLabel && <p className={`${cal.textMuted} mt-1 text-xs`}>农历 {lunarLabel}</p>}
+        <p className={`${cal.textMuted} mt-2 text-xs`}>
           工作时间 {settings.workingHours.start} – {settings.workingHours.end}
         </p>
       </header>
 
       <div className="p-4">
-        <button type="button" onClick={onCreate} className="cal-add-dashed mb-4">
+        <button type="button" onClick={onCreate} className={`${cal.addDashed} mb-4`}>
           <Plus className="h-5 w-5" />
           添加活动
         </button>
 
         {dayEvents.length === 0 ? (
-          <p className="cal-empty py-8">今日暂无活动</p>
+          <p className={`${cal.empty} py-8`}>今日暂无活动</p>
         ) : (
           <ul className="space-y-2">
             {dayEvents.map((event) => {
@@ -79,23 +81,23 @@ export default function CalendarDayView({
                   <button
                     type="button"
                     onClick={() => onEventClick(event)}
-                    className={`cal-event-card w-full p-4 text-left ${getEventSurfaceClasses(event.color)}`}
+                    className={cn(cal.eventCard, 'w-full p-4 text-left', getEventSurfaceClasses(event.color))}
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="cal-text-heading font-medium">{event.title}</h3>
+                      <h3 className={`${cal.textHeading} font-medium`}>{event.title}</h3>
                       <span
                         className={`shrink-0 rounded-md px-1.5 py-0.5 text-xs ${priority.className}`}
                       >
                         {priority.text}
                       </span>
                     </div>
-                    <p className="cal-text-muted mt-1 text-xs tabular-nums">
+                    <p className={`${cal.textMuted} mt-1 text-xs tabular-nums`}>
                       {event.allDay
                         ? '全天'
                         : `${formatTimeForSettings(new Date(event.startTime), settings)} – ${formatTimeForSettings(new Date(event.endTime), settings)}`}
                     </p>
                     {event.location && (
-                      <p className="cal-text-muted mt-1 truncate text-xs">{event.location}</p>
+                      <p className={`${cal.textMuted} mt-1 truncate text-xs`}>{event.location}</p>
                     )}
                   </button>
                 </li>

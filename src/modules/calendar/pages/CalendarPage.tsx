@@ -5,8 +5,21 @@ import { AuthProvider, useAuthContext, LoginRegisterModals } from '@/lib/auth';
 import { Plus } from 'lucide-react';
 import 'animal-island-ui/style';
 import { Button, Cursor, Loading, Modal } from 'animal-island-ui';
-import '../calendar-module.css';
+import { Nunito, Noto_Sans_SC } from 'next/font/google';
 import { DateCalculatorTool } from '@/modules/dateCalculator';
+import { cal, modalActionsClass } from '../calendarStyles';
+
+const calNunito = Nunito({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+  variable: '--font-cal-nunito',
+});
+
+const calNotoSansSC = Noto_Sans_SC({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  variable: '--font-cal-noto',
+});
 import {
   CalendarViewType,
   EventListDisplayMode,
@@ -353,8 +366,11 @@ function CalendarPageContent() {
 
   return (
     <Cursor>
-      <div className="cal-root relative" style={themeStyle}>
-        <main className="cal-main">
+      <div
+        className={`${cal.root} ${calNunito.variable} ${calNotoSansSC.variable}`}
+        style={themeStyle}
+      >
+        <main className={cal.main}>
           <CalendarHeaderNav
             activeTab={activeTab}
             onTabChange={setActiveTab}
@@ -364,7 +380,7 @@ function CalendarPageContent() {
           />
 
           {error && (
-            <div role="alert" className="cal-alert cal-alert--error">
+            <div role="alert" className={`${cal.alert} ${cal.alertError}`}>
               <span className="text-pretty">{error}</span>
               <Button type="text" size="small" onClick={clearError}>
                 关闭
@@ -375,7 +391,7 @@ function CalendarPageContent() {
           {activeTab === 'calendar' && (
             <div className="mt-3 flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
               {!isAuthenticated && (
-                <p className="cal-alert cal-alert--warn">登录后可创建与保存活动。</p>
+                <p className={`${cal.alert} ${cal.alertWarn}`}>登录后可创建与保存活动。</p>
               )}
               <CalendarToolbar
                 title={viewTitle}
@@ -386,12 +402,14 @@ function CalendarPageContent() {
                 onViewTypeChange={setViewType}
               />
               <div
-                className={`cal-surface${
-                  viewType === CalendarViewType.WEEK ? ' cal-surface--week' : ''
-                }`}
+                className={
+                  viewType === CalendarViewType.WEEK
+                    ? `${cal.surface} ${cal.surfaceWeek}`
+                    : cal.surface
+                }
               >
                 {loading && events.length === 0 ? (
-                  <div className="cal-loading-wrap">
+                  <div className={cal.loadingWrap}>
                     <Loading active />
                   </div>
                 ) : (
@@ -417,7 +435,7 @@ function CalendarPageContent() {
           )}
 
           {activeTab === 'tools' && (
-            <div className="cal-panel mt-3 p-4 sm:p-6">
+            <div className={`${cal.panel} mt-3 p-4 sm:p-6`}>
               <DateCalculatorTool variant="embedded" />
             </div>
           )}
@@ -430,7 +448,7 @@ function CalendarPageContent() {
         </main>
 
         {activeTab === 'calendar' && isAuthenticated && (
-          <div className="cal-fab">
+          <div className={cal.fab}>
             <Button
               type="primary"
               size="large"
@@ -471,7 +489,7 @@ function CalendarPageContent() {
           title="删除活动"
           typewriter={false}
           footer={
-            <div className="cal-modal-actions">
+            <div className={modalActionsClass()}>
               <Button type="default" onClick={cancelDelete}>
                 取消
               </Button>

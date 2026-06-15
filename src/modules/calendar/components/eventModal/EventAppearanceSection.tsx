@@ -7,6 +7,8 @@ import { EventPriority } from '../../types';
 import { EVENT_COLOR_PRESETS } from '../../utils/eventDisplay';
 import type { EventModalFormData } from './types';
 import { labelClass } from './styles';
+import { cal, priorityChipClass } from '../../calendarStyles';
+import { cn } from '@/lib/utils';
 
 interface EventAppearanceSectionProps {
   formData: EventModalFormData;
@@ -49,7 +51,7 @@ export default function EventAppearanceSection({
               aria-label="选择自定义颜色"
             />
           </label>
-          <span className="cal-text-body tabular-nums text-sm font-medium">
+          <span className={`${cal.textBody} tabular-nums text-sm font-medium`}>
             {formData.color.toUpperCase()}
           </span>
         </div>
@@ -98,9 +100,7 @@ export default function EventAppearanceSection({
                   className="sr-only"
                 />
                 <span
-                  className={`cal-priority-chip flex h-10 items-center justify-center${
-                    selected ? ' is-active' : ''
-                  }`}
+                  className={cn(priorityChipClass(selected), 'flex h-10 items-center justify-center')}
                 >
                   {option.label}
                 </span>

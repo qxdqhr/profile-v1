@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { AlignLeft, Clock, Layers, Palette } from 'lucide-react';
+import { cal, eventTabClass } from '../../calendarStyles';
 
 export type EventModalTab = 'type' | 'details' | 'schedule' | 'appearance';
 
@@ -33,7 +34,7 @@ export default function EventModalTabBar({
   const visibleTabs = EVENT_MODAL_TABS.filter((tab) => !tab.createOnly || !isEditMode);
 
   return (
-    <div className="cal-event-tabbar mt-4" role="tablist" aria-label="活动表单分区">
+    <div className={`${cal.eventTabbar} mt-4`} role="tablist" aria-label="活动表单分区">
       {visibleTabs.map((tab) => {
         const selected = activeTab === tab.id;
         const Icon = tab.icon;
@@ -48,7 +49,7 @@ export default function EventModalTabBar({
               onTabChange(tab.id);
               e.currentTarget.blur();
             }}
-            className={`cal-event-tab${selected ? ' is-active' : ''}`}
+            className={eventTabClass(selected)}
           >
             <Icon className="h-4 w-4 shrink-0" strokeWidth={selected ? 2.25 : 2} />
             <span className="truncate">{tab.label}</span>

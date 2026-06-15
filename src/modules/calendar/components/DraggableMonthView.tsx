@@ -13,6 +13,8 @@ import {
 } from '../utils/calendarSettingsCore';
 import DroppableCalendarCell from './DroppableCalendarCell';
 import DraggableEvent from './DraggableEvent';
+import { cal } from '../calendarStyles';
+import { cn } from '@/lib/utils';
 
 interface DraggableMonthViewProps {
   events: CalendarEvent[];
@@ -65,16 +67,16 @@ export const DraggableMonthView: React.FC<DraggableMonthViewProps> = ({
     <div className="overflow-x-auto">
       <table className="w-full min-w-[320px] table-fixed border-collapse">
         <thead>
-          <tr className="cal-month-thead">
+          <tr>
             {settings.showWeekNumbers && (
-              <th className="w-10 py-2 text-center text-xs font-semibold text-slate-500 sm:text-sm">
+              <th className={cn(cal.monthTheadTh, 'w-10')}>
                 周
               </th>
             )}
             {weekDays.map((day, index) => (
               <th
                 key={`${day}-${index}`}
-                className="py-2 text-center text-xs font-semibold sm:text-sm"
+                className={cal.monthTheadTh}
                 style={{
                   color: isWeekendColumn(index, settings.weekStartsOn)
                     ? 'var(--cal-weekend-text, #dc2626)'
@@ -93,9 +95,9 @@ export const DraggableMonthView: React.FC<DraggableMonthViewProps> = ({
             const weekNumber = rowStart ? getISOWeekNumber(rowStart.date) : null;
 
             return (
-              <tr key={weekIndex} className="cal-month-row">
+              <tr key={weekIndex}>
                 {settings.showWeekNumbers && (
-                  <td className="cal-week-num border-b py-2 text-center align-middle text-xs sm:text-sm">
+                  <td className={cn(cal.monthRowCell, cal.weekNum, 'py-2 text-center align-middle text-xs sm:text-sm')}>
                     {weekNumber}
                   </td>
                 )}
@@ -106,13 +108,13 @@ export const DraggableMonthView: React.FC<DraggableMonthViewProps> = ({
                       <td
                         key={dayIndex}
                         colSpan={settings.showWeekNumbers && dayIndex === 0 ? 1 : 1}
-                        className="min-h-[3.5rem] border-b border-slate-100 sm:min-h-[5.5rem]"
+                        className={cn(cal.monthRowCell, 'min-h-[3.5rem] align-top sm:min-h-[5.5rem]')}
                         style={{ backgroundColor: 'var(--cal-other-month-bg, #f8fafc)' }}
                       />
                     );
                   }
                   return (
-                    <td key={dayIndex} className="border-b border-slate-100 align-top p-0">
+                    <td key={dayIndex} className={cn(cal.monthRowCell, 'align-top p-0')}>
                       <DroppableCalendarCell
                         date={dayData.date}
                         events={events}
@@ -138,11 +140,11 @@ export const DraggableMonthView: React.FC<DraggableMonthViewProps> = ({
 
   return (
     <div
-      className={`cal-month-wrap overflow-hidden ${className}`}
+      className={cn(cal.monthWrap, 'overflow-hidden', className)}
       style={{ backgroundColor: 'var(--cal-bg, rgb(247, 243, 223))' }}
     >
       {dragSupported && !isMobile && (
-        <p className="cal-grid-hint">
+        <p className={cal.gridHint}>
           桌面端可拖拽活动调整日期
         </p>
       )}
@@ -171,7 +173,7 @@ export const DraggableMonthView: React.FC<DraggableMonthViewProps> = ({
       )}
 
       {dragSupported && dragState.isDragging && (
-        <div className="cal-drag-hint">
+        <div className={cal.dragHint}>
           拖到目标日期以移动「{dragState.draggedEvent?.title}」
         </div>
       )}

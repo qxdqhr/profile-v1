@@ -4,6 +4,7 @@ import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from 'animal-island-ui';
 import { CalendarViewType } from '../types';
+import { cal, segmentedBtnClass } from '../calendarStyles';
 
 export interface CalendarToolbarProps {
   title: string;
@@ -29,9 +30,9 @@ export default function CalendarToolbar({
   onViewTypeChange,
 }: CalendarToolbarProps) {
   return (
-    <div className="cal-panel cal-toolbar">
-      <div className="cal-toolbar__inner">
-        <div className="cal-toolbar__title-row">
+    <div className={`${cal.panel} ${cal.toolbar}`}>
+      <div className={cal.toolbarInner}>
+        <div className={cal.toolbarTitleRow}>
           <Button
             type="text"
             size="small"
@@ -40,7 +41,7 @@ export default function CalendarToolbar({
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
-          <h2 className="cal-toolbar__title">{title}</h2>
+          <h2 className={cal.toolbarTitle}>{title}</h2>
           <Button
             type="text"
             size="small"
@@ -51,18 +52,18 @@ export default function CalendarToolbar({
           </Button>
         </div>
 
-        <div className="cal-toolbar__actions">
+        <div className={cal.toolbarActions}>
           <Button type="primary" size="small" onClick={onToday}>
             今天
           </Button>
-          <div className="cal-segmented" role="group" aria-label="日历视图">
+          <div className={cal.segmented} role="group" aria-label="日历视图">
             {VIEW_OPTIONS.map(({ key, label }) => (
               <button
                 key={key}
                 type="button"
                 onClick={() => onViewTypeChange(key)}
                 aria-pressed={viewType === key}
-                className={`cal-segmented__btn${viewType === key ? ' is-active' : ''}`}
+                className={segmentedBtnClass(viewType === key)}
               >
                 {label}
               </button>

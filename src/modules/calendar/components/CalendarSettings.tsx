@@ -5,6 +5,7 @@ import { Button, Select, Switch, Title } from 'animal-island-ui';
 import { COLOR_THEMES, type CalendarThemeKey } from '../utils/calendarSettingsCore';
 import { useCalendarSettings } from '../context/CalendarSettingsContext';
 import { AiApiSettingsPanel } from '@/modules/aiApi';
+import { cal, settingsTabClass, themeCardClass } from '../calendarStyles';
 
 export type { CalendarSettings, CalendarThemeKey } from '../utils/calendarSettingsCore';
 
@@ -28,8 +29,8 @@ export default function CalendarSettings() {
   const [activeTab, setActiveTab] = useState<'theme' | 'general' | 'time' | 'ai'>('theme');
 
   return (
-    <div className="cal-panel cal-panel--flush">
-      <div className="cal-settings-tabs">
+    <div className={`${cal.panel} ${cal.panelFlush}`}>
+      <div className={cal.settingsTabs}>
         {[
           { key: 'theme', label: '主题样式', icon: '🎨' },
           { key: 'general', label: '常规设置', icon: '⚙️' },
@@ -39,7 +40,7 @@ export default function CalendarSettings() {
           <button
             key={key}
             onClick={() => setActiveTab(key as 'theme' | 'general' | 'time' | 'ai')}
-            className={`cal-settings-tab${activeTab === key ? ' is-active' : ''}`}
+            className={settingsTabClass(activeTab === key)}
           >
             <span className="mr-2">{icon}</span>
             {label}
@@ -58,10 +59,10 @@ export default function CalendarSettings() {
                 <div
                   key={key}
                   onClick={() => updateSettings({ theme: key as CalendarThemeKey })}
-                  className={`cal-theme-card${settings.theme === key ? ' is-selected' : ''}`}
+                  className={themeCardClass(settings.theme === key)}
                 >
                   <div className="mb-3 flex items-center justify-between">
-                    <h4 className="cal-text-heading font-medium">{theme.name}</h4>
+                    <h4 className={`${cal.textHeading} font-medium`}>{theme.name}</h4>
                     {settings.theme === key && (
                       <svg className="h-5 w-5 text-[#19c8b9]" fill="currentColor" viewBox="0 0 20 20">
                         <path
@@ -127,7 +128,7 @@ export default function CalendarSettings() {
         {activeTab === 'general' && (
           <div className="space-y-6">
             <div>
-              <label className="cal-label mb-2 block">一周开始于</label>
+              <label className={`${cal.label} mb-2 block`}>一周开始于</label>
               <Select
                 value={String(settings.weekStartsOn)}
                 onChange={(value) => updateSettings({ weekStartsOn: Number(value) })}
@@ -139,7 +140,7 @@ export default function CalendarSettings() {
             </div>
 
             <div>
-              <label className="cal-label mb-2 block">语言</label>
+              <label className={`${cal.label} mb-2 block`}>语言</label>
               <Select
                 value={settings.language}
                 onChange={(value) => updateSettings({ language: value })}
@@ -148,14 +149,14 @@ export default function CalendarSettings() {
             </div>
 
             <div className="space-y-4">
-              <h3 className="cal-text-heading text-base">显示选项</h3>
+              <h3 className={`${cal.textHeading} text-base`}>显示选项</h3>
 
               <label className="flex items-center gap-3">
                 <Switch
                   checked={settings.showWeekNumbers}
                   onChange={(checked) => updateSettings({ showWeekNumbers: checked })}
                 />
-                <span className="cal-text-body text-sm">显示周数</span>
+                <span className={`${cal.textBody} text-sm`}>显示周数</span>
               </label>
 
               <label className="flex items-center gap-3">
@@ -163,12 +164,12 @@ export default function CalendarSettings() {
                   checked={settings.showLunarCalendar}
                   onChange={(checked) => updateSettings({ showLunarCalendar: checked })}
                 />
-                <span className="cal-text-body text-sm">显示农历</span>
+                <span className={`${cal.textBody} text-sm`}>显示农历</span>
               </label>
             </div>
 
             <div>
-              <label className="cal-label mb-2 block">默认活动时长（分钟）</label>
+              <label className={`${cal.label} mb-2 block`}>默认活动时长（分钟）</label>
               <input
                 type="number"
                 min="15"
@@ -176,7 +177,7 @@ export default function CalendarSettings() {
                 step="15"
                 value={settings.defaultEventDuration}
                 onChange={(e) => updateSettings({ defaultEventDuration: Number(e.target.value) })}
-                className="cal-input"
+                className={cal.input}
               />
             </div>
           </div>
@@ -185,7 +186,7 @@ export default function CalendarSettings() {
         {activeTab === 'time' && (
           <div className="space-y-6">
             <div>
-              <label className="cal-label mb-2 block">时间格式</label>
+              <label className={`${cal.label} mb-2 block`}>时间格式</label>
               <Select
                 value={settings.timeFormat}
                 onChange={(value) => updateSettings({ timeFormat: value as '12h' | '24h' })}
@@ -199,7 +200,7 @@ export default function CalendarSettings() {
               </Title>
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div>
-                  <label className="cal-label mb-2 block">开始时间</label>
+                  <label className={`${cal.label} mb-2 block`}>开始时间</label>
                   <input
                     type="time"
                     value={settings.workingHours.start}
@@ -211,11 +212,11 @@ export default function CalendarSettings() {
                         },
                       })
                     }
-                    className="cal-input"
+                    className={cal.input}
                   />
                 </div>
                 <div>
-                  <label className="cal-label mb-2 block">结束时间</label>
+                  <label className={`${cal.label} mb-2 block`}>结束时间</label>
                   <input
                     type="time"
                     value={settings.workingHours.end}
@@ -227,7 +228,7 @@ export default function CalendarSettings() {
                         },
                       })
                     }
-                    className="cal-input"
+                    className={cal.input}
                   />
                 </div>
               </div>
@@ -250,7 +251,7 @@ export default function CalendarSettings() {
           />
         )}
 
-        <div className="cal-divider-top pt-6">
+        <div className={`${cal.dividerTop} pt-6`}>
           <Button type="default" size="small" onClick={resetSettings}>
             重置日历设置为默认
           </Button>

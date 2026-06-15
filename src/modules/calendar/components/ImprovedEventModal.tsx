@@ -26,6 +26,7 @@ import { allDayBoundsFromDate, ensureEndAfterStart, parseEventDateTime, parseLoc
 import { DEFAULT_FORM_DATA, type EventModalFormData } from './eventModal/types';
 import { useCalendarSettings } from '../context/CalendarSettingsContext';
 import { buildDefaultEventTimes, type CalendarSettings } from '../utils/calendarSettingsCore';
+import { cal, eventModalBodyClass, modalActionsClass } from '../calendarStyles';
 
 function buildFreshCreateFormData(
   initialDate: Date | undefined,
@@ -401,7 +402,7 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
       maskClosable={false}
       typewriter={false}
       footer={
-        <div className="cal-modal-actions cal-modal-actions--between">
+        <div className={modalActionsClass(true)}>
           <div>
             {isEditMode && onDelete && (
               <Button type="danger-primary" size="small" onClick={handleDeleteRequest}>
@@ -410,7 +411,7 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
               </Button>
             )}
           </div>
-          <div className="cal-modal-actions">
+          <div className={modalActionsClass()}>
             <Button type="default" size="small" onClick={handleClose}>
               取消
             </Button>
@@ -437,7 +438,7 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
           </div>
         )}
         {aiPreviewUrl && !isEditMode && (
-          <div className="cal-ai-preview">
+          <div className={cal.aiPreview}>
             <img src={aiPreviewUrl} alt="识图来源" />
             <p>已根据此图片预填活动信息</p>
           </div>
@@ -449,11 +450,7 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
           isEditMode={isEditMode}
         />
 
-        <div
-          className={`cal-event-modal-body${
-            isMobile ? ' cal-event-modal-body--mobile' : ''
-          }`}
-        >
+        <div className={eventModalBodyClass(isMobile)}>
           <form onSubmit={handleSubmit}>
             <AnimatePresence mode="wait" initial={false}>
               {activeTab === 'type' && !isEditMode && (
@@ -525,7 +522,7 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
                 className="mt-4 space-y-2"
               >
                 {errors.general && (
-                  <div className="cal-error-box">
+                  <div className={cal.errorBox}>
                     <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
@@ -549,7 +546,7 @@ const ImprovedEventModal: React.FC<ImprovedEventModalProps> = ({
                   </div>
                 )}
                 {errors.submit && (
-                  <div className="cal-error-box">
+                  <div className={cal.errorBox}>
                     <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">

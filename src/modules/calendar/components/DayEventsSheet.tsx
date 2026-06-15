@@ -9,6 +9,8 @@ import { formatDate, isToday } from '../utils/dateUtils';
 import { getEventSurfaceClasses, getPriorityLabel } from '../utils/eventDisplay';
 import { useCalendarSettings } from '../context/CalendarSettingsContext';
 import { formatTimeForSettings } from '../utils/calendarSettingsCore';
+import { cal } from '../calendarStyles';
+import { cn } from '@/lib/utils';
 
 export interface DayEventsSheetProps {
   date: Date | null;
@@ -74,7 +76,7 @@ export default function DayEventsSheet({
           <motion.button
             type="button"
             aria-label="关闭"
-            className="cal-sheet-backdrop"
+            className={cal.sheetBackdrop}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -85,25 +87,25 @@ export default function DayEventsSheet({
             role="dialog"
             aria-modal="true"
             aria-labelledby="day-events-title"
-            className="cal-sheet"
+            className={cal.sheet}
             initial={{ y: '100%', opacity: 0.9 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 24, opacity: 0 }}
             transition={{ type: 'spring', duration: 0.35, bounce: 0 }}
           >
-            <div className="cal-sheet__handle md:hidden" />
-            <header className="cal-sheet__header">
+            <div className={`${cal.sheetHandle} md:hidden`} />
+            <header className={cal.sheetHeader}>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-[#11a89b]">
                   {isToday(date) ? '今天' : formatDate(date)}
                 </p>
                 <h2
                   id="day-events-title"
-                  className="cal-text-heading mt-0.5 text-lg"
+                  className={`${cal.textHeading} mt-0.5 text-lg`}
                 >
                   {title}
                 </h2>
-                <p className="cal-text-muted mt-1 tabular-nums text-sm">
+                <p className={`${cal.textMuted} mt-1 tabular-nums text-sm`}>
                   {dayEvents.length} 个活动
                 </p>
               </div>
@@ -112,11 +114,11 @@ export default function DayEventsSheet({
               </Button>
             </header>
 
-            <div className="cal-sheet__body">
+            <div className={cal.sheetBody}>
               {dayEvents.length === 0 ? (
-                <div className="cal-empty py-10">
-                  <p className="cal-text-body text-sm">这一天还没有安排</p>
-                  <p className="cal-text-muted mt-1 text-xs">点击下方按钮添加活动</p>
+                <div className={`${cal.empty} py-10`}>
+                  <p className={`${cal.textBody} text-sm`}>这一天还没有安排</p>
+                  <p className={`${cal.textMuted} mt-1 text-xs`}>点击下方按钮添加活动</p>
                 </div>
               ) : (
                 <ul className="space-y-2">
@@ -128,7 +130,7 @@ export default function DayEventsSheet({
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05, duration: 0.2 }}
-                        className={`cal-event-card p-3 ${getEventSurfaceClasses(event.color)}`}
+                        className={cn(cal.eventCard, 'p-3', getEventSurfaceClasses(event.color))}
                       >
                         <div className="flex items-start gap-3">
                           <div
@@ -138,7 +140,7 @@ export default function DayEventsSheet({
                           />
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2">
-                              <h3 className="cal-text-heading truncate font-medium">
+                              <h3 className={`${cal.textHeading} truncate font-medium`}>
                                 {event.title}
                               </h3>
                               <span
@@ -147,7 +149,7 @@ export default function DayEventsSheet({
                                 {priority.text}
                               </span>
                             </div>
-                            <div className="cal-text-muted mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                            <div className={`${cal.textMuted} mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs`}>
                               <span className="inline-flex items-center gap-1 tabular-nums">
                                 <Clock className="h-3.5 w-3.5 shrink-0 opacity-70" />
                                 {event.allDay
@@ -162,13 +164,13 @@ export default function DayEventsSheet({
                               )}
                             </div>
                             {event.description && (
-                              <p className="cal-text-muted mt-2 line-clamp-2 text-xs">
+                              <p className={`${cal.textMuted} mt-2 line-clamp-2 text-xs`}>
                                 {event.description}
                               </p>
                             )}
                           </div>
                         </div>
-                        <div className="cal-divider-top mt-3 flex justify-end gap-1 pt-2">
+                        <div className={`${cal.dividerTop} mt-3 flex justify-end gap-1 pt-2`}>
                           <Button
                             type="text"
                             size="small"
@@ -205,7 +207,7 @@ export default function DayEventsSheet({
               )}
             </div>
 
-            <footer className="cal-sheet__footer">
+            <footer className={cal.sheetFooter}>
               <Button type="primary" block onClick={handleCreate}>
                 <Plus className="h-5 w-5" />
                 添加活动

@@ -3,31 +3,38 @@
 import React from 'react';
 import { CalendarDays, CalendarRange, Repeat2, Check } from 'lucide-react';
 import { EventType } from '../../services/eventTypeService';
+import { typeOptionClass, type TypeOptionVariant } from '../../calendarStyles';
 import { hintClass } from './styles';
 
-const TYPE_OPTIONS = [
+const TYPE_OPTIONS: {
+  type: EventType;
+  icon: typeof CalendarDays;
+  title: string;
+  variant: TypeOptionVariant;
+  hint: string;
+}[] = [
   {
     type: EventType.SINGLE,
     icon: CalendarDays,
     title: '单次',
-    className: 'cal-type-option',
+    variant: 'default',
     hint: '指定时间发生一次，如会议、约会等。',
   },
   {
     type: EventType.MULTI_DAY,
     icon: CalendarRange,
     title: '多天',
-    className: 'cal-type-option cal-type-option--multi',
+    variant: 'multi',
     hint: '连续多天的单个活动，如培训、假期等。',
   },
   {
     type: EventType.RECURRING,
     icon: Repeat2,
     title: '重复',
-    className: 'cal-type-option cal-type-option--repeat',
+    variant: 'repeat',
     hint: '按规律重复，如每日晨会、每周例会等。',
   },
-] as const;
+];
 
 interface EventTypeSelectorProps {
   value: EventType;
@@ -49,7 +56,7 @@ export default function EventTypeSelector({ value, onChange }: EventTypeSelector
               key={option.type}
               type="button"
               onClick={() => onChange(option.type)}
-              className={`${option.className}${selected ? ' is-active' : ''}`}
+              className={typeOptionClass(option.variant, selected)}
             >
               <Icon className="h-4 w-4 shrink-0" strokeWidth={selected ? 2.25 : 2} />
               <span className="truncate">{option.title}</span>

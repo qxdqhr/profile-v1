@@ -19,6 +19,13 @@ import {
 } from '../utils/mapNavigation';
 import { useCalendarSettings } from '../context/CalendarSettingsContext';
 import { formatTimeForSettings } from '../utils/calendarSettingsCore';
+import {
+  cal,
+  modalActionsClass,
+  segmentedBtnClass,
+  sortBtnClass,
+} from '../calendarStyles';
+import { cn } from '@/lib/utils';
 
 /**
  * 事件列表组件
@@ -240,7 +247,7 @@ export default function EventList({
     return (
       <button
         onClick={() => handleSortChange(field)}
-        className={`cal-sort-btn${isActive ? ' is-active' : ''}`}
+        className={sortBtnClass(isActive)}
       >
         {label}
         <svg 
@@ -269,7 +276,7 @@ export default function EventList({
           e.stopPropagation();
           handleSelectEvent(eventId, e.target.checked);
         }}
-        className="cal-checkbox"
+        className={cal.checkbox}
       />
     );
   };
@@ -284,20 +291,20 @@ export default function EventList({
           if (input) input.indeterminate = isPartiallySelected;
         }}
         onChange={(e) => handleSelectAll(e.target.checked)}
-        className="cal-checkbox"
+        className={cal.checkbox}
       />
     );
   };
   
   // 渲染可点击的地点（弹出地图选择器）
-  const renderLocation = (location: string, truncate = false) => (
+  const renderLocation = (location: string, truncate = false, inGrid = false) => (
     <button
       type="button"
       onClick={(e) => {
         e.stopPropagation();
         setNavigationDestination(location);
       }}
-      className={`cal-location-link${truncate ? ' max-w-full' : ''}`}
+      className={cn(cal.locationLink, truncate && 'max-w-full', inGrid && cal.locationLinkGrid)}
       title="选择地图应用导航"
     >
       <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -318,9 +325,11 @@ export default function EventList({
         return (
           <div
             key={event.id}
-            className={`cal-event-card ${getEventSurfaceClasses(event.color)}${
-              isSelected ? ' cal-selected-ring' : ''
-            }`}
+            className={cn(
+              cal.eventCard,
+              getEventSurfaceClasses(event.color),
+              isSelected && cal.selectedRing,
+            )}
           >
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-3 flex-1">
@@ -333,17 +342,17 @@ export default function EventList({
                 
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <h3 className="cal-text-heading text-lg">{event.title}</h3>
+                    <h3 className={`${cal.textHeading} text-lg`}>{event.title}</h3>
                     <span className={`rounded-md px-2 py-1 text-xs font-medium ${priorityDisplay.className}`}>
                       {priorityDisplay.text}
                     </span>
                   </div>
                   
                   {event.description && (
-                    <p className="cal-text-body mb-2 line-clamp-2">{event.description}</p>
+                    <p className={`${cal.textBody} mb-2 line-clamp-2`}>{event.description}</p>
                   )}
                   
-                  <div className="cal-text-muted flex items-center gap-4 text-sm">
+                  <div className={`${cal.textMuted} flex items-center gap-4 text-sm`}>
                     <div className="flex items-center gap-1">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -396,7 +405,7 @@ export default function EventList({
   
   // 渲染网格模式
   const renderGridMode = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className={cal.eventGrid}>
       {paginatedEvents.map((event) => {
         const priorityDisplay = getPriorityLabel(event.priority);
         const isSelected = selectedEventIds.has(event.id);
@@ -404,41 +413,46 @@ export default function EventList({
         return (
           <div
             key={event.id}
-            className={`cal-event-card ${getEventSurfaceClasses(event.color)}${
-              isSelected ? ' cal-selected-ring' : ''
-            }`}
+            className={cn(
+              cal.eventCard,
+              cal.eventCardGrid,
+              getEventSurfaceClasses(event.color),
+              isSelected && cal.selectedRing,
+            )}
           >
-            <div className="flex items-start justify-between mb-3">
-              {/* 选择框 */}
+            <div className={cal.eventCardGridHead}>
               {isSelectionMode && (
-                <div className="pt-1 mr-2">
+                <div className={cal.eventCardGridCheck}>
                   {renderCheckbox(event.id)}
                 </div>
               )}
-              
-              <h3 className="cal-text-heading flex-1 pr-2 text-lg">{event.title}</h3>
-              <span className={`shrink-0 rounded-md px-2 py-1 text-xs font-medium ${priorityDisplay.className}`}>
+              <h3 className={cal.eventCardTitle}>{event.title}</h3>
+              <span className={cn(cal.eventCardPriority, priorityDisplay.className)}>
                 {priorityDisplay.text}
               </span>
             </div>
             
             {event.description && (
-              <p className="cal-text-body mb-3 line-clamp-3 text-sm">{event.description}</p>
+              <p className={cal.eventCardDesc}>{event.description}</p>
             )}
             
-            <div className="cal-text-muted space-y-2 text-sm">
-              <div className="flex items-center gap-1">
-                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className={cal.eventCardMeta}>
+              <div className={cal.eventCardMetaRow}>
+                <svg className={cal.eventCardMetaIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 <span className="truncate">{formatEventDateTime(event)}</span>
               </div>
               
-              {event.location && renderLocation(event.location, true)}
+              {event.location && (
+                <div className={cal.eventCardMetaRow}>
+                  {renderLocation(event.location, true, true)}
+                </div>
+              )}
             </div>
             
             {!isSelectionMode && (
-              <div className="cal-divider-top mt-4 flex items-center justify-end gap-2 pt-3">
+              <div className={cal.eventCardGridActions}>
                 <Button
                   type="text"
                   size="small"
@@ -448,7 +462,7 @@ export default function EventList({
                   }}
                   title="编辑事件"
                 >
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                 </Button>
@@ -461,7 +475,7 @@ export default function EventList({
                   }}
                   title="删除事件"
                 >
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
                 </Button>
@@ -476,7 +490,7 @@ export default function EventList({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* 工具栏 */}
-      <div className="cal-panel cal-list-toolbar">
+      <div className={cn(cal.panel, cal.listToolbar)}>
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           {/* 搜索框 */}
           <div className="flex-1 max-w-md">
@@ -523,21 +537,23 @@ export default function EventList({
             
             {/* 显示模式切换 */}
             <div className="flex items-center gap-2">
-              <span className="cal-text-body mr-2 text-sm">显示模式:</span>
-              <div className="cal-segmented">
+              <span className={`${cal.textBody} mr-2 text-sm`}>显示模式:</span>
+              <div className={cal.segmented}>
                 <button
                   onClick={() => handleDisplayModeChange(EventListDisplayMode.LIST)}
-                  className={`cal-segmented__btn${
-                    config.displayMode === EventListDisplayMode.LIST ? ' is-active' : ''
-                  }`}
+                  className={segmentedBtnClass(
+                    config.displayMode === EventListDisplayMode.LIST,
+                    true,
+                  )}
                 >
                   列表
                 </button>
                 <button
                   onClick={() => handleDisplayModeChange(EventListDisplayMode.GRID)}
-                  className={`cal-segmented__btn${
-                    config.displayMode === EventListDisplayMode.GRID ? ' is-active' : ''
-                  }`}
+                  className={segmentedBtnClass(
+                    config.displayMode === EventListDisplayMode.GRID,
+                    true,
+                  )}
                 >
                   网格
                 </button>
@@ -548,13 +564,13 @@ export default function EventList({
         
         {/* 选择模式信息栏 */}
         {isSelectionMode && (
-          <div className="cal-divider-top mt-4 flex items-center justify-between pt-4">
+          <div className={`${cal.dividerTop} mt-4 flex items-center justify-between pt-4`}>
             <div className="flex items-center gap-3">
-              <label className="cal-label flex items-center gap-2 text-sm">
+              <label className={`${cal.label} flex items-center gap-2 text-sm`}>
                 {renderSelectAllCheckbox()}
                 全选当前页
               </label>
-              <span className="cal-text-muted text-sm">
+              <span className={`${cal.textMuted} text-sm`}>
                 已选择 {selectedEventIds.size} 个事件
               </span>
             </div>
@@ -563,8 +579,8 @@ export default function EventList({
         
         {/* 排序选项 */}
         {!isSelectionMode && (
-          <div className="cal-divider-top mt-4 flex flex-wrap items-center gap-2 pt-4">
-            <span className="cal-text-body mr-2 text-sm">排序:</span>
+          <div className={`${cal.dividerTop} mt-4 flex flex-wrap items-center gap-2 pt-4`}>
+            <span className={`${cal.textBody} mr-2 text-sm`}>排序:</span>
             {renderSortButton(EventSortField.START_TIME, '日期')}
             {renderSortButton(EventSortField.TITLE, '标题')}
             {renderSortButton(EventSortField.PRIORITY, '优先级')}
@@ -576,7 +592,7 @@ export default function EventList({
       
       {/* 事件统计 */}
       <div className="flex items-center justify-between">
-        <div className="cal-stats">
+        <div className={cal.stats}>
           共 {sortedAndFilteredEvents.length} 个事件
           {config.filter.searchText && ` (搜索: "${config.filter.searchText}")`}
         </div>
@@ -584,7 +600,7 @@ export default function EventList({
       
       {/* 加载状态 */}
       {loading && (
-        <div className="cal-loading-wrap">
+        <div className={cal.loadingWrap}>
           <Loading active />
         </div>
       )}
@@ -597,21 +613,21 @@ export default function EventList({
           {/* 分页 */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between pt-6">
-              <div className="cal-stats">
+              <div className={cal.stats}>
                 第 {config.currentPage} 页，共 {totalPages} 页
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handlePageChange(config.currentPage - 1)}
                   disabled={config.currentPage === 1}
-                  className="cal-pagination-btn"
+                  className={cal.paginationBtn}
                 >
                   上一页
                 </button>
                 <button
                   onClick={() => handlePageChange(config.currentPage + 1)}
                   disabled={config.currentPage === totalPages}
-                  className="cal-pagination-btn"
+                  className={cal.paginationBtn}
                 >
                   下一页
                 </button>
@@ -623,9 +639,9 @@ export default function EventList({
       
       {/* 空状态 */}
       {!loading && paginatedEvents.length === 0 && (
-        <div className="cal-empty">
-          <h3 className="cal-text-heading mb-2 text-lg">暂无事件</h3>
-          <p className="cal-text-muted">
+        <div className={cal.empty}>
+          <h3 className={`${cal.textHeading} mb-2 text-lg`}>暂无事件</h3>
+          <p className={cal.textMuted}>
             {config.filter.searchText || config.filter.priority || config.filter.color || config.filter.dateRange
               ? '没有找到符合条件的事件'
               : '还没有创建任何事件'
@@ -641,7 +657,7 @@ export default function EventList({
         title="确认批量删除"
         typewriter={false}
         footer={
-          <div className="cal-modal-actions">
+          <div className={modalActionsClass()}>
             <Button type="default" size="small" onClick={() => setShowBatchDeleteConfirm(false)}>
               取消
             </Button>

@@ -1,13 +1,15 @@
-export const sectionClass = 'cal-section';
+import { cal } from '../../calendarStyles';
 
-export const inputClass = 'cal-input';
+export const sectionClass = cal.section;
 
-export const scrollableShortTextClass = 'cal-textarea cal-textarea--short';
+export const inputClass = cal.input;
 
-export const scrollableTextAreaClass = 'cal-textarea cal-textarea--tall';
+export const scrollableShortTextClass = `${cal.textarea} ${cal.textareaShort}`;
 
-export const labelClass = 'cal-label';
+export const scrollableTextAreaClass = `${cal.textarea} ${cal.textareaTall}`;
 
-export const hintClass = 'cal-hint';
+export const labelClass = cal.label;
 
-export const sectionHeadingClass = 'cal-text-heading text-base';
+export const hintClass = cal.hint;
+
+export const sectionHeadingClass = `${cal.textHeading} text-base`;

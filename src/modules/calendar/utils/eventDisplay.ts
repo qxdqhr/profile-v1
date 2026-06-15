@@ -1,26 +1,34 @@
 import { EventPriority } from '../types';
+import {
+  eventSurfaceClass,
+  priorityBadgeClass,
+  type EventSurfaceKey,
+} from '../calendarStyles';
+
+const HEX_SURFACE_MAP: Record<string, EventSurfaceKey> = {
+  '#3B82F6': 'blue',
+  '#10B981': 'green',
+  '#8B5CF6': 'purple',
+  '#EF4444': 'red',
+  '#F59E0B': 'yellow',
+  '#EC4899': 'pink',
+  '#6366F1': 'indigo',
+  '#6B7280': 'gray',
+};
+
+const NAMED_SURFACE_MAP: Record<string, EventSurfaceKey> = {
+  blue: 'blue',
+  green: 'green',
+  red: 'red',
+  purple: 'purple',
+  yellow: 'yellow',
+};
 
 /** 事件颜色 → animal-island 暖色样式（月格、列表共用） */
 export function getEventSurfaceClasses(color?: string): string {
-  const hexMap: Record<string, string> = {
-    '#3B82F6': 'cal-event-surface--blue',
-    '#10B981': 'cal-event-surface--green',
-    '#8B5CF6': 'cal-event-surface--purple',
-    '#EF4444': 'cal-event-surface--red',
-    '#F59E0B': 'cal-event-surface--yellow',
-    '#EC4899': 'cal-event-surface--pink',
-    '#6366F1': 'cal-event-surface--indigo',
-    '#6B7280': 'cal-event-surface--gray',
-  };
-  const namedMap: Record<string, string> = {
-    blue: 'cal-event-surface--blue',
-    green: 'cal-event-surface--green',
-    red: 'cal-event-surface--red',
-    purple: 'cal-event-surface--purple',
-    yellow: 'cal-event-surface--yellow',
-  };
-  if (!color) return 'cal-event-surface--gray';
-  return hexMap[color] ?? namedMap[color] ?? hexMap['#3B82F6'];
+  if (!color) return eventSurfaceClass('gray');
+  const key = HEX_SURFACE_MAP[color] ?? NAMED_SURFACE_MAP[color] ?? 'blue';
+  return eventSurfaceClass(key);
 }
 
 export function getPriorityLabel(priority: EventPriority): {
@@ -29,13 +37,13 @@ export function getPriorityLabel(priority: EventPriority): {
 } {
   switch (priority) {
     case EventPriority.URGENT:
-      return { text: '紧急', className: 'cal-priority--urgent' };
+      return { text: '紧急', className: priorityBadgeClass('urgent') };
     case EventPriority.HIGH:
-      return { text: '高', className: 'cal-priority--high' };
+      return { text: '高', className: priorityBadgeClass('high') };
     case EventPriority.LOW:
-      return { text: '低', className: 'cal-priority--low' };
+      return { text: '低', className: priorityBadgeClass('low') };
     default:
-      return { text: '普通', className: 'cal-priority--normal' };
+      return { text: '普通', className: priorityBadgeClass('normal') };
   }
 }
 

@@ -8,6 +8,8 @@ import { useCalendarSettings } from '../context/CalendarSettingsContext';
 import { getLunarDayLabel } from '../utils/calendarSettingsCore';
 import DraggableEvent from './DraggableEvent';
 import { useDeviceType } from '../utils/deviceUtils';
+import { cal } from '../calendarStyles';
+import { cn } from '@/lib/utils';
 
 interface DroppableCalendarCellProps {
   date: Date;
@@ -78,13 +80,12 @@ export const DroppableCalendarCell: React.FC<DroppableCalendarCellProps> = ({
           handleCellClick();
         }
       }}
-      className={[
+      className={cn(
         'relative flex h-full min-h-[3.5rem] w-full flex-col p-1 sm:min-h-[5.5rem] sm:p-1.5',
         'cursor-pointer transition-[background-color,box-shadow] duration-200',
-        isSelected ? 'cal-selected-ring' : '',
-        isOver ? 'cal-selected-ring' : '',
+        (isSelected || isOver) && cal.selectedRing,
         className,
-      ].join(' ')}
+      )}
       style={{
         backgroundColor: isOver
           ? 'color-mix(in srgb, var(--cal-primary, #7c3aed) 12%, var(--cal-cell-bg, #ffffff))'
@@ -118,7 +119,7 @@ export const DroppableCalendarCell: React.FC<DroppableCalendarCellProps> = ({
             {date.getDate()}
           </span>
           {lunarLabel && isCurrentMonth && (
-            <span className="cal-text-muted mt-0.5 max-w-[2.5rem] truncate text-[9px] sm:text-[10px]">
+            <span className={`${cal.textMuted} mt-0.5 max-w-[2.5rem] truncate text-[9px] sm:text-[10px]`}>
               {lunarLabel}
             </span>
           )}
@@ -161,7 +162,7 @@ export const DroppableCalendarCell: React.FC<DroppableCalendarCellProps> = ({
               e.stopPropagation();
               onShowDayEvents?.(date);
             }}
-            className="cal-cell-overflow"
+            className={cal.cellOverflow}
           >
             +{overflowCount} 项
           </button>

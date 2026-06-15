@@ -7,6 +7,7 @@ import { Clock, Sun, Info } from 'lucide-react';
 import { RecurrencePattern } from '../../services/eventTypeService';
 import type { EventModalFormData } from './types';
 import { hintClass, inputClass, labelClass, sectionClass } from './styles';
+import { cal } from '../../calendarStyles';
 
 interface EventTimeSectionProps {
   formData: EventModalFormData;
@@ -84,7 +85,7 @@ export default function EventTimeSection({
             <div className="flex items-start gap-3">
               <Sun className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
               <div>
-                <p className="cal-label text-sm">全天模式</p>
+                <p className={`${cal.label} text-sm`}>全天模式</p>
                 <p className={`mt-1 ${hintClass}`}>选择活动日期，将在该日全天显示。</p>
               </div>
             </div>
@@ -108,7 +109,7 @@ export default function EventTimeSection({
                 onChange={(v) => onChange('startDate', v)}
                 required
               />
-              <div className="cal-label flex items-center gap-2 text-sm">
+              <div className={`${cal.label} flex items-center gap-2 text-sm`}>
                 <Clock className="h-4 w-4 text-[#19c8b9]" />
                 时间段
               </div>
@@ -131,7 +132,7 @@ export default function EventTimeSection({
                 />
               </div>
             </div>
-            <div className="cal-info-box">
+            <div className={cal.infoBox}>
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#19c8b9]" />
               <p className={hintClass}>请确保结束时间晚于开始时间。</p>
             </div>
@@ -280,9 +281,9 @@ export default function EventTimeSection({
                 type="radio"
                 checked={formData.useEndDate}
                 onChange={() => onChange('useEndDate', true)}
-                className="cal-checkbox"
+                className={cal.checkbox}
               />
-              <span className="cal-text-body text-sm">结束日期</span>
+              <span className={`${cal.textBody} text-sm`}>结束日期</span>
             </label>
             {formData.useEndDate && (
               <input
@@ -297,9 +298,9 @@ export default function EventTimeSection({
                 type="radio"
                 checked={!formData.useEndDate}
                 onChange={() => onChange('useEndDate', false)}
-                className="cal-checkbox"
+                className={cal.checkbox}
               />
-              <span className="cal-text-body text-sm">重复次数</span>
+              <span className={`${cal.textBody} text-sm`}>重复次数</span>
             </label>
             {!formData.useEndDate && (
               <input

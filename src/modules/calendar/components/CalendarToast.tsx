@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toastClass } from '../calendarStyles';
 
 export interface CalendarToastProps {
   message: string | null;
@@ -21,7 +22,7 @@ export default function CalendarToast({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 4 }}
           transition={{ duration: 0.2 }}
-          className={`cal-toast${variant === 'error' ? ' cal-toast--error' : ''}`}
+          className={toastClass(variant === 'error')}
         >
           {message}
         </motion.div>

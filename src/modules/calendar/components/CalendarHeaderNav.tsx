@@ -4,6 +4,7 @@ import React from 'react';
 import { Calculator, CalendarDays, List, LogIn, Settings } from 'lucide-react';
 import { Button, Title } from 'animal-island-ui';
 import { UserMenu } from '@/lib/auth';
+import { cal, navItemClass } from '../calendarStyles';
 
 export type CalendarMainTab = 'calendar' | 'events' | 'tools' | 'settings';
 
@@ -34,8 +35,8 @@ export default function CalendarHeaderNav({
   onOpenSettings,
 }: CalendarHeaderNavProps) {
   return (
-    <header className="cal-header">
-      <div className="cal-header__row">
+    <header className={cal.header}>
+      <div className={cal.headerRow}>
         <Title size="small" color="app-teal">
           日历
         </Title>
@@ -65,7 +66,7 @@ export default function CalendarHeaderNav({
         </div>
       </div>
 
-      <nav className="cal-nav" role="tablist" aria-label="日历功能导航">
+      <nav className={cal.nav} role="tablist" aria-label="日历功能导航">
         {NAV_ITEMS.map((item) => {
           const selected = activeTab === item.id;
           const Icon = item.icon;
@@ -77,10 +78,10 @@ export default function CalendarHeaderNav({
               role="tab"
               aria-selected={selected}
               onClick={() => onTabChange(item.id)}
-              className={`cal-nav__item${selected ? ' is-active' : ''}`}
+              className={navItemClass(selected)}
             >
               <Icon className="h-4 w-4 shrink-0" strokeWidth={selected ? 2.25 : 2} />
-              <span className="whitespace-nowrap">{item.label}</span>
+              <span className={cal.navItemLabel}>{item.label}</span>
             </button>
           );
         })}
