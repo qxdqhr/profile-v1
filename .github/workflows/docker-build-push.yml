@@ -138,6 +138,63 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Collect commit and run metadata
+        id: ci_meta
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          SHA="${{ github.sha }}"
+          EVENT="${{ github.event_name }}"
+          BEFORE="${{ github.event.before }}"
+
+          COMMIT_MSG=$(git log -1 --format='%s' "$SHA")
+          {
+            echo "commit_message<<EOF"
+            echo "$COMMIT_MSG"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          if [ "$EVENT" = "push" ] && [ -n "${BEFORE:-}" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ]; then
+            COMMIT_COUNT=$(git rev-list --count "${BEFORE}..${SHA}")
+            CHANGE_SUMMARY=$(git log --reverse --format='• %s (%h)' "${BEFORE}..${SHA}" | head -20)
+          else
+            COMMIT_COUNT=1
+            CHANGE_SUMMARY=$(git log -1 --format='• %s (%h)' "$SHA")
+          fi
+
+          {
+            echo "commit_count=$COMMIT_COUNT"
+            echo "change_summary<<EOF"
+            echo "$CHANGE_SUMMARY"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          RUN_JSON=$(curl -sS \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}")
+
+          RUN_STARTED=$(node -e "const d=JSON.parse(process.argv[1]); process.stdout.write(d.run_started_at||'');" "$RUN_JSON")
+          FINISHED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          if [ -n "$RUN_STARTED" ]; then
+            DURATION=$(node -e "
+              const start = Date.parse(process.argv[1]);
+              const end = Date.parse(process.argv[2]);
+              if (Number.isNaN(start) || Number.isNaN(end) || end < start) process.exit(0);
+              process.stdout.write(String(Math.round((end - start) / 1000)));
+            " "$RUN_STARTED" "$FINISHED_AT")
+          else
+            DURATION=""
+          fi
+
+          {
+            echo "run_started_at=$RUN_STARTED"
+            echo "finished_at=$FINISHED_AT"
+            echo "build_duration_seconds=$DURATION"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Send Feishu notification
         continue-on-error: true
         env:
@@ -145,6 +202,12 @@ jobs:
           FEISHU_SIGN_SECRET: ${{ secrets.FEISHU_SIGN_SECRET }}
           CI_NOTIFY_STATUS: ${{ needs.build.result }}
           CI_IMAGE_TAG: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.build.result == 'success' && format('crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:{0}', github.run_number) || '' }}
+          CI_COMMIT_MESSAGE: ${{ steps.ci_meta.outputs.commit_message }}
+          CI_CHANGE_SUMMARY: ${{ steps.ci_meta.outputs.change_summary }}
+          CI_COMMIT_COUNT: ${{ steps.ci_meta.outputs.commit_count }}
+          CI_RUN_STARTED_AT: ${{ steps.ci_meta.outputs.run_started_at }}
+          CI_FINISHED_AT: ${{ steps.ci_meta.outputs.finished_at }}
+          CI_BUILD_DURATION_SECONDS: ${{ steps.ci_meta.outputs.build_duration_seconds }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_NUMBER: ${{ github.run_number }}
           GITHUB_RUN_ID: ${{ github.run_id }}

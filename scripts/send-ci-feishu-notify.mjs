@@ -43,6 +43,11 @@ function readSignSecret() {
   );
 }
 
+function readOptionalString(name) {
+  const raw = process.env[name]?.trim();
+  return raw || undefined;
+}
+
 function readStatus() {
   return process.env.CI_NOTIFY_STATUS === 'success' ? 'success' : 'failure';
 }
@@ -54,7 +59,10 @@ function readRequiredNumber(name, fallback = 0) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+const DISPLAY_TIMEZONE = 'Asia/Shanghai';
+
 function formatDateTime(iso) {
+  if (!iso) return '—';
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
   return new Intl.DateTimeFormat('zh-CN', {
@@ -65,7 +73,40 @@ function formatDateTime(iso) {
     minute: '2-digit',
     second: '2-digit',
     hour12: false,
+    timeZone: DISPLAY_TIMEZONE,
   }).format(date);
+}
+
+function formatDuration(totalSeconds) {
+  const seconds = Math.max(0, Math.floor(totalSeconds));
+  if (seconds < 60) return `${seconds} 秒`;
+  const minutes = Math.floor(seconds / 60);
+  const remainSeconds = seconds % 60;
+  if (minutes < 60) {
+    return remainSeconds > 0 ? `${minutes} 分 ${remainSeconds} 秒` : `${minutes} 分`;
+  }
+  const hours = Math.floor(minutes / 60);
+  const remainMinutes = minutes % 60;
+  if (remainMinutes > 0) {
+    return `${hours} 小时 ${remainMinutes} 分`;
+  }
+  return `${hours} 小时`;
+}
+
+function computeDurationSeconds(startedAt, finishedAt) {
+  if (!startedAt || !finishedAt) return undefined;
+  const startMs = new Date(startedAt).getTime();
+  const endMs = new Date(finishedAt).getTime();
+  if (Number.isNaN(startMs) || Number.isNaN(endMs) || endMs < startMs) return undefined;
+  return Math.round((endMs - startMs) / 1000);
+}
+
+function splitMultiline(value) {
+  if (!value) return [];
+  return value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
 }
 
 function buildCiFeishuMessage(context) {
@@ -74,6 +115,11 @@ function buildCiFeishuMessage(context) {
   const statusText = isSuccess ? '✅ 成功' : '❌ 失败';
   const shortSha = context.sha.slice(0, 7);
   const runUrl = `${context.serverUrl}/${context.repository}/actions/runs/${context.runId}`;
+  const commitUrl = `${context.serverUrl}/${context.repository}/commit/${context.sha}`;
+
+  const durationSeconds =
+    context.buildDurationSeconds ??
+    computeDurationSeconds(context.startedAt, context.finishedAt);
 
   const lines = [
     `状态：${statusText}`,
@@ -81,20 +127,37 @@ function buildCiFeishuMessage(context) {
     `工作流：${context.workflow}`,
     `触发：${context.eventName} · ${context.refName}`,
     `Run：#${context.runNumber}`,
-    `提交：${shortSha}`,
+    `提交：${shortSha}${context.commitMessage ? ` · ${context.commitMessage}` : ''}`,
     `操作者：${context.actor}`,
-    `完成时间：${formatDateTime(context.finishedAt)}`,
+    `打包开始：${formatDateTime(context.startedAt)}`,
+    `打包完成：${formatDateTime(context.finishedAt)}`,
   ];
+
+  if (durationSeconds !== undefined) {
+    lines.push(`打包耗时：${formatDuration(durationSeconds)}`);
+  }
 
   if (context.imageTag) {
     lines.push(`镜像标签：${context.imageTag}`);
   }
+
+  const summaryLines = splitMultiline(context.changeSummary);
+  if (summaryLines.length > 0) {
+    const countLabel =
+      context.commitCount && context.commitCount > 1
+        ? `变更摘要（${context.commitCount} 个提交）`
+        : '变更摘要';
+    lines.push('', countLabel + '：');
+    lines.push(...summaryLines);
+  }
+
   if (!isSuccess) {
     lines.push('', '请打开 Actions 日志查看失败步骤。');
   }
 
   const content = lines.filter(Boolean).map((line) => [{ tag: 'text', text: line }]);
   content.push([{ tag: 'a', text: '查看 Actions 详情', href: runUrl }]);
+  content.push([{ tag: 'a', text: '查看提交', href: commitUrl }]);
 
   return {
     msg_type: 'post',
@@ -153,6 +216,11 @@ async function main() {
     return;
   }
 
+  const finishedAt = readOptionalString('CI_FINISHED_AT') || new Date().toISOString();
+  const startedAt = readOptionalString('CI_RUN_STARTED_AT');
+  const buildDurationRaw = readOptionalString('CI_BUILD_DURATION_SECONDS');
+  const buildDurationSeconds = buildDurationRaw ? Number(buildDurationRaw) : undefined;
+
   const message = buildCiFeishuMessage({
     status: readStatus(),
     repository: process.env.GITHUB_REPOSITORY?.trim() || 'unknown/unknown',
@@ -164,8 +232,13 @@ async function main() {
     sha: process.env.GITHUB_SHA?.trim() || 'unknown',
     actor: process.env.GITHUB_ACTOR?.trim() || 'unknown',
     serverUrl: process.env.GITHUB_SERVER_URL?.trim() || 'https://github.com',
-    finishedAt: new Date().toISOString(),
-    imageTag: process.env.CI_IMAGE_TAG?.trim() || undefined,
+    startedAt,
+    finishedAt,
+    buildDurationSeconds: Number.isFinite(buildDurationSeconds) ? buildDurationSeconds : undefined,
+    commitMessage: readOptionalString('CI_COMMIT_MESSAGE'),
+    changeSummary: readOptionalString('CI_CHANGE_SUMMARY'),
+    commitCount: readRequiredNumber('CI_COMMIT_COUNT', 0) || undefined,
+    imageTag: readOptionalString('CI_IMAGE_TAG'),
   });
 
   const result = await sendFeishuPostMessage(webhookUrl, message, readSignSecret());
