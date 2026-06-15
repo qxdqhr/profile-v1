@@ -2,71 +2,46 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useMemo } from 'react';
 import 'animal-island-ui/style';
-import { Button, Card, Footer, Loading, Title } from 'animal-island-ui';
+import { Card, Footer, Loading, Title } from 'animal-island-ui';
 import { AuthGuard, AuthProvider, UserMenu, useAuthContext } from '@/lib/auth';
 import { useTeachHubBootstrap } from '../hooks/useTeachHubBootstrap';
 import { useTeachHubStore } from '../store/teachHubStore';
 import { TEACH_HUB_BASE } from '../utils/routes';
 import '../teach-hub.css';
 
-const NAV_ITEMS = [
-  { id: 'home', label: '我的工作区', href: TEACH_HUB_BASE },
-  { id: 'new', label: '新建工作区', href: `${TEACH_HUB_BASE}/new` },
-];
-
-function resolveActiveId(pathname: string): string {
-  if (pathname === `${TEACH_HUB_BASE}/new`) return 'new';
-  return 'home';
-}
-
 function TeachHubShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isAuthenticated } = useAuthContext();
   const listLoading = useTeachHubStore((s) => s.listLoading);
-  const activeId = useMemo(() => resolveActiveId(pathname), [pathname]);
+  const isLessonView = pathname.includes('/lesson/') || pathname.includes('/reference/');
+  const isHome = pathname === TEACH_HUB_BASE;
 
   useTeachHubBootstrap(isAuthenticated);
 
-  const isLessonView = pathname.includes('/lesson/') || pathname.includes('/reference/');
-
   return (
     <div className="th-root">
-      {!isLessonView ? (
-        <aside className="th-sidebar hidden lg:flex">
-          <div className="th-sidebar__brand">
-            <Title size="small" color="app-teal">
-              Teach 学习工作区
-            </Title>
-          </div>
-          <nav className="th-sidebar__nav">
-            {NAV_ITEMS.map((item) => (
-              <Link key={item.id} href={item.href} className="th-sidebar__link">
-                <Button type={activeId === item.id ? 'primary' : 'text'} block>
-                  {item.label}
-                </Button>
-              </Link>
-            ))}
-          </nav>
-          <div className="th-sidebar__footer">
-            <UserMenu />
-          </div>
-        </aside>
-      ) : null}
-
       <div className="th-main">
         {!isLessonView ? (
-          <header className="th-topbar lg:hidden">
-            <Title size="small" color="app-green">
-              Teach 学习工作区
-            </Title>
+          <header className="th-topbar">
+            <div className="flex min-w-0 items-center gap-3">
+              <Link href={TEACH_HUB_BASE} className="shrink-0 no-underline">
+                <Title size="small" color="app-teal">
+                  Teach 学习工作区
+                </Title>
+              </Link>
+              {!isHome ? (
+                <Link href={TEACH_HUB_BASE} className="text-sm text-[#2c5282] hover:underline">
+                  我的工作区
+                </Link>
+              ) : null}
+            </div>
             <UserMenu />
           </header>
         ) : null}
 
         <main className={isLessonView ? 'th-content th-content--wide' : 'th-content'}>
-          {listLoading && isAuthenticated && pathname === TEACH_HUB_BASE ? (
+          {listLoading && isAuthenticated && isHome ? (
             <div className="flex justify-center py-16">
               <Loading active />
             </div>

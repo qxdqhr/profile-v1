@@ -48,11 +48,17 @@ export function parseBusinessId(businessId: string): { userId: string; workspace
 }
 
 export function slugifyTitle(title: string): string {
-  const base = title
+  const ascii = title
     .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9\u4e00-\u9fff]+/g, '-')
+    .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 48);
-  return base || 'workspace';
+  if (ascii) return ascii;
+  const fallback = title
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-zA-Z0-9\u4e00-\u9fff_-]+/g, '')
+    .slice(0, 48);
+  return fallback || 'workspace';
 }

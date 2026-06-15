@@ -24,6 +24,7 @@ import {
   DEFAULT_RESOURCES_MD,
 } from '../utils/workspaceTemplates';
 import { initEmptyWorkspaceFiles, listWorkspaceLessons } from './teachHubFileStore';
+import { formatTeachHubStorageError } from '../utils/storageFallback';
 
 function mapWorkspace(row: typeof teachWorkspaces.$inferSelect): TeachWorkspace {
   return {
@@ -171,19 +172,24 @@ export async function createWorkspace(
     updatedAt: now,
   });
 
-  await initEmptyWorkspaceFiles({
-    userId,
-    workspaceId,
-    title: input.title.trim(),
-    topic: input.topic ?? null,
-    missionMarkdown,
-    resourcesMarkdown: DEFAULT_RESOURCES_MD,
-    notesMarkdown: DEFAULT_NOTES_MD,
-    metaJson: buildWorkspaceMeta({
+  try {
+    await initEmptyWorkspaceFiles({
+      userId,
+      workspaceId,
       title: input.title.trim(),
       topic: input.topic ?? null,
-    }),
-  });
+      missionMarkdown,
+      resourcesMarkdown: DEFAULT_RESOURCES_MD,
+      notesMarkdown: DEFAULT_NOTES_MD,
+      metaJson: buildWorkspaceMeta({
+        title: input.title.trim(),
+        topic: input.topic ?? null,
+      }),
+    });
+  } catch (error) {
+    await db.delete(teachWorkspaces).where(eq(teachWorkspaces.id, workspaceId));
+    throw new Error(formatTeachHubStorageError(error));
+  }
 
   const created = await getWorkspaceForUser(userId, workspaceId);
   if (!created) {

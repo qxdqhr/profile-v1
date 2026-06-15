@@ -10,6 +10,11 @@ import {
 import { db } from '@/db';
 import type { LessonIndex, TeachStoredFile } from '../types';
 import {
+  formatTeachHubStorageError,
+  getTeachHubLocalFileService,
+  isOssUploadError,
+} from '../utils/storageFallback';
+import {
   TEACH_HUB_MODULE_ID,
   buildBusinessId,
   buildCustomPath,
@@ -160,26 +165,36 @@ export async function putWorkspaceFileText(input: {
     throw new Error(`非法 relativePath: ${input.relativePath}`);
   }
 
-  const fileService = await createFileService();
   const name = safePath.split('/').pop() || 'file.txt';
   const mime = detectMimeType(safePath);
   const file = new File([input.content], name, { type: mime.split(';')[0] });
-
-  return uploadFileAndResolveAccessUrl(
-    fileService,
-    {
-      file,
-      moduleId: TEACH_HUB_MODULE_ID,
-      businessId: buildBusinessId(input.userId, input.workspaceId),
-      customPath: buildCustomPath(input.userId, input.workspaceId, safePath),
-      metadata: {
-        relativePath: safePath,
-        uploadedBy: input.uploaderId || input.userId,
-        uploadedAt: new Date().toISOString(),
-      },
+  const uploadPayload = {
+    file,
+    moduleId: TEACH_HUB_MODULE_ID,
+    businessId: buildBusinessId(input.userId, input.workspaceId),
+    customPath: buildCustomPath(input.userId, input.workspaceId, safePath),
+    metadata: {
+      relativePath: safePath,
+      uploadedBy: input.uploaderId || input.userId,
+      uploadedAt: new Date().toISOString(),
     },
-    input.uploaderId || input.userId,
-  );
+  };
+  const uploader = input.uploaderId || input.userId;
+
+  try {
+    const fileService = await createFileService();
+    return await uploadFileAndResolveAccessUrl(fileService, uploadPayload, uploader);
+  } catch (primaryError) {
+    if (!isOssUploadError(primaryError)) {
+      throw primaryError;
+    }
+    try {
+      const localService = await getTeachHubLocalFileService();
+      return await uploadFileAndResolveAccessUrl(localService, uploadPayload, uploader);
+    } catch (fallbackError) {
+      throw new Error(formatTeachHubStorageError(fallbackError));
+    }
+  }
 }
 
 export async function listWorkspaceLessons(

@@ -1,5 +1,6 @@
-import { NewWorkspacePage } from '@/modules/teachHub/pages';
+import { redirect } from 'next/navigation';
+import { TEACH_HUB_BASE } from '@/modules/teachHub/utils/routes';
 
 export default function NewWorkspaceRoute() {
-  return <NewWorkspacePage />;
+  redirect(TEACH_HUB_BASE);
 }
