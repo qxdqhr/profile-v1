@@ -17,8 +17,11 @@ export function ProgressBar({ completed, total, className = '' }: ProgressBarPro
         </span>
         <span>{pct}%</span>
       </div>
-      <div className="th-progress" aria-hidden>
-        <div className="th-progress__bar" style={{ width: `${pct}%` }} />
+      <div className="h-2 overflow-hidden rounded-full bg-[#eee8dc]" aria-hidden>
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-[#2c5282] to-[#4299e1] transition-[width] duration-200"
+          style={{ width: `${pct}%` }}
+        />
       </div>
     </div>
   );

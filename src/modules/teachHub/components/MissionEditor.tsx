@@ -2,6 +2,14 @@
 
 import { useState } from 'react';
 import { Button } from 'animal-island-ui';
+import {
+  thForm,
+  thFormInput,
+  thFormLabel,
+  thFormTextarea,
+  thListEditor,
+  thListEditorRow,
+} from '../styles/tw';
 import type { MissionFormData } from '../types';
 import { composeMissionMarkdown } from '../utils/workspaceTemplates';
 
@@ -30,11 +38,12 @@ function ListField({
   const remove = (index: number) => onChange(items.filter((_, i) => i !== index));
 
   return (
-    <div className="th-list-editor">
+    <div className={thListEditor}>
       <span className="text-sm font-semibold">{label}</span>
       {items.map((item, index) => (
-        <div key={`${label}-${index}`} className="th-list-editor__row">
+        <div key={`${label}-${index}`} className={thListEditorRow}>
           <input
+            className={`${thFormInput} flex-1`}
             value={item}
             onChange={(e) => update(index, e.target.value)}
             placeholder="输入一条…"
@@ -67,10 +76,11 @@ export function MissionEditor({ initial, saving, onSave }: MissionEditorProps) {
   };
 
   return (
-    <div className="th-form">
-      <label>
+    <div className={thForm}>
+      <label className={thFormLabel}>
         Why — 你为什么想学？
         <textarea
+          className={thFormTextarea}
           value={form.why}
           onChange={(e) => setForm((f) => ({ ...f, why: e.target.value }))}
           rows={4}

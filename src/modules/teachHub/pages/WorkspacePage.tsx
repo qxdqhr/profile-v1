@@ -2,16 +2,35 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Button, Loading, Title } from 'animal-island-ui';
+import { Button, Loading } from 'animal-island-ui';
+import { cn } from '@/lib/utils';
 import { ProgressBar } from '../components/ProgressBar';
 import { GenerateLessonButton } from '../components/GenerateLessonButton';
-import {
-  mergeLessonsWithProgress,
-  WorkspaceSidebar,
-} from '../components/WorkspaceSidebar';
 import { fetchWorkspaceDetail, fetchWorkspaceFiles } from '../services/teachHubClient';
+import {
+  thChip,
+  thChipList,
+  thEmpty,
+  thEmptyInline,
+  thLessonItem,
+  thLessonItemDone,
+  thLessonItemMeta,
+  thLessonItemTitle,
+  thLessonList,
+  thOverview,
+  thOverviewHero,
+  thOverviewHeroActions,
+  thOverviewHeroMain,
+  thOverviewHeroTopic,
+  thPanel,
+  thPanelBody,
+  thPanelHead,
+  thPanelLink,
+  thPanelTitle,
+} from '../styles/tw';
 import type { LessonIndex, TeachLessonProgress, TeachWorkspace } from '../types';
-import { lessonPath, lessonTitleFromSlug } from '../utils/routes';
+import { mergeLessonsWithProgress } from '../utils/lessonProgress';
+import { lessonPath, lessonTitleFromSlug, referencePath, workspacePath } from '../utils/routes';
 
 type WorkspacePageProps = {
   workspaceId: string;
@@ -24,7 +43,6 @@ export function WorkspacePage({ workspaceId }: WorkspacePageProps) {
   const [lessons, setLessons] = useState<LessonIndex[]>([]);
   const [progress, setProgress] = useState<TeachLessonProgress[]>([]);
   const [references, setReferences] = useState<string[]>([]);
-  const [recordCount, setRecordCount] = useState(0);
 
   const reload = async () => {
     setLoading(true);
@@ -37,12 +55,10 @@ export function WorkspacePage({ workspaceId }: WorkspacePageProps) {
       setWorkspace(detail.workspace);
       setLessons(detail.lessons);
       setProgress(detail.progress);
-      const refs = files
-        .filter((f) => f.relativePath.startsWith('reference/') && f.relativePath.endsWith('.html'))
-        .map((f) => f.relativePath.replace(/^reference\//, '').replace(/\.html$/i, ''));
-      setReferences(refs);
-      setRecordCount(
-        files.filter((f) => f.relativePath.startsWith('learning-records/')).length,
+      setReferences(
+        files
+          .filter((f) => f.relativePath.startsWith('reference/') && f.relativePath.endsWith('.html'))
+          .map((f) => f.relativePath.replace(/^reference\//, '').replace(/\.html$/i, '')),
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : '加载失败');
@@ -57,7 +73,7 @@ export function WorkspacePage({ workspaceId }: WorkspacePageProps) {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-16">
+      <div className="flex justify-center py-12">
         <Loading active />
       </div>
     );
@@ -70,19 +86,20 @@ export function WorkspacePage({ workspaceId }: WorkspacePageProps) {
   const merged = mergeLessonsWithProgress(lessons, progress);
   const completed = progress.filter((p) => p.status === 'completed').length;
   const firstIncomplete = merged.find((m) => m.progress?.status !== 'completed');
+  const missionReady = Boolean(workspace.missionSummary?.trim());
 
   return (
-    <div>
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <Title size="middle" color="app-teal">
-            {workspace.title}
-          </Title>
-          {workspace.topic ? (
-            <p className="th-card-meta">主题：{workspace.topic}</p>
-          ) : null}
+    <div className={thOverview}>
+      <section className={cn(thPanel, thOverviewHero)}>
+        <div className={thOverviewHeroMain}>
+          {workspace.topic ? <p className={thOverviewHeroTopic}>{workspace.topic}</p> : null}
+          {lessons.length > 0 ? (
+            <ProgressBar completed={completed} total={lessons.length} />
+          ) : (
+            <p className="text-sm text-[#7a6f5c]">填写 Mission 后可生成第一课</p>
+          )}
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className={thOverviewHeroActions}>
           {firstIncomplete ? (
             <Link href={lessonPath(workspaceId, firstIncomplete.lesson.slug)}>
               <Button type="primary">继续学习</Button>
@@ -96,57 +113,73 @@ export function WorkspacePage({ workspaceId }: WorkspacePageProps) {
             workspaceId={workspaceId}
             lessons={lessons}
             progress={progress}
-            missionReady={Boolean(workspace.missionSummary?.trim())}
+            missionReady={missionReady}
             onGenerated={() => void reload()}
           />
         </div>
-      </div>
+      </section>
 
-      {lessons.length > 0 ? (
-        <div className="mb-6 max-w-md">
-          <ProgressBar completed={completed} total={lessons.length} />
+      <section className={thPanel}>
+        <div className={thPanelHead}>
+          <h2 className={thPanelTitle}>Mission</h2>
+          <Link href={`${workspacePath(workspaceId)}/mission`} className={thPanelLink}>
+            编辑 →
+          </Link>
         </div>
-      ) : null}
+        <p className={thPanelBody}>
+          {workspace.missionSummary?.trim() || '尚未填写学习动机，请先编辑 Mission。'}
+        </p>
+      </section>
 
-      <div className="th-workspace-layout">
-        <WorkspaceSidebar
-          workspace={workspace}
-          workspaceId={workspaceId}
-          references={references}
-          recordCount={recordCount}
-        />
+      <section className={thPanel}>
+        <div className={thPanelHead}>
+          <h2 className={thPanelTitle}>课时列表</h2>
+          <span className="text-sm text-[#7a6f5c]">{lessons.length} 课</span>
+        </div>
 
-        <section>
-          <h2 className="mb-3 text-base font-semibold">课时</h2>
-          {lessons.length === 0 ? (
-            <div className="th-empty rounded-xl border border-dashed border-[#d4c9b5]">
-              <p>尚无课时。</p>
-              <p className="mt-2 text-sm">可在设置页导入 zip，或等待 Phase 2 自动生成第一课。</p>
-            </div>
-          ) : (
-            <div className="th-lesson-list">
-              {merged.map(({ lesson, progress: p }) => {
-                const done = p?.status === 'completed';
-                return (
-                  <Link
-                    key={lesson.slug}
-                    href={lessonPath(workspaceId, lesson.slug)}
-                    className={`th-lesson-item ${done ? 'is-done' : ''}`}
-                  >
-                    <div>
-                      <div className="th-lesson-item__title">
-                        {String(lesson.order).padStart(4, '0')} · {lessonTitleFromSlug(lesson.slug)}
-                      </div>
-                      <div className="th-lesson-item__meta">{lesson.slug}</div>
+        {lessons.length === 0 ? (
+          <div className={cn(thEmpty, thEmptyInline)}>
+            <p>尚无课时</p>
+            <p className="mt-1 text-sm">填写 Mission 后点击「开始第一课」，或在设置页导入 zip。</p>
+          </div>
+        ) : (
+          <div className={thLessonList}>
+            {merged.map(({ lesson, progress: p }) => {
+              const done = p?.status === 'completed';
+              return (
+                <Link
+                  key={lesson.slug}
+                  href={lessonPath(workspaceId, lesson.slug)}
+                  className={cn(thLessonItem, done && thLessonItemDone)}
+                >
+                  <div>
+                    <div className={thLessonItemTitle}>
+                      {String(lesson.order).padStart(4, '0')} · {lessonTitleFromSlug(lesson.slug)}
                     </div>
-                    <span className="text-sm">{done ? '✓ 已完成' : '去学习 →'}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
+                    <div className={thLessonItemMeta}>{lesson.slug}</div>
+                  </div>
+                  <span className="text-sm">{done ? '✓ 已完成' : '去学习 →'}</span>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {references.length > 0 ? (
+        <section className={thPanel}>
+          <div className={thPanelHead}>
+            <h2 className={thPanelTitle}>速查参考</h2>
+          </div>
+          <div className={thChipList}>
+            {references.map((slug) => (
+              <Link key={slug} href={referencePath(workspaceId, slug)} className={thChip}>
+                {slug}
+              </Link>
+            ))}
+          </div>
         </section>
-      </div>
+      ) : null}
     </div>
   );
 }

@@ -1,11 +1,10 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Button, Title } from 'animal-island-ui';
+import { Button } from 'animal-island-ui';
 import { fetchWorkspaceFileText, putWorkspaceFileText } from '../services/teachHubClient';
+import { thForm, thTabPage } from '../styles/tw';
 import { DEFAULT_RESOURCES_MD } from '../utils/workspaceTemplates';
-import { workspacePath } from '../utils/routes';
 
 type ResourcesPageProps = {
   workspaceId: string;
@@ -48,19 +47,11 @@ export function ResourcesPage({ workspaceId }: ResourcesPageProps) {
   };
 
   return (
-    <div>
-      <div className="mb-4">
-        <Link href={workspacePath(workspaceId)} className="text-sm text-[#2c5282] hover:underline">
-          ← 返回工作区
-        </Link>
-      </div>
-      <Title size="middle" color="app-teal" className="mb-6">
-        学习资源
-      </Title>
+    <div className={thTabPage}>
       {loading ? (
         <p className="text-sm text-[#7a6f5c]">加载中…</p>
       ) : (
-        <div className="th-form max-w-3xl">
+        <div className={`${thForm} max-w-3xl`}>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}

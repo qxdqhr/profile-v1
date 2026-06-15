@@ -9,6 +9,7 @@ import {
   getWorkspaceFileUrl,
   updateLessonProgress,
 } from '../services/teachHubClient';
+import { thLessonShell, thLessonToolbar } from '../styles/tw';
 import type { LessonIndex, TeachLessonProgress } from '../types';
 import {
   lessonFilenameFromSlug,
@@ -77,8 +78,8 @@ export function LessonPage({ workspaceId, slug }: LessonPageProps) {
   const title = lessonTitleFromSlug(slug);
 
   return (
-    <div className="th-lesson-shell">
-      <div className="th-lesson-toolbar">
+    <div className={thLessonShell}>
+      <div className={thLessonToolbar}>
         <Link href={workspacePath(workspaceId)}>
           <Button type="text" size="small">
             ← 工作区

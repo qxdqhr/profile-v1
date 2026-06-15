@@ -7,6 +7,12 @@ import {
   createWorkspaceViaApi,
   importWorkspaceZip,
 } from '../services/teachHubClient';
+import {
+  thForm,
+  thFormInput,
+  thFormLabel,
+  thFormTextarea,
+} from '../styles/tw';
 import { workspacePath } from '../utils/routes';
 
 export function NewWorkspacePage() {
@@ -51,10 +57,11 @@ export function NewWorkspacePage() {
         新建学习工作区
       </Title>
 
-      <form className="th-form" onSubmit={(e) => void handleSubmit(e)}>
-        <label>
+      <form className={thForm} onSubmit={(e) => void handleSubmit(e)}>
+        <label className={thFormLabel}>
           标题 *
           <input
+            className={thFormInput}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="例如：音乐乐理"
@@ -62,18 +69,20 @@ export function NewWorkspacePage() {
           />
         </label>
 
-        <label>
+        <label className={thFormLabel}>
           主题标签（可选）
           <input
+            className={thFormInput}
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="music-theory"
           />
         </label>
 
-        <label>
+        <label className={thFormLabel}>
           Mission — 你为什么想学？（可选）
           <textarea
+            className={thFormTextarea}
             value={why}
             onChange={(e) => setWhy(e.target.value)}
             rows={4}
@@ -81,7 +90,7 @@ export function NewWorkspacePage() {
           />
         </label>
 
-        <label>
+        <label className={thFormLabel}>
           导入已有工作区 zip（可选）
           <input
             type="file"

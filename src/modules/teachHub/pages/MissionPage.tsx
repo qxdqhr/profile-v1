@@ -1,17 +1,15 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Title } from 'animal-island-ui';
 import { MissionEditor } from '../components/MissionEditor';
 import {
   fetchWorkspaceFileText,
   putWorkspaceFileText,
 } from '../services/teachHubClient';
+import { thTabPage, thTabPageDesc } from '../styles/tw';
 import { parseMissionMarkdown } from '../utils/missionParser';
 import type { MissionFormData } from '../types';
 import { DEFAULT_MISSION_TEMPLATE } from '../utils/workspaceTemplates';
-import { workspacePath } from '../utils/routes';
 
 type MissionPageProps = {
   workspaceId: string;
@@ -49,15 +47,8 @@ export function MissionPage({ workspaceId }: MissionPageProps) {
   };
 
   return (
-    <div>
-      <div className="mb-4">
-        <Link href={workspacePath(workspaceId)} className="text-sm text-[#2c5282] hover:underline">
-          ← 返回工作区
-        </Link>
-      </div>
-      <Title size="middle" color="app-teal" className="mb-6">
-        编辑 Mission
-      </Title>
+    <div className={thTabPage}>
+      <p className={thTabPageDesc}>定义学习动机、成功标准与约束，Mimo 生成课时会参考此内容。</p>
       {error ? <p className="mb-4 text-sm text-red-600">{error}</p> : null}
       {initial ? (
         <MissionEditor initial={initial} saving={saving} onSave={handleSave} />

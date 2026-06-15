@@ -7,40 +7,48 @@ import { Card, Footer, Loading, Title } from 'animal-island-ui';
 import { AuthGuard, AuthProvider, UserMenu, useAuthContext } from '@/lib/auth';
 import { useTeachHubBootstrap } from '../hooks/useTeachHubBootstrap';
 import { useTeachHubStore } from '../store/teachHubStore';
+import {
+  thAuthCardText,
+  thAuthFallback,
+  thContentHome,
+  thContentWide,
+  thContentWorkspace,
+  thMain,
+  thRoot,
+  thTopbar,
+} from '../styles/tw';
 import { TEACH_HUB_BASE } from '../utils/routes';
-import '../teach-hub.css';
 
 function TeachHubShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isAuthenticated } = useAuthContext();
   const listLoading = useTeachHubStore((s) => s.listLoading);
-  const isLessonView = pathname.includes('/lesson/') || pathname.includes('/reference/');
   const isHome = pathname === TEACH_HUB_BASE;
+  const isImmersive = pathname.includes('/lesson/') || pathname.includes('/reference/');
 
   useTeachHubBootstrap(isAuthenticated);
 
+  const contentClass = isImmersive
+    ? thContentWide
+    : isHome
+      ? thContentHome
+      : thContentWorkspace;
+
   return (
-    <div className="th-root">
-      <div className="th-main">
-        {!isLessonView ? (
-          <header className="th-topbar">
-            <div className="flex min-w-0 items-center gap-3">
-              <Link href={TEACH_HUB_BASE} className="shrink-0 no-underline">
-                <Title size="small" color="app-teal">
-                  Teach 学习工作区
-                </Title>
-              </Link>
-              {!isHome ? (
-                <Link href={TEACH_HUB_BASE} className="text-sm text-[#2c5282] hover:underline">
-                  我的工作区
-                </Link>
-              ) : null}
-            </div>
+    <div className={thRoot}>
+      <div className={thMain}>
+        {!isImmersive ? (
+          <header className={thTopbar}>
+            <Link href={TEACH_HUB_BASE} className="block no-underline">
+              <Title size="small" color="app-teal">
+                Teach 学习工作区
+              </Title>
+            </Link>
             <UserMenu />
           </header>
         ) : null}
 
-        <main className={isLessonView ? 'th-content th-content--wide' : 'th-content'}>
+        <main className={contentClass}>
           {listLoading && isAuthenticated && isHome ? (
             <div className="flex justify-center py-16">
               <Loading active />
@@ -50,7 +58,7 @@ function TeachHubShell({ children }: { children: React.ReactNode }) {
           )}
         </main>
 
-        {!isLessonView ? <Footer type="tree" /> : null}
+        {!isImmersive ? <Footer type="tree" /> : null}
       </div>
     </div>
   );
@@ -62,12 +70,12 @@ export function TeachHubLayout({ children }: { children: React.ReactNode }) {
       <AuthGuard
         requireAuth
         fallback={
-          <div className="th-auth-fallback">
-            <Card pattern="app-teal" className="th-auth-card">
+          <div className={thAuthFallback}>
+            <Card pattern="app-teal">
               <Title size="middle" color="app-teal">
                 Teach 学习工作区
               </Title>
-              <p className="th-auth-card__text">
+              <p className={thAuthCardText}>
                 登录后即可创建个人 teach skill 工作区，管理 Mission、学习 HTML 课时并追踪进度。
               </p>
             </Card>

@@ -1,10 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Title } from 'animal-island-ui';
 import { fetchWorkspaceFileText, fetchWorkspaceFiles } from '../services/teachHubClient';
-import { workspacePath } from '../utils/routes';
+import { thMdPreview, thTabPage } from '../styles/tw';
 
 type RecordsPageProps = {
   workspaceId: string;
@@ -41,22 +39,14 @@ export function RecordsPage({ workspaceId }: RecordsPageProps) {
   }, [workspaceId]);
 
   return (
-    <div>
-      <div className="mb-4">
-        <Link href={workspacePath(workspaceId)} className="text-sm text-[#2c5282] hover:underline">
-          ← 返回工作区
-        </Link>
-      </div>
-      <Title size="middle" color="app-teal" className="mb-6">
-        学习记录
-      </Title>
+    <div className={thTabPage}>
       {error ? <p className="text-red-600">{error}</p> : null}
       {records.length === 0 ? (
         <p className="text-sm text-[#7a6f5c]">尚无学习记录。完成课时或生成新课后会出现在这里。</p>
       ) : (
         <div className="flex flex-col gap-4">
           {records.map((r) => (
-            <article key={r.path} className="th-md-preview">
+            <article key={r.path} className={thMdPreview}>
               <h3 className="mb-2 text-sm font-semibold text-[#5c4f3a]">{r.path}</h3>
               {r.content}
             </article>

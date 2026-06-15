@@ -1,14 +1,23 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Button, Title } from 'animal-island-ui';
+import { Button } from 'animal-island-ui';
+import { cn } from '@/lib/utils';
 import {
   archiveWorkspaceViaApi,
   importWorkspaceZip,
 } from '../services/teachHubClient';
-import { TEACH_HUB_BASE, workspacePath } from '../utils/routes';
+import {
+  thForm,
+  thPanel,
+  thPanelTitle,
+  thSettingsSection,
+  thSettingsSectionDanger,
+  thTabPage,
+  thTabPageDesc,
+} from '../styles/tw';
+import { TEACH_HUB_BASE } from '../utils/routes';
 
 type SettingsPageProps = {
   workspaceId: string;
@@ -18,7 +27,7 @@ export function SettingsPage({ workspaceId }: SettingsPageProps) {
   const router = useRouter();
   const [zipFile, setZipFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
-  const [archiving, setArchiving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState('');
 
   const handleImport = async () => {
@@ -42,52 +51,47 @@ export function SettingsPage({ workspaceId }: SettingsPageProps) {
     }
   };
 
-  const handleArchive = async () => {
-    if (!confirm('确定归档此工作区？归档后将从默认列表隐藏。')) return;
-    setArchiving(true);
+  const handleDelete = async () => {
+    if (!confirm('确定删除此工作区？将从列表中移除，OSS 文件仍保留。')) return;
+    setDeleting(true);
+    setMessage('');
     try {
       await archiveWorkspaceViaApi(workspaceId);
       router.push(TEACH_HUB_BASE);
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : '归档失败');
-      setArchiving(false);
+      setMessage(err instanceof Error ? err.message : '删除失败');
+      setDeleting(false);
     }
   };
 
   return (
-    <div>
-      <div className="mb-4">
-        <Link href={workspacePath(workspaceId)} className="text-sm text-[#2c5282] hover:underline">
-          ← 返回工作区
-        </Link>
-      </div>
-      <Title size="middle" color="app-teal" className="mb-6">
-        工作区设置
-      </Title>
-
-      <section className="th-form max-w-lg">
-        <h3 className="text-sm font-semibold">导入 teach 工作区 zip</h3>
-        <p className="text-sm text-[#7a6f5c]">
-          可导入本地 musicStudy 等目录打包的 zip，自动写入当前工作区。
+    <div className={thTabPage}>
+      <section className={cn(thPanel, thSettingsSection)}>
+        <h2 className={thPanelTitle}>导入工作区</h2>
+        <p className={thTabPageDesc}>
+          上传 teach 工作区 zip（如 musicStudy 打包），自动写入当前工作区。
         </p>
-        <input
-          type="file"
-          accept=".zip,application/zip"
-          onChange={(e) => setZipFile(e.target.files?.[0] ?? null)}
-        />
-        <Button type="primary" onClick={() => void handleImport()} disabled={importing}>
-          {importing ? '导入中…' : '上传并导入'}
-        </Button>
-
-        <hr className="border-[#eee8dc]" />
-
-        <h3 className="text-sm font-semibold text-red-700">危险操作</h3>
-        <Button type="text" onClick={() => void handleArchive()} disabled={archiving}>
-          {archiving ? '归档中…' : '归档此工作区'}
-        </Button>
-
-        {message ? <p className="text-sm text-[#7a6f5c]">{message}</p> : null}
+        <div className={`${thForm} max-w-lg`}>
+          <input
+            type="file"
+            accept=".zip,application/zip"
+            onChange={(e) => setZipFile(e.target.files?.[0] ?? null)}
+          />
+          <Button type="primary" onClick={() => void handleImport()} disabled={importing}>
+            {importing ? '导入中…' : '上传并导入'}
+          </Button>
+        </div>
       </section>
+
+      <section className={cn(thPanel, thSettingsSection, thSettingsSectionDanger)}>
+        <h2 className={`${thPanelTitle} text-red-700`}>删除工作区</h2>
+        <p className={thTabPageDesc}>从列表中移除此工作区，不会删除 OSS 中已上传的文件。</p>
+        <Button type="danger-primary" onClick={() => void handleDelete()} disabled={deleting}>
+          {deleting ? '删除中…' : '删除此工作区'}
+        </Button>
+      </section>
+
+      {message ? <p className="text-sm text-[#7a6f5c]">{message}</p> : null}
     </div>
   );
 }
