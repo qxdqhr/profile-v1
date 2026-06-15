@@ -133,17 +133,10 @@ jobs:
             ./scripts/config-decrypt-production.sh "$DEPLOY_CFG_DIR/app.config.yaml"
           echo "APP_CONFIG_PATH=$DEPLOY_CFG_DIR/app.config.yaml" >> "$GITHUB_ENV"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Send Feishu notification
         continue-on-error: true
@@ -161,4 +154,4 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_WORKFLOW: ${{ github.workflow }}
           GITHUB_SERVER_URL: ${{ github.server_url }}
-        run: pnpm exec tsx scripts/send-ci-feishu-notify.ts
+        run: node scripts/send-ci-feishu-notify.mjs

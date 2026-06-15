@@ -41,7 +41,7 @@
     "fix:storage-provider:prod": "APP_CONFIG_ENV=production tsx --import ./scripts/preload-app-config.ts scripts/fix-default-storage-provider.ts",
     "ticket-monitor:sync": "tsx --import ./scripts/preload-app-config.ts src/modules/ticketMonitor/scripts/run-sync.ts",
     "ai:test-mimo": "tsx --import ./scripts/preload-app-config.ts scripts/test-ai-mimo.ts",
-    "ci:feishu-notify": "tsx scripts/send-ci-feishu-notify.ts"
+    "ci:feishu-notify": "node scripts/send-ci-feishu-notify.mjs"
   },
   "dependencies": {
     "@alicloud/pop-core": "^1.8.0",
