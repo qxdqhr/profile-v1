@@ -489,6 +489,8 @@ export interface EventListFilter {
   priority?: EventPriority;
   color?: string;
   dateRange?: DateRange;
+  /** YYYY-MM，按活动开始时间所在月份筛选 */
+  month?: string;
   searchText?: string;
 }
 

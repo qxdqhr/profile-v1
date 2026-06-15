@@ -6,6 +6,7 @@ import { COLOR_THEMES, type CalendarThemeKey } from '../utils/calendarSettingsCo
 import { useCalendarSettings } from '../context/CalendarSettingsContext';
 import { AiApiSettingsPanel } from '@/modules/aiApi';
 import { cal, settingsTabClass, themeCardClass } from '../calendarStyles';
+import { cn } from '@/lib/utils';
 
 export type { CalendarSettings, CalendarThemeKey } from '../utils/calendarSettingsCore';
 
@@ -24,13 +25,13 @@ const LANGUAGE_OPTIONS = [
   { value: 'en-US', label: 'English' },
 ];
 
-export default function CalendarSettings() {
+export default function CalendarSettings({ className = '' }: { className?: string }) {
   const { settings, updateSettings, resetSettings } = useCalendarSettings();
   const [activeTab, setActiveTab] = useState<'theme' | 'general' | 'time' | 'ai'>('theme');
 
   return (
-    <div className={`${cal.panel} ${cal.panelFlush}`}>
-      <div className={cal.settingsTabs}>
+    <div className={cn(`${cal.panel} ${cal.panelFlush}`, 'flex h-full min-h-0 flex-col', className)}>
+      <div className={cn(cal.settingsTabs, 'shrink-0')}>
         {[
           { key: 'theme', label: '主题样式', icon: '🎨' },
           { key: 'general', label: '常规设置', icon: '⚙️' },
@@ -48,7 +49,7 @@ export default function CalendarSettings() {
         ))}
       </div>
 
-      <div className="p-6">
+      <div className={cn(cal.scrollY, cal.scrollHidden, 'min-h-0 flex-1 p-6')}>
         {activeTab === 'theme' && (
           <div>
             <Title size="small" color="app-yellow">

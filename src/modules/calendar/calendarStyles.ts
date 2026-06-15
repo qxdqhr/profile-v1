@@ -195,6 +195,9 @@ export const cal = {
   ),
   priorityChipActive: 'border-[#19c8b9] bg-[rgba(230,249,246,0.7)] text-[#117a72]',
   listToolbarSegmentedBtn: 'max-sm:min-w-8 max-sm:h-7 max-sm:px-2.5 max-sm:text-xs',
+  scrollHidden:
+    '[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden',
+  scrollY: 'min-h-0 flex-1 overflow-y-auto',
 } as const;
 
 export type EventSurfaceKey =

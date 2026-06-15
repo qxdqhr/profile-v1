@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
+import { cn } from '@/lib/utils'
 import type { DateCalculatorMode, DateShiftUnit } from '../types'
 import {
   computeInterval,
@@ -24,10 +25,12 @@ const UNITS: { id: DateShiftUnit; label: string }[] = [
 export type DateCalculatorToolProps = {
   /** page：独立整页；embedded：嵌入日历等容器，不铺全屏背景 */
   variant?: 'page' | 'embedded'
+  className?: string
 }
 
 export default function DateCalculatorTool({
   variant = 'page',
+  className = '',
 }: DateCalculatorToolProps) {
   const embedded = variant === 'embedded'
   const [mode, setMode] = useState<DateCalculatorMode>('interval')
@@ -56,8 +59,11 @@ export default function DateCalculatorTool({
     <div
       className={
         embedded
-          ? 'relative px-0 py-0'
-          : 'relative min-h-screen overflow-hidden bg-gradient-to-br from-stone-50 via-violet-50/40 to-indigo-100/60 px-4 py-8 sm:py-12'
+          ? cn('relative flex h-full min-h-0 flex-col', className)
+          : cn(
+              'relative min-h-screen overflow-hidden bg-gradient-to-br from-stone-50 via-violet-50/40 to-indigo-100/60 px-4 py-8 sm:py-12',
+              className,
+            )
       }
     >
       {!embedded && (
@@ -71,42 +77,34 @@ export default function DateCalculatorTool({
           }}
         />
       )}
-      <div className={embedded ? 'relative mx-auto max-w-4xl' : 'relative mx-auto max-w-3xl'}>
-        <header
-          className={
-            embedded
-              ? 'mb-6 border-b border-slate-200/80 pb-4'
-              : 'mb-8 text-center sm:mb-10'
-          }
-        >
-          {!embedded && (
+      <div className={embedded ? 'relative mx-auto flex h-full min-h-0 w-full max-w-4xl flex-col' : 'relative mx-auto max-w-3xl'}>
+        {!embedded && (
+          <header className="mb-8 text-center sm:mb-10">
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-violet-600/80">
               Pencil · Studio
             </p>
-          )}
-          <h1
-            className={
-              embedded
-                ? 'text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl'
-                : 'text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl text-center'
-            }
-          >
-            日期计算器
-          </h1>
-          <p
-            className={
-              embedded
-                ? 'mt-2 max-w-2xl text-sm leading-relaxed text-slate-600'
-                : 'mx-auto mt-3 max-w-lg text-center text-sm leading-relaxed text-slate-600 sm:text-base'
-            }
-          >
-            间隔与推算两种模式，本地即时计算；与日历模块共用 Pencil 风格界面。
-          </p>
-        </header>
+            <h1 className="text-center text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+              日期计算器
+            </h1>
+            <p className="mx-auto mt-3 max-w-lg text-center text-sm leading-relaxed text-slate-600 sm:text-base">
+              间隔与推算两种模式，本地即时计算；与日历模块共用 Pencil 风格界面。
+            </p>
+          </header>
+        )}
 
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
+        <div
+          className={
+            embedded
+              ? 'mb-4 shrink-0 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden'
+              : 'mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center'
+          }
+        >
           <div
-            className="inline-flex w-full rounded-2xl border border-white/70 bg-white/50 p-1 shadow-sm backdrop-blur-md sm:w-auto"
+            className={
+              embedded
+                ? 'inline-flex min-w-full w-max rounded-2xl border border-white/70 bg-white/50 p-1 shadow-sm backdrop-blur-md sm:min-w-0 sm:w-auto'
+                : 'inline-flex w-full rounded-2xl border border-white/70 bg-white/50 p-1 shadow-sm backdrop-blur-md sm:w-auto'
+            }
             role="tablist"
             aria-label="计算模式"
           >
@@ -117,7 +115,7 @@ export default function DateCalculatorTool({
                 role="tab"
                 aria-selected={mode === m.id}
                 onClick={() => setMode(m.id)}
-                className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-medium transition sm:flex-none sm:px-5 ${
+                className={`flex-1 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-medium transition sm:flex-none sm:px-5 ${
                   mode === m.id
                     ? 'bg-violet-600 text-white shadow-md shadow-violet-500/25'
                     : 'text-slate-600 hover:bg-white/70'
@@ -127,11 +125,20 @@ export default function DateCalculatorTool({
               </button>
             ))}
           </div>
-          <p className="text-center text-xs text-slate-500 sm:text-left sm:max-w-xs">
-            {MODES.find((m) => m.id === mode)?.hint}
-          </p>
+          {!embedded && (
+            <p className="text-center text-xs text-slate-500 sm:max-w-xs sm:text-left">
+              {MODES.find((m) => m.id === mode)?.hint}
+            </p>
+          )}
         </div>
 
+        <div
+          className={
+            embedded
+              ? 'min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden'
+              : undefined
+          }
+        >
         {mode === 'interval' && (
           <section className="rounded-3xl border border-white/80 bg-white/75 p-5 shadow-xl shadow-indigo-950/5 backdrop-blur-md sm:p-8">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-end">
@@ -341,6 +348,7 @@ export default function DateCalculatorTool({
             使用本机日期；跨年与大小月由 dayjs 按日历规则处理。
           </footer>
         )}
+        </div>
       </div>
     </div>
   )

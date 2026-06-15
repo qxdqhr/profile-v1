@@ -108,7 +108,7 @@ function CalendarPageContent() {
   const { isAuthenticated } = useAuthContext();
 
   const [eventListConfig, setEventListConfig] = useState<EventListConfig>({
-    displayMode: EventListDisplayMode.LIST,
+    displayMode: EventListDisplayMode.GRID,
     sort: { field: EventSortField.START_TIME, direction: SortDirection.ASC },
     filter: {},
     pageSize: 10,
@@ -420,8 +420,9 @@ function CalendarPageContent() {
           )}
 
           {activeTab === 'events' && (
-            <div className="mt-3 min-h-0 flex-1 overflow-auto">
+            <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden">
               <EventList
+                className="h-full"
                 events={events}
                 config={eventListConfig}
                 onConfigChange={setEventListConfig}
@@ -435,14 +436,16 @@ function CalendarPageContent() {
           )}
 
           {activeTab === 'tools' && (
-            <div className={`${cal.panel} mt-3 p-4 sm:p-6`}>
-              <DateCalculatorTool variant="embedded" />
+            <div
+              className={`${cal.panel} mt-3 flex min-h-0 flex-1 flex-col overflow-hidden p-4 sm:p-6`}
+            >
+              <DateCalculatorTool variant="embedded" className="h-full min-h-0" />
             </div>
           )}
 
           {activeTab === 'settings' && (
-            <div className="mt-3 min-h-0 flex-1 overflow-auto">
-              <CalendarSettings />
+            <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden">
+              <CalendarSettings className="h-full min-h-0" />
             </div>
           )}
         </main>

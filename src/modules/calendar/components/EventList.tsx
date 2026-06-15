@@ -85,6 +85,18 @@ export default function EventList({
         event.startTime <= config.filter.dateRange!.endDate
       );
     }
+
+    if (config.filter.month) {
+      const [yearStr, monthStr] = config.filter.month.split('-');
+      const year = Number(yearStr);
+      const month = Number(monthStr);
+      if (!Number.isNaN(year) && !Number.isNaN(month)) {
+        filteredEvents = filteredEvents.filter((event) => {
+          const d = event.startTime;
+          return d.getFullYear() === year && d.getMonth() + 1 === month;
+        });
+      }
+    }
     
     // 应用排序
     filteredEvents.sort((a, b) => {
@@ -236,6 +248,27 @@ export default function EventList({
         searchText
       },
       currentPage: 1 // 重置到第一页
+    });
+  };
+
+  const handleMonthFilterChange = (month: string) => {
+    onConfigChange({
+      ...config,
+      filter: {
+        ...config.filter,
+        month: month || undefined,
+      },
+      currentPage: 1,
+    });
+  };
+
+  const clearMonthFilter = () => {
+    if (!config.filter.month) return;
+    const { month: _removed, ...rest } = config.filter;
+    onConfigChange({
+      ...config,
+      filter: rest,
+      currentPage: 1,
     });
   };
   
@@ -488,12 +521,12 @@ export default function EventList({
   );
   
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* 工具栏 */}
-      <div className={cn(cal.panel, cal.listToolbar)}>
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div className={cn('flex h-full min-h-0 flex-col', className)}>
+      {/* 固定工具栏 */}
+      <div className={cn(cal.panel, cal.listToolbar, 'shrink-0')}>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           {/* 搜索框 */}
-          <div className="flex-1 max-w-md">
+          <div className="max-w-md flex-1">
             <SearchBox
               searchQuery={config.filter.searchText || ''}
               onSearchChange={handleSearchChange}
@@ -503,15 +536,43 @@ export default function EventList({
           </div>
           
           {/* 批量操作和显示模式 */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* 月份筛选 */}
+            <div className="flex items-center gap-2">
+              <span className={`${cal.textBody} text-sm whitespace-nowrap`}>月份:</span>
+              <input
+                type="month"
+                value={config.filter.month ?? ''}
+                onChange={(e) => handleMonthFilterChange(e.target.value)}
+                className={cn(cal.input, 'h-9 w-[140px] py-1.5 text-sm')}
+                aria-label="按月份筛选"
+              />
+              {config.filter.month && (
+                <button
+                  type="button"
+                  onClick={clearMonthFilter}
+                  className="whitespace-nowrap text-xs font-semibold text-[#11a89b] hover:text-[#19c8b9]"
+                >
+                  清除
+                </button>
+              )}
+            </div>
+
             {/* 批量操作按钮 */}
             {enableBatchActions && onBatchDelete && (
               <>
                 {!isSelectionMode ? (
-                  <Button type="default" size="small" onClick={toggleSelectionMode}>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                  <Button
+                    type="default"
+                    size="small"
+                    onClick={toggleSelectionMode}
+                    className="whitespace-nowrap"
+                    icon={
+                      <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    }
+                  >
                     批量操作
                   </Button>
                 ) : (
@@ -526,6 +587,7 @@ export default function EventList({
                         size="small"
                         loading={batchDeleteLoading}
                         onClick={() => setShowBatchDeleteConfirm(true)}
+                        className="whitespace-nowrap"
                       >
                         删除选中({selectedEventIds.size})
                       </Button>
@@ -537,7 +599,7 @@ export default function EventList({
             
             {/* 显示模式切换 */}
             <div className="flex items-center gap-2">
-              <span className={`${cal.textBody} mr-2 text-sm`}>显示模式:</span>
+              <span className={`${cal.textBody} mr-2 text-sm whitespace-nowrap`}>显示模式:</span>
               <div className={cal.segmented}>
                 <button
                   onClick={() => handleDisplayModeChange(EventListDisplayMode.LIST)}
@@ -590,65 +652,69 @@ export default function EventList({
         )}
       </div>
       
-      {/* 事件统计 */}
-      <div className="flex items-center justify-between">
-        <div className={cal.stats}>
-          共 {sortedAndFilteredEvents.length} 个事件
-          {config.filter.searchText && ` (搜索: "${config.filter.searchText}")`}
+      {/* 可滚动内容区 */}
+      <div className={cn(cal.scrollY, cal.scrollHidden, 'mt-3 min-h-0 flex-1')}>
+        {/* 事件统计 */}
+        <div className="mb-3 flex items-center justify-between">
+          <div className={cal.stats}>
+            共 {sortedAndFilteredEvents.length} 个事件
+            {config.filter.searchText && ` (搜索: "${config.filter.searchText}")`}
+            {config.filter.month && ` (月份: ${config.filter.month})`}
+          </div>
         </div>
+        
+        {/* 加载状态 */}
+        {loading && (
+          <div className={cal.loadingWrap}>
+            <Loading active />
+          </div>
+        )}
+        
+        {/* 事件列表 */}
+        {!loading && paginatedEvents.length > 0 && (
+          <>
+            {config.displayMode === EventListDisplayMode.LIST ? renderListMode() : renderGridMode()}
+            
+            {/* 分页 */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between pt-6">
+                <div className={cal.stats}>
+                  第 {config.currentPage} 页，共 {totalPages} 页
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handlePageChange(config.currentPage - 1)}
+                    disabled={config.currentPage === 1}
+                    className={cal.paginationBtn}
+                  >
+                    上一页
+                  </button>
+                  <button
+                    onClick={() => handlePageChange(config.currentPage + 1)}
+                    disabled={config.currentPage === totalPages}
+                    className={cal.paginationBtn}
+                  >
+                    下一页
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+        
+        {/* 空状态 */}
+        {!loading && paginatedEvents.length === 0 && (
+          <div className={cal.empty}>
+            <h3 className={`${cal.textHeading} mb-2 text-lg`}>暂无事件</h3>
+            <p className={cal.textMuted}>
+              {config.filter.searchText || config.filter.priority || config.filter.color || config.filter.dateRange || config.filter.month
+                ? '没有找到符合条件的事件'
+                : '还没有创建任何事件'
+              }
+            </p>
+          </div>
+        )}
       </div>
-      
-      {/* 加载状态 */}
-      {loading && (
-        <div className={cal.loadingWrap}>
-          <Loading active />
-        </div>
-      )}
-      
-      {/* 事件列表 */}
-      {!loading && paginatedEvents.length > 0 && (
-        <>
-          {config.displayMode === EventListDisplayMode.LIST ? renderListMode() : renderGridMode()}
-          
-          {/* 分页 */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between pt-6">
-              <div className={cal.stats}>
-                第 {config.currentPage} 页，共 {totalPages} 页
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handlePageChange(config.currentPage - 1)}
-                  disabled={config.currentPage === 1}
-                  className={cal.paginationBtn}
-                >
-                  上一页
-                </button>
-                <button
-                  onClick={() => handlePageChange(config.currentPage + 1)}
-                  disabled={config.currentPage === totalPages}
-                  className={cal.paginationBtn}
-                >
-                  下一页
-                </button>
-              </div>
-            </div>
-          )}
-        </>
-      )}
-      
-      {/* 空状态 */}
-      {!loading && paginatedEvents.length === 0 && (
-        <div className={cal.empty}>
-          <h3 className={`${cal.textHeading} mb-2 text-lg`}>暂无事件</h3>
-          <p className={cal.textMuted}>
-            {config.filter.searchText || config.filter.priority || config.filter.color || config.filter.dateRange
-              ? '没有找到符合条件的事件'
-              : '还没有创建任何事件'
-            }
-          </p>
-        </div>
-      )}
       
       {/* 批量删除确认弹窗 */}
       <Modal
