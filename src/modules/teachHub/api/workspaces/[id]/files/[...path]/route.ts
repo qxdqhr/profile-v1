@@ -49,12 +49,19 @@ export async function GET(request: NextRequest, context: RouteContext) {
       content = rewriteTeachHtmlLinks(content, workspaceId);
     }
 
+    const headers: Record<string, string> = {
+      'Content-Type': contentTypeForPath(relativePath),
+      'Cache-Control': 'private, no-store',
+    };
+    if (shouldRewriteHtml(relativePath)) {
+      // 允许同源 iframe 直接加载（LessonViewer 已改 srcDoc，此处作兜底）
+      headers['X-Frame-Options'] = 'SAMEORIGIN';
+      headers['Content-Security-Policy'] = "frame-ancestors 'self'";
+    }
+
     return new NextResponse(content, {
       status: 200,
-      headers: {
-        'Content-Type': contentTypeForPath(relativePath),
-        'Cache-Control': 'private, no-store',
-      },
+      headers,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : '读取文件失败';

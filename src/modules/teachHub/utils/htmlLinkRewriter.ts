@@ -55,6 +55,13 @@ export function rewriteTeachHtmlLinks(html: string, workspaceId: string): string
       `href=${quote}${referenceHref(workspaceId, file)}${quote}`,
   );
 
+  // 课内链接在 iframe srcDoc 中应跳出到主窗口，避免嵌套整页
+  if (!/<base\s/i.test(out)) {
+    if (/<head[\s>]/i.test(out)) {
+      out = out.replace(/<head([^>]*)>/i, '<head$1><base target="_top" href="/">');
+    }
+  }
+
   return out;
 }
 
