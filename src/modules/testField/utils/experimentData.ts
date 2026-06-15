@@ -358,6 +358,17 @@ export const experiments: ExperimentItem[] = [
     isCompleted: false
   },
   {
+    id: "teach-hub",
+    title: "Teach 学习工作区",
+    description: "每人独立的 teach skill 工作区：管理 Mission、学习 HTML 课时、追踪进度，后续支持 Mimo 续备下一课",
+    path: "/testField/teachHub",
+    tags: ["教育", "乐理", "学习", "teach", "AI"],
+    category: "utility",
+    isCompleted: false,
+    createdAt: "2026-06-15",
+    updatedAt: "2026-06-15"
+  },
+  {
     id: "calendar",
     title: "日历管理",
     description: "企业级日历应用，具备完整的事件管理、智能提醒、重复事件、事件搜索等高级功能。支持月/周/日视图切换，具备导入导出、时区支持、响应式设计等现代化特性。现已集成用户认证系统，支持登录/登出、用户菜单、认证守卫等功能",

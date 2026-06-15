@@ -32,6 +32,9 @@ export * from '@/modules/mikutap/db/schema';
 // 导出 Skill Manager 相关表
 export * from '@/modules/skillManager/db/schema';
 
+// 导出 teachHub 学习工作区相关表
+export * from '@/modules/teachHub/db/schema';
+
 // 导出 ComfyUI 提示词工具相关表
 export * from '@/modules/comfyPrompt/db/schema';
 

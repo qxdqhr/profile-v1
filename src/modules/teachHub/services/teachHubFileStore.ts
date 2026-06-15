@@ -1,0 +1,309 @@
+import AdmZip from 'adm-zip';
+import {
+  uploadFileAndResolveAccessUrl,
+  FileDbService,
+} from 'sa2kit/common/file/server';
+import {
+  createProfileFileService,
+  getProfileOssFileBootstrap,
+} from '@/lib/ossFile/env';
+import { db } from '@/db';
+import type { LessonIndex, TeachStoredFile } from '../types';
+import {
+  TEACH_HUB_MODULE_ID,
+  buildBusinessId,
+  buildCustomPath,
+  sanitizeRelativePath,
+} from '../utils/teachWorkspacePaths';
+import { listLessonsFromPaths } from '../utils/lessonIndex';
+import { shouldSkipZipEntry, validateWorkspacePaths } from '../utils/workspaceValidator';
+
+type RawFile = {
+  id: string;
+  originalName: string;
+  storedName: string;
+  mimeType: string;
+  size: number;
+  storagePath: string;
+  moduleId: string;
+  businessId: string;
+  cdnUrl?: string | null;
+  metadata?: Record<string, unknown> | null;
+  createdAt?: string | Date | null;
+};
+
+export type ImportWorkspaceZipResult = {
+  importedFiles: number;
+  skippedFiles: number;
+  validation: ReturnType<typeof validateWorkspacePaths>;
+  paths: string[];
+};
+
+function toIso(value: string | Date | null | undefined): string {
+  if (!value) return new Date(0).toISOString();
+  const d = typeof value === 'string' ? new Date(value) : value;
+  return Number.isNaN(d.getTime()) ? new Date(0).toISOString() : d.toISOString();
+}
+
+function deriveRelativePath(file: RawFile): string {
+  const fromMeta =
+    typeof file.metadata?.relativePath === 'string' ? file.metadata.relativePath.trim() : '';
+  if (fromMeta) return fromMeta;
+  const prefix = `${TEACH_HUB_MODULE_ID}/`;
+  const marker = `${file.businessId}/`;
+  const idx = file.storagePath?.indexOf(marker);
+  if (idx != null && idx >= 0 && file.storagePath) {
+    return file.storagePath.slice(idx + marker.length);
+  }
+  return file.originalName;
+}
+
+function detectMimeType(relativePath: string): string {
+  if (relativePath.endsWith('.html')) return 'text/html; charset=utf-8';
+  if (relativePath.endsWith('.md')) return 'text/markdown; charset=utf-8';
+  if (relativePath.endsWith('.json')) return 'application/json; charset=utf-8';
+  return 'text/plain; charset=utf-8';
+}
+
+async function createFileDbService(): Promise<FileDbService> {
+  return new FileDbService(db);
+}
+
+async function createFileService() {
+  return createProfileFileService();
+}
+
+function mapRawFile(raw: RawFile): TeachStoredFile {
+  return {
+    id: raw.id,
+    relativePath: deriveRelativePath(raw),
+    mimeType: raw.mimeType,
+    size: raw.size,
+    createdAt: toIso(raw.createdAt),
+  };
+}
+
+export async function listWorkspaceFiles(
+  userId: string,
+  workspaceId: string,
+): Promise<TeachStoredFile[]> {
+  const businessId = buildBusinessId(userId, workspaceId);
+  const fileDbService = await createFileDbService();
+  const result = await fileDbService.getFiles({
+    moduleId: TEACH_HUB_MODULE_ID,
+    businessId,
+    isDeleted: false,
+    limit: 2000,
+    offset: 0,
+  });
+  const files = (result?.files || []) as RawFile[];
+  const latestByPath = new Map<string, TeachStoredFile>();
+
+  for (const raw of files) {
+    const item = mapRawFile(raw);
+    const prev = latestByPath.get(item.relativePath);
+    if (!prev || prev.createdAt < item.createdAt) {
+      latestByPath.set(item.relativePath, item);
+    }
+  }
+
+  return Array.from(latestByPath.values()).sort((a, b) =>
+    a.relativePath < b.relativePath ? -1 : 1,
+  );
+}
+
+export async function getWorkspaceFileByPath(
+  userId: string,
+  workspaceId: string,
+  relativePath: string,
+): Promise<TeachStoredFile | null> {
+  const safePath = sanitizeRelativePath(relativePath);
+  if (!safePath) return null;
+  const files = await listWorkspaceFiles(userId, workspaceId);
+  return files.find((f) => f.relativePath === safePath) || null;
+}
+
+async function getFileAccessUrl(fileId: string): Promise<string> {
+  const url = await getProfileOssFileBootstrap().getFileUrl(fileId);
+  if (!url) {
+    throw new Error(`无法解析文件 URL: ${fileId}`);
+  }
+  return url;
+}
+
+export async function readWorkspaceFileText(
+  userId: string,
+  workspaceId: string,
+  relativePath: string,
+): Promise<string> {
+  const file = await getWorkspaceFileByPath(userId, workspaceId, relativePath);
+  if (!file) {
+    throw new Error(`文件不存在: ${relativePath}`);
+  }
+  const url = await getFileAccessUrl(file.id);
+  const response = await fetch(url, { cache: 'no-store' });
+  if (!response.ok) {
+    throw new Error(`读取文件失败: ${response.status}`);
+  }
+  return response.text();
+}
+
+export async function putWorkspaceFileText(input: {
+  userId: string;
+  workspaceId: string;
+  relativePath: string;
+  content: string;
+  uploaderId?: string;
+}): Promise<{ fileId: string; accessUrl: string }> {
+  const safePath = sanitizeRelativePath(input.relativePath);
+  if (!safePath) {
+    throw new Error(`非法 relativePath: ${input.relativePath}`);
+  }
+
+  const fileService = await createFileService();
+  const name = safePath.split('/').pop() || 'file.txt';
+  const mime = detectMimeType(safePath);
+  const file = new File([input.content], name, { type: mime.split(';')[0] });
+
+  return uploadFileAndResolveAccessUrl(
+    fileService,
+    {
+      file,
+      moduleId: TEACH_HUB_MODULE_ID,
+      businessId: buildBusinessId(input.userId, input.workspaceId),
+      customPath: buildCustomPath(input.userId, input.workspaceId, safePath),
+      metadata: {
+        relativePath: safePath,
+        uploadedBy: input.uploaderId || input.userId,
+        uploadedAt: new Date().toISOString(),
+      },
+    },
+    input.uploaderId || input.userId,
+  );
+}
+
+export async function listWorkspaceLessons(
+  userId: string,
+  workspaceId: string,
+): Promise<LessonIndex[]> {
+  const files = await listWorkspaceFiles(userId, workspaceId);
+  const paths = files.map((f) => f.relativePath);
+  return listLessonsFromPaths(paths);
+}
+
+export async function importWorkspaceZip(input: {
+  userId: string;
+  workspaceId: string;
+  zipBuffer: Buffer;
+  uploaderId?: string;
+  stripRootFolder?: boolean;
+}): Promise<ImportWorkspaceZipResult> {
+  const zip = new AdmZip(input.zipBuffer);
+  const entries = zip.getEntries();
+  const importedPaths: string[] = [];
+  let importedFiles = 0;
+  let skippedFiles = 0;
+
+  let commonRoot: string | null = null;
+  if (input.stripRootFolder !== false) {
+    const fileEntries = entries.filter((e) => !e.isDirectory && !shouldSkipZipEntry(e.entryName));
+    if (fileEntries.length > 0) {
+      const firstSegment = fileEntries[0].entryName.replaceAll('\\', '/').split('/')[0];
+      const allShareRoot = fileEntries.every((e) =>
+        e.entryName.replaceAll('\\', '/').startsWith(`${firstSegment}/`),
+      );
+      if (allShareRoot && firstSegment && !firstSegment.includes('.')) {
+        commonRoot = firstSegment;
+      }
+    }
+  }
+
+  for (const entry of entries) {
+    if (entry.isDirectory) continue;
+    let relativePath = entry.entryName.replaceAll('\\', '/');
+    if (shouldSkipZipEntry(relativePath)) {
+      skippedFiles += 1;
+      continue;
+    }
+    if (commonRoot && relativePath.startsWith(`${commonRoot}/`)) {
+      relativePath = relativePath.slice(commonRoot.length + 1);
+    }
+    const safePath = sanitizeRelativePath(relativePath);
+    if (!safePath) {
+      skippedFiles += 1;
+      continue;
+    }
+
+    const content = entry.getData().toString('utf8');
+    await putWorkspaceFileText({
+      userId: input.userId,
+      workspaceId: input.workspaceId,
+      relativePath: safePath,
+      content,
+      uploaderId: input.uploaderId,
+    });
+    importedPaths.push(safePath);
+    importedFiles += 1;
+  }
+
+  const validation = validateWorkspacePaths(importedPaths);
+  return {
+    importedFiles,
+    skippedFiles,
+    validation,
+    paths: importedPaths,
+  };
+}
+
+export async function buildWorkspaceZip(
+  userId: string,
+  workspaceId: string,
+): Promise<Buffer> {
+  const files = await listWorkspaceFiles(userId, workspaceId);
+  const zip = new AdmZip();
+  for (const file of files) {
+    const url = await getFileAccessUrl(file.id);
+    const response = await fetch(url, { cache: 'no-store' });
+    if (!response.ok) continue;
+    const bytes = await response.arrayBuffer();
+    zip.addFile(file.relativePath, Buffer.from(bytes));
+  }
+  return zip.toBuffer();
+}
+
+export async function initEmptyWorkspaceFiles(input: {
+  userId: string;
+  workspaceId: string;
+  title: string;
+  topic?: string | null;
+  missionMarkdown: string;
+  resourcesMarkdown: string;
+  notesMarkdown: string;
+  metaJson: Record<string, unknown>;
+}): Promise<void> {
+  const base = {
+    userId: input.userId,
+    workspaceId: input.workspaceId,
+    uploaderId: input.userId,
+  };
+  await putWorkspaceFileText({
+    ...base,
+    relativePath: 'MISSION.md',
+    content: input.missionMarkdown,
+  });
+  await putWorkspaceFileText({
+    ...base,
+    relativePath: 'RESOURCES.md',
+    content: input.resourcesMarkdown,
+  });
+  await putWorkspaceFileText({
+    ...base,
+    relativePath: 'NOTES.md',
+    content: input.notesMarkdown,
+  });
+  await putWorkspaceFileText({
+    ...base,
+    relativePath: '.meta.json',
+    content: JSON.stringify(input.metaJson, null, 2),
+  });
+}
