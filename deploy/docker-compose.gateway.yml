@@ -1,0 +1,63 @@
+# 生产网关栈：nginx + web + calendar + teach-hub
+# 用法见 deploy/MIGRATION-RUNBOOK.md
+
+services:
+  web:
+    image: ${REGISTRY}/qhr-profile-web:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      APP_CONFIG_ENV: production
+      NEXT_PUBLIC_CALENDAR_URL: /calendar
+      NEXT_PUBLIC_TEACH_HUB_URL: /teach-hub
+    volumes:
+      - ./app.config.yaml:/app/config/app.config.production.yaml:ro
+    expose:
+      - '3000'
+    networks:
+      - profile
+
+  calendar:
+    image: ${REGISTRY}/qhr-profile-calendar:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      APP_CONFIG_ENV: production
+      NEXT_PUBLIC_BASE_PATH: /calendar
+    volumes:
+      - ./app.config.yaml:/app/config/app.config.production.yaml:ro
+    expose:
+      - '3001'
+    networks:
+      - profile
+
+  teach_hub:
+    image: ${REGISTRY}/qhr-profile-teach-hub:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      APP_CONFIG_ENV: production
+      NEXT_PUBLIC_BASE_PATH: /teach-hub
+      NEXT_PUBLIC_TEACH_HUB_BASE_URL: /teach-hub
+    volumes:
+      - ./app.config.yaml:/app/config/app.config.production.yaml:ro
+    expose:
+      - '3002'
+    networks:
+      - profile
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on:
+      - web
+      - calendar
+      - teach_hub
+    ports:
+      - '${GATEWAY_PORT:-3000}:80'
+    volumes:
+      - ./nginx/profile-platform.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/proxy-params.conf:/etc/nginx/proxy-params.conf:ro
+    networks:
+      - profile
+
+networks:
+  profile:
+    driver: bridge

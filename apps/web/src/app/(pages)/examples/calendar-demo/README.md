@@ -1,5 +1,7 @@
 # Calendar Demo API Notes
 
+> 生产日历已迁至 `apps/calendar`（`/api/calendar/*` 由网关反代）。本目录仅为 **web 内 examples 演示**，使用 mock 或 sa2kit factory，与 `@profile/calendar-core` 生产 API 无关。
+
 This demo now supports two modes for calendar APIs:
 
 1. Factory mode (recommended)

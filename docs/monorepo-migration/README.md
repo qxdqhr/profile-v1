@@ -9,6 +9,8 @@
 |------|------|
 | [TASKS.md](./TASKS.md) | 任务总表、阶段里程碑、依赖关系 |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | 目标目录、边界、部署与 B→C 演进 |
+| [deploy.md](./deploy.md) | 三应用 Docker 镜像、端口、CI tag |
+| [PHASE-C-CHECKLIST.md](./PHASE-C-CHECKLIST.md) | B→C 演进检查清单（ST-20） |
 | [subtasks/](./subtasks/) | 子任务 ST-01～ST-20 详细说明 |
 
 ## 背景与动机
@@ -53,7 +55,7 @@ profile-v1/                          # 仓库根（可日后改名为 profile-pl
 
 1. **绞杀者模式**：先复制/搬迁，再切换入口，最后删除 `src/modules/calendar|teachHub`。
 2. **共享优先**：Auth、DB、OSS、sa2kit 配置在 `packages/*` 统一，避免 B 阶段就拆成三个数据库。
-3. **API 契约稳定**：对外路径短期保持 `/api/calendar/*`、`/api/teach-hub/*`，由 `apps/web` 反代或各 app 自承载。
+3. **API 契约稳定**：对外路径保持 `/api/calendar/*`、`/api/teach-hub/*`，由网关反代至各 app 自承载 API。
 4. **先 calendar 后 teachHub**：teachHub 与 `aiApi` 服务端注册、OSS 耦合更深。
 5. **每完成一 ST 更新 [TASKS.md](./TASKS.md)** 勾选与状态。
 
@@ -76,5 +78,5 @@ ST-01 → ST-02 → ST-03 + ST-04（并行）→ ST-05 → ST-06
 ## 相关现有文档
 
 - 知识库：`.cursor/KNOWLEDGE_BASE.md`
-- teachHub 模块内文档：`src/modules/teachHub/docs/`
-- calendar：`src/modules/calendar/README.md`、`DEVELOPMENT.md`
+- teach-hub 领域文档：`packages/teach-hub-core/docs/`
+- calendar 领域文档：`packages/calendar-core/README.md`

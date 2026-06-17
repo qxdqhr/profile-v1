@@ -42,6 +42,8 @@ const nextConfig: NextConfig = {
         NEXT_PUBLIC_APP_URL: publicAppUrl,
         NEXT_PUBLIC_CALENDAR_URL:
             process.env.NEXT_PUBLIC_CALENDAR_URL ?? 'http://localhost:3001',
+        NEXT_PUBLIC_TEACH_HUB_URL:
+            process.env.NEXT_PUBLIC_TEACH_HUB_URL ?? 'http://localhost:3002',
     },
 
     images: {

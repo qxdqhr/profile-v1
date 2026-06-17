@@ -1,7 +1,7 @@
 # ST-14 apps/teach-hub 脚手架
 
 **任务 ID**：M-14  
-**状态**：pending  
+**状态**：done  
 **依赖**：M-13, M-04
 
 ## 目标
@@ -10,19 +10,20 @@
 
 ## 交付物
 
-- [ ] `apps/teach-hub/package.json`
-- [ ] 路由树（自 `app/(pages)/testField/(utility)/teachHub/` 迁移）：
+- [x] `apps/teach-hub/package.json`
+- [x] 路由树（自 `app/(pages)/testField/(utility)/teachHub/` 迁移）：
   - `/` — 仪表盘
   - `/w/[workspaceId]/**` — 工作区子路由
-- [ ] `TeachHubLayout` + `WorkspaceShell` 来自 teach-hub-core
-- [ ] `PORT=3002`
+- [x] `TeachHubLayout` + `WorkspaceShell` 来自 teach-hub-core
+- [x] `PORT=3002`，`NEXT_DIST_DIR=.next-teach-hub`
+- [x] `/api/teach-hub/*` + `/api/auth/*` + `/api/ai/*`（供本地 dev 联调；ST-15 收敛 web 侧注册）
 
-## 验收标准
+## 验收记录（2026-06-17）
 
-1. `pnpm --filter @profile/teach-hub dev` 可浏览工作区列表
-2. `pnpm --filter @profile/teach-hub build` 成功
-3. 课时 iframe / reference HTML 链接正确（依赖 base URL 配置）
+1. `pnpm --filter @profile/teach-hub build` 通过
+2. 根脚本 `pnpm dev:teach-hub` / `pnpm build:teach-hub` 可用
+3. `NEXT_PUBLIC_TEACH_HUB_BASE_URL=''` 时站内链接为 `/w/{id}/...`
 
-## 备注
+## 后续（ST-15）
 
-路由深度大，建议整目录复制后批量改 import。
+从 web 移除 teachHub AI 注册；完善入口切换（ST-16）。

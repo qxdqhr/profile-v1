@@ -1,10 +1,10 @@
 import {
+  getWorkspaceForUser,
   listWorkspaceFiles,
   putWorkspaceFileText,
   readWorkspaceFileText,
   repairWorkspaceSeedFilesIfMissing,
-} from '../apps/web/src/modules/teachHub/services/teachHubFileStore';
-import { getWorkspaceForUser } from '../apps/web/src/modules/teachHub/services/teachHubDbService';
+} from '@profile/teach-hub-core/server';
 
 async function main() {
   const userId = process.argv[2] || 'YRMAoATU4uNCjkIaxCQQI';

@@ -26,9 +26,7 @@
       "@profile/config/*": ["../../packages/config/src/*"],
       "@profile/db": ["../../packages/db/src/index.ts"],
       "@profile/db/*": ["../../packages/db/src/*"],
-      "@profile/ui/*": ["../../packages/ui/*"],
-      "@profile/calendar-core": ["../../packages/calendar-core/src/index.ts"],
-      "@profile/calendar-core/*": ["../../packages/calendar-core/src/*"]
+      "@profile/ui/*": ["../../packages/ui/*"]
     }
   },
   "include": [

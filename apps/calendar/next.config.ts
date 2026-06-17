@@ -25,7 +25,10 @@ function readPublicAppUrl(): string {
   return process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3001';
 }
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH?.replace(/\/$/, '') || '';
+
 const nextConfig: NextConfig = {
+  ...(basePath ? { basePath } : {}),
   distDir: process.env.NEXT_DIST_DIR || '.next-calendar',
   output: 'standalone',
   transpilePackages: ['sa2kit', 'animal-island-ui', '@profile/auth', '@profile/calendar-core'],
@@ -34,6 +37,7 @@ const nextConfig: NextConfig = {
   },
   env: {
     NEXT_PUBLIC_APP_URL: readPublicAppUrl(),
+    NEXT_PUBLIC_BASE_PATH: basePath,
   },
   images: {
     unoptimized: true,

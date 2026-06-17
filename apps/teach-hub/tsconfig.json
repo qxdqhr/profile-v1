@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@profile/auth": ["../../packages/auth/src/index.ts"],
+      "@profile/auth/*": ["../../packages/auth/src/*"],
+      "@profile/config": ["../../packages/config/src/index.ts"],
+      "@profile/config/*": ["../../packages/config/src/*"],
+      "@profile/db": ["../../packages/db/src/index.ts"],
+      "@profile/db/*": ["../../packages/db/src/*"],
+      "@profile/teach-hub-core": ["../../packages/teach-hub-core/src/index.ts"],
+      "@profile/teach-hub-core/*": ["../../packages/teach-hub-core/src/*"],
+      "@profile/ui/*": ["../../packages/ui/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next-teach-hub/types/**/*.ts",
+    ".next-teach-hub/dev/types/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}

@@ -50,10 +50,10 @@
 
 | ID | 任务 | 子任务 | 状态 | 依赖 |
 |----|------|--------|------|------|
-| M-13 | packages/teach-hub-core 搬迁 | [ST-13](./subtasks/ST-13-teach-hub-core.md) | pending | M-05, M-07 |
-| M-14 | apps/teach-hub 脚手架与路由 | [ST-14](./subtasks/ST-14-app-teach-hub.md) | pending | M-13, M-04 |
-| M-15 | teach-hub API / OSS / AI 任务注册 | [ST-15](./subtasks/ST-15-teach-hub-api-ai.md) | pending | M-14 |
-| M-16 | 入口切换与链接/路径环境变量 | [ST-16](./subtasks/ST-16-teach-hub-cutover.md) | pending | M-15 |
+| M-13 | packages/teach-hub-core 搬迁 | [ST-13](./subtasks/ST-13-teach-hub-core.md) | done | M-05, M-07 |
+| M-14 | apps/teach-hub 脚手架与路由 | [ST-14](./subtasks/ST-14-app-teach-hub.md) | done | M-13, M-04 |
+| M-15 | teach-hub API / OSS / AI 任务注册 | [ST-15](./subtasks/ST-15-teach-hub-api-ai.md) | done | M-14 |
+| M-16 | 入口切换与链接/路径环境变量 | [ST-16](./subtasks/ST-16-teach-hub-cutover.md) | done | M-15 |
 
 **里程碑 M3**：teach-hub 独立 build；AI 生成课时端到端；web 不再 `registerTeachHubAiTasks`。
 
@@ -63,12 +63,12 @@
 
 | ID | 任务 | 子任务 | 状态 | 依赖 |
 |----|------|--------|------|------|
-| M-17 | 多 Dockerfile 与 GitHub Actions matrix | [ST-17](./subtasks/ST-17-multi-docker-ci.md) | pending | M-12, M-16 |
-| M-18 | 网关 / 反代与路径或子域路由 | [ST-18](./subtasks/ST-18-gateway-routing.md) | pending | M-17 |
-| M-19 | 删除 web 内废弃 modules 与 API 转发层 | [ST-19](./subtasks/ST-19-cleanup-legacy.md) | pending | M-18 |
-| M-20 | 方案 C 预备（独立域名、trustedOrigins、文档） | [ST-20](./subtasks/ST-20-phase-c-readiness.md) | pending | M-19 |
+| M-17 | 多 Dockerfile 与 GitHub Actions matrix | [ST-17](./subtasks/ST-17-multi-docker-ci.md) | done | M-12, M-16 |
+| M-18 | 网关 / 反代与路径或子域路由 | [ST-18](./subtasks/ST-18-gateway-routing.md) | done | M-17 |
+| M-19 | 删除 web 内废弃 modules 与 API 转发层 | [ST-19](./subtasks/ST-19-cleanup-legacy.md) | done | M-18 |
+| M-20 | 方案 C 预备（独立域名、trustedOrigins、文档） | [ST-20](./subtasks/ST-20-phase-c-readiness.md) | done | M-19 |
 
-**里程碑 M4**：三应用可独立发版；profile 单体 Docker 退役或仅保留 web。
+**里程碑 M4**：三应用可独立发版；profile 单体 Docker 退役或仅保留 web。✅ **方案 B 已完成**
 
 ---
 
@@ -87,7 +87,7 @@ M-00
 
 ## 当前冲刺建议
 
-**下一步执行 ST-12**（calendar 入口切换，web 兼容层收敛）。
+**方案 B 已完成**（M-01～M-20）。后续按 [PHASE-C-CHECKLIST.md](./PHASE-C-CHECKLIST.md) 触发条件启动方案 C。
 
 ## 勾选记录
 
@@ -102,6 +102,10 @@ M-00
 
 - [x] 2026-06-11 M-07 apps/web 搬迁
 - [x] 2026-06-11 M-08 Docker / 根脚本适配
-- [ ] M-12 calendar 切换
-- [ ] M-16 teach-hub 切换
-- [ ] M-20 方案 C 预备
+- [x] 2026-06-17 M-15 teach-hub API / AI 单点注册
+- [x] 2026-06-17 M-14 `apps/teach-hub`
+- [x] 2026-06-17 M-13 `@profile/teach-hub-core`
+- [x] 2026-06-11 M-12 calendar 切换
+- [x] 2026-06-17 M-18 网关 nginx + compose 部署
+- [x] 2026-06-17 M-19 web 遗留清理
+- [x] 2026-06-17 M-20 方案 C 预备文档

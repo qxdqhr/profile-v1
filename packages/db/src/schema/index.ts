@@ -14,7 +14,7 @@ export * from '../../../../apps/web/src/modules/mmd/db/schema';
 export * from '../../../../apps/web/src/modules/cardMaker/db/schema';
 export * from '../../../../apps/web/src/modules/mikutap/db/schema';
 export * from '../../../../apps/web/src/modules/skillManager/db/schema';
-export * from '../../../../apps/web/src/modules/teachHub/db/schema';
+export * from '../../../../packages/teach-hub-core/src/db/schema';
 export * from '../../../../apps/web/src/modules/comfyPrompt/db/schema';
 export * from 'sa2kit/common/file/server';
 export * from 'sa2kit/business/festivalCard/server';

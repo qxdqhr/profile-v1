@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build and Push Docker Images
 
 on:
   push:
@@ -8,9 +8,16 @@ on:
     branches:
       - main
 
+env:
+  REGISTRY: crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [web, calendar, teach-hub]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,28 +31,36 @@ jobs:
         run: |
           echo "${{ secrets.ALIYUN_PASSWORD }}" | docker login \
             -u "${{ secrets.ALIYUN_USERNAME }}" \
-            --password-stdin crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com || exit 1
+            --password-stdin ${{ env.REGISTRY }} || exit 1
 
-      - name: Clean up Docker system
+      - name: Build Docker image (${{ matrix.app }})
         run: |
-          docker system prune -a --volumes -f
+          docker buildx build --platform linux/amd64 \
+            -f apps/${{ matrix.app }}/Dockerfile \
+            -t qhr-profile-${{ matrix.app }}:amd64 \
+            --load .
 
-      - name: Build Docker image
-        run: |
-          docker buildx build --platform linux/amd64 -t nextjs-name:amd64 --load .
-
-      - name: Tag Docker image
-        run: |
-          NEW_TAG=${{ github.run_number }}
-          docker tag nextjs-name:amd64 crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:${NEW_TAG}
-
-      - name: Push Docker image
+      - name: Tag and push (${{ matrix.app }})
         run: |
           NEW_TAG=${{ github.run_number }}
-          docker push crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:${NEW_TAG}
+          IMAGE=${{ env.REGISTRY }}/qhr-profile-${{ matrix.app }}:${NEW_TAG}
+          docker tag qhr-profile-${{ matrix.app }}:amd64 "$IMAGE"
+          docker push "$IMAGE"
+          if [ "${{ matrix.app }}" = "web" ]; then
+            LEGACY=${{ env.REGISTRY }}/qhr-profile:${NEW_TAG}
+            docker tag qhr-profile-web:amd64 "$LEGACY"
+            docker push "$LEGACY"
+          fi
+
+  deploy-web:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Decrypt production config
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
         run: |
@@ -63,8 +78,9 @@ jobs:
           SOPS_AGE_KEY_FILE="$DEPLOY_CFG_DIR/age-key.txt" \
             ./scripts/config-decrypt-production.sh "$DEPLOY_CFG_DIR/app.config.yaml"
 
-      - name: Deploy to remote server
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      - name: Deploy gateway stack to remote server
+        env:
+          REGISTRY: crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht
         run: |
           NEW_TAG=${{ github.run_number }}
           DEPLOY_CFG_DIR=/tmp/profile-v1-deploy
@@ -76,31 +92,31 @@ jobs:
           echo "${{ secrets.DEPLOY_SERVER_SSH_KEY }}" > /tmp/ssh_key
           chmod 600 /tmp/ssh_key
 
-          echo "=== 同步生产配置到服务器 ==="
-          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1"
+          echo "=== 同步配置与 deploy 文件 ==="
+          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/nginx"
           scp $SSH_OPTS "$DEPLOY_CFG_DIR/app.config.yaml" "$REMOTE:/root/profile-v1/app.config.yaml"
+          scp $SSH_OPTS deploy/docker-compose.gateway.yml "$REMOTE:/root/profile-v1/docker-compose.gateway.yml"
+          scp $SSH_OPTS deploy/nginx/profile-platform.conf "$REMOTE:/root/profile-v1/nginx/profile-platform.conf"
+          scp $SSH_OPTS deploy/nginx/proxy-params.conf "$REMOTE:/root/profile-v1/nginx/proxy-params.conf"
           ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml"
 
           ssh $SSH_OPTS "$REMOTE" << EOF
             set -e
+            cat > /root/profile-v1/.env <<ENVEOF
+          REGISTRY=${REGISTRY}
+          IMAGE_TAG=${NEW_TAG}
+          GATEWAY_PORT=3000
+          ENVEOF
             echo "=== 部署前磁盘 ==="
             df -h /
-            echo "=== 清理远端未使用镜像（保留运行中容器）==="
             docker image prune -a -f || true
-            echo "=== 清理后磁盘 ==="
-            df -h /
-            docker pull crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:${NEW_TAG}
+            cd /root/profile-v1
+            docker compose -f docker-compose.gateway.yml pull
             docker stop my_container || true
             docker rm my_container || true
-            docker run -d \
-              -p 3000:3000 \
-              --name my_container \
-              --restart unless-stopped \
-              -e APP_CONFIG_ENV=production \
-              -v /root/profile-v1/app.config.yaml:/app/config/app.config.production.yaml:ro \
-              crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:${NEW_TAG}
-            echo "=== 部署完成 ==="
-            docker ps --filter name=my_container
+            docker compose -f docker-compose.gateway.yml up -d --remove-orphans
+            echo "=== 网关栈已启动 ==="
+            docker compose -f docker-compose.gateway.yml ps
             df -h /
           EOF
 
@@ -109,7 +125,7 @@ jobs:
   notify:
     name: Notify Feishu
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, deploy-web]
     if: always() && !cancelled()
     continue-on-error: true
     steps:
@@ -144,8 +160,8 @@ jobs:
         env:
           FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
           FEISHU_SIGN_SECRET: ${{ secrets.FEISHU_SIGN_SECRET }}
-          CI_NOTIFY_STATUS: ${{ needs.build.result }}
-          CI_IMAGE_TAG: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.build.result == 'success' && format('crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile:{0}', github.run_number) || '' }}
+          CI_NOTIFY_STATUS: ${{ needs.build.result == 'success' && (needs.deploy-web.result == 'success' || needs.deploy-web.result == 'skipped') && 'success' || needs.build.result }}
+          CI_IMAGE_TAG: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.build.result == 'success' && format('web:{0} calendar:{0} teach-hub:{0}', github.run_number) || '' }}
           GITHUB_TOKEN: ${{ github.token }}
           GITHUB_BEFORE_SHA: ${{ github.event.before }}
           GITHUB_REPOSITORY: ${{ github.repository }}

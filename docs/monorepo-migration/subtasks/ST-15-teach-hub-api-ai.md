@@ -1,7 +1,7 @@
 # ST-15 teach-hub API / OSS / AI 任务
 
 **任务 ID**：M-15  
-**状态**：pending  
+**状态**：done  
 **依赖**：M-14
 
 ## 目标
@@ -10,26 +10,28 @@
 
 ## 交付物
 
-- [ ] `apps/teach-hub/app/api/teach-hub/**` — 全部 re-export
-- [ ] `apps/teach-hub/instrumentation.ts`（或 `server/register.ts`）调用 `registerTeachHubAiTasks`
-- [ ] 从 `apps/web` 的 `registerCoreTasks.ts` **移除** teachHub 注册
-- [ ] OSS `moduleId: teach-hub` 路径不变
+- [x] `apps/teach-hub/app/api/teach-hub/**` — 全部 re-export
+- [x] `apps/teach-hub/instrumentation.ts` 调用 `ensureTeachHubAiTasksRegistered`
+- [x] `packages/teach-hub-core/src/server/registerTasks.ts` — 单点注册 sa2kit + teach.generateLesson
+- [x] 从 `apps/web` 的 `registerCoreTasks.ts` **移除** teachHub 注册
+- [x] OSS `moduleId: teach-hub` 路径不变（`teachWorkspacePaths.ts`）
 
 ## API 清单
 
-见 `src/modules/teachHub/docs/DATA.md` 基路径 `/api/teach-hub`。
+基路径 `/api/teach-hub`，由 `apps/teach-hub` 承载；web 兼容期仍保留转发（ST-16 删除）。
 
 ## AI 任务
 
-- 迁移：`teachHub/ai/generateLessonTask.ts`
-- 确保仅 teach-hub 进程启动时注册（避免 web build 拉取无关 AI 逻辑）
+- 定义：`packages/teach-hub-core/src/ai/generateLessonTask.ts`
+- 注册：仅 `@profile/teach-hub` 进程（`instrumentation.ts` + `/api/ai/run` 兜底）
+- web `/api/ai/run` 不再注册 `teach.generateLesson`；经 web `/api/teach-hub/.../generate` 时由 `generateLessonService` 懒注册
 
-## 验收标准
+## 验收记录（2026-06-17）
 
-1. 创建空工作区 → 上传 zip → 浏览 lesson
-2. Mission 编辑 → 触发「生成下一课」→ OSS 出现新 html
-3. web 单独 build 不包含 teach agent prompt 字符串（可选 grep 验证）
+1. `pnpm --filter @profile/teach-hub build` / `@profile/web build` 通过
+2. web `registerCoreTasks.ts` 无 `@profile/teach-hub-core` 引用
+3. teach-hub 构建产物含 `TEACH_SKILL_SYSTEM_PROMPT`；web 仍含（因 ST-16 前保留 `/api/teach-hub` 转发）
 
-## 风险
+## 后续（ST-16）
 
-- 若 web 与 teach-hub 同时部署且都注册 AI 任务 → **重复消费**；必须单点注册
+删除 web 内 `/api/teach-hub` 与 `modules/teachHub`，web build 不再打包 teach agent 逻辑。

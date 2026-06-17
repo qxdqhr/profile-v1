@@ -1,0 +1,37 @@
+{
+  "name": "@profile/teach-hub-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts",
+    "./server/registerTasks": "./src/server/registerTasks.ts",
+    "./pages": "./src/pages/index.ts",
+    "./layout/*": "./src/layout/*",
+    "./utils/*": "./src/utils/*",
+    "./api/*": "./src/api/*"
+  },
+  "dependencies": {
+    "@profile/auth": "workspace:*",
+    "@profile/config": "workspace:*",
+    "@profile/db": "workspace:*",
+    "adm-zip": "^0.5.16",
+    "animal-island-ui": "^0.9.6",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.44.7",
+    "lucide-react": "^0.474.0",
+    "nanoid": "^5.1.5",
+    "next": "16.0.8",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
+    "sa2kit": "3.9.1",
+    "swr": "^2.3.8",
+    "tailwind-merge": "^2.6.0",
+    "zustand": "^5.0.3"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}

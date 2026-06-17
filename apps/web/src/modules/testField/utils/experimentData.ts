@@ -361,7 +361,7 @@ export const experiments: ExperimentItem[] = [
     id: "teach-hub",
     title: "Teach 学习工作区",
     description: "每人独立的 teach skill 工作区：管理 Mission、学习 HTML 课时、追踪进度，后续支持 Mimo 续备下一课",
-    path: "/testField/teachHub",
+    path: "/teach-hub",
     tags: ["教育", "乐理", "学习", "teach", "AI"],
     category: "utility",
     isCompleted: false,
