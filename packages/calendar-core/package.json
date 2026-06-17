@@ -15,13 +15,16 @@
     "@profile/auth": "workspace:*",
     "@profile/db": "workspace:*",
     "animal-island-ui": "^0.9.6",
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.44.7",
+    "framer-motion": "^12.6.5",
     "lucide-react": "^0.474.0",
     "next": "16.0.8",
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "sa2kit": "3.9.1",
+    "swr": "^2.3.8",
     "tailwind-merge": "^2.6.0"
   },
   "peerDependencies": {
