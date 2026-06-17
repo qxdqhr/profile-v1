@@ -14,7 +14,7 @@ interface DatabaseConfig {
 
 function getDatabaseConfig(): DatabaseConfig {
   const appConfig = ensureAppConfigLoaded();
-  const connectionString = appConfig.database.url;
+  const connectionString = process.env.DATABASE_URL?.trim() || appConfig.database.url;
 
   if (!connectionString) {
     throw new Error('database.url 未在 AppConfig 中设置');

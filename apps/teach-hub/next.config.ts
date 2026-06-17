@@ -28,7 +28,7 @@ function readPublicAppUrl(): string {
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH?.replace(/\/$/, '') || '';
 
 const nextConfig: NextConfig = {
-  ...(basePath ? { basePath } : {}),
+  ...(basePath ? { basePath, trailingSlash: true } : {}),
   distDir: process.env.NEXT_DIST_DIR || '.next-teach-hub',
   output: 'standalone',
   transpilePackages: [

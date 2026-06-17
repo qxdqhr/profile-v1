@@ -57,10 +57,18 @@ ssh root@YOUR_SERVER 'docker stop my_container || true; docker rm my_container |
 ssh root@YOUR_SERVER 'cd /root/profile-v1 && docker compose -f docker-compose.gateway.yml pull && docker compose -f docker-compose.gateway.yml up -d'
 
 # 5. 验证
-curl -I http://127.0.0.1:3000/calendar/
-curl -I http://127.0.0.1:3000/teach-hub/
+curl -I http://127.0.0.1:3000/calendar
+curl -I http://127.0.0.1:3000/teach-hub
 curl -I http://127.0.0.1:3000/api/auth/get-session
 ```
+
+若 `get-session` 返回 500，多为 **web 容器连不上 Postgres**。容器经公网域名访问本机 DB 常会 hairpin 失败，请在 `/root/profile-v1/.env` 增加：
+
+```bash
+DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@host.docker.internal:5432/exam_system
+```
+
+然后 `docker-compose -f docker-compose.gateway.yml up -d` 并查看 `docker-compose logs web --tail 50`。
 
 ## Auth / Cookie
 
