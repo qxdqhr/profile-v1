@@ -98,37 +98,11 @@ jobs:
           scp $SSH_OPTS deploy/docker-compose.gateway.yml "$REMOTE:/root/profile-v1/docker-compose.gateway.yml"
           scp $SSH_OPTS deploy/nginx/profile-platform.conf "$REMOTE:/root/profile-v1/nginx/profile-platform.conf"
           scp $SSH_OPTS deploy/nginx/proxy-params.conf "$REMOTE:/root/profile-v1/nginx/proxy-params.conf"
-          ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml"
+          scp $SSH_OPTS deploy/deploy-profile-v1.sh "$REMOTE:/root/profile-v1/deploy-profile-v1.sh"
+          ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/deploy-profile-v1.sh"
 
-          ssh $SSH_OPTS "$REMOTE" << EOF
-            set -e
-            compose_cmd() {
-              if docker compose version >/dev/null 2>&1; then
-                docker compose "\$@"
-              elif command -v docker-compose >/dev/null 2>&1; then
-                docker-compose "\$@"
-              else
-                echo "ERROR: 服务器未安装 docker compose / docker-compose，无法启动网关栈" >&2
-                exit 1
-              fi
-            }
-            cat > /root/profile-v1/.env <<ENVEOF
-          REGISTRY=${REGISTRY}
-          IMAGE_TAG=${NEW_TAG}
-          GATEWAY_PORT=3000
-          ENVEOF
-            echo "=== 部署前磁盘 ==="
-            df -h /
-            cd /root/profile-v1
-            compose_cmd -f docker-compose.gateway.yml pull
-            docker stop my_container || true
-            docker rm my_container || true
-            docker image prune -a -f || true
-            compose_cmd -f docker-compose.gateway.yml up -d --remove-orphans
-            echo "=== 网关栈已启动 ==="
-            compose_cmd -f docker-compose.gateway.yml ps
-            df -h /
-          EOF
+          ssh $SSH_OPTS "$REMOTE" \
+            "REGISTRY=${REGISTRY} IMAGE_TAG=${NEW_TAG} GATEWAY_PORT=3000 /root/profile-v1/deploy-profile-v1.sh"
 
           rm -f /tmp/ssh_key "$DEPLOY_CFG_DIR/age-key.txt" "$DEPLOY_CFG_DIR/app.config.yaml"
 
