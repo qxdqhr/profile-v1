@@ -44,7 +44,7 @@ services:
       - profile
 
   nginx:
-    image: nginx:1.27-alpine
+    image: docker.m.daocloud.io/library/nginx:1.27-alpine
     restart: unless-stopped
     depends_on:
       - web
