@@ -1,0 +1,1 @@
+export { applyAiConfigFromYaml, type AiYamlConfig } from '@profile/config';

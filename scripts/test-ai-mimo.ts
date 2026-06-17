@@ -3,7 +3,7 @@
  * 验证 MiMo / AI 配置是否可用（连通性 + 视觉模型列表）
  * 用法：pnpm ai:test-mimo
  */
-import { applyAiConfigFromYaml } from '../src/lib/config/apply-ai-env';
+import { applyAiConfigFromYaml } from '@profile/config';
 import {
   coreConnectivityTestTask,
   listOpenAiCompatibleModels,
@@ -53,7 +53,7 @@ async function main() {
 
   console.log('\n多模态识图探测（1x1 PNG）…');
   const { mimoAwareStructuredMultimodalTask } = await import(
-    '../src/modules/aiApi/server/mimoStructuredMultimodalTask'
+    '../../apps/web/src/modules/aiApi/server/mimoStructuredMultimodalTask'
   );
   const png =
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';

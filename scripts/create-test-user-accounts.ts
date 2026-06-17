@@ -7,8 +7,8 @@
 import { and, eq } from 'drizzle-orm';
 import { hashPassword } from 'better-auth/crypto';
 import { nanoid } from 'nanoid';
-import { db } from '../src/db/index';
-import { account, user } from '../src/lib/auth/schema';
+import { db } from '@profile/db';
+import { account, user } from '@profile/auth/schema';
 import type { UserRole } from 'sa2kit/common/auth/schema';
 
 type TestAccount = {

@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -17,37 +13,30 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@sa2kit/exam": [
-        "./packages/sa2kit-exam/src/index.ts"
-      ],
-      "@sa2kit/exam/*": [
-        "./packages/sa2kit-exam/src/*"
-      ],
-      "@sa2kit/feishu-bot": [
-        "./packages/sa2kit-feishu/src/index.ts"
-      ],
-      "@sa2kit/feishu-bot/*": [
-        "./packages/sa2kit-feishu/src/*"
-      ]
+      "@/*": ["./apps/web/src/*"],
+      "@sa2kit/exam": ["./packages/sa2kit-exam/src/index.ts"],
+      "@sa2kit/exam/*": ["./packages/sa2kit-exam/src/*"],
+      "@sa2kit/feishu-bot": ["./packages/sa2kit-feishu/src/index.ts"],
+      "@sa2kit/feishu-bot/*": ["./packages/sa2kit-feishu/src/*"],
+      "@profile/auth": ["./packages/auth/src/index.ts"],
+      "@profile/auth/*": ["./packages/auth/src/*"],
+      "@profile/config": ["./packages/config/src/index.ts"],
+      "@profile/config/*": ["./packages/config/src/*"],
+      "@profile/db": ["./packages/db/src/index.ts"],
+      "@profile/db/*": ["./packages/db/src/*"],
+      "@profile/ui/*": ["./packages/ui/*"],
+      "@profile/calendar-core": ["./packages/calendar-core/src/index.ts"],
+      "@profile/calendar-core/*": ["./packages/calendar-core/src/*"]
     }
   },
   "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    "apps/web/next-env.d.ts",
+    "apps/web/**/*.ts",
+    "apps/web/**/*.tsx",
+    "packages/**/*.ts",
+    "scripts/**/*.ts",
+    "drizzle.config.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules", "apps/web/.next"]
 }

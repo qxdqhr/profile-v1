@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+**/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -15,6 +16,9 @@
 
 # next.js
 /.next/
+**/.next/
+**/.next-*/
+**/.next-calendar/
 /out/
 
 # production
@@ -45,6 +49,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# turbo
+.turbo
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
@@ -52,3 +59,5 @@ next-env.d.ts
 # local test assets
 /public/mmd/
 /public/mmd/**
+apps/web/public/mmd/
+apps/web/public/mmd/**

@@ -1,0 +1,14 @@
+{
+  "name": "@profile/config",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./preload": "./src/preload.ts"
+  },
+  "dependencies": {
+    "sa2kit": "3.9.1",
+    "yaml": "^2.8.0"
+  }
+}

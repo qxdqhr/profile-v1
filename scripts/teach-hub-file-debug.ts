@@ -3,8 +3,8 @@ import {
   putWorkspaceFileText,
   readWorkspaceFileText,
   repairWorkspaceSeedFilesIfMissing,
-} from '../src/modules/teachHub/services/teachHubFileStore';
-import { getWorkspaceForUser } from '../src/modules/teachHub/services/teachHubDbService';
+} from '../apps/web/src/modules/teachHub/services/teachHubFileStore';
+import { getWorkspaceForUser } from '../apps/web/src/modules/teachHub/services/teachHubDbService';
 
 async function main() {
   const userId = process.argv[2] || 'YRMAoATU4uNCjkIaxCQQI';

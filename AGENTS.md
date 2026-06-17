@@ -17,6 +17,7 @@
 | App Router 补充规则 | `.cursor/rules/profile-v1-routing.mdc` |
 | 模块与组件补充规则 | `.cursor/rules/profile-v1-modules.mdc` |
 | 工具型模块分步 Skill | `.cursor/skills/build-utility-module/SKILL.md` |
+| Monorepo 子应用迁移（B→C） | [`docs/monorepo-migration/README.md`](docs/monorepo-migration/README.md) |
 
 Phaser 小游戏流程见用户级 Skill：`profile-v1-minigame`（`~/.cursor/skills/profile-v1-minigame/SKILL.md`）。
 

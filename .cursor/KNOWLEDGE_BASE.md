@@ -10,10 +10,11 @@
 
 | 项 | 约定 |
 |----|------|
-| 框架 | Next.js（App Router，`src/app`） |
-| 样式 | Tailwind CSS；新页面需同时考虑桌面与移动端 |
-| 数据层 | Drizzle ORM + PostgreSQL（仅在有库表时） |
-| 包管理 | **pnpm**（安装、脚本均以 `package.json` 为准） |
+| 框架 | Next.js（App Router，主站在 `apps/web/src/app`） |
+| Monorepo | pnpm workspace：`apps/web`（`@profile/web`）、`packages/*`（`@profile/config/auth/db/ui`）；详见 `docs/monorepo-migration/` |
+| 样式 | Tailwind CSS；预设 `@profile/ui/tailwind.preset` |
+| 数据层 | Drizzle ORM + PostgreSQL（`@profile/db`，迁移目录 `drizzle/` 在仓库根） |
+| 包管理 | **pnpm**；开发 `pnpm dev` = `pnpm --filter @profile/web dev` |
 
 ---
 
@@ -23,7 +24,7 @@
 
 ### 2.1 主布局前缀
 
-- 多数业务页面在：`src/app/(pages)/...`
+- 多数业务页面在：`apps/web/src/app/(pages)/...`
 - 顶层另有少量路由（如 `src/app/page.tsx`、`src/app/timestamp/` 等），按具体需求放置。
 
 ### 2.2 实验田 `testField`

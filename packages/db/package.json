@@ -1,0 +1,18 @@
+{
+  "name": "@profile/db",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts",
+    "./migrate": "./src/migrate.ts"
+  },
+  "dependencies": {
+    "@profile/config": "workspace:*",
+    "drizzle-orm": "^0.44.7",
+    "nanoid": "^5.1.5",
+    "postgres": "^3.4.5",
+    "sa2kit": "3.9.1"
+  }
+}

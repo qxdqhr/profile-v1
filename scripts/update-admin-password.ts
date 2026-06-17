@@ -4,8 +4,8 @@
  */
 import bcrypt from 'bcryptjs';
 import { eq, inArray, or } from 'drizzle-orm';
-import { db } from '../src/db/index';
-import { userSessions, users } from '../src/lib/auth/schema';
+import { db } from '@profile/db';
+import { userSessions, users } from '@profile/auth/schema';
 
 const pwd = process.env.ADMIN_NEW_PASSWORD?.trim();
 if (!pwd || pwd.length < 6) {

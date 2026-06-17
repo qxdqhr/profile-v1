@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { parseSkillFrontmatter, validateSkillFrontmatter, validateSkillMarkdownContent } from '../src/modules/skillManager/services/skillMarkdown';
+import { parseSkillFrontmatter, validateSkillFrontmatter, validateSkillMarkdownContent } from '../apps/web/src/modules/skillManager/services/skillMarkdown';
 
 function run() {
   const sample = `---

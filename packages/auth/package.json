@@ -1,0 +1,21 @@
+{
+  "name": "@profile/auth",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./server": "./src/server.ts",
+    "./schema": "./src/schema.ts",
+    "./session": "./src/session.ts"
+  },
+  "dependencies": {
+    "@profile/db": "workspace:*",
+    "sa2kit": "3.9.1"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}
