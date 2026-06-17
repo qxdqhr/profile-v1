@@ -102,6 +102,16 @@ jobs:
 
           ssh $SSH_OPTS "$REMOTE" << EOF
             set -e
+            compose_cmd() {
+              if docker compose version >/dev/null 2>&1; then
+                docker compose "\$@"
+              elif command -v docker-compose >/dev/null 2>&1; then
+                docker-compose "\$@"
+              else
+                echo "ERROR: 服务器未安装 docker compose / docker-compose，无法启动网关栈" >&2
+                exit 1
+              fi
+            }
             cat > /root/profile-v1/.env <<ENVEOF
           REGISTRY=${REGISTRY}
           IMAGE_TAG=${NEW_TAG}
@@ -109,14 +119,14 @@ jobs:
           ENVEOF
             echo "=== 部署前磁盘 ==="
             df -h /
-            docker image prune -a -f || true
             cd /root/profile-v1
-            docker compose -f docker-compose.gateway.yml pull
+            compose_cmd -f docker-compose.gateway.yml pull
             docker stop my_container || true
             docker rm my_container || true
-            docker compose -f docker-compose.gateway.yml up -d --remove-orphans
+            docker image prune -a -f || true
+            compose_cmd -f docker-compose.gateway.yml up -d --remove-orphans
             echo "=== 网关栈已启动 ==="
-            docker compose -f docker-compose.gateway.yml ps
+            compose_cmd -f docker-compose.gateway.yml ps
             df -h /
           EOF
 

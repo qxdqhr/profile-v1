@@ -34,6 +34,8 @@ COPY packages ./packages
 COPY apps/web ./apps/web
 
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_PUBLIC_CALENDAR_URL=/calendar
+ENV NEXT_PUBLIC_TEACH_HUB_URL=/teach-hub
 
 RUN pnpm --filter @profile/web build
 

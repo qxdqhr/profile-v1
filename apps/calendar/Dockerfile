@@ -42,6 +42,7 @@ COPY apps/calendar ./apps/calendar
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_DIST_DIR=.next-calendar
+ENV NEXT_PUBLIC_BASE_PATH=/calendar
 
 RUN pnpm --filter @profile/calendar build
 

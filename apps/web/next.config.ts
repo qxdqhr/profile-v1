@@ -41,9 +41,11 @@ const nextConfig: NextConfig = {
         MAX_REQUEST_SIZE: '52428800',
         NEXT_PUBLIC_APP_URL: publicAppUrl,
         NEXT_PUBLIC_CALENDAR_URL:
-            process.env.NEXT_PUBLIC_CALENDAR_URL ?? 'http://localhost:3001',
+            process.env.NEXT_PUBLIC_CALENDAR_URL ??
+            (process.env.NODE_ENV === 'production' ? '/calendar' : 'http://localhost:3001'),
         NEXT_PUBLIC_TEACH_HUB_URL:
-            process.env.NEXT_PUBLIC_TEACH_HUB_URL ?? 'http://localhost:3002',
+            process.env.NEXT_PUBLIC_TEACH_HUB_URL ??
+            (process.env.NODE_ENV === 'production' ? '/teach-hub' : 'http://localhost:3002'),
     },
 
     images: {

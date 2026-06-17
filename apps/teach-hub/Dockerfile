@@ -41,6 +41,8 @@ COPY apps/teach-hub ./apps/teach-hub
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_DIST_DIR=.next-teach-hub
+ENV NEXT_PUBLIC_BASE_PATH=/teach-hub
+ENV NEXT_PUBLIC_TEACH_HUB_BASE_URL=/teach-hub
 
 RUN pnpm --filter @profile/teach-hub build
 
