@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     environment:
       APP_CONFIG_ENV: production
-      APP_CONFIG_PATH: config/app.config.production.yaml
+      APP_CONFIG_PATH: /app/config/app.config.production.yaml
       # 容器内访问宿主机 Postgres 时，在 .env 覆盖（勿用公网域名，易 hairpin 失败）：
       # DATABASE_URL=postgresql://postgres:PASSWORD@host.docker.internal:5432/exam_system
       DATABASE_URL: ${DATABASE_URL:-}
@@ -27,7 +27,7 @@ services:
     restart: unless-stopped
     environment:
       APP_CONFIG_ENV: production
-      APP_CONFIG_PATH: config/app.config.production.yaml
+      APP_CONFIG_PATH: /app/config/app.config.production.yaml
       DATABASE_URL: ${DATABASE_URL:-}
       NEXT_PUBLIC_BASE_PATH: /calendar
     extra_hosts:
@@ -44,7 +44,7 @@ services:
     restart: unless-stopped
     environment:
       APP_CONFIG_ENV: production
-      APP_CONFIG_PATH: config/app.config.production.yaml
+      APP_CONFIG_PATH: /app/config/app.config.production.yaml
       DATABASE_URL: ${DATABASE_URL:-}
       NEXT_PUBLIC_BASE_PATH: /teach-hub
       NEXT_PUBLIC_TEACH_HUB_BASE_URL: /teach-hub
