@@ -30,6 +30,13 @@ echo "========== 3. web 日志 =========="
 compose -f "$COMPOSE_FILE" logs web --tail=60 2>&1 || true
 
 echo
+echo "========== 4b. 修正 APP_CONFIG_PATH 挂载路径 =========="
+if grep -q 'APP_CONFIG_PATH: config/app.config.production.yaml' docker-compose.gateway.yml 2>/dev/null; then
+  sed -i 's|APP_CONFIG_PATH: config/app.config.production.yaml|APP_CONFIG_PATH: /app/config/app.config.production.yaml|g' docker-compose.gateway.yml
+  echo "已更新 docker-compose APP_CONFIG_PATH 为绝对路径"
+fi
+
+echo
 echo "========== 4. 修复 Postgres 监听（Linux Docker 常见根因）=========="
 PG_CONF=""
 PG_HBA=""
