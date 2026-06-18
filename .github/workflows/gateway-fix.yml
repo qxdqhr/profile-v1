@@ -1,0 +1,28 @@
+name: Gateway Diagnose and Fix
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run remote gateway fix
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_SERVER_USERNAME }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_SERVER_HOST }}
+        run: |
+          set -euo pipefail
+          echo "${{ secrets.DEPLOY_SERVER_SSH_KEY }}" > /tmp/ssh_key
+          chmod 600 /tmp/ssh_key
+          SSH_OPTS="-o StrictHostKeyChecking=no -i /tmp/ssh_key"
+          REMOTE="${DEPLOY_USER}@${DEPLOY_HOST}"
+
+          scp $SSH_OPTS deploy/fix-gateway-remote.sh deploy/check-gateway-health.sh deploy/deploy-profile-v1.sh \
+            "$REMOTE:/root/profile-v1/"
+          ssh $SSH_OPTS "$REMOTE" "chmod +x /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/check-gateway-health.sh"
+          ssh $SSH_OPTS "$REMOTE" "/root/profile-v1/fix-gateway-remote.sh"
+          rm -f /tmp/ssh_key

@@ -68,7 +68,39 @@ curl -I http://127.0.0.1:3000/api/auth/get-session
 DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@host.docker.internal:5432/exam_system
 ```
 
-然后 `docker-compose -f docker-compose.gateway.yml up -d` 并查看 `docker-compose logs web --tail 50`。
+密码含 `@`、`^` 等特殊字符时需 URL 编码（如 `@` → `%40`，`^` → `%5E`）。
+
+然后 `docker-compose -f docker-compose.gateway.yml down && docker-compose -f docker-compose.gateway.yml up -d` 并查看 `docker-compose logs web --tail 50`。
+
+### 若写入 DATABASE_URL 后仍 500（Linux 常见）
+
+Docker 容器经 `host.docker.internal` 访问宿主机 Postgres 时，连接会落到 **docker 网桥 IP**（如 `172.17.0.1`），**不是** `127.0.0.1`。若 Postgres 仅监听 `127.0.0.1:5432`，容器内仍会连库失败。
+
+1. 运行诊断脚本（仓库 `deploy/check-gateway-health.sh`，同步至服务器后）：
+
+```bash
+chmod +x /root/profile-v1/check-gateway-health.sh
+/root/profile-v1/check-gateway-health.sh
+```
+
+2. 在宿主机调整 Postgres（路径因发行版而异，常见 `/etc/postgresql/*/main/` 或 `/var/lib/pgsql/data/`）：
+
+```bash
+# postgresql.conf
+listen_addresses = 'localhost,172.17.0.1'   # 或 '*'
+
+# pg_hba.conf 追加一行（按实际认证方式 md5/scram-sha-256）
+host    all    all    172.17.0.0/16    scram-sha-256
+
+systemctl reload postgresql   # 或 pg_ctl reload
+```
+
+3. 再次验证：
+
+```bash
+curl -sS http://127.0.0.1:3000/api/auth/get-session
+# 未登录应返回 null JSON，而非 Internal Server Error
+```
 
 ## Auth / Cookie
 

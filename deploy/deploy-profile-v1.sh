@@ -11,6 +11,13 @@ GATEWAY_PORT="${GATEWAY_PORT:-3000}"
 
 cd "$DEPLOY_DIR"
 
+# CI 每次部署会重写 .env；保留服务器上已有的 DATABASE_URL，避免容器内 hairpin 连库失败导致 auth 500
+EXISTING_DATABASE_URL=""
+if [ -f .env ]; then
+  EXISTING_DATABASE_URL="$(grep -E '^DATABASE_URL=' .env | tail -1 | cut -d= -f2- || true)"
+fi
+DATABASE_URL="${DATABASE_URL:-${EXISTING_DATABASE_URL}}"
+
 compose_cmd() {
   if docker compose version >/dev/null 2>&1; then
     docker compose "$@"
@@ -22,11 +29,14 @@ compose_cmd() {
   fi
 }
 
-cat > .env <<EOF
-REGISTRY=${REGISTRY}
-IMAGE_TAG=${IMAGE_TAG}
-GATEWAY_PORT=${GATEWAY_PORT}
-EOF
+{
+  echo "REGISTRY=${REGISTRY}"
+  echo "IMAGE_TAG=${IMAGE_TAG}"
+  echo "GATEWAY_PORT=${GATEWAY_PORT}"
+  if [ -n "${DATABASE_URL}" ]; then
+    echo "DATABASE_URL=${DATABASE_URL}"
+  fi
+} > .env
 
 echo "=== 部署前磁盘 ==="
 df -h /
