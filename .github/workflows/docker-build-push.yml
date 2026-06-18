@@ -99,10 +99,14 @@ jobs:
           scp $SSH_OPTS deploy/nginx/profile-platform.conf "$REMOTE:/root/profile-v1/nginx/profile-platform.conf"
           scp $SSH_OPTS deploy/nginx/proxy-params.conf "$REMOTE:/root/profile-v1/nginx/proxy-params.conf"
           scp $SSH_OPTS deploy/deploy-profile-v1.sh "$REMOTE:/root/profile-v1/deploy-profile-v1.sh"
-          ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/deploy-profile-v1.sh"
+          scp $SSH_OPTS deploy/fix-gateway-remote.sh "$REMOTE:/root/profile-v1/fix-gateway-remote.sh"
+          ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/fix-gateway-remote.sh"
 
           ssh $SSH_OPTS "$REMOTE" \
             "REGISTRY=${REGISTRY} IMAGE_TAG=${NEW_TAG} GATEWAY_PORT=3000 /root/profile-v1/deploy-profile-v1.sh"
+
+          echo "=== 修复 Postgres docker 网桥连库 + 验证 auth ==="
+          ssh $SSH_OPTS "$REMOTE" "/root/profile-v1/fix-gateway-remote.sh"
 
           rm -f /tmp/ssh_key "$DEPLOY_CFG_DIR/age-key.txt" "$DEPLOY_CFG_DIR/app.config.yaml"
 
