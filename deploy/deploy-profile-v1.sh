@@ -46,7 +46,8 @@ compose_cmd() {
   echo "IMAGE_TAG=${IMAGE_TAG}"
   echo "GATEWAY_PORT=${GATEWAY_PORT}"
   if [ -n "${DATABASE_URL}" ]; then
-    echo "DATABASE_URL=${DATABASE_URL}"
+    # 引号包裹，避免 compose .env 解析 %/@ 等特殊字符异常
+    printf 'DATABASE_URL="%s"\n' "${DATABASE_URL}"
   fi
 } > .env
 

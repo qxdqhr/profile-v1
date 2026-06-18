@@ -72,7 +72,7 @@ echo
 echo "========== 5. 确保 DATABASE_URL =========="
 if ! grep -q '^DATABASE_URL=' .env 2>/dev/null; then
   if [ -f ./derive-database-url.sh ] && [ -f app.config.yaml ]; then
-    echo "DATABASE_URL=$(bash ./derive-database-url.sh app.config.yaml)" >> .env
+    printf 'DATABASE_URL="%s"\n' "$(bash ./derive-database-url.sh app.config.yaml)" >> .env
     echo "已从 app.config.yaml 写入 DATABASE_URL"
   else
     echo "WARN: 无法推导 DATABASE_URL（缺少 derive-database-url.sh 或 app.config.yaml）"
@@ -81,6 +81,18 @@ else
   echo "DATABASE_URL 已存在于 .env"
 fi
 grep '^DATABASE_URL=' .env | sed 's/\(postgresql:\/\/postgres:\)[^@]*/\1***/' || true
+
+echo
+echo "========== 5b. Postgres 连通与 session 表 =========="
+DB_URL="$(grep '^DATABASE_URL=' .env | sed -E 's/^DATABASE_URL=//' | tr -d '"')"
+HOST_DB_URL="${DB_URL/@host.docker.internal/@127.0.0.1}"
+if command -v psql >/dev/null 2>&1; then
+  psql "$HOST_DB_URL" -c 'SELECT 1 AS ok' 2>&1 || true
+  psql "$HOST_DB_URL" -c 'SELECT count(*) FROM "session"' 2>&1 || psql "$HOST_DB_URL" -c 'SELECT count(*) FROM session' 2>&1 || true
+else
+  docker run --rm postgres:15-alpine psql "$HOST_DB_URL" -c 'SELECT 1 AS ok' 2>&1 || true
+  docker run --rm postgres:15-alpine psql "$HOST_DB_URL" -c 'SELECT count(*) FROM "session"' 2>&1 || true
+fi
 
 echo
 echo "========== 6. 重启网关栈 =========="
@@ -95,4 +107,5 @@ compose -f "$COMPOSE_FILE" ps
 compose -f "$COMPOSE_FILE" exec -T web sh -c 'nc -zv -w3 host.docker.internal 5432' 2>&1 || true
 curl -sS -o /dev/null -w "GET /api/auth/get-session => %{http_code}\n" http://127.0.0.1:3000/api/auth/get-session
 curl -sS http://127.0.0.1:3000/api/auth/get-session; echo
+compose -f "$COMPOSE_FILE" logs web --tail=30 2>&1 || true
 curl -sS -o /dev/null -w "GET /teach-hub/ => %{http_code}\n" http://127.0.0.1:3000/teach-hub/
