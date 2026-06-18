@@ -69,14 +69,28 @@ else
 fi
 
 echo
-echo "========== 5. 重启网关栈 =========="
+echo "========== 5. 确保 DATABASE_URL =========="
+if ! grep -q '^DATABASE_URL=' .env 2>/dev/null; then
+  if [ -f ./derive-database-url.sh ] && [ -f app.config.yaml ]; then
+    echo "DATABASE_URL=$(bash ./derive-database-url.sh app.config.yaml)" >> .env
+    echo "已从 app.config.yaml 写入 DATABASE_URL"
+  else
+    echo "WARN: 无法推导 DATABASE_URL（缺少 derive-database-url.sh 或 app.config.yaml）"
+  fi
+else
+  echo "DATABASE_URL 已存在于 .env"
+fi
+grep '^DATABASE_URL=' .env | sed 's/\(postgresql:\/\/postgres:\)[^@]*/\1***/' || true
+
+echo
+echo "========== 6. 重启网关栈 =========="
 compose -f "$COMPOSE_FILE" pull
 compose -f "$COMPOSE_FILE" down --remove-orphans
 compose -f "$COMPOSE_FILE" up -d
 sleep 20
 
 echo
-echo "========== 6. 验证 =========="
+echo "========== 7. 验证 =========="
 compose -f "$COMPOSE_FILE" ps
 compose -f "$COMPOSE_FILE" exec -T web sh -c 'nc -zv -w3 host.docker.internal 5432' 2>&1 || true
 curl -sS -o /dev/null -w "GET /api/auth/get-session => %{http_code}\n" http://127.0.0.1:3000/api/auth/get-session

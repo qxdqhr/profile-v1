@@ -11,12 +11,24 @@ GATEWAY_PORT="${GATEWAY_PORT:-3000}"
 
 cd "$DEPLOY_DIR"
 
-# CI 每次部署会重写 .env；保留服务器上已有的 DATABASE_URL，避免容器内 hairpin 连库失败导致 auth 500
+derive_database_url() {
+  if [ -x ./derive-database-url.sh ] && [ -f app.config.yaml ]; then
+    ./derive-database-url.sh app.config.yaml
+  elif [ -f ./derive-database-url.sh ] && [ -f app.config.yaml ]; then
+    bash ./derive-database-url.sh app.config.yaml
+  fi
+}
+
+# CI 每次部署会重写 .env；保留已有 DATABASE_URL，否则从 app.config 推导
 EXISTING_DATABASE_URL=""
 if [ -f .env ]; then
   EXISTING_DATABASE_URL="$(grep -E '^DATABASE_URL=' .env | tail -1 | cut -d= -f2- || true)"
 fi
-DATABASE_URL="${DATABASE_URL:-${EXISTING_DATABASE_URL}}"
+if [ -z "${DATABASE_URL:-}" ] && [ -z "${EXISTING_DATABASE_URL}" ]; then
+  DATABASE_URL="$(derive_database_url || true)"
+else
+  DATABASE_URL="${DATABASE_URL:-${EXISTING_DATABASE_URL}}"
+fi
 
 compose_cmd() {
   if docker compose version >/dev/null 2>&1; then
