@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { CalendarEvent, EventFormData, CreateEventRequest, EventPriority, RecurrenceType } from '../types';
 import { EventData, EventType, EventTypeService } from '../services/eventTypeService';
 import { toLocalISOString, formatDate, getDayEnd } from '../utils/dateUtils';
+import { calendarApiPath } from '../utils/calendarApiPath';
 
 export interface UseEnhancedEventsReturn {
   events: CalendarEvent[];
@@ -45,7 +46,7 @@ export function useEnhancedEvents(): UseEnhancedEventsReturn {
         endDate: toLocalISOString(endDate),
       });
 
-      const response = await fetch(`/api/calendar/events?${params}`);
+      const response = await fetch(calendarApiPath(`events?${params}`));
       
       if (!response.ok) {
         throw new Error(`获取事件失败: ${response.status}`);
@@ -115,7 +116,7 @@ export function useEnhancedEvents(): UseEnhancedEventsReturn {
         })),
       };
 
-      const response = await fetch('/api/calendar/events', {
+      const response = await fetch(calendarApiPath('events'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -292,7 +293,7 @@ export function useEnhancedEvents(): UseEnhancedEventsReturn {
           };
         }
 
-        const response = await fetch('/api/calendar/events', {
+        const response = await fetch(calendarApiPath('events'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -354,7 +355,7 @@ export function useEnhancedEvents(): UseEnhancedEventsReturn {
       if (eventData.location !== undefined) updateRequest.location = eventData.location;
       if (eventData.color !== undefined) updateRequest.color = eventData.color;
 
-      const response = await fetch(`/api/calendar/events/${eventId}`, {
+      const response = await fetch(calendarApiPath(`events/${eventId}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -403,9 +404,9 @@ export function useEnhancedEvents(): UseEnhancedEventsReturn {
     setError(undefined);
     
     try {
-      const url = deleteAll 
-        ? `/api/calendar/events/${eventId}?deleteAll=true`
-        : `/api/calendar/events/${eventId}`;
+      const url = deleteAll
+        ? calendarApiPath(`events/${eventId}?deleteAll=true`)
+        : calendarApiPath(`events/${eventId}`);
 
       const response = await fetch(url, {
         method: 'DELETE',
@@ -439,7 +440,7 @@ export function useEnhancedEvents(): UseEnhancedEventsReturn {
     setError(undefined);
     
     try {
-      const response = await fetch('/api/calendar/events/batchDelete', {
+      const response = await fetch(calendarApiPath('events/batchDelete'), {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -494,7 +495,7 @@ export function useEnhancedEvents(): UseEnhancedEventsReturn {
 
       console.log('📤 发送API请求:', updateRequest);
 
-      const response = await fetch(`/api/calendar/events/${eventId}`, {
+      const response = await fetch(calendarApiPath(`events/${eventId}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

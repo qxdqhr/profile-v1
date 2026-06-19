@@ -101,7 +101,10 @@ jobs:
           scp $SSH_OPTS deploy/deploy-profile-v1.sh "$REMOTE:/root/profile-v1/deploy-profile-v1.sh"
           scp $SSH_OPTS deploy/derive-database-url.sh "$REMOTE:/root/profile-v1/derive-database-url.sh"
           scp $SSH_OPTS deploy/fix-gateway-remote.sh "$REMOTE:/root/profile-v1/fix-gateway-remote.sh"
-          ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/fix-gateway-remote.sh"
+          scp $SSH_OPTS deploy/audit-outer-nginx.sh "$REMOTE:/root/profile-v1/audit-outer-nginx.sh"
+          scp $SSH_OPTS deploy/nginx/outer-ubuntu-qhr062.conf "$REMOTE:/root/profile-v1/nginx/outer-ubuntu-qhr062.conf"
+          scp $SSH_OPTS deploy/nginx/proxy-params-outer.conf "$REMOTE:/root/profile-v1/nginx/proxy-params-outer.conf"
+          ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/audit-outer-nginx.sh"
 
           ssh $SSH_OPTS "$REMOTE" \
             "REGISTRY=${REGISTRY} IMAGE_TAG=${NEW_TAG} GATEWAY_PORT=3000 /root/profile-v1/deploy-profile-v1.sh"

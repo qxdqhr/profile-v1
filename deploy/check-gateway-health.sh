@@ -56,3 +56,21 @@ curl -sS -o /dev/null -w "GET /api/auth/get-session => %{http_code}\n" http://12
 curl -sS http://127.0.0.1:3000/api/auth/get-session 2>&1 | head -3 || true
 curl -sS -o /dev/null -w "GET /calendar/ => %{http_code}\n" http://127.0.0.1:3000/calendar/ || true
 curl -sS -o /dev/null -w "GET /teach-hub/ => %{http_code}\n" http://127.0.0.1:3000/teach-hub/ || true
+
+echo
+echo "=== 子应用 API 路由（未登录应 401，404 表示 nginx basePath 未对齐）==="
+CAL_CODE="$(curl -sS -o /dev/null -w '%{http_code}' 'http://127.0.0.1:3000/api/calendar/events/?startDate=2026-01-01&endDate=2026-12-31' || echo ERR)"
+echo "GET /api/calendar/events/ => ${CAL_CODE}"
+if [ "$CAL_CODE" = "404" ]; then
+  echo "WARN: calendar API 404 — 检查 deploy/nginx/profile-platform.conf 是否含 proxy_pass .../calendar/api/calendar/"
+fi
+
+TH_CODE="$(curl -sS -o /dev/null -w '%{http_code}' 'http://127.0.0.1:3000/api/teach-hub/workspaces/' || echo ERR)"
+echo "GET /api/teach-hub/workspaces/ => ${TH_CODE}"
+if [ "$TH_CODE" = "404" ]; then
+  echo "WARN: teach-hub API 404 — 检查 proxy_pass .../teach-hub/api/teach-hub/"
+fi
+
+echo
+echo "=== calendar 容器最近日志 ==="
+compose_cmd -f "$COMPOSE_FILE" logs calendar --tail=30 2>&1 || true

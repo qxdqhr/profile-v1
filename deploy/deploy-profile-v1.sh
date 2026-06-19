@@ -20,9 +20,18 @@ derive_database_url() {
 }
 
 # CI 每次部署会重写 .env；保留已有 DATABASE_URL，否则从 app.config 推导
+strip_env_value() {
+  local v="${1:-}"
+  v="${v%\"}"
+  v="${v#\"}"
+  v="${v%\'}"
+  v="${v#\'}"
+  printf '%s' "$v"
+}
+
 EXISTING_DATABASE_URL=""
 if [ -f .env ]; then
-  EXISTING_DATABASE_URL="$(grep -E '^DATABASE_URL=' .env | tail -1 | cut -d= -f2- || true)"
+  EXISTING_DATABASE_URL="$(strip_env_value "$(grep -E '^DATABASE_URL=' .env | tail -1 | cut -d= -f2- || true)")"
 fi
 if [ -z "${DATABASE_URL:-}" ] && [ -z "${EXISTING_DATABASE_URL}" ]; then
   DATABASE_URL="$(derive_database_url || true)"
@@ -46,8 +55,8 @@ compose_cmd() {
   echo "IMAGE_TAG=${IMAGE_TAG}"
   echo "GATEWAY_PORT=${GATEWAY_PORT}"
   if [ -n "${DATABASE_URL}" ]; then
-    # 引号包裹，避免 compose .env 解析 %/@ 等特殊字符异常
-    printf 'DATABASE_URL="%s"\n' "${DATABASE_URL}"
+    # 勿再加引号：旧版 docker-compose 遇 DATABASE_URL=""..."" 会解析失败
+    printf 'DATABASE_URL=%s\n' "$(strip_env_value "${DATABASE_URL}")"
   fi
 } > .env
 

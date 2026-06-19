@@ -115,4 +115,17 @@ compose -f "$COMPOSE_FILE" exec -T web sh -c 'nc -zv -w3 host.docker.internal 54
 curl -sS -o /dev/null -w "GET /api/auth/get-session => %{http_code}\n" http://127.0.0.1:3000/api/auth/get-session
 curl -sS http://127.0.0.1:3000/api/auth/get-session; echo
 compose -f "$COMPOSE_FILE" logs web --tail=30 2>&1 || true
-curl -sS -o /dev/null -w "GET /teach-hub/ => %{http_code}\n" http://127.0.0.1:3000/teach-hub/
+echo
+echo "========== 8. 外层 nginx 审计 =========="
+if [ -x ./audit-outer-nginx.sh ]; then
+  ./audit-outer-nginx.sh
+elif [ -f ./audit-outer-nginx.sh ]; then
+  bash ./audit-outer-nginx.sh
+fi
+
+echo
+echo "========== 9. 同步内层网关 nginx 配置 =========="
+if [ -f nginx/profile-platform.conf ] && [ -f nginx/proxy-params.conf ]; then
+  compose -f "$COMPOSE_FILE" exec -T nginx nginx -t 2>&1 || true
+  compose -f "$COMPOSE_FILE" exec -T nginx nginx -s reload 2>&1 || compose -f "$COMPOSE_FILE" restart nginx || true
+fi
