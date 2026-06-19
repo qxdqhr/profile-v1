@@ -82,9 +82,25 @@ compose_cmd -f "$COMPOSE_FILE" pull
 echo "=== 启动网关栈 ==="
 compose_cmd -f "$COMPOSE_FILE" up -d --remove-orphans
 
+echo "=== 等待服务就绪 ==="
+sleep 12
+
+echo "=== 重载内层 nginx（使 CI scp 的新配置立即生效）==="
+compose_cmd -f "$COMPOSE_FILE" exec -T nginx nginx -t
+compose_cmd -f "$COMPOSE_FILE" exec -T nginx nginx -s reload
+
 echo "=== 清理悬空镜像 ==="
 docker image prune -f || true
 
 echo "=== 网关栈已启动 ==="
 compose_cmd -f "$COMPOSE_FILE" ps
 df -h /
+
+echo "=== 部署后冒烟测试 ==="
+if [ -x ./smoke-test-gateway.sh ]; then
+  GATEWAY_PORT="$GATEWAY_PORT" ./smoke-test-gateway.sh
+elif [ -f ./smoke-test-gateway.sh ]; then
+  GATEWAY_PORT="$GATEWAY_PORT" bash ./smoke-test-gateway.sh
+else
+  echo "WARN: 缺少 smoke-test-gateway.sh，跳过冒烟测试"
+fi

@@ -102,11 +102,16 @@ else
 fi
 
 echo
-echo "========== 6. 重启网关栈 =========="
-compose -f "$COMPOSE_FILE" pull
-compose -f "$COMPOSE_FILE" down --remove-orphans
-compose -f "$COMPOSE_FILE" up -d
-sleep 20
+if [ "${POST_DEPLOY:-}" = "1" ]; then
+  echo "========== 6. 跳过二次重启（deploy-profile-v1.sh 已启动栈）=========="
+  sleep 5
+else
+  echo "========== 6. 重启网关栈 =========="
+  compose -f "$COMPOSE_FILE" pull
+  compose -f "$COMPOSE_FILE" down --remove-orphans
+  compose -f "$COMPOSE_FILE" up -d
+  sleep 20
+fi
 
 echo
 echo "========== 7. 验证 =========="
@@ -128,4 +133,12 @@ echo "========== 9. 同步内层网关 nginx 配置 =========="
 if [ -f nginx/profile-platform.conf ] && [ -f nginx/proxy-params.conf ]; then
   compose -f "$COMPOSE_FILE" exec -T nginx nginx -t 2>&1 || true
   compose -f "$COMPOSE_FILE" exec -T nginx nginx -s reload 2>&1 || compose -f "$COMPOSE_FILE" restart nginx || true
+fi
+
+echo
+echo "========== 10. 冒烟测试 =========="
+if [ -x ./smoke-test-gateway.sh ]; then
+  ./smoke-test-gateway.sh
+elif [ -f ./smoke-test-gateway.sh ]; then
+  bash ./smoke-test-gateway.sh
 fi
