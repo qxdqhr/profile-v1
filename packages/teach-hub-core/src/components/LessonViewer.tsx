@@ -82,9 +82,11 @@ export function LessonViewer({ src, title }: LessonViewerProps) {
   const [percent, setPercent] = useState(0);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const draggingRef = useRef(false);
-  const { settings, setBarExpanded } = useLessonReaderSettings();
-  const { barPosition, barExpanded } = settings;
+  const { settings } = useLessonReaderSettings();
+  const { barPosition, barExpanded: defaultBarExpanded } = settings;
+  const [barExpanded, setBarExpanded] = useState(defaultBarExpanded);
   const vertical = isVerticalReaderPosition(barPosition);
+  const showBarFirst = barPosition === 'top' || barPosition === 'left';
 
   useEffect(() => {
     let mounted = true;
@@ -178,6 +180,24 @@ export function LessonViewer({ src, title }: LessonViewerProps) {
     };
   }, [html, bindScrollTracking]);
 
+  useEffect(() => {
+    setBarExpanded(defaultBarExpanded);
+  }, [src, defaultBarExpanded]);
+
+  useEffect(() => {
+    draggingRef.current = false;
+    let frame = 0;
+    let frame2 = 0;
+    frame = requestAnimationFrame(() => {
+      syncProgressFromScroll();
+      frame2 = requestAnimationFrame(syncProgressFromScroll);
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(frame2);
+    };
+  }, [barExpanded, barPosition, syncProgressFromScroll]);
+
   const handleSliderChange = (value: number) => {
     draggingRef.current = true;
     setPercent(value);
@@ -190,6 +210,14 @@ export function LessonViewer({ src, title }: LessonViewerProps) {
     syncProgressFromScroll();
   };
 
+  const handleExpandedChange = (next: boolean) => {
+    draggingRef.current = false;
+    setBarExpanded(next);
+    requestAnimationFrame(() => {
+      syncProgressFromScroll();
+    });
+  };
+
   const progressBar = (
     <LessonReadingProgress
       position={barPosition}
@@ -197,7 +225,7 @@ export function LessonViewer({ src, title }: LessonViewerProps) {
       percent={percent}
       onPercentChange={handleSliderChange}
       onDragEnd={endDragging}
-      onExpandedChange={setBarExpanded}
+      onExpandedChange={handleExpandedChange}
     />
   );
 
@@ -219,8 +247,6 @@ export function LessonViewer({ src, title }: LessonViewerProps) {
     />
   );
 
-  const showBarFirst = barPosition === 'top' || barPosition === 'left';
-
   return (
     <div
       className={cn(
@@ -228,9 +254,10 @@ export function LessonViewer({ src, title }: LessonViewerProps) {
         vertical ? thLessonViewerRow : thLessonViewerColumn,
       )}
     >
-      {showBarFirst ? progressBar : null}
-      {iframe}
-      {!showBarFirst ? progressBar : null}
+      <div className={cn('shrink-0', showBarFirst ? 'order-1' : 'order-3')}>
+        {progressBar}
+      </div>
+      <div className="order-2 min-h-0 min-w-0 flex-1">{iframe}</div>
     </div>
   );
 }

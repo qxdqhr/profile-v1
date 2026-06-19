@@ -71,7 +71,10 @@ export function LessonReadingProgress({
           type="button"
           className={thLessonProgressToggle}
           aria-label="展开阅读进度条"
-          onClick={() => onExpandedChange(true)}
+          onClick={() => {
+            onDragEnd();
+            onExpandedChange(true);
+          }}
         >
           <ToggleIcon position={position} expanded={false} />
         </button>
@@ -116,7 +119,10 @@ export function LessonReadingProgress({
             type="button"
             className={thLessonProgressToggle}
             aria-label="收起阅读进度条"
-            onClick={() => onExpandedChange(false)}
+            onClick={() => {
+              onDragEnd();
+              onExpandedChange(false);
+            }}
           >
             <ToggleIcon position={position} expanded />
           </button>
@@ -136,7 +142,10 @@ export function LessonReadingProgress({
                 type="button"
                 className={thLessonProgressToggle}
                 aria-label="收起阅读进度条"
-                onClick={() => onExpandedChange(false)}
+                onClick={() => {
+                  onDragEnd();
+                  onExpandedChange(false);
+                }}
               >
                 <ToggleIcon position={position} expanded />
               </button>
