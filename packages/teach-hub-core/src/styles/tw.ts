@@ -142,6 +142,25 @@ export const thLessonShell =
 export const thLessonToolbar =
   'flex shrink-0 flex-wrap items-center gap-2.5 border-b border-[#e8e2d6] bg-white px-4 py-2.5';
 
+export const thLessonViewerWrap = 'flex min-h-0 flex-1 flex-col';
+
+export const thLessonProgress =
+  'shrink-0 border-b border-[#e8e2d6] bg-[#f5f0e8]/80 px-4 py-2.5 backdrop-blur-sm';
+
+export const thLessonProgressRow =
+  'mb-2 flex items-baseline justify-between gap-3';
+
+export const thLessonProgressLabel = 'text-xs font-medium tracking-wide text-[#7a6f5c]';
+
+export const thLessonProgressPercent =
+  'tabular-nums text-lg font-semibold tracking-tight text-[#3d3428]';
+
+export const thLessonProgressSlider =
+  'h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#e8e2d6] accent-[#4a9b8e] [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-[#4a9b8e] [&::-webkit-slider-thumb]:shadow-[0_1px_4px_rgba(61,52,40,0.2)]';
+
+export const thLessonViewerFrame =
+  'min-h-0 w-full flex-1 border-none bg-[#faf9f7]';
+
 export const thForm =
   'flex max-w-[640px] flex-col gap-4';
 
