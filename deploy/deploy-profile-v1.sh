@@ -92,7 +92,13 @@ echo "=== 启动网关栈 ==="
 compose_cmd -f "$COMPOSE_FILE" up -d --remove-orphans
 
 echo "=== 等待服务就绪 ==="
-sleep 12
+if [ -x ./wait-gateway-ready.sh ]; then
+  GATEWAY_PORT="$GATEWAY_PORT" ./wait-gateway-ready.sh
+elif [ -f ./wait-gateway-ready.sh ]; then
+  GATEWAY_PORT="$GATEWAY_PORT" bash ./wait-gateway-ready.sh
+else
+  sleep 12
+fi
 
 echo "=== 重载内层 nginx（使 CI scp 的新配置立即生效）==="
 compose_cmd -f "$COMPOSE_FILE" exec -T nginx nginx -t

@@ -86,13 +86,25 @@ else
 fi
 
 if [ -n "$FIXED_URL" ]; then
+  OLD_URL=""
+  if [ -f .env ]; then
+    OLD_URL="$(grep '^DATABASE_URL=' .env | tail -1 | sed -E 's/^DATABASE_URL=//' | tr -d '"' || true)"
+  fi
   sed -i '/^DATABASE_URL=/d' .env 2>/dev/null || true
   printf 'DATABASE_URL=%s\n' "$FIXED_URL" >> .env
   echo "已写入校验后的 DATABASE_URL"
-  if [ "${POST_DEPLOY:-}" = "1" ]; then
-    echo "重建 web/calendar/teach_hub 以应用新 DATABASE_URL"
+  if [ "${POST_DEPLOY:-}" = "1" ] && [ "$OLD_URL" != "$FIXED_URL" ]; then
+    echo "DATABASE_URL 已变更，重建 web/calendar/teach_hub"
     compose -f "$COMPOSE_FILE" up -d --force-recreate web calendar teach_hub
-    sleep 12
+    if [ -x ./wait-gateway-ready.sh ]; then
+      GATEWAY_PORT="${GATEWAY_PORT:-3000}" ./wait-gateway-ready.sh
+    elif [ -f ./wait-gateway-ready.sh ]; then
+      GATEWAY_PORT="${GATEWAY_PORT:-3000}" bash ./wait-gateway-ready.sh
+    else
+      sleep 20
+    fi
+  elif [ "${POST_DEPLOY:-}" = "1" ]; then
+    echo "DATABASE_URL 未变更，跳过容器重建"
   fi
 else
   echo "WARN: ensure-database-url.sh 失败，保留现有 .env"
@@ -155,7 +167,9 @@ fi
 
 echo
 echo "========== 10. 冒烟测试 =========="
-if [ -x ./smoke-test-gateway.sh ]; then
+if [ "${POST_DEPLOY:-}" = "1" ]; then
+  echo "POST_DEPLOY=1：deploy-profile-v1.sh 已执行冒烟测试，跳过重复校验"
+elif [ -x ./smoke-test-gateway.sh ]; then
   ./smoke-test-gateway.sh
 elif [ -f ./smoke-test-gateway.sh ]; then
   bash ./smoke-test-gateway.sh
