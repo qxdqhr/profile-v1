@@ -2,10 +2,10 @@
  * 改写 teach 课时 / 参考页 HTML 内的相对链接，使其在 teachHub 站内可导航。
  */
 
-import { TEACH_HUB_BASE } from './routes';
+import { teachHubPublicBase } from './routes';
 
 function workspaceBase(workspaceId: string): string {
-  return `${TEACH_HUB_BASE}/w/${workspaceId}`;
+  return `${teachHubPublicBase()}/w/${workspaceId}`;
 }
 
 function lessonHref(workspaceId: string, filename: string): string {

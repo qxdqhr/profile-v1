@@ -17,13 +17,13 @@ import {
   thRoot,
   thTopbar,
 } from '../styles/tw';
-import { TEACH_HUB_BASE } from '../utils/routes';
+import { isTeachHubHomePath, TEACH_HUB_HOME } from '../utils/routes';
 
 function TeachHubShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isAuthenticated } = useAuthContext();
   const listLoading = useTeachHubStore((s) => s.listLoading);
-  const isHome = pathname === TEACH_HUB_BASE;
+  const isHome = isTeachHubHomePath(pathname);
   const isImmersive = pathname.includes('/lesson/') || pathname.includes('/reference/');
 
   useTeachHubBootstrap(isAuthenticated);
@@ -39,7 +39,7 @@ function TeachHubShell({ children }: { children: React.ReactNode }) {
       <div className={thMain}>
         {!isImmersive ? (
           <header className={thTopbar}>
-            <Link href={TEACH_HUB_BASE} className="block no-underline">
+            <Link href={TEACH_HUB_HOME} className="block no-underline">
               <Title size="small" color="app-teal">
                 Teach 学习工作区
               </Title>

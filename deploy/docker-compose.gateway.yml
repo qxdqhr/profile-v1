@@ -47,7 +47,7 @@ services:
       APP_CONFIG_PATH: /app/config/app.config.production.yaml
       DATABASE_URL: ${DATABASE_URL:-}
       NEXT_PUBLIC_BASE_PATH: /teach-hub
-      NEXT_PUBLIC_TEACH_HUB_BASE_URL: /teach-hub
+      NEXT_PUBLIC_TEACH_HUB_BASE_URL: ''
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     volumes:

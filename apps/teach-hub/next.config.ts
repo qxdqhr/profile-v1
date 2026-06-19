@@ -44,7 +44,7 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_APP_URL: readPublicAppUrl(),
     NEXT_PUBLIC_BASE_PATH: basePath,
     NEXT_PUBLIC_TEACH_HUB_BASE_URL:
-      process.env.NEXT_PUBLIC_TEACH_HUB_BASE_URL ?? basePath ?? '',
+      process.env.NEXT_PUBLIC_TEACH_HUB_BASE_URL ?? (basePath ? '' : ''),
   },
   images: {
     unoptimized: true,

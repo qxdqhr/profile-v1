@@ -18,7 +18,7 @@ import {
 } from '../styles/tw';
 import type { TeachWorkspace } from '../types';
 import {
-  TEACH_HUB_BASE,
+  TEACH_HUB_HOME,
   WORKSPACE_TABS,
   resolveWorkspaceTab,
 } from '../utils/routes';
@@ -69,7 +69,7 @@ export function WorkspaceShell({ workspaceId, children }: WorkspaceShellProps) {
   return (
     <div className={thWsShell}>
       <nav className={thWsBreadcrumb} aria-label="面包屑">
-        <Link href={TEACH_HUB_BASE} className={thWsBreadcrumbLink}>
+        <Link href={TEACH_HUB_HOME} className={thWsBreadcrumbLink}>
           我的工作区
         </Link>
         <span aria-hidden>/</span>

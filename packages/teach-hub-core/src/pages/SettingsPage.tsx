@@ -17,7 +17,7 @@ import {
   thTabPage,
   thTabPageDesc,
 } from '../styles/tw';
-import { TEACH_HUB_BASE } from '../utils/routes';
+import { TEACH_HUB_HOME } from '../utils/routes';
 
 type SettingsPageProps = {
   workspaceId: string;
@@ -57,7 +57,7 @@ export function SettingsPage({ workspaceId }: SettingsPageProps) {
     setMessage('');
     try {
       await archiveWorkspaceViaApi(workspaceId);
-      router.push(TEACH_HUB_BASE);
+      router.push(TEACH_HUB_HOME);
     } catch (err) {
       setMessage(err instanceof Error ? err.message : '删除失败');
       setDeleting(false);

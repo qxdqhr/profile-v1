@@ -42,7 +42,8 @@ COPY apps/teach-hub ./apps/teach-hub
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_DIST_DIR=.next-teach-hub
 ENV NEXT_PUBLIC_BASE_PATH=/teach-hub
-ENV NEXT_PUBLIC_TEACH_HUB_BASE_URL=/teach-hub
+# 子应用 basePath 已含 /teach-hub，站内 Link 勿再叠一层前缀
+ENV NEXT_PUBLIC_TEACH_HUB_BASE_URL=
 
 RUN pnpm --filter @profile/teach-hub build
 
