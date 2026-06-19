@@ -164,8 +164,9 @@ function CalendarPageContent({ toolsPanel }: CalendarPageProps) {
   }, [currentDate, viewType, fetchEvents, settings.weekStartsOn]);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     loadRangeForView();
-  }, [loadRangeForView]);
+  }, [isAuthenticated, loadRangeForView]);
 
   const viewTitle = useMemo(
     () => getViewTitle(viewType, currentDate, settings),

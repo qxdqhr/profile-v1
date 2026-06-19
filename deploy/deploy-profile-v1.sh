@@ -33,10 +33,19 @@ EXISTING_DATABASE_URL=""
 if [ -f .env ]; then
   EXISTING_DATABASE_URL="$(strip_env_value "$(grep -E '^DATABASE_URL=' .env | tail -1 | cut -d= -f2- || true)")"
 fi
-if [ -z "${DATABASE_URL:-}" ] && [ -z "${EXISTING_DATABASE_URL}" ]; then
-  DATABASE_URL="$(derive_database_url || true)"
-else
-  DATABASE_URL="${DATABASE_URL:-${EXISTING_DATABASE_URL}}"
+
+# 始终以 app.config 推导为准，避免沿用损坏的旧 .env（CI 日志曾出现 port=543）
+if [ -x ./ensure-database-url.sh ]; then
+  DATABASE_URL="$(./ensure-database-url.sh || true)"
+elif [ -f ./ensure-database-url.sh ]; then
+  DATABASE_URL="$(bash ./ensure-database-url.sh || true)"
+fi
+if [ -z "${DATABASE_URL:-}" ]; then
+  if [ -n "${EXISTING_DATABASE_URL}" ]; then
+    DATABASE_URL="${EXISTING_DATABASE_URL}"
+  else
+    DATABASE_URL="$(derive_database_url || true)"
+  fi
 fi
 
 compose_cmd() {

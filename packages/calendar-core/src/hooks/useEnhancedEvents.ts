@@ -46,7 +46,9 @@ export function useEnhancedEvents(): UseEnhancedEventsReturn {
         endDate: toLocalISOString(endDate),
       });
 
-      const response = await fetch(calendarApiPath(`events?${params}`));
+      const response = await fetch(calendarApiPath(`events?${params}`), {
+        credentials: 'include',
+      });
       
       if (!response.ok) {
         throw new Error(`获取事件失败: ${response.status}`);
@@ -117,6 +119,7 @@ export function useEnhancedEvents(): UseEnhancedEventsReturn {
       };
 
       const response = await fetch(calendarApiPath('events'), {
+        credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -294,6 +297,7 @@ export function useEnhancedEvents(): UseEnhancedEventsReturn {
         }
 
         const response = await fetch(calendarApiPath('events'), {
+          credentials: 'include',
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -356,6 +360,7 @@ export function useEnhancedEvents(): UseEnhancedEventsReturn {
       if (eventData.color !== undefined) updateRequest.color = eventData.color;
 
       const response = await fetch(calendarApiPath(`events/${eventId}`), {
+        credentials: 'include',
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -409,6 +414,7 @@ export function useEnhancedEvents(): UseEnhancedEventsReturn {
         : calendarApiPath(`events/${eventId}`);
 
       const response = await fetch(url, {
+        credentials: 'include',
         method: 'DELETE',
       });
 
@@ -441,6 +447,7 @@ export function useEnhancedEvents(): UseEnhancedEventsReturn {
     
     try {
       const response = await fetch(calendarApiPath('events/batchDelete'), {
+        credentials: 'include',
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -496,6 +503,7 @@ export function useEnhancedEvents(): UseEnhancedEventsReturn {
       console.log('📤 发送API请求:', updateRequest);
 
       const response = await fetch(calendarApiPath(`events/${eventId}`), {
+        credentials: 'include',
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

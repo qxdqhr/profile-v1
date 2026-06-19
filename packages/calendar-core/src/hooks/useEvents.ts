@@ -43,7 +43,9 @@ export function useEvents(): UseEventsReturn {
         endDate: toLocalISOString(endDate),
       });
 
-      const response = await fetch(calendarApiPath(`events?${params}`));
+      const response = await fetch(calendarApiPath(`events?${params}`), {
+        credentials: 'include',
+      });
       
       if (!response.ok) {
         throw new Error(`获取事件失败: ${response.status}`);
@@ -97,6 +99,7 @@ export function useEvents(): UseEventsReturn {
       };
 
       const response = await fetch(calendarApiPath('events'), {
+        credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -157,6 +160,7 @@ export function useEvents(): UseEventsReturn {
       if (eventData.color !== undefined) updateRequest.color = eventData.color;
 
       const response = await fetch(calendarApiPath(`events/${eventId}`), {
+        credentials: 'include',
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -210,6 +214,7 @@ export function useEvents(): UseEventsReturn {
         : calendarApiPath(`events/${eventId}`);
 
       const response = await fetch(url, {
+        credentials: 'include',
         method: 'DELETE',
       });
 
@@ -242,6 +247,7 @@ export function useEvents(): UseEventsReturn {
     
     try {
       const response = await fetch(calendarApiPath('events/batchDelete'), {
+        credentials: 'include',
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

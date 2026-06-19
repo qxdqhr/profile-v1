@@ -58,9 +58,10 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('获取事件失败：', error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('获取事件失败：', message, error);
     return Response.json(
-      { success: false, error: '服务器内部错误' },
+      { success: false, error: '服务器内部错误', detail: message },
       { status: 500 }
     );
   }
