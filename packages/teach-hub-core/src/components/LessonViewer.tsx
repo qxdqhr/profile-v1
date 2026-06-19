@@ -8,6 +8,7 @@ import { cn } from '../utils/cn';
 import {
   thLessonViewerColumn,
   thLessonViewerFrame,
+  thLessonViewerFrameSlot,
   thLessonViewerRow,
   thLessonViewerWrap,
 } from '../styles/tw';
@@ -257,7 +258,7 @@ export function LessonViewer({ src, title }: LessonViewerProps) {
       <div className={cn('shrink-0', showBarFirst ? 'order-1' : 'order-3')}>
         {progressBar}
       </div>
-      <div className="order-2 min-h-0 min-w-0 flex-1">{iframe}</div>
+      <div className={thLessonViewerFrameSlot}>{iframe}</div>
     </div>
   );
 }

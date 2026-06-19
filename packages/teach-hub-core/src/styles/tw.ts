@@ -179,6 +179,9 @@ export const thLessonProgressSlider =
 export const thLessonProgressSliderVertical =
   'h-full min-h-[8rem] w-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-[#e8e2d6] accent-[#4a9b8e] [writing-mode:vertical-lr] [direction:rtl] [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-[#4a9b8e] [&::-webkit-slider-thumb]:shadow-[0_1px_4px_rgba(61,52,40,0.2)]';
 
+export const thLessonViewerFrameSlot =
+  'order-2 flex min-h-0 min-w-0 flex-1 flex-col';
+
 export const thLessonViewerFrame =
   'min-h-0 min-w-0 flex-1 border-none bg-[#faf9f7]';
 
