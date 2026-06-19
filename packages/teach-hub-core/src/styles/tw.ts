@@ -182,11 +182,6 @@ export const thLessonProgressSliderVertical =
 export const thLessonViewerFrame =
   'min-h-0 min-w-0 flex-1 border-none bg-[#faf9f7]';
 
-export const thSettingsSelect = `${thFormInput} max-w-xs`;
-
-export const thSettingsSwitchRow =
-  'flex items-center justify-between gap-4 rounded-lg border border-[#e8e2d6] bg-[#faf9f7] px-3 py-3';
-
 export const thForm =
   'flex max-w-[640px] flex-col gap-4';
 
@@ -200,6 +195,11 @@ export const thFormInput =
 
 export const thFormTextarea =
   `${thFormInput} min-h-[120px] resize-y`;
+
+export const thSettingsSelect = `${thFormInput} max-w-xs`;
+
+export const thSettingsSwitchRow =
+  'flex items-center justify-between gap-4 rounded-lg border border-[#e8e2d6] bg-[#faf9f7] px-3 py-3';
 
 export const thListEditor = 'flex flex-col gap-2';
 
