@@ -4,16 +4,23 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from 'animal-island-ui';
 import { cn } from '../utils/cn';
+import { useLessonReaderSettings } from '../hooks/useLessonReaderSettings';
 import {
   archiveWorkspaceViaApi,
   importWorkspaceZip,
 } from '../services/teachHubClient';
 import {
+  LESSON_READER_POSITION_OPTIONS,
+  type LessonReaderBarPosition,
+} from '../utils/lessonReaderSettings';
+import {
   thForm,
+  thFormLabel,
   thPanel,
   thPanelTitle,
   thSettingsSection,
   thSettingsSectionDanger,
+  thSettingsSelect,
   thTabPage,
   thTabPageDesc,
 } from '../styles/tw';
@@ -25,6 +32,7 @@ type SettingsPageProps = {
 
 export function SettingsPage({ workspaceId }: SettingsPageProps) {
   const router = useRouter();
+  const { settings, setBarPosition } = useLessonReaderSettings();
   const [zipFile, setZipFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -66,6 +74,29 @@ export function SettingsPage({ workspaceId }: SettingsPageProps) {
 
   return (
     <div className={thTabPage}>
+      <section className={cn(thPanel, thSettingsSection)}>
+        <h2 className={thPanelTitle}>阅读进度条</h2>
+        <p className={thTabPageDesc}>
+          在课时阅读页显示阅读百分比与可拖动进度条。滚动正文时进度会自动更新；也可拖动进度条跳转位置。阅读页内可收起/展开进度条。
+        </p>
+        <div className={`${thForm} max-w-lg`}>
+          <label className={thFormLabel}>
+            进度条位置
+            <select
+              className={thSettingsSelect}
+              value={settings.barPosition}
+              onChange={(e) => setBarPosition(e.target.value as LessonReaderBarPosition)}
+            >
+              {LESSON_READER_POSITION_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </section>
+
       <section className={cn(thPanel, thSettingsSection)}>
         <h2 className={thPanelTitle}>导入工作区</h2>
         <p className={thTabPageDesc}>

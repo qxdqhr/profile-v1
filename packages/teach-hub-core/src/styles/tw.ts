@@ -142,10 +142,28 @@ export const thLessonShell =
 export const thLessonToolbar =
   'flex shrink-0 flex-wrap items-center gap-2.5 border-b border-[#e8e2d6] bg-white px-4 py-2.5';
 
-export const thLessonViewerWrap = 'flex min-h-0 flex-1 flex-col';
+export const thLessonViewerWrap = 'flex min-h-0 flex-1';
+
+export const thLessonViewerColumn = 'flex min-h-0 flex-1 flex-col';
+
+export const thLessonViewerRow = 'flex min-h-0 flex-1 flex-row';
 
 export const thLessonProgress =
-  'shrink-0 border-b border-[#e8e2d6] bg-[#f5f0e8]/80 px-4 py-2.5 backdrop-blur-sm';
+  'shrink-0 bg-[#f5f0e8]/90 backdrop-blur-sm';
+
+export const thLessonProgressShellHorizontal = 'px-4 py-2.5';
+
+export const thLessonProgressShellVertical =
+  'flex min-h-0 w-[3.25rem] flex-col items-center gap-2 px-2 py-3';
+
+export const thLessonProgressCollapsed =
+  'flex shrink-0 items-center justify-between gap-2 bg-[#f5f0e8]/95 px-3 py-1.5';
+
+export const thLessonProgressCollapsedVertical =
+  'flex shrink-0 flex-col items-center justify-center gap-1 bg-[#f5f0e8]/95 px-1.5 py-2';
+
+export const thLessonProgressToggle =
+  'inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#e8e2d6] bg-white text-[#7a6f5c] transition-colors hover:border-[#c4b89e] hover:text-[#3d3428]';
 
 export const thLessonProgressRow =
   'mb-2 flex items-baseline justify-between gap-3';
@@ -158,8 +176,13 @@ export const thLessonProgressPercent =
 export const thLessonProgressSlider =
   'h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#e8e2d6] accent-[#4a9b8e] [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-[#4a9b8e] [&::-webkit-slider-thumb]:shadow-[0_1px_4px_rgba(61,52,40,0.2)]';
 
+export const thLessonProgressSliderVertical =
+  'h-full min-h-[8rem] w-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-[#e8e2d6] accent-[#4a9b8e] [writing-mode:vertical-lr] [direction:rtl] [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-[#4a9b8e] [&::-webkit-slider-thumb]:shadow-[0_1px_4px_rgba(61,52,40,0.2)]';
+
 export const thLessonViewerFrame =
-  'min-h-0 w-full flex-1 border-none bg-[#faf9f7]';
+  'min-h-0 min-w-0 flex-1 border-none bg-[#faf9f7]';
+
+export const thSettingsSelect = `${thFormInput} max-w-xs`;
 
 export const thForm =
   'flex max-w-[640px] flex-col gap-4';

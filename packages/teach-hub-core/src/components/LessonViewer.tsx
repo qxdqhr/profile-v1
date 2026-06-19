@@ -1,13 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { LessonReadingProgress } from './LessonReadingProgress';
+import { useLessonReaderSettings } from '../hooks/useLessonReaderSettings';
+import { isVerticalReaderPosition } from '../utils/lessonReaderSettings';
+import { cn } from '../utils/cn';
 import {
-  thLessonProgress,
-  thLessonProgressLabel,
-  thLessonProgressPercent,
-  thLessonProgressRow,
-  thLessonProgressSlider,
+  thLessonViewerColumn,
   thLessonViewerFrame,
+  thLessonViewerRow,
   thLessonViewerWrap,
 } from '../styles/tw';
 
@@ -43,9 +44,15 @@ function getIframeDocument(iframe: HTMLIFrameElement | null): Document | null {
 function readScrollProgress(doc: Document): number {
   const root = doc.documentElement;
   const body = doc.body;
-  const scrollTop = root.scrollTop || body.scrollTop || 0;
-  const scrollHeight = Math.max(root.scrollHeight, body.scrollHeight, 1);
-  const clientHeight = root.clientHeight || body.clientHeight || 1;
+  const scrolling = doc.scrollingElement ?? root;
+  const scrollTop = scrolling.scrollTop || root.scrollTop || body.scrollTop || 0;
+  const scrollHeight = Math.max(
+    scrolling.scrollHeight,
+    root.scrollHeight,
+    body.scrollHeight,
+    1,
+  );
+  const clientHeight = scrolling.clientHeight || root.clientHeight || body.clientHeight || 1;
   const maxScroll = Math.max(0, scrollHeight - clientHeight);
   if (maxScroll <= 0) return 100;
   return Math.min(100, Math.max(0, (scrollTop / maxScroll) * 100));
@@ -54,10 +61,17 @@ function readScrollProgress(doc: Document): number {
 function setScrollProgress(doc: Document, percent: number): void {
   const root = doc.documentElement;
   const body = doc.body;
-  const scrollHeight = Math.max(root.scrollHeight, body.scrollHeight, 1);
-  const clientHeight = root.clientHeight || body.clientHeight || 1;
+  const scrolling = doc.scrollingElement ?? root;
+  const scrollHeight = Math.max(
+    scrolling.scrollHeight,
+    root.scrollHeight,
+    body.scrollHeight,
+    1,
+  );
+  const clientHeight = scrolling.clientHeight || root.clientHeight || body.clientHeight || 1;
   const maxScroll = Math.max(0, scrollHeight - clientHeight);
   const top = (percent / 100) * maxScroll;
+  scrolling.scrollTop = top;
   root.scrollTop = top;
   body.scrollTop = top;
 }
@@ -68,6 +82,9 @@ export function LessonViewer({ src, title }: LessonViewerProps) {
   const [percent, setPercent] = useState(0);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const draggingRef = useRef(false);
+  const { settings, setBarExpanded } = useLessonReaderSettings();
+  const { barPosition, barExpanded } = settings;
+  const vertical = isVerticalReaderPosition(barPosition);
 
   useEffect(() => {
     let mounted = true;
@@ -98,26 +115,43 @@ export function LessonViewer({ src, title }: LessonViewerProps) {
   }, []);
 
   const bindScrollTracking = useCallback(() => {
-    const doc = getIframeDocument(iframeRef.current);
+    const iframe = iframeRef.current;
+    const doc = getIframeDocument(iframe);
+    const win = iframe?.contentWindow ?? null;
     if (!doc) return undefined;
 
     const onScroll = () => syncProgressFromScroll();
-    doc.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
+    doc.addEventListener('scroll', onScroll, { passive: true, capture: true });
+    win?.addEventListener('scroll', onScroll, { passive: true });
+
+    let wheelFrame = 0;
+    const onWheel = () => {
+      if (wheelFrame) cancelAnimationFrame(wheelFrame);
+      wheelFrame = requestAnimationFrame(() => {
+        wheelFrame = 0;
+        onScroll();
+      });
+    };
+    win?.addEventListener('wheel', onWheel, { passive: true });
 
     const observer = typeof ResizeObserver !== 'undefined'
       ? new ResizeObserver(onScroll)
       : null;
     if (doc.body && observer) observer.observe(doc.body);
+    if (doc.documentElement && observer) observer.observe(doc.documentElement);
 
     onScroll();
     const retry = window.setTimeout(onScroll, 400);
+    const retry2 = window.setTimeout(onScroll, 1200);
 
     return () => {
-      doc.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
+      doc.removeEventListener('scroll', onScroll, true);
+      win?.removeEventListener('scroll', onScroll);
+      win?.removeEventListener('wheel', onWheel);
       observer?.disconnect();
       window.clearTimeout(retry);
+      window.clearTimeout(retry2);
+      if (wheelFrame) cancelAnimationFrame(wheelFrame);
     };
   }, [syncProgressFromScroll]);
 
@@ -156,6 +190,17 @@ export function LessonViewer({ src, title }: LessonViewerProps) {
     syncProgressFromScroll();
   };
 
+  const progressBar = (
+    <LessonReadingProgress
+      position={barPosition}
+      expanded={barExpanded}
+      percent={percent}
+      onPercentChange={handleSliderChange}
+      onDragEnd={endDragging}
+      onExpandedChange={setBarExpanded}
+    />
+  );
+
   if (error) {
     return <p className="p-4 text-sm text-red-600">{error}</p>;
   }
@@ -164,38 +209,28 @@ export function LessonViewer({ src, title }: LessonViewerProps) {
     return <p className="p-4 text-sm text-[#7a6f5c]">加载课时内容…</p>;
   }
 
+  const iframe = (
+    <iframe
+      ref={iframeRef}
+      srcDoc={html}
+      title={title}
+      className={thLessonViewerFrame}
+      sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+    />
+  );
+
+  const showBarFirst = barPosition === 'top' || barPosition === 'left';
+
   return (
-    <div className={thLessonViewerWrap}>
-      <div className={thLessonProgress} aria-label="阅读进度">
-        <div className={thLessonProgressRow}>
-          <span className={thLessonProgressLabel}>阅读进度</span>
-          <span className={thLessonProgressPercent}>{percent.toFixed(1)}%</span>
-        </div>
-        <input
-          type="range"
-          min={0}
-          max={100}
-          step={0.1}
-          value={percent}
-          className={thLessonProgressSlider}
-          aria-label="拖动调整阅读位置"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={Math.round(percent)}
-          aria-valuetext={`已阅读 ${percent.toFixed(1)}%`}
-          onChange={(e) => handleSliderChange(Number(e.target.value))}
-          onPointerUp={endDragging}
-          onPointerCancel={endDragging}
-          onKeyUp={endDragging}
-        />
-      </div>
-      <iframe
-        ref={iframeRef}
-        srcDoc={html}
-        title={title}
-        className={thLessonViewerFrame}
-        sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-      />
+    <div
+      className={cn(
+        thLessonViewerWrap,
+        vertical ? thLessonViewerRow : thLessonViewerColumn,
+      )}
+    >
+      {showBarFirst ? progressBar : null}
+      {iframe}
+      {!showBarFirst ? progressBar : null}
     </div>
   );
 }
