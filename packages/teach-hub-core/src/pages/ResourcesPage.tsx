@@ -1,46 +1,49 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button } from 'animal-island-ui';
+import { ResourcesEditor } from '../components/ResourcesEditor';
 import { fetchWorkspaceFileText, putWorkspaceFileText } from '../services/teachHubClient';
-import { thForm, thTabPage } from '../styles/tw';
+import { thTabPage, thTabPageDesc } from '../styles/tw';
+import type { ResourcesFormData } from '../types';
+import { parseResourcesMarkdown } from '../utils/resourcesParser';
 import { DEFAULT_RESOURCES_MD } from '../utils/workspaceTemplates';
 
 type ResourcesPageProps = {
   workspaceId: string;
 };
 
+const EMPTY_RESOURCES: ResourcesFormData = {
+  knowledge: [],
+  communities: [],
+};
+
 export function ResourcesPage({ workspaceId }: ResourcesPageProps) {
-  const [content, setContent] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [initial, setInitial] = useState<ResourcesFormData | null>(null);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     let mounted = true;
     void fetchWorkspaceFileText(workspaceId, 'RESOURCES.md')
       .then((md) => {
-        if (mounted) setContent(md);
+        if (mounted) setInitial(parseResourcesMarkdown(md));
       })
       .catch(() => {
-        if (mounted) setContent(DEFAULT_RESOURCES_MD);
-      })
-      .finally(() => {
-        if (mounted) setLoading(false);
+        if (mounted) setInitial(parseResourcesMarkdown(DEFAULT_RESOURCES_MD));
       });
     return () => {
       mounted = false;
     };
   }, [workspaceId]);
 
-  const handleSave = async () => {
+  const handleSave = async (markdown: string) => {
     setSaving(true);
-    setMessage('');
+    setError('');
     try {
-      await putWorkspaceFileText(workspaceId, 'RESOURCES.md', content);
-      setMessage('已保存');
+      await putWorkspaceFileText(workspaceId, 'RESOURCES.md', markdown);
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : '保存失败');
+      setError(err instanceof Error ? err.message : '保存失败');
+      throw err;
     } finally {
       setSaving(false);
     }
@@ -48,23 +51,20 @@ export function ResourcesPage({ workspaceId }: ResourcesPageProps) {
 
   return (
     <div className={thTabPage}>
-      {loading ? (
-        <p className="text-sm text-[#7a6f5c]">加载中…</p>
+      <p className={thTabPageDesc}>
+        管理推荐的学习资源与社区。Agent 写入的内容会逐项展示，你也可以随时添加或编辑。
+      </p>
+      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {initial ? (
+        <ResourcesEditor
+          initial={
+            initial.knowledge.length || initial.communities.length ? initial : EMPTY_RESOURCES
+          }
+          saving={saving}
+          onSave={handleSave}
+        />
       ) : (
-        <div className={`${thForm} max-w-3xl`}>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={18}
-            className="font-mono text-sm"
-          />
-          <div className="flex items-center gap-3">
-            <Button type="primary" onClick={() => void handleSave()} disabled={saving}>
-              {saving ? '保存中…' : '保存'}
-            </Button>
-            {message ? <span className="text-sm text-[#7a6f5c]">{message}</span> : null}
-          </div>
-        </div>
+        <p className="text-sm text-[#7a6f5c]">加载中…</p>
       )}
     </div>
   );

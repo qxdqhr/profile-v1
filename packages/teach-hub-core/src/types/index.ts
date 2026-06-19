@@ -108,6 +108,17 @@ export type MissionFormData = {
   outOfScope: string[];
 };
 
+export type ResourceItem = {
+  title: string;
+  url?: string;
+  note?: string;
+};
+
+export type ResourcesFormData = {
+  knowledge: ResourceItem[];
+  communities: ResourceItem[];
+};
+
 export type CreateWorkspaceInput = {
   title: string;
   topic?: string;
