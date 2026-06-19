@@ -1,8 +1,18 @@
-import type { ResourceItem, ResourcesFormData } from '../types';
+import type { ResourceCategory, ResourceItem, ResourcesFormData } from '../types';
 
 const PLACEHOLDER_RE = /^（.+）$/;
 
-function parseListItem(line: string): ResourceItem | null {
+export const RESOURCE_CATEGORY_LABELS: Record<ResourceCategory, string> = {
+  knowledge: 'Knowledge',
+  wisdom: 'Wisdom',
+};
+
+export const RESOURCE_CATEGORY_DESCRIPTIONS: Record<ResourceCategory, string> = {
+  knowledge: '书籍、文档、课程等高质量学习资源',
+  wisdom: '相关社区、论坛与交流渠道',
+};
+
+function parseListItem(line: string): Omit<ResourceItem, 'category'> | null {
   const trimmed = line.trim();
   if (!trimmed.startsWith('- ')) return null;
   const body = trimmed.slice(2).trim();
@@ -34,7 +44,7 @@ function parseListItem(line: string): ResourceItem | null {
   return { title: body };
 }
 
-function readSectionList(content: string, aliases: string[]): ResourceItem[] {
+function readSectionList(content: string, aliases: string[]): Omit<ResourceItem, 'category'>[] {
   const sectionPattern = /^##\s+(.+)$/gm;
   const sections: Array<{ name: string; start: number; end: number }> = [];
   let match: RegExpExecArray | null;
@@ -56,7 +66,7 @@ function readSectionList(content: string, aliases: string[]): ResourceItem[] {
   const items = body
     .split('\n')
     .map(parseListItem)
-    .filter((item): item is ResourceItem => item !== null);
+    .filter((item): item is Omit<ResourceItem, 'category'> => item !== null);
 
   if (items.length > 0) return items;
 
@@ -70,10 +80,16 @@ function readSectionList(content: string, aliases: string[]): ResourceItem[] {
 }
 
 export function parseResourcesMarkdown(content: string): ResourcesFormData {
-  return {
-    knowledge: readSectionList(content, ['knowledge', '知识']),
-    communities: readSectionList(content, ['wisdom', 'communities', '社区']),
-  };
+  const knowledge = readSectionList(content, ['knowledge', '知识']).map((item) => ({
+    ...item,
+    category: 'knowledge' as const,
+  }));
+  const wisdom = readSectionList(content, ['wisdom', 'communities', '社区']).map((item) => ({
+    ...item,
+    category: 'wisdom' as const,
+  }));
+
+  return { items: [...knowledge, ...wisdom] };
 }
 
 function formatListItem(item: ResourceItem): string {
@@ -100,13 +116,20 @@ function formatSection(title: string, items: ResourceItem[]): string[] {
 }
 
 export function composeResourcesMarkdown(data: ResourcesFormData): string {
+  const knowledge = data.items.filter((item) => item.category === 'knowledge');
+  const wisdom = data.items.filter((item) => item.category === 'wisdom');
+
   const lines = [
     '# 学习资源',
     '',
-    ...formatSection('Knowledge', data.knowledge),
-    ...formatSection('Wisdom (Communities)', data.communities),
+    ...formatSection('Knowledge', knowledge),
+    ...formatSection('Wisdom (Communities)', wisdom),
   ];
   return lines.join('\n');
 }
 
-export const EMPTY_RESOURCE_ITEM: ResourceItem = { title: '', url: '', note: '' };
+export const EMPTY_RESOURCE_ITEM: Omit<ResourceItem, 'category'> = {
+  title: '',
+  url: '',
+  note: '',
+};

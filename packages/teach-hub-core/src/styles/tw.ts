@@ -221,6 +221,35 @@ export const thListEditor = 'flex flex-col gap-2';
 
 export const thListEditorRow = 'flex gap-2';
 
+export const thResourcesToolbar =
+  'flex flex-wrap items-center justify-between gap-3';
+
+export const thResourcesFilter =
+  'rounded-full border border-[#e8e2d6] bg-[#faf9f7] px-3 py-1.5 text-sm text-[#6b5f4d] transition-colors hover:border-[#c4b89e] hover:text-[#3d3428]';
+
+export const thResourcesFilterActive =
+  'border-[#4299e1] bg-white font-semibold text-[#2c5282]';
+
+export const thResourcesListScroll =
+  'flex max-h-[min(520px,calc(100vh-320px))] flex-col gap-2 overflow-y-auto px-[18px] pb-4';
+
+export const thResourcesNode =
+  'flex flex-col gap-2.5 rounded-[10px] border border-[#e8e2d6] bg-[#faf9f7] px-3.5 py-3';
+
+export const thResourcesNodeCollapsed =
+  'flex-row items-center justify-between gap-3';
+
+export const thResourcesNodeExpanded = 'flex-col';
+
+export const thResourcesNodeBadge =
+  'rounded-full border border-[#dbe4ef] bg-[#f0f4f8] px-2 py-0.5 text-[0.72rem] font-semibold text-[#2c5282]';
+
+export const thResourcesNodeTitle =
+  'truncate text-sm font-semibold text-[#3d3428]';
+
+export const thResourcesNodeMeta =
+  'truncate text-xs text-[#7a6f5c]';
+
 export const thAuthFallback =
   'flex min-h-screen items-center justify-center bg-[#faf9f7] p-6';
 

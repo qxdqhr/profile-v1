@@ -13,8 +13,7 @@ type ResourcesPageProps = {
 };
 
 const EMPTY_RESOURCES: ResourcesFormData = {
-  knowledge: [],
-  communities: [],
+  items: [],
 };
 
 export function ResourcesPage({ workspaceId }: ResourcesPageProps) {
@@ -57,9 +56,7 @@ export function ResourcesPage({ workspaceId }: ResourcesPageProps) {
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       {initial ? (
         <ResourcesEditor
-          initial={
-            initial.knowledge.length || initial.communities.length ? initial : EMPTY_RESOURCES
-          }
+          initial={initial.items.length ? initial : EMPTY_RESOURCES}
           saving={saving}
           onSave={handleSave}
         />
