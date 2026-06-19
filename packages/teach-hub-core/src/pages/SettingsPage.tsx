@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Button } from 'animal-island-ui';
+import { Button, Switch } from 'animal-island-ui';
 import { cn } from '../utils/cn';
 import { useLessonReaderSettings } from '../hooks/useLessonReaderSettings';
 import {
@@ -21,6 +21,7 @@ import {
   thSettingsSection,
   thSettingsSectionDanger,
   thSettingsSelect,
+  thSettingsSwitchRow,
   thTabPage,
   thTabPageDesc,
 } from '../styles/tw';
@@ -32,7 +33,7 @@ type SettingsPageProps = {
 
 export function SettingsPage({ workspaceId }: SettingsPageProps) {
   const router = useRouter();
-  const { settings, setBarPosition } = useLessonReaderSettings();
+  const { settings, setBarPosition, setBarExpanded } = useLessonReaderSettings();
   const [zipFile, setZipFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -77,7 +78,7 @@ export function SettingsPage({ workspaceId }: SettingsPageProps) {
       <section className={cn(thPanel, thSettingsSection)}>
         <h2 className={thPanelTitle}>阅读进度条</h2>
         <p className={thTabPageDesc}>
-          在课时阅读页显示阅读百分比与可拖动进度条。滚动正文时进度会自动更新；也可拖动进度条跳转位置。阅读页内可收起/展开进度条。
+          在课时阅读页显示阅读百分比与可拖动进度条。滚动正文时进度会自动更新；也可拖动进度条跳转位置。下方可设置默认展开或收起，阅读页内仍可临时切换。
         </p>
         <div className={`${thForm} max-w-lg`}>
           <label className={thFormLabel}>
@@ -94,6 +95,19 @@ export function SettingsPage({ workspaceId }: SettingsPageProps) {
               ))}
             </select>
           </label>
+          <div className={thSettingsSwitchRow}>
+            <div>
+              <p className="text-[0.9rem] font-semibold text-[#3d3428]">默认展开进度条</p>
+              <p className="mt-0.5 text-xs text-[#7a6f5c]">
+                关闭后进入阅读页时进度条默认收起，仅显示百分比与展开按钮
+              </p>
+            </div>
+            <Switch
+              checked={settings.barExpanded}
+              onChange={setBarExpanded}
+              aria-label="默认展开进度条"
+            />
+          </div>
         </div>
       </section>
 

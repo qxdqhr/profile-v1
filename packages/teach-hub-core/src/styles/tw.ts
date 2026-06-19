@@ -184,6 +184,9 @@ export const thLessonViewerFrame =
 
 export const thSettingsSelect = `${thFormInput} max-w-xs`;
 
+export const thSettingsSwitchRow =
+  'flex items-center justify-between gap-4 rounded-lg border border-[#e8e2d6] bg-[#faf9f7] px-3 py-3';
+
 export const thForm =
   'flex max-w-[640px] flex-col gap-4';
 
