@@ -154,10 +154,23 @@ export const thLessonProgress =
 export const thLessonProgressShellHorizontal = 'px-4 py-2.5';
 
 export const thLessonProgressShellVertical =
-  'flex min-h-0 w-[3.25rem] flex-col items-center gap-2 px-2 py-3';
+  'flex h-full max-h-full w-[3.25rem] flex-col items-center gap-2 px-2 py-3';
 
 export const thLessonProgressCollapsed =
   'flex shrink-0 items-center justify-between gap-2 bg-[#f5f0e8]/95 px-3 py-1.5';
+
+export const thLessonProgressOverlay =
+  'pointer-events-none absolute inset-y-3 z-20 flex items-center';
+
+export const thLessonProgressOverlayLeft = 'left-3';
+
+export const thLessonProgressOverlayRight = 'right-3';
+
+export const thLessonProgressFloatCollapsed =
+  'pointer-events-auto flex h-11 w-11 flex-col items-center justify-center gap-0.5 rounded-xl border border-[#e8e2d6]/90 bg-[#f5f0e8]/95 p-1 shadow-[0_4px_16px_rgba(61,52,40,0.12)] backdrop-blur-sm';
+
+export const thLessonProgressFloatExpanded =
+  'pointer-events-auto flex h-full max-h-full w-[3.25rem] flex-col items-center gap-2 rounded-xl border border-[#e8e2d6]/90 bg-[#f5f0e8]/95 px-2 py-3 shadow-[0_4px_16px_rgba(61,52,40,0.12)] backdrop-blur-sm';
 
 export const thLessonProgressCollapsedVertical =
   'flex shrink-0 flex-col items-center justify-center gap-1 bg-[#f5f0e8]/95 px-1.5 py-2';
@@ -177,7 +190,7 @@ export const thLessonProgressSlider =
   'h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#e8e2d6] accent-[#4a9b8e] [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-[#4a9b8e] [&::-webkit-slider-thumb]:shadow-[0_1px_4px_rgba(61,52,40,0.2)]';
 
 export const thLessonProgressSliderVertical =
-  'h-full min-h-[8rem] w-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-[#e8e2d6] accent-[#4a9b8e] [writing-mode:vertical-lr] [direction:rtl] [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-[#4a9b8e] [&::-webkit-slider-thumb]:shadow-[0_1px_4px_rgba(61,52,40,0.2)]';
+  'h-full min-h-[8rem] w-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-[#e8e2d6] accent-[#4a9b8e] [writing-mode:vertical-lr] [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-[#4a9b8e] [&::-webkit-slider-thumb]:shadow-[0_1px_4px_rgba(61,52,40,0.2)]';
 
 export const thLessonViewerFrameSlot =
   'order-2 flex min-h-0 min-w-0 flex-1 flex-col';

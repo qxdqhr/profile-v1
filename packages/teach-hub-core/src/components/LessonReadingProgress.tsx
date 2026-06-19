@@ -9,12 +9,12 @@ import {
 import {
   thLessonProgress,
   thLessonProgressCollapsed,
-  thLessonProgressCollapsedVertical,
+  thLessonProgressFloatCollapsed,
+  thLessonProgressFloatExpanded,
   thLessonProgressLabel,
   thLessonProgressPercent,
   thLessonProgressRow,
   thLessonProgressShellHorizontal,
-  thLessonProgressShellVertical,
   thLessonProgressSlider,
   thLessonProgressSliderVertical,
   thLessonProgressToggle,
@@ -52,29 +52,50 @@ export function LessonReadingProgress({
 }: LessonReadingProgressProps) {
   const vertical = isVerticalReaderPosition(position);
 
+  const handleExpand = () => {
+    onDragEnd();
+    onExpandedChange(true);
+  };
+
+  const handleCollapse = () => {
+    onDragEnd();
+    onExpandedChange(false);
+  };
+
+  if (vertical && !expanded) {
+    return (
+      <div className={thLessonProgressFloatCollapsed} aria-label="阅读进度（已收起）">
+        <span className="text-[0.62rem] font-semibold leading-none text-[#3d3428]">
+          {Math.round(percent)}%
+        </span>
+        <button
+          type="button"
+          className={cn(thLessonProgressToggle, 'h-6 w-6')}
+          aria-label="展开阅读进度条"
+          onClick={handleExpand}
+        >
+          <ToggleIcon position={position} expanded={false} />
+        </button>
+      </div>
+    );
+  }
+
   if (!expanded) {
     return (
       <div
         className={cn(
-          vertical ? thLessonProgressCollapsedVertical : thLessonProgressCollapsed,
-          position === 'right' && 'border-l',
-          position === 'left' && 'border-r',
+          thLessonProgressCollapsed,
           position === 'top' && 'border-b',
           position === 'bottom' && 'border-t',
         )}
         aria-label="阅读进度（已收起）"
       >
-        <span className={cn(thLessonProgressPercent, vertical && 'text-sm')}>
-          {percent.toFixed(1)}%
-        </span>
+        <span className={thLessonProgressPercent}>{percent.toFixed(1)}%</span>
         <button
           type="button"
           className={thLessonProgressToggle}
           aria-label="展开阅读进度条"
-          onClick={() => {
-            onDragEnd();
-            onExpandedChange(true);
-          }}
+          onClick={handleExpand}
         >
           <ToggleIcon position={position} expanded={false} />
         </button>
@@ -102,58 +123,46 @@ export function LessonReadingProgress({
     />
   );
 
+  if (vertical) {
+    return (
+      <div className={thLessonProgressFloatExpanded} aria-label="阅读进度">
+        <button
+          type="button"
+          className={thLessonProgressToggle}
+          aria-label="收起阅读进度条"
+          onClick={handleCollapse}
+        >
+          <ToggleIcon position={position} expanded />
+        </button>
+        <span className={cn(thLessonProgressPercent, 'text-base')}>{percent.toFixed(1)}%</span>
+        <span className={cn(thLessonProgressLabel, 'text-[0.65rem] [writing-mode:vertical-rl]')}>
+          阅读进度
+        </span>
+        {slider}
+      </div>
+    );
+  }
+
   return (
     <div
-      className={cn(
-        thLessonProgress,
-        vertical ? thLessonProgressShellVertical : thLessonProgressShellHorizontal,
-        position === 'right' && 'border-l border-[#e8e2d6]',
-        position === 'left' && 'border-r border-[#e8e2d6]',
-        position === 'bottom' && 'border-t border-[#e8e2d6]',
-      )}
+      className={cn(thLessonProgress, thLessonProgressShellHorizontal)}
       aria-label="阅读进度"
     >
-      {vertical ? (
-        <>
+      <div className={thLessonProgressRow}>
+        <span className={thLessonProgressLabel}>阅读进度</span>
+        <div className="flex items-center gap-2">
+          <span className={thLessonProgressPercent}>{percent.toFixed(1)}%</span>
           <button
             type="button"
             className={thLessonProgressToggle}
             aria-label="收起阅读进度条"
-            onClick={() => {
-              onDragEnd();
-              onExpandedChange(false);
-            }}
+            onClick={handleCollapse}
           >
             <ToggleIcon position={position} expanded />
           </button>
-          <span className={cn(thLessonProgressPercent, 'text-base')}>{percent.toFixed(1)}%</span>
-          <span className={cn(thLessonProgressLabel, 'text-[0.65rem] [writing-mode:vertical-rl]')}>
-            阅读进度
-          </span>
-          {slider}
-        </>
-      ) : (
-        <>
-          <div className={thLessonProgressRow}>
-            <span className={thLessonProgressLabel}>阅读进度</span>
-            <div className="flex items-center gap-2">
-              <span className={thLessonProgressPercent}>{percent.toFixed(1)}%</span>
-              <button
-                type="button"
-                className={thLessonProgressToggle}
-                aria-label="收起阅读进度条"
-                onClick={() => {
-                  onDragEnd();
-                  onExpandedChange(false);
-                }}
-              >
-                <ToggleIcon position={position} expanded />
-              </button>
-            </div>
-          </div>
-          {slider}
-        </>
-      )}
+        </div>
+      </div>
+      {slider}
     </div>
   );
 }

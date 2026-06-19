@@ -9,7 +9,9 @@ import {
   thLessonViewerColumn,
   thLessonViewerFrame,
   thLessonViewerFrameSlot,
-  thLessonViewerRow,
+  thLessonProgressOverlay,
+  thLessonProgressOverlayLeft,
+  thLessonProgressOverlayRight,
   thLessonViewerWrap,
 } from '../styles/tw';
 
@@ -249,16 +251,22 @@ export function LessonViewer({ src, title }: LessonViewerProps) {
   );
 
   return (
-    <div
-      className={cn(
-        thLessonViewerWrap,
-        vertical ? thLessonViewerRow : thLessonViewerColumn,
-      )}
-    >
-      <div className={cn('shrink-0', showBarFirst ? 'order-1' : 'order-3')}>
-        {progressBar}
+    <div className={cn(thLessonViewerWrap, thLessonViewerColumn)}>
+      {!vertical && showBarFirst ? <div className="shrink-0">{progressBar}</div> : null}
+      <div className={cn(thLessonViewerFrameSlot, vertical && 'relative')}>
+        {iframe}
+        {vertical ? (
+          <div
+            className={cn(
+              thLessonProgressOverlay,
+              barPosition === 'left' ? thLessonProgressOverlayLeft : thLessonProgressOverlayRight,
+            )}
+          >
+            {progressBar}
+          </div>
+        ) : null}
       </div>
-      <div className={thLessonViewerFrameSlot}>{iframe}</div>
+      {!vertical && !showBarFirst ? <div className="shrink-0">{progressBar}</div> : null}
     </div>
   );
 }
