@@ -126,6 +126,7 @@ jobs:
       - name: Build signed release APK
         run: bash apps/teach-hub-mobile/scripts/android-release-build.sh
         env:
+          SKIP_EXPO_PREBUILD: '1'
           APP_VERSION: '0.1.0'
           EXPO_PUBLIC_AUTH_BASE_URL: ${{ steps.cfg.outputs.auth_base_url }}
           EXPO_PUBLIC_TEACH_HUB_API_BASE_URL: ${{ steps.cfg.outputs.api_base_url }}
