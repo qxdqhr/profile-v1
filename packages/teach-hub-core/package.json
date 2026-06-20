@@ -16,6 +16,7 @@
     "@profile/auth": "workspace:*",
     "@profile/config": "workspace:*",
     "@profile/db": "workspace:*",
+    "@profile/teach-hub-shared": "workspace:*",
     "adm-zip": "^0.5.16",
     "animal-island-ui": "^0.9.6",
     "clsx": "^2.1.1",

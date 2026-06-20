@@ -3,9 +3,11 @@
 import { useMemo, useState } from 'react';
 import { Button } from 'animal-island-ui';
 import {
-  generateLesson,
+  generateLessonButtonLabel,
+  resolveGenerateLessonTrigger,
   type GenerateLessonTrigger,
-} from '../services/teachHubClient';
+} from '@profile/teach-hub-shared';
+import { generateLesson } from '../services/teachHubClient';
 import type { LessonIndex, TeachLessonProgress } from '../types';
 
 type GenerateLessonButtonProps = {
@@ -26,23 +28,13 @@ export function GenerateLessonButton({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const trigger = useMemo((): GenerateLessonTrigger | null => {
-    if (!missionReady) return null;
-    if (lessons.length === 0) return 'first_lesson';
-    const last = lessons[lessons.length - 1];
-    const lastP = progress.find((p) => p.lessonSlug === last.slug);
-    if (lastP?.status === 'completed') return 'next_lesson';
-    return null;
-  }, [lessons, progress, missionReady]);
+  const trigger = useMemo(
+    (): GenerateLessonTrigger | null =>
+      resolveGenerateLessonTrigger(lessons, progress, missionReady),
+    [lessons, progress, missionReady],
+  );
 
-  const label =
-    trigger === 'first_lesson'
-      ? '开始第一课（Mimo）'
-      : trigger === 'next_lesson'
-        ? '生成下一课（Mimo）'
-        : lessons.length === 0
-          ? '请先填写 Mission'
-          : '请先完成当前最后一课';
+  const label = generateLessonButtonLabel(trigger, lessons.length);
 
   const handleClick = async () => {
     if (!trigger) return;

@@ -1,0 +1,127 @@
+name: TeachHub Mobile Release APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_version:
+        description: 'App version (e.g. 0.1.0)'
+        required: false
+        default: '0.1.0'
+      auth_base_url:
+        description: 'Auth base URL (override repo variable)'
+        required: false
+      api_base_url:
+        description: 'TeachHub API base URL (override repo variable)'
+        required: false
+  push:
+    tags:
+      - 'teach-hub-mobile-v*'
+
+concurrency:
+  group: teach-hub-mobile-release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-android-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      EXPO_ANDROID_VERSION_CODE: ${{ github.run_number }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve build metadata
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ inputs.app_version }}"
+          elif [[ "${{ github.ref_name }}" == teach-hub-mobile-v* ]]; then
+            VERSION="${GITHUB_REF_NAME#teach-hub-mobile-v}"
+          else
+            VERSION="0.1.0"
+          fi
+          echo "app_version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+          AUTH_URL="${{ inputs.auth_base_url }}"
+          API_URL="${{ inputs.api_base_url }}"
+          if [ -z "$AUTH_URL" ]; then AUTH_URL="${TEACH_HUB_MOBILE_AUTH_BASE_URL:-}"; fi
+          if [ -z "$API_URL" ]; then API_URL="${TEACH_HUB_MOBILE_API_BASE_URL:-}"; fi
+          if [ -z "$AUTH_URL" ] || [ -z "$API_URL" ]; then
+            echo "Set repository Variables or workflow inputs: TEACH_HUB_MOBILE_AUTH_BASE_URL / TEACH_HUB_MOBILE_API_BASE_URL" >&2
+            exit 1
+          fi
+          echo "auth_base_url=${AUTH_URL}" >> "$GITHUB_OUTPUT"
+          echo "api_base_url=${API_URL}" >> "$GITHUB_OUTPUT"
+        env:
+          TEACH_HUB_MOBILE_AUTH_BASE_URL: ${{ vars.TEACH_HUB_MOBILE_AUTH_BASE_URL }}
+          TEACH_HUB_MOBILE_API_BASE_URL: ${{ vars.TEACH_HUB_MOBILE_API_BASE_URL }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Validate Android signing secrets
+        run: |
+          for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "Missing secret: ${name}" >&2
+              exit 1
+            fi
+          done
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - name: Build signed release APK
+        run: bash apps/teach-hub-mobile/scripts/android-release-build.sh
+        env:
+          APP_VERSION: ${{ steps.meta.outputs.app_version }}
+          EXPO_PUBLIC_AUTH_BASE_URL: ${{ steps.meta.outputs.auth_base_url }}
+          EXPO_PUBLIC_TEACH_HUB_API_BASE_URL: ${{ steps.meta.outputs.api_base_url }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: teach-hub-mobile-apk-${{ steps.meta.outputs.app_version }}+${{ github.run_number }}
+          path: apps/teach-hub-mobile/dist/*.apk
+          if-no-files-found: error
+
+      - name: Create GitHub Release (tag only)
+        if: startsWith(github.ref, 'refs/tags/teach-hub-mobile-v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: TeachHub Mobile ${{ steps.meta.outputs.app_version }}
+          body: |
+            Android release APK for TeachHub Mobile.
+
+            - Version: `${{ steps.meta.outputs.app_version }}`
+            - versionCode: `${{ github.run_number }}`
+            - Auth: `${{ steps.meta.outputs.auth_base_url }}`
+            - API: `${{ steps.meta.outputs.api_base_url }}`
+          files: apps/teach-hub-mobile/dist/*.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

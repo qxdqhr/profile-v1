@@ -1,0 +1,25 @@
+{
+  "name": "@profile/teach-hub-shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./types": "./src/types/index.ts",
+    "./api": "./src/api/client.ts",
+    "./routes": "./src/routes.ts",
+    "./parsers/missionParser": "./src/parsers/missionParser.ts",
+    "./parsers/learningRecordParser": "./src/parsers/learningRecordParser.ts",
+    "./parsers/resourcesParser": "./src/parsers/resourcesParser.ts",
+    "./utils/lessonProgress": "./src/utils/lessonProgress.ts",
+    "./templates/mission": "./src/templates/mission.ts",
+    "./services/learningRecords": "./src/services/learningRecords.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}
