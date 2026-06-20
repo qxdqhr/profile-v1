@@ -2,14 +2,19 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useCallback, useState } from 'react';
 import 'animal-island-ui/style';
-import { Card, Footer, Loading, Title } from 'animal-island-ui';
-import { AuthGuard, AuthProvider, UserMenu, useAuthContext } from '@profile/auth/react';
+import { Footer, Loading, Title } from 'animal-island-ui';
+import {
+  AuthProvider,
+  LoginRegisterModals,
+  UserMenu,
+  useAuthContext,
+} from '@profile/auth/react';
+import { TeachHubGuestLanding } from '../components/TeachHubGuestLanding';
 import { useTeachHubBootstrap } from '../hooks/useTeachHubBootstrap';
 import { useTeachHubStore } from '../store/teachHubStore';
 import {
-  thAuthCardText,
-  thAuthFallback,
   thContentHome,
   thContentWide,
   thContentWorkspace,
@@ -49,7 +54,7 @@ function TeachHubShell({ children }: { children: React.ReactNode }) {
         ) : null}
 
         <main className={contentClass}>
-          {listLoading && isAuthenticated && isHome ? (
+          {listLoading && isHome ? (
             <div className="flex justify-center py-16">
               <Loading active />
             </div>
@@ -64,26 +69,43 @@ function TeachHubShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+function TeachHubLayoutInner({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuthContext();
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [registerOpen, setRegisterOpen] = useState(false);
+
+  const openLogin = useCallback(() => setLoginOpen(true), []);
+  const openRegister = useCallback(() => setRegisterOpen(true), []);
+  const handleAuthSuccess = useCallback(() => {
+    setLoginOpen(false);
+    setRegisterOpen(false);
+  }, []);
+
+  return (
+    <>
+      {isAuthenticated ? (
+        <TeachHubShell>{children}</TeachHubShell>
+      ) : (
+        <TeachHubGuestLanding onLogin={openLogin} onRegister={openRegister} />
+      )}
+
+      <LoginRegisterModals
+        loginOpen={loginOpen}
+        registerOpen={registerOpen}
+        onCloseLogin={() => setLoginOpen(false)}
+        onCloseRegister={() => setRegisterOpen(false)}
+        onOpenLogin={openLogin}
+        onOpenRegister={openRegister}
+        onSuccess={handleAuthSuccess}
+      />
+    </>
+  );
+}
+
 export function TeachHubLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
-      <AuthGuard
-        requireAuth
-        fallback={
-          <div className={thAuthFallback}>
-            <Card pattern="app-teal">
-              <Title size="middle" color="app-teal">
-                Teach 学习工作区
-              </Title>
-              <p className={thAuthCardText}>
-                登录后即可创建个人 teach skill 工作区，管理 Mission、学习 HTML 课时并追踪进度。
-              </p>
-            </Card>
-          </div>
-        }
-      >
-        <TeachHubShell>{children}</TeachHubShell>
-      </AuthGuard>
+      <TeachHubLayoutInner>{children}</TeachHubLayoutInner>
     </AuthProvider>
   );
 }
