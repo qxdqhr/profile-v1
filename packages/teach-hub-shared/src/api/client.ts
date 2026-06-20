@@ -21,6 +21,9 @@ export type TeachHubApiConfig = {
   onUnauthorized?: () => void;
 };
 
+/** 浏览器里裸引用 `fetch` 再调用会 Illegal invocation，需包一层 */
+const defaultFetch: typeof fetch = (input, init) => fetch(input, init);
+
 async function parseJson<T>(response: Response): Promise<T> {
   const payload = (await response.json()) as ApiEnvelope<T> | T;
   if (!response.ok) {
@@ -49,7 +52,7 @@ export class TeachHubApiClient {
 
   constructor(config: TeachHubApiConfig) {
     this.base = config.apiBaseUrl.replace(/\/+$/, '');
-    this.fetchFn = config.fetch ?? fetch;
+    this.fetchFn = config.fetch ?? defaultFetch;
     this.credentials = config.credentials ?? 'same-origin';
     this.getHeaders = config.getHeaders;
     this.onUnauthorized = config.onUnauthorized;
