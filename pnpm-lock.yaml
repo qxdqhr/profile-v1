@@ -246,6 +246,9 @@ importers:
 
   apps/teach-hub-mobile:
     dependencies:
+      '@babel/runtime':
+        specifier: ^8.0.0
+        version: 8.0.0
       '@profile/teach-hub-shared':
         specifier: workspace:*
         version: link:../../packages/teach-hub-shared
@@ -1539,6 +1542,9 @@ packages:
   '@babel/runtime@7.28.4':
     resolution: {integrity: sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==}
     engines: {node: '>=6.9.0'}
+
+  '@babel/runtime@8.0.0':
+    resolution: {integrity: sha512-sL6cvO2IfkSu/iU+zs2S/w01B7A8V7suXSIKEN4hPFFdZoiPGxrj5pAG0lCaqLWiEIrjKzdznIWuaLcxPR53qw==}
 
   '@babel/template@7.27.2':
     resolution: {integrity: sha512-LPDZ85aEJyYSd18/DkjNh4/y1ntkE5KwUHWTiqgRxruuZL2F1yuHligVHLvcHY2vMHXttKFpJn6LwfI7cw7ODw==}
@@ -9502,6 +9508,8 @@ snapshots:
       source-map-support: 0.5.21
 
   '@babel/runtime@7.28.4': {}
+
+  '@babel/runtime@8.0.0': {}
 
   '@babel/template@7.27.2':
     dependencies:
