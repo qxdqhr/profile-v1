@@ -63,6 +63,7 @@ export function buildWorkspaceMeta(input: {
   title: string;
   topic?: string | null;
   forkedFrom?: string | null;
+  autoSyncLessonResources?: boolean;
 }) {
   return {
     version: 1,
@@ -71,5 +72,6 @@ export function buildWorkspaceMeta(input: {
     language: 'zh-CN',
     createdAt: new Date().toISOString(),
     forkedFrom: input.forkedFrom ?? null,
+    autoSyncLessonResources: input.autoSyncLessonResources ?? false,
   };
 }

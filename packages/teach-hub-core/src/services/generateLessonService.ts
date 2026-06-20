@@ -21,6 +21,10 @@ import {
   putWorkspaceFileText,
   readWorkspaceFileText,
 } from './teachHubFileStore';
+import {
+  isAutoSyncLessonResourcesEnabled,
+  syncLessonExtendedReadingToResources,
+} from './syncLessonResources';
 
 function mapJob(row: typeof teachGenerateJobs.$inferSelect): TeachGenerateJob {
   return {
@@ -274,6 +278,20 @@ export async function runGenerateLesson(input: {
     }
 
     const allPaths = outputFilePaths(output);
+    let outputFiles = allPaths;
+
+    if (await isAutoSyncLessonResourcesEnabled(input.userId, input.workspaceId)) {
+      const syncResult = await syncLessonExtendedReadingToResources({
+        userId: input.userId,
+        workspaceId: input.workspaceId,
+        lessonSlug: output.lesson.slug,
+        lessonHtml: output.lesson.html,
+      });
+      if (syncResult.added > 0) {
+        outputFiles = [...allPaths, 'RESOURCES.md'];
+      }
+    }
+
     await syncWorkspaceLessonCache(input.userId, input.workspaceId);
     await ensureLessonProgressRows(input.userId, input.workspaceId);
 
@@ -282,7 +300,7 @@ export async function runGenerateLesson(input: {
       .update(teachGenerateJobs)
       .set({
         status: 'success',
-        outputFiles: allPaths,
+        outputFiles,
         finishedAt,
         errorMessage: null,
       })

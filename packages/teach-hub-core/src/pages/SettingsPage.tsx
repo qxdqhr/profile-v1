@@ -1,14 +1,24 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Switch } from 'animal-island-ui';
 import { cn } from '../utils/cn';
 import { useLessonReaderSettings } from '../hooks/useLessonReaderSettings';
 import {
   archiveWorkspaceViaApi,
+  fetchWorkspaceDetail,
+  fetchWorkspaceFileText,
   importWorkspaceZip,
+  putWorkspaceFileText,
 } from '../services/teachHubClient';
+import {
+  composeWorkspaceMetaJson,
+  parseWorkspaceMetaJson,
+  patchWorkspaceMetaJson,
+  WORKSPACE_META_PATH,
+} from '../utils/workspaceMeta';
+import { buildWorkspaceMeta } from '../utils/workspaceTemplates';
 import {
   LESSON_READER_POSITION_OPTIONS,
   type LessonReaderBarPosition,
@@ -38,6 +48,61 @@ export function SettingsPage({ workspaceId }: SettingsPageProps) {
   const [importing, setImporting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState('');
+  const [autoSyncLessonResources, setAutoSyncLessonResources] = useState(false);
+  const [metaLoading, setMetaLoading] = useState(true);
+  const [metaSaving, setMetaSaving] = useState(false);
+  const [metaRaw, setMetaRaw] = useState('');
+
+  useEffect(() => {
+    let mounted = true;
+    setMetaLoading(true);
+    void fetchWorkspaceFileText(workspaceId, WORKSPACE_META_PATH)
+      .then((raw) => {
+        if (!mounted) return;
+        setMetaRaw(raw);
+        setAutoSyncLessonResources(parseWorkspaceMetaJson(raw).autoSyncLessonResources === true);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setMetaRaw('');
+        setAutoSyncLessonResources(false);
+      })
+      .finally(() => {
+        if (mounted) setMetaLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [workspaceId]);
+
+  const handleAutoSyncChange = async (checked: boolean) => {
+    setAutoSyncLessonResources(checked);
+    setMetaSaving(true);
+    setMessage('');
+    try {
+      let next: string;
+      if (metaRaw.trim()) {
+        next = patchWorkspaceMetaJson(metaRaw, { autoSyncLessonResources: checked });
+      } else {
+        const detail = await fetchWorkspaceDetail(workspaceId);
+        const ws = detail.workspace;
+        next = composeWorkspaceMetaJson(
+          buildWorkspaceMeta({
+            title: ws?.title ?? '工作区',
+            topic: ws?.topic ?? null,
+            autoSyncLessonResources: checked,
+          }),
+        );
+      }
+      await putWorkspaceFileText(workspaceId, WORKSPACE_META_PATH, next);
+      setMetaRaw(next);
+    } catch (err) {
+      setAutoSyncLessonResources(!checked);
+      setMessage(err instanceof Error ? err.message : '保存设置失败');
+    } finally {
+      setMetaSaving(false);
+    }
+  };
 
   const handleImport = async () => {
     if (!zipFile) {
@@ -106,6 +171,32 @@ export function SettingsPage({ workspaceId }: SettingsPageProps) {
               checked={settings.barExpanded}
               onChange={setBarExpanded}
               aria-label="默认展开进度条"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section className={cn(thPanel, thSettingsSection)}>
+        <h2 className={thPanelTitle}>资源同步</h2>
+        <p className={thTabPageDesc}>
+          开启后，Mimo 生成的新课时若包含「延伸阅读」外链，会自动追加到资源页的 RESOURCES.md（Knowledge
+          分类，按 URL 去重）。
+        </p>
+        <div className={`${thForm} max-w-lg`}>
+          <div className={thSettingsSwitchRow}>
+            <div>
+              <p className="text-[0.9rem] font-semibold text-[#3d3428]">
+                自动将课程中的资源添加到资源 tab 中
+              </p>
+              <p className="mt-0.5 text-xs text-[#7a6f5c]">
+                仅对开启后新生成的课时生效；已存在的资源条目不会被删除
+              </p>
+            </div>
+            <Switch
+              checked={autoSyncLessonResources}
+              onChange={(checked) => void handleAutoSyncChange(checked)}
+              disabled={metaLoading || metaSaving}
+              aria-label="自动将课程中的资源添加到资源 tab 中"
             />
           </div>
         </div>

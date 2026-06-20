@@ -99,6 +99,8 @@ export type WorkspaceMeta = {
   language: string;
   createdAt: string;
   forkedFrom: string | null;
+  /** 生成课时时是否将「延伸阅读」外链自动写入 RESOURCES.md */
+  autoSyncLessonResources?: boolean;
 };
 
 export type MissionFormData = {
@@ -106,6 +108,19 @@ export type MissionFormData = {
   successLooksLike: string[];
   constraints: string[];
   outOfScope: string[];
+};
+
+export type LearningRecordSection = {
+  heading: string;
+  content: string;
+};
+
+export type LearningRecord = {
+  order: number;
+  slug: string;
+  relativePath: string;
+  title: string;
+  sections: LearningRecordSection[];
 };
 
 export type ResourceCategory = 'knowledge' | 'wisdom';
