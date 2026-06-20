@@ -17,6 +17,8 @@ export interface CiNotifyContext {
   serverUrl: string;
   finishedAt: string;
   imageTag?: string;
+  teachHubApkReleaseUrl?: string;
+  teachHubApkDownloadUrl?: string;
 }
 
 function shortSha(sha: string): string {
@@ -48,6 +50,14 @@ export function buildCiFeishuMessage(context: CiNotifyContext): FeishuPostMessag
 
   if (context.imageTag) {
     lines.push(`镜像标签：${context.imageTag}`);
+  }
+
+  if (context.teachHubApkReleaseUrl) {
+    lines.push(`TeachHub Android Release 页面：${context.teachHubApkReleaseUrl}`);
+  }
+
+  if (context.teachHubApkDownloadUrl) {
+    lines.push(`TeachHub Android APK 下载：${context.teachHubApkDownloadUrl}`);
   }
 
   if (!isSuccess) {

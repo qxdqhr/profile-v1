@@ -147,6 +147,14 @@ function buildCiFeishuMessage(context) {
     lines.push(`镜像标签：${context.imageTag}`);
   }
 
+  if (context.teachHubApkReleaseUrl) {
+    lines.push(`TeachHub Android Release 页面：${context.teachHubApkReleaseUrl}`);
+  }
+
+  if (context.teachHubApkDownloadUrl) {
+    lines.push(`TeachHub Android APK 下载：${context.teachHubApkDownloadUrl}`);
+  }
+
   const summaryLines = splitMultiline(context.changeSummary);
   if (summaryLines.length > 0) {
     const countLabel =
@@ -164,6 +172,12 @@ function buildCiFeishuMessage(context) {
   const content = lines.filter(Boolean).map((line) => [{ tag: 'text', text: line }]);
   content.push([{ tag: 'a', text: '查看 Actions 详情', href: runUrl }]);
   content.push([{ tag: 'a', text: '查看提交', href: commitUrl }]);
+  if (context.teachHubApkReleaseUrl?.startsWith('http')) {
+    content.push([{ tag: 'a', text: 'TeachHub Android Release 页面', href: context.teachHubApkReleaseUrl }]);
+  }
+  if (context.teachHubApkDownloadUrl?.startsWith('http')) {
+    content.push([{ tag: 'a', text: '下载 TeachHub Android APK', href: context.teachHubApkDownloadUrl }]);
+  }
 
   return {
     msg_type: 'post',
@@ -323,6 +337,8 @@ async function collectCiContext() {
     changeSummary,
     commitCount,
     imageTag: readOptionalString('CI_IMAGE_TAG'),
+    teachHubApkReleaseUrl: readOptionalString('CI_TEACH_HUB_APK_RELEASE_URL'),
+    teachHubApkDownloadUrl: readOptionalString('CI_TEACH_HUB_APK_DOWNLOAD_URL'),
   };
 }
 
