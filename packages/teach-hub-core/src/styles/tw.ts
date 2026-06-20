@@ -255,33 +255,41 @@ export const thAuthFallback =
 
 export const thAuthCardText = 'mt-3 leading-relaxed text-[#6b5f4d]';
 
-export const thGuestPage = 'flex min-h-screen flex-col bg-[#faf9f7] font-serif text-[#3d3428]';
+export const thGuestPage =
+  'flex min-h-screen flex-col overflow-x-hidden bg-[#faf9f7] font-serif text-[#3d3428]';
 
 export const thGuestTopbar =
-  'flex items-center justify-between gap-3 border-b border-[#eee8dc] bg-white/95 px-5 py-3';
+  'flex items-center justify-between gap-3 border-b border-[#eee8dc] bg-white/95 px-4 py-3 sm:px-5';
+
+export const thGuestBrand =
+  'm-0 min-w-0 truncate text-[1.05rem] font-bold text-[#3d3428]';
 
 export const thGuestMain =
-  'mx-auto flex w-full max-w-[720px] flex-1 flex-col justify-center px-4 py-10 sm:px-6';
+  'mx-auto flex w-full max-w-[640px] flex-1 flex-col px-4 py-8 sm:px-6 sm:py-10';
 
-export const thGuestHero =
-  'rounded-2xl border border-[#e8e2d6] bg-white px-6 py-8 shadow-[0_8px_30px_rgba(61,52,40,0.06)] sm:px-8 sm:py-10';
+export const thGuestPanel =
+  'rounded-xl border border-[#e8e2d6] bg-white px-5 py-6 sm:px-6 sm:py-7';
 
-export const thGuestHeroDesc =
-  'mt-3 text-[0.95rem] leading-relaxed text-[#6b5f4d]';
+export const thGuestIntro =
+  'm-0 text-[0.92rem] leading-relaxed text-[#6b5f4d]';
 
-export const thGuestFeatureList = 'mt-6 flex flex-col gap-3';
+export const thGuestFeatureList = 'mt-5 flex flex-col gap-2.5';
 
 export const thGuestFeatureItem =
-  'flex gap-3 rounded-xl border border-[#f0ebe3] bg-[#faf9f7] px-4 py-3.5';
+  'flex gap-3 rounded-[10px] border border-[#f0ebe3] bg-[#faf9f7] px-3.5 py-3';
 
 export const thGuestFeatureIcon =
-  'mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#e6f4f1] text-[#2c7a7b]';
+  'mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#e6f4f1] text-[#2c7a7b]';
 
-export const thGuestFeatureTitle = 'text-[0.92rem] font-semibold text-[#3d3428]';
+export const thGuestFeatureTitle = 'text-[0.88rem] font-semibold text-[#3d3428]';
 
-export const thGuestFeatureText = 'mt-0.5 text-sm leading-relaxed text-[#7a6f5c]';
+export const thGuestFeatureText = 'mt-0.5 text-sm leading-snug text-[#7a6f5c]';
 
-export const thGuestActions = 'mt-8 flex flex-wrap items-center gap-3';
+export const thGuestHint =
+  'mt-5 border-t border-[#f0ebe3] pt-4 text-center text-sm text-[#7a6f5c]';
+
+export const thGuestHintLink =
+  'ml-1 border-none bg-transparent p-0 font-[inherit] text-[#2c5282] underline-offset-2 hover:underline';
 
 export const thMdPreview =
   'whitespace-pre-wrap rounded-[10px] border border-[#e8e2d6] bg-white p-4 text-[0.92rem] leading-relaxed text-[#4a4035]';

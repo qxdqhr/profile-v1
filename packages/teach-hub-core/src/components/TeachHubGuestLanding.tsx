@@ -1,41 +1,43 @@
 'use client';
 
 import { BookOpen, LogIn, Sparkles, Target, TrendingUp } from 'lucide-react';
-import { Button, Footer, Title } from 'animal-island-ui';
+import { Button, Footer } from 'animal-island-ui';
 import {
-  thGuestActions,
+  thGuestBrand,
   thGuestFeatureIcon,
   thGuestFeatureItem,
   thGuestFeatureList,
   thGuestFeatureText,
   thGuestFeatureTitle,
-  thGuestHero,
-  thGuestHeroDesc,
+  thGuestHint,
+  thGuestHintLink,
+  thGuestIntro,
   thGuestMain,
   thGuestPage,
+  thGuestPanel,
   thGuestTopbar,
 } from '../styles/tw';
 
 const FEATURES = [
   {
     icon: Target,
-    title: 'Mission 驱动学习',
-    description: '用学习目标、成功标准与约束定义你的主题，Mimo 备课时会始终对齐你的动机。',
+    title: 'Mission 驱动',
+    description: '定义学习目标与约束，Mimo 备课始终对齐你的动机。',
   },
   {
     icon: BookOpen,
-    title: 'teach skill 原生课时',
-    description: 'HTML 课时原样播放，保留测验与延伸阅读；内容存在你的专属工作区，而非平台课程库。',
+    title: '原生 HTML 课时',
+    description: 'teach skill 格式原样播放，内容保存在你的专属工作区。',
   },
   {
     icon: Sparkles,
-    title: '按需生成下一课',
-    description: '完成当前课后，由你自主触发 Mimo 续备，自动生成课时与学习记录。',
+    title: '按需续课',
+    description: '完成当前课后，由你触发 Mimo 生成下一节与学习记录。',
   },
   {
     icon: TrendingUp,
-    title: '进度与资源一体管理',
-    description: '追踪完成状态、编辑 Mission 与学习记录，并将延伸阅读同步到资源列表。',
+    title: '进度与资源',
+    description: '追踪完成状态，管理 Mission、学习记录与延伸阅读资源。',
   },
 ] as const;
 
@@ -48,9 +50,7 @@ export function TeachHubGuestLanding({ onLogin, onRegister }: TeachHubGuestLandi
   return (
     <div className={thGuestPage}>
       <header className={thGuestTopbar}>
-        <Title size="small" color="app-teal">
-          Teach 学习工作区
-        </Title>
+        <p className={thGuestBrand}>Teach 学习工作区</p>
         <Button type="primary" size="small" onClick={onLogin}>
           <LogIn className="h-4 w-4" strokeWidth={2} />
           登录
@@ -58,13 +58,10 @@ export function TeachHubGuestLanding({ onLogin, onRegister }: TeachHubGuestLandi
       </header>
 
       <main className={thGuestMain}>
-        <section className={thGuestHero}>
-          <Title size="middle" color="app-teal">
-            你的个人 teach skill 学习空间
-          </Title>
-          <p className={thGuestHeroDesc}>
-            Teach 学习工作区是 teach skill 的多租户图形化壳：一用户、多工作区、自管进度、自触发续课。
-            登录后即可创建主题、填写 Mission、学习 HTML 课时，并在完成每课后让 Mimo 为你备下一节。
+        <section className={thGuestPanel}>
+          <p className={thGuestIntro}>
+            登录后为每位用户创建独立的学习工作区：填写 Mission、学习 HTML 课时、追踪进度，并在完成每课后让
+            Mimo 为你备下一节。工作区文件按用户 ID 隔离存储，仅你本人可访问。
           </p>
 
           <ul className={thGuestFeatureList}>
@@ -75,7 +72,7 @@ export function TeachHubGuestLanding({ onLogin, onRegister }: TeachHubGuestLandi
                   <span className={thGuestFeatureIcon} aria-hidden>
                     <Icon className="h-4 w-4" strokeWidth={2} />
                   </span>
-                  <div>
+                  <div className="min-w-0">
                     <p className={thGuestFeatureTitle}>{feature.title}</p>
                     <p className={thGuestFeatureText}>{feature.description}</p>
                   </div>
@@ -84,15 +81,12 @@ export function TeachHubGuestLanding({ onLogin, onRegister }: TeachHubGuestLandi
             })}
           </ul>
 
-          <div className={thGuestActions}>
-            <Button type="primary" onClick={onLogin}>
-              <LogIn className="h-4 w-4" strokeWidth={2} />
-              登录开始
-            </Button>
-            <Button type="default" onClick={onRegister}>
-              注册账号
-            </Button>
-          </div>
+          <p className={thGuestHint}>
+            使用右上角登录以创建工作区。
+            <button type="button" className={thGuestHintLink} onClick={onRegister}>
+              还没有账号？注册
+            </button>
+          </p>
         </section>
       </main>
 
