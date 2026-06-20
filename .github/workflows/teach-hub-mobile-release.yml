@@ -90,7 +90,6 @@ jobs:
       - name: Build signed release APK
         run: bash apps/teach-hub-mobile/scripts/android-release-build.sh
         env:
-          NODE_ENV: production
           APP_VERSION: ${{ steps.meta.outputs.app_version }}
           EXPO_PUBLIC_AUTH_BASE_URL: ${{ steps.meta.outputs.auth_base_url }}
           EXPO_PUBLIC_TEACH_HUB_API_BASE_URL: ${{ steps.meta.outputs.api_base_url }}

@@ -56,7 +56,7 @@ fi
 echo "==> Build Android APK (release)"
 cd "${ANDROID_DIR}"
 chmod +x ./gradlew
-./gradlew assembleRelease --no-daemon
+NODE_ENV=production ./gradlew assembleRelease --no-daemon
 
 APK_PATH="${ANDROID_DIR}/app/build/outputs/apk/release/app-release.apk"
 if [ ! -f "${APK_PATH}" ]; then
