@@ -13,7 +13,7 @@ import { AppState } from 'react-native';
 import { TeachHubApiClient } from '@profile/teach-hub-shared';
 
 import {
-  AUTH_BASE_URL,
+  LOGIN_WEB_URL,
   createTeachHubClient,
   fetchSession,
   signOut,
@@ -26,12 +26,17 @@ import {
   writeStoredCookieHeader,
 } from './cookieStore';
 
+type RefreshSessionOptions = {
+  /** 登录轮询期间保留 WebView 刚写入、尚未被 get-session 识别的 Cookie */
+  preserveCookiesOnEmptySession?: boolean;
+};
+
 type AuthContextValue = {
   user: AuthUser | null;
   isLoading: boolean;
   cookieHeader: string | null;
   teachHubApi: TeachHubApiClient;
-  refreshSession: () => Promise<AuthUser | null>;
+  refreshSession: (options?: RefreshSessionOptions) => Promise<AuthUser | null>;
   completeLoginIfReady: () => Promise<boolean>;
   setCookieHeader: (cookie: string | null) => Promise<void>;
   logout: () => Promise<void>;
@@ -69,26 +74,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })();
   }, []);
 
-  const refreshSession = useCallback(async (): Promise<AuthUser | null> => {
-    const synced = await syncNativeCookieHeader();
-    const header = synced ?? cookieHeader;
-    if (synced && synced !== cookieHeader) {
-      setCookieHeaderState(synced);
-    }
+  const refreshSession = useCallback(
+    async (options?: RefreshSessionOptions): Promise<AuthUser | null> => {
+      const synced = await syncNativeCookieHeader();
+      const header = synced ?? cookieHeader;
+      if (synced && synced !== cookieHeader) {
+        setCookieHeaderState(synced);
+      }
 
-    const sessionUser = await fetchSession(header);
-    setUser(sessionUser);
+      const sessionUser = await fetchSession(header);
+      setUser(sessionUser);
 
-    if (header && !sessionUser) {
-      await clearAuthCookies();
-      setCookieHeaderState(null);
-    }
+      if (header && !sessionUser && !options?.preserveCookiesOnEmptySession) {
+        await clearAuthCookies();
+        setCookieHeaderState(null);
+      }
 
-    return sessionUser;
-  }, [cookieHeader]);
+      return sessionUser;
+    },
+    [cookieHeader],
+  );
 
   const completeLoginIfReady = useCallback(async (): Promise<boolean> => {
-    const sessionUser = await refreshSession();
+    const sessionUser = await refreshSession({ preserveCookiesOnEmptySession: true });
     return Boolean(sessionUser);
   }, [refreshSession]);
 
@@ -149,7 +157,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       completeLoginIfReady,
       setCookieHeader,
       logout,
-      loginUrl: AUTH_BASE_URL,
+      loginUrl: LOGIN_WEB_URL,
     }),
     [
       user,

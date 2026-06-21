@@ -3,10 +3,10 @@ import type { LessonProgressStatus } from '@profile/teach-hub-shared';
 import { lessonProgressLabel } from '@profile/teach-hub-shared';
 
 const STATUS_CLASS: Record<LessonProgressStatus, { box: string; text: string }> = {
-  locked: { box: 'bg-slate-100', text: 'text-slate-400' },
-  available: { box: 'bg-sky-100', text: 'text-sky-700' },
-  in_progress: { box: 'bg-amber-100', text: 'text-amber-700' },
-  completed: { box: 'bg-emerald-100', text: 'text-emerald-700' },
+  locked: { box: 'bg-[#f0ebe3]', text: 'text-[#7a6f5c]' },
+  available: { box: 'bg-[#f0f4f8]', text: 'text-[#2c5282]' },
+  in_progress: { box: 'bg-[#fef3c7]', text: 'text-[#92400e]' },
+  completed: { box: 'bg-[#f0fff4]', text: 'text-[#276749]' },
 };
 
 type Props = {

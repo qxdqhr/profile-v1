@@ -5,7 +5,14 @@ import type { TeachWorkspaceSummary } from '@profile/teach-hub-shared';
 
 import { useAuth } from '../auth/AuthContext';
 import type { RootStackParamList } from '../navigation';
-import { TEACH_HUB_API_BASE_URL } from '../config';
+import {
+  thCardPressable,
+  thDesc,
+  thPrimaryBtn,
+  thPrimaryBtnText,
+  thScreen,
+  thTitle,
+} from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -35,77 +42,100 @@ export function HomeScreen({ navigation }: Props) {
 
   if (authLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-slate-50">
-        <ActivityIndicator />
+      <View className={`${thScreen} items-center justify-center`}>
+        <ActivityIndicator color="#2c5282" />
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-slate-50 p-4">
-      <View className="mb-3 gap-1.5">
-        <Text className="text-xs text-slate-500">API: {TEACH_HUB_API_BASE_URL}</Text>
+    <View className={`${thScreen} px-4 py-5`}>
+      <View className="mb-5 flex-row items-start justify-between gap-3">
+        <View className="min-w-0 flex-1">
+          <Text className={thTitle}>我的学习工作区</Text>
+          <Text className={`mt-2 ${thDesc}`}>
+            每个工作区对应一个 teach skill 主题：填写 Mission、学习课时、由 Mimo 续备下一课。
+          </Text>
+        </View>
         {user ? (
-          <View className="flex-row items-center justify-between">
-            <Text className="text-sm font-semibold text-slate-900">{user.name || user.email}</Text>
-            <Pressable onPress={() => void logout()}>
-              <Text className="text-sm font-semibold text-blue-600">退出</Text>
-            </Pressable>
-          </View>
-        ) : (
-          <Pressable onPress={() => navigation.navigate('Login')}>
-            <Text className="text-sm font-semibold text-blue-600">登录</Text>
+          <Pressable onPress={() => void logout()}>
+            <Text className="text-sm font-semibold text-[#2c5282]">退出</Text>
           </Pressable>
-        )}
+        ) : null}
       </View>
 
+      {user ? (
+        <Text className="mb-3 text-sm font-medium text-[#3d3428]">
+          {user.name || user.email}
+        </Text>
+      ) : null}
+
       {loading ? (
-        <ActivityIndicator className="flex-1" />
+        <ActivityIndicator className="flex-1" color="#2c5282" />
       ) : error ? (
-        <View className="flex-1 items-center justify-center gap-3">
+        <View className="flex-1 items-center justify-center gap-3 px-2">
           <Text className="text-center text-red-600">{error}</Text>
           {!user ? (
-            <Pressable
-              className="rounded-lg bg-slate-900 px-4 py-2.5"
-              onPress={() => navigation.navigate('Login')}
-            >
-              <Text className="font-semibold text-white">去登录</Text>
+            <Pressable className={thPrimaryBtn} onPress={() => navigation.navigate('Login')}>
+              <Text className={thPrimaryBtnText}>去登录</Text>
             </Pressable>
           ) : (
-            <Pressable className="rounded-lg bg-slate-900 px-4 py-2.5" onPress={() => void load()}>
-              <Text className="font-semibold text-white">重试</Text>
+            <Pressable className={thPrimaryBtn} onPress={() => void load()}>
+              <Text className={thPrimaryBtnText}>重试</Text>
             </Pressable>
           )}
+        </View>
+      ) : items.length === 0 ? (
+        <View className="rounded-xl border border-dashed border-[#d4c9b5] bg-white px-4 py-12">
+          <Text className="text-center text-base font-medium text-[#3d3428]">还没有学习工作区</Text>
+          <Text className={`mt-2 text-center ${thDesc}`}>
+            登录后在 Web 端创建主题，或导入已有 teach 工作区。
+          </Text>
         </View>
       ) : (
         <FlatList
           data={items}
           keyExtractor={(item) => item.id}
-          ListEmptyComponent={
-            <Text className="mt-12 text-center text-slate-500">暂无工作区</Text>
-          }
-          renderItem={({ item }) => (
-            <Pressable
-              className="mb-3 rounded-xl border border-slate-200 bg-white p-4"
-              onPress={() =>
-                navigation.navigate('Workspace', {
-                  workspaceId: item.id,
-                  title: item.title,
-                })
-              }
-            >
-              <Text className="text-base font-semibold text-slate-900">{item.title}</Text>
-              <Text className="mt-1 text-sm text-slate-500">
-                {item.lessonCount} 课时 · {item.topic ?? '未设主题'}
-              </Text>
-            </Pressable>
-          )}
+          contentContainerClassName="pb-6"
+          renderItem={({ item }) => {
+            const completed = item.completedLessonCount ?? 0;
+            const total = item.lessonCount || 0;
+            return (
+              <Pressable
+                className={thCardPressable}
+                onPress={() =>
+                  navigation.navigate('Workspace', {
+                    workspaceId: item.id,
+                    title: item.title,
+                  })
+                }
+              >
+                <Text className="text-[17px] font-bold text-[#3d3428]">{item.title}</Text>
+                <View className="mt-1.5 flex-row flex-wrap gap-1">
+                  {item.topic ? (
+                    <Text className="text-[13px] text-[#7a6f5c]">{item.topic}</Text>
+                  ) : null}
+                  {item.topic && total > 0 ? (
+                    <Text className="text-[13px] text-[#7a6f5c]">·</Text>
+                  ) : null}
+                  <Text className="text-[13px] text-[#7a6f5c]">
+                    {total > 0 ? `${completed}/${total} 课已完成` : '尚无课时'}
+                  </Text>
+                </View>
+                {item.missionSummary ? (
+                  <Text className="mt-2 text-[14px] leading-snug text-[#6b5f4d]" numberOfLines={2}>
+                    {item.missionSummary}
+                  </Text>
+                ) : null}
+              </Pressable>
+            );
+          }}
         />
       )}
 
       {user ? (
         <Pressable className="mt-2 items-center py-2" onPress={() => void refreshSession()}>
-          <Text className="text-xs text-slate-400">下拉刷新会话</Text>
+          <Text className="text-xs text-[#7a6f5c]">轻触刷新会话</Text>
         </Pressable>
       ) : null}
     </View>

@@ -34,6 +34,14 @@ import { ReferenceChips } from '../components/ReferenceChips';
 import { WorkspaceTabs, type WorkspaceTab } from '../components/WorkspaceTabs';
 import { useAuth } from '../auth/AuthContext';
 import type { RootStackParamList } from '../navigation';
+import {
+  thCardPressable,
+  thDesc,
+  thPrimaryBtn,
+  thPrimaryBtnText,
+  thScreen,
+  thTitle,
+} from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Workspace'>;
 
@@ -138,9 +146,9 @@ export function WorkspaceScreen({ route, navigation }: Props) {
   );
 
   return (
-    <View className="flex-1 bg-slate-50 p-4">
-      <Text className="text-xl font-bold text-slate-900">{title}</Text>
-      <Text className="mb-3 mt-1 text-sm text-slate-500">
+    <View className={`${thScreen} p-4`}>
+      <Text className={thTitle}>{title}</Text>
+      <Text className={`mb-3 mt-1 ${thDesc}`}>
         {doneCount}/{lessons.length} 课时已完成
         {records.length > 0 ? ` · ${records.length} 条学习记录` : ''}
       </Text>
@@ -148,12 +156,12 @@ export function WorkspaceScreen({ route, navigation }: Props) {
       <WorkspaceTabs active={tab} onChange={setTab} />
 
       {loading ? (
-        <ActivityIndicator className="flex-1" />
+        <ActivityIndicator className="flex-1" color="#2c5282" />
       ) : error ? (
         <View className="flex-1 items-center justify-center gap-3">
           <Text className="text-center text-red-600">{error}</Text>
-          <Pressable className="rounded-lg bg-slate-900 px-4 py-2.5" onPress={() => void load()}>
-            <Text className="font-semibold text-white">重试</Text>
+          <Pressable className={thPrimaryBtn} onPress={() => void load()}>
+            <Text className={thPrimaryBtnText}>重试</Text>
           </Pressable>
         </View>
       ) : tab === 'mission' ? (
@@ -177,13 +185,13 @@ export function WorkspaceScreen({ route, navigation }: Props) {
           data={records}
           keyExtractor={(item) => item.relativePath}
           ListEmptyComponent={
-            <Text className="mt-12 px-3 text-center leading-5 text-slate-500">
+            <Text className={`mt-12 px-3 text-center leading-5 ${thDesc}`}>
               尚无学习记录。完成课时或生成新课后会出现。
             </Text>
           }
           renderItem={({ item }) => (
             <Pressable
-              className="mb-2.5 rounded-xl border border-slate-200 bg-white p-3.5"
+              className={thCardPressable}
               onPress={() =>
                 navigation.navigate('RecordDetail', {
                   workspaceId,
@@ -192,10 +200,10 @@ export function WorkspaceScreen({ route, navigation }: Props) {
                 })
               }
             >
-              <Text className="text-[15px] font-semibold text-slate-900">
+              <Text className="text-[15px] font-semibold text-[#3d3428]">
                 {String(item.order).padStart(4, '0')} · {item.title}
               </Text>
-              <Text className="mt-1.5 text-xs text-slate-500" numberOfLines={2}>
+              <Text className="mt-1.5 text-xs text-[#7a6f5c]" numberOfLines={2}>
                 {recordSummary(item)}
               </Text>
             </Pressable>
@@ -206,10 +214,10 @@ export function WorkspaceScreen({ route, navigation }: Props) {
           data={merged}
           keyExtractor={(item) => item.lesson.slug}
           ListHeaderComponent={listHeader}
-          ListEmptyComponent={<Text className="mt-12 text-center text-slate-500">暂无课时</Text>}
+          ListEmptyComponent={<Text className={`mt-12 text-center ${thDesc}`}>暂无课时</Text>}
           renderItem={({ item }) => (
             <Pressable
-              className="mb-2.5 rounded-xl border border-slate-200 bg-white p-3.5"
+              className={thCardPressable}
               onPress={() =>
                 navigation.navigate('Lesson', {
                   workspaceId,
@@ -219,13 +227,13 @@ export function WorkspaceScreen({ route, navigation }: Props) {
               }
             >
               <View className="flex-row items-center justify-between gap-2">
-                <Text className="flex-1 text-[15px] font-semibold text-slate-900">
+                <Text className="flex-1 text-[15px] font-semibold text-[#3d3428]">
                   {String(item.lesson.order).padStart(4, '0')} ·{' '}
                   {item.lesson.title ?? lessonTitleFromSlug(item.lesson.slug)}
                 </Text>
                 <ProgressBadge status={item.progress?.status} />
               </View>
-              <Text className="mt-1.5 text-xs text-slate-500">{item.lesson.slug}</Text>
+              <Text className="mt-1.5 text-xs text-[#7a6f5c]">{item.lesson.slug}</Text>
             </Pressable>
           )}
         />

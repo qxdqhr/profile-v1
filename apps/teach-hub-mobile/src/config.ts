@@ -25,6 +25,17 @@ export const TEACH_HUB_API_BASE_URL = readEnv(
   'http://localhost:3002',
 );
 
+/** TeachHub Web 子应用入口（登录 WebView 与 Web 端 GuestLanding 对齐） */
+export const TEACH_HUB_WEB_BASE_URL = readEnv(
+  'EXPO_PUBLIC_TEACH_HUB_WEB_BASE_URL',
+  'teachHubWebBaseUrl',
+  TEACH_HUB_API_BASE_URL.includes(AUTH_BASE_URL)
+    ? TEACH_HUB_API_BASE_URL
+    : `${AUTH_BASE_URL}/teach-hub`,
+);
+
+export const LOGIN_WEB_URL = `${TEACH_HUB_WEB_BASE_URL.replace(/\/+$/, '')}/`;
+
 export type AuthUser = {
   id: string;
   name: string;

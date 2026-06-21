@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
-import { AUTH_BASE_URL, TEACH_HUB_API_BASE_URL } from '../config';
+import { AUTH_BASE_URL, TEACH_HUB_API_BASE_URL, TEACH_HUB_WEB_BASE_URL } from '../config';
 
 export const AUTH_COOKIE_STORAGE_KEY = 'teach_hub_auth_cookie';
 
@@ -61,12 +61,13 @@ export async function syncNativeCookieHeader(): Promise<string | null> {
   const manager = loadCookieManager();
   if (!manager) return readStoredCookieHeader();
 
-  const [authJar, teachJar] = await Promise.all([
+  const [authJar, teachApiJar, teachWebJar] = await Promise.all([
     readJarForUrl(manager, AUTH_BASE_URL),
     readJarForUrl(manager, TEACH_HUB_API_BASE_URL),
+    readJarForUrl(manager, TEACH_HUB_WEB_BASE_URL),
   ]);
 
-  const merged = { ...authJar, ...teachJar };
+  const merged = { ...authJar, ...teachApiJar, ...teachWebJar };
   const header = serializeCookieJar(merged);
   if (!header) return readStoredCookieHeader();
 

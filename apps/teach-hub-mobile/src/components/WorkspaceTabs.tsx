@@ -16,27 +16,38 @@ const TABS: Array<{ id: WorkspaceTab; label: string }> = [
 
 export function WorkspaceTabs({ active, onChange }: Props) {
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerClassName="mb-3 flex-row gap-2 pr-2"
-    >
-      {TABS.map((tab) => {
-        const selected = tab.id === active;
-        return (
-          <Pressable
-            key={tab.id}
-            className={`min-w-[72px] items-center rounded-lg px-3.5 py-2.5 ${
-              selected ? 'bg-slate-900' : 'bg-slate-200'
-            }`}
-            onPress={() => onChange(tab.id)}
-          >
-            <Text className={`text-sm font-semibold ${selected ? 'text-white' : 'text-slate-600'}`}>
-              {tab.label}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </ScrollView>
+    <View className="mb-4 border-b border-[#e8e2d6] pb-1">
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerClassName="flex-row gap-1.5 pr-2"
+      >
+        {TABS.map((tab) => {
+          const selected = tab.id === active;
+          return (
+            <Pressable
+              key={tab.id}
+              className={`rounded-t-lg px-3.5 py-2 ${
+                selected ? 'bg-white shadow-sm' : 'bg-transparent'
+              }`}
+              onPress={() => onChange(tab.id)}
+            >
+              <Text
+                className={`text-[15px] ${
+                  selected
+                    ? 'font-semibold text-[#2c5282]'
+                    : 'text-[#6b5f4d]'
+                }`}
+              >
+                {tab.label}
+              </Text>
+              {selected ? (
+                <View className="mt-1 h-0.5 rounded-full bg-[#4299e1]" />
+              ) : null}
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+    </View>
   );
 }

@@ -13,6 +13,7 @@ import { RecordDetailScreen } from './src/screens/RecordDetailScreen';
 import { ReferenceScreen } from './src/screens/ReferenceScreen';
 import { WorkspaceScreen } from './src/screens/WorkspaceScreen';
 import type { RootStackParamList } from './src/navigation';
+import { thColors } from './src/theme';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -21,8 +22,11 @@ function RootNavigator() {
   const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
 
   useEffect(() => {
-    if (isLoading || !user) return;
-    navigationRef.current?.reset({ index: 0, routes: [{ name: 'Home' }] });
+    if (isLoading || !navigationRef.current) return;
+    const target = user ? 'Home' : 'Login';
+    const current = navigationRef.current.getCurrentRoute()?.name;
+    if (current === target) return;
+    navigationRef.current.reset({ index: 0, routes: [{ name: target }] });
   }, [isLoading, user]);
 
   return (
@@ -32,12 +36,15 @@ function RootNavigator() {
         <Stack.Navigator
           initialRouteName="Login"
           screenOptions={{
-            headerStyle: { backgroundColor: '#ffffff' },
-            headerTitleStyle: { color: '#0f172a', fontWeight: '600' },
+            headerStyle: { backgroundColor: thColors.panel },
+            headerShadowVisible: false,
+            headerTintColor: thColors.text,
+            headerTitleStyle: { color: thColors.text, fontWeight: '600' },
+            contentStyle: { backgroundColor: thColors.bg },
           }}
         >
-          <Stack.Screen name="Login" component={LoginScreen} options={{ title: '登录' }} />
-          <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'TeachHub' }} />
+          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Teach 学习工作区' }} />
           <Stack.Screen name="Workspace" component={WorkspaceScreen} options={{ title: '工作区' }} />
           <Stack.Screen name="Lesson" component={LessonScreen} options={{ title: '课时' }} />
           <Stack.Screen name="Reference" component={ReferenceScreen} options={{ title: '速查参考' }} />
@@ -46,7 +53,7 @@ function RootNavigator() {
 
         {isLoading ? (
           <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="large" color="#0f172a" />
+            <ActivityIndicator size="large" color={thColors.link} />
           </View>
         ) : null}
       </View>
@@ -72,6 +79,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f8fafc',
+    backgroundColor: thColors.bg,
   },
 });

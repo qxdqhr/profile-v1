@@ -1,63 +1,111 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { WebView } from 'react-native-webview';
+import { WebView, type WebViewNavigation } from 'react-native-webview';
 
 import { useAuth } from '../auth/AuthContext';
 import type { RootStackParamList } from '../navigation';
-import { AUTH_BASE_URL } from '../config';
+import { LOGIN_WEB_URL } from '../config';
+import { thDesc, thScreen, thTitle, thTopbar } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
-export function LoginScreen({ navigation }: Props) {
-  const { completeLoginIfReady } = useAuth();
-  const [checking, setChecking] = useState(false);
-  const doneRef = useRef(false);
+const OPEN_LOGIN_SCRIPT = `
+(function () {
+  function label(el) {
+    return (el.textContent || el.innerText || '').replace(/\\s+/g, ' ').trim();
+  }
+  var buttons = Array.prototype.slice.call(document.querySelectorAll('button'));
+  var loginBtn = buttons.find(function (btn) {
+    var text = label(btn);
+    return text === '登录' || text.indexOf('登录') >= 0;
+  });
+  if (loginBtn) loginBtn.click();
+})();
+true;
+`;
 
-  const finishLogin = useCallback(async () => {
-    if (doneRef.current) return;
-    doneRef.current = true;
-    setChecking(true);
+export function LoginScreen(_props: Props) {
+  const { completeLoginIfReady, user } = useAuth();
+  const [isSyncing, setIsSyncing] = useState(false);
+  const syncingRef = useRef(false);
+  const loggedInRef = useRef(false);
+  const navDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const tryCompleteLogin = useCallback(async () => {
+    if (loggedInRef.current || syncingRef.current || user) return;
+    syncingRef.current = true;
+    setIsSyncing(true);
     try {
       const ok = await completeLoginIfReady();
-      if (ok) navigation.replace('Home');
+      if (ok) loggedInRef.current = true;
     } finally {
-      setChecking(false);
-      doneRef.current = false;
+      syncingRef.current = false;
+      setIsSyncing(false);
     }
-  }, [completeLoginIfReady, navigation]);
+  }, [completeLoginIfReady, user]);
 
   useEffect(() => {
+    if (user) loggedInRef.current = true;
+  }, [user]);
+
+  useEffect(() => {
+    if (loggedInRef.current || user) return undefined;
     const timer = setInterval(() => {
-      void finishLogin();
-    }, 1500);
+      void tryCompleteLogin();
+    }, 2500);
     return () => clearInterval(timer);
-  }, [finishLogin]);
+  }, [tryCompleteLogin, user]);
+
+  const scheduleNavCheck = useCallback(() => {
+    if (loggedInRef.current || user) return;
+    if (navDebounceRef.current) clearTimeout(navDebounceRef.current);
+    navDebounceRef.current = setTimeout(() => {
+      void tryCompleteLogin();
+    }, 800);
+  }, [tryCompleteLogin, user]);
+
+  useEffect(
+    () => () => {
+      if (navDebounceRef.current) clearTimeout(navDebounceRef.current);
+    },
+    [],
+  );
+
+  const handleNavigationChange = (_event: WebViewNavigation) => {
+    scheduleNavCheck();
+  };
 
   return (
-    <View className="flex-1 bg-slate-50 pt-3">
-      <Text className="px-4 text-lg font-bold text-slate-900">登录 TeachHub</Text>
-      <Text className="mb-2 mt-1.5 px-4 text-sm text-slate-500">
-        在下方页面完成登录。同步 Cookie（含 HttpOnly）后会自动进入应用。
-      </Text>
-      <Text className="mb-2 px-4 text-xs text-slate-400">{AUTH_BASE_URL}</Text>
+    <View className={thScreen}>
+      <View className={thTopbar}>
+        <Text className={thTitle}>Teach 学习工作区</Text>
+        <Text className={`mt-1 ${thDesc}`}>在下方页面登录，会话同步后自动进入应用</Text>
+      </View>
 
-      {checking ? (
-        <ActivityIndicator className="flex-1 self-center" />
-      ) : (
+      <View className="relative flex-1">
         <WebView
-          source={{ uri: AUTH_BASE_URL }}
+          source={{ uri: LOGIN_WEB_URL }}
           sharedCookiesEnabled
           thirdPartyCookiesEnabled
+          domStorageEnabled
+          javaScriptEnabled
           setSupportMultipleWindows={false}
-          onNavigationStateChange={() => void finishLogin()}
-          className="flex-1 bg-white"
+          originWhitelist={['http://*', 'https://*']}
+          onNavigationStateChange={handleNavigationChange}
+          onLoadEnd={() => {
+            scheduleNavCheck();
+          }}
+          injectedJavaScript={OPEN_LOGIN_SCRIPT}
+          className="flex-1 bg-[#faf9f7]"
         />
-      )}
 
-      <Pressable className="items-center p-4" onPress={() => navigation.replace('Home')}>
-        <Text className="text-sm text-slate-500">跳过（未登录预览）</Text>
-      </Pressable>
+        {isSyncing ? (
+          <View className="absolute bottom-4 right-4 rounded-full bg-white/95 px-3 py-2 shadow-sm">
+            <ActivityIndicator size="small" color="#2c5282" />
+          </View>
+        ) : null}
+      </View>
     </View>
   );
 }

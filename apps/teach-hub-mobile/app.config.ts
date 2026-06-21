@@ -18,7 +18,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   splash: {
     image: './assets/splash-icon.png',
     resizeMode: 'contain',
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#faf9f7',
   },
   ios: {
     supportsTablet: true,
@@ -30,7 +30,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     versionCode: Number.isFinite(ANDROID_VERSION_CODE) ? ANDROID_VERSION_CODE : 1,
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
-      backgroundColor: '#f8fafc',
+      backgroundColor: '#faf9f7',
     },
   },
   extra: {
@@ -39,6 +39,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     teachHubApiBaseUrl:
       process.env.EXPO_PUBLIC_TEACH_HUB_API_BASE_URL?.replace(/\/+$/, '') ||
       'http://localhost:3002',
+    teachHubWebBaseUrl:
+      process.env.EXPO_PUBLIC_TEACH_HUB_WEB_BASE_URL?.replace(/\/+$/, '') || undefined,
   },
   plugins: ['./plugins/withAndroidReleaseSigning.js'],
 });
