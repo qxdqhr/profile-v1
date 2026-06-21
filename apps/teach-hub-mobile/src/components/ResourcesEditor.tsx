@@ -133,11 +133,11 @@ export function ResourcesEditor({ initial, saving, onSave }: Props) {
       })}
 
       <Pressable
-        className={`mt-2 items-center rounded-xl py-3 ${saving ? 'bg-slate-400' : 'bg-slate-900'}`}
+        className={`mt-2 items-center ${thPrimaryBtn} ${saving ? 'opacity-50' : ''}`}
         disabled={saving}
         onPress={() => void handleSave()}
       >
-        <Text className="font-bold text-white">{saving ? '保存中…' : '保存资源'}</Text>
+        <Text className={thPrimaryBtnText}>{saving ? '保存中…' : '保存资源'}</Text>
       </Pressable>
       {message ? <Text className="text-center text-[#7a6f5c]">{message}</Text> : null}
     </ScrollView>
