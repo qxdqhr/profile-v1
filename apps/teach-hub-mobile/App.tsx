@@ -2,7 +2,7 @@ import { NavigationContainer, type NavigationContainerRef } from '@react-navigat
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthProvider, useAuth } from './src/auth/AuthContext';
@@ -13,6 +13,7 @@ import { RecordDetailScreen } from './src/screens/RecordDetailScreen';
 import { ReferenceScreen } from './src/screens/ReferenceScreen';
 import { WorkspaceScreen } from './src/screens/WorkspaceScreen';
 import type { RootStackParamList } from './src/navigation';
+import { Loading } from './src/ui';
 import { thColors } from './src/theme';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -53,7 +54,7 @@ function RootNavigator() {
 
         {isLoading ? (
           <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="large" color={thColors.link} />
+            <Loading fullScreen />
           </View>
         ) : null}
       </View>
@@ -77,8 +78,5 @@ const styles = StyleSheet.create({
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: thColors.bg,
   },
 });

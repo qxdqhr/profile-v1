@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { HtmlLessonViewer } from '../components/HtmlLessonViewer';
 import { useAuth } from '../auth/AuthContext';
 import type { RootStackParamList } from '../navigation';
-import { thSecondaryBtn, thSecondaryBtnText } from '../theme';
+import { Button } from '../ui';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Reference'>;
 
@@ -41,15 +41,12 @@ export function ReferenceScreen({ route, navigation }: Props) {
   const displayTitle = title ?? `参考：${slug}`;
 
   return (
-    <View className="flex-1 bg-[#faf9f7]">
+    <View className="flex-1 bg-[#f8f8f0]">
       <View className="shrink-0 flex-row items-center gap-2 border-b border-[#e8e2d6] bg-white px-4 py-2.5">
-        <Pressable
-          className={thSecondaryBtn}
-          onPress={() => navigation.goBack()}
-        >
-          <Text className={thSecondaryBtnText}>← 返回</Text>
-        </Pressable>
-        <Text className="flex-1 text-sm font-semibold text-[#3d3428]" numberOfLines={1}>
+        <Button type="default" size="small" onPress={() => navigation.goBack()}>
+          ← 返回
+        </Button>
+        <Text className="flex-1 text-sm font-semibold text-[#794f27]" numberOfLines={1}>
           {displayTitle}
         </Text>
       </View>

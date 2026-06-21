@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as DocumentPicker from 'expo-document-picker';
 
@@ -20,14 +20,8 @@ import {
   parseWorkspaceMetaJson,
   patchWorkspaceMetaJson,
 } from '../utils/workspaceMeta';
-import {
-  thDesc,
-  thPanel,
-  thPrimaryBtn,
-  thPrimaryBtnText,
-  thSecondaryBtn,
-  thSecondaryBtnText,
-} from '../theme';
+import { Button, Modal, ModalCancelButton, ModalPrimaryButton } from '../ui';
+import { thDesc, thPanel } from '../theme';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Workspace'>;
 
@@ -43,6 +37,7 @@ export function WorkspaceSettingsPanel({ workspaceId, navigation }: Props) {
   const [zipAsset, setZipAsset] = useState<DocumentPicker.DocumentPickerAsset | null>(null);
   const [importing, setImporting] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [autoSyncLessonResources, setAutoSyncLessonResources] = useState(false);
   const [metaLoading, setMetaLoading] = useState(true);
@@ -132,37 +127,23 @@ export function WorkspaceSettingsPanel({ workspaceId, navigation }: Props) {
     }
   };
 
-  const handleDelete = () => {
-    Alert.alert(
-      '删除工作区',
-      '确定删除此工作区？将从列表中移除，OSS 文件仍保留。',
-      [
-        { text: '取消', style: 'cancel' },
-        {
-          text: '删除',
-          style: 'destructive',
-          onPress: () => {
-            void (async () => {
-              setDeleting(true);
-              setMessage('');
-              try {
-                await teachHubApi.archiveWorkspace(workspaceId);
-                navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
-              } catch (err) {
-                setMessage(err instanceof Error ? err.message : '删除失败');
-                setDeleting(false);
-              }
-            })();
-          },
-        },
-      ],
-    );
+  const handleDelete = async () => {
+    setDeleting(true);
+    setMessage('');
+    try {
+      await teachHubApi.archiveWorkspace(workspaceId);
+      setDeleteOpen(false);
+      navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : '删除失败');
+      setDeleting(false);
+    }
   };
 
   return (
     <ScrollView contentContainerClassName="gap-4 pb-8" showsVerticalScrollIndicator={false}>
       <View className={`${thPanel} gap-3`}>
-        <Text className="text-[15px] font-bold text-[#5c4f3a]">阅读进度条</Text>
+        <Text className="text-[15px] font-bold text-[#794f27]">阅读进度条</Text>
         <Text className={thDesc}>
           在课时阅读页显示阅读百分比与可拖动进度条。滚动正文时进度会自动更新；也可拖动进度条跳转位置。
         </Text>
@@ -176,14 +157,14 @@ export function WorkspaceSettingsPanel({ workspaceId, navigation }: Props) {
           value={settings.barExpanded}
           onValueChange={(checked) => void setBarExpanded(checked)}
         />
-        <Text className="text-xs text-[#7a6f5c]">
+        <Text className="text-xs text-[#9f927d]">
           当前：
           {LESSON_READER_POSITION_OPTIONS.find((o) => o.value === settings.barPosition)?.label}
         </Text>
       </View>
 
       <View className={`${thPanel} gap-3`}>
-        <Text className="text-[15px] font-bold text-[#5c4f3a]">资源同步</Text>
+        <Text className="text-[15px] font-bold text-[#794f27]">资源同步</Text>
         <Text className={thDesc}>
           开启后，Mimo 生成的新课时若包含「延伸阅读」外链，会自动追加到资源页的 RESOURCES.md。
         </Text>
@@ -197,37 +178,54 @@ export function WorkspaceSettingsPanel({ workspaceId, navigation }: Props) {
       </View>
 
       <View className={`${thPanel} gap-3`}>
-        <Text className="text-[15px] font-bold text-[#5c4f3a]">导入工作区</Text>
+        <Text className="text-[15px] font-bold text-[#794f27]">导入工作区</Text>
         <Text className={thDesc}>上传 teach 工作区 zip（如 musicStudy 打包），自动写入当前工作区。</Text>
-        <Pressable className={thSecondaryBtn} onPress={() => void pickZip()}>
-          <Text className={thSecondaryBtnText}>
-            {zipAsset?.name ? `已选：${zipAsset.name}` : '选择 zip 文件'}
-          </Text>
-        </Pressable>
-        <Pressable
-          className={`${thPrimaryBtn} ${importing ? 'opacity-50' : ''}`}
+        <Button type="default" size="small" onPress={() => void pickZip()}>
+          {zipAsset?.name ? `已选：${zipAsset.name}` : '选择 zip 文件'}
+        </Button>
+        <Button
+          type="primary"
+          size="small"
+          loading={importing}
           disabled={importing}
           onPress={() => void handleImport()}
         >
-          <Text className={thPrimaryBtnText}>{importing ? '导入中…' : '上传并导入'}</Text>
-        </Pressable>
+          {importing ? '导入中…' : '上传并导入'}
+        </Button>
       </View>
 
-      <View className="gap-3 rounded-xl border border-[#fed7d7] bg-[#fffafa] px-[18px] py-4">
+      <View className="gap-3 rounded-[20px] border border-[#fed7d7] bg-[#fffafa] px-[18px] py-4">
         <Text className="text-[15px] font-bold text-red-700">删除工作区</Text>
         <Text className={thDesc}>从列表中移除此工作区，不会删除 OSS 中已上传的文件。</Text>
-        <Pressable
-          className={`rounded-lg bg-red-600 px-4 py-2.5 ${deleting ? 'opacity-50' : 'active:opacity-90'}`}
-          disabled={deleting}
-          onPress={handleDelete}
-        >
-          <Text className="text-center font-semibold text-white">
-            {deleting ? '删除中…' : '删除此工作区'}
-          </Text>
-        </Pressable>
+        <Button type="primary" size="small" danger onPress={() => setDeleteOpen(true)}>
+          删除此工作区
+        </Button>
       </View>
 
-      {message ? <Text className="text-sm text-[#7a6f5c]">{message}</Text> : null}
+      {message ? <Text className="text-sm text-[#9f927d]">{message}</Text> : null}
+
+      <Modal
+        visible={deleteOpen}
+        title="删除工作区"
+        onClose={() => !deleting && setDeleteOpen(false)}
+        dismissOnBackdrop={!deleting}
+        footer={
+          <>
+            <ModalCancelButton onPress={() => setDeleteOpen(false)} disabled={deleting} />
+            <ModalPrimaryButton
+              label="确认删除"
+              danger
+              loading={deleting}
+              disabled={deleting}
+              onPress={() => void handleDelete()}
+            />
+          </>
+        }
+      >
+        <Text className="text-sm leading-relaxed text-[#725d42]">
+          确定删除此工作区？将从列表中移除，OSS 文件仍保留。
+        </Text>
+      </Modal>
     </ScrollView>
   );
 }

@@ -3,7 +3,6 @@ import {
   lessonTitleFromSlug,
   mergeLessonsWithProgress,
   type LessonIndex,
-  type LearningRecord,
   type TeachLessonProgress,
   type TeachWorkspace,
 } from '@profile/teach-hub-shared';
@@ -12,16 +11,14 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { GenerateLessonPanel } from './GenerateLessonPanel';
 import { ProgressBar } from './ProgressBar';
 import type { RootStackParamList } from '../navigation';
+import { Button, Card } from '../ui';
 import {
-  thCard,
   thChip,
   thDesc,
   thLessonItem,
   thLessonItemDone,
   thPanel,
   thPanelLink,
-  thPrimaryBtn,
-  thPrimaryBtnText,
 } from '../theme';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Workspace'>;
@@ -58,10 +55,10 @@ export function WorkspaceOverview({
 
   return (
     <View className="gap-4 pb-8">
-      <View className={`${thPanel} gap-4`}>
+      <Card className="gap-4">
         <View className="gap-2.5">
           {workspace.topic ? (
-            <Text className="text-sm text-[#7a6f5c]">{workspace.topic}</Text>
+            <Text className="text-sm text-[#9f927d]">{workspace.topic}</Text>
           ) : null}
           {lessons.length > 0 ? (
             <ProgressBar completed={completed} total={lessons.length} />
@@ -71,8 +68,9 @@ export function WorkspaceOverview({
         </View>
         <View className="flex-row flex-wrap gap-2">
           {firstIncomplete ? (
-            <Pressable
-              className={thPrimaryBtn}
+            <Button
+              type="primary"
+              size="small"
               onPress={() =>
                 navigation.navigate('Lesson', {
                   workspaceId,
@@ -83,12 +81,12 @@ export function WorkspaceOverview({
                 })
               }
             >
-              <Text className={thPrimaryBtnText}>继续学习</Text>
-            </Pressable>
+              继续学习
+            </Button>
           ) : lessons.length > 0 ? (
-            <View className={`${thPrimaryBtn} opacity-50`}>
-              <Text className={thPrimaryBtnText}>全部完成</Text>
-            </View>
+            <Button type="primary" size="small" disabled>
+              全部完成
+            </Button>
           ) : null}
           <GenerateLessonPanel
             workspaceId={workspaceId}
@@ -99,24 +97,24 @@ export function WorkspaceOverview({
             inline
           />
         </View>
-      </View>
+      </Card>
 
       <View className={thPanel}>
         <View className="mb-3 flex-row items-center justify-between gap-3">
-          <Text className="text-[15px] font-bold text-[#5c4f3a]">Mission</Text>
+          <Text className="text-[15px] font-bold text-[#794f27]">Mission</Text>
           <Pressable onPress={onOpenMissionTab}>
             <Text className={thPanelLink}>编辑 →</Text>
           </Pressable>
         </View>
-        <Text className="text-[15px] leading-relaxed text-[#6b5f4d]">
+        <Text className="text-[15px] leading-relaxed text-[#725d42]">
           {workspace.missionSummary?.trim() || '尚未填写学习动机，请先编辑 Mission。'}
         </Text>
       </View>
 
       <View className={thPanel}>
         <View className="mb-3 flex-row items-center justify-between gap-3">
-          <Text className="text-[15px] font-bold text-[#5c4f3a]">课时列表</Text>
-          <Text className="text-sm text-[#7a6f5c]">{lessons.length} 课</Text>
+          <Text className="text-[15px] font-bold text-[#794f27]">课时列表</Text>
+          <Text className="text-sm text-[#9f927d]">{lessons.length} 课</Text>
         </View>
 
         {lessons.length === 0 ? (
@@ -141,13 +139,13 @@ export function WorkspaceOverview({
                   }
                 >
                   <View className="min-w-0 flex-1">
-                    <Text className="font-semibold text-[#3d3428]">
+                    <Text className="font-semibold text-[#794f27]">
                       {String(lesson.order).padStart(4, '0')} ·{' '}
                       {lesson.title ?? lessonTitleFromSlug(lesson.slug)}
                     </Text>
-                    <Text className="mt-1 text-xs text-[#7a6f5c]">{lesson.slug}</Text>
+                    <Text className="mt-1 text-xs text-[#9f927d]">{lesson.slug}</Text>
                   </View>
-                  <Text className="text-sm text-[#2c5282]">
+                  <Text className="text-sm text-[#19c8b9]">
                     {done ? '✓ 已完成' : '去学习 →'}
                   </Text>
                 </Pressable>
@@ -159,7 +157,7 @@ export function WorkspaceOverview({
 
       {references.length > 0 ? (
         <View className={thPanel}>
-          <Text className="mb-3 text-[15px] font-bold text-[#5c4f3a]">速查参考</Text>
+          <Text className="mb-3 text-[15px] font-bold text-[#794f27]">速查参考</Text>
           <View className="flex-row flex-wrap gap-2">
             {references.map((refSlug) => (
               <Pressable
@@ -173,7 +171,7 @@ export function WorkspaceOverview({
                   })
                 }
               >
-                <Text className="text-sm text-[#2c5282]">{refSlug}</Text>
+                <Text className="text-sm text-[#11a89b]">{refSlug}</Text>
               </Pressable>
             ))}
           </View>
@@ -182,7 +180,7 @@ export function WorkspaceOverview({
 
       <View className={thPanel}>
         <View className="flex-row items-center justify-between gap-3">
-          <Text className="text-[15px] font-bold text-[#5c4f3a]">阅读与导入</Text>
+          <Text className="text-[15px] font-bold text-[#794f27]">阅读与导入</Text>
           <Pressable onPress={onOpenSettingsTab}>
             <Text className={thPanelLink}>设置 →</Text>
           </Pressable>

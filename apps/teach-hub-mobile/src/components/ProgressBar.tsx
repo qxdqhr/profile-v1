@@ -14,13 +14,13 @@ export function ProgressBar({ completed, total, className = '' }: Props) {
   return (
     <View className={className}>
       <View className="mb-1 flex-row justify-between">
-        <Text className="text-xs text-[#7a6f5c]">
+        <Text className="text-xs text-[#9f927d]">
           {completed} / {total} 课已完成
         </Text>
-        <Text className="text-xs text-[#7a6f5c]">{pct}%</Text>
+        <Text className="text-xs text-[#9f927d]">{pct}%</Text>
       </View>
-      <View className="h-2 overflow-hidden rounded-full bg-[#eee8dc]">
-        <View className="h-full rounded-full bg-[#4299e1]" style={{ width: `${pct}%` }} />
+      <View className="h-2 overflow-hidden rounded-full bg-[#e8e2d6]">
+        <View className="h-full rounded-full bg-[#19c8b9]" style={{ width: `${pct}%` }} />
       </View>
     </View>
   );

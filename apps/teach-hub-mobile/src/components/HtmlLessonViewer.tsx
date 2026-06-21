@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 
 import { LessonReadingProgress } from './LessonReadingProgress';
@@ -10,7 +10,8 @@ import {
   buildSetScrollPercentScript,
   LESSON_SCROLL_TRACKER_JS,
 } from '../utils/lessonWebViewScripts';
-import { thDesc, thPrimaryBtn, thPrimaryBtnText, thScreen } from '../theme';
+import { Button, Loading } from '../ui';
+import { thDesc, thScreen } from '../theme';
 
 type Props = {
   html: string | null;
@@ -72,7 +73,7 @@ export function HtmlLessonViewer({ html, loading, error, onRetry, title }: Props
   if (loading) {
     return (
       <View className={`${thScreen} items-center justify-center`}>
-        <ActivityIndicator color="#2c5282" />
+        <Loading />
         <Text className={`mt-3 ${thDesc}`}>加载课时内容…</Text>
       </View>
     );
@@ -83,9 +84,9 @@ export function HtmlLessonViewer({ html, loading, error, onRetry, title }: Props
       <View className={`${thScreen} items-center justify-center gap-3 p-6`}>
         <Text className="text-center text-red-600">{error}</Text>
         {onRetry ? (
-          <Pressable className={thPrimaryBtn} onPress={onRetry}>
-            <Text className={thPrimaryBtnText}>重试</Text>
-          </Pressable>
+          <Button type="primary" onPress={onRetry}>
+            重试
+          </Button>
         ) : null}
       </View>
     );
@@ -104,13 +105,13 @@ export function HtmlLessonViewer({ html, loading, error, onRetry, title }: Props
       injectedJavaScript={LESSON_SCROLL_TRACKER_JS}
       onMessage={handleMessage}
       onLoadEnd={() => webViewRef.current?.injectJavaScript(LESSON_SCROLL_TRACKER_JS)}
-      className="flex-1 bg-[#faf9f7]"
+      className="flex-1 bg-[#f8f8f0]"
       {...(title ? { accessibilityLabel: title } : {})}
     />
   );
 
   return (
-    <View className="min-h-0 flex-1 bg-[#faf9f7]">
+    <View className="min-h-0 flex-1 bg-[#f8f8f0]">
       {!vertical && showBarFirst ? progressBar : null}
       <View className={`min-h-0 flex-1 ${vertical ? 'relative' : ''}`}>
         {webView}

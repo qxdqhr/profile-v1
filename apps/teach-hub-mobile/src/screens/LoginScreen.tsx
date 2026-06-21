@@ -6,7 +6,9 @@ import { WebView, type WebViewNavigation } from 'react-native-webview';
 import { useAuth } from '../auth/AuthContext';
 import type { RootStackParamList } from '../navigation';
 import { LOGIN_WEB_URL } from '../config';
-import { thDesc, thScreen, thTitle, thTopbar } from '../theme';
+import { Title } from '../ui';
+import { ai } from '../ui/tokens';
+import { thDesc, thScreen, thTopbar } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -79,8 +81,10 @@ export function LoginScreen(_props: Props) {
   return (
     <View className={thScreen}>
       <View className={thTopbar}>
-        <Text className={thTitle}>Teach 学习工作区</Text>
-        <Text className={`mt-1 ${thDesc}`}>在下方页面登录，会话同步后自动进入应用</Text>
+        <Title color="app-teal" size="small">
+          Teach 学习工作区
+        </Title>
+        <Text className={`mt-2 ${thDesc}`}>在下方页面登录，会话同步后自动进入应用</Text>
       </View>
 
       <View className="relative flex-1">
@@ -97,12 +101,12 @@ export function LoginScreen(_props: Props) {
             scheduleNavCheck();
           }}
           injectedJavaScript={OPEN_LOGIN_SCRIPT}
-          className="flex-1 bg-[#faf9f7]"
+          className="flex-1 bg-[#f8f8f0]"
         />
 
         {isSyncing ? (
           <View className="absolute bottom-4 right-4 rounded-full bg-white/95 px-3 py-2 shadow-sm">
-            <ActivityIndicator size="small" color="#2c5282" />
+            <ActivityIndicator size="small" color={ai.primary} />
           </View>
         ) : null}
       </View>

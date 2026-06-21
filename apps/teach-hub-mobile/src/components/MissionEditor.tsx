@@ -1,17 +1,12 @@
 import { useState } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import {
   composeMissionMarkdown,
   type MissionFormData,
 } from '@profile/teach-hub-shared';
 
-import { thDesc, thInput, thInputMultiline, thPrimaryBtn, thPrimaryBtnText } from '../theme';
+import { Button, Input } from '../ui';
+import { thDesc } from '../theme';
 
 type ListKey = 'successLooksLike' | 'constraints' | 'outOfScope';
 
@@ -86,36 +81,36 @@ export function MissionEditor({ initial, saving, onSave }: Props) {
   return (
     <ScrollView contentContainerClassName="gap-4 pb-8">
       <View className="gap-2">
-        <Text className="text-sm font-bold text-[#3d3428]">学习动机（Why）</Text>
-        <Text className="text-xs text-[#7a6f5c]">Mimo 生成课时会优先参考此内容</Text>
-        <TextInput
-          className={thInputMultiline}
+        <Text className="text-sm font-bold text-[#794f27]">学习动机（Why）</Text>
+        <Text className="text-xs text-[#9f927d]">Mimo 生成课时会优先参考此内容</Text>
+        <Input
           multiline
           value={why}
           onChangeText={setWhy}
           placeholder="你为什么想学这个主题？"
-          textAlignVertical="top"
         />
       </View>
 
       {LIST_CONFIG.map((config) => (
         <View key={config.key} className="gap-2">
           <View className="flex-row items-center justify-between">
-            <Text className="text-sm font-bold text-[#3d3428]">{config.title}</Text>
-            <Pressable
-              className="rounded-md bg-[#f0ebe3] px-2.5 py-1.5"
+            <Text className="text-sm font-bold text-[#794f27]">{config.title}</Text>
+            <Button
+              type="default"
+              size="small"
               onPress={() =>
                 updateList(config.key, [...lists[config.key], { id: nextId(), value: '' }])
               }
             >
-              <Text className="text-xs font-semibold text-[#6b5f4d]">+ 添加</Text>
-            </Pressable>
+              + 添加
+            </Button>
           </View>
           {lists[config.key].map((entry, index) => (
             <View key={entry.id} className="flex-row items-center gap-2">
-              <Text className="w-7 text-xs text-[#7a6f5c]">#{index + 1}</Text>
-              <TextInput
-                className={`flex-1 ${thInput} text-sm`}
+              <Text className="w-7 text-xs text-[#9f927d]">#{index + 1}</Text>
+              <Input
+                size="small"
+                style={{ flex: 1 }}
                 value={entry.value}
                 onChangeText={(value) =>
                   updateList(
@@ -142,15 +137,11 @@ export function MissionEditor({ initial, saving, onSave }: Props) {
         </View>
       ))}
 
-      <Pressable
-        className={`mt-2 items-center ${thPrimaryBtn} ${saving ? 'opacity-50' : ''}`}
-        disabled={saving}
-        onPress={() => void handleSave()}
-      >
-        <Text className={`text-[15px] ${thPrimaryBtnText}`}>
+      <View className="mt-2 items-center">
+        <Button type="primary" loading={saving} disabled={saving} onPress={() => void handleSave()}>
           {saving ? '保存中…' : '保存 Mission'}
-        </Text>
-      </Pressable>
+        </Button>
+      </View>
       {message ? <Text className={`text-center text-sm ${thDesc}`}>{message}</Text> : null}
     </ScrollView>
   );

@@ -16,10 +16,10 @@ type Props = {
 };
 
 function ToggleLabel({ position, expanded }: { position: LessonReaderBarPosition; expanded: boolean }) {
-  if (position === 'top') return <Text className="text-base text-[#7a6f5c]">{expanded ? '▲' : '▼'}</Text>;
-  if (position === 'bottom') return <Text className="text-base text-[#7a6f5c]">{expanded ? '▼' : '▲'}</Text>;
-  if (position === 'left') return <Text className="text-base text-[#7a6f5c]">{expanded ? '◀' : '▶'}</Text>;
-  return <Text className="text-base text-[#7a6f5c]">{expanded ? '▶' : '◀'}</Text>;
+  if (position === 'top') return <Text className="text-base text-[#9f927d]">{expanded ? '▲' : '▼'}</Text>;
+  if (position === 'bottom') return <Text className="text-base text-[#9f927d]">{expanded ? '▼' : '▲'}</Text>;
+  if (position === 'left') return <Text className="text-base text-[#9f927d]">{expanded ? '◀' : '▶'}</Text>;
+  return <Text className="text-base text-[#9f927d]">{expanded ? '▶' : '◀'}</Text>;
 }
 
 /** 对齐 teach-hub-core LessonReadingProgress */
@@ -49,7 +49,7 @@ export function LessonReadingProgress({
   if (vertical && !expanded) {
     return (
       <View className="items-center justify-center gap-1 rounded-xl border border-[#e8e2d6]/90 bg-[#f5f0e8]/95 px-2 py-2 shadow-sm">
-        <Text className="text-[10px] font-semibold text-[#3d3428]">{Math.round(percent)}%</Text>
+        <Text className="text-[10px] font-semibold text-[#794f27]">{Math.round(percent)}%</Text>
         {toggleBtn(true, '展开阅读进度条')}
       </View>
     );
@@ -62,7 +62,7 @@ export function LessonReadingProgress({
           position === 'top' ? 'border-b border-[#e8e2d6]' : 'border-t border-[#e8e2d6]'
         }`}
       >
-        <Text className="text-lg font-semibold tracking-tight text-[#3d3428]">
+        <Text className="text-lg font-semibold tracking-tight text-[#794f27]">
           {percent.toFixed(1)}%
         </Text>
         {toggleBtn(true, '展开阅读进度条')}
@@ -76,9 +76,9 @@ export function LessonReadingProgress({
       maximumValue={100}
       step={0.1}
       value={percent}
-      minimumTrackTintColor="#4a9b8e"
+      minimumTrackTintColor="#19c8b9"
       maximumTrackTintColor="#e8e2d6"
-      thumbTintColor="#4a9b8e"
+      thumbTintColor="#19c8b9"
       onValueChange={onPercentChange}
       onSlidingComplete={onDragEnd}
       style={vertical ? { width: 160, transform: [{ rotate: '-90deg' }] } : undefined}
@@ -89,8 +89,8 @@ export function LessonReadingProgress({
     return (
       <View className="h-full max-h-full w-14 items-center gap-2 rounded-xl border border-[#e8e2d6]/90 bg-[#f5f0e8]/95 px-2 py-3 shadow-sm">
         {toggleBtn(false, '收起阅读进度条')}
-        <Text className="text-base font-semibold text-[#3d3428]">{percent.toFixed(1)}%</Text>
-        <Text className="text-[10px] font-medium tracking-wide text-[#7a6f5c]">阅读进度</Text>
+        <Text className="text-base font-semibold text-[#794f27]">{percent.toFixed(1)}%</Text>
+        <Text className="text-[10px] font-medium tracking-wide text-[#9f927d]">阅读进度</Text>
         <View className="h-32 items-center justify-center">{slider}</View>
       </View>
     );
@@ -99,9 +99,9 @@ export function LessonReadingProgress({
   return (
     <View className="bg-[#f5f0e8]/90 px-4 py-2.5">
       <View className="mb-2 flex-row items-baseline justify-between gap-3">
-        <Text className="text-xs font-medium tracking-wide text-[#7a6f5c]">阅读进度</Text>
+        <Text className="text-xs font-medium tracking-wide text-[#9f927d]">阅读进度</Text>
         <View className="flex-row items-center gap-2">
-          <Text className="text-lg font-semibold tracking-tight text-[#3d3428]">
+          <Text className="text-lg font-semibold tracking-tight text-[#794f27]">
             {percent.toFixed(1)}%
           </Text>
           {toggleBtn(false, '收起阅读进度条')}

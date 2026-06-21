@@ -1,12 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   composeLearningRecordMarkdown,
@@ -16,15 +9,8 @@ import {
 
 import { useAuth } from '../auth/AuthContext';
 import type { RootStackParamList } from '../navigation';
-import {
-  thCard,
-  thDesc,
-  thInput,
-  thInputMultiline,
-  thPrimaryBtn,
-  thPrimaryBtnText,
-  thScreen,
-} from '../theme';
+import { Button, Card, Input, Loading } from '../ui';
+import { thDesc, thScreen } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'RecordDetail'>;
 
@@ -86,45 +72,47 @@ export function RecordDetailScreen({ route, navigation }: Props) {
     <View className={thScreen}>
       <View className="gap-2 border-b border-[#e8e2d6] bg-white p-4">
         {editing && record ? (
-          <TextInput
-            className={`${thInput} text-lg font-bold`}
+          <Input
             value={record.title}
             onChangeText={(value) => setRecord({ ...record, title: value })}
+            style={{ fontSize: 18, fontWeight: '700' }}
           />
         ) : (
-          <Text className="text-lg font-bold text-[#3d3428]">{record?.title ?? title}</Text>
+          <Text className="text-lg font-bold text-[#794f27]">{record?.title ?? title}</Text>
         )}
-        <View className="flex-row gap-4">
+        <View className="flex-row gap-2">
           {editing ? (
             <>
-              <Pressable onPress={() => void handleSave()} disabled={saving}>
-                <Text className="font-bold text-[#2c5282]">{saving ? '保存中…' : '保存'}</Text>
-              </Pressable>
-              <Pressable
+              <Button type="primary" size="small" loading={saving} onPress={() => void handleSave()}>
+                保存
+              </Button>
+              <Button
+                type="default"
+                size="small"
                 onPress={() => {
                   setEditing(false);
                   void load();
                 }}
               >
-                <Text className="font-semibold text-[#7a6f5c]">取消</Text>
-              </Pressable>
+                取消
+              </Button>
             </>
           ) : (
-            <Pressable onPress={() => setEditing(true)}>
-              <Text className="font-bold text-[#2c5282]">编辑</Text>
-            </Pressable>
+            <Button type="text" size="small" onPress={() => setEditing(true)}>
+              编辑
+            </Button>
           )}
         </View>
       </View>
 
       {loading ? (
-        <ActivityIndicator className="flex-1" color="#2c5282" />
+        <Loading />
       ) : error ? (
         <View className="flex-1 items-center justify-center gap-3 p-6">
           <Text className="text-center text-red-600">{error}</Text>
-          <Pressable className={thPrimaryBtn} onPress={() => void load()}>
-            <Text className={thPrimaryBtnText}>重试</Text>
-          </Pressable>
+          <Button type="primary" onPress={() => void load()}>
+            重试
+          </Button>
         </View>
       ) : record ? (
         <ScrollView contentContainerClassName="gap-4 p-4 pb-8">
@@ -132,20 +120,18 @@ export function RecordDetailScreen({ route, navigation }: Props) {
             <Text className={`mt-12 text-center ${thDesc}`}>暂无内容</Text>
           ) : (
             record.sections.map((section, index) => (
-              <View key={`${section.heading}-${index}`} className={`gap-2 ${thCard}`}>
-                <Text className="text-sm font-bold text-[#7a6f5c]">{section.heading}</Text>
+              <Card key={`${section.heading}-${index}`} className="gap-2">
+                <Text className="text-sm font-bold text-[#9f927d]">{section.heading}</Text>
                 {editing ? (
-                  <TextInput
-                    className={thInputMultiline}
+                  <Input
                     multiline
                     value={section.content}
                     onChangeText={(content) => updateSection(index, content)}
-                    textAlignVertical="top"
                   />
                 ) : (
-                  <Text className="text-[15px] leading-[22px] text-[#3d3428]">{section.content}</Text>
+                  <Text className="text-[15px] leading-[22px] text-[#794f27]">{section.content}</Text>
                 )}
-              </View>
+              </Card>
             ))
           )}
           {message ? <Text className={`text-center ${thDesc}`}>{message}</Text> : null}

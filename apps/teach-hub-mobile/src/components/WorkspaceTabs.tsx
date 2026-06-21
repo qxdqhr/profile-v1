@@ -35,15 +35,13 @@ export function WorkspaceTabs({ active, onChange }: Props) {
             >
               <Text
                 className={`text-[15px] ${
-                  selected
-                    ? 'font-semibold text-[#2c5282]'
-                    : 'text-[#6b5f4d]'
+                  selected ? 'font-semibold text-[#19c8b9]' : 'text-[#725d42]'
                 }`}
               >
                 {tab.label}
               </Text>
               {selected ? (
-                <View className="mt-1 h-0.5 rounded-full bg-[#4299e1]" />
+                <View className="mt-1 h-0.5 rounded-full bg-[#19c8b9]" />
               ) : null}
             </Pressable>
           );

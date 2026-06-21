@@ -1,12 +1,5 @@
 import { useState } from 'react';
-import {
-  Linking,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import {
   RESOURCE_CATEGORY_DESCRIPTIONS,
   RESOURCE_CATEGORY_LABELS,
@@ -16,7 +9,7 @@ import {
   type ResourcesFormData,
 } from '@profile/teach-hub-shared';
 
-import { thCard, thDesc, thInput, thPrimaryBtn, thPrimaryBtnText } from '../theme';
+import { Button, Card, Input } from '../ui';
 
 type Props = {
   initial: ResourcesFormData;
@@ -73,44 +66,38 @@ export function ResourcesEditor({ initial, saving, onSave }: Props) {
           <View key={category} className="gap-2.5">
             <View className="flex-row justify-between gap-3">
               <View>
-                <Text className="text-[15px] font-bold text-[#3d3428]">
+                <Text className="text-[15px] font-bold text-[#794f27]">
                   {RESOURCE_CATEGORY_LABELS[category]}
                 </Text>
-                <Text className="mt-0.5 text-xs text-[#7a6f5c]">
+                <Text className="mt-0.5 text-xs text-[#9f927d]">
                   {RESOURCE_CATEGORY_DESCRIPTIONS[category]}
                 </Text>
               </View>
-              <Pressable
-                className="self-start rounded-md bg-[#f0ebe3] px-2.5 py-1.5"
-                onPress={() => addEntry(category)}
-              >
-                <Text className="text-xs font-semibold text-[#6b5f4d]">+ 添加</Text>
-              </Pressable>
+              <Button type="default" size="small" onPress={() => addEntry(category)}>
+                + 添加
+              </Button>
             </View>
 
             {rows.length === 0 ? (
-              <Text className="text-sm text-[#7a6f5c]">暂无条目</Text>
+              <Text className="text-sm text-[#9f927d]">暂无条目</Text>
             ) : (
               rows.map((entry) => (
-                <View
-                  key={entry.id}
-                  className={`gap-2 ${thCard}`}
-                >
-                  <TextInput
-                    className={`${thInput} text-sm`}
+                <Card key={entry.id} className="gap-2">
+                  <Input
+                    size="small"
                     value={entry.title}
                     onChangeText={(title) => updateEntry(entry.id, { title })}
                     placeholder="标题"
                   />
-                  <TextInput
-                    className={`${thInput} text-sm`}
+                  <Input
+                    size="small"
                     value={entry.url ?? ''}
                     onChangeText={(url) => updateEntry(entry.id, { url })}
                     placeholder="URL（可选）"
                     autoCapitalize="none"
                   />
-                  <TextInput
-                    className={`${thInput} text-sm`}
+                  <Input
+                    size="small"
                     value={entry.note ?? ''}
                     onChangeText={(note) => updateEntry(entry.id, { note })}
                     placeholder="备注（可选）"
@@ -118,28 +105,26 @@ export function ResourcesEditor({ initial, saving, onSave }: Props) {
                   <View className="flex-row justify-between">
                     {entry.url ? (
                       <Pressable onPress={() => void Linking.openURL(entry.url!)}>
-                        <Text className="text-[13px] font-semibold text-blue-600">打开链接</Text>
+                        <Text className="text-[13px] font-semibold text-[#19c8b9]">打开链接</Text>
                       </Pressable>
                     ) : null}
                     <Pressable onPress={() => removeEntry(entry.id)}>
                       <Text className="text-[13px] font-semibold text-red-600">删除</Text>
                     </Pressable>
                   </View>
-                </View>
+                </Card>
               ))
             )}
           </View>
         );
       })}
 
-      <Pressable
-        className={`mt-2 items-center ${thPrimaryBtn} ${saving ? 'opacity-50' : ''}`}
-        disabled={saving}
-        onPress={() => void handleSave()}
-      >
-        <Text className={thPrimaryBtnText}>{saving ? '保存中…' : '保存资源'}</Text>
-      </Pressable>
-      {message ? <Text className="text-center text-[#7a6f5c]">{message}</Text> : null}
+      <View className="mt-2 items-center">
+        <Button type="primary" loading={saving} disabled={saving} onPress={() => void handleSave()}>
+          {saving ? '保存中…' : '保存资源'}
+        </Button>
+      </View>
+      {message ? <Text className="text-center text-[#9f927d]">{message}</Text> : null}
     </ScrollView>
   );
 }

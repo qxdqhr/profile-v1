@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import {
   generateLessonButtonLabel,
   resolveGenerateLessonTrigger,
@@ -9,6 +9,7 @@ import {
 } from '@profile/teach-hub-shared';
 
 import { useAuth } from '../auth/AuthContext';
+import { Button } from '../ui';
 
 type Props = {
   workspaceId: string;
@@ -16,7 +17,6 @@ type Props = {
   progress: TeachLessonProgress[];
   missionReady: boolean;
   onGenerated: () => void;
-  /** 嵌入概览面板时不额外加外边距 */
   inline?: boolean;
 };
 
@@ -60,17 +60,15 @@ export function GenerateLessonPanel({
 
   return (
     <View className={inline ? 'min-w-[140px] flex-1' : 'mb-3 gap-1.5'}>
-      <Pressable
-        className={`items-center rounded-lg px-4 py-2.5 ${!trigger || loading ? 'bg-[#7a6f5c]' : 'bg-[#2c5282] active:opacity-90'}`}
+      <Button
+        type="primary"
+        size="small"
         disabled={!trigger || loading}
+        loading={loading}
         onPress={() => void handlePress()}
       >
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text className="text-sm font-semibold text-white">{label}</Text>
-        )}
-      </Pressable>
+        {label}
+      </Button>
       {error ? <Text className="mt-1 text-xs text-red-600">{error}</Text> : null}
     </View>
   );

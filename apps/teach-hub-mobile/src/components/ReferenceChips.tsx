@@ -12,11 +12,11 @@ export function ReferenceChips({ slugs, onPress }: Props) {
 
   return (
     <View className="mb-4 mt-2 gap-2">
-      <Text className="text-sm font-bold text-[#3d3428]">速查参考</Text>
+      <Text className="text-sm font-bold text-[#794f27]">速查参考</Text>
       <View className="flex-row flex-wrap gap-2">
         {slugs.map((slug) => (
           <Pressable key={slug} className={thChip} onPress={() => onPress(slug)}>
-            <Text className="text-sm font-semibold text-[#2c5282]">{slug}</Text>
+            <Text className="text-sm font-semibold text-[#11a89b]">{slug}</Text>
           </Pressable>
         ))}
       </View>

@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as DocumentPicker from 'expo-document-picker';
 
-import { AppModal, ModalCancelButton, ModalPrimaryButton } from './AppModal';
 import { useAuth } from '../auth/AuthContext';
 import type { RootStackParamList } from '../navigation';
 import { importWorkspaceZipFromUri } from '../utils/importWorkspaceZip';
-import { thDesc, thInput, thInputMultiline } from '../theme';
+import { Input, Modal, ModalCancelButton, ModalPrimaryButton } from '../ui';
+import { thDesc } from '../theme';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -83,7 +83,7 @@ export function NewWorkspaceModal({ visible, onClose, onCreated, navigation }: P
   };
 
   return (
-    <AppModal
+    <Modal
       visible={visible}
       title="新建学习工作区"
       onClose={handleClose}
@@ -102,9 +102,8 @@ export function NewWorkspaceModal({ visible, onClose, onCreated, navigation }: P
     >
       <View className="gap-4">
         <View className="gap-1.5">
-          <Text className="text-[15px] font-semibold text-[#3d3428]">标题 *</Text>
-          <TextInput
-            className={thInput}
+          <Text className="text-[15px] font-semibold text-[#794f27]">标题 *</Text>
+          <Input
             value={title}
             onChangeText={setTitle}
             placeholder="例如：音乐乐理"
@@ -113,9 +112,8 @@ export function NewWorkspaceModal({ visible, onClose, onCreated, navigation }: P
         </View>
 
         <View className="gap-1.5">
-          <Text className="text-[15px] font-semibold text-[#3d3428]">主题标签（可选）</Text>
-          <TextInput
-            className={thInput}
+          <Text className="text-[15px] font-semibold text-[#794f27]">主题标签（可选）</Text>
+          <Input
             value={topic}
             onChangeText={setTopic}
             placeholder="music-theory"
@@ -124,20 +122,18 @@ export function NewWorkspaceModal({ visible, onClose, onCreated, navigation }: P
         </View>
 
         <View className="gap-1.5">
-          <Text className="text-[15px] font-semibold text-[#3d3428]">Mission — 你为什么想学？（可选）</Text>
-          <TextInput
-            className={thInputMultiline}
+          <Text className="text-[15px] font-semibold text-[#794f27]">Mission — 你为什么想学？（可选）</Text>
+          <Input
+            multiline
             value={why}
             onChangeText={setWhy}
             placeholder="例如：想能看懂谱子并弹吉他…"
-            multiline
-            textAlignVertical="top"
             editable={!loading}
           />
         </View>
 
         <View className="gap-1.5">
-          <Text className="text-[15px] font-semibold text-[#3d3428]">导入已有工作区 zip（可选）</Text>
+          <Text className="text-[15px] font-semibold text-[#794f27]">导入已有工作区 zip（可选）</Text>
           <Pressable onPress={() => void pickZip()} disabled={loading}>
             <Text className={`${thDesc} ${loading ? 'opacity-50' : ''}`}>
               {zipAsset?.name ? `已选：${zipAsset.name}（点击更换）` : '点击选择 zip 文件'}
@@ -147,6 +143,6 @@ export function NewWorkspaceModal({ visible, onClose, onCreated, navigation }: P
 
         {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
       </View>
-    </AppModal>
+    </Modal>
   );
 }

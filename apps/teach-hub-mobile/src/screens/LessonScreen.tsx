@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   lessonFilenameFromSlug,
@@ -12,7 +12,7 @@ import { HtmlLessonViewer } from '../components/HtmlLessonViewer';
 import { ProgressBadge } from '../components/ProgressBadge';
 import { useAuth } from '../auth/AuthContext';
 import type { RootStackParamList } from '../navigation';
-import { thDesc, thSecondaryBtn, thSecondaryBtnText } from '../theme';
+import { Button } from '../ui';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Lesson'>;
 
@@ -95,16 +95,13 @@ export function LessonScreen({ route, navigation }: Props) {
   };
 
   return (
-    <View className="flex-1 bg-[#faf9f7]">
+    <View className="flex-1 bg-[#f8f8f0]">
       <View className="shrink-0 gap-2 border-b border-[#e8e2d6] bg-white px-4 py-2.5">
         <View className="flex-row flex-wrap items-center gap-2">
-          <Pressable
-            className={thSecondaryBtn}
-            onPress={() => navigation.goBack()}
-          >
-            <Text className={thSecondaryBtnText}>← 工作区</Text>
-          </Pressable>
-          <Text className="min-w-0 flex-1 text-sm font-semibold text-[#3d3428]" numberOfLines={1}>
+          <Button type="default" size="small" onPress={() => navigation.goBack()}>
+            ← 工作区
+          </Button>
+          <Text className="min-w-0 flex-1 text-sm font-semibold text-[#794f27]" numberOfLines={1}>
             {currentIndex >= 0 ? `${String(lessons[currentIndex].order).padStart(4, '0')} · ` : ''}
             {displayTitle}
           </Text>
@@ -113,26 +110,26 @@ export function LessonScreen({ route, navigation }: Props) {
 
         <View className="flex-row flex-wrap gap-2">
           {prev ? (
-            <Pressable className={thSecondaryBtn} onPress={() => goLesson(prev)}>
-              <Text className={thSecondaryBtnText}>上一课</Text>
-            </Pressable>
+            <Button type="default" size="small" onPress={() => goLesson(prev)}>
+              上一课
+            </Button>
           ) : null}
           {next ? (
-            <Pressable className={thSecondaryBtn} onPress={() => goLesson(next)}>
-              <Text className={thSecondaryBtnText}>下一课</Text>
-            </Pressable>
+            <Button type="default" size="small" onPress={() => goLesson(next)}>
+              下一课
+            </Button>
           ) : null}
-          <Pressable
-            className={`rounded-lg px-3 py-2 ${marking || isCompleted ? 'bg-[#7a6f5c]' : 'bg-[#2c5282]'}`}
+          <Button
+            type="primary"
+            size="small"
             disabled={marking || isCompleted}
+            loading={marking}
             onPress={() => void handleMarkComplete()}
           >
-            <Text className="text-[13px] font-semibold text-white">
-              {isCompleted ? '已完成' : marking ? '保存中…' : '标记本章完成'}
-            </Text>
-          </Pressable>
+            {isCompleted ? '已完成' : '标记本章完成'}
+          </Button>
         </View>
-        {message ? <Text className="text-xs text-[#7a6f5c]">{message}</Text> : null}
+        {message ? <Text className="text-xs text-[#9f927d]">{message}</Text> : null}
       </View>
 
       <HtmlLessonViewer

@@ -1,55 +1,65 @@
-/** 与 packages/teach-hub-core/src/styles/tw.ts 对齐的移动端主题常量 */
+/** teach-hub-mobile 主题常量（对齐 animal-island-ui + teach-hub-core tw.ts） */
+
+import { ai } from './ui/tokens';
 
 export const thColors = {
-  bg: '#faf9f7',
-  text: '#3d3428',
-  textMuted: '#7a6f5c',
-  textSoft: '#6b5f4d',
-  link: '#2c5282',
-  accent: '#4299e1',
-  border: '#e8e2d6',
-  borderSoft: '#eee8dc',
-  panel: '#ffffff',
-  panelMuted: '#faf9f7',
-  featureIcon: '#e6f4f1',
-  featureIconText: '#2c7a7b',
-  danger: '#dc2626',
-  lessonDoneBorder: '#9ae6b4',
-  lessonDoneBg: '#f0fff4',
+  bg: ai.bg,
+  text: ai.text,
+  textMuted: ai.textSecondary,
+  textSoft: ai.textBody,
+  textBody: ai.textBody,
+  link: ai.primary,
+  accent: ai.primary,
+  border: ai.borderLight,
+  borderSoft: ai.borderLight,
+  panel: ai.bgPanel,
+  panelMuted: ai.bg,
+  featureIcon: ai.primaryBg,
+  featureIconText: ai.primaryActive,
+  danger: ai.error,
+  lessonDoneBorder: ai.lessonDoneBorder,
+  lessonDoneBg: ai.lessonDoneBg,
 } as const;
 
-export const thScreen = 'flex-1 bg-[#faf9f7]';
-export const thTitle = 'text-2xl font-bold text-[#3d3428]';
-export const thDesc = 'text-[15px] leading-relaxed text-[#7a6f5c]';
-export const thCard =
-  'rounded-xl border border-[#e8e2d6] bg-white px-[18px] py-4';
+export const thScreen = 'flex-1 bg-[#f8f8f0]';
+export const thTitle = 'text-2xl font-bold text-[#794f27]';
+export const thDesc = 'text-[15px] leading-relaxed text-[#9f927d]';
+export const thCard = 'rounded-[20px] bg-[#f7f3df] px-[18px] py-4';
 export const thCardPressable =
-  'mb-3 rounded-xl border border-[#e8e2d6] bg-white px-[18px] py-4 active:opacity-90';
-export const thPanel =
-  'rounded-xl border border-[#e8e2d6] bg-white px-[18px] py-4';
-export const thPrimaryBtn =
-  'rounded-lg bg-[#2c5282] px-4 py-2.5 active:opacity-90';
-export const thPrimaryBtnText = 'font-semibold text-white';
-export const thSecondaryBtn =
-  'rounded-lg border border-[#e8e2d6] bg-white px-3 py-2 active:opacity-90';
-export const thSecondaryBtnText = 'text-[13px] font-semibold text-[#3d3428]';
-export const thBtnSmall = 'rounded-md bg-[#2c5282] px-3 py-1.5 active:opacity-90';
-export const thBtnSmallText = 'text-[13px] font-semibold text-white';
-export const thBtnSmallSecondary =
-  'rounded-md border border-[#e8e2d6] bg-white px-3 py-1.5 active:opacity-90';
-export const thBtnSmallSecondaryText = 'text-[13px] font-semibold text-[#3d3428]';
-export const thBtnText = 'px-2 py-1.5 active:opacity-70';
-export const thBtnTextLabel = 'text-[13px] font-semibold text-[#7a6f5c]';
+  'mb-3 rounded-[20px] bg-[#f7f3df] px-[18px] py-4 active:opacity-90';
+export const thPanel = 'rounded-[20px] border border-[#e8e2d6] bg-white px-[18px] py-4';
 export const thTopbar =
-  'border-b border-[#eee8dc] bg-white/95 px-4 py-3';
-export const thPanelLink = 'text-sm text-[#2c5282]';
+  'border-b border-[#e8e2d6] bg-white/95 px-4 py-3';
+export const thPanelLink = 'text-sm text-[#19c8b9]';
 export const thChip =
-  'rounded-full border border-[#dbe4ef] bg-[#f0f4f8] px-3 py-1.5 active:opacity-90';
+  'rounded-full border border-[#b8e8df] bg-[#e6f9f6] px-3 py-1.5 active:opacity-90';
 export const thLessonItem =
-  'flex-row items-center justify-between gap-3 rounded-[10px] border border-[#e8e2d6] bg-[#faf9f7] px-4 py-3.5 active:opacity-90';
-export const thLessonItemDone =
-  'border-[#9ae6b4] bg-[#f0fff4]';
+  'flex-row items-center justify-between gap-3 rounded-[10px] border border-[#e8e2d6] bg-[#f8f8f0] px-4 py-3.5 active:opacity-90';
+export const thLessonItemDone = 'border-[#9ae6b4] bg-[#f0fff4]';
 export const thInput =
-  'rounded-lg border border-[#d4c9b5] bg-white px-3 py-2.5 text-[15px] text-[#3d3428]';
+  'rounded-[50px] border-[2.5px] border-[#c4b89e] bg-[#f7f3df] px-[18px] py-2.5 text-[15px] text-[#725d42]';
 export const thInputMultiline =
-  'min-h-[120px] rounded-lg border border-[#d4c9b5] bg-white px-3 py-2.5 text-[15px] text-[#3d3428]';
+  'min-h-[120px] rounded-2xl border-[2.5px] border-[#c4b89e] bg-[#f7f3df] px-[18px] py-2.5 text-[15px] text-[#725d42]';
+
+/** @deprecated 请使用 `<Button type="primary" />` */
+export const thPrimaryBtn =
+  'rounded-[50px] border-2 border-[#f8f8f0] bg-[#f8f8f0] px-5 py-2.5 active:opacity-90';
+/** @deprecated */
+export const thPrimaryBtnText = 'font-semibold text-[#794f27]';
+/** @deprecated 请使用 `<Button type="default" />` */
+export const thSecondaryBtn =
+  'rounded-[50px] border-2 border-[#aaa69d] bg-[#f8f8f0] px-4 py-2 active:opacity-90';
+/** @deprecated */
+export const thSecondaryBtnText = 'text-[13px] font-semibold text-[#794f27]';
+/** @deprecated */
+export const thBtnSmall = thPrimaryBtn;
+/** @deprecated */
+export const thBtnSmallText = 'text-[13px] font-semibold text-[#794f27]';
+/** @deprecated */
+export const thBtnSmallSecondary = thSecondaryBtn;
+/** @deprecated */
+export const thBtnSmallSecondaryText = thSecondaryBtnText;
+/** @deprecated */
+export const thBtnText = 'px-2 py-1.5 active:opacity-70';
+/** @deprecated */
+export const thBtnTextLabel = 'text-[13px] font-semibold text-[#9f927d]';

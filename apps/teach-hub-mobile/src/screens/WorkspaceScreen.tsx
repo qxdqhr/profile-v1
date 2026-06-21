@@ -1,12 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { FlatList, ScrollView, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
@@ -31,13 +24,8 @@ import { WorkspaceSettingsPanel } from '../components/WorkspaceSettingsPanel';
 import { WorkspaceTabs, type WorkspaceTab } from '../components/WorkspaceTabs';
 import { useAuth } from '../auth/AuthContext';
 import type { RootStackParamList } from '../navigation';
-import {
-  thCardPressable,
-  thDesc,
-  thPrimaryBtn,
-  thPrimaryBtnText,
-  thScreen,
-} from '../theme';
+import { Button, Card, Loading } from '../ui';
+import { thDesc, thScreen } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Workspace'>;
 
@@ -124,7 +112,7 @@ export function WorkspaceScreen({ route, navigation }: Props) {
 
   return (
     <View className={`${thScreen} p-4`}>
-      <Text className="text-xl font-bold text-[#3d3428]">{title}</Text>
+      <Text className="text-xl font-bold text-[#794f27]">{title}</Text>
       <Text className={`mb-3 mt-1 ${thDesc}`}>
         {doneCount}/{lessons.length} 课时已完成
         {records.length > 0 ? ` · ${records.length} 条学习记录` : ''}
@@ -133,13 +121,13 @@ export function WorkspaceScreen({ route, navigation }: Props) {
       <WorkspaceTabs active={tab} onChange={setTab} />
 
       {loading ? (
-        <ActivityIndicator className="flex-1" color="#2c5282" />
+        <Loading />
       ) : error ? (
         <View className="flex-1 items-center justify-center gap-3">
           <Text className="text-center text-red-600">{error}</Text>
-          <Pressable className={thPrimaryBtn} onPress={() => void load()}>
-            <Text className={thPrimaryBtnText}>重试</Text>
-          </Pressable>
+          <Button type="primary" onPress={() => void load()}>
+            重试
+          </Button>
         </View>
       ) : tab === 'overview' && workspace ? (
         <ScrollView contentContainerClassName="pb-8" showsVerticalScrollIndicator={false}>
@@ -182,8 +170,8 @@ export function WorkspaceScreen({ route, navigation }: Props) {
             </Text>
           }
           renderItem={({ item }) => (
-            <Pressable
-              className={thCardPressable}
+            <Card
+              className="mb-3"
               onPress={() =>
                 navigation.navigate('RecordDetail', {
                   workspaceId,
@@ -192,13 +180,13 @@ export function WorkspaceScreen({ route, navigation }: Props) {
                 })
               }
             >
-              <Text className="text-[15px] font-semibold text-[#3d3428]">
+              <Text className="text-[15px] font-semibold text-[#794f27]">
                 {String(item.order).padStart(4, '0')} · {item.title}
               </Text>
-              <Text className="mt-1.5 text-xs text-[#7a6f5c]" numberOfLines={2}>
+              <Text className="mt-1.5 text-xs text-[#9f927d]" numberOfLines={2}>
                 {recordSummary(item)}
               </Text>
-            </Pressable>
+            </Card>
           )}
         />
       ) : tab === 'settings' ? (
