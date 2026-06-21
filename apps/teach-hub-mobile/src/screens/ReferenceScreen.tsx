@@ -1,20 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { WebView } from 'react-native-webview';
 
+import { HtmlLessonViewer } from '../components/HtmlLessonViewer';
 import { useAuth } from '../auth/AuthContext';
 import type { RootStackParamList } from '../navigation';
-import { TEACH_HUB_API_BASE_URL } from '../config';
+import { thSecondaryBtn, thSecondaryBtnText } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Reference'>;
 
-export function ReferenceScreen({ route }: Props) {
+export function ReferenceScreen({ route, navigation }: Props) {
   const { workspaceId, slug, title } = route.params;
   const { teachHubApi } = useAuth();
   const [html, setHtml] = useState<string | null>(null);
@@ -46,28 +41,25 @@ export function ReferenceScreen({ route }: Props) {
   const displayTitle = title ?? `参考：${slug}`;
 
   return (
-    <View className="flex-1 bg-white">
-      <Text className="border-b border-slate-200 px-4 py-2.5 text-base font-semibold text-slate-900">
-        {displayTitle}
-      </Text>
-
-      {loading ? (
-        <ActivityIndicator className="flex-1" />
-      ) : error ? (
-        <View className="flex-1 items-center justify-center gap-3 p-6">
-          <Text className="text-center text-red-600">{error}</Text>
-          <Pressable className="rounded-lg bg-slate-900 px-4 py-2.5" onPress={() => void load()}>
-            <Text className="font-semibold text-white">重试</Text>
-          </Pressable>
-        </View>
-      ) : html ? (
-        <WebView
-          originWhitelist={['*']}
-          source={{ html, baseUrl: `${TEACH_HUB_API_BASE_URL}/` }}
-          className="flex-1"
-          sharedCookiesEnabled
-        />
-      ) : null}
+    <View className="flex-1 bg-[#faf9f7]">
+      <View className="shrink-0 flex-row items-center gap-2 border-b border-[#e8e2d6] bg-white px-4 py-2.5">
+        <Pressable
+          className={thSecondaryBtn}
+          onPress={() => navigation.goBack()}
+        >
+          <Text className={thSecondaryBtnText}>← 返回</Text>
+        </Pressable>
+        <Text className="flex-1 text-sm font-semibold text-[#3d3428]" numberOfLines={1}>
+          {displayTitle}
+        </Text>
+      </View>
+      <HtmlLessonViewer
+        html={html}
+        loading={loading}
+        error={error}
+        onRetry={() => void load()}
+        title={displayTitle}
+      />
     </View>
   );
 }

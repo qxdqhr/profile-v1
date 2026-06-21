@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { WebView } from 'react-native-webview';
 import {
   lessonFilenameFromSlug,
   lessonTitleFromSlug,
@@ -14,13 +8,15 @@ import {
   type TeachLessonProgress,
 } from '@profile/teach-hub-shared';
 
+import { HtmlLessonViewer } from '../components/HtmlLessonViewer';
 import { ProgressBadge } from '../components/ProgressBadge';
 import { useAuth } from '../auth/AuthContext';
 import type { RootStackParamList } from '../navigation';
-import { TEACH_HUB_API_BASE_URL } from '../config';
+import { thDesc, thSecondaryBtn, thSecondaryBtnText } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Lesson'>;
 
+/** 对齐 teach-hub-core LessonPage */
 export function LessonScreen({ route, navigation }: Props) {
   const { workspaceId, slug, title } = route.params;
   const { teachHubApi } = useAuth();
@@ -99,10 +95,16 @@ export function LessonScreen({ route, navigation }: Props) {
   };
 
   return (
-    <View className="flex-1 bg-white">
-      <View className="gap-2 border-b border-slate-200 px-4 py-2.5">
-        <View className="flex-row items-center justify-between gap-2">
-          <Text className="flex-1 text-[15px] font-semibold text-slate-900" numberOfLines={1}>
+    <View className="flex-1 bg-[#faf9f7]">
+      <View className="shrink-0 gap-2 border-b border-[#e8e2d6] bg-white px-4 py-2.5">
+        <View className="flex-row flex-wrap items-center gap-2">
+          <Pressable
+            className={thSecondaryBtn}
+            onPress={() => navigation.goBack()}
+          >
+            <Text className={thSecondaryBtnText}>← 工作区</Text>
+          </Pressable>
+          <Text className="min-w-0 flex-1 text-sm font-semibold text-[#3d3428]" numberOfLines={1}>
             {currentIndex >= 0 ? `${String(lessons[currentIndex].order).padStart(4, '0')} · ` : ''}
             {displayTitle}
           </Text>
@@ -110,54 +112,36 @@ export function LessonScreen({ route, navigation }: Props) {
         </View>
 
         <View className="flex-row flex-wrap gap-2">
+          {prev ? (
+            <Pressable className={thSecondaryBtn} onPress={() => goLesson(prev)}>
+              <Text className={thSecondaryBtnText}>上一课</Text>
+            </Pressable>
+          ) : null}
+          {next ? (
+            <Pressable className={thSecondaryBtn} onPress={() => goLesson(next)}>
+              <Text className={thSecondaryBtnText}>下一课</Text>
+            </Pressable>
+          ) : null}
           <Pressable
-            className={`rounded-lg border border-slate-300 bg-white px-3 py-2 ${!prev ? 'opacity-40' : ''}`}
-            disabled={!prev}
-            onPress={() => prev && goLesson(prev)}
-          >
-            <Text className={`text-[13px] font-semibold ${!prev ? 'text-slate-400' : 'text-slate-700'}`}>
-              上一课
-            </Text>
-          </Pressable>
-          <Pressable
-            className={`rounded-lg border border-slate-300 bg-white px-3 py-2 ${!next ? 'opacity-40' : ''}`}
-            disabled={!next}
-            onPress={() => next && goLesson(next)}
-          >
-            <Text className={`text-[13px] font-semibold ${!next ? 'text-slate-400' : 'text-slate-700'}`}>
-              下一课
-            </Text>
-          </Pressable>
-          <Pressable
-            className={`rounded-lg px-3 py-2 ${marking || isCompleted ? 'bg-slate-400' : 'bg-slate-900'}`}
+            className={`rounded-lg px-3 py-2 ${marking || isCompleted ? 'bg-[#7a6f5c]' : 'bg-[#2c5282]'}`}
             disabled={marking || isCompleted}
             onPress={() => void handleMarkComplete()}
           >
             <Text className="text-[13px] font-semibold text-white">
-              {isCompleted ? '已完成' : marking ? '保存中…' : '标记完成'}
+              {isCompleted ? '已完成' : marking ? '保存中…' : '标记本章完成'}
             </Text>
           </Pressable>
         </View>
-        {message ? <Text className="text-xs text-slate-500">{message}</Text> : null}
+        {message ? <Text className="text-xs text-[#7a6f5c]">{message}</Text> : null}
       </View>
 
-      {loading ? (
-        <ActivityIndicator className="flex-1" />
-      ) : error ? (
-        <View className="flex-1 items-center justify-center gap-3 p-6">
-          <Text className="text-center text-red-600">{error}</Text>
-          <Pressable className="rounded-lg bg-slate-900 px-4 py-2.5" onPress={() => void load()}>
-            <Text className="font-semibold text-white">重试</Text>
-          </Pressable>
-        </View>
-      ) : html ? (
-        <WebView
-          originWhitelist={['*']}
-          source={{ html, baseUrl: `${TEACH_HUB_API_BASE_URL}/` }}
-          className="flex-1"
-          sharedCookiesEnabled
-        />
-      ) : null}
+      <HtmlLessonViewer
+        html={html}
+        loading={loading}
+        error={error}
+        onRetry={() => void load()}
+        title={displayTitle}
+      />
     </View>
   );
 }

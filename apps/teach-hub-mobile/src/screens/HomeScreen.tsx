@@ -3,6 +3,7 @@ import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { TeachWorkspaceSummary } from '@profile/teach-hub-shared';
 
+import { ProgressBar } from '../components/ProgressBar';
 import { useAuth } from '../auth/AuthContext';
 import type { RootStackParamList } from '../navigation';
 import {
@@ -126,6 +127,14 @@ export function HomeScreen({ navigation }: Props) {
                   <Text className="mt-2 text-[14px] leading-snug text-[#6b5f4d]" numberOfLines={2}>
                     {item.missionSummary}
                   </Text>
+                ) : null}
+                {(item.lessonCount ?? 0) > 0 ? (
+                  <View className="mt-3 min-w-[140px] max-w-[200px]">
+                    <ProgressBar
+                      completed={item.completedLessonCount ?? 0}
+                      total={item.lessonCount ?? 0}
+                    />
+                  </View>
                 ) : null}
               </Pressable>
             );

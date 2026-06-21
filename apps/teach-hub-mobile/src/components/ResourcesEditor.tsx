@@ -16,6 +16,8 @@ import {
   type ResourcesFormData,
 } from '@profile/teach-hub-shared';
 
+import { thCard, thDesc, thInput, thPrimaryBtn, thPrimaryBtnText } from '../theme';
+
 type Props = {
   initial: ResourcesFormData;
   saving?: boolean;
@@ -71,44 +73,44 @@ export function ResourcesEditor({ initial, saving, onSave }: Props) {
           <View key={category} className="gap-2.5">
             <View className="flex-row justify-between gap-3">
               <View>
-                <Text className="text-[15px] font-bold text-slate-900">
+                <Text className="text-[15px] font-bold text-[#3d3428]">
                   {RESOURCE_CATEGORY_LABELS[category]}
                 </Text>
-                <Text className="mt-0.5 text-xs text-slate-500">
+                <Text className="mt-0.5 text-xs text-[#7a6f5c]">
                   {RESOURCE_CATEGORY_DESCRIPTIONS[category]}
                 </Text>
               </View>
               <Pressable
-                className="self-start rounded-md bg-slate-200 px-2.5 py-1.5"
+                className="self-start rounded-md bg-[#f0ebe3] px-2.5 py-1.5"
                 onPress={() => addEntry(category)}
               >
-                <Text className="text-xs font-semibold text-slate-700">+ 添加</Text>
+                <Text className="text-xs font-semibold text-[#6b5f4d]">+ 添加</Text>
               </Pressable>
             </View>
 
             {rows.length === 0 ? (
-              <Text className="text-sm text-slate-400">暂无条目</Text>
+              <Text className="text-sm text-[#7a6f5c]">暂无条目</Text>
             ) : (
               rows.map((entry) => (
                 <View
                   key={entry.id}
-                  className="gap-2 rounded-xl border border-slate-200 bg-white p-3"
+                  className={`gap-2 ${thCard}`}
                 >
                   <TextInput
-                    className="rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-sm"
+                    className={`${thInput} text-sm`}
                     value={entry.title}
                     onChangeText={(title) => updateEntry(entry.id, { title })}
                     placeholder="标题"
                   />
                   <TextInput
-                    className="rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-sm"
+                    className={`${thInput} text-sm`}
                     value={entry.url ?? ''}
                     onChangeText={(url) => updateEntry(entry.id, { url })}
                     placeholder="URL（可选）"
                     autoCapitalize="none"
                   />
                   <TextInput
-                    className="rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-sm"
+                    className={`${thInput} text-sm`}
                     value={entry.note ?? ''}
                     onChangeText={(note) => updateEntry(entry.id, { note })}
                     placeholder="备注（可选）"
@@ -137,7 +139,7 @@ export function ResourcesEditor({ initial, saving, onSave }: Props) {
       >
         <Text className="font-bold text-white">{saving ? '保存中…' : '保存资源'}</Text>
       </Pressable>
-      {message ? <Text className="text-center text-slate-500">{message}</Text> : null}
+      {message ? <Text className="text-center text-[#7a6f5c]">{message}</Text> : null}
     </ScrollView>
   );
 }

@@ -46,8 +46,8 @@ function RootNavigator() {
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Teach 学习工作区' }} />
           <Stack.Screen name="Workspace" component={WorkspaceScreen} options={{ title: '工作区' }} />
-          <Stack.Screen name="Lesson" component={LessonScreen} options={{ title: '课时' }} />
-          <Stack.Screen name="Reference" component={ReferenceScreen} options={{ title: '速查参考' }} />
+          <Stack.Screen name="Lesson" component={LessonScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Reference" component={ReferenceScreen} options={{ headerShown: false }} />
           <Stack.Screen name="RecordDetail" component={RecordDetailScreen} options={{ title: '学习记录' }} />
         </Stack.Navigator>
 

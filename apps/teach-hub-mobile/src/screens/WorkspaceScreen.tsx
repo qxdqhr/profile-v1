@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   FlatList,
   Pressable,
+  ScrollView,
   Text,
   View,
 } from 'react-native';
@@ -12,9 +13,6 @@ import {
   completedLessonCount,
   fetchLearningRecords,
   isMissionReady,
-  lessonTitleFromSlug,
-  listReferenceSlugs,
-  mergeLessonsWithProgress,
   parseMissionMarkdown,
   parseResourcesMarkdown,
   recordSummary,
@@ -26,11 +24,9 @@ import {
   type TeachWorkspace,
 } from '@profile/teach-hub-shared';
 
-import { GenerateLessonPanel } from '../components/GenerateLessonPanel';
 import { MissionEditor } from '../components/MissionEditor';
 import { ResourcesEditor } from '../components/ResourcesEditor';
-import { ProgressBadge } from '../components/ProgressBadge';
-import { ReferenceChips } from '../components/ReferenceChips';
+import { WorkspaceOverview } from '../components/WorkspaceOverview';
 import { WorkspaceTabs, type WorkspaceTab } from '../components/WorkspaceTabs';
 import { useAuth } from '../auth/AuthContext';
 import type { RootStackParamList } from '../navigation';
@@ -40,7 +36,6 @@ import {
   thPrimaryBtn,
   thPrimaryBtnText,
   thScreen,
-  thTitle,
 } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Workspace'>;
@@ -79,7 +74,11 @@ export function WorkspaceScreen({ route, navigation }: Props) {
       setProgress(detail.progress);
       setMission(parseMissionMarkdown(missionMd));
       setResources(parseResourcesMarkdown(resourcesMd));
-      setReferences(listReferenceSlugs(files));
+      setReferences(
+        files
+          .filter((f) => f.relativePath.startsWith('reference/') && f.relativePath.endsWith('.html'))
+          .map((f) => f.relativePath.replace(/^reference\//, '').replace(/\.html$/i, '')),
+      );
       setRecords(learningRecords);
     } catch (err) {
       setError(err instanceof Error ? err.message : '加载失败');
@@ -120,34 +119,11 @@ export function WorkspaceScreen({ route, navigation }: Props) {
     }
   };
 
-  const merged = mergeLessonsWithProgress(lessons, progress);
   const doneCount = completedLessonCount(progress);
-
-  const listHeader = (
-    <>
-      <GenerateLessonPanel
-        workspaceId={workspaceId}
-        lessons={lessons}
-        progress={progress}
-        missionReady={missionReady}
-        onGenerated={() => void load()}
-      />
-      <ReferenceChips
-        slugs={references}
-        onPress={(slug) =>
-          navigation.navigate('Reference', {
-            workspaceId,
-            slug,
-            title: `参考：${slug}`,
-          })
-        }
-      />
-    </>
-  );
 
   return (
     <View className={`${thScreen} p-4`}>
-      <Text className={thTitle}>{title}</Text>
+      <Text className="text-xl font-bold text-[#3d3428]">{title}</Text>
       <Text className={`mb-3 mt-1 ${thDesc}`}>
         {doneCount}/{lessons.length} 课时已完成
         {records.length > 0 ? ` · ${records.length} 条学习记录` : ''}
@@ -164,6 +140,20 @@ export function WorkspaceScreen({ route, navigation }: Props) {
             <Text className={thPrimaryBtnText}>重试</Text>
           </Pressable>
         </View>
+      ) : tab === 'overview' && workspace ? (
+        <ScrollView contentContainerClassName="pb-8" showsVerticalScrollIndicator={false}>
+          <WorkspaceOverview
+            workspaceId={workspaceId}
+            workspace={workspace}
+            lessons={lessons}
+            progress={progress}
+            references={references}
+            missionReady={missionReady}
+            onGenerated={() => void load()}
+            onOpenMissionTab={() => setTab('mission')}
+            navigation={navigation}
+          />
+        </ScrollView>
       ) : tab === 'mission' ? (
         mission ? (
           <MissionEditor
@@ -209,35 +199,7 @@ export function WorkspaceScreen({ route, navigation }: Props) {
             </Pressable>
           )}
         />
-      ) : (
-        <FlatList
-          data={merged}
-          keyExtractor={(item) => item.lesson.slug}
-          ListHeaderComponent={listHeader}
-          ListEmptyComponent={<Text className={`mt-12 text-center ${thDesc}`}>暂无课时</Text>}
-          renderItem={({ item }) => (
-            <Pressable
-              className={thCardPressable}
-              onPress={() =>
-                navigation.navigate('Lesson', {
-                  workspaceId,
-                  slug: item.lesson.slug,
-                  title: item.lesson.title ?? lessonTitleFromSlug(item.lesson.slug),
-                })
-              }
-            >
-              <View className="flex-row items-center justify-between gap-2">
-                <Text className="flex-1 text-[15px] font-semibold text-[#3d3428]">
-                  {String(item.lesson.order).padStart(4, '0')} ·{' '}
-                  {item.lesson.title ?? lessonTitleFromSlug(item.lesson.slug)}
-                </Text>
-                <ProgressBadge status={item.progress?.status} />
-              </View>
-              <Text className="mt-1.5 text-xs text-[#7a6f5c]">{item.lesson.slug}</Text>
-            </Pressable>
-          )}
-        />
-      )}
+      ) : null}
     </View>
   );
 }

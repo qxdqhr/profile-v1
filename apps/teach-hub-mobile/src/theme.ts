@@ -14,6 +14,8 @@ export const thColors = {
   featureIcon: '#e6f4f1',
   featureIconText: '#2c7a7b',
   danger: '#dc2626',
+  lessonDoneBorder: '#9ae6b4',
+  lessonDoneBg: '#f0fff4',
 } as const;
 
 export const thScreen = 'flex-1 bg-[#faf9f7]';
@@ -23,11 +25,24 @@ export const thCard =
   'rounded-xl border border-[#e8e2d6] bg-white px-[18px] py-4';
 export const thCardPressable =
   'mb-3 rounded-xl border border-[#e8e2d6] bg-white px-[18px] py-4 active:opacity-90';
+export const thPanel =
+  'rounded-xl border border-[#e8e2d6] bg-white px-[18px] py-4';
 export const thPrimaryBtn =
   'rounded-lg bg-[#2c5282] px-4 py-2.5 active:opacity-90';
 export const thPrimaryBtnText = 'font-semibold text-white';
 export const thSecondaryBtn =
-  'rounded-lg border border-[#e8e2d6] bg-white px-4 py-2.5 active:opacity-90';
-export const thSecondaryBtnText = 'font-semibold text-[#2c5282]';
+  'rounded-lg border border-[#e8e2d6] bg-white px-3 py-2 active:opacity-90';
+export const thSecondaryBtnText = 'text-[13px] font-semibold text-[#3d3428]';
 export const thTopbar =
   'border-b border-[#eee8dc] bg-white/95 px-4 py-3';
+export const thPanelLink = 'text-sm text-[#2c5282]';
+export const thChip =
+  'rounded-full border border-[#dbe4ef] bg-[#f0f4f8] px-3 py-1.5 active:opacity-90';
+export const thLessonItem =
+  'flex-row items-center justify-between gap-3 rounded-[10px] border border-[#e8e2d6] bg-[#faf9f7] px-4 py-3.5 active:opacity-90';
+export const thLessonItemDone =
+  'border-[#9ae6b4] bg-[#f0fff4]';
+export const thInput =
+  'rounded-lg border border-[#d4c9b5] bg-white px-3 py-2.5 text-[15px] text-[#3d3428]';
+export const thInputMultiline =
+  'min-h-[120px] rounded-lg border border-[#d4c9b5] bg-white px-3 py-2.5 text-[15px] text-[#3d3428]';

@@ -16,6 +16,15 @@ import {
 
 import { useAuth } from '../auth/AuthContext';
 import type { RootStackParamList } from '../navigation';
+import {
+  thCard,
+  thDesc,
+  thInput,
+  thInputMultiline,
+  thPrimaryBtn,
+  thPrimaryBtnText,
+  thScreen,
+} from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'RecordDetail'>;
 
@@ -74,22 +83,22 @@ export function RecordDetailScreen({ route, navigation }: Props) {
   };
 
   return (
-    <View className="flex-1 bg-slate-50">
-      <View className="gap-2 border-b border-slate-200 bg-white p-4">
+    <View className={thScreen}>
+      <View className="gap-2 border-b border-[#e8e2d6] bg-white p-4">
         {editing && record ? (
           <TextInput
-            className="rounded-lg border border-slate-300 p-2.5 text-lg font-bold text-slate-900"
+            className={`${thInput} text-lg font-bold`}
             value={record.title}
             onChangeText={(value) => setRecord({ ...record, title: value })}
           />
         ) : (
-          <Text className="text-lg font-bold text-slate-900">{record?.title ?? title}</Text>
+          <Text className="text-lg font-bold text-[#3d3428]">{record?.title ?? title}</Text>
         )}
         <View className="flex-row gap-4">
           {editing ? (
             <>
               <Pressable onPress={() => void handleSave()} disabled={saving}>
-                <Text className="font-bold text-blue-600">{saving ? '保存中…' : '保存'}</Text>
+                <Text className="font-bold text-[#2c5282]">{saving ? '保存中…' : '保存'}</Text>
               </Pressable>
               <Pressable
                 onPress={() => {
@@ -97,52 +106,49 @@ export function RecordDetailScreen({ route, navigation }: Props) {
                   void load();
                 }}
               >
-                <Text className="font-semibold text-slate-500">取消</Text>
+                <Text className="font-semibold text-[#7a6f5c]">取消</Text>
               </Pressable>
             </>
           ) : (
             <Pressable onPress={() => setEditing(true)}>
-              <Text className="font-bold text-blue-600">编辑</Text>
+              <Text className="font-bold text-[#2c5282]">编辑</Text>
             </Pressable>
           )}
         </View>
       </View>
 
       {loading ? (
-        <ActivityIndicator className="flex-1" />
+        <ActivityIndicator className="flex-1" color="#2c5282" />
       ) : error ? (
         <View className="flex-1 items-center justify-center gap-3 p-6">
           <Text className="text-center text-red-600">{error}</Text>
-          <Pressable className="rounded-lg bg-slate-900 px-4 py-2.5" onPress={() => void load()}>
-            <Text className="font-semibold text-white">重试</Text>
+          <Pressable className={thPrimaryBtn} onPress={() => void load()}>
+            <Text className={thPrimaryBtnText}>重试</Text>
           </Pressable>
         </View>
       ) : record ? (
         <ScrollView contentContainerClassName="gap-4 p-4 pb-8">
           {record.sections.length === 0 ? (
-            <Text className="mt-12 text-center text-slate-500">暂无内容</Text>
+            <Text className={`mt-12 text-center ${thDesc}`}>暂无内容</Text>
           ) : (
             record.sections.map((section, index) => (
-              <View
-                key={`${section.heading}-${index}`}
-                className="gap-2 rounded-xl border border-slate-200 bg-white p-3.5"
-              >
-                <Text className="text-sm font-bold text-slate-500">{section.heading}</Text>
+              <View key={`${section.heading}-${index}`} className={`gap-2 ${thCard}`}>
+                <Text className="text-sm font-bold text-[#7a6f5c]">{section.heading}</Text>
                 {editing ? (
                   <TextInput
-                    className="min-h-[120px] rounded-lg border border-slate-300 bg-white p-2.5 text-[15px] leading-[22px]"
+                    className={thInputMultiline}
                     multiline
                     value={section.content}
                     onChangeText={(content) => updateSection(index, content)}
                     textAlignVertical="top"
                   />
                 ) : (
-                  <Text className="text-[15px] leading-[22px] text-slate-900">{section.content}</Text>
+                  <Text className="text-[15px] leading-[22px] text-[#3d3428]">{section.content}</Text>
                 )}
               </View>
             ))
           )}
-          {message ? <Text className="text-center text-slate-500">{message}</Text> : null}
+          {message ? <Text className={`text-center ${thDesc}`}>{message}</Text> : null}
         </ScrollView>
       ) : null}
     </View>

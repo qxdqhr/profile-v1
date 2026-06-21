@@ -16,6 +16,8 @@ type Props = {
   progress: TeachLessonProgress[];
   missionReady: boolean;
   onGenerated: () => void;
+  /** 嵌入概览面板时不额外加外边距 */
+  inline?: boolean;
 };
 
 export function GenerateLessonPanel({
@@ -24,6 +26,7 @@ export function GenerateLessonPanel({
   progress,
   missionReady,
   onGenerated,
+  inline = false,
 }: Props) {
   const { teachHubApi } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -56,19 +59,19 @@ export function GenerateLessonPanel({
   };
 
   return (
-    <View className="mb-3 gap-1.5">
+    <View className={inline ? 'min-w-[140px] flex-1' : 'mb-3 gap-1.5'}>
       <Pressable
-        className={`items-center rounded-xl py-3 ${!trigger || loading ? 'bg-slate-400' : 'bg-slate-900'}`}
+        className={`items-center rounded-lg px-4 py-2.5 ${!trigger || loading ? 'bg-[#7a6f5c]' : 'bg-[#2c5282] active:opacity-90'}`}
         disabled={!trigger || loading}
         onPress={() => void handlePress()}
       >
         {loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text className="text-sm font-bold text-white">{label}</Text>
+          <Text className="text-sm font-semibold text-white">{label}</Text>
         )}
       </Pressable>
-      {error ? <Text className="text-xs text-red-600">{error}</Text> : null}
+      {error ? <Text className="mt-1 text-xs text-red-600">{error}</Text> : null}
     </View>
   );
 }
