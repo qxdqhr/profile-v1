@@ -274,8 +274,9 @@ jobs:
         env:
           FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
           FEISHU_SIGN_SECRET: ${{ secrets.FEISHU_SIGN_SECRET }}
-          CI_NOTIFY_STATUS: ${{ needs.build.result == 'success' && (needs.deploy-web.result == 'success' || needs.deploy-web.result == 'skipped') && 'success' || needs.build.result }}
+          CI_NOTIFY_STATUS: ${{ needs.build.result == 'success' && (needs.deploy-web.result == 'success' || needs.deploy-web.result == 'skipped') && (needs.build-teach-hub-mobile.result == 'success' || needs.build-teach-hub-mobile.result == 'skipped') && 'success' || 'failure' }}
           CI_IMAGE_TAG: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.build.result == 'success' && format('web:{0} calendar:{0} teach-hub:{0}', github.run_number) || '' }}
+          CI_TEACH_HUB_APK_BUILD_RESULT: ${{ needs.build-teach-hub-mobile.result }}
           CI_TEACH_HUB_APK_RELEASE_URL: ${{ needs.build-teach-hub-mobile.result == 'success' && needs.build-teach-hub-mobile.outputs.release_url || '' }}
           CI_TEACH_HUB_APK_DOWNLOAD_URL: ${{ needs.build-teach-hub-mobile.result == 'success' && needs.build-teach-hub-mobile.outputs.apk_download_url || '' }}
           GITHUB_TOKEN: ${{ github.token }}

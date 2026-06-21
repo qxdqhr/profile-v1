@@ -115,6 +115,16 @@ function firstCommitLine(message) {
   return message.split(/\r?\n/)[0]?.trim() || undefined;
 }
 
+function readApkBuildResult() {
+  return readOptionalString('CI_TEACH_HUB_APK_BUILD_RESULT');
+}
+
+function formatApkBuildResult(result) {
+  if (!result || result === 'skipped') return undefined;
+  if (result === 'success') return '✅ 成功';
+  return '❌ 失败';
+}
+
 function buildCiFeishuMessage(context) {
   const isSuccess = context.status === 'success';
   const title = isSuccess ? '【CI 构建成功】' : '【CI 构建失败】';
@@ -134,6 +144,7 @@ function buildCiFeishuMessage(context) {
     `触发：${context.eventName} · ${context.refName}`,
     `Run：#${context.runNumber}`,
     `提交：${shortSha}${context.commitMessage ? ` · ${context.commitMessage}` : ''}`,
+    `提交页面：${commitUrl}`,
     `操作者：${context.actor}`,
     `打包开始：${formatDateTime(context.startedAt)}`,
     `打包完成：${formatDateTime(context.finishedAt)}`,
@@ -145,6 +156,11 @@ function buildCiFeishuMessage(context) {
 
   if (context.imageTag) {
     lines.push(`镜像标签：${context.imageTag}`);
+  }
+
+  const apkBuildText = formatApkBuildResult(context.teachHubApkBuildResult);
+  if (apkBuildText) {
+    lines.push(`TeachHub Android APK：${apkBuildText}`);
   }
 
   if (context.teachHubApkReleaseUrl) {
@@ -167,6 +183,9 @@ function buildCiFeishuMessage(context) {
 
   if (!isSuccess) {
     lines.push('', '请打开 Actions 日志查看失败步骤。');
+    if (context.teachHubApkBuildResult === 'failure') {
+      lines.push('TeachHub Android APK 打包失败，请检查 build-teach-hub-mobile 任务日志。');
+    }
   }
 
   const content = lines.filter(Boolean).map((line) => [{ tag: 'text', text: line }]);
@@ -337,6 +356,7 @@ async function collectCiContext() {
     changeSummary,
     commitCount,
     imageTag: readOptionalString('CI_IMAGE_TAG'),
+    teachHubApkBuildResult: readApkBuildResult(),
     teachHubApkReleaseUrl: readOptionalString('CI_TEACH_HUB_APK_RELEASE_URL'),
     teachHubApkDownloadUrl: readOptionalString('CI_TEACH_HUB_APK_DOWNLOAD_URL'),
   };
