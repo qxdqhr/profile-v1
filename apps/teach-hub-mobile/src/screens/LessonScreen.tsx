@@ -66,6 +66,8 @@ export function LessonScreen({ route, navigation }: Props) {
   const currentProgress = progress.find((p) => p.lessonSlug === slug);
   const isCompleted = currentProgress?.status === 'completed';
   const displayTitle = title ?? lessonTitleFromSlug(slug);
+  const lessonFilePath = `lessons/${lessonFilenameFromSlug(slug)}`;
+  const documentBaseUrl = teachHubApi.getWorkspaceFileUrl(workspaceId, lessonFilePath);
 
   const handleMarkComplete = async () => {
     setMarking(true);
@@ -95,7 +97,7 @@ export function LessonScreen({ route, navigation }: Props) {
   };
 
   return (
-    <View className="flex-1 bg-[#f8f8f0]">
+    <View style={{ flex: 1, backgroundColor: '#f8f8f0' }}>
       <View className="shrink-0 gap-2 border-b border-[#e8e2d6] bg-white px-4 py-2.5">
         <View className="flex-row flex-wrap items-center gap-2">
           <Button type="default" size="small" onPress={() => navigation.goBack()}>
@@ -134,6 +136,7 @@ export function LessonScreen({ route, navigation }: Props) {
 
       <HtmlLessonViewer
         html={html}
+        documentBaseUrl={documentBaseUrl}
         loading={loading}
         error={error}
         onRetry={() => void load()}

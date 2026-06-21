@@ -39,9 +39,14 @@ export function ReferenceScreen({ route, navigation }: Props) {
   }, [load]);
 
   const displayTitle = title ?? `参考：${slug}`;
+  const referenceFilename = slug.endsWith('.html') ? slug : `${slug}.html`;
+  const documentBaseUrl = teachHubApi.getWorkspaceFileUrl(
+    workspaceId,
+    `reference/${referenceFilename}`,
+  );
 
   return (
-    <View className="flex-1 bg-[#f8f8f0]">
+    <View style={{ flex: 1, backgroundColor: '#f8f8f0' }}>
       <View className="shrink-0 flex-row items-center gap-2 border-b border-[#e8e2d6] bg-white px-4 py-2.5">
         <Button type="default" size="small" onPress={() => navigation.goBack()}>
           ← 返回
@@ -52,6 +57,7 @@ export function ReferenceScreen({ route, navigation }: Props) {
       </View>
       <HtmlLessonViewer
         html={html}
+        documentBaseUrl={documentBaseUrl}
         loading={loading}
         error={error}
         onRetry={() => void load()}
