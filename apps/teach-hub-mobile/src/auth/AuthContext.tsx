@@ -96,23 +96,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     async function bootstrap() {
-      const stored = await readStoredCookieHeader();
-      if (cancelled) return;
+      try {
+        const stored = await readStoredCookieHeader();
+        if (cancelled) return;
 
-      const synced = await syncNativeCookieHeader();
-      const header = synced ?? stored;
-      if (header) setCookieHeaderState(header);
+        const synced = await syncNativeCookieHeader();
+        const header = synced ?? stored;
+        if (header) setCookieHeaderState(header);
 
-      const sessionUser = await fetchSession(header);
-      if (cancelled) return;
+        const sessionUser = await fetchSession(header);
+        if (cancelled) return;
 
-      if (header && !sessionUser) {
-        await clearAuthCookies();
-        setCookieHeaderState(null);
+        if (header && !sessionUser) {
+          await clearAuthCookies();
+          setCookieHeaderState(null);
+        }
+
+        setUser(sessionUser);
+      } catch (error) {
+        console.warn('[Auth] bootstrap failed', error);
+        setUser(null);
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
-
-      setUser(sessionUser);
-      setIsLoading(false);
     }
 
     void bootstrap();
