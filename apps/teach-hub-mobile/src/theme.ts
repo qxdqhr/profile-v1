@@ -33,6 +33,13 @@ export const thPrimaryBtnText = 'font-semibold text-white';
 export const thSecondaryBtn =
   'rounded-lg border border-[#e8e2d6] bg-white px-3 py-2 active:opacity-90';
 export const thSecondaryBtnText = 'text-[13px] font-semibold text-[#3d3428]';
+export const thBtnSmall = 'rounded-md bg-[#2c5282] px-3 py-1.5 active:opacity-90';
+export const thBtnSmallText = 'text-[13px] font-semibold text-white';
+export const thBtnSmallSecondary =
+  'rounded-md border border-[#e8e2d6] bg-white px-3 py-1.5 active:opacity-90';
+export const thBtnSmallSecondaryText = 'text-[13px] font-semibold text-[#3d3428]';
+export const thBtnText = 'px-2 py-1.5 active:opacity-70';
+export const thBtnTextLabel = 'text-[13px] font-semibold text-[#7a6f5c]';
 export const thTopbar =
   'border-b border-[#eee8dc] bg-white/95 px-4 py-3';
 export const thPanelLink = 'text-sm text-[#2c5282]';

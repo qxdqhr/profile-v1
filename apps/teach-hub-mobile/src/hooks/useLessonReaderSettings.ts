@@ -50,6 +50,16 @@ export function isVerticalReaderPosition(position: LessonReaderBarPosition): boo
   return position === 'left' || position === 'right';
 }
 
+export const LESSON_READER_POSITION_OPTIONS: Array<{
+  value: LessonReaderBarPosition;
+  label: string;
+}> = [
+  { value: 'top', label: '顶部（横向）' },
+  { value: 'bottom', label: '底部（横向）' },
+  { value: 'left', label: '左侧（竖向）' },
+  { value: 'right', label: '右侧（竖向）' },
+];
+
 export function useLessonReaderSettings() {
   const [settings, setSettings] = useState<LessonReaderSettings>(DEFAULT_SETTINGS);
 

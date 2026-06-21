@@ -1,6 +1,6 @@
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
-export type WorkspaceTab = 'overview' | 'mission' | 'resources' | 'records';
+export type WorkspaceTab = 'overview' | 'mission' | 'resources' | 'records' | 'settings';
 
 type Props = {
   active: WorkspaceTab;
@@ -10,8 +10,9 @@ type Props = {
 const TABS: Array<{ id: WorkspaceTab; label: string }> = [
   { id: 'overview', label: '概览' },
   { id: 'mission', label: 'Mission' },
+  { id: 'records', label: '学习记录' },
   { id: 'resources', label: '资源' },
-  { id: 'records', label: '记录' },
+  { id: 'settings', label: '设置' },
 ];
 
 export function WorkspaceTabs({ active, onChange }: Props) {

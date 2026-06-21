@@ -27,6 +27,7 @@ import {
 import { MissionEditor } from '../components/MissionEditor';
 import { ResourcesEditor } from '../components/ResourcesEditor';
 import { WorkspaceOverview } from '../components/WorkspaceOverview';
+import { WorkspaceSettingsPanel } from '../components/WorkspaceSettingsPanel';
 import { WorkspaceTabs, type WorkspaceTab } from '../components/WorkspaceTabs';
 import { useAuth } from '../auth/AuthContext';
 import type { RootStackParamList } from '../navigation';
@@ -151,6 +152,7 @@ export function WorkspaceScreen({ route, navigation }: Props) {
             missionReady={missionReady}
             onGenerated={() => void load()}
             onOpenMissionTab={() => setTab('mission')}
+            onOpenSettingsTab={() => setTab('settings')}
             navigation={navigation}
           />
         </ScrollView>
@@ -199,6 +201,8 @@ export function WorkspaceScreen({ route, navigation }: Props) {
             </Pressable>
           )}
         />
+      ) : tab === 'settings' ? (
+        <WorkspaceSettingsPanel workspaceId={workspaceId} navigation={navigation} />
       ) : null}
     </View>
   );

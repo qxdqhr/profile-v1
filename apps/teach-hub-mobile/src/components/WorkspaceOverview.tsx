@@ -35,6 +35,7 @@ type Props = {
   missionReady: boolean;
   onGenerated: () => void;
   onOpenMissionTab: () => void;
+  onOpenSettingsTab: () => void;
   navigation: Nav;
 };
 
@@ -48,6 +49,7 @@ export function WorkspaceOverview({
   missionReady,
   onGenerated,
   onOpenMissionTab,
+  onOpenSettingsTab,
   navigation,
 }: Props) {
   const merged = mergeLessonsWithProgress(lessons, progress);
@@ -177,6 +179,18 @@ export function WorkspaceOverview({
           </View>
         </View>
       ) : null}
+
+      <View className={thPanel}>
+        <View className="flex-row items-center justify-between gap-3">
+          <Text className="text-[15px] font-bold text-[#5c4f3a]">阅读与导入</Text>
+          <Pressable onPress={onOpenSettingsTab}>
+            <Text className={thPanelLink}>设置 →</Text>
+          </Pressable>
+        </View>
+        <Text className={`mt-2 ${thDesc}`}>
+          阅读进度条位置、资源自动同步、zip 导入与删除工作区。
+        </Text>
+      </View>
     </View>
   );
 }
