@@ -11,7 +11,7 @@
 | 项 | 约定 |
 |----|------|
 | 框架 | Next.js（App Router，主站在 `apps/web/src/app`） |
-| Monorepo | pnpm workspace：`apps/web`（`@profile/web`）、`packages/*`（`@profile/config/auth/db/ui`）；详见 `docs/monorepo-migration/` |
+| Monorepo | pnpm workspace：`apps/*` + `packages/*`；详见 `docs/monorepo-migration/`、`apps/README.md` |
 | 样式 | Tailwind CSS；预设 `@profile/ui/tailwind.preset` |
 | 数据层 | Drizzle ORM + PostgreSQL（`@profile/db`，迁移目录 `drizzle/` 在仓库根） |
 | 包管理 | **pnpm**；开发 `pnpm dev` = `pnpm --filter @profile/web dev` |
@@ -36,7 +36,7 @@
 | `(utility)/` | 工具、配置页、无 Phaser 的实验功能 | `/testField/qrCode`、`/testField/ideaList` |
 | `(sa2kit)/` | Phaser 小游戏、MMD/音视频相关实验 | `/testField/suikaGame` |
 | `(game)/` | 另一类游戏/互动实验 | `/testField/mikutap` |
-| `(cyhj)/` | 业务向模块（如画集） | `/testField/ShowMasterPieces` |
+| `(cyhj)/` | 业务向模块（legacy 画集入口） | `/testField/ShowMasterPieces` → 302 至 `/showmasterpiece` |
 
 **选择建议**
 
@@ -57,9 +57,9 @@ export default function XxxRoute() {
 }
 ```
 
-需要模块级副作用（如初始化）时，优先在 **layout** 统一 `import '@/modules/.../init'`（ShowMasterPieces 已采用）；薄 `page.tsx` 仅 re-export 组件。
+需要模块级副作用（如初始化）时，优先在 **layout** 统一 `import '@/modules/.../init'`；薄 `page.tsx` 仅 re-export 组件。
 
-ShowMasterpiece 已自 sa2kit 迁入 `src/modules/showmasterpiece/`，见 `MIGRATION_FROM_SA2KIT.md`。
+**已独立为子应用**（业务在 `packages/*-core`，Web 壳在 `apps/*`）：calendar、teach-hub、showmasterpiece。主站 `apps/web/src/modules/<name>/` 仅保留 **薄 re-export 或重定向**，勿再新增大段业务逻辑。
 
 ### 2.4 API 路由与模块代码的对应关系
 
@@ -135,3 +135,46 @@ ShowMasterpiece 已自 sa2kit 迁入 `src/modules/showmasterpiece/`，见 `MIGRA
 - 约定「API 一律从模块 re-export」的路径命名变化
 - `ExperimentItem` 类型或 `category` 枚举扩展
 - 新的「标准参考模块」取代 `ideaList` 作为模板
+- 新增/变更 `apps/*` 子应用、网关路由、RN 客户端或 CI 打包脚本
+
+---
+
+## 7. Monorepo 子应用（方案 B）
+
+### 7.1 应用与端口
+
+| 应用 | 目录 | 包名 | dev 端口 | 网关 basePath |
+|------|------|------|----------|---------------|
+| 主站 | `apps/web` | `@profile/web` | 3000 | `/` |
+| Calendar | `apps/calendar` | `@profile/calendar` | 3001 | `/calendar` |
+| TeachHub | `apps/teach-hub` | `@profile/teach-hub` | 3002 | `/teach-hub` |
+| ShowMasterpiece | `apps/showmasterpiece` | `@profile/showmasterpiece` | 3003 | `/showmasterpiece` |
+| Calendar Mobile | `apps/calendar-mobile` | `@profile/calendar-mobile` | Expo | — |
+| TeachHub Mobile | `apps/teach-hub-mobile` | `@profile/teach-hub-mobile` | Expo | — |
+
+### 7.2 共享包
+
+| 包 | 用途 |
+|----|------|
+| `@profile/config` / `@profile/auth` / `@profile/db` / `@profile/ui` | 配置、鉴权、数据库、UI 预设 |
+| `@profile/calendar-core` | 日历领域（Web API 实现） |
+| `@profile/calendar-shared` | 日历 RN 类型与 API 客户端 |
+| `@profile/teach-hub-core` / `@profile/teach-hub-shared` | TeachHub 领域与跨端 |
+| `@profile/showmasterpiece-core` | ShowMasterpiece 全量业务 |
+
+### 7.3 子应用约定
+
+- 页面：`apps/<app>/src/app/**/page.tsx` 薄封装，UI 从 `@profile/<app>-core` 导入。
+- API：`apps/<app>/src/app/api/**/route.ts` re-export core 内 handlers；对外路径仍为 `/api/<app>/...`（经 nginx 反代）。
+- Auth：子应用 **不** 单独登录；session 由 web `/api/auth/*` 共享（同域 cookie）。
+- 主站兼容：legacy 实验田路径可 302/301 至子应用 URL（如 ShowMasterPieces → `/showmasterpiece`）。
+
+### 7.4 打包与 CI
+
+根脚本：`pnpm package:calendar` / `package:teach-hub` / `package:showmasterpiece`（见 `scripts/*-docker-package.sh`）。
+
+- Docker 镜像：`qhr-profile-{web,calendar,teach-hub,showmasterpiece}:TAG`
+- CI：`.github/workflows/docker-build-push.yml`（matrix 四应用）
+- RN：`calendar-mobile-v*` tag 触发 calendar-mobile release workflow
+
+部署细节：`deploy/MIGRATION-RUNBOOK.md`、`docs/monorepo-migration/deploy.md`。

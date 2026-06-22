@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        app: [web, calendar, teach-hub]
+        app: [web, calendar, teach-hub, showmasterpiece]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

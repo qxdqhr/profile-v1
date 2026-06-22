@@ -24,10 +24,12 @@ check_http "GET /" "${BASE}/" "200"
 check_http "GET /api/auth/get-session" "${BASE}/api/auth/get-session" "200"
 check_http "GET /calendar/" "${BASE}/calendar/" "200"
 check_http "GET /teach-hub/" "${BASE}/teach-hub/" "200"
+check_http "GET /showmasterpiece/" "${BASE}/showmasterpiece/" "200"
 # 未登录应 401；404 表示 nginx basePath 反代未对齐
 check_http "GET /api/calendar/events/" \
   "${BASE}/api/calendar/events/?startDate=2026-01-01&endDate=2026-12-31" "401"
 check_http "GET /api/teach-hub/workspaces/" "${BASE}/api/teach-hub/workspaces/" "401"
+check_http "GET /api/showmasterpiece/collections/" "${BASE}/api/showmasterpiece/collections/" "401"
 
 if [ "$fail" -ne 0 ]; then
   echo "ERROR: 网关冒烟测试失败。请检查 nginx/profile-platform.conf 是否已同步并重载。" >&2

@@ -1,7 +1,7 @@
 # profile-v1 → Monorepo 子应用迁移（方案 B）
 
-> **目标**：将 **calendar**、**teachHub** 从单体 `profile-v1` 拆为可独立构建、可独立部署的 Next 应用，并为最终 **方案 C**（完全脱离 profile、独立域名/独立运维）预留路径。  
-> **当前阶段**：方案 B — pnpm workspace + 多 `apps/*` + 共享 `packages/*`，仍可与主站同仓、同库、同 Auth。
+> **目标**：将 **calendar**、**teachHub**、**showmasterpiece** 等从单体 `profile-v1` 拆为可独立构建、可独立部署的 Next 应用，并为 **方案 C**（完全脱离 profile、独立域名/独立运维）预留路径。  
+> **当前阶段**：方案 B — pnpm workspace + 多 `apps/*` + 共享 `packages/*`，仍可与主站同仓、同库、同 Auth。Calendar / TeachHub 已有 Expo RN 客户端。
 
 ## 文档索引
 
@@ -31,32 +31,39 @@ profile-v1/                          # 仓库根（可日后改名为 profile-pl
 ├── apps/
 │   ├── web/                         # 原 profile 主站（个人页、实验田等）
 │   ├── calendar/                    # 日历子应用
-│   └── teach-hub/                   # teachHub 子应用
+│   ├── calendar-mobile/             # 日历 RN（Expo）
+│   ├── teach-hub/                   # teachHub 子应用
+│   ├── teach-hub-mobile/            # teachHub RN
+│   ├── teach-hub-desktop/           # teachHub Electron 脚手架
+│   └── showmasterpiece/             # ShowMasterpiece 画集子应用
 ├── packages/
 │   ├── config/                      # app.config 加载、env 约定
 │   ├── auth/                        # better-auth 客户端 + React 壳
 │   ├── db/                          # Drizzle schema、migrate、db client
 │   ├── ui/                          # 共享 Tailwind / 基础组件（按需）
-│   ├── calendar-core/               # 日历领域逻辑（自原 src/modules/calendar）
-│   └── teach-hub-core/              # teachHub 领域逻辑
+│   ├── calendar-core/               # 日历领域逻辑
+│   ├── calendar-shared/             # 日历 RN 共享类型与 API 客户端
+│   ├── teach-hub-core/              # teachHub 领域逻辑
+│   ├── teach-hub-shared/            # teachHub RN 共享
+│   └── showmasterpiece-core/        # ShowMasterpiece 全量业务
 ├── drizzle/                         # 迁移文件（短期仍集中，长期可按 package 拆分）
 └── docs/monorepo-migration/         # 本计划
 ```
 
 ## 路由与 URL 策略（渐进）
 
-| 阶段 | calendar | teachHub | 主站 |
-|------|----------|----------|------|
-| 过渡期 | `/testField/calendar` 反代或保留 | `/testField/teachHub` | 不变 |
-| B 稳定期 | `/calendar` 或 `calendar.{domain}` | `/teach-hub` 或 `teach.{domain}` | `qhr062.top` |
-| C 终态 | 独立域名 + 独立仓库可选 | 独立域名 + 独立仓库可选 | profile 核心 |
+| 阶段 | calendar | teachHub | showmasterpiece | 主站 |
+|------|----------|----------|-----------------|------|
+| 过渡期 | `/testField/calendar` 反代或保留 | `/testField/teachHub` | `/testField/ShowMasterPieces` | 不变 |
+| B 稳定期 | `/calendar` | `/teach-hub` | `/showmasterpiece` | `qhr062.top` |
+| C 终态 | 独立域名 + 独立仓库可选 | 独立域名 + 独立仓库可选 | 独立域名可选 | profile 核心 |
 
 ## 原则
 
 1. **绞杀者模式**：先复制/搬迁，再切换入口，最后删除 `src/modules/calendar|teachHub`。
 2. **共享优先**：Auth、DB、OSS、sa2kit 配置在 `packages/*` 统一，避免 B 阶段就拆成三个数据库。
-3. **API 契约稳定**：对外路径保持 `/api/calendar/*`、`/api/teach-hub/*`，由网关反代至各 app 自承载 API。
-4. **先 calendar 后 teachHub**：teachHub 与 `aiApi` 服务端注册、OSS 耦合更深。
+3. **API 契约稳定**：对外路径保持 `/api/calendar/*`、`/api/teach-hub/*`、`/api/showmasterpiece/*`，由网关反代至各 app 自承载 API。
+4. **先 calendar 后 teachHub 后 showmasterpiece**：showmasterpiece 与 OSS、画集 DB 耦合；teachHub 与 `aiApi` 服务端注册耦合更深。
 5. **每完成一 ST 更新 [TASKS.md](./TASKS.md)** 勾选与状态。
 
 ## 子任务速览

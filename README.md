@@ -1,113 +1,89 @@
-# 考试系统数据库迁移
-
-本项目将JSON文件格式的考试数据迁移到PostgreSQL数据库，使用Drizzle ORM进行数据库操作。
-
-## 项目设置
-
-1. 安装依赖：
-
-```bash
-npm install
-# 或者
-yarn install
-# 或者
-pnpm install
-```
-
-2. 复制环境变量文件：
-
-```bash
-cp .env.example .env
-```
-
-3. 编辑`.env`文件，设置你的PostgreSQL数据库连接URL：
-
-```
-DATABASE_URL=postgresql://用户名:密码@localhost:5432/数据库名
-```
-
-## 数据库迁移
-
-1. 生成迁移文件：
-
-```bash
-npm run db:generate
-# 或者
-yarn db:generate
-# 或者
-pnpm db:generate
-```
-
-2. 执行迁移：
-
-```bash
-npm run db:migrate
-# 或者
-yarn db:migrate
-# 或者
-pnpm db:migrate
-```
-
-3. 从JSON文件导入数据：
-
-```bash
-npm run db:init-experiment
-# 或者
-yarn db:init-experiment
-# 或者
-pnpm db:init-experiment
-```
-
-## 数据库结构
-
-数据库由以下表组成：
-
-- `exam_types` - 存储考试类型
-- `exam_metadata` - 存储考试元数据
-- `exam_questions` - 存储考试问题
-
-## API使用
-
-项目提供以下API端点：
-
-- `GET /api/exam/types` - 获取所有考试类型
-- `GET /api/exam/[type]/metadata` - 获取特定考试类型的元数据
-- `GET /api/exam/[type]/questions` - 获取特定考试类型的问题
-
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 # profile-v1
+
+个人站点与业务子应用的 **pnpm monorepo**：主站（实验田、Auth）、日历、TeachHub、ShowMasterpiece 等可独立构建与部署的 Next.js 子应用，以及 Calendar / TeachHub 的 React Native 客户端。
+
+## 架构概览
+
+```
+profile-v1/
+├── apps/
+│   ├── web/                 # 主站 @profile/web (:3000)
+│   ├── calendar/            # 日历 Web @profile/calendar (:3001)
+│   ├── calendar-mobile/     # 日历 RN (Expo)
+│   ├── teach-hub/           # TeachHub Web (:3002)
+│   ├── teach-hub-mobile/    # TeachHub RN (Expo)
+│   ├── teach-hub-desktop/   # TeachHub Electron 脚手架
+│   └── showmasterpiece/     # 画集子应用 (:3003)
+├── packages/
+│   ├── config, auth, db, ui
+│   ├── calendar-core, calendar-shared
+│   ├── teach-hub-core, teach-hub-shared
+│   └── showmasterpiece-core
+├── deploy/                  # 网关 nginx + docker-compose
+└── docs/monorepo-migration/ # B→C 迁移计划
+```
+
+**生产网关**（同域）：`/` → web；`/calendar` → calendar；`/teach-hub` → teach-hub；`/showmasterpiece` → showmasterpiece。Auth 统一走 web 的 `/api/auth/*`。详见 [`deploy/MIGRATION-RUNBOOK.md`](deploy/MIGRATION-RUNBOOK.md)。
+
+## 快速开始
+
+```bash
+pnpm install
+cp .env.example .env   # 配置 DATABASE_URL 等
+
+pnpm dev               # 主站 :3000
+pnpm dev:calendar      # :3001
+pnpm dev:teach-hub     # :3002
+pnpm dev:showmasterpiece  # :3003
+pnpm dev:calendar-mobile    # Expo
+```
+
+## 常用命令
+
+| 命令 | 说明 |
+|------|------|
+| `pnpm build:all` | 构建 web / calendar / teach-hub / showmasterpiece |
+| `pnpm db:generate` / `pnpm db:migrate` | Drizzle 迁移（根目录 `drizzle/`） |
+| `pnpm package:calendar` | Calendar Docker + 可选 RN APK |
+| `pnpm package:teach-hub` | TeachHub Docker + 可选 RN APK |
+| `pnpm package:showmasterpiece` | ShowMasterpiece Docker |
+
+本地仅打 Docker 镜像、跳过 Android APK：
+
+```bash
+BUILD_ANDROID=0 pnpm package:calendar
+BUILD_ANDROID=0 pnpm package:teach-hub
+pnpm package:showmasterpiece
+```
+
+## 子应用文档
+
+| 应用 | README |
+|------|--------|
+| 应用总览 | [`apps/README.md`](apps/README.md) |
+| 共享包 | [`packages/README.md`](packages/README.md) |
+| Calendar Web | [`apps/calendar/README.md`](apps/calendar/README.md) |
+| Calendar Mobile | [`apps/calendar-mobile/README.md`](apps/calendar-mobile/README.md) |
+| TeachHub | [`apps/teach-hub/README.md`](apps/teach-hub/README.md) |
+| ShowMasterpiece | [`apps/showmasterpiece/README.md`](apps/showmasterpiece/README.md) |
+
+## Agent / 协作
+
+- 架构 SSOT：[`.cursor/KNOWLEDGE_BASE.md`](.cursor/KNOWLEDGE_BASE.md)
+- Agent 入口：[`AGENTS.md`](AGENTS.md)
+- Monorepo 迁移：[`docs/monorepo-migration/README.md`](docs/monorepo-migration/README.md)
+
+## CI 与发布
+
+推送到 `main` 后，GitHub Actions `Build and Push Docker Images` 会构建并推送四应用镜像（web / calendar / teach-hub / showmasterpiece），同步 nginx 配置并部署网关栈。
+
+RN 客户端独立 workflow：
+
+- `calendar-mobile-v*` → `.github/workflows/calendar-mobile-release.yml`
+- TeachHub Mobile 见 teach-hub 相关 workflow
+
+## 技术栈
+
+- **Web**：Next.js App Router、Tailwind、`@profile/db`（Drizzle + PostgreSQL）、better-auth
+- **Mobile**：Expo 52、React Navigation、NativeWind
+- **部署**：Docker、nginx 网关、阿里云容器镜像

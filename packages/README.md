@@ -18,6 +18,8 @@
 | `@profile/db` | `db/` | ST-05 已创建 |
 | `@profile/ui` | `ui/` | ST-06 已创建 |
 | `@profile/calendar-core` | `calendar-core/` | ST-09 已创建 |
+| `@profile/calendar-shared` | `calendar-shared/` | 跨端类型与 API 客户端（Calendar RN） |
+| `@profile/showmasterpiece-core` | `showmasterpiece-core/` | ShowMasterpiece 业务核心 |
 | `@profile/teach-hub-core` | `teach-hub-core/` |
 | `@profile/teach-hub-shared` | `teach-hub-shared/` | 跨端类型与 API 客户端 |
 

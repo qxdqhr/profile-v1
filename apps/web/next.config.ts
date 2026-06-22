@@ -31,7 +31,7 @@ const nextConfig: NextConfig = {
     distDir: process.env.NEXT_DIST_DIR || '.next',
     output: 'standalone',
 
-    transpilePackages: ["sa2kit", "animal-island-ui", "@profile/auth"],
+    transpilePackages: ["sa2kit", "animal-island-ui", "@profile/auth", "@profile/showmasterpiece-core"],
 
     typescript: {
         ignoreBuildErrors: true,
@@ -46,6 +46,9 @@ const nextConfig: NextConfig = {
         NEXT_PUBLIC_TEACH_HUB_URL:
             process.env.NEXT_PUBLIC_TEACH_HUB_URL ??
             (process.env.NODE_ENV === 'production' ? '/teach-hub' : 'http://localhost:3002'),
+        NEXT_PUBLIC_SHOWMASTERPIECE_URL:
+            process.env.NEXT_PUBLIC_SHOWMASTERPIECE_URL ??
+            (process.env.NODE_ENV === 'production' ? '/showmasterpiece' : 'http://localhost:3003'),
     },
 
     images: {

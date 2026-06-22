@@ -1,4 +1,4 @@
-# 生产网关栈：nginx + web + calendar + teach-hub
+# 生产网关栈：nginx + web + calendar + teach-hub + showmasterpiece
 # 用法见 deploy/MIGRATION-RUNBOOK.md
 
 services:
@@ -13,6 +13,7 @@ services:
       DATABASE_URL: ${DATABASE_URL:-}
       NEXT_PUBLIC_CALENDAR_URL: /calendar
       NEXT_PUBLIC_TEACH_HUB_URL: /teach-hub
+      NEXT_PUBLIC_SHOWMASTERPIECE_URL: /showmasterpiece
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     volumes:
@@ -57,6 +58,23 @@ services:
     networks:
       - profile
 
+  showmasterpiece:
+    image: ${REGISTRY}/qhr-profile-showmasterpiece:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      APP_CONFIG_ENV: production
+      APP_CONFIG_PATH: /app/config/app.config.production.yaml
+      DATABASE_URL: ${DATABASE_URL:-}
+      NEXT_PUBLIC_BASE_PATH: /showmasterpiece
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - ./app.config.yaml:/app/config/app.config.production.yaml:ro
+    expose:
+      - '3003'
+    networks:
+      - profile
+
   nginx:
     image: docker.m.daocloud.io/library/nginx:1.27-alpine
     restart: unless-stopped
@@ -64,6 +82,7 @@ services:
       - web
       - calendar
       - teach_hub
+      - showmasterpiece
     ports:
       - '${GATEWAY_PORT:-3000}:80'
     volumes:

@@ -1,5 +1,6 @@
-'use client';
+import { redirect } from 'next/navigation';
+import { getShowmasterpieceAppUrl } from '@/lib/showmasterpiece-app-url';
 
-import { ShowMasterPiecesHistoryPage } from '@/modules/showmasterpiece';
-
-export default ShowMasterPiecesHistoryPage;
+export default function ShowMasterPiecesHistoryPageWrapper() {
+  redirect(getShowmasterpieceAppUrl('/history'));
+}

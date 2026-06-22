@@ -1,5 +1,6 @@
-import ShowMasterPiecesConfigPage from '@/modules/showmasterpiece/ui/web/pages/config/page';
+import { redirect } from 'next/navigation';
+import { getShowmasterpieceAppUrl } from '@/lib/showmasterpiece-app-url';
 
-export const dynamic = 'force-dynamic';
-
-export default ShowMasterPiecesConfigPage;
+export default function ShowMasterPiecesConfigPageWrapper() {
+  redirect(getShowmasterpieceAppUrl('/config'));
+}

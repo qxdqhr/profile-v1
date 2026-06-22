@@ -1,10 +1,10 @@
 import { relations } from 'drizzle-orm';
 import { serial, text, timestamp, pgTable, json, integer } from 'drizzle-orm/pg-core';
 
-export * from '../../../../apps/web/src/modules/showmasterpiece/db/schema/masterpieces';
-export * from '../../../../apps/web/src/modules/showmasterpiece/db/schema/bookings';
-export * from '../../../../apps/web/src/modules/showmasterpiece/db/schema/popupConfig';
-export * from '../../../../apps/web/src/modules/showmasterpiece/db/schema/config';
+export * from '../../../../packages/showmasterpiece-core/src/db/schema/masterpieces';
+export * from '../../../../packages/showmasterpiece-core/src/db/schema/bookings';
+export * from '../../../../packages/showmasterpiece-core/src/db/schema/popupConfig';
+export * from '../../../../packages/showmasterpiece-core/src/db/schema/config';
 export * from 'sa2kit/common/auth/schema';
 export * from '../../../../apps/web/src/modules/filetransfer/db/schema';
 export * from '../../../../packages/calendar-core/src/db/schema';

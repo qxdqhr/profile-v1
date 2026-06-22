@@ -1,9 +1,6 @@
-export * from './types';
-export * as logic from './logic';
-export * as service from './service';
-
+export * from '@profile/showmasterpiece-core';
 export {
   ShowMasterPiecesPage,
   ShowMasterPiecesConfigPage,
   ShowMasterPiecesHistoryPage,
-} from './ui/web';
+} from '@profile/showmasterpiece-core/ui/web';
