@@ -29,7 +29,9 @@ check_http "GET /showmasterpiece/" "${BASE}/showmasterpiece/" "200"
 check_http "GET /api/calendar/events/" \
   "${BASE}/api/calendar/events/?startDate=2026-01-01&endDate=2026-12-31" "401"
 check_http "GET /api/teach-hub/workspaces/" "${BASE}/api/teach-hub/workspaces/" "401"
-check_http "GET /api/showmasterpiece/collections/" "${BASE}/api/showmasterpiece/collections/" "401"
+# showmasterpiece 画集列表 GET 为公开接口（未登录 200）；管理接口应 401
+check_http "GET /api/showmasterpiece/collections/" "${BASE}/api/showmasterpiece/collections/" "200"
+check_http "GET /api/showmasterpiece/bookings/admin/" "${BASE}/api/showmasterpiece/bookings/admin/" "401"
 
 if [ "$fail" -ne 0 ]; then
   echo "ERROR: 网关冒烟测试失败。请检查 nginx/profile-platform.conf 是否已同步并重载。" >&2
