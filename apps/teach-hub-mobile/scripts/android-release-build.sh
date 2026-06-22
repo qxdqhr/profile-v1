@@ -62,25 +62,9 @@ else
   sed -i -E "s/versionName \"[^\"]+\"/versionName \"${VERSION}\"/" "${ANDROID_DIR}/app/build.gradle"
 fi
 
-if [ -z "${ANDROID_KEYSTORE_BASE64:-}" ]; then
-  echo "ANDROID_KEYSTORE_BASE64 not set. Release will use debug keystore."
-  echo "Set ANDROID_KEYSTORE_BASE64 / ANDROID_KEYSTORE_PASSWORD / ANDROID_KEY_ALIAS / ANDROID_KEY_PASSWORD for signed release."
-else
-  if [ -z "${ANDROID_KEYSTORE_PASSWORD:-}" ] || [ -z "${ANDROID_KEY_ALIAS:-}" ] || [ -z "${ANDROID_KEY_PASSWORD:-}" ]; then
-    echo "Missing keystore env vars. Need ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD."
-    exit 1
-  fi
-
-  echo "==> Configure Android keystore"
-  mkdir -p "${ANDROID_DIR}/app"
-  echo "${ANDROID_KEYSTORE_BASE64}" | base64 --decode > "${ANDROID_DIR}/app/keystore.jks"
-  cat > "${ANDROID_DIR}/keystore.properties" <<EOF
-storeFile=keystore.jks
-storePassword=${ANDROID_KEYSTORE_PASSWORD}
-keyAlias=${ANDROID_KEY_ALIAS}
-keyPassword=${ANDROID_KEY_PASSWORD}
-EOF
-fi
+# shellcheck source=/dev/null
+source "${ROOT_DIR}/scripts/load-android-signing-env.sh"
+bash "${ROOT_DIR}/scripts/setup-android-release-keystore.sh" "${ANDROID_DIR}"
 
 echo "==> Build Android APK (release)"
 cd "${ANDROID_DIR}"

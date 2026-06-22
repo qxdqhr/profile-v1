@@ -169,6 +169,120 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  build-calendar-mobile:
+    name: Build Calendar Mobile APK
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    env:
+      EXPO_ANDROID_VERSION_CODE: ${{ github.run_number }}
+    outputs:
+      apk_filename: ${{ steps.apk_meta.outputs.filename }}
+      apk_download_url: ${{ steps.apk_meta.outputs.download_url }}
+      release_url: ${{ steps.apk_meta.outputs.release_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Decrypt production config for API URLs
+        id: cfg
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        run: |
+          if [ -z "$SOPS_AGE_KEY" ]; then
+            echo "SOPS_AGE_KEY 未配置，无法解析生产 API 地址" >&2
+            exit 1
+          fi
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq age
+          DEPLOY_CFG_DIR=/tmp/profile-v1-calendar-mobile
+          mkdir -p "$DEPLOY_CFG_DIR"
+          printf '%s\n' "$SOPS_AGE_KEY" > "$DEPLOY_CFG_DIR/age-key.txt"
+          chmod 600 "$DEPLOY_CFG_DIR/age-key.txt"
+          SOPS_AGE_KEY_FILE="$DEPLOY_CFG_DIR/age-key.txt" \
+            ./scripts/config-decrypt-production.sh "$DEPLOY_CFG_DIR/app.config.yaml"
+          PUBLIC_URL="$(grep -E '^\s+publicUrl:' "$DEPLOY_CFG_DIR/app.config.yaml" | head -1 | sed -E 's/.*publicUrl:\s*"?([^"#]+)"?.*/\1/' | tr -d "'")"
+          if [ -z "$PUBLIC_URL" ]; then
+            echo "无法从 app.config 解析 auth.publicUrl" >&2
+            exit 1
+          fi
+          echo "auth_base_url=${PUBLIC_URL}" >> "$GITHUB_OUTPUT"
+          echo "api_base_url=${PUBLIC_URL}/calendar" >> "$GITHUB_OUTPUT"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Validate Android signing secrets
+        run: |
+          for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "Missing secret: ${name}" >&2
+              exit 1
+            fi
+          done
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - name: Build signed release APK
+        run: bash apps/calendar-mobile/scripts/android-release-build.sh
+        env:
+          SKIP_EXPO_PREBUILD: '1'
+          APP_VERSION: '0.1.0'
+          EXPO_PUBLIC_AUTH_BASE_URL: ${{ steps.cfg.outputs.auth_base_url }}
+          EXPO_PUBLIC_CALENDAR_API_BASE_URL: ${{ steps.cfg.outputs.api_base_url }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - name: Resolve APK metadata
+        id: apk_meta
+        run: |
+          APK_PATH="$(ls -t apps/calendar-mobile/dist/*.apk | head -1)"
+          APK_NAME="$(basename "$APK_PATH")"
+          TAG_NAME="calendar-mobile-ci-${GITHUB_RUN_NUMBER}"
+          RELEASE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${TAG_NAME}"
+          DOWNLOAD_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/download/${TAG_NAME}/${APK_NAME}"
+          echo "filename=${APK_NAME}" >> "$GITHUB_OUTPUT"
+          echo "tag_name=${TAG_NAME}" >> "$GITHUB_OUTPUT"
+          echo "release_url=${RELEASE_URL}" >> "$GITHUB_OUTPUT"
+          echo "download_url=${DOWNLOAD_URL}" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release with APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.apk_meta.outputs.tag_name }}
+          target_commitish: ${{ github.sha }}
+          name: Calendar Mobile CI #${{ github.run_number }}
+          body: |
+            Android release APK from main CI build.
+
+            - Run: #${{ github.run_number }}
+            - versionCode: `${{ github.run_number }}`
+            - Auth: `${{ steps.cfg.outputs.auth_base_url }}`
+            - API: `${{ steps.cfg.outputs.api_base_url }}`
+          files: apps/calendar-mobile/dist/*.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   deploy-web:
     runs-on: ubuntu-latest
     needs: build
@@ -239,7 +353,7 @@ jobs:
   notify:
     name: Notify Feishu
     runs-on: ubuntu-latest
-    needs: [build, deploy-web, build-teach-hub-mobile]
+    needs: [build, deploy-web, build-teach-hub-mobile, build-calendar-mobile]
     if: always() && !cancelled()
     continue-on-error: true
     steps:
@@ -274,11 +388,14 @@ jobs:
         env:
           FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
           FEISHU_SIGN_SECRET: ${{ secrets.FEISHU_SIGN_SECRET }}
-          CI_NOTIFY_STATUS: ${{ needs.build.result == 'success' && (needs.deploy-web.result == 'success' || needs.deploy-web.result == 'skipped') && (needs.build-teach-hub-mobile.result == 'success' || needs.build-teach-hub-mobile.result == 'skipped') && 'success' || 'failure' }}
-          CI_IMAGE_TAG: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.build.result == 'success' && format('web:{0} calendar:{0} teach-hub:{0}', github.run_number) || '' }}
+          CI_NOTIFY_STATUS: ${{ needs.build.result == 'success' && (needs.deploy-web.result == 'success' || needs.deploy-web.result == 'skipped') && (needs.build-teach-hub-mobile.result == 'success' || needs.build-teach-hub-mobile.result == 'skipped') && (needs.build-calendar-mobile.result == 'success' || needs.build-calendar-mobile.result == 'skipped') && 'success' || 'failure' }}
+          CI_IMAGE_TAG: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.build.result == 'success' && format('web:{0} calendar:{0} teach-hub:{0} showmasterpiece:{0}', github.run_number) || '' }}
           CI_TEACH_HUB_APK_BUILD_RESULT: ${{ needs.build-teach-hub-mobile.result }}
           CI_TEACH_HUB_APK_RELEASE_URL: ${{ needs.build-teach-hub-mobile.result == 'success' && needs.build-teach-hub-mobile.outputs.release_url || '' }}
           CI_TEACH_HUB_APK_DOWNLOAD_URL: ${{ needs.build-teach-hub-mobile.result == 'success' && needs.build-teach-hub-mobile.outputs.apk_download_url || '' }}
+          CI_CALENDAR_APK_BUILD_RESULT: ${{ needs.build-calendar-mobile.result }}
+          CI_CALENDAR_APK_RELEASE_URL: ${{ needs.build-calendar-mobile.result == 'success' && needs.build-calendar-mobile.outputs.release_url || '' }}
+          CI_CALENDAR_APK_DOWNLOAD_URL: ${{ needs.build-calendar-mobile.result == 'success' && needs.build-calendar-mobile.outputs.apk_download_url || '' }}
           GITHUB_TOKEN: ${{ github.token }}
           GITHUB_BEFORE_SHA: ${{ github.event.before }}
           GITHUB_REPOSITORY: ${{ github.repository }}

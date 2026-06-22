@@ -116,10 +116,9 @@ bash apps/teach-hub-mobile/scripts/gen-android-keystore.sh
 **本地 release 构建：**
 
 ```bash
-export ANDROID_KEYSTORE_BASE64='...'
-export ANDROID_KEYSTORE_PASSWORD='...'
-export ANDROID_KEY_ALIAS='teachhub'
-export ANDROID_KEY_PASSWORD='...'
+cp config/android-signing.env.example config/android-signing.env
+# 填入 ANDROID_*（与 GitHub Secrets 相同；Calendar Mobile 共用此文件）
+
 export EXPO_PUBLIC_AUTH_BASE_URL='https://your-domain.com'
 export EXPO_PUBLIC_TEACH_HUB_API_BASE_URL='https://your-domain.com/teach-hub'
 
@@ -141,11 +140,11 @@ Workflow：`.github/workflows/teach-hub-mobile-release.yml`
 - `TEACH_HUB_MOBILE_AUTH_BASE_URL` — 主站 Auth 根地址
 - `TEACH_HUB_MOBILE_API_BASE_URL` — TeachHub API 根地址（网关子路径）
 
-**Secrets（Android 签名，与 talkingTool 共用或独立均可）：**
+**Secrets（Android 签名，Calendar Mobile 共用）：**
 
 - `ANDROID_KEYSTORE_BASE64`
 - `ANDROID_KEYSTORE_PASSWORD`
 - `ANDROID_KEY_ALIAS`
 - `ANDROID_KEY_PASSWORD`
 
-签名注入由 `plugins/withAndroidReleaseSigning.js` 在 prebuild 时写入 Gradle，无需提交 `android/` 目录。
+本地打包统一使用 `config/android-signing.env`（见 `config/android-signing.env.example`）。

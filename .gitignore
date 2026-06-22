@@ -37,6 +37,7 @@ config/app.config.production.yaml
 config/app.config.production.plain.yaml
 config/app.config.test.yaml
 config/keys/
+config/android-signing.env
 
 # debug
 npm-debug.log*

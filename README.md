@@ -56,6 +56,8 @@ BUILD_ANDROID=0 pnpm package:teach-hub
 pnpm package:showmasterpiece
 ```
 
+RN 签名 APK 与 TeachHub 共用 `config/android-signing.env`（见 `config/android-signing.env.example`）及 GitHub Secrets `ANDROID_*`。
+
 ## 子应用文档
 
 | 应用 | README |

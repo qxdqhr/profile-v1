@@ -64,11 +64,25 @@ apps/calendar-mobile/
 - 事件查看、创建、编辑、删除
 - 与 Web 端共用 `/api/calendar/*` 后端
 
-## Android APK
+## Android APK（签名 release）
+
+与 **TeachHub Mobile 共用同一套** `ANDROID_*` 签名（GitHub Secrets 同名，本地用 `config/android-signing.env`）。
+
+**首次生成签名证书（只需一次，两 App 共用）：**
 
 ```bash
-export EXPO_PUBLIC_AUTH_BASE_URL='https://your-domain.com'
-export EXPO_PUBLIC_CALENDAR_API_BASE_URL='https://your-domain.com/calendar'
+bash apps/teach-hub-mobile/scripts/gen-android-keystore.sh
+# 或 bash apps/calendar-mobile/scripts/gen-android-keystore.sh（会转调 teach-hub 脚本）
+```
+
+**本地 release 构建：**
+
+```bash
+cp config/android-signing.env.example config/android-signing.env
+# 填入与 GitHub Secrets 相同的 ANDROID_* 四个值
+
+export EXPO_PUBLIC_AUTH_BASE_URL='https://qhr062.top'
+export EXPO_PUBLIC_CALENDAR_API_BASE_URL='https://qhr062.top/calendar'
 
 pnpm build:calendar-mobile:android
 # 产物：apps/calendar-mobile/dist/calendar-mobile-<version>+<build>.apk
@@ -77,9 +91,21 @@ pnpm build:calendar-mobile:android
 ### 与 Web 子应用一并打包
 
 ```bash
-pnpm package:calendar              # Docker + APK
+pnpm package:calendar              # Docker + 签名 APK（需 config/android-signing.env）
 BUILD_ANDROID=0 pnpm package:calendar   # 仅 Docker
 BUILD_DOCKER=0 pnpm package:calendar  # 仅 APK
 ```
 
-GitHub Actions：`.github/workflows/calendar-mobile-release.yml`（tag `calendar-mobile-v*`）
+### GitHub Actions
+
+| Workflow | 触发 |
+|----------|------|
+| `.github/workflows/calendar-mobile-release.yml` | tag `calendar-mobile-v*` / 手动 |
+| `.github/workflows/docker-build-push.yml` | 推 main 时与 TeachHub 一并打签名 APK |
+
+**Repository Variables：**
+
+- `CALENDAR_MOBILE_AUTH_BASE_URL` — 主站 Auth（如 `https://qhr062.top`）
+- `CALENDAR_MOBILE_API_BASE_URL` — Calendar API（如 `https://qhr062.top/calendar`）
+
+**Secrets（与 TeachHub Mobile 共用）：** `ANDROID_KEYSTORE_BASE64`、`ANDROID_KEYSTORE_PASSWORD`、`ANDROID_KEY_ALIAS`、`ANDROID_KEY_PASSWORD`

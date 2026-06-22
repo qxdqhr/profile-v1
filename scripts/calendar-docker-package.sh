@@ -27,6 +27,7 @@ usage() {
   APP_VERSION             Android 版本名（默认 0.1.0）
   EXPO_ANDROID_VERSION_CODE  Android versionCode（默认 local）
   EXPO_PUBLIC_AUTH_BASE_URL / EXPO_PUBLIC_CALENDAR_API_BASE_URL  RN 构建 API 地址
+  ANDROID_SIGNING_ENV_FILE    默认 config/android-signing.env（与 TeachHub 共用 ANDROID_*）
 EOF
 }
 
@@ -50,6 +51,8 @@ fi
 
 if [ "${BUILD_ANDROID}" = "1" ]; then
   echo "==> [2/2] Build Calendar Mobile Android APK"
+  # shellcheck source=/dev/null
+  source "${ROOT_DIR}/scripts/load-android-signing-env.sh"
   bash apps/calendar-mobile/scripts/android-release-build.sh
   APK_FILE="$(ls -t "${ROOT_DIR}"/apps/calendar-mobile/dist/*.apk 2>/dev/null | head -1 || true)"
   if [ -z "${APK_FILE}" ] || [ ! -f "${APK_FILE}" ]; then
@@ -85,6 +88,8 @@ if [ "${SEND_FEISHU}" = "1" ] || [ -n "${FEISHU_WEBHOOK_URL:-}" ] || [ -n "${CI_
   echo "==> Send Feishu notification"
   CI_NOTIFY_STATUS=success \
   CI_IMAGE_TAG="calendar:${IMAGE_TAG}" \
+  CI_CALENDAR_APK_RELEASE_URL="${APK_RELEASE_URL:-}" \
+  CI_CALENDAR_APK_DOWNLOAD_URL="${APK_DOWNLOAD_URL:-}" \
   GITHUB_WORKFLOW="${GITHUB_WORKFLOW:-Calendar Package}" \
   GITHUB_REPOSITORY="${GITHUB_REPOSITORY:-local/calendar}" \
   GITHUB_RUN_NUMBER="${GITHUB_RUN_NUMBER:-0}" \

@@ -171,6 +171,19 @@ function buildCiFeishuMessage(context) {
     lines.push(`TeachHub Android APK 下载：${context.teachHubApkDownloadUrl}`);
   }
 
+  const calendarApkBuildText = formatApkBuildResult(context.calendarApkBuildResult);
+  if (calendarApkBuildText) {
+    lines.push(`Calendar Android APK：${calendarApkBuildText}`);
+  }
+
+  if (context.calendarApkReleaseUrl) {
+    lines.push(`Calendar Android Release 页面：${context.calendarApkReleaseUrl}`);
+  }
+
+  if (context.calendarApkDownloadUrl) {
+    lines.push(`Calendar Android APK 下载：${context.calendarApkDownloadUrl}`);
+  }
+
   const summaryLines = splitMultiline(context.changeSummary);
   if (summaryLines.length > 0) {
     const countLabel =
@@ -186,6 +199,9 @@ function buildCiFeishuMessage(context) {
     if (context.teachHubApkBuildResult === 'failure') {
       lines.push('TeachHub Android APK 打包失败，请检查 build-teach-hub-mobile 任务日志。');
     }
+    if (context.calendarApkBuildResult === 'failure') {
+      lines.push('Calendar Android APK 打包失败，请检查 build-calendar-mobile 任务日志。');
+    }
   }
 
   const content = lines.filter(Boolean).map((line) => [{ tag: 'text', text: line }]);
@@ -196,6 +212,12 @@ function buildCiFeishuMessage(context) {
   }
   if (context.teachHubApkDownloadUrl?.startsWith('http')) {
     content.push([{ tag: 'a', text: '下载 TeachHub Android APK', href: context.teachHubApkDownloadUrl }]);
+  }
+  if (context.calendarApkReleaseUrl?.startsWith('http')) {
+    content.push([{ tag: 'a', text: 'Calendar Android Release 页面', href: context.calendarApkReleaseUrl }]);
+  }
+  if (context.calendarApkDownloadUrl?.startsWith('http')) {
+    content.push([{ tag: 'a', text: '下载 Calendar Android APK', href: context.calendarApkDownloadUrl }]);
   }
 
   return {
@@ -359,6 +381,9 @@ async function collectCiContext() {
     teachHubApkBuildResult: readApkBuildResult(),
     teachHubApkReleaseUrl: readOptionalString('CI_TEACH_HUB_APK_RELEASE_URL'),
     teachHubApkDownloadUrl: readOptionalString('CI_TEACH_HUB_APK_DOWNLOAD_URL'),
+    calendarApkBuildResult: readOptionalString('CI_CALENDAR_APK_BUILD_RESULT'),
+    calendarApkReleaseUrl: readOptionalString('CI_CALENDAR_APK_RELEASE_URL'),
+    calendarApkDownloadUrl: readOptionalString('CI_CALENDAR_APK_DOWNLOAD_URL'),
   };
 }
 
