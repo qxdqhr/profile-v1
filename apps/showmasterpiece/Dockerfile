@@ -35,6 +35,8 @@ COPY --from=deps /app/packages ./packages
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml turbo.json tsconfig.json ./
 COPY config ./config
 COPY packages ./packages
+# @profile/db schema 仍聚合 apps/web 模块表定义
+COPY apps/web/src/modules ./apps/web/src/modules
 COPY apps/showmasterpiece ./apps/showmasterpiece
 
 ENV NEXT_TELEMETRY_DISABLED=1
