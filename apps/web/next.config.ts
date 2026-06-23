@@ -31,7 +31,15 @@ const nextConfig: NextConfig = {
     distDir: process.env.NEXT_DIST_DIR || '.next',
     output: 'standalone',
 
-    transpilePackages: ["sa2kit", "animal-island-ui", "@profile/auth", "@profile/showmasterpiece-core"],
+    transpilePackages: [
+        "sa2kit",
+        "animal-island-ui",
+        "@sa2kit-ui/react",
+        "@sa2kit-ui/theme-runtime",
+        "@sa2kit-ui/shared",
+        "@profile/auth",
+        "@profile/showmasterpiece-core",
+    ],
 
     typescript: {
         ignoreBuildErrors: true,
