@@ -784,3 +784,54 @@
   border-color: var(--jy-gold, #d49a3a);
   box-shadow: var(--jy-shadow-focus, 0 0 0 3px rgba(212, 154, 58, 0.55));
 }
+
+/* ── SA2Kit 莱茵生命主题：实验室白绿氛围 ── */
+[data-theme='rhine-life'] .home-v2 {
+  --v2-bg: var(--rl-bg, #e4ece8);
+  --v2-bg-warm: var(--rl-bg, #e4ece8);
+  --v2-surface: var(--rl-surface, rgba(248, 251, 251, 0.96));
+  --v2-text: var(--rl-slate-900, #15201c);
+  --v2-text-muted: var(--rl-slate-600, #4a5f58);
+  --v2-warm: var(--rl-slate-900, #15201c);
+  --v2-accent: var(--rl-green-500, #00b37a);
+  --v2-accent-strong: var(--rl-green-700, #007a52);
+  --v2-border: var(--rl-border, rgba(21, 32, 28, 0.14));
+  --v2-radius: var(--rl-radius-lg, 12px);
+  --v2-radius-sm: var(--rl-radius-md, 8px);
+  --v2-shadow: var(--rl-shadow-sm);
+  --v2-shadow-hover: var(--rl-shadow-md);
+  --v2-font-display: var(--rl-font-body, 'Noto Sans SC', system-ui, sans-serif);
+  --v2-font-body: var(--rl-font-body, 'Noto Sans SC', system-ui, sans-serif);
+
+  background:
+    linear-gradient(rgba(0, 150, 99, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 150, 99, 0.035) 1px, transparent 1px),
+    radial-gradient(ellipse 90% 50% at 10% -10%, rgba(0, 179, 122, 0.14), transparent 55%),
+    var(--v2-bg);
+  background-size: 24px 24px, 24px 24px, auto, auto;
+  color: var(--v2-text);
+}
+
+[data-theme='rhine-life'] .home-v2-nav {
+  background: rgba(248, 251, 251, 0.88);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rl-border, rgba(21, 32, 28, 0.14));
+}
+
+[data-theme='rhine-life'] .home-v2-nav.is-scrolled {
+  box-shadow: var(--rl-shadow-sm);
+}
+
+[data-theme='rhine-life'] .home-v2-nav__link.is-active {
+  color: var(--rl-green-700, #007a52);
+}
+
+[data-theme='rhine-life'] .home-v2-about__tag {
+  background: rgba(0, 179, 122, 0.12);
+  color: var(--rl-green-700, #007a52);
+}
+
+[data-theme='rhine-life'] .home-v2-contact__textarea:focus {
+  border-color: var(--rl-amber-500, #f5a623);
+  box-shadow: var(--rl-shadow-focus, 0 0 0 3px rgba(245, 166, 35, 0.45));
+}
