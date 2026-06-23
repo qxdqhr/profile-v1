@@ -1,7 +1,6 @@
 'use client';
 
-import { Button } from '@sa2kit-ui/react';
-import { useTheme } from '@sa2kit-ui/theme-runtime';
+import { Button, useTheme } from '@sa2kit-ui/react';
 import {
   HOME_V2_THEME_IDS,
   HOME_V2_THEME_LABELS,

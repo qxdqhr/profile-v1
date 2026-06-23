@@ -35,8 +35,6 @@ const nextConfig: NextConfig = {
         "sa2kit",
         "animal-island-ui",
         "@sa2kit-ui/react",
-        "@sa2kit-ui/theme-runtime",
-        "@sa2kit-ui/shared",
         "@profile/auth",
         "@profile/showmasterpiece-core",
     ],
