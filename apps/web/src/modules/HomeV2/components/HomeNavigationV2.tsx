@@ -84,7 +84,7 @@ export function HomeNavigationV2({
             {items.map((item) => renderLink(item, 'home-v2-nav__link'))}
           </ul>
 
-          <HomeThemeSwitcher />
+          <HomeThemeSwitcher compact />
 
           <Button
             type="default"

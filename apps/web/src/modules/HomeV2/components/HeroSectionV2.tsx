@@ -16,7 +16,13 @@ export function HeroSectionV2({ homeConfig }: HeroSectionV2Props) {
       ? '欢迎入园'
       : theme === 'rhine-life'
         ? '欢迎接入终端'
-        : '欢迎登岛';
+        : theme === 'endfield'
+          ? '管理员终端已连接'
+          : theme === 'mizuki-roguelike'
+            ? '大群的呼唤 · 深蓝之树'
+            : theme === 'sami-roguelike'
+              ? '银凇止境 · 密文宣告'
+              : '欢迎登岛';
 
   return (
     <section id="home" className="home-v2-hero">
@@ -50,6 +56,42 @@ export function HeroSectionV2({ homeConfig }: HeroSectionV2Props) {
             </div>
           ) : theme === 'rhine-life' ? (
             <div className="rl-img-tone home-v2-hero__portrait-wrap">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageSrc}
+                alt="个人形象"
+                className="home-v2-hero__portrait"
+                loading="eager"
+                width={640}
+                height={800}
+              />
+            </div>
+          ) : theme === 'endfield' ? (
+            <div className="ef-img-tone home-v2-hero__portrait-wrap">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageSrc}
+                alt="个人形象"
+                className="home-v2-hero__portrait"
+                loading="eager"
+                width={640}
+                height={800}
+              />
+            </div>
+          ) : theme === 'mizuki-roguelike' ? (
+            <div className="mr-img-tone home-v2-hero__portrait-wrap">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageSrc}
+                alt="个人形象"
+                className="home-v2-hero__portrait"
+                loading="eager"
+                width={640}
+                height={800}
+              />
+            </div>
+          ) : theme === 'sami-roguelike' ? (
+            <div className="sr-img-tone home-v2-hero__portrait-wrap">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={imageSrc}
