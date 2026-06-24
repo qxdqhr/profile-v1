@@ -24,6 +24,14 @@ export function HeroSectionV2({ homeConfig }: HeroSectionV2Props) {
               ? '银凇止境 · 密文宣告'
               : '欢迎登岛';
 
+  const ornamentClass: Partial<Record<string, string>> = {
+    'jieyuan-garden': 'jy-ornament',
+    'rhine-life': 'rl-ornament',
+    endfield: 'ef-ornament',
+    'mizuki-roguelike': 'mr-ornament',
+    'sami-roguelike': 'sr-ornament',
+  };
+
   return (
     <section id="home" className="home-v2-hero">
       <div className="home-v2-hero__bento">
@@ -31,7 +39,9 @@ export function HeroSectionV2({ homeConfig }: HeroSectionV2Props) {
           <Time />
         </div>
 
-        <div className="home-v2-hero__cell home-v2-hero__cell--copy">
+        <div
+          className={`home-v2-hero__cell home-v2-hero__cell--copy ${ornamentClass[theme] ?? ''}`}
+        >
           <span className="home-v2-hero__eyebrow">{eyebrow}</span>
           <h1 className="home-v2-hero__title">
             <Typewriter speed={90}>
