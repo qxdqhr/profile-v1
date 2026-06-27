@@ -32,7 +32,7 @@ COPY --from=deps /app/apps/money-research/node_modules ./apps/money-research/nod
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml turbo.json tsconfig.json ./
 COPY apps/money-research ./apps/money-research
 
-RUN pip3 install --no-cache-dir -r apps/money-research/demo/requirements.txt
+RUN pip3 install --no-cache-dir --break-system-packages -r apps/money-research/demo/requirements.txt
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_DIST_DIR=.next-money-research
