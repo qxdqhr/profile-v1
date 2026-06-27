@@ -2,7 +2,7 @@
 # docker build -f apps/money-research/Dockerfile -t qhr-profile-money-research .
 
 FROM node:20-alpine AS base
-RUN apk add --no-cache libc6-compat python3 py3-pip
+RUN apk add --no-cache libc6-compat python3 py3-pip git
 
 FROM base AS deps
 WORKDIR /app
