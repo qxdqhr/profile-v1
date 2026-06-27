@@ -114,7 +114,7 @@ importers:
         version: 10.4.20(postcss@8.4.49)
       eslint-config-next:
         specifier: 16.0.8
-        version: 16.0.8(eslint@8.57.1)(typescript@5.7.3)
+        version: 16.0.8(@typescript-eslint/parser@8.50.1(eslint@8.57.1)(typescript@5.7.3))(eslint@8.57.1)(typescript@5.7.3)
       postcss:
         specifier: ^8.4.49
         version: 8.4.49
@@ -200,6 +200,34 @@ importers:
       tailwindcss:
         specifier: ^3.4.17
         version: 3.4.17(ts-node@10.9.1(@types/node@22.15.17)(typescript@5.7.3))
+      typescript:
+        specifier: ^5.7.3
+        version: 5.7.3
+
+  apps/money-research:
+    dependencies:
+      next:
+        specifier: 16.0.8
+        version: 16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      react:
+        specifier: 19.2.1
+        version: 19.2.1
+      react-dom:
+        specifier: 19.2.1
+        version: 19.2.1(react@19.2.1)
+    devDependencies:
+      '@types/node':
+        specifier: ^20.17.12
+        version: 20.19.43
+      '@types/react':
+        specifier: ^19
+        version: 19.1.17
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.2.3(@types/react@19.1.17)
+      eslint-config-next:
+        specifier: 16.0.8
+        version: 16.0.8(eslint@8.57.1)(typescript@5.7.3)
       typescript:
         specifier: ^5.7.3
         version: 5.7.3
@@ -2210,7 +2238,7 @@ packages:
 
   '@expo/bunyan@4.0.1':
     resolution: {integrity: sha512-+Lla7nYSiHZirgK+U/uYzsLv/X+HaJienbD5AKX1UQZHYfWaP+9uuQluRB4GrEVWF0GZ7vEVp/jzaOT9k/SQlg==}
-    engines: {node: '>=0.10.0'}
+    engines: {'0': node >=0.10.0}
 
   '@expo/cli@0.22.28':
     resolution: {integrity: sha512-lvt72KNitGuixYD2l3SZmRKVu2G4zJpmg5V7WfUBNpmUU5oODBw/6qmiJ6kSLAlfDozscUk+BBGknBBzxUrwrA==}
@@ -8118,8 +8146,8 @@ packages:
   thenify@3.3.1:
     resolution: {integrity: sha512-RVZSIV5IG10Hk3enotrhvz0T9em6cyHBLkH/YAZuKqd8hRkKhSfCGIcP2KUY0EPxndzANBmNllzWPwak+bheSw==}
 
-  three-bmfont-text@https://codeload.github.com/dmarcos/three-bmfont-text/tar.gz/eed4878795be9b3e38cf6aec6b903f56acd1f695:
-    resolution: {tarball: https://codeload.github.com/dmarcos/three-bmfont-text/tar.gz/eed4878795be9b3e38cf6aec6b903f56acd1f695}
+  three-bmfont-text@git+https://git@github.com:dmarcos/three-bmfont-text.git#eed4878795be9b3e38cf6aec6b903f56acd1f695:
+    resolution: {commit: eed4878795be9b3e38cf6aec6b903f56acd1f695, repo: git@github.com:dmarcos/three-bmfont-text.git, type: git}
     version: 3.0.0
 
   three-stdlib@2.36.0:
@@ -11926,7 +11954,7 @@ snapshots:
       load-bmfont: 1.4.2(debug@4.4.3)
       super-animejs: 3.1.0
       three: super-three@0.173.5
-      three-bmfont-text: https://codeload.github.com/dmarcos/three-bmfont-text/tar.gz/eed4878795be9b3e38cf6aec6b903f56acd1f695
+      three-bmfont-text: git+https://git@github.com:dmarcos/three-bmfont-text.git#eed4878795be9b3e38cf6aec6b903f56acd1f695
     transitivePeerDependencies:
       - supports-color
 
@@ -17076,7 +17104,7 @@ snapshots:
     dependencies:
       any-promise: 1.3.0
 
-  three-bmfont-text@https://codeload.github.com/dmarcos/three-bmfont-text/tar.gz/eed4878795be9b3e38cf6aec6b903f56acd1f695:
+  three-bmfont-text@git+https://git@github.com:dmarcos/three-bmfont-text.git#eed4878795be9b3e38cf6aec6b903f56acd1f695:
     dependencies:
       array-shuffle: 1.0.1
       layout-bmfont-text: 1.3.4

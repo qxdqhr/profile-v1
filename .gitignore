@@ -62,3 +62,7 @@ next-env.d.ts
 /public/mmd/**
 apps/web/public/mmd/
 apps/web/public/mmd/**
+
+# money-research demo
+apps/money-research/demo/.venv/
+apps/money-research/demo/**/data/cookies.json

@@ -54,6 +54,9 @@ const nextConfig: NextConfig = {
         NEXT_PUBLIC_SHOWMASTERPIECE_URL:
             process.env.NEXT_PUBLIC_SHOWMASTERPIECE_URL ??
             (process.env.NODE_ENV === 'production' ? '/showmasterpiece' : 'http://localhost:3003'),
+        NEXT_PUBLIC_MONEY_RESEARCH_URL:
+            process.env.NEXT_PUBLIC_MONEY_RESEARCH_URL ??
+            (process.env.NODE_ENV === 'production' ? '/money-research' : 'http://localhost:3004'),
     },
 
     images: {

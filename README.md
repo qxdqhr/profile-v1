@@ -13,7 +13,8 @@ profile-v1/
 │   ├── teach-hub/           # TeachHub Web (:3002)
 │   ├── teach-hub-mobile/    # TeachHub RN (Expo)
 │   ├── teach-hub-desktop/   # TeachHub Electron 脚手架
-│   └── showmasterpiece/     # 画集子应用 (:3003)
+│   ├── showmasterpiece/     # 画集子应用 (:3003)
+│   └── money-research/      # 副业调研 Demo 测试台 (:3004)
 ├── packages/
 │   ├── config, auth, db, ui
 │   ├── calendar-core, calendar-shared
@@ -23,7 +24,7 @@ profile-v1/
 └── docs/monorepo-migration/ # B→C 迁移计划
 ```
 
-**生产网关**（同域）：`/` → web；`/calendar` → calendar；`/teach-hub` → teach-hub；`/showmasterpiece` → showmasterpiece。Auth 统一走 web 的 `/api/auth/*`。详见 [`deploy/MIGRATION-RUNBOOK.md`](deploy/MIGRATION-RUNBOOK.md)。
+**生产网关**（同域）：`/` → web；`/calendar` → calendar；`/teach-hub` → teach-hub；`/showmasterpiece` → showmasterpiece；`/money-research` → money-research。Auth 统一走 web 的 `/api/auth/*`。详见 [`deploy/MIGRATION-RUNBOOK.md`](deploy/MIGRATION-RUNBOOK.md)。
 
 ## 快速开始
 
@@ -35,6 +36,7 @@ pnpm dev               # 主站 :3000
 pnpm dev:calendar      # :3001
 pnpm dev:teach-hub     # :3002
 pnpm dev:showmasterpiece  # :3003
+pnpm dev:money-research   # :3004
 pnpm dev:calendar-mobile    # Expo
 ```
 
@@ -42,11 +44,12 @@ pnpm dev:calendar-mobile    # Expo
 
 | 命令 | 说明 |
 |------|------|
-| `pnpm build:all` | 构建 web / calendar / teach-hub / showmasterpiece |
+| `pnpm build:all` | 构建 web / calendar / teach-hub / showmasterpiece / money-research |
 | `pnpm db:generate` / `pnpm db:migrate` | Drizzle 迁移（根目录 `drizzle/`） |
 | `pnpm package:calendar` | Calendar Docker + 可选 RN APK |
 | `pnpm package:teach-hub` | TeachHub Docker + 可选 RN APK |
 | `pnpm package:showmasterpiece` | ShowMasterpiece Docker |
+| `pnpm package:money-research` | Money Research Docker |
 
 本地仅打 Docker 镜像、跳过 Android APK：
 
@@ -68,6 +71,7 @@ RN 签名 APK 与 TeachHub 共用 `config/android-signing.env`（见 `config/and
 | Calendar Mobile | [`apps/calendar-mobile/README.md`](apps/calendar-mobile/README.md) |
 | TeachHub | [`apps/teach-hub/README.md`](apps/teach-hub/README.md) |
 | ShowMasterpiece | [`apps/showmasterpiece/README.md`](apps/showmasterpiece/README.md) |
+| Money Research | [`apps/money-research/README.md`](apps/money-research/README.md) |
 
 ## Agent / 协作
 
@@ -77,7 +81,7 @@ RN 签名 APK 与 TeachHub 共用 `config/android-signing.env`（见 `config/and
 
 ## CI 与发布
 
-推送到 `main` 后，GitHub Actions `Build and Push Docker Images` 会构建并推送四应用镜像（web / calendar / teach-hub / showmasterpiece），同步 nginx 配置并部署网关栈。
+推送到 `main` 后，GitHub Actions `Build and Push Docker Images` 会构建并推送五应用镜像（web / calendar / teach-hub / showmasterpiece / money-research），同步 nginx 配置并部署网关栈。
 
 RN 客户端独立 workflow：
 

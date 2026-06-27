@@ -25,6 +25,7 @@ check_http "GET /api/auth/get-session" "${BASE}/api/auth/get-session" "200"
 check_http "GET /calendar/" "${BASE}/calendar/" "200"
 check_http "GET /teach-hub/" "${BASE}/teach-hub/" "200"
 check_http "GET /showmasterpiece/" "${BASE}/showmasterpiece/" "200"
+check_http "GET /money-research/" "${BASE}/money-research/" "200"
 # 未登录应 401；404 表示 nginx basePath 反代未对齐
 check_http "GET /api/calendar/events/" \
   "${BASE}/api/calendar/events/?startDate=2026-01-01&endDate=2026-12-31" "401"

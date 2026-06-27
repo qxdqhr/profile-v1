@@ -1,4 +1,4 @@
-# 生产网关栈：nginx + web + calendar + teach-hub + showmasterpiece
+# 生产网关栈：nginx + web + calendar + teach-hub + showmasterpiece + money-research
 # 用法见 deploy/MIGRATION-RUNBOOK.md
 
 services:
@@ -14,6 +14,7 @@ services:
       NEXT_PUBLIC_CALENDAR_URL: /calendar
       NEXT_PUBLIC_TEACH_HUB_URL: /teach-hub
       NEXT_PUBLIC_SHOWMASTERPIECE_URL: /showmasterpiece
+      NEXT_PUBLIC_MONEY_RESEARCH_URL: /money-research
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     volumes:
@@ -75,6 +76,16 @@ services:
     networks:
       - profile
 
+  money_research:
+    image: ${REGISTRY}/qhr-profile-money-research:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_BASE_PATH: /money-research
+    expose:
+      - '3004'
+    networks:
+      - profile
+
   nginx:
     image: docker.m.daocloud.io/library/nginx:1.27-alpine
     restart: unless-stopped
@@ -83,6 +94,7 @@ services:
       - calendar
       - teach_hub
       - showmasterpiece
+      - money_research
     ports:
       - '${GATEWAY_PORT:-3000}:80'
     volumes:
