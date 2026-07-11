@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   ReactFlow,
+  ReactFlowProvider,
   Background,
   Controls,
   MiniMap,
@@ -36,24 +37,40 @@ import { NodeEditorPanel } from '../components/NodeEditorPanel';
 import { EdgeStylePanel } from '../components/EdgeStylePanel';
 import { MobileBottomSheet } from '../components/MobileBottomSheet';
 import { MobileCanvasToolbar } from '../components/MobileCanvasToolbar';
+import { CanvasSettingsPanel } from '../components/CanvasSettingsPanel';
 import { AddNodeComposer, EMPTY_NODE_DRAFT, type NewNodeDraft } from '../components/AddNodeComposer';
 import { useIsMobileCanvas } from '../hooks/useMediaQuery';
 import { nodeNotesApi } from '../services/nodeNotesApi';
 import type { DocumentGraph, NodeNoteEdge, NodeNoteNode, ViewportState } from '../types';
 import { exportCanvasPng } from '../utils/exportCanvasPng';
-import { DEFAULT_EDGE_COLOR, normalizeHexColor } from '../utils/nodeStyle';
+import { DEFAULT_CANVAS_BG, DEFAULT_EDGE_COLOR, normalizeHexColor } from '../utils/nodeStyle';
 import '../styles/node-notes-theme.css';
 
 const nodeTypes = { note: NoteNode };
 const PREVIEW_NODE_ID = '__node_preview__';
+const FIT_VIEW_OPTIONS = { padding: 0.25, duration: 0, maxZoom: 1.2 } as const;
+
+function toFiniteNumber(value: unknown, fallback: number): number {
+  const n = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
 
 function toFlowNode(node: NodeNoteNode, selected: boolean, connectSource = false): Node<NoteNodeData> {
+  const width = toFiniteNumber(node.width, 280);
+  const height = toFiniteNumber(node.height, 160);
   return {
     id: node.id,
     type: 'note',
-    position: { x: node.positionX, y: node.positionY },
-    data: { node, selected, connectSource },
-    style: { width: node.width },
+    position: {
+      x: toFiniteNumber(node.positionX, 0),
+      y: toFiniteNumber(node.positionY, 0),
+    },
+    data: {
+      node: { ...node, width, height, positionX: toFiniteNumber(node.positionX, 0), positionY: toFiniteNumber(node.positionY, 0) },
+      selected,
+      connectSource,
+    },
+    style: { width },
   };
 }
 
@@ -80,6 +97,9 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
   const isMobile = useIsMobileCanvas();
   const flowRef = useRef<HTMLDivElement>(null);
   const flowInstance = useRef<ReactFlowInstance | null>(null);
+  const initialFitDoneRef = useRef(false);
+  const fitRetryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastIsMobileRef = useRef<boolean | null>(null);
   const [graph, setGraph] = useState<DocumentGraph | null>(null);
   const [loading, setLoading] = useState(true);
   const [saveState, setSaveState] = useState<'saved' | 'saving' | 'error'>('saved');
@@ -100,16 +120,81 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
   const contentTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const positionTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const edgeTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const canvasColorTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const fitCanvas = useCallback((nodeId?: string) => {
+  const canvasBgColor = normalizeHexColor(graph?.document.canvasBgColor, DEFAULT_CANVAS_BG);
+
+  const focusFlowNode = useCallback((nodeId: string, padding = 0.35) => {
     requestAnimationFrame(() => {
-      if (nodeId) {
-        flowInstance.current?.fitView({ nodes: [{ id: nodeId }], padding: 0.35, duration: 300 });
-      } else {
-        flowInstance.current?.fitView({ padding: 0.2, duration: 300 });
-      }
+      flowInstance.current?.fitView({
+        nodes: [{ id: nodeId }],
+        padding,
+        duration: 300,
+        maxZoom: 1.25,
+      });
     });
   }, []);
+
+  const fitAllNodes = useCallback(() => {
+    requestAnimationFrame(() => {
+      if (!flowInstance.current) return;
+      if (nodes.some((n) => n.id !== PREVIEW_NODE_ID)) {
+        flowInstance.current.fitView({ padding: 0.25, duration: 300, maxZoom: 1.2 });
+      }
+    });
+  }, [nodes]);
+
+  const ensureCanvasVisible = useCallback(
+    (options?: { force?: boolean; data?: DocumentGraph | null }) => {
+      const { force = false, data = null } = options ?? {};
+      if (!force && initialFitDoneRef.current) return;
+
+      const hasRealNodes =
+        (data?.nodes.length ?? 0) > 0 || nodes.some((n) => n.id !== PREVIEW_NODE_ID);
+      if (!hasRealNodes) return;
+
+      const runFit = (attempt = 0) => {
+        const instance = flowInstance.current;
+        const container = flowRef.current;
+        if (!instance || !container) {
+          if (attempt < 8) {
+            fitRetryTimer.current = setTimeout(() => runFit(attempt + 1), 80);
+          }
+          return;
+        }
+
+        const { width, height } = container.getBoundingClientRect();
+        if (width < 80 || height < 120) {
+          if (attempt < 8) {
+            fitRetryTimer.current = setTimeout(() => runFit(attempt + 1), 80);
+          }
+          return;
+        }
+
+        if (!nodes.some((n) => n.id !== PREVIEW_NODE_ID) && !(data?.nodes.length)) return;
+
+        instance.fitView(FIT_VIEW_OPTIONS);
+        initialFitDoneRef.current = true;
+      };
+
+      if (fitRetryTimer.current) clearTimeout(fitRetryTimer.current);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => runFit());
+      });
+    },
+    [nodes],
+  );
+
+  const fitCanvas = useCallback(
+    (nodeId?: string) => {
+      if (nodeId) {
+        focusFlowNode(nodeId);
+        return;
+      }
+      fitAllNodes();
+    },
+    [focusFlowNode, fitAllNodes],
+  );
 
   const applyConnectHighlight = useCallback(
     (sourceId: string | null) => {
@@ -143,22 +228,55 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
 
   const loadGraph = useCallback(async () => {
     setLoading(true);
+    initialFitDoneRef.current = false;
     try {
       const data = await nodeNotesApi.getGraph(documentId);
       setGraph(data);
       setNodes(data.nodes.map((n) => toFlowNode(n, false)));
       setEdges(data.edges.map((e) => toFlowEdge(e, false)));
-      fitCanvas();
+      ensureCanvasVisible({ data });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : '加载失败');
     } finally {
       setLoading(false);
     }
-  }, [documentId, setNodes, setEdges, fitCanvas]);
+  }, [documentId, setNodes, setEdges, ensureCanvasVisible]);
 
   useEffect(() => {
     loadGraph();
   }, [loadGraph]);
+
+  useEffect(() => {
+    if (loading || !graph) return;
+    ensureCanvasVisible({ data: graph });
+  }, [loading, graph, nodes.length, ensureCanvasVisible]);
+
+  useEffect(() => {
+    if (lastIsMobileRef.current === isMobile) return;
+    lastIsMobileRef.current = isMobile;
+    if (loading || !graph) return;
+    initialFitDoneRef.current = false;
+    ensureCanvasVisible({ force: true, data: graph });
+  }, [isMobile, loading, graph, ensureCanvasVisible]);
+
+  useEffect(() => {
+    const container = flowRef.current;
+    if (!container) return;
+
+    const observer = new ResizeObserver(() => {
+      if (initialFitDoneRef.current) return;
+      ensureCanvasVisible({ data: graph });
+    });
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [graph, ensureCanvasVisible]);
+
+  useEffect(
+    () => () => {
+      if (fitRetryTimer.current) clearTimeout(fitRetryTimer.current);
+    },
+    [],
+  );
 
   const selectedNode = useMemo(() => {
     if (!selectedNodeId || !graph) return null;
@@ -169,6 +287,27 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
     if (!selectedEdgeId || !graph) return null;
     return graph.edges.find((e) => e.id === selectedEdgeId) ?? null;
   }, [graph, selectedEdgeId]);
+
+  const handleCanvasBgChange = useCallback(
+    (canvasBgColor: string) => {
+      const normalized = normalizeHexColor(canvasBgColor, DEFAULT_CANVAS_BG);
+      setGraph((g) =>
+        g ? { ...g, document: { ...g.document, canvasBgColor: normalized } } : g,
+      );
+      setSaveState('saving');
+      if (canvasColorTimer.current) clearTimeout(canvasColorTimer.current);
+      canvasColorTimer.current = setTimeout(async () => {
+        try {
+          await nodeNotesApi.updateDocument(documentId, { canvasBgColor: normalized });
+          setSaveState('saved');
+        } catch (e) {
+          setSaveState('error');
+          toast.error(e instanceof Error ? e.message : '画布颜色保存失败');
+        }
+      }, 400);
+    },
+    [documentId],
+  );
 
   const scheduleContentSave = useCallback((nodeId: string, patch: Partial<NodeNoteNode>) => {
     setSaveState('saving');
@@ -428,7 +567,7 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
       setNewNodeDraft(EMPTY_NODE_DRAFT);
 
       requestAnimationFrame(() => {
-        flowInstance.current?.setCenter(positionX, positionY, { zoom: 1, duration: 300 });
+        focusFlowNode(node.id);
       });
 
       if (isMobile) {
@@ -448,6 +587,7 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
     removePreviewNode,
     setNodes,
     isMobile,
+    focusFlowNode,
   ]);
 
   const handleNodeDragStop = useCallback(
@@ -707,15 +847,7 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
     [setNodes],
   );
 
-  if (loading) {
-    return (
-      <div className="flex min-h-dvh items-center justify-center bg-[var(--nn-shell-bg)] text-[var(--nn-shell-text)]">
-        <Loader2 className="h-8 w-8 animate-spin text-[var(--nn-primary)]" aria-label="加载中" />
-      </div>
-    );
-  }
-
-  if (!graph) {
+  if (!graph && !loading) {
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-[var(--nn-shell-bg)] text-[var(--nn-shell-text)]">
         <p>文档不存在或无法加载</p>
@@ -736,9 +868,12 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
       : '';
 
   const mobileSheetTitle = selectedEdge ? '连接线样式' : selectedNode ? '节点编辑' : '';
+  const documentTitle = graph?.document.title ?? '加载中…';
+  const nodeCount = graph?.nodes.length ?? 0;
+  const edgeCount = graph?.edges.length ?? 0;
 
   return (
-    <div className="node-notes-root flex min-h-dvh flex-col bg-[var(--nn-shell-bg)]">
+    <div className="node-notes-root flex h-dvh min-h-0 flex-col overflow-hidden bg-[var(--nn-shell-bg)]">
       <header className="flex shrink-0 items-center gap-2 border-b border-[var(--nn-shell-border)] px-3 py-2 sm:px-4">
         <Link
           href={nodeNotesGalleryPath()}
@@ -748,8 +883,11 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-[var(--nn-shell-text)] sm:text-lg">
-          {graph.document.title}
+          {documentTitle}
         </h1>
+        <span className="rounded-full bg-[var(--nn-shell-surface)] px-2 py-0.5 text-xs text-[var(--nn-shell-muted)]">
+          {nodeCount} 节点
+        </span>
         <span
           className="flex items-center gap-1 text-xs text-[var(--nn-shell-muted)]"
           title={saveLabel}
@@ -817,10 +955,17 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         <div
           ref={flowRef}
-          className="relative h-[calc(100dvh-3.5rem)] min-h-[320px] w-full flex-1 bg-[var(--nn-canvas-bg)] lg:h-auto lg:min-h-0"
+          className="relative min-h-0 w-full flex-1"
+          style={{ backgroundColor: canvasBgColor }}
         >
+          {loading ? (
+            <div className="absolute inset-0 z-30 flex items-center justify-center bg-[var(--nn-shell-bg)]/40 backdrop-blur-[1px]">
+              <Loader2 className="h-8 w-8 animate-spin text-[var(--nn-primary)]" aria-label="加载中" />
+            </div>
+          ) : null}
           <ReactFlow
-            className="h-full w-full touch-pan-x touch-pan-y"
+            className="h-full w-full"
+            style={{ backgroundColor: canvasBgColor }}
             nodes={nodes}
             edges={edges}
             onNodesChange={onNodesChange}
@@ -832,24 +977,26 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
             onNodeDragStop={handleNodeDragStop}
             onInit={(instance) => {
               flowInstance.current = instance;
+              ensureCanvasVisible({ data: graph });
             }}
             onMoveEnd={(_, viewport) => {
               persistViewport({ x: viewport.x, y: viewport.y, zoom: viewport.zoom });
               if (addNodeComposerOpen) syncPreviewNode(newNodeDraft);
             }}
             nodeTypes={nodeTypes}
-            fitView
+            fitView={nodeCount > 0}
+            fitViewOptions={FIT_VIEW_OPTIONS}
             minZoom={0.2}
             maxZoom={2.5}
             nodesDraggable
             nodesConnectable={!isMobile}
             elementsSelectable
             edgesFocusable
-            panOnDrag
+            panOnDrag={isMobile ? true : [1, 2]}
             panOnScroll={false}
             zoomOnScroll={!isMobile}
             zoomOnPinch
-            preventScrolling={isMobile}
+            preventScrolling
             defaultEdgeOptions={{
               markerEnd: { type: MarkerType.ArrowClosed, color: DEFAULT_EDGE_COLOR },
             }}
@@ -904,9 +1051,13 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
               onDelete={handleDeleteSelected}
             />
           ) : (
-            <aside className="flex w-full items-center justify-center border-l border-[var(--nn-shell-border)] bg-[var(--nn-shell-surface)] p-6 text-sm text-[var(--nn-shell-muted)]">
-              点击节点或连接线以编辑内容与样式
-            </aside>
+            <CanvasSettingsPanel
+              nodeCount={nodeCount}
+              edgeCount={edgeCount}
+              canvasBgColor={canvasBgColor}
+              onCanvasBgChange={handleCanvasBgChange}
+              onFitAllNodes={fitAllNodes}
+            />
           )}
         </div>
       </div>
@@ -953,7 +1104,9 @@ export default function NodeNotesCanvasPage({ documentId }: NodeNotesCanvasPageP
   return (
     <AuthProvider>
       <AuthGuard>
-        <CanvasInner documentId={documentId} />
+        <ReactFlowProvider>
+          <CanvasInner documentId={documentId} />
+        </ReactFlowProvider>
       </AuthGuard>
     </AuthProvider>
   );

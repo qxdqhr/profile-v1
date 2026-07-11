@@ -18,6 +18,7 @@ export interface ViewportState {
 export interface DocumentFormData {
   title: string;
   description?: string;
+  canvasBgColor?: string;
 }
 
 export interface DocumentListItem extends NodeNoteDocument {

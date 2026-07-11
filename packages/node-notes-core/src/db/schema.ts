@@ -20,6 +20,7 @@ export const nodeNoteDocuments = pgTable('node_note_documents', {
   description: text('description'),
   slug: varchar('slug', { length: 120 }).notNull(),
   viewport: text('viewport'),
+  canvasBgColor: varchar('canvas_bg_color', { length: 20 }).notNull().default('#f8fafc'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });

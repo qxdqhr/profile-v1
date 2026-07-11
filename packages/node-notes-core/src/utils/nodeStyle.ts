@@ -1,6 +1,7 @@
 export const DEFAULT_NODE_BG = '#ffffff';
 export const DEFAULT_NODE_TEXT = '#1e293b';
 export const DEFAULT_EDGE_COLOR = '#0891b2';
+export const DEFAULT_CANVAS_BG = '#f8fafc';
 
 const HEX_COLOR = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 

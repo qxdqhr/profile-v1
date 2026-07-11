@@ -19,29 +19,13 @@ import type {
 } from '../types';
 import { slugifyTitle, uniqueSlug } from '../utils/slug';
 import {
+  DEFAULT_CANVAS_BG,
   DEFAULT_EDGE_COLOR,
   DEFAULT_NODE_BG,
   DEFAULT_NODE_TEXT,
   normalizeHexColor,
 } from '../utils/nodeStyle';
-
-function parseViewport(raw: string | null): ViewportState | null {
-  if (!raw) return null;
-  try {
-    const v = JSON.parse(raw) as ViewportState;
-    if (typeof v.x === 'number' && typeof v.y === 'number' && typeof v.zoom === 'number') {
-      return v;
-    }
-  } catch {
-    return null;
-  }
-  return null;
-}
-
-function serializeViewport(viewport: ViewportState | null | undefined): string | null {
-  if (!viewport) return null;
-  return JSON.stringify(viewport);
-}
+import { parseViewport, serializeViewport } from '../utils/viewport';
 
 export class NodeNotesDbService {
   async getUserDocuments(userId: string): Promise<DocumentListItem[]> {
@@ -127,6 +111,9 @@ export class NodeNotesDbService {
     }
     if (data.description !== undefined) patch.description = data.description?.trim() || null;
     if (data.viewport !== undefined) patch.viewport = serializeViewport(data.viewport);
+    if (data.canvasBgColor !== undefined) {
+      patch.canvasBgColor = normalizeHexColor(data.canvasBgColor, DEFAULT_CANVAS_BG);
+    }
 
     const [row] = await db
       .update(nodeNoteDocuments)
