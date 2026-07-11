@@ -36,7 +36,7 @@ import { NodeEditorPanel } from '../components/NodeEditorPanel';
 import { EdgeStylePanel } from '../components/EdgeStylePanel';
 import { MobileBottomSheet } from '../components/MobileBottomSheet';
 import { MobileCanvasToolbar } from '../components/MobileCanvasToolbar';
-import { AddNodeDraftBar } from '../components/AddNodeDraftBar';
+import { AddNodeComposer, EMPTY_NODE_DRAFT, type NewNodeDraft } from '../components/AddNodeComposer';
 import { useIsMobileCanvas } from '../hooks/useMediaQuery';
 import { nodeNotesApi } from '../services/nodeNotesApi';
 import type { DocumentGraph, NodeNoteEdge, NodeNoteNode, ViewportState } from '../types';
@@ -45,6 +45,7 @@ import { DEFAULT_EDGE_COLOR, normalizeHexColor } from '../utils/nodeStyle';
 import '../styles/node-notes-theme.css';
 
 const nodeTypes = { note: NoteNode };
+const PREVIEW_NODE_ID = '__node_preview__';
 
 function toFlowNode(node: NodeNoteNode, selected: boolean, connectSource = false): Node<NoteNodeData> {
   return {
@@ -89,7 +90,8 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
   const [connectMode, setConnectMode] = useState(false);
   const [connectSourceId, setConnectSourceId] = useState<string | null>(null);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
-  const [addNodeDraftOpen, setAddNodeDraftOpen] = useState(false);
+  const [addNodeComposerOpen, setAddNodeComposerOpen] = useState(false);
+  const [newNodeDraft, setNewNodeDraft] = useState<NewNodeDraft>(EMPTY_NODE_DRAFT);
   const [addingNode, setAddingNode] = useState(false);
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<NoteNodeData>>([]);
@@ -330,50 +332,123 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
     return { x: 120 + Math.random() * 80, y: 120 + Math.random() * 80 };
   }, [isMobile]);
 
-  const beginAddNodeDraft = useCallback(() => {
-    setAddNodeDraftOpen(true);
+  const removePreviewNode = useCallback(() => {
+    setNodes((nds) => nds.filter((n) => n.id !== PREVIEW_NODE_ID));
+  }, [setNodes]);
+
+  const syncPreviewNode = useCallback(
+    (draft: NewNodeDraft) => {
+      const { x, y } = getDraftNodePosition();
+      const previewRecord: NodeNoteNode = {
+        id: PREVIEW_NODE_ID,
+        documentId,
+        title: draft.title.trim() || '新节点',
+        contentMd: draft.contentMd,
+        positionX: x,
+        positionY: y,
+        width: 280,
+        height: 160,
+        bgColor: draft.bgColor,
+        textColor: draft.textColor,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      setNodes((nds) => {
+        const rest = nds.filter((n) => n.id !== PREVIEW_NODE_ID);
+        return [
+          ...rest,
+          {
+            id: PREVIEW_NODE_ID,
+            type: 'note',
+            position: { x, y },
+            data: { node: previewRecord, selected: false, isPreview: true },
+            style: { width: 280, zIndex: 5 },
+            draggable: false,
+            selectable: false,
+            focusable: false,
+          },
+        ];
+      });
+    },
+    [documentId, getDraftNodePosition, setNodes],
+  );
+
+  const openAddNodeComposer = useCallback(() => {
+    const draft = { ...EMPTY_NODE_DRAFT };
+    setNewNodeDraft(draft);
+    setAddNodeComposerOpen(true);
     setSelectedNodeId(null);
     setSelectedEdgeId(null);
     setMobileSheetOpen(false);
     setConnectMode(false);
     setConnectSourceId(null);
     applyConnectHighlight(null);
-    setNodes((nds) =>
-      nds.map((n) => ({ ...n, data: { ...n.data, selected: false, connectSource: false } })),
-    );
     setEdges((eds) => eds.map((e) => ({ ...e, selected: false })));
-    toast('调整视图后点击「确定添加节点」');
-  }, [applyConnectHighlight, setNodes, setEdges]);
+    setNodes((nds) =>
+      nds.map((n) => ({
+        ...n,
+        data: { ...n.data, selected: false, connectSource: false },
+      })),
+    );
+    requestAnimationFrame(() => syncPreviewNode(draft));
+  }, [applyConnectHighlight, setNodes, setEdges, syncPreviewNode]);
 
-  const cancelAddNodeDraft = useCallback(() => {
-    setAddNodeDraftOpen(false);
-  }, []);
+  const closeAddNodeComposer = useCallback(() => {
+    setAddNodeComposerOpen(false);
+    setNewNodeDraft(EMPTY_NODE_DRAFT);
+    removePreviewNode();
+  }, [removePreviewNode]);
 
-  const confirmAddNode = useCallback(async () => {
+  const confirmAddNodeFromComposer = useCallback(async () => {
     if (addingNode) return;
+    const title = newNodeDraft.title.trim();
+    if (!title) {
+      toast.error('请填写节点标题');
+      return;
+    }
+
     setAddingNode(true);
     try {
       const { x: positionX, y: positionY } = getDraftNodePosition();
       const node = await nodeNotesApi.createNode(documentId, {
-        title: '新节点',
-        contentMd: '',
+        title,
+        contentMd: newNodeDraft.contentMd,
+        bgColor: newNodeDraft.bgColor,
+        textColor: newNodeDraft.textColor,
         positionX,
         positionY,
       });
+
+      removePreviewNode();
       setGraph((g) => (g ? { ...g, nodes: [...g.nodes, node] } : g));
-      setNodes((nds) => [...nds, toFlowNode(node, false)]);
+      setNodes((nds) => [...nds.filter((n) => n.id !== PREVIEW_NODE_ID), toFlowNode(node, true)]);
       setSelectedNodeId(node.id);
       setSelectedEdgeId(null);
-      setAddNodeDraftOpen(false);
-      fitCanvas(node.id);
-      if (isMobile) setMobileSheetOpen(true);
-      toast.success('已添加节点');
+      setAddNodeComposerOpen(false);
+      setNewNodeDraft(EMPTY_NODE_DRAFT);
+
+      requestAnimationFrame(() => {
+        flowInstance.current?.setCenter(positionX, positionY, { zoom: 1, duration: 300 });
+      });
+
+      if (isMobile) {
+        setMobileSheetOpen(true);
+      }
+      toast.success('节点已添加到画布');
     } catch (e) {
       toast.error(e instanceof Error ? e.message : '添加失败');
     } finally {
       setAddingNode(false);
     }
-  }, [addingNode, getDraftNodePosition, documentId, setNodes, fitCanvas, isMobile]);
+  }, [
+    addingNode,
+    newNodeDraft,
+    getDraftNodePosition,
+    documentId,
+    removePreviewNode,
+    setNodes,
+    isMobile,
+  ]);
 
   const handleNodeDragStop = useCallback(
     (_: React.MouseEvent, node: Node<NoteNodeData>) => {
@@ -382,8 +457,15 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
     [schedulePositionSave],
   );
 
+  useEffect(() => {
+    if (!addNodeComposerOpen) return;
+    syncPreviewNode(newNodeDraft);
+  }, [addNodeComposerOpen, newNodeDraft, syncPreviewNode]);
+
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: Node<NoteNodeData>) => {
+      if (node.id === PREVIEW_NODE_ID) return;
+
       if (isMobile && connectMode) {
         if (!connectSourceId) {
           setConnectSourceId(node.id);
@@ -529,7 +611,8 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
         setSelectedNodeId(null);
         setSelectedEdgeId(null);
         setMobileSheetOpen(false);
-        setAddNodeDraftOpen(false);
+        setAddNodeComposerOpen(false);
+        removePreviewNode();
         setConnectMode(false);
         setConnectSourceId(null);
         applyConnectHighlight(null);
@@ -537,7 +620,7 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [handleDeleteSelected, applyConnectHighlight]);
+  }, [handleDeleteSelected, applyConnectHighlight, removePreviewNode]);
 
   const persistViewport = useCallback(
     async (viewport: ViewportState) => {
@@ -676,7 +759,7 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
         </span>
         <button
           type="button"
-          onClick={beginAddNodeDraft}
+          onClick={openAddNodeComposer}
           className="hidden lg:inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-lg bg-[var(--nn-primary)] px-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-[var(--nn-primary-hover)]"
         >
           <Plus className="h-4 w-4" aria-hidden />
@@ -750,9 +833,10 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
             onInit={(instance) => {
               flowInstance.current = instance;
             }}
-            onMoveEnd={(_, viewport) =>
-              persistViewport({ x: viewport.x, y: viewport.y, zoom: viewport.zoom })
-            }
+            onMoveEnd={(_, viewport) => {
+              persistViewport({ x: viewport.x, y: viewport.y, zoom: viewport.zoom });
+              if (addNodeComposerOpen) syncPreviewNode(newNodeDraft);
+            }}
             nodeTypes={nodeTypes}
             fitView
             minZoom={0.2}
@@ -786,32 +870,14 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
             </Panel>
           </ReactFlow>
 
-          {addNodeDraftOpen ? (
-            <>
-              <div
-                className="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2"
-                aria-hidden
-              >
-                <div className="h-5 w-5 rounded-full border-2 border-[var(--nn-primary)] bg-[var(--nn-primary)]/25 shadow-md" />
-              </div>
-              <AddNodeDraftBar
-                creating={addingNode}
-                onConfirm={confirmAddNode}
-                onCancel={cancelAddNodeDraft}
-                className="bottom-36 lg:bottom-8"
-              />
-            </>
-          ) : null}
-
           <MobileCanvasToolbar
             connectMode={connectMode}
             connectSourceId={connectSourceId}
-            addNodeDraftOpen={addNodeDraftOpen}
             hasSelection={Boolean(selectedNode || selectedEdge)}
             selectionLabel={selectionLabel}
             importing={importing}
             exportingPng={exportingPng}
-            onBeginAddNode={beginAddNodeDraft}
+            onBeginAddNode={openAddNodeComposer}
             onToggleConnect={handleToggleConnect}
             onFitView={() => fitCanvas()}
             onEditSelection={() => setMobileSheetOpen(true)}
@@ -870,6 +936,15 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
           />
         ) : null}
       </MobileBottomSheet>
+
+      <AddNodeComposer
+        open={addNodeComposerOpen}
+        creating={addingNode}
+        draft={newNodeDraft}
+        onChange={(patch) => setNewNodeDraft((d) => ({ ...d, ...patch }))}
+        onConfirm={confirmAddNodeFromComposer}
+        onCancel={closeAddNodeComposer}
+      />
     </div>
   );
 }

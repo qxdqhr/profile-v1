@@ -1,5 +1,4 @@
 import type {
-  ApiResponse,
   DocumentFormData,
   DocumentGraph,
   DocumentListItem,
@@ -13,125 +12,85 @@ import type {
   ViewportState,
 } from '../types';
 import { nodeNotesApiPath } from '../utils/nodeNotesApiPath';
-
-async function parseJson<T>(res: Response): Promise<ApiResponse<T>> {
-  return res.json() as Promise<ApiResponse<T>>;
-}
+import { nodeNotesFetch, nodeNotesFetchVoid } from './nodeNotesFetch';
 
 export const nodeNotesApi = {
   async listDocuments(): Promise<DocumentListItem[]> {
-    const res = await fetch(nodeNotesApiPath('documents'));
-    const json = await parseJson<DocumentListItem[]>(res);
-    if (!json.success || !json.data) throw new Error(json.message || '加载文档失败');
-    return json.data;
+    return nodeNotesFetch<DocumentListItem[]>(nodeNotesApiPath('documents'));
   },
 
   async createDocument(data: DocumentFormData): Promise<NodeNoteDocument> {
-    const res = await fetch(nodeNotesApiPath('documents'), {
+    return nodeNotesFetch<NodeNoteDocument>(nodeNotesApiPath('documents'), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+      body: data,
     });
-    const json = await parseJson<NodeNoteDocument>(res);
-    if (!json.success || !json.data) throw new Error(json.message || '创建失败');
-    return json.data;
   },
 
   async updateDocument(
     id: string,
     data: Partial<DocumentFormData> & { viewport?: ViewportState | null },
   ): Promise<NodeNoteDocument> {
-    const res = await fetch(nodeNotesApiPath(`documents/${id}`), {
+    return nodeNotesFetch<NodeNoteDocument>(nodeNotesApiPath(`documents/${id}`), {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+      body: data,
     });
-    const json = await parseJson<NodeNoteDocument>(res);
-    if (!json.success || !json.data) throw new Error(json.message || '更新失败');
-    return json.data;
   },
 
   async deleteDocument(id: string): Promise<void> {
-    const res = await fetch(nodeNotesApiPath(`documents/${id}`), { method: 'DELETE' });
-    const json = await parseJson<{ deleted: boolean }>(res);
-    if (!json.success) throw new Error(json.message || '删除失败');
+    await nodeNotesFetchVoid(nodeNotesApiPath(`documents/${id}`), { method: 'DELETE' });
   },
 
   async getGraph(id: string): Promise<DocumentGraph> {
-    const res = await fetch(nodeNotesApiPath(`documents/${id}`));
-    const json = await parseJson<DocumentGraph>(res);
-    if (!json.success || !json.data) throw new Error(json.message || '加载图谱失败');
-    return json.data;
+    return nodeNotesFetch<DocumentGraph>(nodeNotesApiPath(`documents/${id}`));
   },
 
   async createNode(documentId: string, data: NodeFormData): Promise<NodeNoteNode> {
-    const res = await fetch(nodeNotesApiPath(`documents/${documentId}/nodes`), {
+    return nodeNotesFetch<NodeNoteNode>(nodeNotesApiPath(`documents/${documentId}/nodes`), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+      body: data,
     });
-    const json = await parseJson<NodeNoteNode>(res);
-    if (!json.success || !json.data) throw new Error(json.message || '创建节点失败');
-    return json.data;
   },
 
   async updateNode(id: string, data: Partial<NodeFormData>): Promise<NodeNoteNode> {
-    const res = await fetch(nodeNotesApiPath(`nodes/${id}`), {
+    return nodeNotesFetch<NodeNoteNode>(nodeNotesApiPath(`nodes/${id}`), {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+      body: data,
     });
-    const json = await parseJson<NodeNoteNode>(res);
-    if (!json.success || !json.data) throw new Error(json.message || '更新节点失败');
-    return json.data;
   },
 
   async deleteNode(id: string): Promise<void> {
-    const res = await fetch(nodeNotesApiPath(`nodes/${id}`), { method: 'DELETE' });
-    const json = await parseJson<{ deleted: boolean }>(res);
-    if (!json.success) throw new Error(json.message || '删除节点失败');
+    await nodeNotesFetchVoid(nodeNotesApiPath(`nodes/${id}`), { method: 'DELETE' });
   },
 
   async createEdge(documentId: string, data: EdgeFormData): Promise<NodeNoteEdge> {
-    const res = await fetch(nodeNotesApiPath(`documents/${documentId}/edges`), {
+    return nodeNotesFetch<NodeNoteEdge>(nodeNotesApiPath(`documents/${documentId}/edges`), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+      body: data,
     });
-    const json = await parseJson<NodeNoteEdge>(res);
-    if (!json.success || !json.data) throw new Error(json.message || '创建边失败');
-    return json.data;
   },
 
   async updateEdge(
     id: string,
     data: { label?: string | null; color?: string },
   ): Promise<NodeNoteEdge> {
-    const res = await fetch(nodeNotesApiPath(`edges/${id}`), {
+    return nodeNotesFetch<NodeNoteEdge>(nodeNotesApiPath(`edges/${id}`), {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+      body: data,
     });
-    const json = await parseJson<NodeNoteEdge>(res);
-    if (!json.success || !json.data) throw new Error(json.message || '更新边失败');
-    return json.data;
   },
 
   async deleteEdge(id: string): Promise<void> {
-    const res = await fetch(nodeNotesApiPath(`edges/${id}`), { method: 'DELETE' });
-    const json = await parseJson<{ deleted: boolean }>(res);
-    if (!json.success) throw new Error(json.message || '删除边失败');
+    await nodeNotesFetchVoid(nodeNotesApiPath(`edges/${id}`), { method: 'DELETE' });
   },
 
   async getNodeLinks(nodeId: string): Promise<NodeLinks> {
-    const res = await fetch(nodeNotesApiPath(`nodes/${nodeId}/links`));
-    const json = await parseJson<NodeLinks>(res);
-    if (!json.success || !json.data) throw new Error(json.message || '加载链接失败');
-    return json.data;
+    return nodeNotesFetch<NodeLinks>(nodeNotesApiPath(`nodes/${nodeId}/links`));
   },
 
   async exportDocumentZip(documentId: string): Promise<void> {
-    const res = await fetch(nodeNotesApiPath(`documents/${documentId}/export`));
+    const res = await fetch(nodeNotesApiPath(`documents/${documentId}/export`), {
+      credentials: 'include',
+    });
     if (!res.ok) throw new Error('导出失败');
     const blob = await res.blob();
     const disposition = res.headers.get('Content-Disposition') || '';
@@ -155,13 +114,9 @@ export const nodeNotesApi = {
     if (targetDocumentId) form.set('targetDocumentId', targetDocumentId);
     for (const file of files) form.append('files', file);
 
-    const res = await fetch(nodeNotesApiPath('documents/import'), { method: 'POST', body: form });
-    const json = await parseJson<{
-      documentId: string;
-      nodesCreated: number;
-      edgesCreated: number;
-    }>(res);
-    if (!json.success || !json.data) throw new Error(json.message || '导入失败');
-    return json.data;
+    return nodeNotesFetch<{ documentId: string; nodesCreated: number; edgesCreated: number }>(
+      nodeNotesApiPath('documents/import'),
+      { method: 'POST', body: form },
+    );
   },
 };

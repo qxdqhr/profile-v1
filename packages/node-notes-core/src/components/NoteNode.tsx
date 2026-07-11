@@ -9,10 +9,11 @@ export type NoteNodeData = {
   node: NodeNoteNode;
   selected: boolean;
   connectSource?: boolean;
+  isPreview?: boolean;
 };
 
 function NoteNodeComponent({ data }: NodeProps & { data: NoteNodeData }) {
-  const { node, selected, connectSource } = data;
+  const { node, selected, connectSource, isPreview } = data;
   const preview = node.contentMd.trim().slice(0, 120);
   const bgColor = normalizeHexColor(node.bgColor, DEFAULT_NODE_BG);
   const textColor = normalizeHexColor(node.textColor, DEFAULT_NODE_TEXT);
@@ -20,11 +21,13 @@ function NoteNodeComponent({ data }: NodeProps & { data: NoteNodeData }) {
   return (
     <div
       className={`nn-note-node rounded-xl border-2 shadow-sm transition-shadow duration-200 ${
-        connectSource
-          ? 'border-emerald-500 shadow-md ring-2 ring-emerald-500/40'
-          : selected
-            ? 'border-[var(--nn-node-selected)] shadow-md ring-2 ring-[var(--nn-node-selected)]/30'
-            : 'border-[var(--nn-node-border)]'
+        isPreview
+          ? 'border-dashed border-[var(--nn-primary)] opacity-80'
+          : connectSource
+            ? 'border-emerald-500 shadow-md ring-2 ring-emerald-500/40'
+            : selected
+              ? 'border-[var(--nn-node-selected)] shadow-md ring-2 ring-[var(--nn-node-selected)]/30'
+              : 'border-[var(--nn-node-border)]'
       }`}
       style={{
         width: node.width,

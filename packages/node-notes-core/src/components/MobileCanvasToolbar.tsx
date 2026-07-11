@@ -14,7 +14,6 @@ import { useEffect, useRef, useState } from 'react';
 interface MobileCanvasToolbarProps {
   connectMode: boolean;
   connectSourceId: string | null;
-  addNodeDraftOpen: boolean;
   hasSelection: boolean;
   selectionLabel: string;
   importing: boolean;
@@ -33,7 +32,6 @@ interface MobileCanvasToolbarProps {
 export function MobileCanvasToolbar({
   connectMode,
   connectSourceId,
-  addNodeDraftOpen,
   hasSelection,
   selectionLabel,
   importing,
@@ -95,12 +93,7 @@ export function MobileCanvasToolbar({
       ) : null}
 
       <div className="pointer-events-auto flex w-full max-w-md items-center justify-between gap-1 rounded-2xl border border-[var(--nn-shell-border)] bg-[var(--nn-shell-surface)]/95 p-1.5 shadow-lg backdrop-blur-sm">
-        <ToolbarButton
-          label={addNodeDraftOpen ? '放置中' : '添加节点'}
-          onClick={onBeginAddNode}
-          primary
-          active={addNodeDraftOpen}
-        >
+        <ToolbarButton label="添加节点" onClick={onBeginAddNode} primary>
           <Plus className="h-5 w-5" />
         </ToolbarButton>
 
