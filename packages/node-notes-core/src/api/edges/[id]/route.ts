@@ -9,7 +9,7 @@ export async function PUT(
   if (response) return response;
 
   const { id } = await context.params;
-  const body = (await request.json()) as { label?: string | null };
+  const body = (await request.json()) as { label?: string | null; color?: string };
 
   const edge = await nodeNotesDbService.updateEdge(id, String(user!.id), body);
   if (!edge) return fail('边不存在', 404);

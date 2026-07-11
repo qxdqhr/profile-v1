@@ -3,6 +3,7 @@
 import { memo } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import type { NodeNoteNode } from '../types';
+import { DEFAULT_NODE_BG, DEFAULT_NODE_TEXT, normalizeHexColor } from '../utils/nodeStyle';
 
 export type NoteNodeData = {
   node: NodeNoteNode;
@@ -12,13 +13,20 @@ export type NoteNodeData = {
 function NoteNodeComponent({ data }: NodeProps & { data: NoteNodeData }) {
   const { node, selected } = data;
   const preview = node.contentMd.trim().slice(0, 120);
+  const bgColor = normalizeHexColor(node.bgColor, DEFAULT_NODE_BG);
+  const textColor = normalizeHexColor(node.textColor, DEFAULT_NODE_TEXT);
 
   return (
     <div
-      className={`rounded-xl border-2 bg-white shadow-sm transition-shadow duration-200 ${
-        selected ? 'border-[var(--nn-node-selected)] shadow-md' : 'border-[var(--nn-node-border)]'
+      className={`rounded-xl border-2 shadow-sm transition-shadow duration-200 ${
+        selected ? 'border-[var(--nn-node-selected)] shadow-md ring-2 ring-[var(--nn-node-selected)]/30' : 'border-[var(--nn-node-border)]'
       }`}
-      style={{ width: node.width, minHeight: node.height }}
+      style={{
+        width: node.width,
+        minHeight: node.height,
+        backgroundColor: bgColor,
+        color: textColor,
+      }}
     >
       <Handle
         type="target"
@@ -26,11 +34,13 @@ function NoteNodeComponent({ data }: NodeProps & { data: NoteNodeData }) {
         className="!h-3 !w-3 !border-2 !border-[var(--nn-accent)] !bg-white"
         aria-label="连入"
       />
-      <div className="border-b border-slate-100 px-3 py-2">
-        <h3 className="truncate text-sm font-semibold text-slate-900">{node.title}</h3>
+      <div className="border-b border-black/10 px-3 py-2">
+        <h3 className="truncate text-sm font-semibold" style={{ color: textColor }}>
+          {node.title}
+        </h3>
       </div>
-      <div className="px-3 py-2 text-xs leading-relaxed text-slate-600">
-        {preview || <span className="text-slate-400">空节点，点击编辑</span>}
+      <div className="px-3 py-2 text-xs leading-relaxed opacity-90">
+        {preview || <span className="opacity-50">空节点，点击编辑</span>}
       </div>
       <Handle
         type="source"

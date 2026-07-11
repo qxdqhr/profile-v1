@@ -70,4 +70,14 @@ run_psql "CREATE UNIQUE INDEX IF NOT EXISTS node_note_edges_doc_source_target_id
   ON node_note_edges (document_id, source_id, target_id);" \
   || echo "WARN: node_note_edges 唯一索引创建失败"
 
+echo "=== 确保 node_note_nodes 样式列存在 ==="
+run_psql "ALTER TABLE node_note_nodes ADD COLUMN IF NOT EXISTS bg_color varchar(20) NOT NULL DEFAULT '#ffffff';" \
+  || echo "WARN: bg_color 列迁移失败"
+run_psql "ALTER TABLE node_note_nodes ADD COLUMN IF NOT EXISTS text_color varchar(20) NOT NULL DEFAULT '#1e293b';" \
+  || echo "WARN: text_color 列迁移失败"
+
+echo "=== 确保 node_note_edges 颜色列存在 ==="
+run_psql "ALTER TABLE node_note_edges ADD COLUMN IF NOT EXISTS color varchar(20) NOT NULL DEFAULT '#0891b2';" \
+  || echo "WARN: color 列迁移失败"
+
 echo "=== node-notes schema 检查完成 ==="

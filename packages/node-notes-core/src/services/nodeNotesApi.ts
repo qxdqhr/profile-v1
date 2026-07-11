@@ -103,11 +103,14 @@ export const nodeNotesApi = {
     return json.data;
   },
 
-  async updateEdge(id: string, label: string | null): Promise<NodeNoteEdge> {
+  async updateEdge(
+    id: string,
+    data: { label?: string | null; color?: string },
+  ): Promise<NodeNoteEdge> {
     const res = await fetch(nodeNotesApiPath(`edges/${id}`), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ label }),
+      body: JSON.stringify(data),
     });
     const json = await parseJson<NodeNoteEdge>(res);
     if (!json.success || !json.data) throw new Error(json.message || '更新边失败');

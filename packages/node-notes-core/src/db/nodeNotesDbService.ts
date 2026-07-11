@@ -18,6 +18,12 @@ import type {
   ViewportState,
 } from '../types';
 import { slugifyTitle, uniqueSlug } from '../utils/slug';
+import {
+  DEFAULT_EDGE_COLOR,
+  DEFAULT_NODE_BG,
+  DEFAULT_NODE_TEXT,
+  normalizeHexColor,
+} from '../utils/nodeStyle';
 
 function parseViewport(raw: string | null): ViewportState | null {
   if (!raw) return null;
@@ -174,6 +180,8 @@ export class NodeNotesDbService {
         positionY: data.positionY ?? 0,
         width: data.width ?? 280,
         height: data.height ?? 160,
+        bgColor: normalizeHexColor(data.bgColor, DEFAULT_NODE_BG),
+        textColor: normalizeHexColor(data.textColor, DEFAULT_NODE_TEXT),
         updatedAt: new Date(),
       })
       .returning();
@@ -201,6 +209,10 @@ export class NodeNotesDbService {
     if (data.positionY !== undefined) patch.positionY = data.positionY;
     if (data.width !== undefined) patch.width = data.width;
     if (data.height !== undefined) patch.height = data.height;
+    if (data.bgColor !== undefined) patch.bgColor = normalizeHexColor(data.bgColor, DEFAULT_NODE_BG);
+    if (data.textColor !== undefined) {
+      patch.textColor = normalizeHexColor(data.textColor, DEFAULT_NODE_TEXT);
+    }
 
     const [row] = await db
       .update(nodeNoteNodes)
@@ -259,6 +271,7 @@ export class NodeNotesDbService {
           sourceId: data.sourceId,
           targetId: data.targetId,
           label: data.label?.trim().slice(0, 50) || null,
+          color: normalizeHexColor(data.color, DEFAULT_EDGE_COLOR),
         })
         .returning();
 
@@ -276,14 +289,18 @@ export class NodeNotesDbService {
   async updateEdge(
     edgeId: string,
     userId: string,
-    data: { label?: string | null },
+    data: { label?: string | null; color?: string },
   ): Promise<NodeNoteEdge | null> {
     const owned = await this.getOwnedEdge(edgeId, userId);
     if (!owned) return null;
 
+    const patch: Partial<typeof nodeNoteEdges.$inferInsert> = {};
+    if (data.label !== undefined) patch.label = data.label?.trim().slice(0, 50) || null;
+    if (data.color !== undefined) patch.color = normalizeHexColor(data.color, DEFAULT_EDGE_COLOR);
+
     const [row] = await db
       .update(nodeNoteEdges)
-      .set({ label: data.label?.trim().slice(0, 50) || null })
+      .set(patch)
       .where(eq(nodeNoteEdges.id, edgeId))
       .returning();
 

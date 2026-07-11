@@ -32,12 +32,15 @@ export interface NodeFormData {
   positionY?: number;
   width?: number;
   height?: number;
+  bgColor?: string;
+  textColor?: string;
 }
 
 export interface EdgeFormData {
   sourceId: string;
   targetId: string;
   label?: string;
+  color?: string;
 }
 
 export interface NodeLinkItem {

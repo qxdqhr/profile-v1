@@ -15,6 +15,7 @@ import {
   type Connection,
   type Edge,
   type Node,
+  type ReactFlowInstance,
   MarkerType,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -32,9 +33,11 @@ import { AuthGuard, AuthProvider } from '@profile/auth/react';
 import { nodeNotesDocumentPath, nodeNotesGalleryPath } from '../utils/nodeNotesRoutes';
 import { NoteNode, type NoteNodeData } from '../components/NoteNode';
 import { NodeEditorPanel } from '../components/NodeEditorPanel';
+import { EdgeStylePanel } from '../components/EdgeStylePanel';
 import { nodeNotesApi } from '../services/nodeNotesApi';
-import type { DocumentGraph, NodeNoteNode, ViewportState } from '../types';
+import type { DocumentGraph, NodeNoteEdge, NodeNoteNode, ViewportState } from '../types';
 import { exportCanvasPng } from '../utils/exportCanvasPng';
+import { DEFAULT_EDGE_COLOR, normalizeHexColor } from '../utils/nodeStyle';
 import '../styles/node-notes-theme.css';
 
 const nodeTypes = { note: NoteNode };
@@ -49,15 +52,17 @@ function toFlowNode(node: NodeNoteNode, selected: boolean): Node<NoteNodeData> {
   };
 }
 
-function toFlowEdge(edge: { id: string; sourceId: string; targetId: string; label: string | null }): Edge {
+function toFlowEdge(edge: NodeNoteEdge, selected = false): Edge {
+  const color = normalizeHexColor(edge.color, DEFAULT_EDGE_COLOR);
   return {
     id: edge.id,
     source: edge.sourceId,
     target: edge.targetId,
     label: edge.label || undefined,
-    markerEnd: { type: MarkerType.ArrowClosed, color: '#0891b2' },
-    style: { stroke: '#0891b2', strokeWidth: 2 },
-    labelStyle: { fill: '#0e7490', fontSize: 11 },
+    selected,
+    markerEnd: { type: MarkerType.ArrowClosed, color },
+    style: { stroke: color, strokeWidth: selected ? 3 : 2 },
+    labelStyle: { fill: color, fontSize: 11 },
   };
 }
 
@@ -68,10 +73,12 @@ interface NodeNotesCanvasPageProps {
 function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
   const router = useRouter();
   const flowRef = useRef<HTMLDivElement>(null);
+  const flowInstance = useRef<ReactFlowInstance | null>(null);
   const [graph, setGraph] = useState<DocumentGraph | null>(null);
   const [loading, setLoading] = useState(true);
   const [saveState, setSaveState] = useState<'saved' | 'saving' | 'error'>('saved');
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
   const [exportingPng, setExportingPng] = useState(false);
   const [importing, setImporting] = useState(false);
 
@@ -80,6 +87,17 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
 
   const contentTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const positionTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const edgeTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+
+  const fitCanvas = useCallback((nodeId?: string) => {
+    requestAnimationFrame(() => {
+      if (nodeId) {
+        flowInstance.current?.fitView({ nodes: [{ id: nodeId }], padding: 0.35, duration: 300 });
+      } else {
+        flowInstance.current?.fitView({ padding: 0.2, duration: 300 });
+      }
+    });
+  }, []);
 
   const loadGraph = useCallback(async () => {
     setLoading(true);
@@ -87,13 +105,14 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
       const data = await nodeNotesApi.getGraph(documentId);
       setGraph(data);
       setNodes(data.nodes.map((n) => toFlowNode(n, false)));
-      setEdges(data.edges.map(toFlowEdge));
+      setEdges(data.edges.map((e) => toFlowEdge(e, false)));
+      fitCanvas();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : '加载失败');
     } finally {
       setLoading(false);
     }
-  }, [documentId, setNodes, setEdges]);
+  }, [documentId, setNodes, setEdges, fitCanvas]);
 
   useEffect(() => {
     loadGraph();
@@ -104,6 +123,11 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
     return graph.nodes.find((n) => n.id === selectedNodeId) ?? null;
   }, [graph, selectedNodeId]);
 
+  const selectedEdge = useMemo(() => {
+    if (!selectedEdgeId || !graph) return null;
+    return graph.edges.find((e) => e.id === selectedEdgeId) ?? null;
+  }, [graph, selectedEdgeId]);
+
   const scheduleContentSave = useCallback((nodeId: string, patch: Partial<NodeNoteNode>) => {
     setSaveState('saving');
     const prev = contentTimers.current.get(nodeId);
@@ -113,6 +137,8 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
         const updated = await nodeNotesApi.updateNode(nodeId, {
           title: patch.title,
           contentMd: patch.contentMd,
+          bgColor: patch.bgColor,
+          textColor: patch.textColor,
         });
         setGraph((g) =>
           g
@@ -157,7 +183,7 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
   );
 
   const handleNodeChange = useCallback(
-    (patch: Partial<Pick<NodeNoteNode, 'title' | 'contentMd'>>) => {
+    (patch: Partial<Pick<NodeNoteNode, 'title' | 'contentMd' | 'bgColor' | 'textColor'>>) => {
       if (!selectedNodeId) return;
       setGraph((g) =>
         g
@@ -200,7 +226,7 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
           sourceId: connection.source,
           targetId: connection.target,
         });
-        setEdges((eds) => addEdge(toFlowEdge(edge), eds));
+        setEdges((eds) => addEdge(toFlowEdge(edge, false), eds));
         setGraph((g) => (g ? { ...g, edges: [...g.edges, edge] } : g));
         toast.success('已创建有向边');
       } catch (e) {
@@ -208,6 +234,59 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
       }
     },
     [documentId, setEdges],
+  );
+
+  const scheduleEdgeSave = useCallback(
+    (edgeId: string, patch: Partial<Pick<NodeNoteEdge, 'label' | 'color'>>) => {
+      setSaveState('saving');
+      const prev = edgeTimers.current.get(edgeId);
+      if (prev) clearTimeout(prev);
+      const timer = setTimeout(async () => {
+        try {
+          const updated = await nodeNotesApi.updateEdge(edgeId, patch);
+          setGraph((g) =>
+            g
+              ? {
+                  ...g,
+                  edges: g.edges.map((e) => (e.id === edgeId ? { ...e, ...updated } : e)),
+                }
+              : g,
+          );
+          setEdges((eds) =>
+            eds.map((e) => (e.id === edgeId ? toFlowEdge(updated, true) : e)),
+          );
+          setSaveState('saved');
+        } catch (e) {
+          setSaveState('error');
+          toast.error(e instanceof Error ? e.message : '保存失败');
+        }
+      }, 400);
+      edgeTimers.current.set(edgeId, timer);
+    },
+    [setEdges],
+  );
+
+  const handleEdgeChange = useCallback(
+    (patch: Partial<Pick<NodeNoteEdge, 'label' | 'color'>>) => {
+      if (!selectedEdgeId || !graph) return;
+      setGraph((g) =>
+        g
+          ? {
+              ...g,
+              edges: g.edges.map((e) => (e.id === selectedEdgeId ? { ...e, ...patch } : e)),
+            }
+          : g,
+      );
+      const edge = graph.edges.find((e) => e.id === selectedEdgeId);
+      if (edge) {
+        const merged = { ...edge, ...patch };
+        setEdges((eds) =>
+          eds.map((e) => (e.id === selectedEdgeId ? toFlowEdge(merged, true) : { ...e, selected: false })),
+        );
+      }
+      scheduleEdgeSave(selectedEdgeId, patch);
+    },
+    [selectedEdgeId, graph, scheduleEdgeSave, setEdges],
   );
 
   const handleAddNode = useCallback(async () => {
@@ -221,11 +300,13 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
       setGraph((g) => (g ? { ...g, nodes: [...g.nodes, node] } : g));
       setNodes((nds) => [...nds, toFlowNode(node, false)]);
       setSelectedNodeId(node.id);
+      setSelectedEdgeId(null);
+      fitCanvas(node.id);
       toast.success('已添加节点');
     } catch (e) {
       toast.error(e instanceof Error ? e.message : '添加失败');
     }
-  }, [documentId, setNodes]);
+  }, [documentId, setNodes, fitCanvas]);
 
   const handleNodeDragStop = useCallback(
     (_: React.MouseEvent, node: Node<NoteNodeData>) => {
@@ -233,15 +314,43 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
     },
     [schedulePositionSave],
   );
+
   const onNodeClick = useCallback((_: React.MouseEvent, node: Node<NoteNodeData>) => {
     setSelectedNodeId(node.id);
+    setSelectedEdgeId(null);
     setNodes((nds) =>
       nds.map((n) => ({
         ...n,
         data: { ...n.data, selected: n.id === node.id },
       })),
     );
-  }, [setNodes]);
+    setEdges((eds) => eds.map((e) => ({ ...e, selected: false })));
+  }, [setNodes, setEdges]);
+
+  const onEdgeClick = useCallback((_: React.MouseEvent, edge: Edge) => {
+    setSelectedEdgeId(edge.id);
+    setSelectedNodeId(null);
+    setNodes((nds) =>
+      nds.map((n) => ({
+        ...n,
+        data: { ...n.data, selected: false },
+      })),
+    );
+    setEdges((eds) =>
+      eds.map((e) => {
+        const graphEdge = graph?.edges.find((ge) => ge.id === e.id);
+        if (!graphEdge) return { ...e, selected: e.id === edge.id };
+        return toFlowEdge(graphEdge, e.id === edge.id);
+      }),
+    );
+  }, [graph, setNodes, setEdges]);
+
+  const onPaneClick = useCallback(() => {
+    setSelectedNodeId(null);
+    setSelectedEdgeId(null);
+    setNodes((nds) => nds.map((n) => ({ ...n, data: { ...n.data, selected: false } })));
+    setEdges((eds) => eds.map((e) => ({ ...e, selected: false, style: { ...e.style, strokeWidth: 2 } })));
+  }, [setNodes, setEdges]);
 
   const handleDeleteSelected = useCallback(async () => {
     if (!selectedNodeId) return;
@@ -270,6 +379,22 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
     }
   }, [selectedNodeId, setNodes, setEdges]);
 
+  const handleDeleteEdge = useCallback(async () => {
+    if (!selectedEdgeId) return;
+    if (!confirm('确定删除该连接线？')) return;
+    try {
+      await nodeNotesApi.deleteEdge(selectedEdgeId);
+      setEdges((eds) => eds.filter((e) => e.id !== selectedEdgeId));
+      setGraph((g) =>
+        g ? { ...g, edges: g.edges.filter((e) => e.id !== selectedEdgeId) } : g,
+      );
+      setSelectedEdgeId(null);
+      toast.success('连接线已删除');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '删除失败');
+    }
+  }, [selectedEdgeId, setEdges]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Delete' || e.key === 'Backspace') {
@@ -277,7 +402,10 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
         if (tag === 'INPUT' || tag === 'TEXTAREA') return;
         handleDeleteSelected();
       }
-      if (e.key === 'Escape') setSelectedNodeId(null);
+      if (e.key === 'Escape') {
+        setSelectedNodeId(null);
+        setSelectedEdgeId(null);
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -465,15 +593,21 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
       </header>
 
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <div ref={flowRef} className="min-h-[50dvh] flex-1 bg-[var(--nn-canvas-bg)] lg:min-h-0">
+        <div ref={flowRef} className="relative h-[min(70dvh,720px)] min-h-[360px] w-full flex-1 bg-[var(--nn-canvas-bg)] lg:h-auto lg:min-h-0">
           <ReactFlow
+            className="h-full w-full"
             nodes={nodes}
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeClick={onNodeClick}
+            onEdgeClick={onEdgeClick}
+            onPaneClick={onPaneClick}
             onNodeDragStop={handleNodeDragStop}
+            onInit={(instance) => {
+              flowInstance.current = instance;
+            }}
             onMoveEnd={(_, viewport) =>
               persistViewport({ x: viewport.x, y: viewport.y, zoom: viewport.zoom })
             }
@@ -481,8 +615,12 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
             fitView
             minZoom={0.25}
             maxZoom={2}
+            nodesDraggable
+            nodesConnectable
+            elementsSelectable
+            edgesFocusable
             defaultEdgeOptions={{
-              markerEnd: { type: MarkerType.ArrowClosed, color: '#0891b2' },
+              markerEnd: { type: MarkerType.ArrowClosed, color: DEFAULT_EDGE_COLOR },
             }}
             proOptions={{ hideAttribution: true }}
           >
@@ -494,12 +632,18 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
               maskColor="rgba(0,0,0,0.08)"
             />
             <Panel position="top-left" className="rounded-lg bg-white/90 px-2 py-1 text-xs text-slate-600 shadow-sm">
-              从右侧圆点拖向左侧圆点建立有向边 →
+              点击节点/连接线设置样式 · 从右侧圆点拖向左侧圆点建边 →
             </Panel>
           </ReactFlow>
         </div>
 
-        {selectedNode ? (
+        {selectedEdge ? (
+          <EdgeStylePanel
+            edge={selectedEdge}
+            onChange={handleEdgeChange}
+            onDelete={handleDeleteEdge}
+          />
+        ) : selectedNode ? (
           <NodeEditorPanel
             node={selectedNode}
             onChange={handleNodeChange}
@@ -507,7 +651,7 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
           />
         ) : (
           <aside className="hidden w-80 items-center justify-center border-l border-[var(--nn-shell-border)] bg-[var(--nn-shell-surface)] p-6 text-sm text-[var(--nn-shell-muted)] lg:flex">
-            选择节点以编辑 Markdown 与查看有向链接
+            点击节点或连接线以编辑内容与样式
           </aside>
         )}
       </div>

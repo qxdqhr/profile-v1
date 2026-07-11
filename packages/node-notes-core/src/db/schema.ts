@@ -35,6 +35,8 @@ export const nodeNoteNodes = pgTable('node_note_nodes', {
   positionY: doublePrecision('position_y').notNull().default(0),
   width: doublePrecision('width').notNull().default(280),
   height: doublePrecision('height').notNull().default(160),
+  bgColor: varchar('bg_color', { length: 20 }).notNull().default('#ffffff'),
+  textColor: varchar('text_color', { length: 20 }).notNull().default('#1e293b'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
@@ -53,6 +55,7 @@ export const nodeNoteEdges = pgTable(
       .notNull()
       .references(() => nodeNoteNodes.id, { onDelete: 'cascade' }),
     label: varchar('label', { length: 50 }),
+    color: varchar('color', { length: 20 }).notNull().default('#0891b2'),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [

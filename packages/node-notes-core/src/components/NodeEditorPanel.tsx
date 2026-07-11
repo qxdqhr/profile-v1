@@ -8,9 +8,12 @@ import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
 import type { NodeLinkItem, NodeNoteNode } from '../types';
 import { nodeNotesApi } from '../services/nodeNotesApi';
 
+import { ColorStyleField } from './ColorStyleField';
+import { DEFAULT_NODE_BG, DEFAULT_NODE_TEXT } from '../utils/nodeStyle';
+
 interface NodeEditorPanelProps {
   node: NodeNoteNode;
-  onChange: (patch: Partial<Pick<NodeNoteNode, 'title' | 'contentMd'>>) => void;
+  onChange: (patch: Partial<Pick<NodeNoteNode, 'title' | 'contentMd' | 'bgColor' | 'textColor'>>) => void;
   onFocusNode: (nodeId: string) => void;
 }
 
@@ -107,6 +110,24 @@ export function NodeEditorPanel({ node, onChange, onFocusNode }: NodeEditorPanel
               </ReactMarkdown>
             </div>
           )}
+        </div>
+
+        <div className="space-y-3 border-t border-[var(--nn-shell-border)] pt-3">
+          <p className="text-sm font-medium">样式</p>
+          <ColorStyleField
+            id="node-bg-color"
+            label="节点背景色"
+            value={node.bgColor ?? DEFAULT_NODE_BG}
+            fallback={DEFAULT_NODE_BG}
+            onChange={(bgColor) => onChange({ bgColor })}
+          />
+          <ColorStyleField
+            id="node-text-color"
+            label="字体颜色"
+            value={node.textColor ?? DEFAULT_NODE_TEXT}
+            fallback={DEFAULT_NODE_TEXT}
+            onChange={(textColor) => onChange({ textColor })}
+          />
         </div>
 
         <div className="space-y-3 border-t border-[var(--nn-shell-border)] pt-3">
