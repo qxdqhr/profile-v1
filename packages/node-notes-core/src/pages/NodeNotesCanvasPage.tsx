@@ -11,6 +11,7 @@ import {
   MiniMap,
   Panel,
   addEdge,
+  useNodesInitialized,
   useNodesState,
   useEdgesState,
   type Connection,
@@ -70,7 +71,7 @@ function toFlowNode(node: NodeNoteNode, selected: boolean, connectSource = false
       selected,
       connectSource,
     },
-    style: { width },
+    style: { width, height },
   };
 }
 
@@ -97,9 +98,11 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
   const isMobile = useIsMobileCanvas();
   const flowRef = useRef<HTMLDivElement>(null);
   const flowInstance = useRef<ReactFlowInstance | null>(null);
+  const pendingInitialFitRef = useRef(false);
   const initialFitDoneRef = useRef(false);
   const fitRetryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastIsMobileRef = useRef<boolean | null>(null);
+  const nodesInitialized = useNodesInitialized();
   const [graph, setGraph] = useState<DocumentGraph | null>(null);
   const [loading, setLoading] = useState(true);
   const [saveState, setSaveState] = useState<'saved' | 'saving' | 'error'>('saved');
@@ -135,55 +138,83 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
     });
   }, []);
 
-  const fitAllNodes = useCallback(() => {
-    requestAnimationFrame(() => {
-      if (!flowInstance.current) return;
-      if (nodes.some((n) => n.id !== PREVIEW_NODE_ID)) {
-        flowInstance.current.fitView({ padding: 0.25, duration: 300, maxZoom: 1.2 });
-      }
-    });
-  }, [nodes]);
+  const getRealFlowNodes = useCallback(() => {
+    return (
+      flowInstance.current?.getNodes().filter((node) => node.id !== PREVIEW_NODE_ID) ?? []
+    );
+  }, []);
 
-  const ensureCanvasVisible = useCallback(
-    (options?: { force?: boolean; data?: DocumentGraph | null }) => {
-      const { force = false, data = null } = options ?? {};
+  const runFitView = useCallback(
+    (options?: { force?: boolean; duration?: number; nodeId?: string }) => {
+      const { force = false, duration = 0, nodeId } = options ?? {};
+      if (!force && initialFitDoneRef.current) return false;
+
+      const instance = flowInstance.current;
+      const container = flowRef.current;
+      if (!instance || !container) return false;
+
+      const { width, height } = container.getBoundingClientRect();
+      if (width < 80 || height < 120) return false;
+
+      const realNodes = getRealFlowNodes();
+      if (!realNodes.length) return false;
+
+      if (!nodeId && !nodesInitialized) return false;
+
+      if (nodeId) {
+        void instance.fitView({
+          nodes: [{ id: nodeId }],
+          padding: 0.35,
+          duration,
+          maxZoom: 1.25,
+        });
+      } else {
+        void instance.fitView({
+          ...FIT_VIEW_OPTIONS,
+          duration,
+          maxZoom: 1.2,
+        });
+      }
+
+      initialFitDoneRef.current = true;
+      pendingInitialFitRef.current = false;
+      return true;
+    },
+    [getRealFlowNodes, nodesInitialized],
+  );
+
+  const scheduleFitView = useCallback(
+    (options?: { force?: boolean; duration?: number; nodeId?: string }) => {
+      const { force = false, duration = 0, nodeId } = options ?? {};
       if (!force && initialFitDoneRef.current) return;
 
-      const hasRealNodes =
-        (data?.nodes.length ?? 0) > 0 || nodes.some((n) => n.id !== PREVIEW_NODE_ID);
-      if (!hasRealNodes) return;
+      const run = (attempt = 0) => {
+        const fitted = runFitView({ force, duration, nodeId });
+        if (fitted) return;
 
-      const runFit = (attempt = 0) => {
-        const instance = flowInstance.current;
-        const container = flowRef.current;
-        if (!instance || !container) {
-          if (attempt < 8) {
-            fitRetryTimer.current = setTimeout(() => runFit(attempt + 1), 80);
-          }
-          return;
+        const shouldRetry =
+          attempt < 24 &&
+          (pendingInitialFitRef.current || force) &&
+          Boolean(flowInstance.current) &&
+          (getRealFlowNodes().length > 0 || (graph?.nodes.length ?? 0) > 0);
+
+        if (shouldRetry) {
+          fitRetryTimer.current = setTimeout(() => run(attempt + 1), 80);
         }
-
-        const { width, height } = container.getBoundingClientRect();
-        if (width < 80 || height < 120) {
-          if (attempt < 8) {
-            fitRetryTimer.current = setTimeout(() => runFit(attempt + 1), 80);
-          }
-          return;
-        }
-
-        if (!nodes.some((n) => n.id !== PREVIEW_NODE_ID) && !(data?.nodes.length)) return;
-
-        instance.fitView(FIT_VIEW_OPTIONS);
-        initialFitDoneRef.current = true;
       };
 
       if (fitRetryTimer.current) clearTimeout(fitRetryTimer.current);
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => runFit());
+        requestAnimationFrame(() => run());
       });
     },
-    [nodes],
+    [runFitView, getRealFlowNodes, graph?.nodes.length],
   );
+
+  const fitAllNodes = useCallback(() => {
+    initialFitDoneRef.current = false;
+    scheduleFitView({ force: true, duration: 300 });
+  }, [scheduleFitView]);
 
   const fitCanvas = useCallback(
     (nodeId?: string) => {
@@ -229,47 +260,53 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
   const loadGraph = useCallback(async () => {
     setLoading(true);
     initialFitDoneRef.current = false;
+    pendingInitialFitRef.current = false;
     try {
       const data = await nodeNotesApi.getGraph(documentId);
       setGraph(data);
       setNodes(data.nodes.map((n) => toFlowNode(n, false)));
       setEdges(data.edges.map((e) => toFlowEdge(e, false)));
-      ensureCanvasVisible({ data });
+      if (data.nodes.length > 0) {
+        pendingInitialFitRef.current = true;
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : '加载失败');
     } finally {
       setLoading(false);
     }
-  }, [documentId, setNodes, setEdges, ensureCanvasVisible]);
+  }, [documentId, setNodes, setEdges]);
 
   useEffect(() => {
     loadGraph();
   }, [loadGraph]);
 
   useEffect(() => {
-    if (loading || !graph) return;
-    ensureCanvasVisible({ data: graph });
-  }, [loading, graph, nodes.length, ensureCanvasVisible]);
+    if (loading || !graph?.nodes.length || !nodesInitialized) return;
+    if (!pendingInitialFitRef.current && initialFitDoneRef.current) return;
+    pendingInitialFitRef.current = true;
+    scheduleFitView({ force: true });
+  }, [loading, graph?.nodes.length, nodesInitialized, scheduleFitView]);
 
   useEffect(() => {
     if (lastIsMobileRef.current === isMobile) return;
     lastIsMobileRef.current = isMobile;
-    if (loading || !graph) return;
+    if (loading || !graph?.nodes.length) return;
     initialFitDoneRef.current = false;
-    ensureCanvasVisible({ force: true, data: graph });
-  }, [isMobile, loading, graph, ensureCanvasVisible]);
+    pendingInitialFitRef.current = true;
+    scheduleFitView({ force: true });
+  }, [isMobile, loading, graph?.nodes.length, scheduleFitView]);
 
   useEffect(() => {
     const container = flowRef.current;
     if (!container) return;
 
     const observer = new ResizeObserver(() => {
-      if (initialFitDoneRef.current) return;
-      ensureCanvasVisible({ data: graph });
+      if (initialFitDoneRef.current || !pendingInitialFitRef.current) return;
+      scheduleFitView({ force: true });
     });
     observer.observe(container);
     return () => observer.disconnect();
-  }, [graph, ensureCanvasVisible]);
+  }, [scheduleFitView]);
 
   useEffect(
     () => () => {
@@ -501,7 +538,7 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
             type: 'note',
             position: { x, y },
             data: { node: previewRecord, selected: false, isPreview: true },
-            style: { width: 280, zIndex: 5 },
+            style: { width: 280, height: 160, zIndex: 5 },
             draggable: false,
             selectable: false,
             focusable: false,
@@ -977,15 +1014,15 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
             onNodeDragStop={handleNodeDragStop}
             onInit={(instance) => {
               flowInstance.current = instance;
-              ensureCanvasVisible({ data: graph });
+              if (pendingInitialFitRef.current) {
+                scheduleFitView({ force: true });
+              }
             }}
             onMoveEnd={(_, viewport) => {
               persistViewport({ x: viewport.x, y: viewport.y, zoom: viewport.zoom });
               if (addNodeComposerOpen) syncPreviewNode(newNodeDraft);
             }}
             nodeTypes={nodeTypes}
-            fitView={nodeCount > 0}
-            fitViewOptions={FIT_VIEW_OPTIONS}
             minZoom={0.2}
             maxZoom={2.5}
             nodesDraggable
