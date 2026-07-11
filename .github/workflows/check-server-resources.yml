@@ -1,0 +1,26 @@
+name: Check Server Resources
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: SSH resource check on server
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_SERVER_USERNAME }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_SERVER_HOST }}
+        run: |
+          set -euo pipefail
+          echo "${{ secrets.DEPLOY_SERVER_SSH_KEY }}" > /tmp/ssh_key
+          chmod 600 /tmp/ssh_key
+          SSH_OPTS="-o StrictHostKeyChecking=no -i /tmp/ssh_key"
+          REMOTE="${DEPLOY_USER}@${DEPLOY_HOST}"
+
+          scp $SSH_OPTS deploy/check-server-resources.sh "$REMOTE:/root/profile-v1/check-server-resources.sh"
+          ssh $SSH_OPTS "$REMOTE" "chmod +x /root/profile-v1/check-server-resources.sh && /root/profile-v1/check-server-resources.sh"
+          rm -f /tmp/ssh_key
