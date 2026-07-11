@@ -36,6 +36,7 @@ import { NodeEditorPanel } from '../components/NodeEditorPanel';
 import { EdgeStylePanel } from '../components/EdgeStylePanel';
 import { MobileBottomSheet } from '../components/MobileBottomSheet';
 import { MobileCanvasToolbar } from '../components/MobileCanvasToolbar';
+import { AddNodeDraftBar } from '../components/AddNodeDraftBar';
 import { useIsMobileCanvas } from '../hooks/useMediaQuery';
 import { nodeNotesApi } from '../services/nodeNotesApi';
 import type { DocumentGraph, NodeNoteEdge, NodeNoteNode, ViewportState } from '../types';
@@ -88,6 +89,8 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
   const [connectMode, setConnectMode] = useState(false);
   const [connectSourceId, setConnectSourceId] = useState<string | null>(null);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
+  const [addNodeDraftOpen, setAddNodeDraftOpen] = useState(false);
+  const [addingNode, setAddingNode] = useState(false);
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<NoteNodeData>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
@@ -312,20 +315,45 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
     [selectedEdgeId, graph, scheduleEdgeSave, setEdges],
   );
 
-  const handleAddNode = useCallback(async () => {
-    try {
-      let positionX = 120 + Math.random() * 80;
-      let positionY = 120 + Math.random() * 80;
-      const instance = flowInstance.current;
-      if (instance && isMobile) {
-        const center = instance.screenToFlowPosition({
-          x: window.innerWidth / 2,
-          y: (window.innerHeight - 180) / 2,
-        });
-        positionX = center.x;
-        positionY = center.y;
-      }
+  const getDraftNodePosition = useCallback(() => {
+    const instance = flowInstance.current;
+    if (instance) {
+      const flowArea = flowRef.current?.getBoundingClientRect();
+      const centerX = flowArea
+        ? flowArea.left + flowArea.width / 2
+        : window.innerWidth / 2;
+      const centerY = flowArea
+        ? flowArea.top + flowArea.height / 2
+        : (window.innerHeight - (isMobile ? 180 : 80)) / 2;
+      return instance.screenToFlowPosition({ x: centerX, y: centerY });
+    }
+    return { x: 120 + Math.random() * 80, y: 120 + Math.random() * 80 };
+  }, [isMobile]);
 
+  const beginAddNodeDraft = useCallback(() => {
+    setAddNodeDraftOpen(true);
+    setSelectedNodeId(null);
+    setSelectedEdgeId(null);
+    setMobileSheetOpen(false);
+    setConnectMode(false);
+    setConnectSourceId(null);
+    applyConnectHighlight(null);
+    setNodes((nds) =>
+      nds.map((n) => ({ ...n, data: { ...n.data, selected: false, connectSource: false } })),
+    );
+    setEdges((eds) => eds.map((e) => ({ ...e, selected: false })));
+    toast('调整视图后点击「确定添加节点」');
+  }, [applyConnectHighlight, setNodes, setEdges]);
+
+  const cancelAddNodeDraft = useCallback(() => {
+    setAddNodeDraftOpen(false);
+  }, []);
+
+  const confirmAddNode = useCallback(async () => {
+    if (addingNode) return;
+    setAddingNode(true);
+    try {
+      const { x: positionX, y: positionY } = getDraftNodePosition();
       const node = await nodeNotesApi.createNode(documentId, {
         title: '新节点',
         contentMd: '',
@@ -336,12 +364,16 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
       setNodes((nds) => [...nds, toFlowNode(node, false)]);
       setSelectedNodeId(node.id);
       setSelectedEdgeId(null);
+      setAddNodeDraftOpen(false);
       fitCanvas(node.id);
+      if (isMobile) setMobileSheetOpen(true);
       toast.success('已添加节点');
     } catch (e) {
       toast.error(e instanceof Error ? e.message : '添加失败');
+    } finally {
+      setAddingNode(false);
     }
-  }, [documentId, setNodes, fitCanvas, isMobile]);
+  }, [addingNode, getDraftNodePosition, documentId, setNodes, fitCanvas, isMobile]);
 
   const handleNodeDragStop = useCallback(
     (_: React.MouseEvent, node: Node<NoteNodeData>) => {
@@ -497,6 +529,7 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
         setSelectedNodeId(null);
         setSelectedEdgeId(null);
         setMobileSheetOpen(false);
+        setAddNodeDraftOpen(false);
         setConnectMode(false);
         setConnectSourceId(null);
         applyConnectHighlight(null);
@@ -643,7 +676,7 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
         </span>
         <button
           type="button"
-          onClick={handleAddNode}
+          onClick={beginAddNodeDraft}
           className="hidden lg:inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-lg bg-[var(--nn-primary)] px-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-[var(--nn-primary-hover)]"
         >
           <Plus className="h-4 w-4" aria-hidden />
@@ -753,14 +786,32 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
             </Panel>
           </ReactFlow>
 
+          {addNodeDraftOpen ? (
+            <>
+              <div
+                className="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2"
+                aria-hidden
+              >
+                <div className="h-5 w-5 rounded-full border-2 border-[var(--nn-primary)] bg-[var(--nn-primary)]/25 shadow-md" />
+              </div>
+              <AddNodeDraftBar
+                creating={addingNode}
+                onConfirm={confirmAddNode}
+                onCancel={cancelAddNodeDraft}
+                className="bottom-36 lg:bottom-8"
+              />
+            </>
+          ) : null}
+
           <MobileCanvasToolbar
             connectMode={connectMode}
             connectSourceId={connectSourceId}
+            addNodeDraftOpen={addNodeDraftOpen}
             hasSelection={Boolean(selectedNode || selectedEdge)}
             selectionLabel={selectionLabel}
             importing={importing}
             exportingPng={exportingPng}
-            onAddNode={handleAddNode}
+            onBeginAddNode={beginAddNodeDraft}
             onToggleConnect={handleToggleConnect}
             onFitView={() => fitCanvas()}
             onEditSelection={() => setMobileSheetOpen(true)}
