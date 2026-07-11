@@ -21,6 +21,7 @@ jobs:
       teach-hub: ${{ steps.filter.outputs.teach-hub }}
       showmasterpiece: ${{ steps.filter.outputs.showmasterpiece }}
       money-research: ${{ steps.filter.outputs.money-research }}
+      node-notes: ${{ steps.filter.outputs.node-notes }}
       calendar-mobile: ${{ steps.filter.outputs.calendar-mobile }}
       teach-hub-mobile: ${{ steps.filter.outputs.teach-hub-mobile }}
       deploy: ${{ steps.filter.outputs.deploy }}
@@ -43,6 +44,7 @@ jobs:
               - 'packages/config/**'
               - 'packages/db/**'
               - 'packages/ui/**'
+              - 'packages/node-notes-core/**'
               - 'pnpm-lock.yaml'
               - 'package.json'
             calendar:
@@ -78,6 +80,15 @@ jobs:
               - 'apps/money-research/**'
               - 'pnpm-lock.yaml'
               - 'package.json'
+            node-notes:
+              - 'apps/node-notes/**'
+              - 'packages/node-notes-core/**'
+              - 'packages/auth/**'
+              - 'packages/config/**'
+              - 'packages/db/**'
+              - 'packages/ui/**'
+              - 'pnpm-lock.yaml'
+              - 'package.json'
             calendar-mobile:
               - 'apps/calendar-mobile/**'
               - 'packages/calendar-shared/**'
@@ -94,13 +105,14 @@ jobs:
         run: |
           set -euo pipefail
           apps=()
-          for app in web calendar teach-hub showmasterpiece money-research; do
+          for app in web calendar teach-hub showmasterpiece money-research node-notes; do
             case "$app" in
               web) changed="${{ steps.filter.outputs.web }}" ;;
               calendar) changed="${{ steps.filter.outputs.calendar }}" ;;
               teach-hub) changed="${{ steps.filter.outputs.teach-hub }}" ;;
               showmasterpiece) changed="${{ steps.filter.outputs.showmasterpiece }}" ;;
               money-research) changed="${{ steps.filter.outputs.money-research }}" ;;
+              node-notes) changed="${{ steps.filter.outputs.node-notes }}" ;;
             esac
             if [ "$changed" = "true" ]; then
               apps+=("$app")
@@ -176,13 +188,14 @@ jobs:
         needs.changes.outputs.calendar == 'true' ||
         needs.changes.outputs.teach-hub == 'true' ||
         needs.changes.outputs.showmasterpiece == 'true' ||
-        needs.changes.outputs.money-research == 'true'
+        needs.changes.outputs.money-research == 'true' ||
+        needs.changes.outputs.node-notes == 'true'
       )
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        app: [web, calendar, teach-hub, showmasterpiece, money-research]
+        app: [web, calendar, teach-hub, showmasterpiece, money-research, node-notes]
     steps:
       - name: Skip if app was rebuilt
         id: gate
@@ -193,6 +206,7 @@ jobs:
             teach-hub) changed="${{ needs.changes.outputs.teach-hub }}" ;;
             showmasterpiece) changed="${{ needs.changes.outputs.showmasterpiece }}" ;;
             money-research) changed="${{ needs.changes.outputs.money-research }}" ;;
+            node-notes) changed="${{ needs.changes.outputs.node-notes }}" ;;
           esac
           if [ "$changed" = "true" ]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
@@ -494,7 +508,8 @@ jobs:
         needs.changes.outputs.calendar == 'true' ||
         needs.changes.outputs.teach-hub == 'true' ||
         needs.changes.outputs.showmasterpiece == 'true' ||
-        needs.changes.outputs.money-research == 'true'
+        needs.changes.outputs.money-research == 'true' ||
+        needs.changes.outputs.node-notes == 'true'
       )
     steps:
       - name: Checkout repository
@@ -544,12 +559,13 @@ jobs:
           scp $SSH_OPTS deploy/wait-gateway-ready.sh "$REMOTE:/root/profile-v1/wait-gateway-ready.sh"
           scp $SSH_OPTS deploy/ensure-database-url.sh "$REMOTE:/root/profile-v1/ensure-database-url.sh"
           scp $SSH_OPTS deploy/ensure-calendar-schema.sh "$REMOTE:/root/profile-v1/ensure-calendar-schema.sh"
+          scp $SSH_OPTS deploy/ensure-node-notes-schema.sh "$REMOTE:/root/profile-v1/ensure-node-notes-schema.sh"
           scp $SSH_OPTS deploy/smoke-test-gateway.sh "$REMOTE:/root/profile-v1/smoke-test-gateway.sh"
           scp $SSH_OPTS deploy/check-gateway-health.sh "$REMOTE:/root/profile-v1/check-gateway-health.sh"
           scp $SSH_OPTS deploy/audit-outer-nginx.sh "$REMOTE:/root/profile-v1/audit-outer-nginx.sh"
           scp $SSH_OPTS deploy/nginx/outer-ubuntu-qhr062.conf "$REMOTE:/root/profile-v1/nginx/outer-ubuntu-qhr062.conf"
           scp $SSH_OPTS deploy/nginx/proxy-params-outer.conf "$REMOTE:/root/profile-v1/nginx/proxy-params-outer.conf"
-          ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/wait-gateway-ready.sh /root/profile-v1/ensure-database-url.sh /root/profile-v1/ensure-calendar-schema.sh /root/profile-v1/smoke-test-gateway.sh /root/profile-v1/check-gateway-health.sh /root/profile-v1/audit-outer-nginx.sh"
+          ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/wait-gateway-ready.sh /root/profile-v1/ensure-database-url.sh /root/profile-v1/ensure-calendar-schema.sh /root/profile-v1/ensure-node-notes-schema.sh /root/profile-v1/smoke-test-gateway.sh /root/profile-v1/check-gateway-health.sh /root/profile-v1/audit-outer-nginx.sh"
 
           ssh $SSH_OPTS "$REMOTE" \
             "REGISTRY=${REGISTRY} IMAGE_TAG=${NEW_TAG} GATEWAY_PORT=3000 /root/profile-v1/deploy-profile-v1.sh"
@@ -598,7 +614,7 @@ jobs:
           FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
           FEISHU_SIGN_SECRET: ${{ secrets.FEISHU_SIGN_SECRET }}
           CI_NOTIFY_STATUS: ${{ (needs.build.result == 'success' || needs.build.result == 'skipped') && (needs.promote-images.result == 'success' || needs.promote-images.result == 'skipped') && (needs.deploy-web.result == 'success' || needs.deploy-web.result == 'skipped') && (needs.build-teach-hub-mobile.result == 'success' || needs.build-teach-hub-mobile.result == 'skipped') && (needs.build-calendar-mobile.result == 'success' || needs.build-calendar-mobile.result == 'skipped') && 'success' || 'failure' }}
-          CI_IMAGE_TAG: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && (needs.build.result == 'success' || needs.promote-images.result == 'success') && format('web:{0} calendar:{0} teach-hub:{0} showmasterpiece:{0} money-research:{0}', github.run_number) || '' }}
+          CI_IMAGE_TAG: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && (needs.build.result == 'success' || needs.promote-images.result == 'success') && format('web:{0} calendar:{0} teach-hub:{0} showmasterpiece:{0} money-research:{0} node-notes:{0}', github.run_number) || '' }}
           CI_TEACH_HUB_APK_BUILD_RESULT: ${{ needs.build-teach-hub-mobile.result }}
           CI_TEACH_HUB_APK_RELEASE_URL: ${{ needs.build-teach-hub-mobile.result == 'success' && needs.build-teach-hub-mobile.outputs.release_url || '' }}
           CI_TEACH_HUB_APK_DOWNLOAD_URL: ${{ needs.build-teach-hub-mobile.result == 'success' && needs.build-teach-hub-mobile.outputs.apk_download_url || '' }}

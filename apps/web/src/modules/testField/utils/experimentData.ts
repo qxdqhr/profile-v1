@@ -205,6 +205,17 @@ export const experiments: ExperimentItem[] = [
     createdAt: "2026-06-08",
     updatedAt: "2026-06-08"
   },
+  {
+    id: "node-notes",
+    title: "节点笔记",
+    description: "多文档节点图谱：有向连线、Markdown 导入导出、画布 PNG 导出",
+    path: "/testField/nodeNotes",
+    tags: ["笔记", "知识图谱", "画布", "Markdown", "导入导出"],
+    category: "utility",
+    isCompleted: false,
+    createdAt: "2026-07-11",
+    updatedAt: "2026-07-11"
+  },
 
   // 休闲娱乐类
   {

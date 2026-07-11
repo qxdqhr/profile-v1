@@ -151,6 +151,7 @@ export default function XxxRoute() {
 | ShowMasterpiece | `apps/showmasterpiece` | `@profile/showmasterpiece` | 3003 | `/showmasterpiece` |
 | Calendar Mobile | `apps/calendar-mobile` | `@profile/calendar-mobile` | Expo | — |
 | TeachHub Mobile | `apps/teach-hub-mobile` | `@profile/teach-hub-mobile` | Expo | — |
+| Profile RN Mobile | `apps/profile-rn-mobile` | `@profile/profile-rn-mobile` | Expo | — |
 
 ### 7.2 共享包
 
@@ -176,5 +177,6 @@ export default function XxxRoute() {
 - Docker 镜像：`qhr-profile-{web,calendar,teach-hub,showmasterpiece}:TAG`
 - CI：`.github/workflows/docker-build-push.yml`（matrix 四应用）
 - RN：`calendar-mobile-v*` tag 触发 calendar-mobile release workflow
+- RN：Profile RN Mobile 见 `.github/workflows/android-release.yml`
 
 部署细节：`deploy/MIGRATION-RUNBOOK.md`、`docs/monorepo-migration/deploy.md`。

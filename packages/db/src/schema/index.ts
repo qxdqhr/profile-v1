@@ -22,6 +22,7 @@ export * from '../../../../apps/web/src/modules/ticketMonitor/db/schema';
 export * from '../../../../apps/web/src/modules/purchaseGame/db/schema';
 export * from './universalExport';
 export * from '../../../../apps/web/src/modules/vocaloidBooth/db/schema';
+export * from '../../../../packages/node-notes-core/src/db/schema';
 
 export const examTypes = pgTable('exam_types', {
   id: text('id').primaryKey(),

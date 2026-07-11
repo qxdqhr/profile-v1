@@ -11,6 +11,7 @@ pnpm workspace 应用目录。
 | `@profile/teach-hub-mobile` | `teach-hub-mobile/` | Expo | TeachHub RN 客户端 |
 | `@profile/teach-hub-desktop` | `teach-hub-desktop/` | — | TeachHub Electron 脚手架 |
 | `@profile/showmasterpiece` | `showmasterpiece/` | 3003 | ShowMasterpiece 画集子应用 |
+| `@profile/profile-rn-mobile` | `profile-rn-mobile/` | Expo | Profile RN Mobile 客户端 |
 
 ## 本地开发
 
@@ -20,6 +21,7 @@ pnpm dev:calendar         # :3001
 pnpm dev:teach-hub        # :3002
 pnpm dev:showmasterpiece  # :3003
 pnpm dev:calendar-mobile  # Expo
+pnpm dev:profile-rn-mobile  # Profile RN Mobile
 ```
 
 网关模式部署见 [`deploy/MIGRATION-RUNBOOK.md`](../deploy/MIGRATION-RUNBOOK.md)。

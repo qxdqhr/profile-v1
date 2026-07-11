@@ -18,6 +18,7 @@
 | ShowMasterpiece | `@profile/showmasterpiece` | 3003 | `/showmasterpiece` |
 | Calendar Mobile | `@profile/calendar-mobile` | Expo | — |
 | TeachHub Mobile | `@profile/teach-hub-mobile` | Expo | — |
+| Profile RN Mobile | `@profile/profile-rn-mobile` | Expo | — |
 
 领域逻辑在 `packages/*-core`；跨端类型与 API 客户端在 `packages/*-shared`。ShowMasterpiece 业务在 `@profile/showmasterpiece-core`。
 
@@ -29,10 +30,12 @@ pnpm dev:calendar
 pnpm dev:teach-hub
 pnpm dev:showmasterpiece
 pnpm dev:calendar-mobile
+pnpm dev:profile-rn-mobile
 pnpm build:all              # 四 Web 子应用
 pnpm package:calendar       # Docker + 可选 APK
 pnpm package:teach-hub
 pnpm package:showmasterpiece
+pnpm build:profile-rn-mobile:android  # Profile RN Mobile Android Release APK
 ```
 
 跳过 Android APK：`BUILD_ANDROID=0 pnpm package:calendar`

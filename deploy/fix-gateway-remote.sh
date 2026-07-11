@@ -132,6 +132,14 @@ elif [ -f ./ensure-calendar-schema.sh ]; then
 fi
 
 echo
+echo "========== 5d. node-notes 表结构 =========="
+if [ -x ./ensure-node-notes-schema.sh ]; then
+  ./ensure-node-notes-schema.sh
+elif [ -f ./ensure-node-notes-schema.sh ]; then
+  bash ./ensure-node-notes-schema.sh
+fi
+
+echo
 if [ "${POST_DEPLOY:-}" = "1" ]; then
   echo "========== 6. 跳过二次重启（deploy-profile-v1.sh 已启动栈）=========="
   sleep 5

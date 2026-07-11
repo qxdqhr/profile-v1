@@ -1,4 +1,4 @@
-# 生产网关栈：nginx + web + calendar + teach-hub + showmasterpiece + money-research
+# 生产网关栈：nginx + web + calendar + teach-hub + showmasterpiece + money-research + node-notes
 # 用法见 deploy/MIGRATION-RUNBOOK.md
 
 services:
@@ -15,6 +15,7 @@ services:
       NEXT_PUBLIC_TEACH_HUB_URL: /teach-hub
       NEXT_PUBLIC_SHOWMASTERPIECE_URL: /showmasterpiece
       NEXT_PUBLIC_MONEY_RESEARCH_URL: /money-research
+      NEXT_PUBLIC_NODE_NOTES_URL: /node-notes
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     volumes:
@@ -86,6 +87,23 @@ services:
     networks:
       - profile
 
+  node_notes:
+    image: ${REGISTRY}/qhr-profile-node-notes:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      APP_CONFIG_ENV: production
+      APP_CONFIG_PATH: /app/config/app.config.production.yaml
+      DATABASE_URL: ${DATABASE_URL:-}
+      NEXT_PUBLIC_BASE_PATH: /node-notes
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - ./app.config.yaml:/app/config/app.config.production.yaml:ro
+    expose:
+      - '3005'
+    networks:
+      - profile
+
   nginx:
     image: docker.m.daocloud.io/library/nginx:1.27-alpine
     restart: unless-stopped
@@ -95,6 +113,7 @@ services:
       - teach_hub
       - showmasterpiece
       - money_research
+      - node_notes
     ports:
       - '${GATEWAY_PORT:-3000}:80'
     volumes:
