@@ -9,16 +9,23 @@ interface EdgeStylePanelProps {
   edge: NodeNoteEdge;
   onChange: (patch: Partial<Pick<NodeNoteEdge, 'label' | 'color'>>) => void;
   onDelete: () => void;
+  embedded?: boolean;
 }
 
-export function EdgeStylePanel({ edge, onChange, onDelete }: EdgeStylePanelProps) {
+export function EdgeStylePanel({ edge, onChange, onDelete, embedded }: EdgeStylePanelProps) {
+  const shellClass = embedded
+    ? 'flex w-full flex-col text-[var(--nn-shell-text)]'
+    : 'flex h-full w-full flex-col border-l border-[var(--nn-shell-border)] bg-[var(--nn-shell-surface)] text-[var(--nn-shell-text)] lg:w-80';
+
   return (
-    <aside className="flex h-full w-full flex-col border-l border-[var(--nn-shell-border)] bg-[var(--nn-shell-surface)] text-[var(--nn-shell-text)] lg:w-80">
-      <div className="border-b border-[var(--nn-shell-border)] px-4 py-3">
-        <p className="text-xs font-medium uppercase tracking-wide text-[var(--nn-shell-muted)]">
-          连接线样式
-        </p>
-      </div>
+    <aside className={shellClass} aria-label="连接线样式">
+      {!embedded ? (
+        <div className="border-b border-[var(--nn-shell-border)] px-4 py-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-[var(--nn-shell-muted)]">
+            连接线样式
+          </p>
+        </div>
+      ) : null}
 
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
         <ColorStyleField
@@ -44,7 +51,7 @@ export function EdgeStylePanel({ edge, onChange, onDelete }: EdgeStylePanelProps
         </div>
 
         <p className="text-xs text-[var(--nn-shell-muted)]">
-          有向边：从源节点右侧圆点拖向目标节点左侧圆点。点击画布空白处可取消选中。
+          桌面端可从圆点拖拽连线；移动端请用底部「连线」按钮，依次点击源节点与目标节点。
         </p>
       </div>
 

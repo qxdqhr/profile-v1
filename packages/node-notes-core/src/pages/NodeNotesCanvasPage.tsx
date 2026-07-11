@@ -34,6 +34,9 @@ import { nodeNotesDocumentPath, nodeNotesGalleryPath } from '../utils/nodeNotesR
 import { NoteNode, type NoteNodeData } from '../components/NoteNode';
 import { NodeEditorPanel } from '../components/NodeEditorPanel';
 import { EdgeStylePanel } from '../components/EdgeStylePanel';
+import { MobileBottomSheet } from '../components/MobileBottomSheet';
+import { MobileCanvasToolbar } from '../components/MobileCanvasToolbar';
+import { useIsMobileCanvas } from '../hooks/useMediaQuery';
 import { nodeNotesApi } from '../services/nodeNotesApi';
 import type { DocumentGraph, NodeNoteEdge, NodeNoteNode, ViewportState } from '../types';
 import { exportCanvasPng } from '../utils/exportCanvasPng';
@@ -42,12 +45,12 @@ import '../styles/node-notes-theme.css';
 
 const nodeTypes = { note: NoteNode };
 
-function toFlowNode(node: NodeNoteNode, selected: boolean): Node<NoteNodeData> {
+function toFlowNode(node: NodeNoteNode, selected: boolean, connectSource = false): Node<NoteNodeData> {
   return {
     id: node.id,
     type: 'note',
     position: { x: node.positionX, y: node.positionY },
-    data: { node, selected },
+    data: { node, selected, connectSource },
     style: { width: node.width },
   };
 }
@@ -72,6 +75,7 @@ interface NodeNotesCanvasPageProps {
 
 function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
   const router = useRouter();
+  const isMobile = useIsMobileCanvas();
   const flowRef = useRef<HTMLDivElement>(null);
   const flowInstance = useRef<ReactFlowInstance | null>(null);
   const [graph, setGraph] = useState<DocumentGraph | null>(null);
@@ -81,6 +85,9 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
   const [exportingPng, setExportingPng] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [connectMode, setConnectMode] = useState(false);
+  const [connectSourceId, setConnectSourceId] = useState<string | null>(null);
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<NoteNodeData>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
@@ -98,6 +105,36 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
       }
     });
   }, []);
+
+  const applyConnectHighlight = useCallback(
+    (sourceId: string | null) => {
+      setNodes((nds) =>
+        nds.map((n) => ({
+          ...n,
+          data: { ...n.data, connectSource: n.id === sourceId },
+        })),
+      );
+    },
+    [setNodes],
+  );
+
+  const createEdgeBetween = useCallback(
+    async (sourceId: string, targetId: string) => {
+      if (sourceId === targetId) {
+        toast.error('不能创建自环有向边');
+        return;
+      }
+      try {
+        const edge = await nodeNotesApi.createEdge(documentId, { sourceId, targetId });
+        setEdges((eds) => addEdge(toFlowEdge(edge, false), eds));
+        setGraph((g) => (g ? { ...g, edges: [...g.edges, edge] } : g));
+        toast.success('已创建有向边');
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : '连线失败');
+      }
+    },
+    [documentId, setEdges],
+  );
 
   const loadGraph = useCallback(async () => {
     setLoading(true);
@@ -217,23 +254,9 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
   const onConnect = useCallback(
     async (connection: Connection) => {
       if (!connection.source || !connection.target) return;
-      if (connection.source === connection.target) {
-        toast.error('不能创建自环有向边');
-        return;
-      }
-      try {
-        const edge = await nodeNotesApi.createEdge(documentId, {
-          sourceId: connection.source,
-          targetId: connection.target,
-        });
-        setEdges((eds) => addEdge(toFlowEdge(edge, false), eds));
-        setGraph((g) => (g ? { ...g, edges: [...g.edges, edge] } : g));
-        toast.success('已创建有向边');
-      } catch (e) {
-        toast.error(e instanceof Error ? e.message : '连线失败');
-      }
+      await createEdgeBetween(connection.source, connection.target);
     },
-    [documentId, setEdges],
+    [createEdgeBetween],
   );
 
   const scheduleEdgeSave = useCallback(
@@ -291,11 +314,23 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
 
   const handleAddNode = useCallback(async () => {
     try {
+      let positionX = 120 + Math.random() * 80;
+      let positionY = 120 + Math.random() * 80;
+      const instance = flowInstance.current;
+      if (instance && isMobile) {
+        const center = instance.screenToFlowPosition({
+          x: window.innerWidth / 2,
+          y: (window.innerHeight - 180) / 2,
+        });
+        positionX = center.x;
+        positionY = center.y;
+      }
+
       const node = await nodeNotesApi.createNode(documentId, {
         title: '新节点',
         contentMd: '',
-        positionX: 120 + Math.random() * 80,
-        positionY: 120 + Math.random() * 80,
+        positionX,
+        positionY,
       });
       setGraph((g) => (g ? { ...g, nodes: [...g.nodes, node] } : g));
       setNodes((nds) => [...nds, toFlowNode(node, false)]);
@@ -306,7 +341,7 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
     } catch (e) {
       toast.error(e instanceof Error ? e.message : '添加失败');
     }
-  }, [documentId, setNodes, fitCanvas]);
+  }, [documentId, setNodes, fitCanvas, isMobile]);
 
   const handleNodeDragStop = useCallback(
     (_: React.MouseEvent, node: Node<NoteNodeData>) => {
@@ -315,42 +350,91 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
     [schedulePositionSave],
   );
 
-  const onNodeClick = useCallback((_: React.MouseEvent, node: Node<NoteNodeData>) => {
-    setSelectedNodeId(node.id);
-    setSelectedEdgeId(null);
-    setNodes((nds) =>
-      nds.map((n) => ({
-        ...n,
-        data: { ...n.data, selected: n.id === node.id },
-      })),
-    );
-    setEdges((eds) => eds.map((e) => ({ ...e, selected: false })));
-  }, [setNodes, setEdges]);
+  const onNodeClick = useCallback(
+    (_: React.MouseEvent, node: Node<NoteNodeData>) => {
+      if (isMobile && connectMode) {
+        if (!connectSourceId) {
+          setConnectSourceId(node.id);
+          applyConnectHighlight(node.id);
+          toast('再点击目标节点完成连线');
+          return;
+        }
+        if (connectSourceId === node.id) {
+          setConnectSourceId(null);
+          applyConnectHighlight(null);
+          return;
+        }
+        void createEdgeBetween(connectSourceId, node.id);
+        setConnectSourceId(null);
+        applyConnectHighlight(null);
+        return;
+      }
 
-  const onEdgeClick = useCallback((_: React.MouseEvent, edge: Edge) => {
-    setSelectedEdgeId(edge.id);
-    setSelectedNodeId(null);
-    setNodes((nds) =>
-      nds.map((n) => ({
-        ...n,
-        data: { ...n.data, selected: false },
-      })),
-    );
-    setEdges((eds) =>
-      eds.map((e) => {
-        const graphEdge = graph?.edges.find((ge) => ge.id === e.id);
-        if (!graphEdge) return { ...e, selected: e.id === edge.id };
-        return toFlowEdge(graphEdge, e.id === edge.id);
-      }),
-    );
-  }, [graph, setNodes, setEdges]);
+      setSelectedNodeId(node.id);
+      setSelectedEdgeId(null);
+      setMobileSheetOpen(false);
+      setNodes((nds) =>
+        nds.map((n) => ({
+          ...n,
+          data: { ...n.data, selected: n.id === node.id, connectSource: false },
+        })),
+      );
+      setEdges((eds) => eds.map((e) => ({ ...e, selected: false })));
+    },
+    [isMobile, connectMode, connectSourceId, applyConnectHighlight, createEdgeBetween, setNodes, setEdges],
+  );
+
+  const onEdgeClick = useCallback(
+    (_: React.MouseEvent, edge: Edge) => {
+      if (isMobile && connectMode) {
+        toast('连线模式下请点选节点，而非连接线');
+        return;
+      }
+      setSelectedEdgeId(edge.id);
+      setSelectedNodeId(null);
+      setMobileSheetOpen(false);
+      setConnectSourceId(null);
+      applyConnectHighlight(null);
+      setNodes((nds) =>
+        nds.map((n) => ({
+          ...n,
+          data: { ...n.data, selected: false, connectSource: false },
+        })),
+      );
+      setEdges((eds) =>
+        eds.map((e) => {
+          const graphEdge = graph?.edges.find((ge) => ge.id === e.id);
+          if (!graphEdge) return { ...e, selected: e.id === edge.id };
+          return toFlowEdge(graphEdge, e.id === edge.id);
+        }),
+      );
+    },
+    [isMobile, connectMode, graph, applyConnectHighlight, setNodes, setEdges],
+  );
 
   const onPaneClick = useCallback(() => {
     setSelectedNodeId(null);
     setSelectedEdgeId(null);
-    setNodes((nds) => nds.map((n) => ({ ...n, data: { ...n.data, selected: false } })));
+    setMobileSheetOpen(false);
+    setConnectSourceId(null);
+    applyConnectHighlight(null);
+    setNodes((nds) => nds.map((n) => ({ ...n, data: { ...n.data, selected: false, connectSource: false } })));
     setEdges((eds) => eds.map((e) => ({ ...e, selected: false, style: { ...e.style, strokeWidth: 2 } })));
-  }, [setNodes, setEdges]);
+  }, [applyConnectHighlight, setNodes, setEdges]);
+
+  const handleToggleConnect = useCallback(() => {
+    setConnectMode((on) => {
+      const next = !on;
+      if (!next) {
+        setConnectSourceId(null);
+        applyConnectHighlight(null);
+      } else {
+        setMobileSheetOpen(false);
+        toast('连线模式：先点源节点，再点目标节点');
+      }
+      return next;
+    });
+  }, [applyConnectHighlight]);
 
   const handleDeleteSelected = useCallback(async () => {
     if (!selectedNodeId) return;
@@ -373,6 +457,7 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
           : g,
       );
       setSelectedNodeId(null);
+      setMobileSheetOpen(false);
       toast.success('节点已删除');
     } catch (e) {
       toast.error(e instanceof Error ? e.message : '删除失败');
@@ -389,11 +474,17 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
         g ? { ...g, edges: g.edges.filter((e) => e.id !== selectedEdgeId) } : g,
       );
       setSelectedEdgeId(null);
+      setMobileSheetOpen(false);
       toast.success('连接线已删除');
     } catch (e) {
       toast.error(e instanceof Error ? e.message : '删除失败');
     }
   }, [selectedEdgeId, setEdges]);
+
+  const handleMobileDeleteSelection = useCallback(() => {
+    if (selectedEdgeId) void handleDeleteEdge();
+    else if (selectedNodeId) void handleDeleteSelected();
+  }, [selectedEdgeId, selectedNodeId, handleDeleteEdge, handleDeleteSelected]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -405,11 +496,15 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
       if (e.key === 'Escape') {
         setSelectedNodeId(null);
         setSelectedEdgeId(null);
+        setMobileSheetOpen(false);
+        setConnectMode(false);
+        setConnectSourceId(null);
+        applyConnectHighlight(null);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [handleDeleteSelected]);
+  }, [handleDeleteSelected, applyConnectHighlight]);
 
   const persistViewport = useCallback(
     async (viewport: ViewportState) => {
@@ -518,9 +613,17 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
   const saveLabel =
     saveState === 'saving' ? '保存中…' : saveState === 'error' ? '保存失败' : '已保存';
 
+  const selectionLabel = selectedNode
+    ? `节点：${selectedNode.title}`
+    : selectedEdge
+      ? '连接线'
+      : '';
+
+  const mobileSheetTitle = selectedEdge ? '连接线样式' : selectedNode ? '节点编辑' : '';
+
   return (
     <div className="node-notes-root flex min-h-dvh flex-col bg-[var(--nn-shell-bg)]">
-      <header className="flex flex-wrap items-center gap-2 border-b border-[var(--nn-shell-border)] px-3 py-2 sm:px-4">
+      <header className="flex shrink-0 items-center gap-2 border-b border-[var(--nn-shell-border)] px-3 py-2 sm:px-4">
         <Link
           href={nodeNotesGalleryPath()}
           className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg text-[var(--nn-shell-muted)] transition-colors duration-200 hover:bg-[var(--nn-shell-surface)] hover:text-[var(--nn-shell-text)]"
@@ -531,14 +634,17 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
         <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-[var(--nn-shell-text)] sm:text-lg">
           {graph.document.title}
         </h1>
-        <span className="flex items-center gap-1 text-xs text-[var(--nn-shell-muted)]">
+        <span
+          className="flex items-center gap-1 text-xs text-[var(--nn-shell-muted)]"
+          title={saveLabel}
+        >
           <Save className="h-3.5 w-3.5" aria-hidden />
-          {saveLabel}
+          <span className="hidden sm:inline">{saveLabel}</span>
         </span>
         <button
           type="button"
           onClick={handleAddNode}
-          className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-lg bg-[var(--nn-primary)] px-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-[var(--nn-primary-hover)]"
+          className="hidden lg:inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-lg bg-[var(--nn-primary)] px-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-[var(--nn-primary-hover)]"
         >
           <Plus className="h-4 w-4" aria-hidden />
           节点
@@ -547,7 +653,7 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
           type="button"
           onClick={handleImportMd}
           disabled={importing}
-          className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--nn-shell-border)] px-3 text-sm text-[var(--nn-shell-text)] transition-colors duration-200 hover:bg-[var(--nn-shell-surface)] disabled:opacity-50"
+          className="hidden lg:inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--nn-shell-border)] px-3 text-sm text-[var(--nn-shell-text)] transition-colors duration-200 hover:bg-[var(--nn-shell-surface)] disabled:opacity-50"
         >
           {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileUp className="h-4 w-4" />}
           导入
@@ -555,12 +661,12 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
         <button
           type="button"
           onClick={handleExportMd}
-          className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--nn-shell-border)] px-3 text-sm text-[var(--nn-shell-text)] transition-colors duration-200 hover:bg-[var(--nn-shell-surface)]"
+          className="hidden lg:inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--nn-shell-border)] px-3 text-sm text-[var(--nn-shell-text)] transition-colors duration-200 hover:bg-[var(--nn-shell-surface)]"
         >
           <Download className="h-4 w-4" aria-hidden />
           导出 MD
         </button>
-        <div className="relative group">
+        <div className="relative group hidden lg:block">
           <button
             type="button"
             disabled={exportingPng}
@@ -593,9 +699,12 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
       </header>
 
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <div ref={flowRef} className="relative h-[min(70dvh,720px)] min-h-[360px] w-full flex-1 bg-[var(--nn-canvas-bg)] lg:h-auto lg:min-h-0">
+        <div
+          ref={flowRef}
+          className="relative h-[calc(100dvh-3.5rem)] min-h-[320px] w-full flex-1 bg-[var(--nn-canvas-bg)] lg:h-auto lg:min-h-0"
+        >
           <ReactFlow
-            className="h-full w-full"
+            className="h-full w-full touch-pan-x touch-pan-y"
             nodes={nodes}
             edges={edges}
             onNodesChange={onNodesChange}
@@ -613,12 +722,17 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
             }
             nodeTypes={nodeTypes}
             fitView
-            minZoom={0.25}
-            maxZoom={2}
+            minZoom={0.2}
+            maxZoom={2.5}
             nodesDraggable
-            nodesConnectable
+            nodesConnectable={!isMobile}
             elementsSelectable
             edgesFocusable
+            panOnDrag
+            panOnScroll={false}
+            zoomOnScroll={!isMobile}
+            zoomOnPinch
+            preventScrolling={isMobile}
             defaultEdgeOptions={{
               markerEnd: { type: MarkerType.ArrowClosed, color: DEFAULT_EDGE_COLOR },
             }}
@@ -627,34 +741,84 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
             <Background color="var(--nn-canvas-grid)" gap={20} />
             <Controls className="!rounded-lg !border-slate-200 !shadow-sm" />
             <MiniMap
-              className="!rounded-lg !border-slate-200 !shadow-sm"
+              className="!hidden lg:!block !rounded-lg !border-slate-200 !shadow-sm"
               nodeColor="#7c3aed"
               maskColor="rgba(0,0,0,0.08)"
             />
-            <Panel position="top-left" className="rounded-lg bg-white/90 px-2 py-1 text-xs text-slate-600 shadow-sm">
+            <Panel
+              position="top-left"
+              className="hidden rounded-lg bg-white/90 px-2 py-1 text-xs text-slate-600 shadow-sm lg:block"
+            >
               点击节点/连接线设置样式 · 从右侧圆点拖向左侧圆点建边 →
             </Panel>
           </ReactFlow>
+
+          <MobileCanvasToolbar
+            connectMode={connectMode}
+            connectSourceId={connectSourceId}
+            hasSelection={Boolean(selectedNode || selectedEdge)}
+            selectionLabel={selectionLabel}
+            importing={importing}
+            exportingPng={exportingPng}
+            onAddNode={handleAddNode}
+            onToggleConnect={handleToggleConnect}
+            onFitView={() => fitCanvas()}
+            onEditSelection={() => setMobileSheetOpen(true)}
+            onDeleteSelection={handleMobileDeleteSelection}
+            onImport={handleImportMd}
+            onExportMd={handleExportMd}
+            onExportPngViewport={() => handleExportPng('viewport')}
+            onExportPngFull={() => handleExportPng('full')}
+          />
         </div>
 
+        <div className="hidden lg:flex lg:min-h-0 lg:w-80 lg:shrink-0">
+          {selectedEdge ? (
+            <EdgeStylePanel
+              edge={selectedEdge}
+              onChange={handleEdgeChange}
+              onDelete={handleDeleteEdge}
+            />
+          ) : selectedNode ? (
+            <NodeEditorPanel
+              node={selectedNode}
+              onChange={handleNodeChange}
+              onFocusNode={focusNode}
+              onDelete={handleDeleteSelected}
+            />
+          ) : (
+            <aside className="flex w-full items-center justify-center border-l border-[var(--nn-shell-border)] bg-[var(--nn-shell-surface)] p-6 text-sm text-[var(--nn-shell-muted)]">
+              点击节点或连接线以编辑内容与样式
+            </aside>
+          )}
+        </div>
+      </div>
+
+      <MobileBottomSheet
+        open={isMobile && mobileSheetOpen && Boolean(selectedNode || selectedEdge)}
+        title={mobileSheetTitle}
+        onClose={() => setMobileSheetOpen(false)}
+      >
         {selectedEdge ? (
           <EdgeStylePanel
+            embedded
             edge={selectedEdge}
             onChange={handleEdgeChange}
             onDelete={handleDeleteEdge}
           />
         ) : selectedNode ? (
           <NodeEditorPanel
+            embedded
             node={selectedNode}
             onChange={handleNodeChange}
-            onFocusNode={focusNode}
+            onFocusNode={(id) => {
+              focusNode(id);
+              fitCanvas(id);
+            }}
+            onDelete={handleDeleteSelected}
           />
-        ) : (
-          <aside className="hidden w-80 items-center justify-center border-l border-[var(--nn-shell-border)] bg-[var(--nn-shell-surface)] p-6 text-sm text-[var(--nn-shell-muted)] lg:flex">
-            点击节点或连接线以编辑内容与样式
-          </aside>
-        )}
-      </div>
+        ) : null}
+      </MobileBottomSheet>
     </div>
   );
 }

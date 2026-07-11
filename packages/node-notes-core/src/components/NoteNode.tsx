@@ -8,18 +8,23 @@ import { DEFAULT_NODE_BG, DEFAULT_NODE_TEXT, normalizeHexColor } from '../utils/
 export type NoteNodeData = {
   node: NodeNoteNode;
   selected: boolean;
+  connectSource?: boolean;
 };
 
 function NoteNodeComponent({ data }: NodeProps & { data: NoteNodeData }) {
-  const { node, selected } = data;
+  const { node, selected, connectSource } = data;
   const preview = node.contentMd.trim().slice(0, 120);
   const bgColor = normalizeHexColor(node.bgColor, DEFAULT_NODE_BG);
   const textColor = normalizeHexColor(node.textColor, DEFAULT_NODE_TEXT);
 
   return (
     <div
-      className={`rounded-xl border-2 shadow-sm transition-shadow duration-200 ${
-        selected ? 'border-[var(--nn-node-selected)] shadow-md ring-2 ring-[var(--nn-node-selected)]/30' : 'border-[var(--nn-node-border)]'
+      className={`nn-note-node rounded-xl border-2 shadow-sm transition-shadow duration-200 ${
+        connectSource
+          ? 'border-emerald-500 shadow-md ring-2 ring-emerald-500/40'
+          : selected
+            ? 'border-[var(--nn-node-selected)] shadow-md ring-2 ring-[var(--nn-node-selected)]/30'
+            : 'border-[var(--nn-node-border)]'
       }`}
       style={{
         width: node.width,
@@ -31,7 +36,7 @@ function NoteNodeComponent({ data }: NodeProps & { data: NoteNodeData }) {
       <Handle
         type="target"
         position={Position.Left}
-        className="!h-3 !w-3 !border-2 !border-[var(--nn-accent)] !bg-white"
+        className="nn-flow-handle !border-2 !border-[var(--nn-accent)] !bg-white"
         aria-label="连入"
       />
       <div className="border-b border-black/10 px-3 py-2">
@@ -45,7 +50,7 @@ function NoteNodeComponent({ data }: NodeProps & { data: NoteNodeData }) {
       <Handle
         type="source"
         position={Position.Right}
-        className="!h-3 !w-3 !border-2 !border-[var(--nn-primary)] !bg-white"
+        className="nn-flow-handle !border-2 !border-[var(--nn-primary)] !bg-white"
         aria-label="连出"
       />
     </div>

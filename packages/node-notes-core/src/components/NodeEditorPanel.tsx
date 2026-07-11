@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
-import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2, Trash2 } from 'lucide-react';
 import type { NodeLinkItem, NodeNoteNode } from '../types';
 import { nodeNotesApi } from '../services/nodeNotesApi';
 
@@ -15,9 +15,11 @@ interface NodeEditorPanelProps {
   node: NodeNoteNode;
   onChange: (patch: Partial<Pick<NodeNoteNode, 'title' | 'contentMd' | 'bgColor' | 'textColor'>>) => void;
   onFocusNode: (nodeId: string) => void;
+  embedded?: boolean;
+  onDelete?: () => void;
 }
 
-export function NodeEditorPanel({ node, onChange, onFocusNode }: NodeEditorPanelProps) {
+export function NodeEditorPanel({ node, onChange, onFocusNode, embedded, onDelete }: NodeEditorPanelProps) {
   const [tab, setTab] = useState<'edit' | 'preview'>('edit');
   const [incoming, setIncoming] = useState<NodeLinkItem[]>([]);
   const [outgoing, setOutgoing] = useState<NodeLinkItem[]>([]);
@@ -49,14 +51,8 @@ export function NodeEditorPanel({ node, onChange, onFocusNode }: NodeEditorPanel
   }, [node.id]);
 
   return (
-    <aside className="flex h-full w-full flex-col border-l border-[var(--nn-shell-border)] bg-[var(--nn-shell-surface)] text-[var(--nn-shell-text)] lg:w-80">
-      <div className="border-b border-[var(--nn-shell-border)] px-4 py-3">
-        <p className="text-xs font-medium uppercase tracking-wide text-[var(--nn-shell-muted)]">
-          节点编辑
-        </p>
-      </div>
-
-      <div className="flex-1 space-y-4 overflow-y-auto p-4">
+    <PanelShell embedded={embedded} title="节点编辑">
+      <PanelBody>
         <div>
           <label htmlFor="node-title" className="mb-1 block text-sm font-medium">
             标题
@@ -156,9 +152,53 @@ export function NodeEditorPanel({ node, onChange, onFocusNode }: NodeEditorPanel
             </>
           )}
         </div>
-      </div>
+      </PanelBody>
+
+      {onDelete ? (
+        <div className="shrink-0 border-t border-[var(--nn-shell-border)] p-4">
+          <button
+            type="button"
+            onClick={onDelete}
+            className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-[var(--nn-destructive)] px-3 text-sm text-[var(--nn-destructive)] transition-colors duration-200 hover:bg-[var(--nn-shell-bg)]"
+          >
+            <Trash2 className="h-4 w-4" aria-hidden />
+            删除节点
+          </button>
+        </div>
+      ) : null}
+    </PanelShell>
+  );
+}
+
+function PanelShell({
+  embedded,
+  title,
+  children,
+}: {
+  embedded?: boolean;
+  title: string;
+  children: React.ReactNode;
+}) {
+  const className = embedded
+    ? 'flex w-full flex-col text-[var(--nn-shell-text)]'
+    : 'flex h-full w-full flex-col border-l border-[var(--nn-shell-border)] bg-[var(--nn-shell-surface)] text-[var(--nn-shell-text)] lg:w-80';
+
+  return (
+    <aside className={className} aria-label={title}>
+      {!embedded ? (
+        <div className="border-b border-[var(--nn-shell-border)] px-4 py-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-[var(--nn-shell-muted)]">
+            {title}
+          </p>
+        </div>
+      ) : null}
+      {children}
     </aside>
   );
+}
+
+function PanelBody({ children }: { children: React.ReactNode }) {
+  return <div className="flex-1 space-y-4 overflow-y-auto p-4">{children}</div>;
 }
 
 function LinkGroup({
