@@ -57,6 +57,8 @@ const DIFFICULTIES = {
 };
 
 const DIFF_ORDER = ['easy', 'medium', 'hard'];
+const COIN_SCORE = 3;
+const PIPE_SCORE = 1;
 
 function readBestMap() {
   try {
@@ -181,6 +183,21 @@ export function FlappyWish() {
           g.fillRect(0, 0, tw, Math.max(2, Math.round(S(3))));
           g.generateTexture('ground_tile', tw, th);
           g.destroy();
+
+          // 金币贴图
+          const cg = this.make.graphics({ x: 0, y: 0, add: false });
+          const cr = Math.max(10, Math.round(S(14)));
+          const cs = cr * 2;
+          cg.fillStyle(0xf5c542, 1);
+          cg.fillCircle(cr, cr, cr);
+          cg.fillStyle(0xffe082, 1);
+          cg.fillCircle(cr - cr * 0.22, cr - cr * 0.28, cr * 0.38);
+          cg.lineStyle(Math.max(1, Math.round(S(2))), 0xd4a017, 1);
+          cg.strokeCircle(cr, cr, cr - 1);
+          cg.fillStyle(0xd4a017, 1);
+          cg.fillCircle(cr, cr, cr * 0.28);
+          cg.generateTexture('coin', cs, cs);
+          cg.destroy();
         }
 
         create() {
@@ -219,6 +236,8 @@ export function FlappyWish() {
           this.skyTint = null;
           this.ground?.destroy();
           this.ground = null;
+          this.coins?.forEach((c) => c.sprite?.destroy());
+          this.coins = [];
           this.player?.destroy();
           this.player = null;
           this.scoreText?.destroy();
@@ -229,6 +248,8 @@ export function FlappyWish() {
           this.hintText = null;
           this.flashImg?.destroy();
           this.flashImg = null;
+          this.floatTexts?.forEach((t) => t.destroy());
+          this.floatTexts = [];
         }
 
         addUi(obj) {
@@ -356,8 +377,13 @@ export function FlappyWish() {
           this.diff = DIFFICULTIES[diffId] || DIFFICULTIES.medium;
           this.mode = 'play';
           this.score = 0;
+          this.pipePoints = 0;
+          this.coinPoints = 0;
+          this.coinsCollected = 0;
           this.hintFrames = 90;
           this.flashFrames = 0;
+          this.coins = [];
+          this.floatTexts = [];
           this.clearUi();
           this.clearWorld();
 
@@ -392,6 +418,7 @@ export function FlappyWish() {
           this.player.ph = size;
 
           this.pipes = [];
+          this.coins = [];
           let x = gameW + S(40);
           for (let i = 0; i < 3; i++) {
             this.spawnPipe(x);
@@ -420,9 +447,9 @@ export function FlappyWish() {
             .setDepth(20);
 
           this.hintText = this.add
-            .text(gameW / 2, gameH * 0.35, '点按起飞', {
+            .text(gameW / 2, gameH * 0.35, '点按起飞 · 吃金币加分', {
               fontFamily: 'system-ui, sans-serif',
-              fontSize: `${Math.round(S(16))}px`,
+              fontSize: `${Math.round(S(15))}px`,
               color: '#ffffffe6',
             })
             .setOrigin(0.5)
@@ -482,6 +509,51 @@ export function FlappyWish() {
             bottomY,
             bottomH,
           });
+
+          this.spawnCoinsInGap(x, w, gapY, gapH);
+        }
+
+        spawnCoinsInGap(pipeX, pipeW, gapY, gapH) {
+          // 在缝隙飞行路径上放 1~3 枚金币（竖直排布，需穿管才能吃到）
+          const count = 1 + Math.floor(Math.random() * 3);
+          const usable = Math.max(S(24), gapH - S(36));
+          const step = count === 1 ? 0 : usable / (count - 1);
+          const startY = gapY - usable / 2;
+          const coinX = pipeX + pipeW / 2;
+          const r = Math.max(10, S(14));
+          for (let i = 0; i < count; i++) {
+            const cy = count === 1 ? gapY : startY + step * i;
+            const sprite = this.add.image(coinX, cy, 'coin').setDisplaySize(r * 2, r * 2).setDepth(8);
+            sprite.setAlpha(0.95);
+            this.coins.push({
+              x: coinX,
+              y: cy,
+              r,
+              taken: false,
+              sprite,
+              bobPhase: Math.random() * Math.PI * 2,
+            });
+          }
+        }
+
+        refreshScoreHud() {
+          if (this.scoreText) this.scoreText.setText(String(this.score));
+        }
+
+        addFloatScore(x, y, text, color = '#ffe082') {
+          const t = this.add
+            .text(x, y, text, {
+              fontFamily: 'system-ui, sans-serif',
+              fontSize: `${Math.round(S(16))}px`,
+              fontStyle: 'bold',
+              color,
+              stroke: '#000000',
+              strokeThickness: Math.max(2, S(3)),
+            })
+            .setOrigin(0.5)
+            .setDepth(22);
+          t.life = 36;
+          this.floatTexts.push(t);
         }
 
         repositionPipe(p) {
@@ -557,7 +629,13 @@ export function FlappyWish() {
         die() {
           this.player.alive = false;
           const r = writeBest(this.diff.id, this.score);
-          this.result = { score: this.score, ...r };
+          this.result = {
+            score: this.score,
+            pipePoints: this.pipePoints || 0,
+            coinPoints: this.coinPoints || 0,
+            coinsCollected: this.coinsCollected || 0,
+            ...r,
+          };
           this.showResult();
         }
 
@@ -565,12 +643,19 @@ export function FlappyWish() {
           this.mode = 'result';
           this.clearWorld();
           this.clearUi();
-          const r = this.result || { score: 0, best: 0, isNewRecord: false };
+          const r = this.result || {
+            score: 0,
+            best: 0,
+            isNewRecord: false,
+            pipePoints: 0,
+            coinPoints: 0,
+            coinsCollected: 0,
+          };
 
           this.addUi(this.add.rectangle(gameW / 2, gameH / 2, gameW, gameH, 0x7ec8e8, 1).setDepth(0));
           this.addUi(this.add.rectangle(gameW / 2, gameH / 2, gameW, gameH, 0x142030, 0.55).setDepth(1));
           this.addUi(
-            this.add.rectangle(gameW / 2, S(310), gameW - S(80), S(340), 0xffffff, 0.92).setDepth(2)
+            this.add.rectangle(gameW / 2, S(310), gameW - S(80), S(360), 0xffffff, 0.92).setDepth(2)
           );
 
           let emojiKey = 'emoji_5';
@@ -579,13 +664,13 @@ export function FlappyWish() {
           else if (r.score >= 1) emojiKey = 'emoji_3';
           if (hasTex(this, emojiKey)) {
             this.addUi(
-              this.add.image(gameW / 2, S(200), emojiKey).setDisplaySize(S(112), S(112)).setDepth(3)
+              this.add.image(gameW / 2, S(188), emojiKey).setDisplaySize(S(100), S(100)).setDepth(3)
             );
           }
 
           this.addUi(
             this.add
-              .text(gameW / 2, S(290), r.isNewRecord ? '新纪录！' : '旅途暂停', {
+              .text(gameW / 2, S(268), r.isNewRecord ? '新纪录！' : '旅途暂停', {
                 fontFamily: 'system-ui, sans-serif',
                 fontSize: `${Math.round(S(22))}px`,
                 fontStyle: 'bold',
@@ -596,7 +681,7 @@ export function FlappyWish() {
           );
           this.addUi(
             this.add
-              .text(gameW / 2, S(322), `难度  ${this.diff.label}`, {
+              .text(gameW / 2, S(298), `难度  ${this.diff.label}`, {
                 fontFamily: 'system-ui, sans-serif',
                 fontSize: `${Math.round(S(14))}px`,
                 color: '#1a2a3a',
@@ -606,9 +691,10 @@ export function FlappyWish() {
           );
           this.addUi(
             this.add
-              .text(gameW / 2, S(350), `本局  ${r.score}`, {
+              .text(gameW / 2, S(328), `总分  ${r.score}`, {
                 fontFamily: 'system-ui, sans-serif',
-                fontSize: `${Math.round(S(16))}px`,
+                fontSize: `${Math.round(S(18))}px`,
+                fontStyle: 'bold',
                 color: '#1a2a3a',
               })
               .setOrigin(0.5)
@@ -616,9 +702,24 @@ export function FlappyWish() {
           );
           this.addUi(
             this.add
-              .text(gameW / 2, S(378), `本难度最高  ${r.best}`, {
+              .text(
+                gameW / 2,
+                S(356),
+                `穿管 ${r.pipePoints || 0}  ·  金币 ${r.coinsCollected || 0}枚(+${r.coinPoints || 0})`,
+                {
+                  fontFamily: 'system-ui, sans-serif',
+                  fontSize: `${Math.round(S(13))}px`,
+                  color: '#4a6278',
+                }
+              )
+              .setOrigin(0.5)
+              .setDepth(3)
+          );
+          this.addUi(
+            this.add
+              .text(gameW / 2, S(384), `本难度最高  ${r.best}`, {
                 fontFamily: 'system-ui, sans-serif',
-                fontSize: `${Math.round(S(16))}px`,
+                fontSize: `${Math.round(S(15))}px`,
                 color: '#1a2a3a',
               })
               .setOrigin(0.5)
@@ -699,23 +800,77 @@ export function FlappyWish() {
             this.spawnPipe(nx);
           }
 
+          // 金币随卷轴移动 + 轻微上下浮动
+          for (const coin of this.coins) {
+            if (coin.taken) continue;
+            coin.x -= sp;
+            coin.bobPhase += 0.08 * dt;
+            const bobY = coin.y + Math.sin(coin.bobPhase) * S(3);
+            coin.sprite.setPosition(coin.x, bobY);
+            coin.sprite.rotation += 0.04 * dt;
+          }
+          while (this.coins.length && this.coins[0].taken) this.coins.shift();
+          while (this.coins.length && this.coins[0].x < -S(40)) {
+            const dead = this.coins.shift();
+            dead.sprite?.destroy();
+          }
+
           if (this.hitTest()) {
             this.die();
             return;
           }
 
+          // 吃金币
+          const p = this.player;
+          const hs = this.diff.hitboxScale;
+          const hw = p.pw * hs;
+          const hh = p.ph * hs;
+          const pBox = { x: p.x - hw / 2, y: p.y - hh / 2, w: hw, h: hh };
+          for (const coin of this.coins) {
+            if (coin.taken) continue;
+            const cBox = {
+              x: coin.x - coin.r,
+              y: coin.sprite.y - coin.r,
+              w: coin.r * 2,
+              h: coin.r * 2,
+            };
+            if (this.aabb(pBox, cBox)) {
+              coin.taken = true;
+              coin.sprite.destroy();
+              this.coinsCollected = (this.coinsCollected || 0) + 1;
+              this.coinPoints = (this.coinPoints || 0) + COIN_SCORE;
+              this.score += COIN_SCORE;
+              this.refreshScoreHud();
+              this.addFloatScore(coin.x, coin.sprite.y, `+${COIN_SCORE}`, '#ffe082');
+            }
+          }
+
           for (const pipe of this.pipes) {
             if (!pipe.scored && pipe.x + pipe.w / 2 < this.player.x) {
               pipe.scored = true;
-              this.score += 1;
-              this.scoreText.setText(String(this.score));
+              this.pipePoints = (this.pipePoints || 0) + PIPE_SCORE;
+              this.score += PIPE_SCORE;
+              this.refreshScoreHud();
               this.flashFrames = 24;
+              this.addFloatScore(this.player.x + S(24), this.player.y - S(20), `+${PIPE_SCORE}`, '#ffffff');
               if (!this.flashImg && hasTex(this, 'emoji_2')) {
                 this.flashImg = this.add
                   .image(gameW / 2, S(110), 'emoji_2')
                   .setDisplaySize(S(48), S(48))
                   .setDepth(21);
               }
+            }
+          }
+
+          // 飘分动画
+          for (let i = this.floatTexts.length - 1; i >= 0; i--) {
+            const ft = this.floatTexts[i];
+            ft.life -= dt;
+            ft.y -= S(0.9) * dt;
+            ft.setAlpha(Math.max(0, ft.life / 36));
+            if (ft.life <= 0) {
+              ft.destroy();
+              this.floatTexts.splice(i, 1);
             }
           }
 
@@ -819,7 +974,7 @@ export function FlappyWish() {
         >
           重新开始
         </button>
-        <span className="text-xs text-purple-300/60">点选难度开始 · 点按起飞穿管</span>
+        <span className="text-xs text-purple-300/60">点选难度 · 穿管+1 · 金币+3</span>
       </div>
     </div>
   );
