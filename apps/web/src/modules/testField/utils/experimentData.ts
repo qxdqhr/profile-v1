@@ -526,6 +526,17 @@ export const experiments: ExperimentItem[] = [
     updatedAt: '2026-04-25'
   },
   {
+    id: "flappy-wish",
+    title: "予愿飞翔",
+    description: "Flappy 风格竖版小游戏：三档难度、穿管计分，安洁莉娜同人像素素材（仅供学习）",
+    path: "/testField/flappyWish",
+    tags: ["小游戏", "休闲", "Flappy", "同人"],
+    category: "leisure",
+    isCompleted: true,
+    createdAt: '2026-07-30',
+    updatedAt: '2026-07-30'
+  },
+  {
     id: "miku-flick",
     title: "Miku Flick（初版）",
     description: "体验本地化 mikuFlick 模块，支持假名键位滑动方向判定、节奏判定与连击计分",
