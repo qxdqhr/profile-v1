@@ -337,28 +337,40 @@ export function FlappyWish() {
               .setDepth(2)
               .setInteractive({ useHandCursor: true });
             btn.diffId = id;
+            btn.on('pointerdown', (pointer, _lx, _ly, event) => {
+              event?.stopPropagation?.();
+              this.startPlay(id);
+            });
             this.addUi(btn);
-            this.addUi(
-              this.add
-                .text(gameW / 2, y - S(8), d.label, {
-                  fontFamily: 'system-ui, sans-serif',
-                  fontSize: `${Math.round(S(18))}px`,
-                  fontStyle: 'bold',
-                  color: '#ffffff',
-                })
-                .setOrigin(0.5)
-                .setDepth(3)
-            );
-            this.addUi(
-              this.add
-                .text(gameW / 2, y + S(12), `${d.hint} · 纪录 ${bm[id] || 0}`, {
-                  fontFamily: 'system-ui, sans-serif',
-                  fontSize: `${Math.round(S(11))}px`,
-                  color: '#ffffffe0',
-                })
-                .setOrigin(0.5)
-                .setDepth(3)
-            );
+            const label = this.add
+              .text(gameW / 2, y - S(8), d.label, {
+                fontFamily: 'system-ui, sans-serif',
+                fontSize: `${Math.round(S(18))}px`,
+                fontStyle: 'bold',
+                color: '#ffffff',
+              })
+              .setOrigin(0.5)
+              .setDepth(3)
+              .setInteractive({ useHandCursor: true });
+            label.on('pointerdown', (pointer, _lx, _ly, event) => {
+              event?.stopPropagation?.();
+              this.startPlay(id);
+            });
+            this.addUi(label);
+            const hint = this.add
+              .text(gameW / 2, y + S(12), `${d.hint} · 纪录 ${bm[id] || 0}`, {
+                fontFamily: 'system-ui, sans-serif',
+                fontSize: `${Math.round(S(11))}px`,
+                color: '#ffffffe0',
+              })
+              .setOrigin(0.5)
+              .setDepth(3)
+              .setInteractive({ useHandCursor: true });
+            hint.on('pointerdown', (pointer, _lx, _ly, event) => {
+              event?.stopPropagation?.();
+              this.startPlay(id);
+            });
+            this.addUi(hint);
           });
 
           this.addUi(
@@ -731,36 +743,52 @@ export function FlappyWish() {
             .setDepth(3)
             .setInteractive({ useHandCursor: true });
           retry.action = 'retry';
+          retry.on('pointerdown', (pointer, _lx, _ly, event) => {
+            event?.stopPropagation?.();
+            this.startPlay(this.diff.id);
+          });
           this.addUi(retry);
-          this.addUi(
-            this.add
-              .text(S(115), S(450), '再来一次', {
-                fontFamily: 'system-ui, sans-serif',
-                fontSize: `${Math.round(S(16))}px`,
-                fontStyle: 'bold',
-                color: '#ffffff',
-              })
-              .setOrigin(0.5)
-              .setDepth(4)
-          );
+          const retryLabel = this.add
+            .text(S(115), S(450), '再来一次', {
+              fontFamily: 'system-ui, sans-serif',
+              fontSize: `${Math.round(S(16))}px`,
+              fontStyle: 'bold',
+              color: '#ffffff',
+            })
+            .setOrigin(0.5)
+            .setDepth(4)
+            .setInteractive({ useHandCursor: true });
+          retryLabel.on('pointerdown', (pointer, _lx, _ly, event) => {
+            event?.stopPropagation?.();
+            this.startPlay(this.diff.id);
+          });
+          this.addUi(retryLabel);
 
           const title = this.add
             .rectangle(S(260), S(450), S(120), S(48), 0x4a6278)
             .setDepth(3)
             .setInteractive({ useHandCursor: true });
           title.action = 'title';
+          title.on('pointerdown', (pointer, _lx, _ly, event) => {
+            event?.stopPropagation?.();
+            this.showTitle();
+          });
           this.addUi(title);
-          this.addUi(
-            this.add
-              .text(S(260), S(450), '回标题', {
-                fontFamily: 'system-ui, sans-serif',
-                fontSize: `${Math.round(S(16))}px`,
-                fontStyle: 'bold',
-                color: '#ffffff',
-              })
-              .setOrigin(0.5)
-              .setDepth(4)
-          );
+          const titleLabel = this.add
+            .text(S(260), S(450), '回标题', {
+              fontFamily: 'system-ui, sans-serif',
+              fontSize: `${Math.round(S(16))}px`,
+              fontStyle: 'bold',
+              color: '#ffffff',
+            })
+            .setOrigin(0.5)
+            .setDepth(4)
+            .setInteractive({ useHandCursor: true });
+          titleLabel.on('pointerdown', (pointer, _lx, _ly, event) => {
+            event?.stopPropagation?.();
+            this.showTitle();
+          });
+          this.addUi(titleLabel);
         }
 
         update(_t, delta) {
@@ -809,11 +837,6 @@ export function FlappyWish() {
             coin.sprite.setPosition(coin.x, bobY);
             coin.sprite.rotation += 0.04 * dt;
           }
-          while (this.coins.length && this.coins[0].taken) this.coins.shift();
-          while (this.coins.length && this.coins[0].x < -S(40)) {
-            const dead = this.coins.shift();
-            dead.sprite?.destroy();
-          }
 
           if (this.hitTest()) {
             this.die();
@@ -827,23 +850,36 @@ export function FlappyWish() {
           const hh = p.ph * hs;
           const pBox = { x: p.x - hw / 2, y: p.y - hh / 2, w: hw, h: hh };
           for (const coin of this.coins) {
-            if (coin.taken) continue;
+            if (coin.taken || !coin.sprite) continue;
+            const cy = coin.sprite.y;
             const cBox = {
               x: coin.x - coin.r,
-              y: coin.sprite.y - coin.r,
+              y: cy - coin.r,
               w: coin.r * 2,
               h: coin.r * 2,
             };
             if (this.aabb(pBox, cBox)) {
               coin.taken = true;
+              const fx = coin.x;
+              const fy = cy;
               coin.sprite.destroy();
+              coin.sprite = null;
               this.coinsCollected = (this.coinsCollected || 0) + 1;
               this.coinPoints = (this.coinPoints || 0) + COIN_SCORE;
               this.score += COIN_SCORE;
               this.refreshScoreHud();
-              this.addFloatScore(coin.x, coin.sprite.y, `+${COIN_SCORE}`, '#ffe082');
+              this.addFloatScore(fx, fy, `+${COIN_SCORE}`, '#ffe082');
             }
           }
+
+          this.coins = this.coins.filter((c) => {
+            if (c.taken) return false;
+            if (c.x < -S(40)) {
+              c.sprite?.destroy();
+              return false;
+            }
+            return true;
+          });
 
           for (const pipe of this.pipes) {
             if (!pipe.scored && pipe.x + pipe.w / 2 < this.player.x) {
@@ -901,6 +937,12 @@ export function FlappyWish() {
         backgroundColor: '#7ec8e8',
         scene,
         audio: { noAudio: true },
+        scale: {
+          mode: Phaser.Scale.FIT,
+          autoCenter: Phaser.Scale.CENTER_BOTH,
+          width: gameW,
+          height: gameH,
+        },
         render: {
           antialias: true,
           roundPixels: false,
@@ -918,10 +960,12 @@ export function FlappyWish() {
           postBoot: (game) => {
             const canvas = game.canvas;
             if (!canvas) return;
-            canvas.style.width = `${viewW}px`;
-            canvas.style.height = `${viewH}px`;
             canvas.style.display = 'block';
             canvas.style.imageRendering = 'auto';
+            // 让 ScaleManager 按父容器实际显示尺寸刷新 displayScale，修复高清屏点击错位
+            try {
+              game.scale.refresh();
+            } catch (_) {}
           },
         },
       });
