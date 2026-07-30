@@ -5,7 +5,7 @@ import React, { useEffect, useRef } from 'react';
 
 const BASE_W = 375;
 const BASE_H = 667;
-const ASSET = (p: string) => `/flappyWish/${p}`;
+const ASSET = (p: string) => `/images/flappyWish/${p}`;
 const BEST_KEY = 'flappy_wish_best_by_diff_v1';
 
 const DIFFICULTIES = {
@@ -86,11 +86,16 @@ function writeBest(diffId, score) {
   return { best: isNew ? score : prev, isNewRecord: isNew };
 }
 
+function hasTex(scene, key) {
+  return scene.textures.exists(key) && scene.textures.get(key).key !== '__MISSING';
+}
+
 export function FlappyWish() {
   const containerRef = useRef(null);
   const hostRef = useRef(null);
   const gameRef = useRef(null);
   const sceneRef = useRef(null);
+  const lastSizeRef = useRef({ w: 0, h: 0 });
 
   useEffect(() => {
     let mounted = true;
@@ -101,6 +106,15 @@ export function FlappyWish() {
     const buildGame = () => {
       if (!mounted || !PhaserLib || !containerRef.current || !hostRef.current) return;
 
+      const cW = containerRef.current.clientWidth;
+      const cH = containerRef.current.clientHeight;
+      if (cW < 80 || cH < 80) return;
+
+      // 忽略微小尺寸抖动，避免反复销毁重建
+      const prev = lastSizeRef.current;
+      if (Math.abs(prev.w - cW) < 8 && Math.abs(prev.h - cH) < 8 && gameRef.current) return;
+      lastSizeRef.current = { w: cW, h: cH };
+
       if (gameRef.current) {
         gameRef.current.destroy(true);
         gameRef.current = null;
@@ -109,36 +123,42 @@ export function FlappyWish() {
       hostRef.current.innerHTML = '';
 
       const Phaser = PhaserLib;
-      const cW = containerRef.current.clientWidth;
-      const cH = containerRef.current.clientHeight;
-      if (cW < 80 || cH < 80) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const fit = Math.min(cW / BASE_W, cH / BASE_H, 2);
+      const viewW = Math.max(1, Math.round(BASE_W * fit));
+      const viewH = Math.max(1, Math.round(BASE_H * fit));
+      const gameW = Math.max(1, Math.round(viewW * dpr));
+      const gameH = Math.max(1, Math.round(viewH * dpr));
+      const S = (n) => n * fit * dpr;
 
-      const scale = Math.min(cW / BASE_W, cH / BASE_H, 1.8);
-      const gameW = Math.round(BASE_W * scale);
-      const gameH = Math.round(BASE_H * scale);
-      const S = (n) => n * scale;
+      hostRef.current.style.width = `${viewW}px`;
+      hostRef.current.style.height = `${viewH}px`;
 
       class FlappyScene extends Phaser.Scene {
-        mode = 'title'; // title | play | result
+        mode = 'title';
         diff = DIFFICULTIES.medium;
         score = 0;
         bestMap = readBestMap();
         player = null;
         pipes = [];
-        bgTiles = [];
+        bg = null;
+        ground = null;
         groundY = 0;
-        bgOffset = 0;
-        groundOffset = 0;
         hintFrames = 0;
         flashFrames = 0;
         result = null;
         ui = [];
+        loadFailed = [];
 
         constructor() {
           super({ key: 'FlappyScene' });
         }
 
         preload() {
+          this.load.on('loaderror', (file) => {
+            console.warn('[flappyWish] asset load failed:', file?.src || file?.key);
+            this.loadFailed.push(file?.key || file?.src);
+          });
           this.load.image('player', ASSET('player/avatar_e2.png'));
           this.load.image('bg', ASSET('bg/journey.jpg'));
           this.load.image('banner', ASSET('bg/banner_wish.jpg'));
@@ -149,6 +169,18 @@ export function FlappyWish() {
           this.load.image('skill_1', ASSET('pipes/skill_1.png'));
           this.load.image('skill_2', ASSET('pipes/skill_2.png'));
           this.load.image('skill_3', ASSET('pipes/skill_3.png'));
+          // 地面条纹纹理（生成，避免每帧 redraw）
+          const g = this.make.graphics({ x: 0, y: 0, add: false });
+          const tw = Math.max(8, Math.round(S(40)));
+          const th = Math.max(8, Math.round(S(56)));
+          g.fillStyle(0xd4b483, 1);
+          g.fillRect(0, 0, tw, th);
+          g.fillStyle(0xb8956a, 1);
+          g.fillRect(0, 0, Math.round(tw / 2), Math.max(4, Math.round(S(8))));
+          g.fillStyle(0x2a5f4a, 1);
+          g.fillRect(0, 0, tw, Math.max(2, Math.round(S(3))));
+          g.generateTexture('ground_tile', tw, th);
+          g.destroy();
         }
 
         create() {
@@ -156,15 +188,18 @@ export function FlappyWish() {
           this.cameras.main.setBackgroundColor('#7ec8e8');
           this.input.on('pointerdown', (p) => this.onPointer(p.x, p.y));
           this.events.on('external-restart', () => {
-            if (this.mode === 'result') this.startPlay(this.diff.id);
-            else if (this.mode === 'play') this.startPlay(this.diff.id);
+            if (this.mode === 'result' || this.mode === 'play') this.startPlay(this.diff.id);
             else this.showTitle();
           });
           this.showTitle();
         }
 
         clearUi() {
-          this.ui.forEach((o) => o.destroy());
+          this.ui.forEach((o) => {
+            try {
+              o.destroy();
+            } catch (_) {}
+          });
           this.ui = [];
         }
 
@@ -178,32 +213,22 @@ export function FlappyWish() {
             p.iconBot?.destroy();
           });
           this.pipes = [];
-          this.bgTiles.forEach((t) => t.destroy());
-          this.bgTiles = [];
-          if (this.player) {
-            this.player.destroy();
-            this.player = null;
-          }
-          if (this.groundGfx) {
-            this.groundGfx.destroy();
-            this.groundGfx = null;
-          }
-          if (this.scoreText) {
-            this.scoreText.destroy();
-            this.scoreText = null;
-          }
-          if (this.diffText) {
-            this.diffText.destroy();
-            this.diffText = null;
-          }
-          if (this.hintText) {
-            this.hintText.destroy();
-            this.hintText = null;
-          }
-          if (this.flashImg) {
-            this.flashImg.destroy();
-            this.flashImg = null;
-          }
+          this.bg?.destroy();
+          this.bg = null;
+          this.skyTint?.destroy();
+          this.skyTint = null;
+          this.ground?.destroy();
+          this.ground = null;
+          this.player?.destroy();
+          this.player = null;
+          this.scoreText?.destroy();
+          this.scoreText = null;
+          this.diffText?.destroy();
+          this.diffText = null;
+          this.hintText?.destroy();
+          this.hintText = null;
+          this.flashImg?.destroy();
+          this.flashImg = null;
         }
 
         addUi(obj) {
@@ -217,17 +242,19 @@ export function FlappyWish() {
           this.clearUi();
           this.bestMap = readBestMap();
 
-          const banner = this.add
-            .image(gameW / 2, gameH / 2, 'banner')
-            .setDisplaySize(gameW, gameH)
-            .setDepth(0);
-          this.addUi(banner);
+          if (hasTex(this, 'banner')) {
+            this.addUi(
+              this.add.image(gameW / 2, gameH / 2, 'banner').setDisplaySize(gameW, gameH).setDepth(0)
+            );
+          } else {
+            this.addUi(this.add.rectangle(gameW / 2, gameH / 2, gameW, gameH, 0x7ec8e8).setDepth(0));
+          }
           this.addUi(this.add.rectangle(gameW / 2, gameH / 2, gameW, gameH, 0x0a1828, 0.45).setDepth(1));
 
           this.addUi(
             this.add
               .text(gameW / 2, S(72), '予愿飞翔', {
-                fontFamily: 'sans-serif',
+                fontFamily: 'system-ui, sans-serif',
                 fontSize: `${Math.round(S(34))}px`,
                 fontStyle: 'bold',
                 color: '#ffffff',
@@ -238,7 +265,7 @@ export function FlappyWish() {
           this.addUi(
             this.add
               .text(gameW / 2, S(108), '选择难度 · 点按起飞', {
-                fontFamily: 'sans-serif',
+                fontFamily: 'system-ui, sans-serif',
                 fontSize: `${Math.round(S(13))}px`,
                 color: '#ffffffcc',
               })
@@ -246,21 +273,23 @@ export function FlappyWish() {
               .setDepth(2)
           );
 
-          const av = this.add
-            .image(gameW / 2, S(200), 'player')
-            .setDisplaySize(S(96), S(96))
-            .setDepth(2);
-          this.addUi(av);
-          const maskG = this.make.graphics({ x: 0, y: 0, add: false });
-          maskG.fillStyle(0xffffff);
-          maskG.fillCircle(gameW / 2, S(200), S(48));
-          av.setMask(maskG.createGeometryMask());
-          this.addUi(
-            this.add
-              .circle(gameW / 2, S(200), S(49), 0xffffff, 0)
-              .setStrokeStyle(Math.max(2, S(3)), 0xffffff, 0.85)
-              .setDepth(3)
-          );
+          if (hasTex(this, 'player')) {
+            const av = this.add
+              .image(gameW / 2, S(200), 'player')
+              .setDisplaySize(S(96), S(96))
+              .setDepth(2);
+            const maskG = this.make.graphics({ x: 0, y: 0, add: false });
+            maskG.fillStyle(0xffffff);
+            maskG.fillCircle(gameW / 2, S(200), S(48));
+            av.setMask(maskG.createGeometryMask());
+            this.addUi(av);
+            this.addUi(
+              this.add
+                .circle(gameW / 2, S(200), S(49), 0xffffff, 0)
+                .setStrokeStyle(Math.max(2, S(3)), 0xffffff, 0.85)
+                .setDepth(3)
+            );
+          }
 
           const bm = this.bestMap;
           this.addUi(
@@ -270,7 +299,7 @@ export function FlappyWish() {
                 S(275),
                 `最高  简单 ${bm.easy}  ·  中等 ${bm.medium}  ·  困难 ${bm.hard}`,
                 {
-                  fontFamily: 'sans-serif',
+                  fontFamily: 'system-ui, sans-serif',
                   fontSize: `${Math.round(S(12))}px`,
                   color: '#fffffff0',
                 }
@@ -282,10 +311,8 @@ export function FlappyWish() {
           DIFF_ORDER.forEach((id, i) => {
             const d = DIFFICULTIES[id];
             const y = S(360) + i * S(62);
-            const w = S(230);
-            const h = S(50);
             const btn = this.add
-              .rectangle(gameW / 2, y, w, h, d.color, 1)
+              .rectangle(gameW / 2, y, S(230), S(50), d.color, 1)
               .setDepth(2)
               .setInteractive({ useHandCursor: true });
             btn.diffId = id;
@@ -293,7 +320,7 @@ export function FlappyWish() {
             this.addUi(
               this.add
                 .text(gameW / 2, y - S(8), d.label, {
-                  fontFamily: 'sans-serif',
+                  fontFamily: 'system-ui, sans-serif',
                   fontSize: `${Math.round(S(18))}px`,
                   fontStyle: 'bold',
                   color: '#ffffff',
@@ -304,7 +331,7 @@ export function FlappyWish() {
             this.addUi(
               this.add
                 .text(gameW / 2, y + S(12), `${d.hint} · 纪录 ${bm[id] || 0}`, {
-                  fontFamily: 'sans-serif',
+                  fontFamily: 'system-ui, sans-serif',
                   fontSize: `${Math.round(S(11))}px`,
                   color: '#ffffffe0',
                 })
@@ -316,7 +343,7 @@ export function FlappyWish() {
           this.addUi(
             this.add
               .text(gameW / 2, gameH - S(24), '素材版权归鹰角网络 · 仅供同人学习', {
-                fontFamily: 'sans-serif',
+                fontFamily: 'system-ui, sans-serif',
                 fontSize: `${Math.round(S(10))}px`,
                 color: '#ffffffa0',
               })
@@ -331,28 +358,34 @@ export function FlappyWish() {
           this.score = 0;
           this.hintFrames = 90;
           this.flashFrames = 0;
-          this.bgOffset = 0;
-          this.groundOffset = 0;
           this.clearUi();
           this.clearWorld();
 
-          // scrolling bg
-          const bgTex = this.textures.get('bg');
-          const srcH = bgTex.getSourceImage().height || 667;
-          const srcW = bgTex.getSourceImage().width || 375;
-          const bw = (srcW / srcH) * gameH;
-          for (let i = 0; i < 3; i++) {
-            const tile = this.add.image(i * bw, 0, 'bg').setOrigin(0, 0).setDisplaySize(bw, gameH).setDepth(0);
-            this.bgTiles.push(tile);
+          if (hasTex(this, 'bg')) {
+            const src = this.textures.get('bg').getSourceImage();
+            const scaleY = gameH / (src.height || BASE_H);
+            this.bg = this.add
+              .tileSprite(0, 0, gameW, gameH, 'bg')
+              .setOrigin(0, 0)
+              .setTileScale(scaleY, scaleY)
+              .setDepth(0);
+          } else {
+            this.bg = this.add.rectangle(gameW / 2, gameH / 2, gameW, gameH, 0x7ec8e8).setDepth(0);
           }
-          this.bgTileW = bw;
-          this.add.rectangle(gameW / 2, gameH / 2, gameW, gameH, 0x78bedc, 0.22).setDepth(0);
+          this.skyTint = this.add.rectangle(gameW / 2, gameH / 2, gameW, gameH, 0x78bedc, 0.18).setDepth(1);
 
-          this.groundGfx = this.add.graphics().setDepth(5);
-          this.drawGround();
+          this.ground = this.add
+            .tileSprite(0, this.groundY, gameW, S(56), 'ground_tile')
+            .setOrigin(0, 0)
+            .setDepth(5);
 
           const size = S(52);
-          this.player = this.add.image(gameW * 0.28, gameH * 0.42, 'player').setDisplaySize(size, size).setDepth(10);
+          if (hasTex(this, 'player')) {
+            this.player = this.add.image(gameW * 0.28, gameH * 0.42, 'player').setDepth(10);
+            this.player.setDisplaySize(size, size);
+          } else {
+            this.player = this.add.circle(gameW * 0.28, gameH * 0.42, size / 2, 0xff6b4a).setDepth(10);
+          }
           this.player.vy = 0;
           this.player.alive = true;
           this.player.pw = size;
@@ -367,7 +400,7 @@ export function FlappyWish() {
 
           this.scoreText = this.add
             .text(gameW / 2, S(64), '0', {
-              fontFamily: 'sans-serif',
+              fontFamily: 'system-ui, sans-serif',
               fontSize: `${Math.round(S(46))}px`,
               fontStyle: 'bold',
               color: '#ffffff',
@@ -379,7 +412,7 @@ export function FlappyWish() {
 
           this.diffText = this.add
             .text(gameW / 2, S(96), this.diff.label, {
-              fontFamily: 'sans-serif',
+              fontFamily: 'system-ui, sans-serif',
               fontSize: `${Math.round(S(12))}px`,
               color: '#ffffffd9',
             })
@@ -388,7 +421,7 @@ export function FlappyWish() {
 
           this.hintText = this.add
             .text(gameW / 2, gameH * 0.35, '点按起飞', {
-              fontFamily: 'sans-serif',
+              fontFamily: 'system-ui, sans-serif',
               fontSize: `${Math.round(S(16))}px`,
               color: '#ffffffe6',
             })
@@ -396,27 +429,12 @@ export function FlappyWish() {
             .setDepth(20);
         }
 
-        drawGround() {
-          const g = this.groundGfx;
-          g.clear();
-          const y = this.groundY;
-          g.fillStyle(0xd4b483, 1);
-          g.fillRect(0, y, gameW, gameH - y);
-          g.fillStyle(0xb8956a, 1);
-          for (let i = -1; i < 14; i++) {
-            const gx = i * S(40) - (this.groundOffset % S(40));
-            g.fillRect(gx, y, S(20), S(8));
-          }
-          g.fillStyle(0x2a5f4a, 1);
-          g.fillRect(0, y, gameW, Math.max(2, S(3)));
-        }
-
         spawnPipe(x) {
           const gapH = S(this.diff.pipeGap);
           const margin = S(90);
           const min = margin + gapH / 2;
           const max = this.groundY - margin - gapH / 2;
-          const gapY = min + Math.random() * (max - min);
+          const gapY = min + Math.random() * Math.max(1, max - min);
           const w = S(64);
           const topH = gapY - gapH / 2;
           const bottomY = gapY + gapH / 2;
@@ -426,17 +444,27 @@ export function FlappyWish() {
 
           const top = this.add.rectangle(x + w / 2, topH / 2, w, topH, color).setDepth(4);
           top.setStrokeStyle(Math.max(1, S(2)), edge);
-          const bottom = this.add.rectangle(x + w / 2, bottomY + bottomH / 2, w, bottomH, color).setDepth(4);
+          const bottom = this.add
+            .rectangle(x + w / 2, bottomY + bottomH / 2, w, bottomH, color)
+            .setDepth(4);
           bottom.setStrokeStyle(Math.max(1, S(2)), edge);
-          const capTop = this.add.rectangle(x + w / 2, topH - S(9), w + S(8), S(18), color).setDepth(4);
+          const capTop = this.add
+            .rectangle(x + w / 2, topH - S(9), w + S(8), S(18), color)
+            .setDepth(4);
           capTop.setStrokeStyle(Math.max(1, S(2)), edge);
-          const capBot = this.add.rectangle(x + w / 2, bottomY + S(9), w + S(8), S(18), color).setDepth(4);
+          const capBot = this.add
+            .rectangle(x + w / 2, bottomY + S(9), w + S(8), S(18), color)
+            .setDepth(4);
           capBot.setStrokeStyle(Math.max(1, S(2)), edge);
 
           const skillKey = `skill_${1 + Math.floor(Math.random() * 3)}`;
           const iconS = S(28);
-          const iconTop = this.add.image(x + w / 2, topH - S(9), skillKey).setDisplaySize(iconS, iconS).setDepth(5);
-          const iconBot = this.add.image(x + w / 2, bottomY + S(9), skillKey).setDisplaySize(iconS, iconS).setDepth(5);
+          let iconTop = null;
+          let iconBot = null;
+          if (hasTex(this, skillKey)) {
+            iconTop = this.add.image(x + w / 2, topH - S(9), skillKey).setDisplaySize(iconS, iconS).setDepth(5);
+            iconBot = this.add.image(x + w / 2, bottomY + S(9), skillKey).setDisplaySize(iconS, iconS).setDepth(5);
+          }
 
           this.pipes.push({
             x,
@@ -462,14 +490,18 @@ export function FlappyWish() {
           p.bottom.setPosition(x + w / 2, bottomY + bottomH / 2);
           p.capTop.setPosition(x + w / 2, topH - S(9));
           p.capBot.setPosition(x + w / 2, bottomY + S(9));
-          p.iconTop.setPosition(x + w / 2, topH - S(9));
-          p.iconBot.setPosition(x + w / 2, bottomY + S(9));
+          p.iconTop?.setPosition(x + w / 2, topH - S(9));
+          p.iconBot?.setPosition(x + w / 2, bottomY + S(9));
         }
 
         onPointer(x, y) {
           if (this.mode === 'title') {
             for (const obj of this.ui) {
-              if (obj.diffId && obj.getBounds && Phaser.Geom.Rectangle.Contains(obj.getBounds(), x, y)) {
+              if (
+                obj.diffId &&
+                obj.getBounds &&
+                Phaser.Geom.Rectangle.Contains(obj.getBounds(), x, y)
+              ) {
                 this.startPlay(obj.diffId);
                 return;
               }
@@ -482,11 +514,19 @@ export function FlappyWish() {
           }
           if (this.mode === 'result') {
             for (const obj of this.ui) {
-              if (obj.action === 'retry' && obj.getBounds && Phaser.Geom.Rectangle.Contains(obj.getBounds(), x, y)) {
+              if (
+                obj.action === 'retry' &&
+                obj.getBounds &&
+                Phaser.Geom.Rectangle.Contains(obj.getBounds(), x, y)
+              ) {
                 this.startPlay(this.diff.id);
                 return;
               }
-              if (obj.action === 'title' && obj.getBounds && Phaser.Geom.Rectangle.Contains(obj.getBounds(), x, y)) {
+              if (
+                obj.action === 'title' &&
+                obj.getBounds &&
+                Phaser.Geom.Rectangle.Contains(obj.getBounds(), x, y)
+              ) {
                 this.showTitle();
                 return;
               }
@@ -504,12 +544,7 @@ export function FlappyWish() {
           if (box.y + box.h >= this.groundY) return true;
           for (const pipe of this.pipes) {
             const topBox = { x: pipe.x, y: 0, w: pipe.w, h: pipe.topH };
-            const botBox = {
-              x: pipe.x,
-              y: pipe.bottomY,
-              w: pipe.w,
-              h: pipe.bottomH,
-            };
+            const botBox = { x: pipe.x, y: pipe.bottomY, w: pipe.w, h: pipe.bottomH };
             if (this.aabb(box, topBox) || this.aabb(box, botBox)) return true;
           }
           return false;
@@ -535,23 +570,23 @@ export function FlappyWish() {
           this.addUi(this.add.rectangle(gameW / 2, gameH / 2, gameW, gameH, 0x7ec8e8, 1).setDepth(0));
           this.addUi(this.add.rectangle(gameW / 2, gameH / 2, gameW, gameH, 0x142030, 0.55).setDepth(1));
           this.addUi(
-            this.add
-              .rectangle(gameW / 2, S(310), gameW - S(80), S(340), 0xffffff, 0.92)
-              .setDepth(2)
+            this.add.rectangle(gameW / 2, S(310), gameW - S(80), S(340), 0xffffff, 0.92).setDepth(2)
           );
 
           let emojiKey = 'emoji_5';
           if (r.isNewRecord || r.score >= 10) emojiKey = 'emoji_2';
           else if (r.score >= 5) emojiKey = 'emoji_1';
           else if (r.score >= 1) emojiKey = 'emoji_3';
-          this.addUi(
-            this.add.image(gameW / 2, S(200), emojiKey).setDisplaySize(S(112), S(112)).setDepth(3)
-          );
+          if (hasTex(this, emojiKey)) {
+            this.addUi(
+              this.add.image(gameW / 2, S(200), emojiKey).setDisplaySize(S(112), S(112)).setDepth(3)
+            );
+          }
 
           this.addUi(
             this.add
               .text(gameW / 2, S(290), r.isNewRecord ? '新纪录！' : '旅途暂停', {
-                fontFamily: 'sans-serif',
+                fontFamily: 'system-ui, sans-serif',
                 fontSize: `${Math.round(S(22))}px`,
                 fontStyle: 'bold',
                 color: '#1a2a3a',
@@ -562,7 +597,7 @@ export function FlappyWish() {
           this.addUi(
             this.add
               .text(gameW / 2, S(322), `难度  ${this.diff.label}`, {
-                fontFamily: 'sans-serif',
+                fontFamily: 'system-ui, sans-serif',
                 fontSize: `${Math.round(S(14))}px`,
                 color: '#1a2a3a',
               })
@@ -572,7 +607,7 @@ export function FlappyWish() {
           this.addUi(
             this.add
               .text(gameW / 2, S(350), `本局  ${r.score}`, {
-                fontFamily: 'sans-serif',
+                fontFamily: 'system-ui, sans-serif',
                 fontSize: `${Math.round(S(16))}px`,
                 color: '#1a2a3a',
               })
@@ -582,7 +617,7 @@ export function FlappyWish() {
           this.addUi(
             this.add
               .text(gameW / 2, S(378), `本难度最高  ${r.best}`, {
-                fontFamily: 'sans-serif',
+                fontFamily: 'system-ui, sans-serif',
                 fontSize: `${Math.round(S(16))}px`,
                 color: '#1a2a3a',
               })
@@ -599,7 +634,7 @@ export function FlappyWish() {
           this.addUi(
             this.add
               .text(S(115), S(450), '再来一次', {
-                fontFamily: 'sans-serif',
+                fontFamily: 'system-ui, sans-serif',
                 fontSize: `${Math.round(S(16))}px`,
                 fontStyle: 'bold',
                 color: '#ffffff',
@@ -617,7 +652,7 @@ export function FlappyWish() {
           this.addUi(
             this.add
               .text(S(260), S(450), '回标题', {
-                fontFamily: 'sans-serif',
+                fontFamily: 'system-ui, sans-serif',
                 fontSize: `${Math.round(S(16))}px`,
                 fontStyle: 'bold',
                 color: '#ffffff',
@@ -629,23 +664,20 @@ export function FlappyWish() {
 
         update(_t, delta) {
           if (this.mode !== 'play' || !this.player?.alive) return;
-          const dt = Math.min(3, delta / (1000 / 60));
+          const dt = Math.min(2.5, delta / (1000 / 60));
           const d = this.diff;
 
           this.player.vy = Math.min(S(d.maxFallSpeed), this.player.vy + S(d.gravity) * dt);
           this.player.y += this.player.vy * dt;
           const t = Math.max(-1, Math.min(1, this.player.vy / S(d.maxFallSpeed)));
-          this.player.setRotation(t * 0.7);
+          if (this.player.setRotation) this.player.setRotation(t * 0.7);
 
           const sp = S(d.pipeSpeed) * dt;
-          this.bgOffset = (this.bgOffset + S(d.bgScrollSpeed) * dt) % this.bgTileW;
-          this.groundOffset = (this.groundOffset + S(d.groundScrollSpeed) * dt) % S(40);
-          this.drawGround();
-
-          for (let i = 0; i < this.bgTiles.length; i++) {
-            const tile = this.bgTiles[i];
-            tile.x = i * this.bgTileW - this.bgOffset;
-            if (tile.x < -this.bgTileW) tile.x += this.bgTiles.length * this.bgTileW;
+          if (this.bg?.tilePositionX !== undefined) {
+            this.bg.tilePositionX += S(d.bgScrollSpeed) * dt;
+          }
+          if (this.ground?.tilePositionX !== undefined) {
+            this.ground.tilePositionX += S(d.groundScrollSpeed) * dt;
           }
 
           for (const pipe of this.pipes) {
@@ -658,8 +690,8 @@ export function FlappyWish() {
             dead.bottom.destroy();
             dead.capTop.destroy();
             dead.capBot.destroy();
-            dead.iconTop.destroy();
-            dead.iconBot.destroy();
+            dead.iconTop?.destroy();
+            dead.iconBot?.destroy();
           }
           const last = this.pipes[this.pipes.length - 1];
           if (!last || last.x < gameW - S(d.pipeSpawnDistance)) {
@@ -678,7 +710,7 @@ export function FlappyWish() {
               this.score += 1;
               this.scoreText.setText(String(this.score));
               this.flashFrames = 24;
-              if (!this.flashImg) {
+              if (!this.flashImg && hasTex(this, 'emoji_2')) {
                 this.flashImg = this.add
                   .image(gameW / 2, S(110), 'emoji_2')
                   .setDisplaySize(S(48), S(48))
@@ -707,20 +739,42 @@ export function FlappyWish() {
       const scene = new FlappyScene();
       sceneRef.current = scene;
       gameRef.current = new Phaser.Game({
-        type: Phaser.AUTO,
+        type: Phaser.WEBGL,
         parent: hostRef.current,
         width: gameW,
         height: gameH,
         backgroundColor: '#7ec8e8',
         scene,
-        antialias: true,
-        fps: { target: 60, forceSetTimeOut: false },
+        audio: { noAudio: true },
+        render: {
+          antialias: true,
+          roundPixels: false,
+          powerPreference: 'high-performance',
+          mipmapFilter: 'LINEAR',
+          pixelArt: false,
+        },
+        fps: {
+          target: 60,
+          min: 30,
+          smoothStep: true,
+          forceSetTimeOut: false,
+        },
+        callbacks: {
+          postBoot: (game) => {
+            const canvas = game.canvas;
+            if (!canvas) return;
+            canvas.style.width = `${viewW}px`;
+            canvas.style.height = `${viewH}px`;
+            canvas.style.display = 'block';
+            canvas.style.imageRendering = 'auto';
+          },
+        },
       });
     };
 
     const scheduleBuild = () => {
       if (rebuildTimer) clearTimeout(rebuildTimer);
-      rebuildTimer = setTimeout(buildGame, 150);
+      rebuildTimer = setTimeout(buildGame, 180);
     };
 
     const init = async () => {
@@ -752,9 +806,9 @@ export function FlappyWish() {
     <div className="w-full h-full flex flex-col overflow-hidden">
       <div
         ref={containerRef}
-        className="flex-1 flex items-center justify-center overflow-hidden min-h-0"
+        className="flex-1 flex items-center justify-center overflow-hidden min-h-0 bg-[#0b1520]"
       >
-        <div ref={hostRef} style={{ borderRadius: 8, overflow: 'hidden' }} />
+        <div ref={hostRef} className="overflow-hidden rounded-lg shadow-lg" />
       </div>
       <div className="flex-shrink-0 flex items-center justify-center gap-4 py-2 px-4">
         <button

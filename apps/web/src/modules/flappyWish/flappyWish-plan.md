@@ -3,7 +3,9 @@
 ## 技术选型
 - **渲染**：Phaser 3（Canvas/WebGL，手动物理，对齐原微信小游戏逻辑）
 - **UI**：React + TailwindCSS 全屏布局
-- **资源**：`public/flappyWish/`（从 `flappy-wish-angelina` 迁移）
+- **资源**：`public/images/flappyWish/`（与其他小游戏一致，走 `/images/...`）
+- **清晰度**：按 `devicePixelRatio` 提高内部分辨率，CSS 缩回可视尺寸
+- **性能**：背景/地面用 `TileSprite`，避免每帧 Graphics 重绘；限制无意义的 resize 重建
 
 ## 游戏规则
 1. 标题页选择 **简单 / 中等 / 困难**
