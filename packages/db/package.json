@@ -13,6 +13,7 @@
     "drizzle-orm": "^0.44.7",
     "nanoid": "^5.1.5",
     "postgres": "^3.4.5",
-    "sa2kit": "3.9.1"
-  }
+    "sa2kit": "3.9.4"
+  },
+  "devDependencies": {}
 }

@@ -12,10 +12,11 @@
   },
   "dependencies": {
     "@profile/db": "workspace:*",
-    "sa2kit": "3.9.1"
+    "sa2kit": "3.9.4"
   },
   "peerDependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
-  }
+  },
+  "devDependencies": {}
 }

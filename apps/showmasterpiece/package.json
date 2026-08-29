@@ -19,8 +19,8 @@
     "next": "16.0.8",
     "react": "19.2.1",
     "react-dom": "19.2.1",
-    "sa2kit": "3.9.2",
-    "@sa2kit-ui/react": "npm:@qhr123/sa2kit-ui-react@0.1.6"
+    "sa2kit": "3.9.4",
+    "@sa2kit-ui/react": "npm:@qhr123/sa2kit-ui-react@0.1.7"
   },
   "devDependencies": {
     "@types/node": "^20.17.12",

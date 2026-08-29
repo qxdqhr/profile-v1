@@ -8,7 +8,8 @@
     "./preload": "./src/preload.ts"
   },
   "dependencies": {
-    "sa2kit": "3.9.1",
+    "sa2kit": "3.9.4",
     "yaml": "^2.8.0"
-  }
+  },
+  "devDependencies": {}
 }
