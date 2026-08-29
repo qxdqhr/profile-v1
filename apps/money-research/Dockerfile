@@ -8,7 +8,7 @@ RUN git config --global url."https://github.com/".insteadOf "git@github.com:"
 FROM base AS deps
 WORKDIR /app
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9.15.0
 
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml* .npmrc* ./
 COPY apps/money-research/package.json ./apps/money-research/
@@ -24,7 +24,7 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
 FROM base AS builder
 WORKDIR /app
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9.15.0
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/money-research/node_modules ./apps/money-research/node_modules
