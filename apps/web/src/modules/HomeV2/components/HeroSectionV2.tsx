@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Time, Typewriter, useTheme } from '@sa2kit-ui/react';
+import { Button, Time, Typewriter, useTheme } from 'sa2kit/common/ui';
 import type { HomeConfig } from '../../Home/types';
 import { navigateToItem } from '../../Home/utils/navigation';
 

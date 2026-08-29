@@ -1,7 +1,7 @@
 'use client';
 
 import { BookOpen, LogIn, Sparkles, Target, TrendingUp } from 'lucide-react';
-import { Button, Footer } from 'animal-island-ui';
+import { Button, Footer } from 'sa2kit/common/ui';
 import {
   thGuestBrand,
   thGuestFeatureIcon,

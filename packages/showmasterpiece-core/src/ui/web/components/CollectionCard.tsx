@@ -21,7 +21,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Book, Eye, ImageIcon, ShoppingBag } from 'lucide-react';
 import { ArtCollection, CollectionCategory } from '../../../types';
 import { AddToCartButton } from './AddToCartButton';
-import { Card, CardContent, Badge, Button } from 'sa2kit/common/components';
+import { Card, CardContent, Badge, Button } from 'sa2kit/common/ui/admin';
 import { sm, smCn } from '../../shared/theme';
 
 /**

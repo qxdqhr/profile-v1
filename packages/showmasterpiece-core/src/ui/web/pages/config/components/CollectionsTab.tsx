@@ -11,7 +11,7 @@ import {
 } from '../../../../../types';
 import { UniversalImageUpload } from '../../../components/UniversalImageUpload';
 import { CollectionOrderManagerV2 as CollectionOrderManager } from '../../../components/CollectionOrderManagerV2';
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from 'sa2kit/common/components';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from 'sa2kit/common/ui/admin';
 
 interface CollectionWithPages {
   id: number;

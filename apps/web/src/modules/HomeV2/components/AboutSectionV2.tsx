@@ -1,8 +1,8 @@
 'use client';
 
-import { Collapse } from '@sa2kit-ui/react';
-import { CollisionBalls } from 'sa2kit/common/components';
-import type { CollisionBallsConfig, TimelineConfig } from 'sa2kit/common/components';
+import { Collapse } from 'sa2kit/common/ui';
+import { CollisionBalls } from 'sa2kit/common/ui/widgets';
+import type { CollisionBallsConfig, TimelineConfig } from 'sa2kit/common/ui/widgets';
 
 type TimelineEntry = TimelineConfig['items'][number] & {
   id?: string;

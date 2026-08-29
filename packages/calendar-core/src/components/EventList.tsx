@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useMemo, useState, useCallback } from 'react';
-import { SearchBox } from 'sa2kit/common/components';
-import { Button, Loading, Modal } from 'animal-island-ui';
+import { SearchBox } from 'sa2kit/common/ui/patterns';
+import { Button, Loading, Modal } from 'sa2kit/common/ui';
 import { 
   CalendarEvent, 
   EventListProps, 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, ImageIcon, Grid3x3, X } from 'lucide-react';
 import { ArtworkPage } from '../../../types';
-import { Card, CardContent, Button, Badge } from 'sa2kit/common/components';
+import { Card, CardContent, Button, Badge } from 'sa2kit/common/ui/admin';
 
 interface MobileAlbumViewerProps {
   artworks: ArtworkPage[];

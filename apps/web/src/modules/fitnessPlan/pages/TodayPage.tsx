@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
-import { Button, Card, Title } from 'animal-island-ui';
+import { Button, Card, Title } from 'sa2kit/common/ui';
 import { fitnessPlanClient } from '../services/fitnessPlanClient';
 import { useFitnessPlanStore } from '../store/fitnessPlanStore';
 import type { CheckinType, TodayOverviewPayload } from '../types';

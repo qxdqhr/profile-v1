@@ -9,7 +9,7 @@ import {
   getExperimentCounts
 } from '../utils';
 
-import { SearchResultHint } from 'sa2kit/common/components';
+import { SearchResultHint } from 'sa2kit/common/ui/patterns';
 import {
   CategoryFilter,
   CompletionFilter as CompletionFilterComponent,

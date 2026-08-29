@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Button } from 'animal-island-ui';
+import { Button } from 'sa2kit/common/ui';
 import { NewWorkspaceModal } from '../components/NewWorkspaceModal';
 import { WorkspaceCard } from '../components/WorkspaceCard';
 import { fetchWorkspaces } from '../services/teachHubClient';

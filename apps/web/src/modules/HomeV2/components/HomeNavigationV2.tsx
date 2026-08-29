@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@sa2kit-ui/react';
+import { Button } from 'sa2kit/common/ui';
 import { useEffect, useState } from 'react';
 import type { NavItem } from '../../Home/types';
 import { isExternalHref, navigateToItem } from '../../Home/utils/navigation';

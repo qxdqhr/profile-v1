@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Card, Title } from 'animal-island-ui';
+import { Button, Card, Title } from 'sa2kit/common/ui';
 import { ExerciseLibraryPanel } from '../components/ExerciseLibraryPanel';
 import { PLAN_TEMPLATE_GROUPS } from '../data/planTemplates';
 import { fitnessPlanClient } from '../services/fitnessPlanClient';

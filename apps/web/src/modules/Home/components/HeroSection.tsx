@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Time, Title, Typewriter } from 'animal-island-ui';
+import { Button, Card, Time, Title, Typewriter } from 'sa2kit/common/ui';
 import type { HomeConfig } from '../types';
 import { navigateToItem } from '../utils/navigation';
 

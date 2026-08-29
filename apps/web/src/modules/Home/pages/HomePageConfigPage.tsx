@@ -1,6 +1,6 @@
 'use client';
 
-import 'animal-island-ui/style';
+import 'sa2kit/common/ui/style';
 
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
@@ -13,7 +13,7 @@ import {
   Radio,
   Tabs,
   Title,
-} from 'animal-island-ui';
+} from 'sa2kit/common/ui';
 import { DEFAULT_HOME_PAGE_CONFIG } from '../defaultConfig';
 import {
   fetchHomePageConfig,

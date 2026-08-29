@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Button, Modal } from 'animal-island-ui';
+import { Button, Modal } from 'sa2kit/common/ui';
 import {
   thForm,
   thFormInput,

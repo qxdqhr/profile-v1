@@ -3,7 +3,7 @@
 import {
   ThemeProvider,
   type Sa2ThemeId,
-} from '@sa2kit-ui/react';
+} from 'sa2kit/common/ui';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 
 const STORAGE_KEY = 'profile-home-v2-theme';

@@ -1,5 +1,5 @@
 import { ExperimentCard } from 'sa2kit/business/portfolio';
-import { Grid, GridItem, GridColumns, GridGap } from 'sa2kit/common/components';
+import { Grid, type GridItem, type GridColumns, type GridGap } from 'sa2kit/common/ui/widgets';
 import type { ExperimentItem } from '../types';
 
 

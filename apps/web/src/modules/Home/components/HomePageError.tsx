@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Title } from 'animal-island-ui';
+import { Button, Card, Title } from 'sa2kit/common/ui';
 
 interface HomePageErrorProps {
   message: string;

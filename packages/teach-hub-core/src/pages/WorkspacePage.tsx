@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Button, Loading } from 'animal-island-ui';
+import { Button, Loading } from 'sa2kit/common/ui';
 import { cn } from '../utils/cn';
 import { ProgressBar } from '../components/ProgressBar';
 import { GenerateLessonButton } from '../components/GenerateLessonButton';

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Switch } from 'animal-island-ui';
+import { Switch } from 'sa2kit/common/ui';
 import { Clock, Sun, Info } from 'lucide-react';
 import { RecurrencePattern } from '../../services/eventTypeService';
 import type { EventModalFormData } from './types';

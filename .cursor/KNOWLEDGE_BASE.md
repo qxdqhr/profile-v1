@@ -6,15 +6,42 @@
 
 ---
 
+## 0. 北极星愿景（最高优先级）
+
+> **profile-v1 + sa2kit + sa2kit-ui = 接单多端付费项目的可复用弹药库。**
+
+- 后期接到客户 Web/RN/小程序等项目时，应能 **直接引用** `sa2kit`（登录、OSS、配置、AI…）与 `sa2kit-ui`（主题与基础 UI），而不是从本仓拷代码。
+- profile-v1 是**首个完整宿主与验证场**；通用能力默认进库，宿主只做薄 page / API / 部署。
+- 决策冲突时：先保证「非 profile 宿主可接」→ 再 Phase U 统一 UI → 再业务试点 / 功能优化。
+
+完整蓝图：[`doc/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`](../doc/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md) §0。
+
+---
+
 ## 1. 技术栈与命令
 
 | 项 | 约定 |
 |----|------|
 | 框架 | Next.js（App Router，主站在 `apps/web/src/app`） |
 | Monorepo | pnpm workspace：`apps/*` + `packages/*`；详见 `docs/monorepo-migration/`、`apps/README.md` |
-| 样式 | Tailwind CSS；预设 `@profile/ui/tailwind.preset` |
+| 样式 | Tailwind CSS；预设 `@profile/ui/tailwind.preset`（设计令牌桥；业务组件/主题见 §1.1） |
 | 数据层 | Drizzle ORM + PostgreSQL（`@profile/db`，迁移目录 `drizzle/` 在仓库根） |
 | 包管理 | **pnpm**；开发 `pnpm dev` = `pnpm --filter @profile/web dev` |
+| 通用 SDK | **`sa2kit`**（登录、OSS/文件、配置、AI、UI/主题门面）；源码仓 `~/project/sa2kit` |
+
+### 1.1 与 sa2kit / sa2kit-ui 的依赖方向（目标态）
+
+**原则（多端 SDK）**：
+
+- **sa2kit** = 可被 Web / RN / Taro / Electron **同时引用**的 SDK：`common`（登录、OSS、配置、AI、UI 门面…）+ **`business/<域>`（多端实现同仓：`ui/web|rn|taro` + `server` + `domain`）**
+- **sa2kit-ui** = **唯一** UI 实现源（含基础件、auth 壳外观、域面板、装饰件、business 可拆件）；主题由 ThemeProvider 管理；showmasterpiece **强制动森**；后期只做新主题 + 确缺新组件
+- **profile-v1** = Web + API **宿主壳**；不堆任何第二套 UI
+
+**不作废的约定**：业务代码不新增 `animal-island-ui`；不直连 `@sa2kit-ui/*`（经 `sa2kit/common/ui*` 门面；mobile 可 link `@sa2kit-ui/rn`）；临时 UI 仅特殊需求且限期回灌。Phase U 已完成，门禁：`pnpm gate:ui`。通用能力默认进 sa2kit / sa2kit-ui（服务接单外接），festivalCard 试点与功能优化按蓝图优先级。
+
+**已迁出的 `packages/*-core`**：默认冻结；新多端能力优先进 sa2kit（见蓝图 S1/S2/S3）。
+
+完整蓝图与阶段计划：[`doc/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`](../doc/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md)。
 
 ---
 
@@ -136,6 +163,7 @@ export default function XxxRoute() {
 - `ExperimentItem` 类型或 `category` 枚举扩展
 - 新的「标准参考模块」取代 `ideaList` 作为模板
 - 新增/变更 `apps/*` 子应用、网关路由、RN 客户端或 CI 打包脚本
+- 变更与 sa2kit / sa2kit-ui 的依赖方向或 UI 门面约定（同步 `doc/code-review/libraries/TARGET-ARCHITECTURE.md`）
 
 ---
 

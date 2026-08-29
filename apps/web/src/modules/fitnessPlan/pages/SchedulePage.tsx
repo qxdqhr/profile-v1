@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button, Card, Select, Title } from 'animal-island-ui';
+import { Button, Card, Select, Title } from 'sa2kit/common/ui';
 import { FitnessDaySheet } from '../components/calendar/FitnessDaySheet';
 import { FitnessMonthView } from '../components/calendar/FitnessMonthView';
 import { fitnessPlanClient } from '../services/fitnessPlanClient';

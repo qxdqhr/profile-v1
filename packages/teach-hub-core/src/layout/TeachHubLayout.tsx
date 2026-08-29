@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useState } from 'react';
-import 'animal-island-ui/style';
-import { Footer, Loading, Title } from 'animal-island-ui';
+import 'sa2kit/common/ui/style';
+import { Footer, Loading, Title } from 'sa2kit/common/ui';
 import {
   AuthProvider,
   LoginRegisterModals,

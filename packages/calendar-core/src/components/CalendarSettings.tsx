@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Select, Switch, Title } from 'animal-island-ui';
+import { Button, Select, Switch, Title } from 'sa2kit/common/ui';
 import { COLOR_THEMES, type CalendarThemeKey } from '../utils/calendarSettingsCore';
 import { useCalendarSettings } from '../context/CalendarSettingsContext';
 import { AiApiSettingsPanel } from 'sa2kit/common/aiApi/client';

@@ -1,4 +1,4 @@
-import { SearchBox } from 'sa2kit/common/components';
+import { SearchBox } from 'sa2kit/common/ui/patterns';
 
 interface TestFieldSearchBoxProps {
   searchQuery: string;

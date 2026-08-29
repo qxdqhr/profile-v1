@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Card, Input, Title } from 'animal-island-ui';
+import { Button, Card, Input, Title } from 'sa2kit/common/ui';
 import { ExerciseLibraryPanel } from '../components/ExerciseLibraryPanel';
 import { RestCountdown, WorkoutTimer } from '../components/workout/WorkoutTimer';
 import { fitnessPlanClient } from '../services/fitnessPlanClient';

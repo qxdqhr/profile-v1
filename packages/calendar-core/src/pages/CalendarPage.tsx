@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { AuthProvider, useAuthContext, LoginRegisterModals } from '@profile/auth/react';
 import { Plus } from 'lucide-react';
-import 'animal-island-ui/style';
-import { Button, Cursor, Loading, Modal } from 'animal-island-ui';
+import 'sa2kit/common/ui/style';
+import { Button, Cursor, Loading, Modal } from 'sa2kit/common/ui';
 import { Nunito, Noto_Sans_SC } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { cal, modalActionsClass } from '../calendarStyles';

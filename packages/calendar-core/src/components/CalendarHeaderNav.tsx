@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Calculator, CalendarDays, List, LogIn, Settings } from 'lucide-react';
-import { Button, Title } from 'animal-island-ui';
+import { Button, Title } from 'sa2kit/common/ui';
 import { UserMenu } from '@profile/auth/react';
 import { cal, navItemClass } from '../calendarStyles';
 

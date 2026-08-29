@@ -10,7 +10,7 @@ import {
   Textarea,
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
   Card, CardContent, CardDescription, CardHeader, CardTitle,
-} from 'sa2kit/common/components';
+} from 'sa2kit/common/ui/admin';
 
 interface GeneralConfigTabProps {
   configForm: ConfigFormData;

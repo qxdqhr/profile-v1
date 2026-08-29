@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { Button, Input, Modal } from '@sa2kit-ui/react';
+import { Button, Input, Modal } from 'sa2kit/common/ui';
 
 type SubmitStatus = 'idle' | 'success' | 'error';
 

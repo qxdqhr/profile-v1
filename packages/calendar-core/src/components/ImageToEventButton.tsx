@@ -2,7 +2,7 @@
 
 import React, { useRef } from 'react';
 import { ImagePlus } from 'lucide-react';
-import { Button } from 'animal-island-ui';
+import { Button } from 'sa2kit/common/ui';
 import { buildCalendarImageInput, type CalendarEventFromImageOutput } from '../services/calendarAiService';
 import { useCalendarEventFromImage } from '../hooks/useCalendarEventFromImage';
 

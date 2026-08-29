@@ -33,7 +33,7 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   transpilePackages: [
     'sa2kit',
-    'animal-island-ui',
+    '@sa2kit-ui/react',
     '@profile/auth',
     '@profile/teach-hub-core',
   ],

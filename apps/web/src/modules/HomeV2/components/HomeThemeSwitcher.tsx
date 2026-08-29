@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Modal, useTheme } from '@sa2kit-ui/react';
+import { Button, Modal, useTheme } from 'sa2kit/common/ui';
 import { useState } from 'react';
 import {
   HOME_V2_THEME_IDS,

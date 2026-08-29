@@ -101,9 +101,6 @@ const nextConfig: NextConfig = {
             'react-native': false,
             '@tarojs/components': false,
             '@tarojs/taro': false,
-            // 经典 Home / fitnessPlan 仍 import animal-island-ui；CI 仅装 @profile/web 依赖时需 alias 到 sa2kit 单包
-            'animal-island-ui/style': '@sa2kit-ui/react/style',
-            'animal-island-ui': '@sa2kit-ui/react',
         };
 
         if (!isServer) {

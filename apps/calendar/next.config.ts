@@ -31,7 +31,7 @@ const nextConfig: NextConfig = {
   ...(basePath ? { basePath, trailingSlash: true } : {}),
   distDir: process.env.NEXT_DIST_DIR || '.next-calendar',
   output: 'standalone',
-  transpilePackages: ['sa2kit', 'animal-island-ui', '@profile/auth', '@profile/calendar-core'],
+  transpilePackages: ['sa2kit', '@sa2kit-ui/react', '@profile/auth', '@profile/calendar-core'],
   typescript: {
     ignoreBuildErrors: true,
   },

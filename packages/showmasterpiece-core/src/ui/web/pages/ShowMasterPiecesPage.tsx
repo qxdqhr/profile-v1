@@ -36,7 +36,7 @@ import { CartButton } from '../components/CartButton';
 import { DeadlinePopupManager } from '../components/DeadlinePopup';
 import { CartProvider } from '../../../logic/contexts/CartContext';
 import { AuthProvider, useAuthContext, UserMenu } from '@profile/auth/react';
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, Tabs, TabsContent, TabsList, TabsTrigger } from 'sa2kit/common/components';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, Tabs, TabsContent, TabsList, TabsTrigger } from 'sa2kit/common/ui/admin';
 import { sm, smCn } from '../../shared/theme';
 import { showmasterpiecePagePath } from '../../../utils/routes';
 

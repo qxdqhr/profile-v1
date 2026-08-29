@@ -8,7 +8,7 @@ import {
   Input,
   Modal,
   Title,
-} from 'animal-island-ui';
+} from 'sa2kit/common/ui';
 
 type SubmitStatus = 'idle' | 'success' | 'error';
 

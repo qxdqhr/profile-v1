@@ -23,7 +23,7 @@ import { AuthGuard, AuthProvider } from '@profile/auth/react';
 import {
   Button,
   Tabs, TabsContent, TabsList, TabsTrigger,
-} from 'sa2kit/common/components';
+} from 'sa2kit/common/ui/admin';
 
 import { GeneralConfigTab } from './components/GeneralConfigTab';
 import { HomeTabsTab } from './components/HomeTabsTab';

@@ -1,4 +1,4 @@
-import type { CollisionBallsConfig } from 'sa2kit/common/components';
+import type { CollisionBallsConfig } from 'sa2kit/common/ui/widgets';
 
 export interface HomeTimelineItem {
   id?: string;

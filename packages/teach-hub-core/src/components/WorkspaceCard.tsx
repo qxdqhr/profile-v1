@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Button, Card, Modal } from 'animal-island-ui';
+import { Button, Card, Modal } from 'sa2kit/common/ui';
 import { archiveWorkspaceViaApi } from '../services/teachHubClient';
 import {
   thWsListItemActions,

@@ -1,5 +1,11 @@
 # profile-v1 — Agent 与协作说明
 
+## 北极星（最高优先级）
+
+**本仓 + sa2kit + sa2kit-ui 是为后期接单多端付费项目准备的可复用弹药库。**  
+通用能力（登录、OSS、UI/主题等）进库、宿主变薄；客户仓应能直接 `import` 库接入，而不是复制 profile 代码。  
+执行上：北极星 > **Phase U（已完成，门禁 `pnpm gate:ui`）** > 业务试点 / 功能优化。详见蓝图 §0 / UI-UNIFICATION-PLAN。
+
 ## 项目知识库（自动 + 手动）
 
 详细的路由分组、Monorepo 子应用边界、模块目录、`app/api` 与 `src/modules` 的对应关系、实验田 `experimentData.ts` 约定见：

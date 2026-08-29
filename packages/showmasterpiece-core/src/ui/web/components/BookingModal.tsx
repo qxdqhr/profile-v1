@@ -9,7 +9,7 @@
 'use client';
 
 import React from 'react';
-import { Modal } from 'sa2kit/common/components';
+import { Modal } from 'sa2kit/common/ui/admin';
 import { BookingPage } from './BookingPage';
 
 /**

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { BackButton } from 'sa2kit/common/components';
+import { BackButton } from 'sa2kit/common/ui/patterns/next';
 import styles from './imageDownloader.module.css';
 
 export default function ImageDownloader() {

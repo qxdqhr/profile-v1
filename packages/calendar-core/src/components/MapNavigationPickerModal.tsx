@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Button, Modal } from 'animal-island-ui';
+import { Button, Modal } from 'sa2kit/common/ui';
 import {
   MAP_NAVIGATION_OPTIONS,
   type MapNavigationProviderId,

@@ -9,7 +9,7 @@ import {
   Label,
   Card, CardContent, CardDescription, CardHeader, CardTitle,
   Badge,
-} from 'sa2kit/common/components';
+} from 'sa2kit/common/ui/admin';
 
 interface HomeTabsTabProps {
   configForm: ConfigFormData;

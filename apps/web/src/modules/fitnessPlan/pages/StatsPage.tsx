@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Button, Card, Title } from 'animal-island-ui';
+import { Button, Card, Title } from 'sa2kit/common/ui';
 import { StatsTrendChart } from '../components/stats/StatsTrendChart';
 import { fitnessPlanClient } from '../services/fitnessPlanClient';
 import type { StatsOverviewPayload } from '../types';

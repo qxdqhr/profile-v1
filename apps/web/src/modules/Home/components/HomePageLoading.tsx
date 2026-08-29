@@ -1,6 +1,6 @@
 'use client';
 
-import { Loading } from 'animal-island-ui';
+import { Loading } from 'sa2kit/common/ui';
 
 export function HomePageLoading() {
   return (

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Button } from 'animal-island-ui';
+import { Button } from 'sa2kit/common/ui';
 import { LessonViewer } from '../components/LessonViewer';
 import { getWorkspaceFileUrl } from '../services/teachHubClient';
 import { thLessonShell, thLessonToolbar } from '../styles/tw';

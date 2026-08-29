@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card } from 'animal-island-ui';
+import { Button, Card } from 'sa2kit/common/ui';
 import type { NavItem } from '../types';
 import { isExternalHref, navigateToItem } from '../utils/navigation';
 

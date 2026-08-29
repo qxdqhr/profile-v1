@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Loading } from 'animal-island-ui';
+import { Loading } from 'sa2kit/common/ui';
 import { cn } from '../utils/cn';
 import { fetchWorkspaceDetail } from '../services/teachHubClient';
 import {

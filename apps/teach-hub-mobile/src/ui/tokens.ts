@@ -1,4 +1,4 @@
-/** animal-island-ui 设计 token（对齐 Web 端组件库） */
+/** 动森设计 token（自手写 UI 迁出；色值对齐 sa2kit-ui animal-island） */
 
 export const ai = {
   primary: '#19c8b9',

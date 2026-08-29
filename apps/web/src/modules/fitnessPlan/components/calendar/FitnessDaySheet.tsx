@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Button, Card, Select } from 'animal-island-ui';
+import { Button, Card, Select } from 'sa2kit/common/ui';
 import type { ScheduleDayInfo, WorkoutPlanRecord } from '../../types';
 import { formatCalendarDate, isToday } from '../../utils/calendarDateUtils';
 

@@ -1,25 +1,11 @@
-/** sa2kit 路径兼容层：ShowMasterpiece UI 组件 barrel */
+/** sa2kit UI 兼容层 — profile-v1 宿主 barrel */
 export {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
   Badge,
   Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
   Input,
   Label,
   Modal,
+  ConfirmModal,
   Select,
   SelectContent,
   SelectItem,
@@ -30,4 +16,29 @@ export {
   TabsList,
   TabsTrigger,
   Textarea,
-} from 'sa2kit/common/components';
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from 'sa2kit/common/ui/admin';
+
+export {
+  SearchBox,
+  SearchResultHint,
+  FilterButtonGroup,
+} from 'sa2kit/common/ui/patterns';
+
+export { BackButton } from 'sa2kit/common/ui/patterns/next';
+
+export {
+  Grid,
+  type GridItem,
+  type GridColumns,
+  type GridGap,
+  CollisionBalls,
+  Timeline,
+  type CollisionBallsConfig,
+  type TimelineConfig,
+} from 'sa2kit/common/ui/widgets';

@@ -15,7 +15,9 @@ const monorepoRoot = path.resolve(projectRoot, '../..');
 
 const config = getDefaultConfig(projectRoot);
 
-config.watchFolders = [monorepoRoot];
+const sa2kitUiRoot = path.resolve(monorepoRoot, '../sa2kit-ui');
+const sa2kitRoot = path.resolve(monorepoRoot, '../sa2kit');
+config.watchFolders = [monorepoRoot, sa2kitUiRoot, sa2kitRoot];
 config.resolver.unstable_enablePackageExports = true;
 config.resolver.unstable_conditionNames = ['require', 'import', 'react-native'];
 config.resolver.nodeModulesPaths = [

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Modal, Button } from 'animal-island-ui';
+import { Modal, Button } from 'sa2kit/common/ui';
 import { AlertCircle, Copy, Pencil, Plus, Trash2 } from 'lucide-react';
 import {
   EventType,

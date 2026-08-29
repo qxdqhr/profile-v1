@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Button, Switch } from 'animal-island-ui';
+import { Button, Switch } from 'sa2kit/common/ui';
 import { cn } from '../utils/cn';
 import { useLessonReaderSettings } from '../hooks/useLessonReaderSettings';
 import {

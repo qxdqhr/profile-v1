@@ -1,3 +1,4 @@
+import '@sa2kit-ui/theme-animal-island/theme.mobile.css';
 import { NavigationContainer, type NavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';

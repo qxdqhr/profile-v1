@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Icon, Tooltip } from '@sa2kit-ui/react';
+import { Button, Icon, Tooltip } from 'sa2kit/common/ui';
 import type { ProjectItem } from '../../Home/types';
 
 interface ProjectsSectionV2Props {

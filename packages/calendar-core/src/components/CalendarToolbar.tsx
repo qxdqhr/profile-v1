@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from 'animal-island-ui';
+import { Button } from 'sa2kit/common/ui';
 import { CalendarViewType } from '../types';
 import { cal, segmentedBtnClass } from '../calendarStyles';
 

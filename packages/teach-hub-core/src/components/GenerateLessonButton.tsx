@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Button } from 'animal-island-ui';
+import { Button } from 'sa2kit/common/ui';
 import {
   generateLessonButtonLabel,
   resolveGenerateLessonTrigger,

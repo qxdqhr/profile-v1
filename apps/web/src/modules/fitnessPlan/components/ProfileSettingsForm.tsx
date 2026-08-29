@@ -7,7 +7,7 @@ import {
   Input,
   Select,
   Title,
-} from 'animal-island-ui';
+} from 'sa2kit/common/ui';
 import { fitnessPlanClient } from '../services/fitnessPlanClient';
 import { useFitnessPlanStore } from '../store/fitnessPlanStore';
 import type { FitnessGoal, FitnessProfileFormData } from '../types';

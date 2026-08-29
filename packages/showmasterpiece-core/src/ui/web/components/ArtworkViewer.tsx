@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
 import { ArtworkPage } from '../../../types';
-import { Card, CardContent } from 'sa2kit/common/components';
-import { Button } from 'sa2kit/common/components';
-import { Badge } from 'sa2kit/common/components';
+import { Card, CardContent } from 'sa2kit/common/ui/admin';
+import { Button } from 'sa2kit/common/ui/admin';
+import { Badge } from 'sa2kit/common/ui/admin';
 
 interface ArtworkViewerProps {
   artwork: ArtworkPage;

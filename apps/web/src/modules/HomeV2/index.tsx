@@ -1,10 +1,8 @@
 'use client';
 
-import { Cursor, Footer } from '@sa2kit-ui/react';
+import { Cursor, Footer } from 'sa2kit/common/ui';
 import Link from 'next/link';
 import { useMemo } from 'react';
-import { HomePageError } from '../Home/components/HomePageError';
-import { HomePageLoading } from '../Home/components/HomePageLoading';
 import { useHomePageConfig } from '../Home/hooks/useHomePageConfig';
 import { useScrollSpy } from '../Home/hooks/useScrollSpy';
 import type { NavItem } from '../Home/types';
@@ -12,6 +10,8 @@ import { AboutSectionV2 } from './components/AboutSectionV2';
 import { ContactSectionV2 } from './components/ContactSectionV2';
 import { HeroSectionV2 } from './components/HeroSectionV2';
 import { HomeNavigationV2 } from './components/HomeNavigationV2';
+import { HomeV2Error } from './components/HomeV2Error';
+import { HomeV2Loading } from './components/HomeV2Loading';
 import { HomeV2ThemeProvider } from './components/HomeV2ThemeProvider';
 import { ProjectsSectionV2 } from './components/ProjectsSectionV2';
 import { SectionRevealV2 } from './components/SectionRevealV2';
@@ -32,11 +32,11 @@ const HomePageV2 = () => {
   });
 
   if (loading) {
-    return <HomePageLoading />;
+    return <HomeV2Loading />;
   }
 
   if (error || !config) {
-    return <HomePageError message={error ?? '配置为空'} onRetry={reload} />;
+    return <HomeV2Error message={error ?? '配置为空'} onRetry={reload} />;
   }
 
   const handleItemClick = (item: NavItem) => {

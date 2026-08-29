@@ -1,5 +1,7 @@
 import './globals.css';
+import './sa2kit-ui.css';
 import type { Metadata, Viewport } from 'next';
+import { ShowMasterpieceThemeRoot } from './ShowMasterpieceThemeRoot';
 
 export const metadata: Metadata = {
   title: '葱韵环京魔法屋',
@@ -15,7 +17,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-CN">
-      <body>{children}</body>
+      <body>
+        <ShowMasterpieceThemeRoot>{children}</ShowMasterpieceThemeRoot>
+      </body>
     </html>
   );
 }

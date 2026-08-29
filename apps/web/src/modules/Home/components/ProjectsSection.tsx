@@ -8,7 +8,7 @@ import {
   Icon,
   Title,
   Tooltip,
-} from 'animal-island-ui';
+} from 'sa2kit/common/ui';
 import type { ProjectItem } from '../types';
 
 interface ProjectsSectionProps {

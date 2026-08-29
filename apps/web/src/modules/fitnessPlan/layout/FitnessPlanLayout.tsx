@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
-import 'animal-island-ui/style';
-import { Button, Card, Footer, Loading, Title } from 'animal-island-ui';
+import 'sa2kit/common/ui/style';
+import { Button, Card, Footer, Loading, Title } from 'sa2kit/common/ui';
 import { AuthGuard, AuthProvider, UserMenu, useAuthContext } from '@/lib/auth';
 import { useFitnessPlanBootstrap } from '../hooks/useFitnessPlanBootstrap';
 import {

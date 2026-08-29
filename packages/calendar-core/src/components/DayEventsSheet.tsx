@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, X, Pencil, Trash2, MapPin, Clock } from 'lucide-react';
-import { Button } from 'animal-island-ui';
+import { Button } from 'sa2kit/common/ui';
 import { CalendarEvent } from '../types';
 import { formatDate, isToday } from '../utils/dateUtils';
 import { getEventSurfaceClasses, getPriorityLabel } from '../utils/eventDisplay';

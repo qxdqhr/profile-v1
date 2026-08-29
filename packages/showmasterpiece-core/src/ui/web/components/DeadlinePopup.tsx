@@ -10,7 +10,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, Clock, Info, CheckCircle, XCircle } from 'lucide-react';
-import { Modal } from 'sa2kit/common/components';
+import { Modal } from 'sa2kit/common/ui/admin';
 import type { PopupConfig } from '../../../types/popup';
 
 /**

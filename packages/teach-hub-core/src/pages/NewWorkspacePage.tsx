@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Button, Title } from 'animal-island-ui';
+import { Button, Title } from 'sa2kit/common/ui';
 import {
   createWorkspaceViaApi,
   importWorkspaceZip,

@@ -1,7 +1,7 @@
 'use client';
 
 import { ProfileSettingsForm } from '../components/ProfileSettingsForm';
-import { Title } from 'animal-island-ui';
+import { Title } from 'sa2kit/common/ui';
 import { useFitnessPlanStore } from '../store/fitnessPlanStore';
 
 export { PlansPage } from './PlansPage';

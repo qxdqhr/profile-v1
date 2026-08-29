@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button, Card } from 'animal-island-ui';
+import { Button, Card } from 'sa2kit/common/ui';
 
 interface RestCountdownProps {
   seconds: number;

@@ -14,13 +14,13 @@
     "@profile/db": "workspace:*",
     "@profile/showmasterpiece-core": "workspace:*",
     "@profile/ui": "workspace:*",
-    "animal-island-ui": "^0.9.6",
     "lru-cache": "^11.1.0",
     "lucide-react": "^0.474.0",
     "next": "16.0.8",
     "react": "19.2.1",
     "react-dom": "19.2.1",
-    "sa2kit": "3.9.1"
+    "sa2kit": "3.9.2",
+    "@sa2kit-ui/react": "npm:@qhr123/sa2kit-ui-react@0.1.6"
   },
   "devDependencies": {
     "@types/node": "^20.17.12",

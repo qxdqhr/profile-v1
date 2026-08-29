@@ -1,8 +1,8 @@
 'use client';
 
-import 'animal-island-ui/style';
+import 'sa2kit/common/ui/style';
 
-import { Cursor, Footer } from 'animal-island-ui';
+import { Cursor, Footer } from 'sa2kit/common/ui';
 import { useMemo, useState } from 'react';
 import { AboutSection } from './components/AboutSection';
 import { ContactSection } from './components/ContactSection';
