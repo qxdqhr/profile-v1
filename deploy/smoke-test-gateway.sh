@@ -19,6 +19,24 @@ check_http() {
   fi
 }
 
+# WordPress 安装前可能 302→install.php；就绪后 200。502/404 视为失败。
+check_http_wp() {
+  local name="$1"
+  local url="$2"
+  local code
+  local i
+  for i in 1 2 3 4 5 6 7 8 9 10; do
+    code="$(curl -sS -o /dev/null -w '%{http_code}' "$url" 2>/dev/null || echo ERR)"
+    echo "${name} 尝试 ${i}/10 => ${code} (期望 200|301|302)"
+    case "$code" in
+      200|301|302) return 0 ;;
+    esac
+    sleep 3
+  done
+  echo "${name} => ${code} (期望 200|301|302)"
+  fail=1
+}
+
 echo "=== 网关冒烟测试 (${BASE}) ==="
 check_http "GET /" "${BASE}/" "200"
 check_http "GET /api/auth/get-session" "${BASE}/api/auth/get-session" "200"
@@ -35,6 +53,8 @@ check_http "GET /api/teach-hub/workspaces/" "${BASE}/api/teach-hub/workspaces/" 
 check_http "GET /api/showmasterpiece/collections/" "${BASE}/api/showmasterpiece/collections/" "200"
 check_http "GET /api/showmasterpiece/bookings/admin/" "${BASE}/api/showmasterpiece/bookings/admin/" "401"
 check_http "GET /api/node-notes/documents/" "${BASE}/api/node-notes/documents/" "401"
+# 旁路 WordPress（纯 PHP；未安装也可能 302）
+check_http_wp "GET /wp/personal/" "${BASE}/wp/personal/"
 
 if [ "$fail" -ne 0 ]; then
   echo "ERROR: 网关冒烟测试失败。请检查 nginx/profile-platform.conf 是否已同步并重载。" >&2

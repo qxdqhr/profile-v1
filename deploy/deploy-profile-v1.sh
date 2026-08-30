@@ -30,8 +30,18 @@ strip_env_value() {
 }
 
 EXISTING_DATABASE_URL=""
+EXISTING_MARIADB_ROOT_PASSWORD=""
+EXISTING_WORDPRESS_DB_USER=""
+EXISTING_WORDPRESS_DB_PASSWORD=""
+EXISTING_WORDPRESS_DB_NAME=""
+EXISTING_WP_PERSONAL_PUBLIC_URL=""
 if [ -f .env ]; then
   EXISTING_DATABASE_URL="$(strip_env_value "$(grep -E '^DATABASE_URL=' .env | tail -1 | cut -d= -f2- || true)")"
+  EXISTING_MARIADB_ROOT_PASSWORD="$(strip_env_value "$(grep -E '^MARIADB_ROOT_PASSWORD=' .env | tail -1 | cut -d= -f2- || true)")"
+  EXISTING_WORDPRESS_DB_USER="$(strip_env_value "$(grep -E '^WORDPRESS_DB_USER=' .env | tail -1 | cut -d= -f2- || true)")"
+  EXISTING_WORDPRESS_DB_PASSWORD="$(strip_env_value "$(grep -E '^WORDPRESS_DB_PASSWORD=' .env | tail -1 | cut -d= -f2- || true)")"
+  EXISTING_WORDPRESS_DB_NAME="$(strip_env_value "$(grep -E '^WORDPRESS_DB_NAME=' .env | tail -1 | cut -d= -f2- || true)")"
+  EXISTING_WP_PERSONAL_PUBLIC_URL="$(strip_env_value "$(grep -E '^WP_PERSONAL_PUBLIC_URL=' .env | tail -1 | cut -d= -f2- || true)")"
 fi
 
 # 始终以 app.config 推导为准，避免沿用损坏的旧 .env（CI 日志曾出现 port=543）
@@ -47,6 +57,13 @@ if [ -z "${DATABASE_URL:-}" ]; then
     DATABASE_URL="$(derive_database_url || true)"
   fi
 fi
+
+# WordPress / MariaDB：优先沿用服务器已有 .env，其次允许 CI/环境注入
+MARIADB_ROOT_PASSWORD="${MARIADB_ROOT_PASSWORD:-${EXISTING_MARIADB_ROOT_PASSWORD}}"
+WORDPRESS_DB_USER="${WORDPRESS_DB_USER:-${EXISTING_WORDPRESS_DB_USER}}"
+WORDPRESS_DB_PASSWORD="${WORDPRESS_DB_PASSWORD:-${EXISTING_WORDPRESS_DB_PASSWORD}}"
+WORDPRESS_DB_NAME="${WORDPRESS_DB_NAME:-${EXISTING_WORDPRESS_DB_NAME}}"
+WP_PERSONAL_PUBLIC_URL="${WP_PERSONAL_PUBLIC_URL:-${EXISTING_WP_PERSONAL_PUBLIC_URL}}"
 
 compose_cmd() {
   if docker compose version >/dev/null 2>&1; then
@@ -67,7 +84,30 @@ compose_cmd() {
     # 勿再加引号：旧版 docker-compose 遇 DATABASE_URL=""..."" 会解析失败
     printf 'DATABASE_URL=%s\n' "$(strip_env_value "${DATABASE_URL}")"
   fi
+  # 旁路 WordPress（无值则不写，compose 使用镜像默认/占位密码）
+  if [ -n "${MARIADB_ROOT_PASSWORD}" ]; then
+    printf 'MARIADB_ROOT_PASSWORD=%s\n' "$(strip_env_value "${MARIADB_ROOT_PASSWORD}")"
+  fi
+  if [ -n "${WORDPRESS_DB_USER}" ]; then
+    printf 'WORDPRESS_DB_USER=%s\n' "$(strip_env_value "${WORDPRESS_DB_USER}")"
+  fi
+  if [ -n "${WORDPRESS_DB_PASSWORD}" ]; then
+    printf 'WORDPRESS_DB_PASSWORD=%s\n' "$(strip_env_value "${WORDPRESS_DB_PASSWORD}")"
+  fi
+  if [ -n "${WORDPRESS_DB_NAME}" ]; then
+    printf 'WORDPRESS_DB_NAME=%s\n' "$(strip_env_value "${WORDPRESS_DB_NAME}")"
+  fi
+  if [ -n "${WP_PERSONAL_PUBLIC_URL}" ]; then
+    printf 'WP_PERSONAL_PUBLIC_URL=%s\n' "$(strip_env_value "${WP_PERSONAL_PUBLIC_URL}")"
+  fi
 } > .env
+
+# 补全 WordPress 缺省键（不覆盖已有非空值；首次上线写入 change-me / 公网 URL）
+if [ -x ./ensure-wordpress-env.sh ]; then
+  ./ensure-wordpress-env.sh .env
+elif [ -f ./ensure-wordpress-env.sh ]; then
+  bash ./ensure-wordpress-env.sh .env
+fi
 
 echo "=== 部署前磁盘 ==="
 df -h /

@@ -536,6 +536,10 @@ jobs:
       - name: Deploy gateway stack to remote server
         env:
           REGISTRY: crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht
+          WP_MARIADB_ROOT_PASSWORD: ${{ secrets.WP_MARIADB_ROOT_PASSWORD }}
+          WP_DB_USER: ${{ secrets.WP_DB_USER }}
+          WP_DB_PASSWORD: ${{ secrets.WP_DB_PASSWORD }}
+          WP_PERSONAL_PUBLIC_URL: ${{ secrets.WP_PERSONAL_PUBLIC_URL }}
         run: |
           NEW_TAG=${{ github.run_number }}
           DEPLOY_CFG_DIR=/tmp/profile-v1-deploy
@@ -548,7 +552,7 @@ jobs:
           chmod 600 /tmp/ssh_key
 
           echo "=== 同步配置与 deploy 文件 ==="
-          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/nginx"
+          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/nginx /root/profile-v1/wordpress"
           scp $SSH_OPTS "$DEPLOY_CFG_DIR/app.config.yaml" "$REMOTE:/root/profile-v1/app.config.yaml"
           scp $SSH_OPTS deploy/docker-compose.gateway.yml "$REMOTE:/root/profile-v1/docker-compose.gateway.yml"
           scp $SSH_OPTS deploy/nginx/profile-platform.conf "$REMOTE:/root/profile-v1/nginx/profile-platform.conf"
@@ -558,6 +562,7 @@ jobs:
           scp $SSH_OPTS deploy/fix-gateway-remote.sh "$REMOTE:/root/profile-v1/fix-gateway-remote.sh"
           scp $SSH_OPTS deploy/wait-gateway-ready.sh "$REMOTE:/root/profile-v1/wait-gateway-ready.sh"
           scp $SSH_OPTS deploy/ensure-database-url.sh "$REMOTE:/root/profile-v1/ensure-database-url.sh"
+          scp $SSH_OPTS deploy/ensure-wordpress-env.sh "$REMOTE:/root/profile-v1/ensure-wordpress-env.sh"
           scp $SSH_OPTS deploy/ensure-calendar-schema.sh "$REMOTE:/root/profile-v1/ensure-calendar-schema.sh"
           scp $SSH_OPTS deploy/ensure-node-notes-schema.sh "$REMOTE:/root/profile-v1/ensure-node-notes-schema.sh"
           scp $SSH_OPTS deploy/smoke-test-gateway.sh "$REMOTE:/root/profile-v1/smoke-test-gateway.sh"
@@ -565,10 +570,24 @@ jobs:
           scp $SSH_OPTS deploy/audit-outer-nginx.sh "$REMOTE:/root/profile-v1/audit-outer-nginx.sh"
           scp $SSH_OPTS deploy/nginx/outer-ubuntu-qhr062.conf "$REMOTE:/root/profile-v1/nginx/outer-ubuntu-qhr062.conf"
           scp $SSH_OPTS deploy/nginx/proxy-params-outer.conf "$REMOTE:/root/profile-v1/nginx/proxy-params-outer.conf"
-          ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/wait-gateway-ready.sh /root/profile-v1/ensure-database-url.sh /root/profile-v1/ensure-calendar-schema.sh /root/profile-v1/ensure-node-notes-schema.sh /root/profile-v1/smoke-test-gateway.sh /root/profile-v1/check-gateway-health.sh /root/profile-v1/audit-outer-nginx.sh"
+          scp $SSH_OPTS deploy/wordpress/README.md deploy/wordpress/ADD-SITE.md deploy/wordpress/.env.example \
+            "$REMOTE:/root/profile-v1/wordpress/"
+          ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/wait-gateway-ready.sh /root/profile-v1/ensure-database-url.sh /root/profile-v1/ensure-wordpress-env.sh /root/profile-v1/ensure-calendar-schema.sh /root/profile-v1/ensure-node-notes-schema.sh /root/profile-v1/smoke-test-gateway.sh /root/profile-v1/check-gateway-health.sh /root/profile-v1/audit-outer-nginx.sh"
 
+          # 通过临时 env 文件注入 WP 密钥，避免特殊字符破坏 ssh 命令行
+          {
+            echo "REGISTRY=${REGISTRY}"
+            echo "IMAGE_TAG=${NEW_TAG}"
+            echo "GATEWAY_PORT=3000"
+            [ -n "${WP_MARIADB_ROOT_PASSWORD:-}" ] && printf 'MARIADB_ROOT_PASSWORD=%s\n' "$WP_MARIADB_ROOT_PASSWORD"
+            [ -n "${WP_DB_USER:-}" ] && printf 'WORDPRESS_DB_USER=%s\n' "$WP_DB_USER"
+            [ -n "${WP_DB_PASSWORD:-}" ] && printf 'WORDPRESS_DB_PASSWORD=%s\n' "$WP_DB_PASSWORD"
+            [ -n "${WP_PERSONAL_PUBLIC_URL:-}" ] && printf 'WP_PERSONAL_PUBLIC_URL=%s\n' "$WP_PERSONAL_PUBLIC_URL"
+          } > /tmp/wp-deploy.env
+          scp $SSH_OPTS /tmp/wp-deploy.env "$REMOTE:/tmp/profile-wp-deploy.env"
           ssh $SSH_OPTS "$REMOTE" \
-            "REGISTRY=${REGISTRY} IMAGE_TAG=${NEW_TAG} GATEWAY_PORT=3000 /root/profile-v1/deploy-profile-v1.sh"
+            'set -a; . /tmp/profile-wp-deploy.env; set +a; rm -f /tmp/profile-wp-deploy.env; /root/profile-v1/deploy-profile-v1.sh'
+          rm -f /tmp/wp-deploy.env
 
           echo "=== 幂等修复 Postgres/DATABASE_URL + 冒烟测试（不再二次 down/up）==="
           ssh $SSH_OPTS "$REMOTE" "POST_DEPLOY=1 /root/profile-v1/fix-gateway-remote.sh"

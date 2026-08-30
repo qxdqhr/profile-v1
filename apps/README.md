@@ -13,6 +13,8 @@ pnpm workspace 应用目录。
 | `@profile/showmasterpiece` | `showmasterpiece/` | 3003 | ShowMasterpiece 画集子应用 |
 | `@profile/profile-rn-mobile` | `profile-rn-mobile/` | Expo | Profile RN Mobile 客户端 |
 
+旁路（非本目录）：WordPress 见 [`deploy/wordpress/`](../deploy/wordpress/)（路径 `/wp/<slug>/`）。
+
 ## 本地开发
 
 ```bash

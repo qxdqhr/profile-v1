@@ -1,4 +1,5 @@
 # 生产网关栈：nginx + web + calendar + teach-hub + showmasterpiece + money-research + node-notes
+# + 旁路 WordPress（/wp/<slug>/，非 Next；见 deploy/wordpress/README.md）
 # 用法见 deploy/MIGRATION-RUNBOOK.md
 
 services:
@@ -104,6 +105,47 @@ services:
     networks:
       - profile
 
+  # --- WordPress 旁路（独立 MariaDB；与宿主机 Postgres 无关）---
+  wp_mariadb:
+    image: docker.m.daocloud.io/library/mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-change-me-root}
+      MARIADB_DATABASE: ${WORDPRESS_DB_NAME:-wp_personal}
+      MARIADB_USER: ${WORDPRESS_DB_USER:-wp}
+      MARIADB_PASSWORD: ${WORDPRESS_DB_PASSWORD:-change-me-wp}
+    volumes:
+      - wp_mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    networks:
+      - profile
+
+  wordpress_personal:
+    image: docker.m.daocloud.io/library/wordpress:6-apache
+    restart: unless-stopped
+    depends_on:
+      wp_mariadb:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: wp_mariadb:3306
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER:-wp}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD:-change-me-wp}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME:-wp_personal}
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME', '${WP_PERSONAL_PUBLIC_URL:-https://qhr062.top/wp/personal}');
+        define('WP_SITEURL', '${WP_PERSONAL_PUBLIC_URL:-https://qhr062.top/wp/personal}');
+        if (isset($$_SERVER['HTTP_X_FORWARDED_PROTO']) && $$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+          $$_SERVER['HTTPS'] = 'on';
+        }
+    volumes:
+      - wp_personal_uploads:/var/www/html/wp-content/uploads
+    networks:
+      - profile
+
   nginx:
     image: docker.m.daocloud.io/library/nginx:1.27-alpine
     restart: unless-stopped
@@ -114,6 +156,7 @@ services:
       - showmasterpiece
       - money_research
       - node_notes
+      - wordpress_personal
     ports:
       - '${GATEWAY_PORT:-3000}:80'
     volumes:
@@ -125,3 +168,7 @@ services:
 networks:
   profile:
     driver: bridge
+
+volumes:
+  wp_mariadb_data:
+  wp_personal_uploads:

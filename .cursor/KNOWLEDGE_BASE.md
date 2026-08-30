@@ -180,6 +180,9 @@ export default function XxxRoute() {
 | Calendar Mobile | `apps/calendar-mobile` | `@profile/calendar-mobile` | Expo | — |
 | TeachHub Mobile | `apps/teach-hub-mobile` | `@profile/teach-hub-mobile` | Expo | — |
 | Profile RN Mobile | `apps/profile-rn-mobile` | `@profile/profile-rn-mobile` | Expo | — |
+| WordPress（旁路） | `deploy/wordpress/` | —（非 pnpm） | 官方镜像 | `/wp/<slug>/` |
+
+> WordPress 是网关旁路 PHP 服务，**不是** `apps/*` Next 子应用；多站规程见 `deploy/wordpress/ADD-SITE.md`。
 
 ### 7.2 共享包
 
@@ -208,3 +211,10 @@ export default function XxxRoute() {
 - RN：Profile RN Mobile 见 `.github/workflows/android-release.yml`
 
 部署细节：`deploy/MIGRATION-RUNBOOK.md`、`docs/monorepo-migration/deploy.md`。
+
+### 7.5 旁路 WordPress（`/wp/*`）
+
+- 路径：`/wp/<slug>/`（首期 `personal`）；前台为主题，后台为 `wp-admin`。
+- 资产：`deploy/wordpress/` + `deploy/docker-compose.gateway.yml` 中 `wp_mariadb` / `wordpress_*`。
+- **不**创建 `apps/blog`、不复用 Next `basePath` / Drizzle / better-auth。
+- 加站：[`deploy/wordpress/ADD-SITE.md`](../deploy/wordpress/ADD-SITE.md)。
