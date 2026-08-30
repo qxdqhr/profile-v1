@@ -228,29 +228,41 @@ jobs:
         run: |
           set -euo pipefail
           APP="${{ matrix.app }}"
-          PREV=$(( ${{ github.run_number }} - 1 ))
           NEW=${{ github.run_number }}
-          SRC="${{ env.REGISTRY }}/qhr-profile-${APP}:${PREV}"
           DST="${{ env.REGISTRY }}/qhr-profile-${APP}:${NEW}"
+          # 空提交 / 仅改 workflow 时上一 run 可能未产出镜像，向前回溯找最近可用 tag
+          FOUND=""
+          for try in $(seq 1 50); do
+            CAND=$(( NEW - try ))
+            if [ "$CAND" -lt 1 ]; then
+              break
+            fi
+            SRC="${{ env.REGISTRY }}/qhr-profile-${APP}:${CAND}"
+            if docker pull "$SRC"; then
+              FOUND="$CAND"
+              break
+            fi
+            echo "tag ${CAND} 不存在，继续回溯…"
+          done
 
-          if ! docker pull "$SRC"; then
-            echo "ERROR: 无法拉取 ${SRC}，无法为未变更应用 ${APP} 晋升镜像。" >&2
+          if [ -z "$FOUND" ]; then
+            echo "ERROR: 在近 50 个 run 内找不到 ${APP} 可用镜像，无法晋升到 ${NEW}。" >&2
             echo "若 ${APP} 为新增子应用，请在本 run 将其加入变更路径触发一次完整构建。" >&2
             exit 1
           fi
 
-          docker tag "$SRC" "$DST"
+          docker tag "${{ env.REGISTRY }}/qhr-profile-${APP}:${FOUND}" "$DST"
           docker push "$DST"
-          echo "Promoted ${APP}: ${PREV} -> ${NEW}"
+          echo "Promoted ${APP}: ${FOUND} -> ${NEW}"
 
           if [ "$APP" = "web" ]; then
-            LEGACY_SRC="${{ env.REGISTRY }}/qhr-profile:${PREV}"
+            LEGACY_SRC="${{ env.REGISTRY }}/qhr-profile:${FOUND}"
             LEGACY_DST="${{ env.REGISTRY }}/qhr-profile:${NEW}"
             if docker pull "$LEGACY_SRC" 2>/dev/null; then
               docker tag "$LEGACY_SRC" "$LEGACY_DST"
               docker push "$LEGACY_DST"
             else
-              docker tag "$SRC" "$LEGACY_DST"
+              docker tag "$DST" "$LEGACY_DST"
               docker push "$LEGACY_DST"
             fi
           fi
