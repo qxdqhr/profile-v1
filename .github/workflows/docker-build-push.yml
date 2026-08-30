@@ -497,10 +497,14 @@ jobs:
   deploy-web:
     runs-on: ubuntu-latest
     needs: [changes, build, promote-images]
+    # build 未改镜像时会 skipped；若不加 always()/skipped 判断，整段部署会被连带跳过
     if: >-
+      always() &&
       github.event_name == 'push' &&
       github.ref == 'refs/heads/main' &&
+      !cancelled() &&
       needs.changes.result == 'success' &&
+      (needs.build.result == 'success' || needs.build.result == 'skipped') &&
       (needs.promote-images.result == 'success' || needs.promote-images.result == 'skipped') &&
       (
         needs.changes.outputs.deploy == 'true' ||
