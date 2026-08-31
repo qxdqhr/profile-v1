@@ -55,6 +55,9 @@ check_http "GET /api/showmasterpiece/bookings/admin/" "${BASE}/api/showmasterpie
 check_http "GET /api/node-notes/documents/" "${BASE}/api/node-notes/documents/" "401"
 # 旁路 WordPress（纯 PHP；未安装也可能 302）
 check_http_wp "GET /wp/holt/" "${BASE}/wp/holt/"
+# Subpaths need one warm-up request so WP/bootstrap can flush rewrites before checks.
+curl -sS -o /dev/null "${BASE}/wp/holt/" >/dev/null 2>&1 || true
+sleep 2
 check_http "GET /wp/holt/about/" "${BASE}/wp/holt/about/" "200"
 check_http "GET /wp/holt/works/" "${BASE}/wp/holt/works/" "200"
 

@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HOLT_THEME_VERSION', '1.0.2' );
+define( 'HOLT_THEME_VERSION', '1.0.3' );
 define( 'HOLT_THEME_DIR', get_template_directory() );
 define( 'HOLT_THEME_URI', get_template_directory_uri() );
 
@@ -103,20 +103,33 @@ add_filter( 'body_class', 'holt_body_classes' );
  * Bootstrap pages, roles, and rewrites (runs once per theme version).
  */
 function holt_theme_bootstrap(): void {
+	holt_register_work_cpt();
+	holt_register_work_role_taxonomy();
+	holt_seed_work_roles();
+	holt_ensure_pages();
+	holt_ensure_pretty_permalinks();
+
 	$target = HOLT_THEME_VERSION;
 	if ( get_option( 'holt_bootstrap_version' ) === $target ) {
 		return;
 	}
 
-	holt_register_work_cpt();
-	holt_register_work_role_taxonomy();
-	holt_seed_work_roles();
-	holt_ensure_pages();
-
 	flush_rewrite_rules( false );
 	update_option( 'holt_bootstrap_version', $target, false );
+	delete_option( 'holt_gateway_rewrite_ver' );
 }
 add_action( 'init', 'holt_theme_bootstrap', 99 );
+
+/**
+ * Enable post name permalinks (required for /about/ behind strip-prefix gateway).
+ */
+function holt_ensure_pretty_permalinks(): void {
+	$structure = (string) get_option( 'permalink_structure' );
+	if ( $structure !== '' && ! str_contains( $structure, 'index.php' ) ) {
+		return;
+	}
+	update_option( 'permalink_structure', '/%postname%/' );
+}
 
 /**
  * Create about/contact pages if missing (works uses CPT archive only).

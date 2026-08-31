@@ -42,10 +42,24 @@ function holt_strip_subdir_rewrite_rules( array $rules ): array {
 add_filter( 'rewrite_rules_array', 'holt_strip_subdir_rewrite_rules' );
 
 /**
+ * Stored rules in options table are filtered on read as well.
+ *
+ * @param mixed $rules Rules.
+ * @return mixed
+ */
+function holt_filter_stored_rewrite_rules( $rules ) {
+	if ( ! is_array( $rules ) ) {
+		return $rules;
+	}
+	return holt_strip_subdir_rewrite_rules( $rules );
+}
+add_filter( 'option_rewrite_rules', 'holt_filter_stored_rewrite_rules' );
+
+/**
  * Re-flush when prefix fix version bumps.
  */
 function holt_gateway_rewrite_bootstrap(): void {
-	$ver = '2';
+	$ver = '3';
 	if ( get_option( 'holt_gateway_rewrite_ver' ) === $ver ) {
 		return;
 	}
