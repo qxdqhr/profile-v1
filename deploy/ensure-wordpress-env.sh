@@ -26,7 +26,7 @@ upsert_if_missing() {
 upsert_if_missing MARIADB_ROOT_PASSWORD "${MARIADB_ROOT_PASSWORD:-change-me-root}"
 upsert_if_missing WORDPRESS_DB_USER "${WORDPRESS_DB_USER:-wp}"
 upsert_if_missing WORDPRESS_DB_PASSWORD "${WORDPRESS_DB_PASSWORD:-change-me-wp}"
-upsert_if_missing WORDPRESS_DB_NAME "${WORDPRESS_DB_NAME:-wp_personal}"
-upsert_if_missing WP_PERSONAL_PUBLIC_URL "${WP_PERSONAL_PUBLIC_URL:-https://qhr062.top/wp/personal}"
+upsert_if_missing WORDPRESS_DB_NAME "${WORDPRESS_DB_NAME:-wp_holt}"
+upsert_if_missing WP_HOLT_PUBLIC_URL "${WP_HOLT_PUBLIC_URL:-https://qhr062.top/wp/holt}"
 
 echo "OK: WordPress env keys present in ${ENV_FILE}"

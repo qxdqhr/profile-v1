@@ -214,7 +214,7 @@ export default function XxxRoute() {
 
 ### 7.5 旁路 WordPress（`/wp/*`）
 
-- 路径：`/wp/<slug>/`（首期 `personal`）；前台为主题，后台为 `wp-admin`。
+- 路径：`/wp/holt/`（Holt 音乐作品集 + `holt-portfolio` 主题）；前台为主题，后台为 `wp-admin`。
 - 资产：`deploy/wordpress/` + `deploy/docker-compose.gateway.yml` 中 `wp_mariadb` / `wordpress_*`。
 - **不**创建 `apps/blog`、不复用 Next `basePath` / Drizzle / better-auth。
 - 加站：[`deploy/wordpress/ADD-SITE.md`](../deploy/wordpress/ADD-SITE.md)。

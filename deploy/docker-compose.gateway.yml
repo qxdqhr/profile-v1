@@ -111,7 +111,7 @@ services:
     restart: unless-stopped
     environment:
       MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-change-me-root}
-      MARIADB_DATABASE: ${WORDPRESS_DB_NAME:-wp_personal}
+      MARIADB_DATABASE: ${WORDPRESS_DB_NAME:-wp_holt}
       MARIADB_USER: ${WORDPRESS_DB_USER:-wp}
       MARIADB_PASSWORD: ${WORDPRESS_DB_PASSWORD:-change-me-wp}
     volumes:
@@ -124,7 +124,7 @@ services:
     networks:
       - profile
 
-  wordpress_personal:
+  wordpress_holt:
     image: docker.m.daocloud.io/library/wordpress:6-apache
     restart: unless-stopped
     depends_on:
@@ -134,15 +134,16 @@ services:
       WORDPRESS_DB_HOST: wp_mariadb:3306
       WORDPRESS_DB_USER: ${WORDPRESS_DB_USER:-wp}
       WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD:-change-me-wp}
-      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME:-wp_personal}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME:-wp_holt}
       WORDPRESS_CONFIG_EXTRA: |
-        define('WP_HOME', '${WP_PERSONAL_PUBLIC_URL:-https://qhr062.top/wp/personal}');
-        define('WP_SITEURL', '${WP_PERSONAL_PUBLIC_URL:-https://qhr062.top/wp/personal}');
+        define('WP_HOME', '${WP_HOLT_PUBLIC_URL:-https://qhr062.top/wp/holt}');
+        define('WP_SITEURL', '${WP_HOLT_PUBLIC_URL:-https://qhr062.top/wp/holt}');
         if (isset($$_SERVER['HTTP_X_FORWARDED_PROTO']) && $$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
           $$_SERVER['HTTPS'] = 'on';
         }
     volumes:
-      - wp_personal_uploads:/var/www/html/wp-content/uploads
+      - wp_holt_uploads:/var/www/html/wp-content/uploads
+      - ./wordpress/themes/holt-portfolio:/var/www/html/wp-content/themes/holt-portfolio:ro
     networks:
       - profile
 
@@ -156,7 +157,7 @@ services:
       - showmasterpiece
       - money_research
       - node_notes
-      - wordpress_personal
+      - wordpress_holt
     ports:
       - '${GATEWAY_PORT:-3000}:80'
     volumes:
@@ -171,4 +172,4 @@ networks:
 
 volumes:
   wp_mariadb_data:
-  wp_personal_uploads:
+  wp_holt_uploads:

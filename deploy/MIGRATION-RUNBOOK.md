@@ -22,7 +22,7 @@
 | `/money-research/` | money_research:3004 | `NEXT_PUBLIC_BASE_PATH=/money-research` |
 | `/node-notes/` | node_notes:3005 | `NEXT_PUBLIC_BASE_PATH=/node-notes` |
 | `/api/node-notes/` | node_notes:3005 | API |
-| `/wp/personal/` | wordpress_personal:80 | **旁路纯 WordPress**（非 Next；见 `deploy/wordpress/`） |
+| `/wp/holt/` | wordpress_holt:80 | **Holt 音乐作品集**（旁路 WordPress + `holt-portfolio` 主题） |
 | `/api/auth/` | web:3000 | **共享 session**（Next 子应用不单独登录） |
 
 Legacy：`/testField/calendar`、`/testField/teachHub` → nginx 301 至新路径；`/testField/ShowMasterPieces` → 301 至 `/showmasterpiece`。
@@ -31,12 +31,12 @@ Legacy：`/testField/calendar`、`/testField/teachHub` → nginx 301 至新路�
 
 - 纯 PHP 前台+后台，**不**进 pnpm / Next CI matrix。
 - 独立 MariaDB（`wp_mariadb` volume），与宿主机 Postgres 隔离。
-- 首期站点：`/wp/personal/`（后台 `/wp/personal/wp-admin/`）。
+- 首期站点：`/wp/holt/`（后台 `/wp/holt/wp-admin/`；旧 `/wp/personal/` 301 至 holt）。
 - 多主题站：复制实例，路径 `/wp/<slug>/`；规程见 [`wordpress/ADD-SITE.md`](./wordpress/ADD-SITE.md)。
-- 服务器 `.env` 需含 `MARIADB_ROOT_PASSWORD`、`WORDPRESS_DB_*`、`WP_PERSONAL_PUBLIC_URL`（`deploy-profile-v1.sh` 会保留这些键）。
-- GitHub Secrets（可选，CI 注入）：`WP_MARIADB_ROOT_PASSWORD`、`WP_DB_USER`、`WP_DB_PASSWORD`、`WP_PERSONAL_PUBLIC_URL`。
+- 服务器 `.env` 需含 `MARIADB_ROOT_PASSWORD`、`WORDPRESS_DB_*`、`WP_HOLT_PUBLIC_URL`（`deploy-profile-v1.sh` 会保留这些键）。
+- GitHub Secrets（可选，CI 注入）：`WP_MARIADB_ROOT_PASSWORD`、`WP_DB_USER`、`WP_DB_PASSWORD`、`WP_HOLT_PUBLIC_URL`。
 - 仅改 `deploy/**`（无镜像重建）时，`deploy-web` 仍会执行（workflow 已处理 `build` skipped）。
-- 本地验证：`cd deploy/wordpress && docker compose -f docker-compose.dev.yml --env-file .env up -d` → http://127.0.0.1:18080/wp/personal/
+- 本地验证：`cd deploy/wordpress && docker compose -f docker-compose.dev.yml --env-file .env up -d` → http://127.0.0.1:18080/wp/holt/
 
 ## 目录布局（服务器 `/root/profile-v1`）
 

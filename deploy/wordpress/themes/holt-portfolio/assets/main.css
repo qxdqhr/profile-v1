@@ -1,0 +1,588 @@
+/* Holt Portfolio — design tokens */
+:root {
+  --holt-bg: #0c0c0f;
+  --holt-surface: #16161c;
+  --holt-surface-2: #1e1e26;
+  --holt-accent: #e8a849;
+  --holt-accent-soft: rgba(232, 168, 73, 0.14);
+  --holt-text: #f4f4f5;
+  --holt-muted: #a1a1aa;
+  --holt-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.24);
+  --holt-shadow-2: 0 12px 40px rgba(0, 0, 0, 0.35);
+  --holt-radius-lg: 16px;
+  --holt-radius-xl: 24px;
+  --holt-radius-card-outer: 24px;
+  --holt-radius-card-inner: 16px;
+  --holt-card-pad: 8px;
+  --holt-container: min(1120px, calc(100% - 2rem));
+  --holt-font: "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body.holt-theme {
+  margin: 0;
+  font-family: var(--holt-font);
+  background: radial-gradient(1200px 600px at 10% -10%, rgba(232, 168, 73, 0.08), transparent 60%), var(--holt-bg);
+  color: var(--holt-text);
+  line-height: 1.6;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.holt-container {
+  width: var(--holt-container);
+  margin-inline: auto;
+}
+
+.holt-skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+}
+
+.holt-skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  padding: 0.5rem 1rem;
+  background: var(--holt-accent);
+  color: #111;
+  border-radius: 8px;
+}
+
+/* Header */
+.holt-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(12px);
+  background: rgba(12, 12, 15, 0.82);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.holt-header__inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 64px;
+  padding-block: 0.5rem;
+}
+
+.holt-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--holt-text);
+  text-decoration: none;
+  font-weight: 700;
+  min-height: 40px;
+}
+
+.holt-logo__mark {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--holt-accent);
+  box-shadow: 0 0 18px rgba(232, 168, 73, 0.65);
+}
+
+.holt-nav {
+  margin-left: auto;
+}
+
+.holt-nav__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.holt-nav__link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0.35rem 0.65rem;
+  color: var(--holt-muted);
+  text-decoration: none;
+  border-radius: 10px;
+  transition: color 180ms ease, background-color 180ms ease;
+}
+
+.holt-nav__link:hover,
+.holt-nav__link:focus-visible {
+  color: var(--holt-text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.holt-header__bili {
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .holt-header__inner {
+    flex-wrap: wrap;
+  }
+
+  .holt-nav {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+/* Buttons */
+.holt-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+
+.holt-btn:active {
+  transform: scale(0.96);
+}
+
+.holt-btn--primary {
+  background: linear-gradient(180deg, #f0b85c, var(--holt-accent));
+  color: #1a1205;
+  box-shadow: var(--holt-shadow-1), 0 10px 24px rgba(232, 168, 73, 0.22);
+}
+
+.holt-btn--secondary {
+  background: var(--holt-surface-2);
+  color: var(--holt-text);
+  box-shadow: var(--holt-shadow-1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.holt-btn--ghost {
+  background: transparent;
+  color: var(--holt-accent);
+  box-shadow: inset 0 0 0 1px rgba(232, 168, 73, 0.35);
+}
+
+.holt-btn--small {
+  min-height: 36px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.875rem;
+}
+
+/* Hero */
+.holt-hero {
+  padding: 4.5rem 0 3rem;
+}
+
+.holt-hero__eyebrow {
+  margin: 0 0 0.75rem;
+  color: var(--holt-accent);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.holt-hero__title {
+  margin: 0;
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.holt-hero__tagline {
+  margin: 1rem 0 0;
+  max-width: 36ch;
+  color: var(--holt-muted);
+  font-size: 1.125rem;
+  text-wrap: pretty;
+}
+
+.holt-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+/* Sections */
+.holt-section {
+  padding: 2.5rem 0 3.5rem;
+}
+
+.holt-section__head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.holt-section__title {
+  margin: 0;
+  font-size: 1.5rem;
+  text-wrap: balance;
+}
+
+.holt-text-link {
+  color: var(--holt-accent);
+  text-decoration: none;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.holt-text-link:hover {
+  text-decoration: underline;
+}
+
+/* Work grid + card (concentric radius) */
+.holt-work-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.holt-work-card__frame {
+  padding: var(--holt-card-pad);
+  border-radius: var(--holt-radius-card-outer);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+  box-shadow: var(--holt-shadow-1), var(--holt-shadow-2);
+}
+
+.holt-work-card__media {
+  display: block;
+  border-radius: var(--holt-radius-card-inner);
+  overflow: hidden;
+}
+
+.holt-work-card__cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  outline: 1px solid rgba(255, 255, 255, 0.1);
+  outline-offset: -1px;
+}
+
+.holt-work-card__placeholder {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  background: var(--holt-surface-2);
+  color: var(--holt-muted);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  outline: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.holt-work-card__body {
+  padding: 0.85rem 0.35rem 0.35rem;
+}
+
+.holt-work-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  margin-bottom: 0.45rem;
+}
+
+.holt-work-card__year {
+  color: var(--holt-muted);
+  font-size: 0.8125rem;
+}
+
+.holt-work-card__title {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+  text-wrap: balance;
+}
+
+.holt-work-card__title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.holt-work-card__title a:hover {
+  color: var(--holt-accent);
+}
+
+.holt-work-card__excerpt {
+  margin: 0 0 0.75rem;
+  color: var(--holt-muted);
+  font-size: 0.9375rem;
+  text-wrap: pretty;
+}
+
+.holt-work-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.holt-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: var(--holt-accent-soft);
+  color: #f6d08f;
+  font-size: 0.75rem;
+}
+
+.holt-pill--filter {
+  text-decoration: none;
+  min-height: 40px;
+  padding-inline: 0.85rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--holt-muted);
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.holt-pill--filter.is-active,
+.holt-pill--filter:hover {
+  background: var(--holt-accent-soft);
+  color: #f6d08f;
+}
+
+/* Page */
+.holt-main {
+  min-height: 60vh;
+}
+
+.holt-page {
+  padding: 2.5rem 0 4rem;
+}
+
+.holt-page-title {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  text-wrap: balance;
+}
+
+.holt-page-lead {
+  margin: 0 0 1.5rem;
+  max-width: 60ch;
+  color: var(--holt-muted);
+  text-wrap: pretty;
+}
+
+.holt-prose {
+  max-width: 68ch;
+  text-wrap: pretty;
+}
+
+.holt-prose p {
+  margin-top: 0;
+}
+
+.holt-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.holt-empty {
+  color: var(--holt-muted);
+  text-wrap: pretty;
+}
+
+/* Single work player */
+.holt-player__frame {
+  position: relative;
+  padding: var(--holt-card-pad);
+  border-radius: var(--holt-radius-card-outer);
+  background: var(--holt-surface);
+  box-shadow: var(--holt-shadow-1), var(--holt-shadow-2);
+  margin-bottom: 0.75rem;
+}
+
+.holt-player__frame iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: var(--holt-radius-card-inner);
+  background: #000;
+}
+
+.holt-audio {
+  margin-top: 1.5rem;
+}
+
+.holt-audio__player {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.holt-single-work__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--holt-muted);
+}
+
+.holt-single-work__footer {
+  margin-top: 2rem;
+}
+
+/* CTA */
+.holt-cta {
+  padding-bottom: 4rem;
+}
+
+.holt-cta__inner {
+  padding: 1.5rem;
+  border-radius: var(--holt-radius-xl);
+  background: linear-gradient(135deg, rgba(232, 168, 73, 0.12), rgba(255, 255, 255, 0.03));
+  box-shadow: var(--holt-shadow-1), var(--holt-shadow-2);
+}
+
+.holt-cta__title {
+  margin: 0 0 0.5rem;
+  text-wrap: balance;
+}
+
+.holt-cta__text {
+  margin: 0 0 1rem;
+  color: var(--holt-muted);
+  text-wrap: pretty;
+}
+
+/* About / Contact */
+.holt-about__actions,
+.holt-contact__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.holt-contact__card {
+  flex: 1 1 220px;
+  padding: 1rem 1.1rem;
+  border-radius: var(--holt-radius-lg);
+  background: var(--holt-surface);
+  box-shadow: var(--holt-shadow-1), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.holt-contact__card h2 {
+  margin: 0 0 0.35rem;
+  font-size: 0.875rem;
+  color: var(--holt-muted);
+}
+
+.holt-contact__value {
+  color: var(--holt-text);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.holt-contact__value:hover {
+  color: var(--holt-accent);
+}
+
+/* Footer */
+.holt-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 1.25rem 0 2rem;
+}
+
+.holt-footer__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.holt-footer__copy {
+  margin: 0;
+  color: var(--holt-muted);
+}
+
+.holt-footer__link {
+  color: var(--holt-accent);
+  text-decoration: none;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Reveal animations (stagger via delay classes) */
+.holt-reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 520ms ease, transform 520ms ease;
+}
+
+.holt-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.holt-reveal--delay-1.is-visible { transition-delay: 100ms; }
+.holt-reveal--delay-2.is-visible { transition-delay: 200ms; }
+.holt-reveal--delay-3.is-visible { transition-delay: 300ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .holt-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .holt-btn:active {
+    transform: none;
+  }
+}
+
+.holt-pagination ul {
+  display: flex;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin-top: 1.5rem;
+}
+
+.holt-pagination a,
+.holt-pagination span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0 0.65rem;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--holt-muted);
+}
+
+.holt-pagination .current {
+  background: var(--holt-accent-soft);
+  color: #f6d08f;
+}

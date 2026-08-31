@@ -1,0 +1,13 @@
+/*
+Theme Name: Holt Portfolio
+Theme URI: https://qhr062.top/wp/holt/
+Author: profile-v1
+Description: Holt 音乐作品集 — B 站 PV 展示、简历与接单 landing。
+Version: 1.0.0
+Requires at least: 6.0
+Tested up to: 6.7
+Requires PHP: 8.0
+Text Domain: holt-portfolio
+*/
+
+@import url('assets/main.css');

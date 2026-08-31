@@ -34,14 +34,17 @@ EXISTING_MARIADB_ROOT_PASSWORD=""
 EXISTING_WORDPRESS_DB_USER=""
 EXISTING_WORDPRESS_DB_PASSWORD=""
 EXISTING_WORDPRESS_DB_NAME=""
-EXISTING_WP_PERSONAL_PUBLIC_URL=""
+EXISTING_WP_HOLT_PUBLIC_URL=""
 if [ -f .env ]; then
   EXISTING_DATABASE_URL="$(strip_env_value "$(grep -E '^DATABASE_URL=' .env | tail -1 | cut -d= -f2- || true)")"
   EXISTING_MARIADB_ROOT_PASSWORD="$(strip_env_value "$(grep -E '^MARIADB_ROOT_PASSWORD=' .env | tail -1 | cut -d= -f2- || true)")"
   EXISTING_WORDPRESS_DB_USER="$(strip_env_value "$(grep -E '^WORDPRESS_DB_USER=' .env | tail -1 | cut -d= -f2- || true)")"
   EXISTING_WORDPRESS_DB_PASSWORD="$(strip_env_value "$(grep -E '^WORDPRESS_DB_PASSWORD=' .env | tail -1 | cut -d= -f2- || true)")"
   EXISTING_WORDPRESS_DB_NAME="$(strip_env_value "$(grep -E '^WORDPRESS_DB_NAME=' .env | tail -1 | cut -d= -f2- || true)")"
-  EXISTING_WP_PERSONAL_PUBLIC_URL="$(strip_env_value "$(grep -E '^WP_PERSONAL_PUBLIC_URL=' .env | tail -1 | cut -d= -f2- || true)")"
+  EXISTING_WP_HOLT_PUBLIC_URL="$(strip_env_value "$(grep -E '^WP_HOLT_PUBLIC_URL=' .env | tail -1 | cut -d= -f2- || true)")"
+  if [ -z "${EXISTING_WP_HOLT_PUBLIC_URL}" ]; then
+    EXISTING_WP_HOLT_PUBLIC_URL="$(strip_env_value "$(grep -E '^WP_PERSONAL_PUBLIC_URL=' .env | tail -1 | sed 's|/wp/personal|/wp/holt|g' | cut -d= -f2- || true)")"
+  fi
 fi
 
 # 始终以 app.config 推导为准，避免沿用损坏的旧 .env（CI 日志曾出现 port=543）
@@ -62,8 +65,8 @@ fi
 MARIADB_ROOT_PASSWORD="${MARIADB_ROOT_PASSWORD:-${EXISTING_MARIADB_ROOT_PASSWORD}}"
 WORDPRESS_DB_USER="${WORDPRESS_DB_USER:-${EXISTING_WORDPRESS_DB_USER}}"
 WORDPRESS_DB_PASSWORD="${WORDPRESS_DB_PASSWORD:-${EXISTING_WORDPRESS_DB_PASSWORD}}"
-WORDPRESS_DB_NAME="${WORDPRESS_DB_NAME:-${EXISTING_WORDPRESS_DB_NAME}}"
-WP_PERSONAL_PUBLIC_URL="${WP_PERSONAL_PUBLIC_URL:-${EXISTING_WP_PERSONAL_PUBLIC_URL}}"
+WORDPRESS_DB_NAME="${WORDPRESS_DB_NAME:-${EXISTING_WORDPRESS_DB_NAME:-wp_holt}}"
+WP_HOLT_PUBLIC_URL="${WP_HOLT_PUBLIC_URL:-${EXISTING_WP_HOLT_PUBLIC_URL}}"
 
 compose_cmd() {
   if docker compose version >/dev/null 2>&1; then
@@ -97,8 +100,8 @@ compose_cmd() {
   if [ -n "${WORDPRESS_DB_NAME}" ]; then
     printf 'WORDPRESS_DB_NAME=%s\n' "$(strip_env_value "${WORDPRESS_DB_NAME}")"
   fi
-  if [ -n "${WP_PERSONAL_PUBLIC_URL}" ]; then
-    printf 'WP_PERSONAL_PUBLIC_URL=%s\n' "$(strip_env_value "${WP_PERSONAL_PUBLIC_URL}")"
+  if [ -n "${WP_HOLT_PUBLIC_URL}" ]; then
+    printf 'WP_HOLT_PUBLIC_URL=%s\n' "$(strip_env_value "${WP_HOLT_PUBLIC_URL}")"
   fi
 } > .env
 
@@ -130,6 +133,13 @@ compose_cmd -f "$COMPOSE_FILE" pull
 
 echo "=== 启动网关栈 ==="
 compose_cmd -f "$COMPOSE_FILE" up -d --remove-orphans
+
+echo "=== 确保 WordPress 数据库存在 ==="
+if [ -x ./ensure-wordpress-database.sh ]; then
+  ./ensure-wordpress-database.sh .env "$COMPOSE_FILE"
+elif [ -f ./ensure-wordpress-database.sh ]; then
+  bash ./ensure-wordpress-database.sh .env "$COMPOSE_FILE"
+fi
 
 echo "=== 等待服务就绪 ==="
 if [ -x ./wait-gateway-ready.sh ]; then

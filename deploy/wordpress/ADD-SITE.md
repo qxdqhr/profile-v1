@@ -21,7 +21,7 @@ docker compose -f docker-compose.gateway.yml exec -T wp_mariadb \
 
 ## 2. 复制 compose service
 
-在 [`../docker-compose.gateway.yml`](../docker-compose.gateway.yml) 增加 `wordpress_theme_a`（镜像与 `wordpress_personal` 相同），例如：
+在 [`../docker-compose.gateway.yml`](../docker-compose.gateway.yml) 增加 `wordpress_theme_a`（镜像与 `wordpress_holt` 相同），例如：
 
 - `WORDPRESS_DB_NAME=wp_theme_a`
 - `WP_THEME_A_PUBLIC_URL` → `WORDPRESS_CONFIG_EXTRA` 中的 `WP_HOME` / `WP_SITEURL`
@@ -54,7 +54,7 @@ location = /wp/theme-a {
 WP_THEME_A_PUBLIC_URL=https://qhr062.top/wp/theme-a
 ```
 
-并确保 `deploy-profile-v1.sh` 会保留该键（当前已保留 `MARIADB_*` / `WORDPRESS_DB_*` / `WP_PERSONAL_PUBLIC_URL`；新站的 `WP_<SLUG>_PUBLIC_URL` 需在脚本白名单中追加一行）。
+并确保 `deploy-profile-v1.sh` 会保留该键（当前已保留 `MARIADB_*` / `WORDPRESS_DB_*` / `WP_HOLT_PUBLIC_URL`；新站的 `WP_<SLUG>_PUBLIC_URL` 需在脚本白名单中追加一行）。
 
 ## 5. 启动与验收
 
@@ -75,4 +75,4 @@ curl -sS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3000/wp/theme-a/
 
 | slug | 路径 | DB | compose service |
 |------|------|-----|-----------------|
-| personal | `/wp/personal/` | `wp_personal` | `wordpress_personal` |
+| holt | `/wp/holt/` | `wp_holt` | `wordpress_holt` | `holt-portfolio` |

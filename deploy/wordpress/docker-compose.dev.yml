@@ -1,9 +1,9 @@
-# 本地独立起 WordPress（不依赖 Next 网关；nginx 模拟 /wp/personal/ 前缀）
+# 本地独立起 WordPress（不依赖 Next 网关；nginx 模拟 /wp/holt/ 前缀）
 # 用法：
 #   cd deploy/wordpress
 #   cp .env.example .env
 #   docker compose -f docker-compose.dev.yml --env-file .env up -d
-#   浏览器：http://127.0.0.1:18080/wp/personal/
+#   浏览器：http://127.0.0.1:18080/wp/holt/
 
 services:
   wp_mariadb:
@@ -11,7 +11,7 @@ services:
     restart: unless-stopped
     environment:
       MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-change-me-root}
-      MARIADB_DATABASE: ${WORDPRESS_DB_NAME:-wp_personal}
+      MARIADB_DATABASE: ${WORDPRESS_DB_NAME:-wp_holt}
       MARIADB_USER: ${WORDPRESS_DB_USER:-wp}
       MARIADB_PASSWORD: ${WORDPRESS_DB_PASSWORD:-change-me-wp}
     ports:
@@ -26,7 +26,7 @@ services:
     networks:
       - wp_dev
 
-  wordpress_personal:
+  wordpress_holt:
     image: docker.m.daocloud.io/library/wordpress:6-apache
     restart: unless-stopped
     depends_on:
@@ -36,15 +36,16 @@ services:
       WORDPRESS_DB_HOST: wp_mariadb:3306
       WORDPRESS_DB_USER: ${WORDPRESS_DB_USER:-wp}
       WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD:-change-me-wp}
-      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME:-wp_personal}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME:-wp_holt}
       WORDPRESS_CONFIG_EXTRA: |
-        define('WP_HOME', '${WP_PERSONAL_PUBLIC_URL:-http://127.0.0.1:18080/wp/personal}');
-        define('WP_SITEURL', '${WP_PERSONAL_PUBLIC_URL:-http://127.0.0.1:18080/wp/personal}');
+        define('WP_HOME', '${WP_HOLT_PUBLIC_URL:-http://127.0.0.1:18080/wp/holt}');
+        define('WP_SITEURL', '${WP_HOLT_PUBLIC_URL:-http://127.0.0.1:18080/wp/holt}');
         if (isset($$_SERVER['HTTP_X_FORWARDED_PROTO']) && $$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
           $$_SERVER['HTTPS'] = 'on';
         }
     volumes:
-      - wp_personal_uploads_dev:/var/www/html/wp-content/uploads
+      - wp_holt_uploads_dev:/var/www/html/wp-content/uploads
+      - ./themes/holt-portfolio:/var/www/html/wp-content/themes/holt-portfolio:ro
     networks:
       - wp_dev
 
@@ -52,7 +53,7 @@ services:
     image: docker.m.daocloud.io/library/nginx:1.27-alpine
     restart: unless-stopped
     depends_on:
-      - wordpress_personal
+      - wordpress_holt
     ports:
       - '${WP_DEV_HTTP_PORT:-18080}:80'
     volumes:
@@ -66,4 +67,4 @@ networks:
 
 volumes:
   wp_mariadb_data_dev:
-  wp_personal_uploads_dev:
+  wp_holt_uploads_dev:
