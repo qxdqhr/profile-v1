@@ -142,20 +142,10 @@ services:
         if (isset($$_SERVER['HTTP_X_FORWARDED_PROTO']) && $$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
           $$_SERVER['HTTPS'] = 'on';
         }
-        $$__holt_public = getenv('WP_HOLT_PUBLIC_URL') ?: '${WP_HOLT_PUBLIC_URL:-https://qhr062.top/wp/holt}';
-        $$__holt_prefix = parse_url($$__holt_public, PHP_URL_PATH) ?: '/wp/holt';
-        $$__holt_prefix = rtrim($$__holt_prefix, '/');
-        if ($$__holt_prefix === '') { $$__holt_prefix = '/wp/holt'; }
-        if (isset($$_SERVER['REQUEST_URI'])) {
-          $$__path = parse_url($$_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
-          $$__qs = (!empty($$_SERVER['QUERY_STRING'])) ? '?' . $$_SERVER['QUERY_STRING'] : '';
-          if ($$__path === '/' || strncmp($$__path, $$__holt_prefix, strlen($$__holt_prefix)) !== 0) {
-            $$_SERVER['REQUEST_URI'] = $$__holt_prefix . ($$__path === '/' ? '/' : $$__path) . $$__qs;
-          }
-        }
     volumes:
       - wp_holt_uploads:/var/www/html/wp-content/uploads
       - ./wordpress/themes/holt-portfolio:/var/www/html/wp-content/themes/holt-portfolio:ro
+      - ./wordpress/mu-plugins/holt-gateway-rewrite.php:/var/www/html/wp-content/mu-plugins/holt-gateway-rewrite.php:ro
     networks:
       - profile
 
