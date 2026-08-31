@@ -9,7 +9,7 @@
 - **MariaDB**：独立于宿主机 Postgres；多站共享一台 MariaDB、每站独立 database。
 - **wordpress_\<slug\>**：官方 `wordpress:6-apache`（镜像源与网关 nginx 同用 DaoCloud library）。
 - **自定义主题**：`themes/holt-portfolio/` 挂载进容器（只读）。
-- **nginx**：`location /wp/<slug>/` → `proxy_pass http://wordpress_<slug>/`（去掉前缀）；**不要**套用 Next 的 `/api/...` rewrite。
+- **nginx**：`/wp/<slug>/wp-content/` 与 `wp-includes/` **去掉前缀**再反代（静态文件在容器文档根）；其余 `/wp/<slug>/` **保留完整 URI**（permalinks 与 `WP_HOME` 一致）。
 
 公网示例：
 
