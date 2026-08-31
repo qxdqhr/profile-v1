@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HOLT_THEME_VERSION', '1.0.4' );
+define( 'HOLT_THEME_VERSION', '1.0.5' );
 define( 'HOLT_THEME_DIR', get_template_directory() );
 define( 'HOLT_THEME_URI', get_template_directory_uri() );
 
@@ -18,6 +18,7 @@ require_once HOLT_THEME_DIR . '/inc/cpt-work.php';
 require_once HOLT_THEME_DIR . '/inc/meta-box.php';
 require_once HOLT_THEME_DIR . '/inc/customizer.php';
 require_once HOLT_THEME_DIR . '/inc/nav-fallback.php';
+require_once HOLT_THEME_DIR . '/inc/demo-works.php';
 
 /**
  * Theme setup.
@@ -108,6 +109,7 @@ function holt_theme_bootstrap(): void {
 	holt_seed_work_roles();
 	holt_ensure_pages();
 	holt_ensure_pretty_permalinks();
+	holt_maybe_seed_demo_works();
 
 	$target = HOLT_THEME_VERSION;
 	if ( get_option( 'holt_bootstrap_version' ) === $target ) {

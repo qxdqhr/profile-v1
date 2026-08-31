@@ -15,9 +15,11 @@
 - [x] Customizer 默认值（Holt、`https://b23.tv/ylj7b9x`）
 - [x] 首页 / 作品库 / 单作品 / 关于 / 联系模板
 - [x] 生产：GitHub Secret `WP_HOLT_PUBLIC_URL` 更新
-- [x] 生产：CI deploy-web 成功（run #33354955192）
+- [x] 生产：CI deploy-web 成功（permalink 修复 run #33360757168）
 - [x] 生产：`holt-portfolio` 主题已激活（`holt-theme` body class）
-- [ ] 生产：后台录入示例作品（需 Holt 本人在 wp-admin 操作）
+- [x] 生产：空站自动种子 3 条示例作品（`holt_demo_works_seeded`；可后台删除替换）
+- [x] 验收：`/wp/holt/about/`、`/works/`、`/contact/` 200
+- [ ] 生产：Holt 替换示例作品为真实 PV，Customizer 填写联系邮箱/微信
 - [x] 验收：`https://qhr062.top/wp/holt/` 200；`/wp/personal/` 301 → holt；B 站按钮指向 `b23.tv/ylj7b9x`
 
 ## 本地验证
