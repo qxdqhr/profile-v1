@@ -7,34 +7,46 @@
 
 get_header();
 
-$works = new WP_Query(
-	array(
-		'post_type'      => 'work',
-		'posts_per_page' => holt_featured_count(),
-		'post_status'    => 'publish',
-	)
-);
+$works = holt_query_featured_works( holt_featured_count() );
+$total_works = (int) wp_count_posts( 'work' )->publish;
+$series_n = count( holt_get_series_options() );
 ?>
 <section class="holt-hero holt-reveal">
 	<div class="holt-container holt-hero__inner">
-		<p class="holt-hero__eyebrow"><? esc_html_e( '音乐作品集', 'holt-portfolio' ); ?></p>
-		<h1 class="holt-hero__title"><?php echo esc_html( holt_artist_name() ); ?></h1>
-		<p class="holt-hero__tagline"><?php echo esc_html( holt_mod( 'tagline', '作曲 · 编曲 · 混音' ) ); ?></p>
-		<div class="holt-hero__actions">
-			<a class="holt-btn holt-btn--primary" href="<?php echo esc_url( holt_bilibili_space_url() ); ?>" target="_blank" rel="noopener noreferrer">
-				<? esc_html_e( '在 B 站看我', 'holt-portfolio' ); ?>
-			</a>
-			<a class="holt-btn holt-btn--secondary" href="<?php echo esc_url( holt_works_url() ); ?>">
-				<? esc_html_e( '浏览作品', 'holt-portfolio' ); ?>
-			</a>
+		<div>
+			<p class="holt-hero__eyebrow"><? esc_html_e( '音乐作品集', 'holt-portfolio' ); ?></p>
+			<h1 class="holt-hero__title"><?php echo esc_html( holt_artist_name() ); ?></h1>
+			<p class="holt-hero__tagline"><?php echo esc_html( holt_mod( 'tagline', '作曲 · 编曲 · 混音' ) ); ?></p>
+			<div class="holt-hero__actions">
+				<a class="holt-btn holt-btn--primary" href="<?php echo esc_url( holt_bilibili_space_url() ); ?>" target="_blank" rel="noopener noreferrer">
+					<? esc_html_e( '在 B 站看我', 'holt-portfolio' ); ?>
+				</a>
+				<a class="holt-btn holt-btn--secondary" href="<?php echo esc_url( holt_works_url() ); ?>">
+					<? esc_html_e( '浏览作品', 'holt-portfolio' ); ?>
+				</a>
+			</div>
 		</div>
+		<aside class="holt-hero__aside" aria-label="<? esc_attr_e( '作品概览', 'holt-portfolio' ); ?>">
+			<div class="holt-hero__stat">
+				<span class="holt-hero__stat-label"><? esc_html_e( '作品', 'holt-portfolio' ); ?></span>
+				<span class="holt-hero__stat-value tabular-nums"><?php echo esc_html( (string) $total_works ); ?></span>
+			</div>
+			<div class="holt-hero__stat">
+				<span class="holt-hero__stat-label"><? esc_html_e( '合集', 'holt-portfolio' ); ?></span>
+				<span class="holt-hero__stat-value tabular-nums"><?php echo esc_html( (string) $series_n ); ?></span>
+			</div>
+			<div class="holt-hero__stat">
+				<span class="holt-hero__stat-label"><? esc_html_e( '主阵地', 'holt-portfolio' ); ?></span>
+				<span class="holt-hero__stat-value">Bilibili</span>
+			</div>
+		</aside>
 	</div>
 </section>
 
 <section class="holt-section holt-reveal holt-reveal--delay-1">
 	<div class="holt-container">
 		<div class="holt-section__head">
-			<h2 class="holt-section__title"><? esc_html_e( '精选作品', 'holt-portfolio' ); ?></h2>
+			<h2 class="holt-section__title"><? esc_html_e( '热门作品', 'holt-portfolio' ); ?></h2>
 			<a class="holt-text-link" href="<?php echo esc_url( holt_works_url() ); ?>"><? esc_html_e( '查看全部', 'holt-portfolio' ); ?></a>
 		</div>
 		<?php if ( $works->have_posts() ) : ?>

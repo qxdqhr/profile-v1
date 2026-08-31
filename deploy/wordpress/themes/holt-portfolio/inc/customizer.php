@@ -36,7 +36,7 @@ function holt_customize_register( WP_Customize_Manager $wp_customize ): void {
 		),
 		'bilibili_space_url'   => array(
 			'label'   => __( 'B 站个人空间', 'holt-portfolio' ),
-			'default' => 'https://b23.tv/ylj7b9x',
+			'default' => 'https://b23.tv/8r56Ehc',
 			'type'    => 'url',
 		),
 		'contact_email'        => array(

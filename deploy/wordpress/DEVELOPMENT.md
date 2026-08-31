@@ -19,8 +19,10 @@
 - [x] 生产：`holt-portfolio` 主题已激活（`holt-theme` body class）
 - [x] 生产：空站自动种子 3 条示例作品（`holt_demo_works_seeded`；可后台删除替换）
 - [x] 验收：`/wp/holt/about/`、`/works/`、`/contact/` 200
-- [ ] 生产：Holt 替换示例作品为真实 PV，Customizer 填写联系邮箱/微信
-- [x] 验收：`https://qhr062.top/wp/holt/` 200；`/wp/personal/` 301 → holt；B 站按钮指向 `b23.tv/ylj7b9x`
+- [x] 浅色日间工作室主题 1.1.0（琥珀强调）
+- [x] 作品库筛选：合集 / 角色 / 年份 / 仅 Holt
+- [x] 卡片与单页展示播放量、合集、职员表解析
+- [ ] 封面批量补导（`sync-holt-work-meta-covers` workflow 分批）
 
 ## 本地验证
 

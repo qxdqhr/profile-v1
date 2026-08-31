@@ -165,6 +165,10 @@ foreach ( $items as $item ) {
 	if ( $series !== '' ) {
 		update_post_meta( $post_id, '_holt_series_name', sanitize_text_field( $series ) );
 	}
+	$owner_name = isset( $item['owner_name'] ) ? (string) $item['owner_name'] : '';
+	if ( $owner_name !== '' ) {
+		update_post_meta( $post_id, '_holt_owner_name', sanitize_text_field( $owner_name ) );
+	}
 	if ( $view !== null ) {
 		update_post_meta( $post_id, '_holt_play_count', $view );
 	}

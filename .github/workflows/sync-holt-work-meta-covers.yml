@@ -1,0 +1,50 @@
+name: Sync Holt Work Meta and Covers
+
+on:
+  workflow_dispatch:
+    inputs:
+      offset:
+        description: JSON slice offset
+        required: true
+        type: string
+        default: "0"
+      limit:
+        description: Batch size
+        required: true
+        type: string
+        default: "50"
+      skip_thumbnails:
+        description: Only sync meta, skip covers
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sync on deploy host
+        run: |
+          set -euo pipefail
+          DEPLOY_USER="${{ secrets.DEPLOY_SERVER_USERNAME }}"
+          DEPLOY_HOST="${{ secrets.DEPLOY_SERVER_HOST }}"
+          SSH_OPTS="-o StrictHostKeyChecking=no -i /tmp/ssh_key"
+          REMOTE="${DEPLOY_USER}@${DEPLOY_HOST}"
+          printf '%s\n' "${{ secrets.DEPLOY_SERVER_SSH_KEY }}" > /tmp/ssh_key
+          chmod 600 /tmp/ssh_key
+
+          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/wordpress/data"
+          scp $SSH_OPTS deploy/wordpress/data/holt-bilibili-works.json \
+            "$REMOTE:/root/profile-v1/wordpress/data/holt-bilibili-works.json"
+          scp $SSH_OPTS deploy/sync-holt-work-meta-covers.sh \
+            "$REMOTE:/root/profile-v1/sync-holt-work-meta-covers.sh"
+          ssh $SSH_OPTS "$REMOTE" "chmod 700 /root/profile-v1/sync-holt-work-meta-covers.sh"
+
+          SKIP=0
+          if [ "${{ inputs.skip_thumbnails }}" = "true" ]; then SKIP=1; fi
+
+          ssh $SSH_OPTS "$REMOTE" \
+            "cd /root/profile-v1 && OFFSET='${{ inputs.offset }}' LIMIT='${{ inputs.limit }}' SKIP_THUMBNAILS=${SKIP} ./sync-holt-work-meta-covers.sh"
+          rm -f /tmp/ssh_key
