@@ -1,0 +1,51 @@
+name: Import Holt Bilibili Works
+
+on:
+  workflow_dispatch:
+    inputs:
+      replace_existing:
+        description: Delete all existing work posts before import
+        required: true
+        type: boolean
+        default: true
+      skip_thumbnails:
+        description: Skip downloading cover images
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Import scraped works on deploy host
+        run: |
+          set -euo pipefail
+          DEPLOY_USER="${{ secrets.DEPLOY_SERVER_USERNAME }}"
+          DEPLOY_HOST="${{ secrets.DEPLOY_SERVER_HOST }}"
+          SSH_OPTS="-o StrictHostKeyChecking=no -i /tmp/ssh_key"
+          REMOTE="${DEPLOY_USER}@${DEPLOY_HOST}"
+
+          printf '%s\n' "${{ secrets.DEPLOY_SERVER_SSH_KEY }}" > /tmp/ssh_key
+          chmod 600 /tmp/ssh_key
+
+          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/wordpress/data"
+          scp $SSH_OPTS deploy/wordpress/data/holt-bilibili-works.json \
+            "$REMOTE:/root/profile-v1/wordpress/data/holt-bilibili-works.json"
+          scp $SSH_OPTS deploy/import-holt-bilibili-works.sh \
+            "$REMOTE:/root/profile-v1/import-holt-bilibili-works.sh"
+          ssh $SSH_OPTS "$REMOTE" "chmod 700 /root/profile-v1/import-holt-bilibili-works.sh"
+
+          REPLACE_EXISTING=0
+          SKIP_THUMBNAILS=0
+          if [ "${{ inputs.replace_existing }}" = "true" ]; then REPLACE_EXISTING=1; fi
+          if [ "${{ inputs.skip_thumbnails }}" = "true" ]; then SKIP_THUMBNAILS=1; fi
+
+          ssh $SSH_OPTS "$REMOTE" \
+            "cd /root/profile-v1 && REPLACE_EXISTING=${REPLACE_EXISTING} SKIP_THUMBNAILS=${SKIP_THUMBNAILS} SPACE_URL='https://b23.tv/8r56Ehc' ./import-holt-bilibili-works.sh"
+
+          rm -f /tmp/ssh_key
