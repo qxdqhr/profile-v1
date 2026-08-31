@@ -142,6 +142,13 @@ services:
         if (isset($$_SERVER['HTTP_X_FORWARDED_PROTO']) && $$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
           $$_SERVER['HTTPS'] = 'on';
         }
+        // nginx 对核心路径去掉了 /wp/holt；补回 REQUEST_URI，避免跳到 https://host/wp-admin
+        $$__holt_path = rtrim((string) (parse_url(WP_HOME, PHP_URL_PATH) ?: ''), '/');
+        if ($$__holt_path !== '' && !empty($$_SERVER['REQUEST_URI']) && strpos($$_SERVER['REQUEST_URI'], $$__holt_path) !== 0) {
+          if (preg_match('#^/(wp-admin|wp-includes|wp-content|xmlrpc[.]php|wp-[^/]+[.]php)(/|[?]|$)#', $$_SERVER['REQUEST_URI'])) {
+            $$_SERVER['REQUEST_URI'] = $$__holt_path . $$_SERVER['REQUEST_URI'];
+          }
+        }
     volumes:
       - wp_holt_uploads:/var/www/html/wp-content/uploads
       - ./wordpress/themes/holt-portfolio:/var/www/html/wp-content/themes/holt-portfolio:ro
