@@ -568,7 +568,7 @@ jobs:
           chmod 600 /tmp/ssh_key
 
           echo "=== 同步配置与 deploy 文件 ==="
-          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/nginx /root/profile-v1/wordpress/themes/holt-portfolio /root/profile-v1/wordpress/mu-plugins"
+          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/nginx /root/profile-v1/wordpress/themes/holt-portfolio"
           scp $SSH_OPTS "$DEPLOY_CFG_DIR/app.config.yaml" "$REMOTE:/root/profile-v1/app.config.yaml"
           scp $SSH_OPTS deploy/docker-compose.gateway.yml "$REMOTE:/root/profile-v1/docker-compose.gateway.yml"
           scp $SSH_OPTS deploy/nginx/profile-platform.conf "$REMOTE:/root/profile-v1/nginx/profile-platform.conf"
@@ -589,8 +589,6 @@ jobs:
           scp $SSH_OPTS deploy/nginx/proxy-params-outer.conf "$REMOTE:/root/profile-v1/nginx/proxy-params-outer.conf"
           scp $SSH_OPTS deploy/wordpress/README.md deploy/wordpress/ADD-SITE.md deploy/wordpress/.env.example \
             "$REMOTE:/root/profile-v1/wordpress/"
-          scp $SSH_OPTS deploy/wordpress/mu-plugins/holt-gateway-rewrite.php \
-            "$REMOTE:/root/profile-v1/wordpress/mu-plugins/holt-gateway-rewrite.php"
           scp -r $SSH_OPTS deploy/wordpress/themes/holt-portfolio/* \
             "$REMOTE:/root/profile-v1/wordpress/themes/holt-portfolio/"
           ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/wait-gateway-ready.sh /root/profile-v1/ensure-database-url.sh /root/profile-v1/ensure-wordpress-env.sh /root/profile-v1/ensure-wordpress-database.sh /root/profile-v1/ensure-calendar-schema.sh /root/profile-v1/ensure-node-notes-schema.sh /root/profile-v1/smoke-test-gateway.sh /root/profile-v1/check-gateway-health.sh /root/profile-v1/audit-outer-nginx.sh"

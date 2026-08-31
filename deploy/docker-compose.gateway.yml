@@ -145,7 +145,6 @@ services:
     volumes:
       - wp_holt_uploads:/var/www/html/wp-content/uploads
       - ./wordpress/themes/holt-portfolio:/var/www/html/wp-content/themes/holt-portfolio:ro
-      - ./wordpress/mu-plugins/holt-gateway-rewrite.php:/var/www/html/wp-content/mu-plugins/holt-gateway-rewrite.php:ro
     networks:
       - profile
 

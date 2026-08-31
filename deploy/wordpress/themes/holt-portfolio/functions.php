@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HOLT_THEME_VERSION', '1.0.3' );
+define( 'HOLT_THEME_VERSION', '1.0.4' );
 define( 'HOLT_THEME_DIR', get_template_directory() );
 define( 'HOLT_THEME_URI', get_template_directory_uri() );
 
@@ -116,12 +116,11 @@ function holt_theme_bootstrap(): void {
 
 	flush_rewrite_rules( false );
 	update_option( 'holt_bootstrap_version', $target, false );
-	delete_option( 'holt_gateway_rewrite_ver' );
 }
 add_action( 'init', 'holt_theme_bootstrap', 99 );
 
 /**
- * Enable post name permalinks (required for /about/ behind strip-prefix gateway).
+ * Enable post name permalinks (required for /about/ behind /wp/holt/ gateway).
  */
 function holt_ensure_pretty_permalinks(): void {
 	$structure = (string) get_option( 'permalink_structure' );
