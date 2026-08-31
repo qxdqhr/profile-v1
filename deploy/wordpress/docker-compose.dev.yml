@@ -37,11 +37,23 @@ services:
       WORDPRESS_DB_USER: ${WORDPRESS_DB_USER:-wp}
       WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD:-change-me-wp}
       WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME:-wp_holt}
+      WP_HOLT_PUBLIC_URL: ${WP_HOLT_PUBLIC_URL:-http://127.0.0.1:18080/wp/holt}
       WORDPRESS_CONFIG_EXTRA: |
         define('WP_HOME', '${WP_HOLT_PUBLIC_URL:-http://127.0.0.1:18080/wp/holt}');
         define('WP_SITEURL', '${WP_HOLT_PUBLIC_URL:-http://127.0.0.1:18080/wp/holt}');
         if (isset($$_SERVER['HTTP_X_FORWARDED_PROTO']) && $$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
           $$_SERVER['HTTPS'] = 'on';
+        }
+        $$__holt_public = getenv('WP_HOLT_PUBLIC_URL') ?: '${WP_HOLT_PUBLIC_URL:-http://127.0.0.1:18080/wp/holt}';
+        $$__holt_prefix = parse_url($$__holt_public, PHP_URL_PATH) ?: '/wp/holt';
+        $$__holt_prefix = rtrim($$__holt_prefix, '/');
+        if ($$__holt_prefix === '') { $$__holt_prefix = '/wp/holt'; }
+        if (isset($$_SERVER['REQUEST_URI'])) {
+          $$__path = parse_url($$_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
+          $$__qs = (!empty($$_SERVER['QUERY_STRING'])) ? '?' . $$_SERVER['QUERY_STRING'] : '';
+          if ($$__path === '/' || strncmp($$__path, $$__holt_prefix, strlen($$__holt_prefix)) !== 0) {
+            $$_SERVER['REQUEST_URI'] = $$__holt_prefix . ($$__path === '/' ? '/' : $$__path) . $$__qs;
+          }
         }
     volumes:
       - wp_holt_uploads_dev:/var/www/html/wp-content/uploads

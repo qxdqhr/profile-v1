@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HOLT_THEME_VERSION', '1.0.0' );
+define( 'HOLT_THEME_VERSION', '1.0.1' );
 define( 'HOLT_THEME_DIR', get_template_directory() );
 define( 'HOLT_THEME_URI', get_template_directory_uri() );
 
@@ -100,49 +100,74 @@ function holt_body_classes( array $classes ): array {
 add_filter( 'body_class', 'holt_body_classes' );
 
 /**
+ * Bootstrap pages, roles, and rewrites (runs once per theme version).
+ */
+function holt_theme_bootstrap(): void {
+	$target = HOLT_THEME_VERSION;
+	if ( get_option( 'holt_bootstrap_version' ) === $target ) {
+		return;
+	}
+
+	holt_register_work_cpt();
+	holt_register_work_role_taxonomy();
+	holt_seed_work_roles();
+	holt_ensure_pages();
+
+	flush_rewrite_rules( false );
+	update_option( 'holt_bootstrap_version', $target, false );
+}
+add_action( 'init', 'holt_theme_bootstrap', 99 );
+
+/**
+ * Create about/contact pages if missing (works uses CPT archive only).
+ */
+function holt_ensure_pages(): void {
+	$pages = array(
+		'about'   => array(
+			'title'    => '关于',
+			'template' => 'page-about.php',
+		),
+		'contact' => array(
+			'title'    => '联系',
+			'template' => 'page-contact.php',
+		),
+	);
+
+	foreach ( $pages as $slug => $cfg ) {
+		if ( get_page_by_path( $slug ) ) {
+			continue;
+		}
+
+		$page_id = wp_insert_post(
+			array(
+				'post_title'  => $cfg['title'],
+				'post_name'   => $slug,
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+			)
+		);
+
+		if ( $page_id && ! is_wp_error( $page_id ) ) {
+			update_post_meta( $page_id, '_wp_page_template', $cfg['template'] );
+		}
+	}
+}
+
+/**
  * On theme switch: flush rewrites for work CPT.
  */
 function holt_activation(): void {
-	holt_register_work_cpt();
-	holt_register_work_role_taxonomy();
-	flush_rewrite_rules();
+	delete_option( 'holt_bootstrap_version' );
+	holt_theme_bootstrap();
 }
 add_action( 'after_switch_theme', 'holt_activation' );
 
 /**
- * Create default pages once.
+ * @deprecated Use holt_ensure_pages via holt_theme_bootstrap.
  */
 function holt_maybe_seed_pages(): void {
-	if ( get_option( 'holt_pages_seeded' ) ) {
-		return;
-	}
-
-	$pages = array(
-		'works'   => array( 'title' => '作品', 'template' => '' ),
-		'about'   => array( 'title' => '关于', 'template' => 'page-about.php' ),
-		'contact' => array( 'title' => '联系', 'template' => 'page-contact.php' ),
-	);
-
-	foreach ( $pages as $slug => $cfg ) {
-		if ( ! get_page_by_path( $slug ) ) {
-			$page_id = wp_insert_post(
-				array(
-					'post_title'   => $cfg['title'],
-					'post_name'    => $slug,
-					'post_status'  => 'publish',
-					'post_type'    => 'page',
-					'post_content' => '',
-				)
-			);
-			if ( $page_id && ! is_wp_error( $page_id ) && $cfg['template'] ) {
-				update_post_meta( $page_id, '_wp_page_template', $cfg['template'] );
-			}
-		}
-	}
-
-	update_option( 'holt_pages_seeded', 1, false );
+	holt_ensure_pages();
 }
-add_action( 'after_switch_theme', 'holt_maybe_seed_pages', 20 );
 
 /**
  * Works archive URL.

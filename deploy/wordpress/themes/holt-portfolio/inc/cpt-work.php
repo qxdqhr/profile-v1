@@ -58,17 +58,10 @@ add_action( 'init', 'holt_register_work_role_taxonomy' );
  * Seed default work roles on theme switch.
  */
 function holt_seed_work_roles(): void {
-	if ( get_option( 'holt_roles_seeded' ) ) {
-		return;
-	}
-
 	$roles = array( '作曲', '编曲', '混音', '演唱', '其他' );
 	foreach ( $roles as $role ) {
 		if ( ! term_exists( $role, 'work_role' ) ) {
 			wp_insert_term( $role, 'work_role' );
 		}
 	}
-
-	update_option( 'holt_roles_seeded', 1, false );
 }
-add_action( 'after_switch_theme', 'holt_seed_work_roles', 15 );
