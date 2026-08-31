@@ -30,15 +30,20 @@ docker compose -f docker-compose.gateway.yml exec -T wp_mariadb \
 
 ## 3. nginx
 
-在 [`../nginx/profile-platform.conf`](../nginx/profile-platform.conf) 增加：
+在 [`../nginx/profile-platform.conf`](../nginx/profile-platform.conf) **复制 holt 的两条规则**（把 `holt` / `wordpress_holt` 换成新 slug），不要为单个文件再加 location：
 
 ```nginx
-upstream wordpress_theme_a {
-    server wordpress_theme_a:80;
+# ① 后台 / 静态 / 核心 PHP → 去掉前缀
+location ~ ^/wp/theme-a/(wp-admin|wp-includes|wp-content|xmlrpc\.php|wp-[^/]+\.php)(/|$) {
+    set $wp_theme_a_upstream wordpress_theme_a;
+    rewrite ^/wp/theme-a(/.*)$ $1 break;
+    proxy_pass http://$wp_theme_a_upstream;
+    include /etc/nginx/proxy-params.conf;
 }
-
+# ② 前台固定链接 / wp-json → 保留完整 URI
 location /wp/theme-a/ {
-    proxy_pass http://wordpress_theme_a/;
+    set $wp_theme_a_upstream wordpress_theme_a;
+    proxy_pass http://$wp_theme_a_upstream;
     include /etc/nginx/proxy-params.conf;
 }
 location = /wp/theme-a {

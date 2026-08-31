@@ -216,5 +216,6 @@ export default function XxxRoute() {
 
 - 路径：`/wp/holt/`（Holt 音乐作品集 + `holt-portfolio` 主题）；前台为主题，后台为 `wp-admin`。
 - 资产：`deploy/wordpress/` + `deploy/docker-compose.gateway.yml` 中 `wp_mariadb` / `wordpress_*`。
+- nginx：每站 **两条** location——`wp-admin|wp-includes|wp-content|xmlrpc|wp-*.php` 去前缀；其余 `/wp/<slug>/` 保留 URI（固定链接 / `wp-json`）。勿逐文件加路由。
 - **不**创建 `apps/blog`、不复用 Next `basePath` / Drizzle / better-auth。
 - 加站：[`deploy/wordpress/ADD-SITE.md`](../deploy/wordpress/ADD-SITE.md)。
