@@ -2,6 +2,9 @@
 
 路径命名空间：`/wp/<slug>/`。首期站点：**`holt`**（Holt 音乐作品集）。
 
+**给前端 / iOS / 鸿蒙开发者的二开与部署教程（推荐从这里读起）：**  
+[`php/README.md`](./php/README.md)
+
 详细加站步骤见 [ADD-SITE.md](./ADD-SITE.md)。网关集成见根目录 [`../MIGRATION-RUNBOOK.md`](../MIGRATION-RUNBOOK.md)。
 
 ## 架构
@@ -19,7 +22,7 @@
 |------|-----|
 | Holt 前台 | `https://<host>/wp/holt/` |
 | Holt 后台 | `https://<host>/wp/holt/wp-admin/` |
-| B 站空间 | Customizer 默认 `https://b23.tv/ylj7b9x` |
+| B 站空间 | Customizer 默认 `https://b23.tv/8r56Ehc` |
 
 `WP_HOME` / `WP_SITEURL` 必须等于该前缀（由 compose 环境变量 `WP_HOLT_PUBLIC_URL` 写入）。
 
