@@ -671,23 +671,12 @@ export const experiments: ExperimentItem[] = [
   {
     id: "suika-game",
     title: "合成大西瓜",
-    description: "物理合成游戏，投放小球使相同大小的球碰撞合并，体积越大分数越高，挑战最高分！",
-    path: "/testField/suikaGame",
-    tags: ["小游戏", "物理", "合成", "休闲"],
+    description: "物理合成：投放色球碰撞合并，体积越大分越高；Godot 精修版（抽象色球）",
+    path: "/games/suika-game/",
+    tags: ["小游戏", "物理", "合成", "休闲", "Godot"],
     category: "leisure",
     isCompleted: true,
     createdAt: '2026-04-25',
-    updatedAt: '2026-04-25'
-  },
-  {
-    id: "suika-game-godot",
-    title: "合成大西瓜（Godot 最简）",
-    description: "双轨迁移中：Godot 最简合成（抽象色球），玩法对齐中；正式入口仍用上方原版",
-    path: "/games/suika-game/",
-    tags: ["小游戏", "Godot", "最简迁移", "物理", "合成"],
-    category: "leisure",
-    isCompleted: false,
-    createdAt: '2026-09-01',
     updatedAt: '2026-09-01'
   },
   {

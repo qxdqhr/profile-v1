@@ -31,7 +31,7 @@
 |------|----------|------------|
 | pulse-parade | —（原生） | 已上线 |
 | flappy-wish | `/testField/flappyWish`（旧保留） | **阶段 C 精修完成**；主入口 `/games/flappy-wish/` |
-| suika-game | `/testField/suikaGame` | 最简已上线；原版双轨 |
+| suika-game | `/testField/suikaGame`（旧保留） | **阶段 C 精修完成**；主入口 `/games/suika-game/` |
 | bubble-shooter | `/testField/bubbleShooter` | 最简已上线；原版双轨 |
 | arknights-bubble-shooter | `/testField/arknightsBubbleShooter` | 最简已上线；原版双轨 |
 | miku-flick | `/testField/mikuFlick` | 最简已上线；原版双轨 |
@@ -81,4 +81,5 @@
 |------|----------|------------|------------|--------------|
 | pulse-parade | n/a（原生） | 已是主入口 | — | — |
 | flappy-wish | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
+| suika-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
 | （后续按清单顺序） | | | | |
