@@ -3,8 +3,8 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ExperimentCard } from 'sa2kit/business/portfolio';
 import type { ExperimentItem } from '../types';
+import { ExperimentNavCard } from './ExperimentNavCard';
 
 interface SortableExperimentItemProps {
   item: ExperimentItem;
@@ -102,8 +102,8 @@ export function SortableExperimentItem({
 
       {/* 实验卡片 */}
       <div className={`transition-all ${isDragging ? 'scale-105 shadow-xl' : ''}`}>
-        <ExperimentCard
-          href={item.path}
+        <ExperimentNavCard
+          path={item.path}
           title={item.title}
           description={item.description}
           tags={item.tags}

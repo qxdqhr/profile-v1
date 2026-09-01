@@ -528,13 +528,13 @@ export const experiments: ExperimentItem[] = [
   {
     id: "flappy-wish",
     title: "予愿飞翔",
-    description: "Flappy 风格竖版小游戏：三档难度、穿管计分，安洁莉娜同人像素素材（仅供学习）",
-    path: "/testField/flappyWish",
-    tags: ["小游戏", "休闲", "Flappy", "同人"],
+    description: "Godot 重写：竖版 Flappy，三档难度、穿管/金币计分（抽象几何美术）",
+    path: "/games/flappy-wish/",
+    tags: ["小游戏", "休闲", "Flappy", "Godot"],
     category: "leisure",
     isCompleted: true,
     createdAt: '2026-07-30',
-    updatedAt: '2026-07-30'
+    updatedAt: '2026-09-01'
   },
   {
     id: "miku-flick",

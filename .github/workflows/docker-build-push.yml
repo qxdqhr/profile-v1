@@ -97,7 +97,9 @@ jobs:
               - 'apps/teach-hub-mobile/**'
               - 'packages/teach-hub-shared/**'
             games:
-              - 'games/pulse-parade/**'
+              - 'games/**'
+              - 'scripts/export-godot-game.sh'
+              - 'scripts/export-all-godot-games.sh'
               - 'scripts/export-pulse-parade-web.sh'
             deploy:
               - 'deploy/**'
@@ -512,8 +514,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  export-pulse-parade-web:
-    name: Export Pulse Parade Web
+  export-godot-games:
+    name: Export Godot Games (Web)
     needs: changes
     if: needs.changes.outputs.games == 'true'
     runs-on: ubuntu-latest
@@ -529,20 +531,20 @@ jobs:
             ~/.local/share/godot/export_templates
           key: godot-4.7.1-stable-${{ runner.os }}-v1
 
-      - name: Export Pulse Parade (Web, single-thread)
-        run: bash scripts/export-pulse-parade-web.sh
+      - name: Export all Godot games (Web, single-thread)
+        run: bash scripts/export-all-godot-games.sh
 
-      - name: Upload web artifact
+      - name: Upload web artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: pulse-parade-web
-          path: deploy/games/pulse-parade/www/
+          name: godot-games-www
+          path: deploy/games/*/www
           if-no-files-found: error
           retention-days: 7
 
   deploy-web:
     runs-on: ubuntu-latest
-    needs: [changes, build, promote-images, export-pulse-parade-web]
+    needs: [changes, build, promote-images, export-godot-games]
     # build/export 未改时会 skipped；若不加 always()/skipped 判断，整段部署会被连带跳过
     if: >-
       always() &&
@@ -552,7 +554,7 @@ jobs:
       needs.changes.result == 'success' &&
       (needs.build.result == 'success' || needs.build.result == 'skipped') &&
       (needs.promote-images.result == 'success' || needs.promote-images.result == 'skipped') &&
-      (needs.export-pulse-parade-web.result == 'success' || needs.export-pulse-parade-web.result == 'skipped') &&
+      (needs.export-godot-games.result == 'success' || needs.export-godot-games.result == 'skipped') &&
       (
         needs.changes.outputs.deploy == 'true' ||
         needs.changes.outputs.games == 'true' ||
@@ -567,12 +569,42 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download Pulse Parade web artifact
+      - name: Download Godot games web artifacts
         if: needs.changes.outputs.games == 'true'
         uses: actions/download-artifact@v4
         with:
-          name: pulse-parade-web
-          path: deploy/games/pulse-parade/www
+          name: godot-games-www
+          path: /tmp/godot-games-www
+
+      - name: Place www artifacts into deploy/games
+        if: needs.changes.outputs.games == 'true'
+        run: |
+          set -euo pipefail
+          # Artifact may nest as <slug>/www or deploy/games/<slug>/www
+          mapfile -t slugs < <(for p in games/*/project.godot; do [ -f "$p" ] && basename "$(dirname "$p")"; done | sort -u)
+          if [ "${#slugs[@]}" -eq 0 ]; then
+            echo "ERROR: no games/*/project.godot" >&2
+            exit 1
+          fi
+          for slug in "${slugs[@]}"; do
+            mkdir -p "deploy/games/${slug}/www"
+            src=""
+            if [ -f "/tmp/godot-games-www/${slug}/www/index.html" ]; then
+              src="/tmp/godot-games-www/${slug}/www"
+            elif [ -f "/tmp/godot-games-www/deploy/games/${slug}/www/index.html" ]; then
+              src="/tmp/godot-games-www/deploy/games/${slug}/www"
+            elif [ -f "/tmp/godot-games-www/${slug}/index.html" ]; then
+              src="/tmp/godot-games-www/${slug}"
+            fi
+            if [ -n "$src" ]; then
+              rsync -a --delete --exclude '.gitkeep' "${src}/" "deploy/games/${slug}/www/"
+              echo "placed ${slug} from ${src}"
+            else
+              echo "WARN: no www for ${slug} in artifact" >&2
+              find /tmp/godot-games-www -maxdepth 4 -type f | head -40
+              exit 1
+            fi
+          done
 
       - name: Decrypt production config
         env:
@@ -612,7 +644,7 @@ jobs:
           chmod 600 /tmp/ssh_key
 
           echo "=== 同步配置与 deploy 文件 ==="
-          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/nginx /root/profile-v1/wordpress/themes/holt-portfolio /root/profile-v1/games/pulse-parade/www"
+          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/nginx /root/profile-v1/wordpress/themes/holt-portfolio"
           scp $SSH_OPTS "$DEPLOY_CFG_DIR/app.config.yaml" "$REMOTE:/root/profile-v1/app.config.yaml"
           scp $SSH_OPTS deploy/docker-compose.gateway.yml "$REMOTE:/root/profile-v1/docker-compose.gateway.yml"
           scp $SSH_OPTS deploy/nginx/profile-platform.conf "$REMOTE:/root/profile-v1/nginx/profile-platform.conf"
@@ -637,14 +669,19 @@ jobs:
             "$REMOTE:/root/profile-v1/wordpress/themes/holt-portfolio/"
           scp $SSH_OPTS deploy/games/README.md deploy/games/ADD-GAME.md \
             "$REMOTE:/root/profile-v1/games/"
-          scp $SSH_OPTS deploy/games/pulse-parade/nginx.conf \
-            "$REMOTE:/root/profile-v1/games/pulse-parade/nginx.conf"
-          if [ "${GAMES_CHANGED}" = "true" ] && [ -f deploy/games/pulse-parade/www/index.html ]; then
-            echo "=== 同步 Pulse Parade Web 产物 ==="
-            scp -r $SSH_OPTS deploy/games/pulse-parade/www/* \
-              "$REMOTE:/root/profile-v1/games/pulse-parade/www/"
-          else
-            echo "=== 跳过 www 同步（未改 games 或无导出产物；保留服务器已有包）==="
+          for game_dir in deploy/games/*/; do
+            [ -d "$game_dir" ] || continue
+            slug="$(basename "$game_dir")"
+            [ -f "${game_dir}nginx.conf" ] || continue
+            ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/games/${slug}/www"
+            scp $SSH_OPTS "${game_dir}nginx.conf" "$REMOTE:/root/profile-v1/games/${slug}/nginx.conf"
+            if [ "${GAMES_CHANGED}" = "true" ] && [ -f "${game_dir}www/index.html" ]; then
+              echo "=== 同步 Godot Web 产物: ${slug} ==="
+              scp -r $SSH_OPTS "${game_dir}www/"* "$REMOTE:/root/profile-v1/games/${slug}/www/"
+            fi
+          done
+          if [ "${GAMES_CHANGED}" != "true" ]; then
+            echo "=== 跳过 www 同步（未改 games；保留服务器已有包）==="
           fi
           ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/wait-gateway-ready.sh /root/profile-v1/ensure-database-url.sh /root/profile-v1/ensure-wordpress-env.sh /root/profile-v1/ensure-wordpress-database.sh /root/profile-v1/ensure-calendar-schema.sh /root/profile-v1/ensure-node-notes-schema.sh /root/profile-v1/smoke-test-gateway.sh /root/profile-v1/check-gateway-health.sh /root/profile-v1/audit-outer-nginx.sh"
 
@@ -672,7 +709,7 @@ jobs:
   notify:
     name: Notify Feishu
     runs-on: ubuntu-latest
-    needs: [changes, build, deploy-web, promote-images, export-pulse-parade-web, build-teach-hub-mobile, build-calendar-mobile]
+    needs: [changes, build, deploy-web, promote-images, export-godot-games, build-teach-hub-mobile, build-calendar-mobile]
     if: always() && !cancelled()
     continue-on-error: true
     steps:
@@ -707,7 +744,7 @@ jobs:
         env:
           FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
           FEISHU_SIGN_SECRET: ${{ secrets.FEISHU_SIGN_SECRET }}
-          CI_NOTIFY_STATUS: ${{ (needs.build.result == 'success' || needs.build.result == 'skipped') && (needs.promote-images.result == 'success' || needs.promote-images.result == 'skipped') && (needs.export-pulse-parade-web.result == 'success' || needs.export-pulse-parade-web.result == 'skipped') && (needs.deploy-web.result == 'success' || needs.deploy-web.result == 'skipped') && (needs.build-teach-hub-mobile.result == 'success' || needs.build-teach-hub-mobile.result == 'skipped') && (needs.build-calendar-mobile.result == 'success' || needs.build-calendar-mobile.result == 'skipped') && 'success' || 'failure' }}
+          CI_NOTIFY_STATUS: ${{ (needs.build.result == 'success' || needs.build.result == 'skipped') && (needs.promote-images.result == 'success' || needs.promote-images.result == 'skipped') && (needs.export-godot-games.result == 'success' || needs.export-godot-games.result == 'skipped') && (needs.deploy-web.result == 'success' || needs.deploy-web.result == 'skipped') && (needs.build-teach-hub-mobile.result == 'success' || needs.build-teach-hub-mobile.result == 'skipped') && (needs.build-calendar-mobile.result == 'success' || needs.build-calendar-mobile.result == 'skipped') && 'success' || 'failure' }}
           CI_IMAGE_TAG: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && (needs.build.result == 'success' || needs.promote-images.result == 'success') && format('web:{0} calendar:{0} teach-hub:{0} showmasterpiece:{0} money-research:{0} node-notes:{0}', github.run_number) || '' }}
           CI_TEACH_HUB_APK_BUILD_RESULT: ${{ needs.build-teach-hub-mobile.result }}
           CI_TEACH_HUB_APK_RELEASE_URL: ${{ needs.build-teach-hub-mobile.result == 'success' && needs.build-teach-hub-mobile.outputs.release_url || '' }}

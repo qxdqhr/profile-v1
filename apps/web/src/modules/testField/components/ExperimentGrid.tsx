@@ -1,6 +1,6 @@
-import { ExperimentCard } from 'sa2kit/business/portfolio';
 import { Grid, type GridItem, type GridColumns, type GridGap } from 'sa2kit/common/ui/widgets';
 import type { ExperimentItem } from '../types';
+import { ExperimentNavCard } from './ExperimentNavCard';
 
 
 // ==================== 实验项目特定接口 ====================
@@ -36,8 +36,8 @@ interface ExperimentGridProps<T extends ExperimentGridItem> {
 /** 默认的 ExperimentCard 渲染器 */
 function defaultExperimentRenderer(item: ExperimentItem) {
   return (
-    <ExperimentCard
-      href={item.path}
+    <ExperimentNavCard
+      path={item.path}
       title={item.title}
       description={item.description}
       tags={item.tags}
