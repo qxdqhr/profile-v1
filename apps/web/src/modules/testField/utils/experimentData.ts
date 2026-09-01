@@ -317,20 +317,11 @@ export const experiments: ExperimentItem[] = [
   {
     id: "linkGame",
     title: "葱韵环京连连看",
-    description: "葱韵环京连连看",
-    path: "/testField/linkGame",
-    tags: ["小游戏", "葱韵环京","初版完成"],
-    category: "leisure",
-    isCompleted: false
-  },
-  {
-    id: "link-game-godot",
-    title: "连连看（Godot 最简）",
-    description: "双轨迁移中：Godot 最简 6×8 连连看（≤2 拐），玩法对齐中；正式入口仍用上方原版",
+    description: "六种模式、计时得分、提示与限次洗牌；Godot 精修版（抽象色块）",
     path: "/games/link-game/",
-    tags: ["小游戏", "Godot", "最简迁移", "连连看"],
+    tags: ["小游戏", "葱韵环京", "连连看", "Godot"],
     category: "leisure",
-    isCompleted: false,
+    isCompleted: true,
     createdAt: '2026-09-01',
     updatedAt: '2026-09-01'
   },
