@@ -36,7 +36,7 @@
 | arknights-bubble-shooter | `/testField/arknightsBubbleShooter`（旧保留） | **阶段 C 精修完成**；主入口 `/games/arknights-bubble-shooter/` |
 | miku-flick | `/testField/mikuFlick`（旧保留） | **阶段 C 精修完成**；主入口 `/games/miku-flick/` |
 | huarongdao | `/testField/huarongdao`（旧保留） | **阶段 C 精修完成**；主入口 `/games/huarongdao/` |
-| push-box | `/testField/pushBox` | 最简已上线（3 关 MVP）；原版双轨 |
+| push-box | `/testField/pushBox`（旧保留） | **阶段 C 精修完成**；主入口 `/games/push-box/` |
 | gold-miner | `/testField/goldMiner` | 最简已上线；原版双轨 |
 | miku-fusion-game | `/testField/mikuFusionGame` | 最简已上线；原版双轨 |
 | link-game | `/testField/linkGame` | 最简已上线；原版双轨 |
@@ -86,4 +86,5 @@
 | arknights-bubble-shooter | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
 | miku-flick | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
 | huarongdao | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
+| push-box | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
 | （后续按清单顺序） | | | | |

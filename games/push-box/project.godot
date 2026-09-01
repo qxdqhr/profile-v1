@@ -5,8 +5,8 @@ config_version=5
 [application]
 
 config/name="Push Box"
-config/description="Minimal sokoban. Abstract tiles. Dual-track with /testField/pushBox."
-config/version="0.1.0"
+config/description="Sokoban 50 levels. Godot remake of 推箱子."
+config/version="0.2.0"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://icon.svg"
