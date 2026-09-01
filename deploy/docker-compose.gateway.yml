@@ -193,6 +193,15 @@ services:
     networks:
       - profile
 
+  game_arknights_bubble_shooter:
+    image: docker.m.daocloud.io/library/nginx:1.27-alpine
+    restart: unless-stopped
+    volumes:
+      - ./games/arknights-bubble-shooter/www:/usr/share/nginx/html:ro
+      - ./games/arknights-bubble-shooter/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - profile
+
   nginx:
     image: docker.m.daocloud.io/library/nginx:1.27-alpine
     restart: unless-stopped
@@ -208,6 +217,7 @@ services:
       - game_flappy_wish
       - game_suika_game
       - game_bubble_shooter
+      - game_arknights_bubble_shooter
     ports:
       - '${GATEWAY_PORT:-3000}:80'
     volumes:

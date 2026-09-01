@@ -50,3 +50,4 @@ Web 导出预设须 **单线程**：`variant/thread_support=false`（Compatibili
 | flappy-wish | `games/flappy-wish/` | `game_flappy_wish` | `/games/flappy-wish/` |
 | suika-game | `games/suika-game/` | `game_suika_game` | `/games/suika-game/` |
 | bubble-shooter | `games/bubble-shooter/` | `game_bubble_shooter` | `/games/bubble-shooter/` |
+| arknights-bubble-shooter | `games/arknights-bubble-shooter/` | `game_arknights_bubble_shooter` | `/games/arknights-bubble-shooter/` |

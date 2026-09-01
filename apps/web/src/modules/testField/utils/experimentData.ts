@@ -526,6 +526,17 @@ export const experiments: ExperimentItem[] = [
     updatedAt: '2026-04-25'
   },
   {
+    id: "arknights-bubble-shooter-godot",
+    title: "岁家龙泡泡（Godot 最简）",
+    description: "双轨迁移中：Godot 最简岁家泡泡龙（角色色球），玩法对齐中；正式入口仍用上方原版",
+    path: "/games/arknights-bubble-shooter/",
+    tags: ["小游戏", "Godot", "最简迁移", "明日方舟", "泡泡龙"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2026-09-01',
+    updatedAt: '2026-09-01'
+  },
+  {
     id: "suika-game",
     title: "合成大西瓜",
     description: "物理合成游戏，投放小球使相同大小的球碰撞合并，体积越大分数越高，挑战最高分！",
