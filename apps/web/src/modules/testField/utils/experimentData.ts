@@ -671,23 +671,12 @@ export const experiments: ExperimentItem[] = [
   {
     id: "miku-flick",
     title: "Miku Flick（初版）",
-    description: "体验本地化 mikuFlick 模块，支持假名键位滑动方向判定、节奏判定与连击计分",
-    path: "/testField/mikuFlick",
-    tags: ["SA2Kit", "MikuFlick", "小游戏", "节奏输入"],
+    description: "假名键滑动方向判定与连击计分；Godot 精修版（みくみく…谱面）",
+    path: "/games/miku-flick/",
+    tags: ["SA2Kit", "MikuFlick", "小游戏", "节奏输入", "Godot"],
     category: "leisure",
     isCompleted: true,
     createdAt: '2026-03-15',
-    updatedAt: '2026-03-15'
-  },
-  {
-    id: "miku-flick-godot",
-    title: "Miku Flick（Godot 最简）",
-    description: "双轨迁移中：Godot 最简假名+Flick 节奏（みくみく…谱面），玩法对齐中；正式入口仍用上方原版",
-    path: "/games/miku-flick/",
-    tags: ["小游戏", "Godot", "最简迁移", "MikuFlick", "节奏"],
-    category: "leisure",
-    isCompleted: false,
-    createdAt: '2026-09-01',
     updatedAt: '2026-09-01'
   },
   {

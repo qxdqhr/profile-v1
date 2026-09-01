@@ -109,3 +109,17 @@ static func initial_score() -> Dictionary:
 		"score": 0, "combo": 0, "max_combo": 0,
 		"perfect": 0, "great": 0, "good": 0, "miss": 0,
 	}
+
+static func calculate_accuracy(score: Dictionary) -> float:
+	var hit := int(score.perfect) + int(score.great) + int(score.good)
+	var total := hit + int(score.miss)
+	if total == 0:
+		return 0.0
+	var weighted := float(score.perfect) * 1.0 + float(score.great) * 0.7 + float(score.good) * 0.4
+	return weighted / float(total)
+
+static func kana_lane(kana: String) -> int:
+	var idx := FlickConfig.KANA_KEYS.find(kana)
+	if idx < 0:
+		return 2
+	return idx % 5

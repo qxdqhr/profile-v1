@@ -34,7 +34,7 @@
 | suika-game | `/testField/suikaGame`（旧保留） | **阶段 C 精修完成**；主入口 `/games/suika-game/` |
 | bubble-shooter | `/testField/bubbleShooter`（旧保留） | **阶段 C 精修完成**；主入口 `/games/bubble-shooter/` |
 | arknights-bubble-shooter | `/testField/arknightsBubbleShooter`（旧保留） | **阶段 C 精修完成**；主入口 `/games/arknights-bubble-shooter/` |
-| miku-flick | `/testField/mikuFlick` | 最简已上线；原版双轨 |
+| miku-flick | `/testField/mikuFlick`（旧保留） | **阶段 C 精修完成**；主入口 `/games/miku-flick/` |
 | huarongdao | `/testField/huarongdao` | 最简已上线；原版双轨 |
 | push-box | `/testField/pushBox` | 最简已上线（3 关 MVP）；原版双轨 |
 | gold-miner | `/testField/goldMiner` | 最简已上线；原版双轨 |
@@ -84,4 +84,5 @@
 | suika-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
 | bubble-shooter | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
 | arknights-bubble-shooter | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
+| miku-flick | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
 | （后续按清单顺序） | | | | |
