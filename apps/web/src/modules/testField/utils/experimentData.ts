@@ -243,6 +243,17 @@ export const experiments: ExperimentItem[] = [
     category: "leisure"
   },
   {
+    id: "miku-click-godot",
+    title: "米库点击（Godot 最简）",
+    description: "双轨迁移中：Godot 最简 30 秒点击连击；正式入口仍用上方原版",
+    path: "/games/miku-click/",
+    tags: ["小游戏", "Godot", "最简迁移", "点击"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2026-09-01',
+    updatedAt: '2026-09-01'
+  },
+  {
     id: "mikutap-game",
     title: "MikutapGame 音乐游戏",
     description: "基于Mikutap的音乐学习游戏，包含旋律模仿、节奏挑战等功能",
@@ -254,6 +265,17 @@ export const experiments: ExperimentItem[] = [
     updatedAt: '2023-12-15'
   },
   {
+    id: "mikutap-game-godot",
+    title: "MikutapGame（Godot 最简）",
+    description: "双轨迁移中：Godot 最简 4×4 网格点按计分；正式入口仍用上方原版",
+    path: "/games/mikutap-game/",
+    tags: ["小游戏", "Godot", "最简迁移", "Mikutap"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2026-09-01',
+    updatedAt: '2026-09-01'
+  },
+  {
     id: "kannot",
     title: " 坎诺特",
     description: "已有坎诺特功能",
@@ -263,12 +285,34 @@ export const experiments: ExperimentItem[] = [
     isCompleted: false
   },
   {
+    id: "kannot-godot",
+    title: "坎诺特（Godot 最简）",
+    description: "双轨迁移中：Godot 最简四轨节奏点按；正式入口仍用上方原版",
+    path: "/games/kannot/",
+    tags: ["小游戏", "Godot", "最简迁移", "节奏"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2026-09-01',
+    updatedAt: '2026-09-01'
+  },
+  {
     id: "VocaloidtoGO",
     title: " 博立格来冲",
     description: "博立格来冲",
     path: "/testField/VocaloidtoGO",
     tags: ["小游戏", "赛博无料","新建文件夹"],
     category: "leisure"
+  },
+  {
+    id: "vocaloid-to-go-godot",
+    title: "博立格来冲（Godot 最简）",
+    description: "双轨迁移中：Godot 最简假名词汇限时点选；正式入口仍用上方原版",
+    path: "/games/vocaloid-to-go/",
+    tags: ["小游戏", "Godot", "最简迁移", "词汇"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2026-09-01',
+    updatedAt: '2026-09-01'
   },
   {
     id: "linkGame",
@@ -394,6 +438,17 @@ export const experiments: ExperimentItem[] = [
     tags: ["小游戏", "赛博无料","新建文件夹"],
     category: "leisure"
   },
+  {
+    id: "miku-planting-godot",
+    title: "米库种植（Godot 最简）",
+    description: "双轨迁移中：Godot 最简播种/浇水/收获；正式入口仍用上方原版",
+    path: "/games/miku-planting/",
+    tags: ["小游戏", "Godot", "最简迁移", "养成"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2026-09-01',
+    updatedAt: '2026-09-01'
+  },
 
   // 新增模块
   {
@@ -480,6 +535,17 @@ export const experiments: ExperimentItem[] = [
     isCompleted: true,
     createdAt: '2024-01-15',
     updatedAt: '2024-01-15'
+  },
+  {
+    id: "purchase-game-godot",
+    title: "购买挑战（Godot 最简）",
+    description: "双轨迁移中：Godot 最简 30 秒购买/跳过决策；正式入口仍用上方原版",
+    path: "/games/purchase-game/",
+    tags: ["小游戏", "Godot", "最简迁移", "购买"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2026-09-01',
+    updatedAt: '2026-09-01'
   },
   {
     id: "miku-talking",

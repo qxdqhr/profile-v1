@@ -36,6 +36,12 @@
 | `/games/link-game/` | game_link_game:80 | **连连看**（旁路 Godot Web） |
 | `/games/race-game/` | game_race_game:80 | **赛车**（旁路 Godot Web） |
 | `/games/trible-game/` | game_trible_game:80 | **三消**（旁路 Godot Web） |
+| `/games/miku-click/` | game_miku_click:80 | **米库点击**（旁路 Godot Web） |
+| `/games/kannot/` | game_kannot:80 | **坎诺特**（旁路 Godot Web） |
+| `/games/vocaloid-to-go/` | game_vocaloid_to_go:80 | **博立格来冲**（旁路 Godot Web） |
+| `/games/purchase-game/` | game_purchase_game:80 | **购买挑战**（旁路 Godot Web） |
+| `/games/mikutap-game/` | game_mikutap_game:80 | **MikutapGame**（旁路 Godot Web） |
+| `/games/miku-planting/` | game_miku_planting:80 | **米库种植**（旁路 Godot Web） |
 | `/api/auth/` | web:3000 | **共享 session**（Next 子应用不单独登录） |
 
 Legacy：`/testField/calendar`、`/testField/teachHub` → nginx 301 至新路径；`/testField/ShowMasterPieces` → 301 至 `/showmasterpiece`。

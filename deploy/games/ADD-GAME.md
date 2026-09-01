@@ -59,3 +59,9 @@ Web 导出预设须 **单线程**：`variant/thread_support=false`（Compatibili
 | link-game | `games/link-game/` | `game_link_game` | `/games/link-game/` |
 | race-game | `games/race-game/` | `game_race_game` | `/games/race-game/` |
 | trible-game | `games/trible-game/` | `game_trible_game` | `/games/trible-game/` |
+| miku-click | `games/miku-click/` | `game_miku_click` | `/games/miku-click/` |
+| kannot | `games/kannot/` | `game_kannot` | `/games/kannot/` |
+| vocaloid-to-go | `games/vocaloid-to-go/` | `game_vocaloid_to_go` | `/games/vocaloid-to-go/` |
+| purchase-game | `games/purchase-game/` | `game_purchase_game` | `/games/purchase-game/` |
+| mikutap-game | `games/mikutap-game/` | `game_mikutap_game` | `/games/mikutap-game/` |
+| miku-planting | `games/miku-planting/` | `game_miku_planting` | `/games/miku-planting/` |

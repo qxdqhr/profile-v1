@@ -42,23 +42,28 @@
 | link-game | `/testField/linkGame` | 最简已上线；原版双轨 |
 | race-game | `/testField/raceGame` | 最简已上线；原版双轨 |
 | trible-game | `/testField/tribleGame` | 最简已上线；原版双轨 |
+| miku-click | `/testField/MikuClick` | 最简已上线；原版双轨 |
+| kannot | `/testField/Kannot` | 最简已上线；原版双轨 |
+| vocaloid-to-go | `/testField/VocaloidtoGO` | 最简已上线；原版双轨 |
+| purchase-game | `/purchaseGame` | 最简已上线；原版双轨 |
+| mikutap-game | `/mikutapGame` | 最简已上线；原版双轨 |
+| miku-planting | `/testField/mikuPlanting` | 最简已上线；原版双轨 |
 
 ### leisure 待迁 backlog（实验田 `category: leisure`）
 
 | 原版 id / 路径 | 建议 slug | 优先级 | 备注 |
 |----------------|-----------|--------|------|
-| linkGame_v1 | — | 低 | v1 可合并或跳过（主版已迁 link-game） |
-| MikuClick | miku-click | 低 | 点击类 |
-| Kannot | kannot | 低 | 音游相关 |
-| miku-fireworks-3D | — | 暂缓 | 3D 烟花，成本高 |
+| linkGame_v1 | — | 跳过 | 主版已迁 link-game |
+| miku-fireworks-3D | — | 暂缓 | 3D 烟花 |
 | festivalCard | — | 暂缓 | Three.js 贺卡 |
 | solarSystem | — | 暂缓 | 3D 天文 |
-| mikutap | — | 暂缓 | 音乐互动+配置 |
-| purchase-game | — | 暂缓 | Next 页面非 Phaser |
+| mikutap | — | 暂缓 | 音乐互动+配置（工具态，另有 mikutap-game） |
 | miku-talking | — | 暂缓 | MMD 3D |
-| playMusic / mikuPlanting | — | 暂缓 | 工具/半游戏 |
-| Vocaloider / ShareMonitor / VocaloidtoGO | — | 非典型小游戏 | 按需评估 |
+| playMusic / Vocaloider / ShareMonitor | — | 暂缓 | 播放器/工具 |
 | mmdViewer | — | 暂缓 | 3D 查看器 |
+| show-master-pieces / TicketBooking | — | 暂缓 | 展览/票务非典型小游戏 |
+
+**阶段 B（2D/小游戏向）已收口**，可进入阶段 C 逐个精修。
 
 阶段 B 只要求：**核心循环可玩**（开始/操作/计分或胜负），不要求美术与原版一致。
 

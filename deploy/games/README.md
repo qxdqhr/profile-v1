@@ -21,6 +21,12 @@
 | `link-game` | 连连看 Godot 最简（原版 `/testField/linkGame`） |
 | `race-game` | 赛车 Godot 最简（原版 `/testField/raceGame`） |
 | `trible-game` | 三消 Godot 最简（原版 `/testField/tribleGame`） |
+| `miku-click` | 米库点击 Godot 最简（原版 `/testField/MikuClick`） |
+| `kannot` | 坎诺特 Godot 最简（原版 `/testField/Kannot`） |
+| `vocaloid-to-go` | 博立格来冲 Godot 最简（原版 `/testField/VocaloidtoGO`） |
+| `purchase-game` | 购买挑战 Godot 最简（原版 `/purchaseGame`） |
+| `mikutap-game` | MikutapGame Godot 最简（原版 `/mikutapGame`） |
+| `miku-planting` | 米库种植 Godot 最简（原版 `/testField/mikuPlanting`） |
 
 ## 架构
 
