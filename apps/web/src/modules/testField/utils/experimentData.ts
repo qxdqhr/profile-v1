@@ -346,20 +346,11 @@ export const experiments: ExperimentItem[] = [
   {
     id: "pushBox",
     title: "推箱子",
-    description: "推箱子",
-    path: "/testField/pushBox",
-    tags: ["小游戏", "赛博无料","初版完成"],
-    category: "leisure",
-    isCompleted: false
-  },
-  {
-    id: "push-box-godot",
-    title: "推箱子（Godot 最简）",
-    description: "双轨迁移中：Godot 最简推箱子（前 3 关），玩法对齐中；正式入口仍用上方原版",
+    description: "50 关 Sokoban：选关、推箱、自动过关；Godot 精修版",
     path: "/games/push-box/",
-    tags: ["小游戏", "Godot", "最简迁移", "推箱子"],
+    tags: ["小游戏", "推箱子", "Godot"],
     category: "leisure",
-    isCompleted: false,
+    isCompleted: true,
     createdAt: '2026-09-01',
     updatedAt: '2026-09-01'
   },
