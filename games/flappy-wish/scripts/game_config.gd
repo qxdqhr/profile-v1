@@ -1,10 +1,12 @@
 extends Node
-## Difficulty presets (original numbers inspired by flappy feel; art is new).
+## Difficulty presets aligned with Phaser original (design units → px/s feel).
 
 signal difficulty_changed(id: String)
 
 var current_id: String = "medium"
 
+## Original was per-frame @60fps on 375×667; values below are Godot px/s equivalents
+## tuned so flap peak time ≈0.31s and pipe spacing feel matches.
 var DIFFICULTIES := {
 	"easy": {
 		"label": "简单",
@@ -13,10 +15,13 @@ var DIFFICULTIES := {
 		"gravity": 980.0,
 		"flap_impulse": -360.0,
 		"max_fall": 520.0,
-		"pipe_gap": 210.0,
-		"pipe_speed": 160.0,
-		"spawn_distance": 240.0,
+		"pipe_gap": 226.0,
+		"pipe_speed": 168.0,
+		"spawn_distance": 259.0,
 		"hitbox_scale": 0.55,
+		"bg_scroll": 28.0,
+		"ground_scroll": 168.0,
+		"bird_size": 56.0,
 	},
 	"medium": {
 		"label": "中等",
@@ -25,10 +30,13 @@ var DIFFICULTIES := {
 		"gravity": 1100.0,
 		"flap_impulse": -390.0,
 		"max_fall": 560.0,
-		"pipe_gap": 170.0,
-		"pipe_speed": 200.0,
-		"spawn_distance": 210.0,
+		"pipe_gap": 184.0,
+		"pipe_speed": 210.0,
+		"spawn_distance": 227.0,
 		"hitbox_scale": 0.64,
+		"bg_scroll": 35.0,
+		"ground_scroll": 210.0,
+		"bird_size": 56.0,
 	},
 	"hard": {
 		"label": "困难",
@@ -37,10 +45,13 @@ var DIFFICULTIES := {
 		"gravity": 1240.0,
 		"flap_impulse": -410.0,
 		"max_fall": 600.0,
-		"pipe_gap": 140.0,
-		"pipe_speed": 240.0,
-		"spawn_distance": 190.0,
+		"pipe_gap": 151.0,
+		"pipe_speed": 245.0,
+		"spawn_distance": 205.0,
 		"hitbox_scale": 0.72,
+		"bg_scroll": 40.0,
+		"ground_scroll": 245.0,
+		"bird_size": 56.0,
 	},
 }
 

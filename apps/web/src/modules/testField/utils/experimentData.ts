@@ -693,23 +693,12 @@ export const experiments: ExperimentItem[] = [
   {
     id: "flappy-wish",
     title: "予愿飞翔",
-    description: "Flappy 风格竖版小游戏：三档难度、穿管计分，安洁莉娜同人像素素材（仅供学习）",
-    path: "/testField/flappyWish",
-    tags: ["小游戏", "休闲", "Flappy", "同人"],
+    description: "Flappy 风格竖版小游戏：三档难度、穿管/金币计分；Godot 精修版（抽象几何）",
+    path: "/games/flappy-wish/",
+    tags: ["小游戏", "休闲", "Flappy", "Godot"],
     category: "leisure",
     isCompleted: true,
     createdAt: '2026-07-30',
-    updatedAt: '2026-07-30'
-  },
-  {
-    id: "flappy-wish-godot",
-    title: "予愿飞翔（Godot 最简）",
-    description: "双轨迁移中：Godot 最简竖版 Flappy（抽象几何），玩法对齐中；正式入口仍用上方原版",
-    path: "/games/flappy-wish/",
-    tags: ["小游戏", "Godot", "最简迁移", "Flappy"],
-    category: "leisure",
-    isCompleted: false,
-    createdAt: '2026-09-01',
     updatedAt: '2026-09-01'
   },
   {

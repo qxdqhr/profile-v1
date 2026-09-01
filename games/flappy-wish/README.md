@@ -1,19 +1,10 @@
-# Flappy Wish（予愿飞翔）— Godot 最简
+# Flappy Wish（阶段 C 精修）
 
-双轨迁移中的 **Godot 最简版**（抽象几何）。正式游玩仍用原版：`/testField/flappyWish`。
-
-计划见 `deploy/games/GODOT-REWRITE-PLAN.md`。
-
-## 本地
-
-```bash
-godot --path games/flappy-wish
-```
-
-## 导出
+竖版 Flappy：三档难度、穿管 +1 / 金币 +3、分难度最佳分。  
+抽象几何美术；玩法对齐原版 `/testField/flappyWish`。
 
 ```bash
 bash scripts/export-godot-game.sh flappy-wish
 ```
 
-生产旁路：`/games/flappy-wish/`
+实验田正式入口：`/games/flappy-wish/`

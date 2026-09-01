@@ -30,7 +30,7 @@
 | slug | 原版路径 | Godot 状态 |
 |------|----------|------------|
 | pulse-parade | —（原生） | 已上线 |
-| flappy-wish | `/testField/flappyWish` | 最简已上线；原版双轨 |
+| flappy-wish | `/testField/flappyWish`（旧保留） | **阶段 C 精修完成**；主入口 `/games/flappy-wish/` |
 | suika-game | `/testField/suikaGame` | 最简已上线；原版双轨 |
 | bubble-shooter | `/testField/bubbleShooter` | 最简已上线；原版双轨 |
 | arknights-bubble-shooter | `/testField/arknightsBubbleShooter` | 最简已上线；原版双轨 |
@@ -73,3 +73,12 @@
 - [ ] 实验田主卡片 `path` 切到 `/games/<slug>/`
 - [ ] 删除对应 testField 游戏 page/module 与仅该游戏使用的静态资源
 - [ ] 移除或合并 `-godot` 副卡片
+
+
+## 阶段 C 进度
+
+| slug | 手感对齐 | 主入口已切 | 旧路由已删 | 副卡片已合并 |
+|------|----------|------------|------------|--------------|
+| pulse-parade | n/a（原生） | 已是主入口 | — | — |
+| flappy-wish | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
+| （后续按清单顺序） | | | | |
