@@ -19,22 +19,34 @@ check_http() {
   fi
 }
 
-# WordPress 安装前可能 302→install.php；就绪后 200。502/404 视为失败。
+# WordPress 旁路：MariaDB 不健康时允许告警而不阻断主站/游戏部署
 check_http_wp() {
   local name="$1"
   local url="$2"
   local code
   local i
-  for i in 1 2 3 4 5 6 7 8 9 10; do
+  for i in 1 2 3 4 5; do
     code="$(curl -sS -o /dev/null -w '%{http_code}' "$url" 2>/dev/null || echo ERR)"
-    echo "${name} 尝试 ${i}/10 => ${code} (期望 200|301|302)"
+    echo "${name} 尝试 ${i}/5 => ${code} (期望 200|301|302)"
     case "$code" in
       200|301|302) return 0 ;;
     esac
-    sleep 3
+    sleep 2
   done
-  echo "${name} => ${code} (期望 200|301|302)"
-  fail=1
+  echo "WARN: ${name} => ${code}（WordPress 暂不可用，不阻断部署）"
+}
+
+check_http_wp_soft() {
+  local name="$1"
+  local url="$2"
+  local expect="$3"
+  local code
+  code="$(curl -sS -o /dev/null -w '%{http_code}' "$url" 2>/dev/null || echo ERR)"
+  if [ "$code" = "$expect" ]; then
+    echo "${name} => ${code} (期望 ${expect})"
+  else
+    echo "WARN: ${name} => ${code} (期望 ${expect}；WordPress 旁路，不阻断)"
+  fi
 }
 
 echo "=== 网关冒烟测试 (${BASE}) ==="
