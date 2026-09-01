@@ -289,15 +289,7 @@ export const experiments: ExperimentItem[] = [
     createdAt: '2026-09-01',
     updatedAt: '2026-09-01'
   },
-  {
-    id: "linkGame_v1",
-    title: "葱韵环京连连看_v1",
-    description: "葱韵环京连连看_v1",
-    path: "/testField/linkGame_v1",
-    tags: ["小游戏", "葱韵环京","改进代码"],
-    category: "leisure",
-    isCompleted: false
-  },
+
   {
     id: "pushBox",
     title: "推箱子",

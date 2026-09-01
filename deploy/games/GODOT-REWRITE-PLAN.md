@@ -71,7 +71,7 @@
 
 - [ ] 手感/难度曲线与原版可接受对齐
 - [ ] 实验田主卡片 `path` 切到 `/games/<slug>/`
-- [ ] 删除对应 testField 游戏 page/module 与仅该游戏使用的静态资源
+- [x] 删除对应 testField 游戏 page/module 与仅该游戏使用的静态资源
 - [ ] 移除或合并 `-godot` 副卡片
 
 
@@ -80,22 +80,22 @@
 | slug | 手感对齐 | 主入口已切 | 旧路由已删 | 副卡片已合并 |
 |------|----------|------------|------------|--------------|
 | pulse-parade | n/a（原生） | 已是主入口 | — | — |
-| flappy-wish | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
-| suika-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
-| bubble-shooter | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
-| arknights-bubble-shooter | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
-| miku-flick | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
-| huarongdao | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
-| push-box | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
-| gold-miner | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
-| miku-fusion-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
-| link-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
-| race-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
-| trible-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
-| miku-click | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
-| kannot | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
-| vocaloid-to-go | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
-| purchase-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
-| mikutap-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
-| miku-planting | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
+| flappy-wish | ✅ | ✅ | ✅ | ✅ |
+| suika-game | ✅ | ✅ | ✅ | ✅ |
+| bubble-shooter | ✅ | ✅ | ✅ | ✅ |
+| arknights-bubble-shooter | ✅ | ✅ | ✅ | ✅ |
+| miku-flick | ✅ | ✅ | ✅ | ✅ |
+| huarongdao | ✅ | ✅ | ✅ | ✅ |
+| push-box | ✅ | ✅ | ✅ | ✅ |
+| gold-miner | ✅ | ✅ | ✅ | ✅ |
+| miku-fusion-game | ✅ | ✅ | ✅ | ✅ |
+| link-game | ✅ | ✅ | ✅ | ✅ |
+| race-game | ✅ | ✅ | ✅ | ✅ |
+| trible-game | ✅ | ✅ | ✅ | ✅ |
+| miku-click | ✅ | ✅ | ✅ | ✅ |
+| kannot | ✅ | ✅ | ✅ | ✅ |
+| vocaloid-to-go | ✅ | ✅ | ✅ | ✅ |
+| purchase-game | ✅ | ✅ | ✅ | ✅ |
+| mikutap-game | ✅ | ✅ | ✅ | ✅ |
+| miku-planting | ✅ | ✅ | ✅ | ✅ |
 | （清单 leisure 2D 向阶段 C 已收口） | | | | |
