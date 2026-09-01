@@ -1,0 +1,32 @@
+name: Cleanup Server Disk
+
+on:
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: SSH prune Docker disk and restart gateway
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_SERVER_USERNAME }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_SERVER_HOST }}
+        run: |
+          set -euo pipefail
+          echo "${{ secrets.DEPLOY_SERVER_SSH_KEY }}" > /tmp/ssh_key
+          chmod 600 /tmp/ssh_key
+          SSH_OPTS="-o StrictHostKeyChecking=no -i /tmp/ssh_key"
+          REMOTE="${DEPLOY_USER}@${DEPLOY_HOST}"
+
+          scp $SSH_OPTS deploy/cleanup-server-disk.sh deploy/deploy-profile-v1.sh deploy/fix-gateway-remote.sh \
+            "$REMOTE:/root/profile-v1/"
+          ssh $SSH_OPTS "$REMOTE" "chmod +x /root/profile-v1/cleanup-server-disk.sh /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/fix-gateway-remote.sh"
+          ssh $SSH_OPTS "$REMOTE" "/root/profile-v1/cleanup-server-disk.sh"
+          # 不 pull 新镜像：仅用已有镜像把栈拉起
+          ssh $SSH_OPTS "$REMOTE" 'cd /root/profile-v1 && (docker compose -f docker-compose.gateway.yml up -d --remove-orphans || docker-compose -f docker-compose.gateway.yml up -d --remove-orphans) || true'
+          ssh $SSH_OPTS "$REMOTE" "POST_DEPLOY=1 /root/profile-v1/fix-gateway-remote.sh" || true
+          ssh $SSH_OPTS "$REMOTE" "df -h /; docker compose -f /root/profile-v1/docker-compose.gateway.yml ps || true"
+          rm -f /tmp/ssh_key

@@ -128,6 +128,16 @@ if ids="$(docker ps -aq --filter 'name=profile-v1_')"; then
   docker rm -f $ids 2>/dev/null || true
 fi
 
+echo "=== 释放 Docker 镜像缓存（防 no space left）==="
+if [ -x ./cleanup-server-disk.sh ]; then
+  ./cleanup-server-disk.sh || true
+elif [ -f ./cleanup-server-disk.sh ]; then
+  bash ./cleanup-server-disk.sh || true
+else
+  docker image prune -af || true
+  docker builder prune -af || true
+fi
+
 echo "=== 拉取镜像 tag=${IMAGE_TAG} ==="
 compose_cmd -f "$COMPOSE_FILE" pull
 
