@@ -397,19 +397,11 @@ export const experiments: ExperimentItem[] = [
   {
     id: "goldMiner",
     title: "黄金矿工",
-    description: "金矿工",
-    path: "/testField/goldMiner",
-    tags: ["小游戏", "赛博无料","新建文件夹"],
-    category: "leisure"
-  },
-  {
-    id: "gold-miner-godot",
-    title: "黄金矿工（Godot 最简）",
-    description: "双轨迁移中：Godot 最简钩子采矿（60 秒计时），玩法对齐中；正式入口仍用上方原版",
+    description: "12 关钩子采矿：摆钩抓金/石/钻，60 秒达目标分；Godot 精修版",
     path: "/games/gold-miner/",
-    tags: ["小游戏", "Godot", "最简迁移", "黄金矿工"],
+    tags: ["小游戏", "黄金矿工", "Godot"],
     category: "leisure",
-    isCompleted: false,
+    isCompleted: true,
     createdAt: '2026-09-01',
     updatedAt: '2026-09-01'
   },
