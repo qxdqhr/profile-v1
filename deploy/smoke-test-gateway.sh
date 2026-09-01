@@ -60,6 +60,9 @@ check_http "GET /games/pulse-parade/index.pck" "${BASE}/games/pulse-parade/index
 check_http "GET /games/flappy-wish/" "${BASE}/games/flappy-wish/" "200"
 check_http "GET /games/flappy-wish/index.wasm" "${BASE}/games/flappy-wish/index.wasm" "200"
 check_http "GET /games/flappy-wish/index.pck" "${BASE}/games/flappy-wish/index.pck" "200"
+check_http "GET /games/suika-game/" "${BASE}/games/suika-game/" "200"
+check_http "GET /games/suika-game/index.wasm" "${BASE}/games/suika-game/index.wasm" "200"
+check_http "GET /games/suika-game/index.pck" "${BASE}/games/suika-game/index.pck" "200"
 
 # 旁路 WordPress（纯 PHP；未安装也可能 302）
 check_http_wp "GET /wp/holt/" "${BASE}/wp/holt/"

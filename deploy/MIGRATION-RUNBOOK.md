@@ -25,6 +25,7 @@
 | `/wp/holt/` | wordpress_holt:80 | **Holt 音乐作品集**（旁路 WordPress + `holt-portfolio` 主题） |
 | `/games/pulse-parade/` | game_pulse_parade:80 | **Pulse Parade**（旁路 Godot Web） |
 | `/games/flappy-wish/` | game_flappy_wish:80 | **予愿飞翔**（旁路 Godot Web） |
+| `/games/suika-game/` | game_suika_game:80 | **合成大西瓜**（旁路 Godot Web） |
 | `/api/auth/` | web:3000 | **共享 session**（Next 子应用不单独登录） |
 
 Legacy：`/testField/calendar`、`/testField/teachHub` → nginx 301 至新路径；`/testField/ShowMasterPieces` → 301 至 `/showmasterpiece`。
@@ -44,7 +45,7 @@ Legacy：`/testField/calendar`、`/testField/teachHub` → nginx 301 至新路�
 
 - 源码：`games/<slug>/`；纯静态 nginx，**不**进 Next CI matrix。
 - `www/` 由 Actions `export-godot-games` 生成后 scp（不进 git）。
-- 现网：`/games/pulse-parade/`、`/games/flappy-wish/`（Godot 4 单线程 Web）。
+- 现网：`/games/pulse-parade/`、`/games/flappy-wish/`、`/games/suika-game/`（Godot 4 单线程 Web）。
 - **双轨**：原版 testField 先保留；计划见 [`games/GODOT-REWRITE-PLAN.md`](./games/GODOT-REWRITE-PLAN.md)；加站 [`games/ADD-GAME.md`](./games/ADD-GAME.md)。
 
 ## 目录布局（服务器 `/root/profile-v1`）

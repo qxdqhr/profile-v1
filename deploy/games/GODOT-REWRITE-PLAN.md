@@ -30,8 +30,8 @@
 | slug | 原版路径 | Godot 状态 |
 |------|----------|------------|
 | pulse-parade | —（原生） | 已上线 |
-| flappy-wish | `/testField/flappyWish` | 最简已上线；原版已恢复双轨 |
-| suika-game | `/testField/suikaGame` | 待做 |
+| flappy-wish | `/testField/flappyWish` | 最简已上线；原版双轨 |
+| suika-game | `/testField/suikaGame` | 最简已上线；原版双轨 |
 | bubble-shooter | `/testField/bubbleShooter` | 待做 |
 | arknights-bubble-shooter | `/testField/arknightsBubbleShooter` | 待做 |
 | miku-flick | `/testField/mikuFlick` | 待做 |

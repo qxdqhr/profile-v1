@@ -184,7 +184,7 @@ export default function XxxRoute() {
 | Godot 游戏（旁路） | `games/<slug>/` + `deploy/games/` | —（非 pnpm） | nginx 静态 | `/games/<slug>/` |
 
 > WordPress 是网关旁路 PHP 服务，**不是** `apps/*` Next 子应用；多站规程见 `deploy/wordpress/ADD-SITE.md`。  
-> Godot/静态游戏旁路见 `deploy/games/README.md`（现网：`/games/pulse-parade/`、`/games/flappy-wish/`）。
+> Godot/静态游戏旁路见 `deploy/games/README.md`（现网：`/games/pulse-parade/`、`/games/flappy-wish/`、`/games/suika-game/`）。
 
 ### 7.2 共享包
 
@@ -225,7 +225,7 @@ export default function XxxRoute() {
 
 ### 7.6 旁路 Godot / 静态游戏（`/games/*`）
 
-- 源码：`games/<slug>/`（Godot 4，**非** `apps/*`）。现网：`pulse-parade`、`flappy-wish`。
+- 源码：`games/<slug>/`（Godot 4，**非** `apps/*`）。现网：`pulse-parade`、`flappy-wish`、`suika-game`。
 - 路径：`/games/<slug>/`；compose `game_<slug>` 挂载 `deploy/games/<slug>/www/`。
 - CI：改 `games/**` → `export-godot-games`（扫全部 `project.godot`，单线程 Web）→ artifact → `deploy-web` scp。
 - `www/` **不进 git**；加游戏见 [`deploy/games/ADD-GAME.md`](../deploy/games/ADD-GAME.md)。

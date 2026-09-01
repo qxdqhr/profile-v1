@@ -526,6 +526,17 @@ export const experiments: ExperimentItem[] = [
     updatedAt: '2026-04-25'
   },
   {
+    id: "suika-game-godot",
+    title: "合成大西瓜（Godot 最简）",
+    description: "双轨迁移中：Godot 最简合成（抽象色球），玩法对齐中；正式入口仍用上方原版",
+    path: "/games/suika-game/",
+    tags: ["小游戏", "Godot", "最简迁移", "物理", "合成"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2026-09-01',
+    updatedAt: '2026-09-01'
+  },
+  {
     id: "flappy-wish",
     title: "予愿飞翔",
     description: "Flappy 风格竖版小游戏：三档难度、穿管计分，安洁莉娜同人像素素材（仅供学习）",

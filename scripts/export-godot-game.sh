@@ -23,6 +23,15 @@ TEMPLATES_TPZ="${CACHE_DIR}/Godot_v${GODOT_TAG}_export_templates.tpz"
 EDITOR_BIN="${CACHE_DIR}/Godot_v${GODOT_TAG}_linux.x86_64"
 BASE_URL="${GODOT_DOWNLOAD_BASE:-https://github.com/godotengine/godot/releases/download/${GODOT_TAG}}"
 
+# Prefer explicit/local editor when present (skip flaky downloads for local runs)
+if [[ -n "${GODOT_BIN:-}" && -x "${GODOT_BIN}" ]]; then
+  EDITOR_BIN="${GODOT_BIN}"
+elif [[ -x "${HOME}/bin/godot" ]]; then
+  EDITOR_BIN="${HOME}/bin/godot"
+elif command -v godot >/dev/null 2>&1; then
+  EDITOR_BIN="$(command -v godot)"
+fi
+
 if [[ ! -f "${GAME_DIR}/project.godot" ]]; then
   echo "ERROR: missing ${GAME_DIR}/project.godot" >&2
   exit 1
@@ -41,11 +50,17 @@ download() {
   mv "${dest}.partial" "$dest"
 }
 
-download "${BASE_URL}/Godot_v${GODOT_TAG}_linux.x86_64.zip" "$EDITOR_ZIP"
-download "${BASE_URL}/Godot_v${GODOT_TAG}_export_templates.tpz" "$TEMPLATES_TPZ"
-
+NEED_EDITOR_ZIP=0
 if [[ ! -x "$EDITOR_BIN" ]]; then
+  NEED_EDITOR_ZIP=1
+fi
+if [[ ! -f "${TEMPLATES_DIR}/web_nothreads_release.zip" ]]; then
+  download "${BASE_URL}/Godot_v${GODOT_TAG}_export_templates.tpz" "$TEMPLATES_TPZ"
+fi
+if [[ "$NEED_EDITOR_ZIP" -eq 1 ]]; then
+  download "${BASE_URL}/Godot_v${GODOT_TAG}_linux.x86_64.zip" "$EDITOR_ZIP"
   unzip -o -q "$EDITOR_ZIP" -d "$CACHE_DIR"
+  EDITOR_BIN="${CACHE_DIR}/Godot_v${GODOT_TAG}_linux.x86_64"
   chmod +x "$EDITOR_BIN"
 fi
 
@@ -65,6 +80,7 @@ fi
 
 test -f "${TEMPLATES_DIR}/version.txt"
 echo "Templates: $(cat "${TEMPLATES_DIR}/version.txt")"
+echo "Editor: ${EDITOR_BIN}"
 echo "Exporting slug=${SLUG}"
 
 "$EDITOR_BIN" --headless --path "$GAME_DIR" --import --quit
