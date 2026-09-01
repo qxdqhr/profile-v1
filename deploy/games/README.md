@@ -14,6 +14,10 @@
 | `bubble-shooter` | 泡泡龙 Godot 最简（原版 `/testField/bubbleShooter`） |
 | `arknights-bubble-shooter` | 岁家龙泡泡 Godot 最简（原版 `/testField/arknightsBubbleShooter`） |
 | `miku-flick` | Miku Flick Godot 最简（原版 `/testField/mikuFlick`） |
+| `huarongdao` | 华容道 Godot 最简（原版 `/testField/huarongdao`） |
+| `push-box` | 推箱子 Godot 最简（原版 `/testField/pushBox`） |
+| `gold-miner` | 黄金矿工 Godot 最简（原版 `/testField/goldMiner`） |
+| `miku-fusion-game` | Miku Fusion Godot 最简（原版 `/testField/mikuFusionGame`） |
 
 ## 架构
 
@@ -38,6 +42,10 @@
 | 泡泡龙 | `/games/bubble-shooter/` | `/testField/bubbleShooter` |
 | 岁家龙泡泡 | `/games/arknights-bubble-shooter/` | `/testField/arknightsBubbleShooter` |
 | Miku Flick | `/games/miku-flick/` | `/testField/mikuFlick` |
+| 华容道 | `/games/huarongdao/` | `/testField/huarongdao` |
+| 推箱子 | `/games/push-box/` | `/testField/pushBox` |
+| 黄金矿工 | `/games/gold-miner/` | `/testField/goldMiner` |
+| Miku Fusion | `/games/miku-fusion-game/` | `/testField/mikuFusionGame` |
 
 ## 开发流
 

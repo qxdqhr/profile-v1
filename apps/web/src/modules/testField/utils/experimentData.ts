@@ -298,6 +298,17 @@ export const experiments: ExperimentItem[] = [
     isCompleted: false
   },
   {
+    id: "push-box-godot",
+    title: "推箱子（Godot 最简）",
+    description: "双轨迁移中：Godot 最简推箱子（前 3 关），玩法对齐中；正式入口仍用上方原版",
+    path: "/games/push-box/",
+    tags: ["小游戏", "Godot", "最简迁移", "推箱子"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2026-09-01',
+    updatedAt: '2026-09-01'
+  },
+  {
     id: "raceGame",
     title: " 赛车游戏",
     description: "赛车游戏",
@@ -322,6 +333,17 @@ export const experiments: ExperimentItem[] = [
     path: "/testField/goldMiner",
     tags: ["小游戏", "赛博无料","新建文件夹"],
     category: "leisure"
+  },
+  {
+    id: "gold-miner-godot",
+    title: "黄金矿工（Godot 最简）",
+    description: "双轨迁移中：Godot 最简钩子采矿（60 秒计时），玩法对齐中；正式入口仍用上方原版",
+    path: "/games/gold-miner/",
+    tags: ["小游戏", "Godot", "最简迁移", "黄金矿工"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2026-09-01',
+    updatedAt: '2026-09-01'
   },
   {
     id: "playMusic",
@@ -493,6 +515,17 @@ export const experiments: ExperimentItem[] = [
     updatedAt: '2026-02-16'
   },
   {
+    id: "miku-fusion-game-godot",
+    title: "Miku Fusion（Godot 最简）",
+    description: "双轨迁移中：Godot 最简 Miku 合成（青绿抽象色球），玩法对齐中；正式入口仍用上方原版",
+    path: "/games/miku-fusion-game/",
+    tags: ["小游戏", "Godot", "最简迁移", "合成", "初音未来"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2026-09-01',
+    updatedAt: '2026-09-01'
+  },
+  {
     id: "bubble-shooter",
     title: "泡泡龙（初版）",
     description: "体验 sa2kit/bubbleShooter 初版能力，支持瞄准发射、同色连消与悬空掉落",
@@ -634,6 +667,17 @@ export const experiments: ExperimentItem[] = [
     isCompleted: true,
     createdAt: '2026-03-11',
     updatedAt: '2026-03-11'
+  },
+  {
+    id: "huarongdao-godot",
+    title: "华容道（Godot 最简）",
+    description: "双轨迁移中：Godot 最简 3×3 数字滑动拼图，玩法对齐中；正式入口仍用上方原版",
+    path: "/games/huarongdao/",
+    tags: ["小游戏", "Godot", "最简迁移", "华容道", "拼图"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2026-09-01',
+    updatedAt: '2026-09-01'
   },
   {
     id: "huarongdao-config",

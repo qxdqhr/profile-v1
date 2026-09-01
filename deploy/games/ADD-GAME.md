@@ -52,3 +52,7 @@ Web 导出预设须 **单线程**：`variant/thread_support=false`（Compatibili
 | bubble-shooter | `games/bubble-shooter/` | `game_bubble_shooter` | `/games/bubble-shooter/` |
 | arknights-bubble-shooter | `games/arknights-bubble-shooter/` | `game_arknights_bubble_shooter` | `/games/arknights-bubble-shooter/` |
 | miku-flick | `games/miku-flick/` | `game_miku_flick` | `/games/miku-flick/` |
+| huarongdao | `games/huarongdao/` | `game_huarongdao` | `/games/huarongdao/` |
+| push-box | `games/push-box/` | `game_push_box` | `/games/push-box/` |
+| gold-miner | `games/gold-miner/` | `game_gold_miner` | `/games/gold-miner/` |
+| miku-fusion-game | `games/miku-fusion-game/` | `game_miku_fusion_game` | `/games/miku-fusion-game/` |

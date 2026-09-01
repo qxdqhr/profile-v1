@@ -35,7 +35,30 @@
 | bubble-shooter | `/testField/bubbleShooter` | 最简已上线；原版双轨 |
 | arknights-bubble-shooter | `/testField/arknightsBubbleShooter` | 最简已上线；原版双轨 |
 | miku-flick | `/testField/mikuFlick` | 最简已上线；原版双轨 |
-| （其余 leisure 小游戏） | `/testField/...` | 按实验田列表追加 |
+| huarongdao | `/testField/huarongdao` | 最简已上线；原版双轨 |
+| push-box | `/testField/pushBox` | 最简已上线（3 关 MVP）；原版双轨 |
+| gold-miner | `/testField/goldMiner` | 最简已上线；原版双轨 |
+| miku-fusion-game | `/testField/mikuFusionGame` | 最简已上线；原版双轨 |
+
+### leisure 待迁 backlog（实验田 `category: leisure`）
+
+| 原版 id / 路径 | 建议 slug | 优先级 | 备注 |
+|----------------|-----------|--------|------|
+| linkGame | link-game | 中 | 连连看，2D 网格 |
+| linkGame_v1 | — | 低 | v1 可合并或跳过 |
+| raceGame | race-game | 中 | 赛车 |
+| tribleGame | trible-game | 中 | 三消 |
+| MikuClick | miku-click | 低 | 点击类 |
+| Kannot | kannot | 低 | 音游相关 |
+| miku-fireworks-3D | — | 暂缓 | 3D 烟花，成本高 |
+| festivalCard | — | 暂缓 | Three.js 贺卡 |
+| solarSystem | — | 暂缓 | 3D 天文 |
+| mikutap | — | 暂缓 | 音乐互动+配置 |
+| purchase-game | — | 暂缓 | Next 页面非 Phaser |
+| miku-talking | — | 暂缓 | MMD 3D |
+| playMusic / mikuPlanting | — | 暂缓 | 工具/半游戏 |
+| Vocaloider / ShareMonitor / VocaloidtoGO | — | 非典型小游戏 | 按需评估 |
+| mmdViewer | — | 暂缓 | 3D 查看器 |
 
 阶段 B 只要求：**核心循环可玩**（开始/操作/计分或胜负），不要求美术与原版一致。
 

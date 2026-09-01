@@ -72,6 +72,18 @@ check_http "GET /games/arknights-bubble-shooter/index.pck" "${BASE}/games/arknig
 check_http "GET /games/miku-flick/" "${BASE}/games/miku-flick/" "200"
 check_http "GET /games/miku-flick/index.wasm" "${BASE}/games/miku-flick/index.wasm" "200"
 check_http "GET /games/miku-flick/index.pck" "${BASE}/games/miku-flick/index.pck" "200"
+check_http "GET /games/huarongdao/" "${BASE}/games/huarongdao/" "200"
+check_http "GET /games/huarongdao/index.wasm" "${BASE}/games/huarongdao/index.wasm" "200"
+check_http "GET /games/huarongdao/index.pck" "${BASE}/games/huarongdao/index.pck" "200"
+check_http "GET /games/push-box/" "${BASE}/games/push-box/" "200"
+check_http "GET /games/push-box/index.wasm" "${BASE}/games/push-box/index.wasm" "200"
+check_http "GET /games/push-box/index.pck" "${BASE}/games/push-box/index.pck" "200"
+check_http "GET /games/gold-miner/" "${BASE}/games/gold-miner/" "200"
+check_http "GET /games/gold-miner/index.wasm" "${BASE}/games/gold-miner/index.wasm" "200"
+check_http "GET /games/gold-miner/index.pck" "${BASE}/games/gold-miner/index.pck" "200"
+check_http "GET /games/miku-fusion-game/" "${BASE}/games/miku-fusion-game/" "200"
+check_http "GET /games/miku-fusion-game/index.wasm" "${BASE}/games/miku-fusion-game/index.wasm" "200"
+check_http "GET /games/miku-fusion-game/index.pck" "${BASE}/games/miku-fusion-game/index.pck" "200"
 
 # 旁路 WordPress（纯 PHP；未安装也可能 302）
 check_http_wp "GET /wp/holt/" "${BASE}/wp/holt/"
