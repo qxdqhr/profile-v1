@@ -592,6 +592,17 @@ export const experiments: ExperimentItem[] = [
     updatedAt: '2026-03-15'
   },
   {
+    id: "miku-flick-godot",
+    title: "Miku Flick（Godot 最简）",
+    description: "双轨迁移中：Godot 最简假名+Flick 节奏（みくみく…谱面），玩法对齐中；正式入口仍用上方原版",
+    path: "/games/miku-flick/",
+    tags: ["小游戏", "Godot", "最简迁移", "MikuFlick", "节奏"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2026-09-01',
+    updatedAt: '2026-09-01'
+  },
+  {
     id: "miku-fireworks-3d",
     title: "Miku Fireworks 3D",
     description: "体验 sa2kit 新增的 3D 烟花弹幕模块，支持普通/初音/头像烟花与实时弹幕",

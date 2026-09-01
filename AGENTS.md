@@ -30,7 +30,7 @@
 
 领域逻辑在 `packages/*-core`；跨端类型与 API 客户端在 `packages/*-shared`。ShowMasterpiece 业务在 `@profile/showmasterpiece-core`。  
 WordPress 为同域 nginx 旁路 PHP，与 Next 子应用隔离。  
-Godot 源码在 `games/<slug>/`，旁路见 `deploy/games/`（现网含 `arknights-bubble-shooter` 等；CI `export-godot-games`）。小游戏迁移为**双轨**（原版保留 + Godot 最简并行），见 `deploy/games/GODOT-REWRITE-PLAN.md`。
+Godot 源码在 `games/<slug>/`，旁路见 `deploy/games/`（现网含 `miku-flick` 等；CI `export-godot-games`）。小游戏迁移为**双轨**，见 `deploy/games/GODOT-REWRITE-PLAN.md`。
 
 ## 执行命令（pnpm）
 

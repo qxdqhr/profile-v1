@@ -34,7 +34,7 @@
 | suika-game | `/testField/suikaGame` | 最简已上线；原版双轨 |
 | bubble-shooter | `/testField/bubbleShooter` | 最简已上线；原版双轨 |
 | arknights-bubble-shooter | `/testField/arknightsBubbleShooter` | 最简已上线；原版双轨 |
-| miku-flick | `/testField/mikuFlick` | 待做 |
+| miku-flick | `/testField/mikuFlick` | 最简已上线；原版双轨 |
 | （其余 leisure 小游戏） | `/testField/...` | 按实验田列表追加 |
 
 阶段 B 只要求：**核心循环可玩**（开始/操作/计分或胜负），不要求美术与原版一致。

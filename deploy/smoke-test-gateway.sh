@@ -69,6 +69,9 @@ check_http "GET /games/bubble-shooter/index.pck" "${BASE}/games/bubble-shooter/i
 check_http "GET /games/arknights-bubble-shooter/" "${BASE}/games/arknights-bubble-shooter/" "200"
 check_http "GET /games/arknights-bubble-shooter/index.wasm" "${BASE}/games/arknights-bubble-shooter/index.wasm" "200"
 check_http "GET /games/arknights-bubble-shooter/index.pck" "${BASE}/games/arknights-bubble-shooter/index.pck" "200"
+check_http "GET /games/miku-flick/" "${BASE}/games/miku-flick/" "200"
+check_http "GET /games/miku-flick/index.wasm" "${BASE}/games/miku-flick/index.wasm" "200"
+check_http "GET /games/miku-flick/index.pck" "${BASE}/games/miku-flick/index.pck" "200"
 
 # 旁路 WordPress（纯 PHP；未安装也可能 302）
 check_http_wp "GET /wp/holt/" "${BASE}/wp/holt/"

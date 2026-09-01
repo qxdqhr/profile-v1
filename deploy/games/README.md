@@ -13,6 +13,7 @@
 | `suika-game` | 合成大西瓜 Godot 最简（原版 `/testField/suikaGame`） |
 | `bubble-shooter` | 泡泡龙 Godot 最简（原版 `/testField/bubbleShooter`） |
 | `arknights-bubble-shooter` | 岁家龙泡泡 Godot 最简（原版 `/testField/arknightsBubbleShooter`） |
+| `miku-flick` | Miku Flick Godot 最简（原版 `/testField/mikuFlick`） |
 
 ## 架构
 
@@ -36,6 +37,7 @@
 | 合成大西瓜 | `/games/suika-game/` | `/testField/suikaGame` |
 | 泡泡龙 | `/games/bubble-shooter/` | `/testField/bubbleShooter` |
 | 岁家龙泡泡 | `/games/arknights-bubble-shooter/` | `/testField/arknightsBubbleShooter` |
+| Miku Flick | `/games/miku-flick/` | `/testField/mikuFlick` |
 
 ## 开发流
 
