@@ -1,6 +1,8 @@
-# Purchase Game（Godot 最简）
+# 谋财害命（Godot 精修）
 
-30 秒购买/跳过决策（谋财扣钱、害命扣命）。双轨：`/games/purchase-game/` + `/purchaseGame`。
+阶段 C：菜单 / 模式或难度、计分与最高分存档。
+
+主入口：`/games/purchase-game/`
 
 ```bash
 bash scripts/export-godot-game.sh purchase-game

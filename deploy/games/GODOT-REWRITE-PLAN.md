@@ -41,13 +41,13 @@
 | miku-fusion-game | `/testField/mikuFusionGame`（旧保留） | **阶段 C 精修完成**；主入口 `/games/miku-fusion-game/` |
 | link-game | `/testField/linkGame`（旧保留） | **阶段 C 精修完成**；主入口 `/games/link-game/` |
 | race-game | `/testField/raceGame`（旧保留） | **阶段 C 精修完成**；主入口 `/games/race-game/` |
-| trible-game | `/testField/tribleGame` | 最简已上线；原版双轨 |
-| miku-click | `/testField/MikuClick` | 最简已上线；原版双轨 |
-| kannot | `/testField/Kannot` | 最简已上线；原版双轨 |
-| vocaloid-to-go | `/testField/VocaloidtoGO` | 最简已上线；原版双轨 |
-| purchase-game | `/purchaseGame` | 最简已上线；原版双轨 |
-| mikutap-game | `/mikutapGame` | 最简已上线；原版双轨 |
-| miku-planting | `/testField/mikuPlanting` | 最简已上线；原版双轨 |
+| trible-game | `/testField/tribleGame`（旧保留） | **阶段 C 精修完成**；主入口 `/games/trible-game/` |
+| miku-click | `/testField/MikuClick`（旧保留） | **阶段 C 精修完成**；主入口 `/games/miku-click/` |
+| kannot | `/testField/Kannot`（旧保留） | **阶段 C 精修完成**；主入口 `/games/kannot/` |
+| vocaloid-to-go | `/testField/VocaloidtoGO`（旧保留） | **阶段 C 精修完成**；主入口 `/games/vocaloid-to-go/` |
+| purchase-game | `/purchaseGame`（旧保留） | **阶段 C 精修完成**；主入口 `/games/purchase-game/` |
+| mikutap-game | `/mikutapGame`（旧保留） | **阶段 C 精修完成**；主入口 `/games/mikutap-game/` |
+| miku-planting | `/testField/mikuPlanting`（旧保留） | **阶段 C 精修完成**；主入口 `/games/miku-planting/` |
 
 ### leisure 待迁 backlog（实验田 `category: leisure`）
 
@@ -91,4 +91,11 @@
 | miku-fusion-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
 | link-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
 | race-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
-| （后续按清单顺序） | | | | |
+| trible-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
+| miku-click | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
+| kannot | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
+| vocaloid-to-go | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
+| purchase-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
+| mikutap-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
+| miku-planting | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
+| （清单 leisure 2D 向阶段 C 已收口） | | | | |

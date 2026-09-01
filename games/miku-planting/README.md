@@ -1,6 +1,8 @@
-# Miku Planting（Godot 最简）
+# 米库种植（Godot 精修）
 
-6 格地：播种→浇水→收获。双轨：`/games/miku-planting/` + `/testField/mikuPlanting`。
+阶段 C：菜单 / 模式或难度、计分与最高分存档。
+
+主入口：`/games/miku-planting/`
 
 ```bash
 bash scripts/export-godot-game.sh miku-planting

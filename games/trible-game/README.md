@@ -1,6 +1,8 @@
-# Trible Game（Godot 最简）
+# 三消挑战（Godot 精修）
 
-6×6 三消交换（90 秒）。双轨：`/games/trible-game/` + 原版 `/testField/tribleGame`。
+阶段 C：菜单 / 模式或难度、计分与最高分存档。
+
+主入口：`/games/trible-game/`
 
 ```bash
 bash scripts/export-godot-game.sh trible-game
