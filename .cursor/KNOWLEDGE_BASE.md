@@ -181,8 +181,10 @@ export default function XxxRoute() {
 | TeachHub Mobile | `apps/teach-hub-mobile` | `@profile/teach-hub-mobile` | Expo | — |
 | Profile RN Mobile | `apps/profile-rn-mobile` | `@profile/profile-rn-mobile` | Expo | — |
 | WordPress（旁路） | `deploy/wordpress/` | —（非 pnpm） | 官方镜像 | `/wp/<slug>/` |
+| Godot 游戏（旁路） | `deploy/games/` | —（非 pnpm） | nginx 静态 | `/games/<slug>/` |
 
-> WordPress 是网关旁路 PHP 服务，**不是** `apps/*` Next 子应用；多站规程见 `deploy/wordpress/ADD-SITE.md`。
+> WordPress 是网关旁路 PHP 服务，**不是** `apps/*` Next 子应用；多站规程见 `deploy/wordpress/ADD-SITE.md`。  
+> Godot/静态游戏旁路见 `deploy/games/README.md`（首期 `/games/pulse-parade/`）。
 
 ### 7.2 共享包
 
@@ -220,3 +222,10 @@ export default function XxxRoute() {
 - nginx：每站 **两条** location——`wp-admin|wp-includes|wp-content|xmlrpc|wp-*.php` 去前缀；其余 `/wp/<slug>/` 保留 URI（固定链接 / `wp-json`）。勿逐文件加路由。
 - **不**创建 `apps/blog`、不复用 Next `basePath` / Drizzle / better-auth。
 - 加站：[`deploy/wordpress/ADD-SITE.md`](../deploy/wordpress/ADD-SITE.md)。
+
+### 7.6 旁路 Godot / 静态游戏（`/games/*`）
+
+- 路径：`/games/pulse-parade/`（Pulse Parade，Godot 4 Web **单线程**）。
+- 资产：`deploy/games/` + compose `game_pulse_parade`（nginx 静态挂载 `www/`）。
+- nginx：去前缀反代到容器根，保证相对路径 `.js` / `.wasm` / `.pck` 可加载。
+- 加游戏：[`deploy/games/ADD-GAME.md`](../deploy/games/ADD-GAME.md)。

@@ -568,7 +568,7 @@ jobs:
           chmod 600 /tmp/ssh_key
 
           echo "=== 同步配置与 deploy 文件 ==="
-          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/nginx /root/profile-v1/wordpress/themes/holt-portfolio"
+          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/nginx /root/profile-v1/wordpress/themes/holt-portfolio /root/profile-v1/games/pulse-parade/www"
           scp $SSH_OPTS "$DEPLOY_CFG_DIR/app.config.yaml" "$REMOTE:/root/profile-v1/app.config.yaml"
           scp $SSH_OPTS deploy/docker-compose.gateway.yml "$REMOTE:/root/profile-v1/docker-compose.gateway.yml"
           scp $SSH_OPTS deploy/nginx/profile-platform.conf "$REMOTE:/root/profile-v1/nginx/profile-platform.conf"
@@ -591,6 +591,12 @@ jobs:
             "$REMOTE:/root/profile-v1/wordpress/"
           scp -r $SSH_OPTS deploy/wordpress/themes/holt-portfolio/* \
             "$REMOTE:/root/profile-v1/wordpress/themes/holt-portfolio/"
+          scp $SSH_OPTS deploy/games/README.md deploy/games/ADD-GAME.md \
+            "$REMOTE:/root/profile-v1/games/"
+          scp $SSH_OPTS deploy/games/pulse-parade/nginx.conf \
+            "$REMOTE:/root/profile-v1/games/pulse-parade/nginx.conf"
+          scp -r $SSH_OPTS deploy/games/pulse-parade/www/* \
+            "$REMOTE:/root/profile-v1/games/pulse-parade/www/"
           ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/wait-gateway-ready.sh /root/profile-v1/ensure-database-url.sh /root/profile-v1/ensure-wordpress-env.sh /root/profile-v1/ensure-wordpress-database.sh /root/profile-v1/ensure-calendar-schema.sh /root/profile-v1/ensure-node-notes-schema.sh /root/profile-v1/smoke-test-gateway.sh /root/profile-v1/check-gateway-health.sh /root/profile-v1/audit-outer-nginx.sh"
 
           # 通过临时 env 文件注入 WP 密钥，避免特殊字符破坏 ssh 命令行

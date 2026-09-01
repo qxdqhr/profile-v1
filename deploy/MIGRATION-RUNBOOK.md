@@ -23,6 +23,7 @@
 | `/node-notes/` | node_notes:3005 | `NEXT_PUBLIC_BASE_PATH=/node-notes` |
 | `/api/node-notes/` | node_notes:3005 | API |
 | `/wp/holt/` | wordpress_holt:80 | **Holt 音乐作品集**（旁路 WordPress + `holt-portfolio` 主题） |
+| `/games/pulse-parade/` | game_pulse_parade:80 | **Pulse Parade**（旁路 Godot Web 静态包） |
 | `/api/auth/` | web:3000 | **共享 session**（Next 子应用不单独登录） |
 
 Legacy：`/testField/calendar`、`/testField/teachHub` → nginx 301 至新路径；`/testField/ShowMasterPieces` → 301 至 `/showmasterpiece`。
@@ -37,6 +38,12 @@ Legacy：`/testField/calendar`、`/testField/teachHub` → nginx 301 至新路�
 - GitHub Secrets（可选，CI 注入）：`WP_MARIADB_ROOT_PASSWORD`、`WP_DB_USER`、`WP_DB_PASSWORD`、`WP_HOLT_PUBLIC_URL`。
 - 仅改 `deploy/**`（无镜像重建）时，`deploy-web` 仍会执行（workflow 已处理 `build` skipped）。
 - 本地验证：`cd deploy/wordpress && docker compose -f docker-compose.dev.yml --env-file .env up -d` → http://127.0.0.1:18080/wp/holt/
+
+### Godot / 静态游戏旁路（`/games/*`）
+
+- 纯静态 nginx，**不**进 Next CI matrix；产物在 `deploy/games/<slug>/www/`，由 `deploy-web` scp。
+- 首期：`/games/pulse-parade/`（Godot 4 单线程 Web）。
+- 规程：[`games/ADD-GAME.md`](./games/ADD-GAME.md)。
 
 ## 目录布局（服务器 `/root/profile-v1`）
 

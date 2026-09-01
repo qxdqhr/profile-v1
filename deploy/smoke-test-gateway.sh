@@ -53,6 +53,11 @@ check_http "GET /api/teach-hub/workspaces/" "${BASE}/api/teach-hub/workspaces/" 
 check_http "GET /api/showmasterpiece/collections/" "${BASE}/api/showmasterpiece/collections/" "200"
 check_http "GET /api/showmasterpiece/bookings/admin/" "${BASE}/api/showmasterpiece/bookings/admin/" "401"
 check_http "GET /api/node-notes/documents/" "${BASE}/api/node-notes/documents/" "401"
+# 旁路 Godot / 静态游戏
+check_http "GET /games/pulse-parade/" "${BASE}/games/pulse-parade/" "200"
+check_http "GET /games/pulse-parade/index.wasm" "${BASE}/games/pulse-parade/index.wasm" "200"
+check_http "GET /games/pulse-parade/index.pck" "${BASE}/games/pulse-parade/index.pck" "200"
+
 # 旁路 WordPress（纯 PHP；未安装也可能 302）
 check_http_wp "GET /wp/holt/" "${BASE}/wp/holt/"
 check_http "GET /wp/holt/about/" "${BASE}/wp/holt/about/" "200"

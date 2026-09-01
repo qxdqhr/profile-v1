@@ -26,9 +26,11 @@
 | TeachHub Mobile | `@profile/teach-hub-mobile` | Expo | — |
 | Profile RN Mobile | `@profile/profile-rn-mobile` | Expo | — |
 | WordPress（旁路） | —（非 pnpm） | 官方 PHP | `/wp/<slug>/` |
+| Godot 游戏（旁路） | —（非 pnpm） | nginx 静态 | `/games/<slug>/` |
 
 领域逻辑在 `packages/*-core`；跨端类型与 API 客户端在 `packages/*-shared`。ShowMasterpiece 业务在 `@profile/showmasterpiece-core`。  
-WordPress 为同域 nginx 旁路 PHP，与 Next 子应用隔离。
+WordPress 为同域 nginx 旁路 PHP，与 Next 子应用隔离。  
+Godot/静态游戏旁路见 `deploy/games/`（首期 `/games/pulse-parade/`）。
 
 ## 执行命令（pnpm）
 
