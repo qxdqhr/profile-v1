@@ -588,23 +588,12 @@ export const experiments: ExperimentItem[] = [
   {
     id: "miku-fusion-game",
     title: "Miku Fusion Game",
-    description: "体验 sa2kit 新增的 Miku Fusion 合成玩法，支持点击投放、碰撞合并与分数记录",
-    path: "/testField/mikuFusionGame",
-    tags: ["SA2Kit", "小游戏", "合成", "初音未来"],
+    description: "加权投放、碰撞合并、连消倍率与最高分存档；Godot 精修版（青绿抽象色球）",
+    path: "/games/miku-fusion-game/",
+    tags: ["SA2Kit", "小游戏", "合成", "初音未来", "Godot"],
     category: "leisure",
     isCompleted: true,
     createdAt: '2026-02-16',
-    updatedAt: '2026-02-16'
-  },
-  {
-    id: "miku-fusion-game-godot",
-    title: "Miku Fusion（Godot 最简）",
-    description: "双轨迁移中：Godot 最简 Miku 合成（青绿抽象色球），玩法对齐中；正式入口仍用上方原版",
-    path: "/games/miku-fusion-game/",
-    tags: ["小游戏", "Godot", "最简迁移", "合成", "初音未来"],
-    category: "leisure",
-    isCompleted: false,
-    createdAt: '2026-09-01',
     updatedAt: '2026-09-01'
   },
   {

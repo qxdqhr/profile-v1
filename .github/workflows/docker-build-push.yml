@@ -650,6 +650,7 @@ jobs:
           scp $SSH_OPTS deploy/nginx/profile-platform.conf "$REMOTE:/root/profile-v1/nginx/profile-platform.conf"
           scp $SSH_OPTS deploy/nginx/proxy-params.conf "$REMOTE:/root/profile-v1/nginx/proxy-params.conf"
           scp $SSH_OPTS deploy/deploy-profile-v1.sh "$REMOTE:/root/profile-v1/deploy-profile-v1.sh"
+          scp $SSH_OPTS deploy/cleanup-server-disk.sh "$REMOTE:/root/profile-v1/cleanup-server-disk.sh"
           scp $SSH_OPTS deploy/derive-database-url.sh "$REMOTE:/root/profile-v1/derive-database-url.sh"
           scp $SSH_OPTS deploy/fix-gateway-remote.sh "$REMOTE:/root/profile-v1/fix-gateway-remote.sh"
           scp $SSH_OPTS deploy/wait-gateway-ready.sh "$REMOTE:/root/profile-v1/wait-gateway-ready.sh"
@@ -683,7 +684,7 @@ jobs:
           if [ "${GAMES_CHANGED}" != "true" ]; then
             echo "=== 跳过 www 同步（未改 games；保留服务器已有包）==="
           fi
-          ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/wait-gateway-ready.sh /root/profile-v1/ensure-database-url.sh /root/profile-v1/ensure-wordpress-env.sh /root/profile-v1/ensure-wordpress-database.sh /root/profile-v1/ensure-calendar-schema.sh /root/profile-v1/ensure-node-notes-schema.sh /root/profile-v1/smoke-test-gateway.sh /root/profile-v1/check-gateway-health.sh /root/profile-v1/audit-outer-nginx.sh"
+          ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/cleanup-server-disk.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/wait-gateway-ready.sh /root/profile-v1/ensure-database-url.sh /root/profile-v1/ensure-wordpress-env.sh /root/profile-v1/ensure-wordpress-database.sh /root/profile-v1/ensure-calendar-schema.sh /root/profile-v1/ensure-node-notes-schema.sh /root/profile-v1/smoke-test-gateway.sh /root/profile-v1/check-gateway-health.sh /root/profile-v1/audit-outer-nginx.sh"
 
           # 通过临时 env 文件注入 WP 密钥，避免特殊字符破坏 ssh 命令行
           {

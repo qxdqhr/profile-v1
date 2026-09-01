@@ -38,7 +38,7 @@
 | huarongdao | `/testField/huarongdao`（旧保留） | **阶段 C 精修完成**；主入口 `/games/huarongdao/` |
 | push-box | `/testField/pushBox`（旧保留） | **阶段 C 精修完成**；主入口 `/games/push-box/` |
 | gold-miner | `/testField/goldMiner`（旧保留） | **阶段 C 精修完成**；主入口 `/games/gold-miner/` |
-| miku-fusion-game | `/testField/mikuFusionGame` | 最简已上线；原版双轨 |
+| miku-fusion-game | `/testField/mikuFusionGame`（旧保留） | **阶段 C 精修完成**；主入口 `/games/miku-fusion-game/` |
 | link-game | `/testField/linkGame` | 最简已上线；原版双轨 |
 | race-game | `/testField/raceGame` | 最简已上线；原版双轨 |
 | trible-game | `/testField/tribleGame` | 最简已上线；原版双轨 |
@@ -88,4 +88,5 @@
 | huarongdao | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
 | push-box | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
 | gold-miner | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
+| miku-fusion-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
 | （后续按清单顺序） | | | | |

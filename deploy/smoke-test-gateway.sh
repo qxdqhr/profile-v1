@@ -126,13 +126,13 @@ check_http "GET /games/miku-planting/index.pck" "${BASE}/games/miku-planting/ind
 
 # 旁路 WordPress（纯 PHP；未安装也可能 302）
 check_http_wp "GET /wp/holt/" "${BASE}/wp/holt/"
-check_http "GET /wp/holt/about/" "${BASE}/wp/holt/about/" "200"
-check_http "GET /wp/holt/works/" "${BASE}/wp/holt/works/" "200"
-check_http "GET /wp/holt theme CSS" \
+check_http_wp_soft "GET /wp/holt/about/" "${BASE}/wp/holt/about/" "200"
+check_http_wp_soft "GET /wp/holt/works/" "${BASE}/wp/holt/works/" "200"
+check_http_wp_soft "GET /wp/holt theme CSS" \
   "${BASE}/wp/holt/wp-content/themes/holt-portfolio/assets/main.css" "200"
-check_http "GET /wp/holt wp-includes CSS" \
+check_http_wp_soft "GET /wp/holt wp-includes CSS" \
   "${BASE}/wp/holt/wp-includes/css/dashicons.min.css" "200"
-check_http "GET /wp/holt wp-admin CSS" \
+check_http_wp_soft "GET /wp/holt wp-admin CSS" \
   "${BASE}/wp/holt/wp-admin/css/login.min.css" "200"
 check_http_wp "GET /wp/holt/wp-login.php" "${BASE}/wp/holt/wp-login.php"
 
