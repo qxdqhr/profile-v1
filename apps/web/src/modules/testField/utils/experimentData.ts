@@ -504,6 +504,17 @@ export const experiments: ExperimentItem[] = [
     updatedAt: '2026-03-14'
   },
   {
+    id: "bubble-shooter-godot",
+    title: "泡泡龙（Godot 最简）",
+    description: "双轨迁移中：Godot 最简泡泡龙（抽象色球），玩法对齐中；正式入口仍用上方原版",
+    path: "/games/bubble-shooter/",
+    tags: ["小游戏", "Godot", "最简迁移", "泡泡龙", "连消"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2026-09-01',
+    updatedAt: '2026-09-01'
+  },
+  {
     id: "arknights-bubble-shooter",
     title: "岁家龙泡泡 · 泡泡龙",
     description: "明日方舟岁家主题泡泡龙游戏，以年、夕、令、重岳、黍五位角色为泡泡类型，支持连消与悬空坠落，暗红金年节风格界面",

@@ -32,7 +32,7 @@
 | pulse-parade | —（原生） | 已上线 |
 | flappy-wish | `/testField/flappyWish` | 最简已上线；原版双轨 |
 | suika-game | `/testField/suikaGame` | 最简已上线；原版双轨 |
-| bubble-shooter | `/testField/bubbleShooter` | 待做 |
+| bubble-shooter | `/testField/bubbleShooter` | 最简已上线；原版双轨 |
 | arknights-bubble-shooter | `/testField/arknightsBubbleShooter` | 待做 |
 | miku-flick | `/testField/mikuFlick` | 待做 |
 | （其余 leisure 小游戏） | `/testField/...` | 按实验田列表追加 |

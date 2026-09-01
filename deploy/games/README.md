@@ -11,6 +11,7 @@
 | `pulse-parade` | Pulse Parade（节奏点按 MVP，原生 Godot） |
 | `flappy-wish` | 予愿飞翔 Godot 最简（原版 `/testField/flappyWish`） |
 | `suika-game` | 合成大西瓜 Godot 最简（原版 `/testField/suikaGame`） |
+| `bubble-shooter` | 泡泡龙 Godot 最简（原版 `/testField/bubbleShooter`） |
 
 ## 架构
 
@@ -32,6 +33,7 @@
 | Pulse Parade | `/games/pulse-parade/` | — |
 | 予愿飞翔 | `/games/flappy-wish/` | `/testField/flappyWish` |
 | 合成大西瓜 | `/games/suika-game/` | `/testField/suikaGame` |
+| 泡泡龙 | `/games/bubble-shooter/` | `/testField/bubbleShooter` |
 
 ## 开发流
 
