@@ -347,21 +347,12 @@ export const experiments: ExperimentItem[] = [
   },
   {
     id: "raceGame",
-    title: " 赛车游戏",
-    description: "赛车游戏",
-    path: "/testField/raceGame",
-    tags: ["小游戏", "赛博无料","初版完成"],
-    category: "leisure",
-    isCompleted: false
-  },
-  {
-    id: "race-game-godot",
-    title: "赛车（Godot 最简）",
-    description: "双轨迁移中：Godot 最简四车道躲避，玩法对齐中；正式入口仍用上方原版",
+    title: "极速狂飙",
+    description: "四车道躲避障碍、收集金币、加速与最高分；Godot 精修版",
     path: "/games/race-game/",
-    tags: ["小游戏", "Godot", "最简迁移", "赛车"],
+    tags: ["小游戏", "赛车", "Godot"],
     category: "leisure",
-    isCompleted: false,
+    isCompleted: true,
     createdAt: '2026-09-01',
     updatedAt: '2026-09-01'
   },

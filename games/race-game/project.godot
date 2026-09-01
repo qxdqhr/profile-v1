@@ -1,15 +1,19 @@
-; Race Game — Godot minimal dual-track. Portrait 4-lane dodge MVP.
+; Race Game — Godot stage-C. Portrait 4-lane dodge.
 
 config_version=5
 
 [application]
 
 config/name="Race Game"
-config/description="Minimal 4-lane racer: dodge obstacles, collect coins. Dual-track with /testField/raceGame."
-config/version="0.1.0"
+config/description="4-lane racer: start menu, pause, D-pad, obstacle types, high score. Dual-track with /testField/raceGame until entry cutover."
+config/version="0.2.0"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://icon.svg"
+
+[autoload]
+
+SaveData="*res://scripts/save_data.gd"
 
 [display]
 

@@ -40,7 +40,7 @@
 | gold-miner | `/testField/goldMiner`（旧保留） | **阶段 C 精修完成**；主入口 `/games/gold-miner/` |
 | miku-fusion-game | `/testField/mikuFusionGame`（旧保留） | **阶段 C 精修完成**；主入口 `/games/miku-fusion-game/` |
 | link-game | `/testField/linkGame`（旧保留） | **阶段 C 精修完成**；主入口 `/games/link-game/` |
-| race-game | `/testField/raceGame` | 最简已上线；原版双轨 |
+| race-game | `/testField/raceGame`（旧保留） | **阶段 C 精修完成**；主入口 `/games/race-game/` |
 | trible-game | `/testField/tribleGame` | 最简已上线；原版双轨 |
 | miku-click | `/testField/MikuClick` | 最简已上线；原版双轨 |
 | kannot | `/testField/Kannot` | 最简已上线；原版双轨 |
@@ -90,4 +90,5 @@
 | gold-miner | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
 | miku-fusion-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
 | link-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
+| race-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
 | （后续按清单顺序） | | | | |
