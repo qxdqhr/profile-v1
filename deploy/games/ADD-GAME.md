@@ -56,3 +56,6 @@ Web 导出预设须 **单线程**：`variant/thread_support=false`（Compatibili
 | push-box | `games/push-box/` | `game_push_box` | `/games/push-box/` |
 | gold-miner | `games/gold-miner/` | `game_gold_miner` | `/games/gold-miner/` |
 | miku-fusion-game | `games/miku-fusion-game/` | `game_miku_fusion_game` | `/games/miku-fusion-game/` |
+| link-game | `games/link-game/` | `game_link_game` | `/games/link-game/` |
+| race-game | `games/race-game/` | `game_race_game` | `/games/race-game/` |
+| trible-game | `games/trible-game/` | `game_trible_game` | `/games/trible-game/` |

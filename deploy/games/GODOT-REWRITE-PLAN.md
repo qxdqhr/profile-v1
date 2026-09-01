@@ -39,15 +39,15 @@
 | push-box | `/testField/pushBox` | 最简已上线（3 关 MVP）；原版双轨 |
 | gold-miner | `/testField/goldMiner` | 最简已上线；原版双轨 |
 | miku-fusion-game | `/testField/mikuFusionGame` | 最简已上线；原版双轨 |
+| link-game | `/testField/linkGame` | 最简已上线；原版双轨 |
+| race-game | `/testField/raceGame` | 最简已上线；原版双轨 |
+| trible-game | `/testField/tribleGame` | 最简已上线；原版双轨 |
 
 ### leisure 待迁 backlog（实验田 `category: leisure`）
 
 | 原版 id / 路径 | 建议 slug | 优先级 | 备注 |
 |----------------|-----------|--------|------|
-| linkGame | link-game | 中 | 连连看，2D 网格 |
-| linkGame_v1 | — | 低 | v1 可合并或跳过 |
-| raceGame | race-game | 中 | 赛车 |
-| tribleGame | trible-game | 中 | 三消 |
+| linkGame_v1 | — | 低 | v1 可合并或跳过（主版已迁 link-game） |
 | MikuClick | miku-click | 低 | 点击类 |
 | Kannot | kannot | 低 | 音游相关 |
 | miku-fireworks-3D | — | 暂缓 | 3D 烟花，成本高 |

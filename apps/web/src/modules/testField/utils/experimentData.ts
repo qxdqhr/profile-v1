@@ -280,6 +280,17 @@ export const experiments: ExperimentItem[] = [
     isCompleted: false
   },
   {
+    id: "link-game-godot",
+    title: "连连看（Godot 最简）",
+    description: "双轨迁移中：Godot 最简 6×8 连连看（≤2 拐），玩法对齐中；正式入口仍用上方原版",
+    path: "/games/link-game/",
+    tags: ["小游戏", "Godot", "最简迁移", "连连看"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2026-09-01',
+    updatedAt: '2026-09-01'
+  },
+  {
     id: "linkGame_v1",
     title: "葱韵环京连连看_v1",
     description: "葱韵环京连连看_v1",
@@ -318,6 +329,17 @@ export const experiments: ExperimentItem[] = [
     isCompleted: false
   },
   {
+    id: "race-game-godot",
+    title: "赛车（Godot 最简）",
+    description: "双轨迁移中：Godot 最简四车道躲避，玩法对齐中；正式入口仍用上方原版",
+    path: "/games/race-game/",
+    tags: ["小游戏", "Godot", "最简迁移", "赛车"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2026-09-01',
+    updatedAt: '2026-09-01'
+  },
+  {
     id: "tribleGame",
     title: " 三消游戏",
     description: "三消游戏",
@@ -325,6 +347,17 @@ export const experiments: ExperimentItem[] = [
     tags: ["小游戏", "赛博无料","初版完成"],
     category: "leisure",
     isCompleted: false
+  },
+  {
+    id: "trible-game-godot",
+    title: "三消（Godot 最简）",
+    description: "双轨迁移中：Godot 最简 6×6 三消交换（90 秒），玩法对齐中；正式入口仍用上方原版",
+    path: "/games/trible-game/",
+    tags: ["小游戏", "Godot", "最简迁移", "三消"],
+    category: "leisure",
+    isCompleted: false,
+    createdAt: '2026-09-01',
+    updatedAt: '2026-09-01'
   },
   {
     id: "goldMiner",

@@ -33,6 +33,9 @@
 | `/games/push-box/` | game_push_box:80 | **推箱子**（旁路 Godot Web） |
 | `/games/gold-miner/` | game_gold_miner:80 | **黄金矿工**（旁路 Godot Web） |
 | `/games/miku-fusion-game/` | game_miku_fusion_game:80 | **Miku Fusion**（旁路 Godot Web） |
+| `/games/link-game/` | game_link_game:80 | **连连看**（旁路 Godot Web） |
+| `/games/race-game/` | game_race_game:80 | **赛车**（旁路 Godot Web） |
+| `/games/trible-game/` | game_trible_game:80 | **三消**（旁路 Godot Web） |
 | `/api/auth/` | web:3000 | **共享 session**（Next 子应用不单独登录） |
 
 Legacy：`/testField/calendar`、`/testField/teachHub` → nginx 301 至新路径；`/testField/ShowMasterPieces` → 301 至 `/showmasterpiece`。

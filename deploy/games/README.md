@@ -18,6 +18,9 @@
 | `push-box` | 推箱子 Godot 最简（原版 `/testField/pushBox`） |
 | `gold-miner` | 黄金矿工 Godot 最简（原版 `/testField/goldMiner`） |
 | `miku-fusion-game` | Miku Fusion Godot 最简（原版 `/testField/mikuFusionGame`） |
+| `link-game` | 连连看 Godot 最简（原版 `/testField/linkGame`） |
+| `race-game` | 赛车 Godot 最简（原版 `/testField/raceGame`） |
+| `trible-game` | 三消 Godot 最简（原版 `/testField/tribleGame`） |
 
 ## 架构
 
@@ -46,6 +49,9 @@
 | 推箱子 | `/games/push-box/` | `/testField/pushBox` |
 | 黄金矿工 | `/games/gold-miner/` | `/testField/goldMiner` |
 | Miku Fusion | `/games/miku-fusion-game/` | `/testField/mikuFusionGame` |
+| 连连看 | `/games/link-game/` | `/testField/linkGame` |
+| 赛车 | `/games/race-game/` | `/testField/raceGame` |
+| 三消 | `/games/trible-game/` | `/testField/tribleGame` |
 
 ## 开发流
 

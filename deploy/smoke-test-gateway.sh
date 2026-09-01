@@ -84,6 +84,15 @@ check_http "GET /games/gold-miner/index.pck" "${BASE}/games/gold-miner/index.pck
 check_http "GET /games/miku-fusion-game/" "${BASE}/games/miku-fusion-game/" "200"
 check_http "GET /games/miku-fusion-game/index.wasm" "${BASE}/games/miku-fusion-game/index.wasm" "200"
 check_http "GET /games/miku-fusion-game/index.pck" "${BASE}/games/miku-fusion-game/index.pck" "200"
+check_http "GET /games/link-game/" "${BASE}/games/link-game/" "200"
+check_http "GET /games/link-game/index.wasm" "${BASE}/games/link-game/index.wasm" "200"
+check_http "GET /games/link-game/index.pck" "${BASE}/games/link-game/index.pck" "200"
+check_http "GET /games/race-game/" "${BASE}/games/race-game/" "200"
+check_http "GET /games/race-game/index.wasm" "${BASE}/games/race-game/index.wasm" "200"
+check_http "GET /games/race-game/index.pck" "${BASE}/games/race-game/index.pck" "200"
+check_http "GET /games/trible-game/" "${BASE}/games/trible-game/" "200"
+check_http "GET /games/trible-game/index.wasm" "${BASE}/games/trible-game/index.wasm" "200"
+check_http "GET /games/trible-game/index.pck" "${BASE}/games/trible-game/index.pck" "200"
 
 # 旁路 WordPress（纯 PHP；未安装也可能 302）
 check_http_wp "GET /wp/holt/" "${BASE}/wp/holt/"
