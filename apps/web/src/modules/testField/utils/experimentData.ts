@@ -704,23 +704,12 @@ export const experiments: ExperimentItem[] = [
   {
     id: "huarongdao-game",
     title: "图片华容道（前台）",
-    description: "测试本地化 huarongdao 图片切块拼图玩法，支持随机可解打乱与通关判断",
-    path: "/testField/huarongdao",
-    tags: ["SA2Kit", "华容道", "拼图", "图片游戏"],
+    description: "三关图片切块拼图、计时计分；Godot 精修版（默认 Miku 切图）",
+    path: "/games/huarongdao/",
+    tags: ["SA2Kit", "华容道", "拼图", "图片游戏", "Godot"],
     category: "leisure",
     isCompleted: true,
     createdAt: '2026-03-11',
-    updatedAt: '2026-03-11'
-  },
-  {
-    id: "huarongdao-godot",
-    title: "华容道（Godot 最简）",
-    description: "双轨迁移中：Godot 最简 3×3 数字滑动拼图，玩法对齐中；正式入口仍用上方原版",
-    path: "/games/huarongdao/",
-    tags: ["小游戏", "Godot", "最简迁移", "华容道", "拼图"],
-    category: "leisure",
-    isCompleted: false,
-    createdAt: '2026-09-01',
     updatedAt: '2026-09-01'
   },
   {

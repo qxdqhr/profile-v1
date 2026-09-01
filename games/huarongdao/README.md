@@ -1,7 +1,10 @@
-# Huarongdao（Godot 最简）
+# 图片华容道（huarongdao）
 
-3×3 数字滑动拼图，抽象色块。双轨：`/games/huarongdao/` + 原版 `/testField/huarongdao`。
+三关图片切块拼图 Godot 精修版。默认 Miku 切图，计时计分对齐原版。
 
 ```bash
+godot --path games/huarongdao
 bash scripts/export-godot-game.sh huarongdao
 ```
+
+Production: `/games/huarongdao/`（旧版 `/testField/huarongdao` 暂留；配置后台仍走 Next）
