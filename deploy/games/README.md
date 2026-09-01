@@ -2,12 +2,14 @@
 
 路径命名空间：`/games/<slug>/`。
 
+**迁移策略见 [GODOT-REWRITE-PLAN.md](./GODOT-REWRITE-PLAN.md)（双轨：原版保留 → 全量最简 Godot → 再逐个精修）。**
+
 已上线：
 
 | slug | 说明 |
 |------|------|
-| `pulse-parade` | Pulse Parade（节奏点按 MVP） |
-| `flappy-wish` | 予愿飞翔（竖版 Flappy，Godot 重写） |
+| `pulse-parade` | Pulse Parade（节奏点按 MVP，原生 Godot） |
+| `flappy-wish` | 予愿飞翔 Godot 最简（原版仍在 `/testField/flappyWish`） |
 
 ## 架构
 
@@ -20,14 +22,14 @@
 - **game_\<slug\>**：`nginx:alpine`，挂载 `deploy/games/<slug>/www/`
 - **`www/` 不进 git**，由 Actions `export-godot-games` 导出后 artifact → `deploy-web` scp
 - **不进** pnpm / Next Docker matrix
-- 旧 Phaser/Next 游戏上线 Godot 版后：**删除**对应 `testField` page/module（仅游戏；Field 工具不动）
+- **阶段 B**：上线 Godot 最简时**保留** testField 原版；仅阶段 C 精修通过后才删游戏路由
 
 ## URL
 
-| 游戏 | 游玩 |
-|------|------|
-| Pulse Parade | `https://<host>/games/pulse-parade/` |
-| 予愿飞翔 | `https://<host>/games/flappy-wish/` |
+| 游戏 | Godot | 原版（若有） |
+|------|-------|--------------|
+| Pulse Parade | `/games/pulse-parade/` | — |
+| 予愿飞翔 | `/games/flappy-wish/` | `/testField/flappyWish` |
 
 ## 开发流
 

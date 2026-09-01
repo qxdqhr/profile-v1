@@ -29,12 +29,14 @@ Web 导出预设须 **单线程**：`variant/thread_support=false`（Compatibili
 `export-godot-games` artifact / `deploy-web` 放置步骤会扫 `deploy/games/*/www`（有 `index.html` 的 slug）。  
 **一般不必**再改 workflow，除非改了导出脚本路径 filter。
 
-## 4. 实验田入口
+## 4. 实验田入口（双轨）
 
-`experimentData.ts`：`path: '/games/my-game/'`（末尾斜杠）。  
-卡片经 `ExperimentNavCard` 对 `/games/` **整页跳转**（避免 Next Link 404）。
+策略见 [GODOT-REWRITE-PLAN.md](./GODOT-REWRITE-PLAN.md)。
 
-若从 Phaser/Next 迁出：删除 `testField/.../<OldName>/page.tsx` 与 `modules/<oldModule>/`（**只删游戏**；工具类 Field 保留）。
+- **保留**原版卡片：`path: '/testField/<OldName>'`
+- **另加** Godot 最简卡片：`id: 'my-game-godot'`，`path: '/games/my-game/'`（末尾斜杠），`isCompleted: false`
+- `/games/` 卡片经 `ExperimentNavCard` **整页跳转**（避免 Next Link 404）
+- **不要**在阶段 B 删除 testField 游戏 page/module
 
 ## 5. 冒烟
 

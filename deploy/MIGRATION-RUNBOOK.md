@@ -45,7 +45,7 @@ Legacy：`/testField/calendar`、`/testField/teachHub` → nginx 301 至新路�
 - 源码：`games/<slug>/`；纯静态 nginx，**不**进 Next CI matrix。
 - `www/` 由 Actions `export-godot-games` 生成后 scp（不进 git）。
 - 现网：`/games/pulse-parade/`、`/games/flappy-wish/`（Godot 4 单线程 Web）。
-- 规程：[`games/ADD-GAME.md`](./games/ADD-GAME.md)。
+- **双轨**：原版 testField 先保留；计划见 [`games/GODOT-REWRITE-PLAN.md`](./games/GODOT-REWRITE-PLAN.md)；加站 [`games/ADD-GAME.md`](./games/ADD-GAME.md)。
 
 ## 目录布局（服务器 `/root/profile-v1`）
 

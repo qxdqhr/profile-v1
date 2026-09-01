@@ -229,4 +229,4 @@ export default function XxxRoute() {
 - 路径：`/games/<slug>/`；compose `game_<slug>` 挂载 `deploy/games/<slug>/www/`。
 - CI：改 `games/**` → `export-godot-games`（扫全部 `project.godot`，单线程 Web）→ artifact → `deploy-web` scp。
 - `www/` **不进 git**；加游戏见 [`deploy/games/ADD-GAME.md`](../deploy/games/ADD-GAME.md)。
-- 旧 Next/Phaser 游戏迁出后删除对应 testField **游戏** page/module；Field 非游戏工具不动。实验田卡片对 `/games/` 使用整页跳转（`ExperimentNavCard`）。
+- **双轨迁移**（[`GODOT-REWRITE-PLAN.md`](../deploy/games/GODOT-REWRITE-PLAN.md)）：阶段 B 上线 Godot 最简时**保留** testField 原版；全部最简迁完后再逐个精修并删旧。实验田 `/games/` 卡片用整页跳转（`ExperimentNavCard`）。
