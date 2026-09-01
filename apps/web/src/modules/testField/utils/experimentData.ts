@@ -627,23 +627,12 @@ export const experiments: ExperimentItem[] = [
   {
     id: "bubble-shooter",
     title: "泡泡龙（初版）",
-    description: "体验 sa2kit/bubbleShooter 初版能力，支持瞄准发射、同色连消与悬空掉落",
-    path: "/testField/bubbleShooter",
-    tags: ["SA2Kit", "泡泡龙", "小游戏", "连消"],
+    description: "瞄准发射、同色连消与悬空掉落；Godot 精修版（抽象色球）",
+    path: "/games/bubble-shooter/",
+    tags: ["SA2Kit", "泡泡龙", "小游戏", "连消", "Godot"],
     category: "leisure",
     isCompleted: true,
     createdAt: '2026-03-14',
-    updatedAt: '2026-03-14'
-  },
-  {
-    id: "bubble-shooter-godot",
-    title: "泡泡龙（Godot 最简）",
-    description: "双轨迁移中：Godot 最简泡泡龙（抽象色球），玩法对齐中；正式入口仍用上方原版",
-    path: "/games/bubble-shooter/",
-    tags: ["小游戏", "Godot", "最简迁移", "泡泡龙", "连消"],
-    category: "leisure",
-    isCompleted: false,
-    createdAt: '2026-09-01',
     updatedAt: '2026-09-01'
   },
   {
