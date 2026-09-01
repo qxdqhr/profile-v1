@@ -21,10 +21,9 @@
 ## 代码在哪
 
 ```
+wordpress/holt/                   ← Holt 主题 submodule（前台二开主战场）
 deploy/wordpress/
 ├── php/                          ← 你正在读的文档
-├── themes/holt-portfolio/        ← 主题（前台二开主战场）
-├── data/                         ← B 站抓取 JSON 等数据
 ├── docker-compose.dev.yml        ← 本地独立起站
 ├── nginx-dev.conf
 ├── README.md / ADD-SITE.md / DEVELOPMENT.md
@@ -37,7 +36,7 @@ deploy/wordpress/
 ```
 浏览器 → 外层 HTTPS nginx → 网关 nginx → wordpress_holt 容器(Apache+PHP)
                                       ↘ wp_mariadb（独立库 wp_holt）
-主题文件由 volume / CI scp 挂到：
-  /var/www/html/wp-content/themes/holt-portfolio/
+主题 submodule 挂到：
+  ./wordpress/holt → /var/www/html/wp-content/themes/holt-portfolio/
 公网路径必须带前缀：/wp/holt/
 ```

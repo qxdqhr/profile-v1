@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Import scraped works on deploy host
         run: |
@@ -33,9 +35,9 @@ jobs:
           printf '%s\n' "${{ secrets.DEPLOY_SERVER_SSH_KEY }}" > /tmp/ssh_key
           chmod 600 /tmp/ssh_key
 
-          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/wordpress/data"
-          scp $SSH_OPTS deploy/wordpress/data/holt-bilibili-works.json \
-            "$REMOTE:/root/profile-v1/wordpress/data/holt-bilibili-works.json"
+          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/wordpress/holt/data"
+          scp $SSH_OPTS wordpress/holt/data/holt-bilibili-works.json \
+            "$REMOTE:/root/profile-v1/wordpress/holt/data/holt-bilibili-works.json"
           scp $SSH_OPTS deploy/import-holt-bilibili-works.sh \
             "$REMOTE:/root/profile-v1/import-holt-bilibili-works.sh"
           ssh $SSH_OPTS "$REMOTE" "chmod 700 /root/profile-v1/import-holt-bilibili-works.sh"

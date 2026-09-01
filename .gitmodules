@@ -58,3 +58,6 @@
 [submodule "games/diner-dash"]
 	path = games/diner-dash
 	url = https://github.com/qxdqhr/diner-dash-clone.git
+[submodule "wordpress/holt"]
+	path = wordpress/holt
+	url = https://github.com/qxdqhr/profile-v1-wordpress-holt.git

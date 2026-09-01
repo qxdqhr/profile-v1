@@ -26,6 +26,7 @@ jobs:
       teach-hub-mobile: ${{ steps.filter.outputs.teach-hub-mobile }}
       deploy: ${{ steps.filter.outputs.deploy }}
       games: ${{ steps.filter.outputs.games }}
+      wordpress: ${{ steps.filter.outputs.wordpress }}
       docker_apps: ${{ steps.matrix.outputs.apps }}
       any_docker: ${{ steps.matrix.outputs.any }}
     steps:
@@ -102,8 +103,12 @@ jobs:
               - 'scripts/export-godot-game.sh'
               - 'scripts/export-all-godot-games.sh'
               - 'scripts/export-pulse-parade-web.sh'
+            wordpress:
+              - 'wordpress/**'
+              - '.gitmodules'
             deploy:
               - 'deploy/**'
+              - 'wordpress/**'
               - '.github/workflows/docker-build-push.yml'
               - 'scripts/send-ci-feishu-notify.mjs'
 
@@ -140,6 +145,7 @@ jobs:
           echo "calendar-mobile changed: ${{ steps.filter.outputs.calendar-mobile }}"
           echo "teach-hub-mobile changed: ${{ steps.filter.outputs.teach-hub-mobile }}"
           echo "games changed: ${{ steps.filter.outputs.games }}"
+          echo "wordpress changed: ${{ steps.filter.outputs.wordpress }}"
 
   build:
     needs: changes
@@ -561,6 +567,7 @@ jobs:
       (
         needs.changes.outputs.deploy == 'true' ||
         needs.changes.outputs.games == 'true' ||
+        needs.changes.outputs.wordpress == 'true' ||
         needs.changes.outputs.web == 'true' ||
         needs.changes.outputs.calendar == 'true' ||
         needs.changes.outputs.teach-hub == 'true' ||
@@ -637,6 +644,7 @@ jobs:
           WP_DB_PASSWORD: ${{ secrets.WP_DB_PASSWORD }}
           WP_HOLT_PUBLIC_URL: ${{ secrets.WP_HOLT_PUBLIC_URL }}
           GAMES_CHANGED: ${{ needs.changes.outputs.games }}
+          WORDPRESS_CHANGED: ${{ needs.changes.outputs.wordpress }}
         run: |
           NEW_TAG=${{ github.run_number }}
           DEPLOY_CFG_DIR=/tmp/profile-v1-deploy
@@ -649,7 +657,7 @@ jobs:
           chmod 600 /tmp/ssh_key
 
           echo "=== 同步配置与 deploy 文件 ==="
-          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/nginx /root/profile-v1/wordpress/themes/holt-portfolio"
+          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/nginx /root/profile-v1/wordpress/holt"
           scp $SSH_OPTS "$DEPLOY_CFG_DIR/app.config.yaml" "$REMOTE:/root/profile-v1/app.config.yaml"
           scp $SSH_OPTS deploy/docker-compose.gateway.yml "$REMOTE:/root/profile-v1/docker-compose.gateway.yml"
           scp $SSH_OPTS deploy/nginx/profile-platform.conf "$REMOTE:/root/profile-v1/nginx/profile-platform.conf"
@@ -670,9 +678,11 @@ jobs:
           scp $SSH_OPTS deploy/nginx/outer-ubuntu-qhr062.conf "$REMOTE:/root/profile-v1/nginx/outer-ubuntu-qhr062.conf"
           scp $SSH_OPTS deploy/nginx/proxy-params-outer.conf "$REMOTE:/root/profile-v1/nginx/proxy-params-outer.conf"
           scp $SSH_OPTS deploy/wordpress/README.md deploy/wordpress/ADD-SITE.md deploy/wordpress/.env.example \
-            "$REMOTE:/root/profile-v1/wordpress/"
-          scp -r $SSH_OPTS deploy/wordpress/themes/holt-portfolio/* \
-            "$REMOTE:/root/profile-v1/wordpress/themes/holt-portfolio/"
+            "$REMOTE:/root/profile-v1/deploy/wordpress/"
+          if [ "${WORDPRESS_CHANGED}" = "true" ]; then
+            echo "=== 同步 WordPress 子站 submodule: holt ==="
+            scp -r $SSH_OPTS wordpress/holt/* "$REMOTE:/root/profile-v1/wordpress/holt/"
+          fi
           scp $SSH_OPTS deploy/games/README.md deploy/games/ADD-GAME.md \
             "$REMOTE:/root/profile-v1/games/"
           for game_dir in deploy/games/*/; do

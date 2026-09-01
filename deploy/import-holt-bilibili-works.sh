@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 将 deploy/wordpress/data/holt-bilibili-works.json 导入 wordpress_holt（仅数据，不改主题）。
+# 将 wordpress/holt/data/holt-bilibili-works.json 导入 wordpress_holt（仅数据，不改主题）。
 # 用法（在 /root/profile-v1）：
 #   ./import-holt-bilibili-works.sh
 # 可选：
@@ -10,7 +10,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$ROOT_DIR"
 
-JSON_HOST="${JSON_HOST:-$ROOT_DIR/wordpress/data/holt-bilibili-works.json}"
+JSON_HOST="${JSON_HOST:-$ROOT_DIR/wordpress/holt/data/holt-bilibili-works.json}"
 if [ ! -f "$JSON_HOST" ]; then
   echo "ERROR: missing $JSON_HOST" >&2
   exit 1

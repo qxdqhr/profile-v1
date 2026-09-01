@@ -11,7 +11,7 @@
 
 - **MariaDB**：独立于宿主机 Postgres；多站共享一台 MariaDB、每站独立 database。
 - **wordpress_\<slug\>**：官方 `wordpress:6-apache`（镜像源与网关 nginx 同用 DaoCloud library）。
-- **自定义主题**：`themes/holt-portfolio/` 挂载进容器（只读）。
+- **自定义主题**：`wordpress/holt/`（git submodule）挂载为 `holt-portfolio`（只读）。
 - **nginx**（每站两条 location，勿逐文件加路由）：
   1. `~ ^/wp/<slug>/(wp-admin|wp-includes|wp-content|xmlrpc\.php|wp-[^/]+\.php)` → **去掉** `/wp/<slug>` 前缀（容器文档根真实文件：后台、主题 CSS、核心 PHP）
   2. `location /wp/<slug>/` → **保留**完整 URI（固定链接、`/wp-json/`，与 `WP_HOME` 一致）
@@ -74,3 +74,11 @@ WP_HOLT_PUBLIC_URL=https://qhr062.top/wp/holt
 - 不创建 `apps/*` WordPress 包；不进 CI Next matrix。
 - 鉴权独立（WP 账号）；不共享 `/api/auth/`。
 - 主站如需入口，仅外链到 `/wp/holt/`。
+
+## Submodule
+
+主题与站点数据在仓根 [`wordpress/holt/`](../../wordpress/holt/)（独立仓 `profile-v1-wordpress-holt`）。克隆后：
+
+```bash
+git submodule update --init wordpress/holt
+```

@@ -7,7 +7,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$ROOT_DIR"
 
-JSON_HOST="${JSON_HOST:-$ROOT_DIR/wordpress/data/holt-bilibili-works.json}"
+JSON_HOST="${JSON_HOST:-$ROOT_DIR/wordpress/holt/data/holt-bilibili-works.json}"
 LIMIT="${LIMIT:-40}"
 OFFSET="${OFFSET:-0}"
 SKIP_THUMBNAILS="${SKIP_THUMBNAILS:-0}"
