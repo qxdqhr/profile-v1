@@ -551,6 +551,17 @@ export const experiments: ExperimentItem[] = [
     updatedAt: '2026-09-01'
   },
   {
+    id: "diner-dash",
+    title: "罗德厨房",
+    description: "明日方舟同人食堂班次：接待客人、上菜收桌；Godot + Spine（Diner Dash 致敬）",
+    path: "/games/diner-dash/",
+    tags: ["小游戏", "模拟经营", "明日方舟", "Godot"],
+    category: "leisure",
+    isCompleted: true,
+    createdAt: '2026-08-29',
+    updatedAt: '2026-09-01'
+  },
+  {
     id: "miku-flick",
     title: "Miku Flick（初版）",
     description: "假名键滑动方向判定与连击计分；Godot 精修版（みくみく…谱面）",

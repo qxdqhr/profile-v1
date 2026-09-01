@@ -48,6 +48,7 @@
 | purchase-game | `/purchaseGame`（旧保留） | **阶段 C 精修完成**；主入口 `/games/purchase-game/` |
 | mikutap-game | `/mikutapGame`（旧保留） | **阶段 C 精修完成**；主入口 `/games/mikutap-game/` |
 | miku-planting | `/testField/mikuPlanting`（旧保留） | **阶段 C 精修完成**；主入口 `/games/miku-planting/` |
+| diner-dash | —（迁自 `diner-dash-clone`） | 已旁路 `/games/diner-dash/`（Spine 预构建） |
 
 ### leisure 待迁 backlog（实验田 `category: leisure`）
 

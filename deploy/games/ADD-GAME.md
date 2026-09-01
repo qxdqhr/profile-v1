@@ -3,6 +3,14 @@
 每站 = Godot 源码目录 + nginx 静态容器 + 网关前缀 location + CI 导出。  
 **不要**塞进 `apps/*`；**不要**把 `www/` 二进制长期提交进 git。
 
+`games/<slug>/` 均为 **git submodule**（独立公开仓）。克隆本仓后需：
+
+```bash
+git submodule update --init --recursive
+```
+
+Spine 等无法在 CI 重导出的工程：在 submodule 根放置 `.use-prebuilt-web`，并把 Web 产物放在 `prebuilt-web/`（文件名 `index.*`）；`export-godot-game.sh` 会直接拷贝到 `deploy/games/<slug>/www/`。
+
 假设 slug = `my-game`（URL：`/games/my-game/`）。
 
 ## 1. 源码
@@ -65,3 +73,4 @@ Web 导出预设须 **单线程**：`variant/thread_support=false`（Compatibili
 | purchase-game | `games/purchase-game/` | `game_purchase_game` | `/games/purchase-game/` |
 | mikutap-game | `games/mikutap-game/` | `game_mikutap_game` | `/games/mikutap-game/` |
 | miku-planting | `games/miku-planting/` | `game_miku_planting` | `/games/miku-planting/` |
+| diner-dash | `games/diner-dash/`（submodule；`.use-prebuilt-web`） | `game_diner_dash` | `/games/diner-dash/` |

@@ -123,6 +123,9 @@ check_http "GET /games/mikutap-game/index.pck" "${BASE}/games/mikutap-game/index
 check_http "GET /games/miku-planting/" "${BASE}/games/miku-planting/" "200"
 check_http "GET /games/miku-planting/index.wasm" "${BASE}/games/miku-planting/index.wasm" "200"
 check_http "GET /games/miku-planting/index.pck" "${BASE}/games/miku-planting/index.pck" "200"
+check_http "GET /games/diner-dash/" "${BASE}/games/diner-dash/" "200"
+check_http "GET /games/diner-dash/index.wasm" "${BASE}/games/diner-dash/index.wasm" "200"
+check_http "GET /games/diner-dash/index.pck" "${BASE}/games/diner-dash/index.pck" "200"
 
 # 旁路 WordPress（纯 PHP；未安装也可能 302）
 check_http_wp "GET /wp/holt/" "${BASE}/wp/holt/"

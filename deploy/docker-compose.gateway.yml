@@ -329,6 +329,15 @@ services:
     networks:
       - profile
 
+  game_diner_dash:
+    image: docker.m.daocloud.io/library/nginx:1.27-alpine
+    restart: unless-stopped
+    volumes:
+      - ./games/diner-dash/www:/usr/share/nginx/html:ro
+      - ./games/diner-dash/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - profile
+
   nginx:
     image: docker.m.daocloud.io/library/nginx:1.27-alpine
     restart: unless-stopped
@@ -359,6 +368,7 @@ services:
       - game_purchase_game
       - game_mikutap_game
       - game_miku_planting
+      - game_diner_dash
     ports:
       - '${GATEWAY_PORT:-3000}:80'
     volumes:

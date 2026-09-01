@@ -27,12 +27,13 @@
 | `purchase-game` | 购买挑战 Godot 最简（原版 `/purchaseGame`） |
 | `mikutap-game` | MikutapGame Godot 最简（原版 `/mikutapGame`） |
 | `miku-planting` | 米库种植 Godot 最简（原版 `/testField/mikuPlanting`） |
+| `diner-dash` | 罗德厨房（submodule `diner-dash-clone`；Spine 预构建 Web） |
 
 ## 架构
 
 | 层 | 路径 |
 |---|---|
-| 源码 | `games/<slug>/`（Godot 工程） |
+| 源码 | `games/<slug>/`（**git submodule**，独立仓） |
 | 旁路静态站 | `deploy/games/<slug>/`（nginx.conf + CI 生成的 `www/`） |
 | 网关 | `/games/<slug>/` → `game_<slug>`（下划线） |
 

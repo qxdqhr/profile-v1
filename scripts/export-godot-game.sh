@@ -37,7 +37,32 @@ if [[ ! -f "${GAME_DIR}/project.godot" ]]; then
   exit 1
 fi
 
-mkdir -p "$CACHE_DIR" "$OUT_DIR" "$(dirname "$TEMPLATES_DIR")"
+mkdir -p "$OUT_DIR"
+
+# Spine / 特殊工程：用仓内预构建 Web，跳过 Godot 导出
+if [[ -f "${GAME_DIR}/.use-prebuilt-web" ]]; then
+  SRC=""
+  for candidate in prebuilt-web web; do
+    if [[ -f "${GAME_DIR}/${candidate}/index.html" ]]; then
+      SRC="${GAME_DIR}/${candidate}"
+      break
+    fi
+  done
+  if [[ -z "$SRC" ]]; then
+    echo "ERROR: ${SLUG} has .use-prebuilt-web but neither prebuilt-web/ nor web/ contains index.html" >&2
+    exit 1
+  fi
+  echo "Using prebuilt web for slug=${SLUG} from ${SRC}"
+  rsync -a --delete --exclude '.gitkeep' "${SRC}/" "${OUT_DIR}/"
+  test -f "${OUT_DIR}/index.html"
+  test -f "${OUT_DIR}/index.wasm"
+  test -f "${OUT_DIR}/index.pck"
+  ls -lh "${OUT_DIR}"
+  echo "OK: ${SLUG} → ${OUT_DIR} (prebuilt)"
+  exit 0
+fi
+
+mkdir -p "$CACHE_DIR" "$(dirname "$TEMPLATES_DIR")"
 
 download() {
   local url="$1" dest="$2"

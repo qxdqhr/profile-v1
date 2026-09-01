@@ -33,6 +33,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          submodules: recursive
 
       - name: Detect path changes
         uses: dorny/paths-filter@v3
@@ -522,6 +523,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Cache Godot editor and export templates
         uses: actions/cache@v4
@@ -568,6 +571,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Download Godot games web artifacts
         if: needs.changes.outputs.games == 'true'
