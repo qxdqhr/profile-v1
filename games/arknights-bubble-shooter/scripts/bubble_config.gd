@@ -12,6 +12,13 @@ const LAUNCH_SPEED := 480.0
 const MIN_MATCH := 3
 
 const LABELS: Array[String] = ["年", "夕", "令", "重", "黍"]
+const TEXTURE_PATHS: Array[String] = [
+	"res://assets/nian.png",
+	"res://assets/dusk.png",
+	"res://assets/ling.png",
+	"res://assets/chongyue.png",
+	"res://assets/shu.png",
+]
 
 static func row_step() -> float:
 	return roundf(RADIUS * 1.73)
@@ -61,3 +68,6 @@ static func highlight_for(idx: int) -> Color:
 
 static func label_for(idx: int) -> String:
 	return LABELS[clampi(idx, 0, LABELS.size() - 1)]
+
+static func texture_path(idx: int) -> String:
+	return TEXTURE_PATHS[clampi(idx, 0, TEXTURE_PATHS.size() - 1)]

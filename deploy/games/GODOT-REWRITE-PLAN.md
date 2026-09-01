@@ -33,7 +33,7 @@
 | flappy-wish | `/testField/flappyWish`（旧保留） | **阶段 C 精修完成**；主入口 `/games/flappy-wish/` |
 | suika-game | `/testField/suikaGame`（旧保留） | **阶段 C 精修完成**；主入口 `/games/suika-game/` |
 | bubble-shooter | `/testField/bubbleShooter`（旧保留） | **阶段 C 精修完成**；主入口 `/games/bubble-shooter/` |
-| arknights-bubble-shooter | `/testField/arknightsBubbleShooter` | 最简已上线；原版双轨 |
+| arknights-bubble-shooter | `/testField/arknightsBubbleShooter`（旧保留） | **阶段 C 精修完成**；主入口 `/games/arknights-bubble-shooter/` |
 | miku-flick | `/testField/mikuFlick` | 最简已上线；原版双轨 |
 | huarongdao | `/testField/huarongdao` | 最简已上线；原版双轨 |
 | push-box | `/testField/pushBox` | 最简已上线（3 关 MVP）；原版双轨 |
@@ -83,4 +83,5 @@
 | flappy-wish | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
 | suika-game | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
 | bubble-shooter | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
+| arknights-bubble-shooter | ✅ | ✅ | ⏳ 旧 page 暂留 | ✅ |
 | （后续按清单顺序） | | | | |

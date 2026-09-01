@@ -217,6 +217,9 @@ static func pick_next_color(grid: Array, current: int, rng: RandomNumberGenerato
 	var colors := collect_colors(grid)
 	if colors.is_empty():
 		return BubbleConfig.random_color_index(rng)
+	# Endgame bias: when ≤2 colors left, 78% chance to chain same color (original).
+	if colors.size() <= 2 and current in colors and rng.randf() < 0.78:
+		return current
 	return colors[rng.randi_range(0, colors.size() - 1)]
 
 static func _copy_grid(grid: Array) -> Array:
