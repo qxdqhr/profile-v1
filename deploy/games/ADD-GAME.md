@@ -1,60 +1,36 @@
 # 新增 Godot / 静态游戏旁路
 
-每站 = 独立 nginx 静态容器 + 网关一条前缀 location + `www/` 导出物。  
-**不要**塞进 `apps/*`；**不要**为每个静态文件再加 location。
+每站 = Godot 源码目录 + nginx 静态容器 + 网关前缀 location + CI 导出。  
+**不要**塞进 `apps/*`；**不要**把 `www/` 二进制长期提交进 git。
 
 假设 slug = `my-game`（URL：`/games/my-game/`）。
 
-## 1. 目录
+## 1. 源码
 
 ```
+games/my-game/          # Godot 工程（project.godot …）
 deploy/games/my-game/
-  nginx.conf          # wasm MIME + gzip（可复制 pulse-parade）
-  www/                # Godot export/web 产物（含 index.html）
+  nginx.conf
+  www/.gitkeep         # CI 写入产物
 ```
 
-## 2. compose
+## 2. compose / nginx
 
-在 `docker-compose.gateway.yml` 增加：
+同 `pulse-parade`：复制 `game_*` 服务与去前缀 `location /games/my-game/`。
 
-```yaml
-  game_my_game:
-    image: docker.m.daocloud.io/library/nginx:1.27-alpine
-    restart: unless-stopped
-    volumes:
-      - ./games/my-game/www:/usr/share/nginx/html:ro
-      - ./games/my-game/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    networks:
-      - profile
-```
+## 3. CI
 
-`nginx.depends_on` 追加该服务。
+1. `paths-filter` 增加 `games` 路径（或独立 filter）
+2. 复制 / 扩展 `scripts/export-pulse-parade-web.sh`（改 GAME_DIR / OUT_DIR）
+3. `export-*-web` job → artifact
+4. `deploy-web`：games 变更时 download artifact 并 scp `www/`
 
-## 3. 网关 nginx
+## 4. 冒烟
 
-```nginx
-location = /games/my-game { return 301 /games/my-game/; }
-location /games/my-game/ {
-    set $game_my_game_upstream game_my_game;
-    rewrite ^/games/my-game/(.*)$ /$1 break;
-    proxy_pass http://$game_my_game_upstream;
-    include /etc/nginx/proxy-params.conf;
-}
-```
-
-## 4. CI
-
-`docker-build-push.yml` 的 `deploy-web`：`mkdir` + `scp -r deploy/games/my-game` 到服务器 `/root/profile-v1/games/my-game/`。
-
-## 5. 冒烟
-
-`smoke-test-gateway.sh` 增加：
-
-- `GET /games/my-game/` → 200
-- `GET /games/my-game/index.wasm` → 200（且 ideally `Content-Type: application/wasm`）
+`GET /games/my-game/`、`index.wasm`、`index.pck` → 200
 
 ## 清单
 
-| slug | 服务名 | 路径 | 备注 |
-|------|--------|------|------|
-| pulse-parade | `game_pulse_parade` | `/games/pulse-parade/` | Godot 4.7 单线程 Web |
+| slug | 源码 | 服务名 | 路径 |
+|------|------|--------|------|
+| pulse-parade | `games/pulse-parade/` | `game_pulse_parade` | `/games/pulse-parade/` |

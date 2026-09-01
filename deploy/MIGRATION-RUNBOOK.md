@@ -41,7 +41,8 @@ Legacy：`/testField/calendar`、`/testField/teachHub` → nginx 301 至新路�
 
 ### Godot / 静态游戏旁路（`/games/*`）
 
-- 纯静态 nginx，**不**进 Next CI matrix；产物在 `deploy/games/<slug>/www/`，由 `deploy-web` scp。
+- 源码：`games/pulse-parade/`；纯静态 nginx，**不**进 Next CI matrix。
+- `www/` 由 Actions `export-pulse-parade-web` 生成后 scp（不进 git）。
 - 首期：`/games/pulse-parade/`（Godot 4 单线程 Web）。
 - 规程：[`games/ADD-GAME.md`](./games/ADD-GAME.md)。
 

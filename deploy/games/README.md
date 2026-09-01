@@ -4,9 +4,15 @@
 
 ## 架构
 
-- **game_\<slug\>**：`nginx:alpine` 静态站，文档根挂载 `deploy/games/<slug>/www/`
-- **网关 nginx**：一条前缀 location，去掉 `/games/<slug>` 后反代到容器根（相对路径资源可加载）
-- **不进** pnpm / Next Docker matrix；产物由 CI `scp` 同步
+| 层 | 路径 |
+|---|---|
+| 源码 | `games/pulse-parade/`（Godot 工程） |
+| 旁路静态站 | `deploy/games/pulse-parade/`（nginx.conf + CI 生成的 `www/`） |
+| 网关 | `/games/pulse-parade/` → `game_pulse_parade` |
+
+- **game_\<slug\>**：`nginx:alpine`，挂载 `deploy/games/<slug>/www/`
+- **`www/` 不进 git**，由 Actions `export-pulse-parade-web` 导出后 artifact → `deploy-web` scp
+- **不进** pnpm / Next Docker matrix
 
 ## URL
 
@@ -14,17 +20,12 @@
 |---|---|
 | 游玩 | `https://<host>/games/pulse-parade/` |
 
-## 更新游戏包
+## 开发流
 
-1. 在游戏仓导出 Web：
-
-```bash
-cd /home/qhr/project/rhythm-heaven-clone
-godot --headless --path . --export-release "Web" export/web/index.html
-rsync -a --delete export/web/ /home/qhr/project/profile-v1/deploy/games/pulse-parade/www/
-```
-
-2. 提交 `profile-v1` 的 `deploy/games/**` + compose/nginx，push `main` → `deploy-web`。
+1. 改 `games/pulse-parade/**`，push `main`
+2. CI：安装 Godot 4.7.1 → Web 导出 → 旁路部署 + smoke
+3. 本地预览：`godot --path games/pulse-parade`
+4. 本地导出：`games/pulse-parade/scripts/sync-web-to-deploy.sh` 或 `scripts/export-pulse-parade-web.sh`
 
 ## 加游戏
 

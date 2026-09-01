@@ -25,6 +25,7 @@ jobs:
       calendar-mobile: ${{ steps.filter.outputs.calendar-mobile }}
       teach-hub-mobile: ${{ steps.filter.outputs.teach-hub-mobile }}
       deploy: ${{ steps.filter.outputs.deploy }}
+      games: ${{ steps.filter.outputs.games }}
       docker_apps: ${{ steps.matrix.outputs.apps }}
       any_docker: ${{ steps.matrix.outputs.any }}
     steps:
@@ -95,6 +96,9 @@ jobs:
             teach-hub-mobile:
               - 'apps/teach-hub-mobile/**'
               - 'packages/teach-hub-shared/**'
+            games:
+              - 'games/pulse-parade/**'
+              - 'scripts/export-pulse-parade-web.sh'
             deploy:
               - 'deploy/**'
               - '.github/workflows/docker-build-push.yml'
@@ -132,6 +136,7 @@ jobs:
 
           echo "calendar-mobile changed: ${{ steps.filter.outputs.calendar-mobile }}"
           echo "teach-hub-mobile changed: ${{ steps.filter.outputs.teach-hub-mobile }}"
+          echo "games changed: ${{ steps.filter.outputs.games }}"
 
   build:
     needs: changes
@@ -184,6 +189,7 @@ jobs:
       github.ref == 'refs/heads/main' &&
       (
         needs.changes.outputs.deploy == 'true' ||
+        needs.changes.outputs.games == 'true' ||
         needs.changes.outputs.web == 'true' ||
         needs.changes.outputs.calendar == 'true' ||
         needs.changes.outputs.teach-hub == 'true' ||
@@ -506,10 +512,38 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  export-pulse-parade-web:
+    name: Export Pulse Parade Web
+    needs: changes
+    if: needs.changes.outputs.games == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache Godot editor and export templates
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/godot-ci
+            ~/.local/share/godot/export_templates
+          key: godot-4.7.1-stable-${{ runner.os }}-v1
+
+      - name: Export Pulse Parade (Web, single-thread)
+        run: bash scripts/export-pulse-parade-web.sh
+
+      - name: Upload web artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pulse-parade-web
+          path: deploy/games/pulse-parade/www/
+          if-no-files-found: error
+          retention-days: 7
+
   deploy-web:
     runs-on: ubuntu-latest
-    needs: [changes, build, promote-images]
-    # build 未改镜像时会 skipped；若不加 always()/skipped 判断，整段部署会被连带跳过
+    needs: [changes, build, promote-images, export-pulse-parade-web]
+    # build/export 未改时会 skipped；若不加 always()/skipped 判断，整段部署会被连带跳过
     if: >-
       always() &&
       github.event_name == 'push' &&
@@ -518,8 +552,10 @@ jobs:
       needs.changes.result == 'success' &&
       (needs.build.result == 'success' || needs.build.result == 'skipped') &&
       (needs.promote-images.result == 'success' || needs.promote-images.result == 'skipped') &&
+      (needs.export-pulse-parade-web.result == 'success' || needs.export-pulse-parade-web.result == 'skipped') &&
       (
         needs.changes.outputs.deploy == 'true' ||
+        needs.changes.outputs.games == 'true' ||
         needs.changes.outputs.web == 'true' ||
         needs.changes.outputs.calendar == 'true' ||
         needs.changes.outputs.teach-hub == 'true' ||
@@ -530,6 +566,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Download Pulse Parade web artifact
+        if: needs.changes.outputs.games == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: pulse-parade-web
+          path: deploy/games/pulse-parade/www
 
       - name: Decrypt production config
         env:
@@ -556,6 +599,7 @@ jobs:
           WP_DB_USER: ${{ secrets.WP_DB_USER }}
           WP_DB_PASSWORD: ${{ secrets.WP_DB_PASSWORD }}
           WP_HOLT_PUBLIC_URL: ${{ secrets.WP_HOLT_PUBLIC_URL }}
+          GAMES_CHANGED: ${{ needs.changes.outputs.games }}
         run: |
           NEW_TAG=${{ github.run_number }}
           DEPLOY_CFG_DIR=/tmp/profile-v1-deploy
@@ -595,8 +639,13 @@ jobs:
             "$REMOTE:/root/profile-v1/games/"
           scp $SSH_OPTS deploy/games/pulse-parade/nginx.conf \
             "$REMOTE:/root/profile-v1/games/pulse-parade/nginx.conf"
-          scp -r $SSH_OPTS deploy/games/pulse-parade/www/* \
-            "$REMOTE:/root/profile-v1/games/pulse-parade/www/"
+          if [ "${GAMES_CHANGED}" = "true" ] && [ -f deploy/games/pulse-parade/www/index.html ]; then
+            echo "=== 同步 Pulse Parade Web 产物 ==="
+            scp -r $SSH_OPTS deploy/games/pulse-parade/www/* \
+              "$REMOTE:/root/profile-v1/games/pulse-parade/www/"
+          else
+            echo "=== 跳过 www 同步（未改 games 或无导出产物；保留服务器已有包）==="
+          fi
           ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/wait-gateway-ready.sh /root/profile-v1/ensure-database-url.sh /root/profile-v1/ensure-wordpress-env.sh /root/profile-v1/ensure-wordpress-database.sh /root/profile-v1/ensure-calendar-schema.sh /root/profile-v1/ensure-node-notes-schema.sh /root/profile-v1/smoke-test-gateway.sh /root/profile-v1/check-gateway-health.sh /root/profile-v1/audit-outer-nginx.sh"
 
           # 通过临时 env 文件注入 WP 密钥，避免特殊字符破坏 ssh 命令行
@@ -623,7 +672,7 @@ jobs:
   notify:
     name: Notify Feishu
     runs-on: ubuntu-latest
-    needs: [changes, build, deploy-web, promote-images, build-teach-hub-mobile, build-calendar-mobile]
+    needs: [changes, build, deploy-web, promote-images, export-pulse-parade-web, build-teach-hub-mobile, build-calendar-mobile]
     if: always() && !cancelled()
     continue-on-error: true
     steps:
@@ -658,7 +707,7 @@ jobs:
         env:
           FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
           FEISHU_SIGN_SECRET: ${{ secrets.FEISHU_SIGN_SECRET }}
-          CI_NOTIFY_STATUS: ${{ (needs.build.result == 'success' || needs.build.result == 'skipped') && (needs.promote-images.result == 'success' || needs.promote-images.result == 'skipped') && (needs.deploy-web.result == 'success' || needs.deploy-web.result == 'skipped') && (needs.build-teach-hub-mobile.result == 'success' || needs.build-teach-hub-mobile.result == 'skipped') && (needs.build-calendar-mobile.result == 'success' || needs.build-calendar-mobile.result == 'skipped') && 'success' || 'failure' }}
+          CI_NOTIFY_STATUS: ${{ (needs.build.result == 'success' || needs.build.result == 'skipped') && (needs.promote-images.result == 'success' || needs.promote-images.result == 'skipped') && (needs.export-pulse-parade-web.result == 'success' || needs.export-pulse-parade-web.result == 'skipped') && (needs.deploy-web.result == 'success' || needs.deploy-web.result == 'skipped') && (needs.build-teach-hub-mobile.result == 'success' || needs.build-teach-hub-mobile.result == 'skipped') && (needs.build-calendar-mobile.result == 'success' || needs.build-calendar-mobile.result == 'skipped') && 'success' || 'failure' }}
           CI_IMAGE_TAG: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && (needs.build.result == 'success' || needs.promote-images.result == 'success') && format('web:{0} calendar:{0} teach-hub:{0} showmasterpiece:{0} money-research:{0} node-notes:{0}', github.run_number) || '' }}
           CI_TEACH_HUB_APK_BUILD_RESULT: ${{ needs.build-teach-hub-mobile.result }}
           CI_TEACH_HUB_APK_RELEASE_URL: ${{ needs.build-teach-hub-mobile.result == 'success' && needs.build-teach-hub-mobile.outputs.release_url || '' }}
