@@ -119,9 +119,10 @@ services:
       - wp_mariadb_data:/var/lib/mysql
     healthcheck:
       test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
-      interval: 5s
+      interval: 10s
       timeout: 5s
       retries: 30
+      start_period: 40s
     networks:
       - profile
 
@@ -130,7 +131,7 @@ services:
     restart: unless-stopped
     depends_on:
       wp_mariadb:
-        condition: service_healthy
+        condition: service_started
     environment:
       WORDPRESS_DB_HOST: wp_mariadb:3306
       WORDPRESS_DB_USER: ${WORDPRESS_DB_USER:-wp}
@@ -338,7 +339,7 @@ services:
       - showmasterpiece
       - money_research
       - node_notes
-      - wordpress_holt
+      # wordpress_holt 不作为硬依赖：MariaDB 不健康时不应拖垮整站 /games
       - game_pulse_parade
       - game_flappy_wish
       - game_suika_game
