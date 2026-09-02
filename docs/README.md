@@ -8,6 +8,9 @@
 
 | 用途 | 路径 |
 |------|------|
+| 架构九项改造（已完成） | [`architecture/ARCHITECTURE-REMEDIATION-PLAN.md`](./architecture/ARCHITECTURE-REMEDIATION-PLAN.md) |
+| 鉴权面审计 | [`architecture/AUTH-SURFACE-AUDIT.md`](./architecture/AUTH-SURFACE-AUDIT.md) |
+| 客户仓 vs 验证场 | [`architecture/CUSTOMER-VS-HOST.md`](./architecture/CUSTOMER-VS-HOST.md) |
 | Agent / 架构 SSOT | [`.cursor/KNOWLEDGE_BASE.md`](../.cursor/KNOWLEDGE_BASE.md)、[`AGENTS.md`](./AGENTS.md)（根目录 [`AGENTS.md`](../AGENTS.md) 为入口 stub） |
 | 网关与生产部署 Runbook | [`deploy/MIGRATION-RUNBOOK.md`](../deploy/MIGRATION-RUNBOOK.md) |
 | 分模块 Code Review | [`code-review/README.md`](./code-review/README.md) |
@@ -24,6 +27,10 @@
 ```
 docs/
 ├── README.md                 # 本索引
+├── architecture/             # 架构改造计划（已完成）+ 鉴权审计 / 宿主边界
+│   ├── ARCHITECTURE-REMEDIATION-PLAN.md
+│   ├── AUTH-SURFACE-AUDIT.md
+│   └── CUSTOMER-VS-HOST.md
 ├── code-review/              # 全仓 CR 报告、模板、库蓝图
 ├── node-notes/               # 节点笔记：需求、开发、设计系统
 │   ├── README.md

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import { Button, Card, Select, Title } from 'sa2kit/common/ui';
 import { FitnessDaySheet } from '../components/calendar/FitnessDaySheet';
 import { FitnessMonthView } from '../components/calendar/FitnessMonthView';
@@ -228,7 +228,7 @@ export function SchedulePage() {
               <span>{WEEK_DAY_LABELS[key]}</span>
               <Select
                 value={weekPatternDraft[key]}
-                onChange={(value) =>
+                onChange={(value: string) =>
                   setWeekPatternDraft((prev) => ({ ...prev, [key]: value }))
                 }
                 options={planOptions}
@@ -240,7 +240,7 @@ export function SchedulePage() {
           <span>循环周数</span>
           <Select
             value={String(cycleWeeks)}
-            onChange={(value) => setCycleWeeks(Number(value))}
+            onChange={(value: string) => setCycleWeeks(Number(value))}
             options={[1, 2, 3, 4, 6, 8, 12].map((n) => ({
               key: String(n),
               label: `${n} 周`,

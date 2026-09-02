@@ -40,7 +40,7 @@ const nextConfig: NextConfig = {
     ],
 
     typescript: {
-        ignoreBuildErrors: true,
+        ignoreBuildErrors: false,
     },
 
     env: {
@@ -66,6 +66,7 @@ const nextConfig: NextConfig = {
     },
 
     serverExternalPackages: [
+        'lru-cache',
         "sharp",
         "onnxruntime-node",
         "onnxruntime-web",

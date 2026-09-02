@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 import {
   Button,
   Card,
@@ -68,7 +68,7 @@ export function ProfileSettingsForm() {
           <span>健身目标</span>
           <Select
             value={form.goal ?? 'maintain'}
-            onChange={(value) =>
+            onChange={(value: string) =>
               setForm((prev) => ({ ...prev, goal: value as FitnessGoal }))
             }
             options={goalOptions}
@@ -79,7 +79,7 @@ export function ProfileSettingsForm() {
           <Input
             type="number"
             value={String(form.dailyCalorieGoal ?? 2000)}
-            onChange={(e) =>
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
               setForm((prev) => ({
                 ...prev,
                 dailyCalorieGoal: Number(e.target.value) || 0,
@@ -93,7 +93,7 @@ export function ProfileSettingsForm() {
             type="number"
             placeholder="可选"
             value={form.currentWeight != null ? String(form.currentWeight) : ''}
-            onChange={(e) =>
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
               setForm((prev) => ({
                 ...prev,
                 currentWeight: e.target.value ? Number(e.target.value) : null,
@@ -105,7 +105,7 @@ export function ProfileSettingsForm() {
           <span>体重单位</span>
           <Select
             value={form.weightUnit ?? 'kg'}
-            onChange={(value) =>
+            onChange={(value: string) =>
               setForm((prev) => ({ ...prev, weightUnit: value as 'kg' | 'lb' }))
             }
             options={[

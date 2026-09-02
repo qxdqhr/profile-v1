@@ -1,6 +1,7 @@
 'use client';
 
 import { Button, Icon, Tooltip } from 'sa2kit/common/ui';
+import type { MouseEvent } from 'react';
 import type { ProjectItem } from '../../Home/types';
 
 interface ProjectsSectionV2Props {
@@ -67,7 +68,7 @@ export function ProjectsSectionV2({ projects }: ProjectsSectionV2Props) {
                 <div className="home-v2-project__cta">
                   <Button
                     type="primary"
-                    onClick={(event) => {
+                    onClick={(event: MouseEvent<HTMLButtonElement>) => {
                       event.stopPropagation();
                       openProject(project.link);
                     }}

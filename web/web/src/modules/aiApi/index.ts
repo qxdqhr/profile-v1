@@ -47,9 +47,6 @@ export { AiApiSettingsPanel } from './components/AiApiSettingsPanel';
 export type { AiApiSettingsPanelProps } from './components/AiApiSettingsPanel';
 
 export { AiApiConnectivityTest } from './components/AiApiConnectivityTest';
-export type { AiApiConnectivityTestProps } from './components/AiApiConnectivityTest';
-
-export type { AiModelsListRequest, AiModelsListResponse } from './types/models';
 
 export {
   CORE_CONNECTIVITY_TEST_TASK_ID,

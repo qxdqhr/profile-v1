@@ -54,11 +54,18 @@ export async function POST(request: NextRequest) {
     }
 
     if (storageConfig.type === 'aliyun-oss') {
+      const ossConfig = storageConfig as {
+        type: 'aliyun-oss';
+        region?: string;
+        bucket?: string;
+        accessKeyId?: string;
+        accessKeySecret?: string;
+      };
       const missing = [
-        !storageConfig.region && 'region',
-        !storageConfig.bucket && 'bucket',
-        !storageConfig.accessKeyId && 'accessKeyId',
-        !storageConfig.accessKeySecret && 'accessKeySecret',
+        !ossConfig.region && 'region',
+        !ossConfig.bucket && 'bucket',
+        !ossConfig.accessKeyId && 'accessKeyId',
+        !ossConfig.accessKeySecret && 'accessKeySecret',
       ].filter(Boolean);
 
       if (missing.length > 0) {
@@ -87,11 +94,13 @@ export async function POST(request: NextRequest) {
         processingOptions: needsProcessing
           ? {
               type: 'image' as const,
-              quality: 90,
-              width: 800,
-              height: 600,
-              format: 'webp' as const,
-              watermark: false,
+              params: {
+                quality: 90,
+                width: 800,
+                height: 600,
+                format: 'webp',
+                watermark: false,
+              },
             }
           : undefined,
       },

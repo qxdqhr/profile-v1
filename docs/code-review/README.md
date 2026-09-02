@@ -73,8 +73,8 @@
 | `@profile/db` | 5 文件 / ~336 行 + schema 聚合 | ✅ | [packages/db.md](./packages/db.md) |
 | `@profile/auth` | 6 文件 / ~148 行 | ✅ | [packages/auth.md](./packages/auth.md) |
 | `@profile/ui` | preset only | ✅ | [packages/ui.md](./packages/ui.md) |
-| `calendar-core` / `calendar-shared` | ~12.4k + ~0.4k | ✅（应用视角） | [apps/calendar.md](./apps/calendar.md) |
-| `teach-hub-core` / `teach-hub-shared` | ~6.5k + ~0.9k | ✅（应用视角） | [apps/teach-hub.md](./apps/teach-hub.md) |
+| `calendar-core`（含 `/shared`） | ~12.8k | ✅（应用视角） | [apps/calendar.md](./apps/calendar.md) |
+| `teach-hub-core`（含 `/shared`） | ~7.4k | ✅（应用视角） | [apps/teach-hub.md](./apps/teach-hub.md) |
 | `showmasterpiece-core` | ~24.8k | ✅（应用视角） | [apps/showmasterpiece.md](./apps/showmasterpiece.md) |
 | `node-notes-core` | ~3.7k | ⬜ | — |
 | `sa2kit-exam` / `sa2kit-feishu` | 小 | ⬜ | — |

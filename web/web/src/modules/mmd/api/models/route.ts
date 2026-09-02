@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { mmdModelsDbService } from '../../server';
 import type { ApiResponse, MMDModel } from '../../types';
 
 /**
  * GET /api/mmd/models
- * 获取MMD模型列表
+ * 获取MMD模型列表（公开列表免登录；按 userId 查询需本人登录）
  */
 export async function GET(request: NextRequest) {
   try {
@@ -14,17 +15,31 @@ export async function GET(request: NextRequest) {
 
     let models: MMDModel[];
 
+    if (userId) {
+      const user = await getApiSessionUser(request);
+      if (!user) {
+        return NextResponse.json(
+          { success: false, error: '未授权的访问' } satisfies ApiResponse,
+          { status: 401 },
+        );
+      }
+      const requestedUserId = userId;
+      if (String(user.id) !== requestedUserId) {
+        return NextResponse.json(
+          { success: false, error: '无权查看该用户的模型' } satisfies ApiResponse,
+          { status: 403 },
+        );
+      }
+    }
+
     if (query) {
-      // 搜索模型
       models = await mmdModelsDbService.searchModels(
-        query, 
-        userId ? parseInt(userId) : undefined
+        query,
+        userId ? userId : undefined,
       );
     } else if (userId) {
-      // 获取用户的模型
-      models = await mmdModelsDbService.getUserModels(parseInt(userId));
+      models = await mmdModelsDbService.getUserModels(userId);
     } else {
-      // 获取公开模型
       models = await mmdModelsDbService.getPublicModels();
     }
 
@@ -37,7 +52,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(response);
   } catch (error) {
     console.error('Failed to get models:', error);
-    
+
     const response: ApiResponse = {
       success: false,
       error: '获取模型列表失败',
@@ -53,6 +68,14 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const user = await getApiSessionUser(request);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: '未授权的访问' } satisfies ApiResponse,
+        { status: 401 },
+      );
+    }
+
     const body = await request.json();
     const {
       name,
@@ -61,12 +84,10 @@ export async function POST(request: NextRequest) {
       thumbnailPath,
       fileSize,
       format,
-      userId,
       tags,
       isPublic,
     } = body;
 
-    // 验证必填字段
     if (!name || !filePath || !fileSize || !format) {
       const response: ApiResponse = {
         success: false,
@@ -75,7 +96,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(response, { status: 400 });
     }
 
-    // 验证格式
     if (!['pmd', 'pmx'].includes(format)) {
       const response: ApiResponse = {
         success: false,
@@ -89,9 +109,9 @@ export async function POST(request: NextRequest) {
       description,
       filePath,
       thumbnailPath,
-      fileSize: parseInt(fileSize),
+      fileSize: parseInt(fileSize, 10),
       format,
-      userId: userId ? parseInt(userId) : undefined,
+      userId: String(user.id),
       tags: Array.isArray(tags) ? tags : [],
       isPublic: Boolean(isPublic),
     });
@@ -105,7 +125,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(response, { status: 201 });
   } catch (error) {
     console.error('Failed to create model:', error);
-    
+
     const response: ApiResponse = {
       success: false,
       error: '创建模型失败',
@@ -113,4 +133,4 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(response, { status: 500 });
   }
-} 
+}

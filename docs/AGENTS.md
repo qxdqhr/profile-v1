@@ -6,6 +6,14 @@
 通用能力（登录、OSS、UI/主题等）进库、宿主变薄；客户仓应能直接 `import` 库接入，而不是复制 profile 代码。  
 执行上：北极星 > **Phase U（已完成，门禁 `pnpm gate:ui`）** > 业务试点 / 功能优化。详见蓝图 §0 / UI-UNIFICATION-PLAN。
 
+### 架构九项改造（已完成）
+
+A→E 已关闭，归档见：
+
+**[`docs/architecture/ARCHITECTURE-REMEDIATION-PLAN.md`](./architecture/ARCHITECTURE-REMEDIATION-PLAN.md)**
+
+产品级鉴权余项见 [`architecture/AUTH-SURFACE-AUDIT.md`](./architecture/AUTH-SURFACE-AUDIT.md)。
+
 ## 项目知识库（自动 + 手动）
 
 详细的路由分组、Monorepo 子应用边界、模块目录、`app/api` 与 `src/modules` 的对应关系、实验田 `experimentData.ts` 约定见：
@@ -27,7 +35,7 @@
 | WordPress（旁路） | —（非 pnpm） | 官方 PHP | `/wp/<slug>/` |
 | Godot 游戏（旁路） | —（非 pnpm） | nginx 静态 | `/games/<slug>/` |
 
-领域逻辑在 `packages/*-core`；跨端类型与 API 客户端在 `packages/*-shared`。ShowMasterpiece 业务在 `@profile/showmasterpiece-core`。  
+领域逻辑在 `packages/*-core`；跨端类型与 API 客户端在各 core 的 **`./shared` 导出**（勿再新建独立 `*-shared` 包）。ShowMasterpiece 业务在 `@profile/showmasterpiece-core`。
 WordPress 为同域 nginx 旁路 PHP，与 Next 子应用隔离。  
 Godot 源码在 `games/<slug>/`，旁路见 `deploy/games/`（现网含 `miku-flick` 等；CI `export-godot-games`）。小游戏迁移为**双轨**，见 `deploy/games/GODOT-REWRITE-PLAN.md`。
 

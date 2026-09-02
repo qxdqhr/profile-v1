@@ -19,7 +19,7 @@ alwaysApply: true
 | YAML + SOPS 配置说明 | `docs/infrastructure/config-yaml-sops.md`（`config/` 仅放 YAML 文件 + stub README） |
 | 节点笔记（需求/开发/设计系统） | `docs/node-notes/` |
 | 主站某模块运维/需求（跨仓可见） | `docs/modules/<module>/` |
-| 子应用 / core 包专属 | `web/<app>/docs/`、`packages/<core>/docs/`、`npm/*-shared` |
+| 子应用 / core 包专属 | `web/<app>/docs/`、`packages/<core>/docs/`（含 `src/shared`） |
 | 模块分步构建（开发中） | `web/web/src/modules/<module>/` 内 markdown |
 | 网关 / Docker 现网 Runbook | `deploy/MIGRATION-RUNBOOK.md` |
 

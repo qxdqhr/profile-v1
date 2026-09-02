@@ -3,7 +3,7 @@ import { getApiSessionUser } from '@/lib/auth/session';
 import { fitnessPlanDbService } from '@/modules/fitnessPlan/db/fitnessPlanDbService';
 
 interface RouteParams {
-  params: Promise<{ id: string; itemId: string }>;
+  params: Promise<{ itemId: string }>;
 }
 
 export async function POST(_request: NextRequest, { params }: RouteParams) {

@@ -26,7 +26,7 @@ export async function GET(
       return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     console.log('🔍 [API/collections/:id] 获取集合ID:', id);
 
     // TODO: 实现从数据库获取特定集合
@@ -72,7 +72,7 @@ export async function PUT(
       return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     const { name, description, fileIds } = await request.json();
     console.log('📝 [API/collections/:id] 更新集合参数:', { id, name, description, fileIds });
 
@@ -135,7 +135,7 @@ export async function DELETE(
       return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     console.log('🗑️ [API/collections/:id] 删除集合ID:', id);
 
     // TODO: 实现删除集合的数据库操作

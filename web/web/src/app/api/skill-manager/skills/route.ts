@@ -56,8 +56,8 @@ export async function GET(request: NextRequest) {
   try {
     const params = new URL(request.url).searchParams;
     const q = params.get('q')?.trim().toLowerCase() || '';
-    const source = params.get('source')?.trim() as SkillSource | null;
-    const status = params.get('status')?.trim() as SkillStatus | null;
+    const source = params.get('source')?.trim() as SkillSource | 'all' | null;
+    const status = params.get('status')?.trim() as SkillStatus | 'all' | null;
     const pageRaw = Number(params.get('page') || '1');
     const limitRaw = Number(params.get('limit') || '10');
     const page = Number.isFinite(pageRaw) && pageRaw > 0 ? Math.floor(pageRaw) : 1;

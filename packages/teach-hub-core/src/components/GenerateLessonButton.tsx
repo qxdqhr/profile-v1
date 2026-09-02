@@ -6,7 +6,7 @@ import {
   generateLessonButtonLabel,
   resolveGenerateLessonTrigger,
   type GenerateLessonTrigger,
-} from '@profile/teach-hub-shared';
+} from '../shared';
 import { generateLesson } from '../services/teachHubClient';
 import type { LessonIndex, TeachLessonProgress } from '../types';
 

@@ -1,7 +1,7 @@
 import {
   TeachHubApiClient,
   type GenerateLessonTrigger,
-} from '@profile/teach-hub-shared/api';
+} from '../shared/api/client';
 
 export type { GenerateLessonTrigger };
 

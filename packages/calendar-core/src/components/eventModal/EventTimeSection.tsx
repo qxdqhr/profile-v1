@@ -70,7 +70,7 @@ export default function EventTimeSection({
         </div>
         <Switch
           checked={formData.allDay}
-          onChange={(checked) => onChange('allDay', checked)}
+          onChange={(checked: boolean) => onChange('allDay', checked)}
         />
       </label>
     </motion.div>

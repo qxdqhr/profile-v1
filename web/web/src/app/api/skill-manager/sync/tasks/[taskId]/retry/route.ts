@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { buildTaskFromItems, executeSyncTask, readSyncStateMap, readTasks, upsertTask, writeSyncStateMap } from '../../../_lib';
 
-export async function POST(_request: NextRequest, context: { params: Promise<{ taskId: string }> }) {
+export async function POST(request: NextRequest, context: { params: Promise<{ taskId: string }> }) {
   try {
+    const user = await getApiSessionUser(request);
+    if (!user) {
+      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+    }
+
     const { taskId } = await context.params;
     const tasks = await readTasks();
     const idx = tasks.findIndex((x) => x.taskId === taskId);

@@ -37,6 +37,7 @@ export class NodeNotesDbService {
         description: nodeNoteDocuments.description,
         slug: nodeNoteDocuments.slug,
         viewport: nodeNoteDocuments.viewport,
+        canvasBgColor: nodeNoteDocuments.canvasBgColor,
         createdAt: nodeNoteDocuments.createdAt,
         updatedAt: nodeNoteDocuments.updatedAt,
         nodeCount: sql<number>`cast(count(distinct ${nodeNoteNodes.id}) as int)`,

@@ -14,7 +14,7 @@ alwaysApply: false
 |----|------|------|
 | **Submodule 源码** | `games/<slug>/`、`wordpress/<slug>/`、`mobile/<slug>/`、`desktop/<slug>/` | 独立 Git 仓；父仓只存指针 |
 | **父仓旁路** | `deploy/games/<slug>/`、`deploy/wordpress/` | nginx、compose 模板、ADD-* 文档、CI 生成的 `www/` |
-| **跨端 shared** | `npm/*-shared` | 父仓 workspace 包，供 mobile/desktop 消费 |
+| **跨端 client** | `packages/*-core/src/shared`（`@profile/<domain>-core/shared`） | 供 mobile/desktop 消费；勿依赖 Next/`@profile/db` |
 | **主站导航** | `web/web/src/modules/games/` | 大厅卡片与筛选；**不是** Godot 源码 |
 
 - `deploy/wordpress/` = 全站 WP **基建文档**，**不是** submodule。

@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { forceRefreshDatabaseConnection, getDatabaseConnectionStatus } from '@profile/db';
-import type { BookingStatus } from '../../types/booking';
+import type { BookingStatus } from '../../../types/booking';
 import { isAuthFailure, requireAdmin } from '../../lib/auth';
 import { bookingQueryService } from '../../lib/bookingServices';
 import { handleRouteError } from '../../lib/response';

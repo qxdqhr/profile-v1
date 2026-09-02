@@ -1,25 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { saveGridConfigToDB, loadGridConfigFromDB, getAllConfigsFromDB, deleteConfigFromDB } from '../../services/databaseService';
 import { GridConfig } from '../../types';
 
-// GET - 获取配置列表或单个配置
+// GET - 获取配置列表或单个配置（玩法读取，公开）
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const configId = searchParams.get('id');
 
     if (configId) {
-      // 获取单个配置
       const config = await loadGridConfigFromDB(configId);
       if (!config) {
         return NextResponse.json({ error: 'Configuration not found' }, { status: 404 });
       }
       return NextResponse.json(config);
-    } else {
-      // 获取所有配置列表
-      const configs = await getAllConfigsFromDB();
-      return NextResponse.json(configs);
     }
+
+    const configs = await getAllConfigsFromDB();
+    return NextResponse.json(configs);
   } catch (error) {
     console.error('Failed to get configuration:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -29,6 +28,11 @@ export async function GET(request: NextRequest) {
 // POST - 创建新配置
 export async function POST(request: NextRequest) {
   try {
+    const user = await getApiSessionUser(request);
+    if (!user) {
+      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+    }
+
     const body = await request.json();
     const config: GridConfig = {
       ...body,
@@ -47,6 +51,11 @@ export async function POST(request: NextRequest) {
 // PUT - 更新配置
 export async function PUT(request: NextRequest) {
   try {
+    const user = await getApiSessionUser(request);
+    if (!user) {
+      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+    }
+
     const body = await request.json();
     const config: GridConfig = {
       ...body,
@@ -65,6 +74,11 @@ export async function PUT(request: NextRequest) {
 // DELETE - 删除配置
 export async function DELETE(request: NextRequest) {
   try {
+    const user = await getApiSessionUser(request);
+    if (!user) {
+      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const configId = searchParams.get('id');
 
@@ -78,4 +92,4 @@ export async function DELETE(request: NextRequest) {
     console.error('Failed to delete configuration:', error);
     return NextResponse.json({ error: 'Failed to delete configuration' }, { status: 500 });
   }
-} 
+}

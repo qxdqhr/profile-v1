@@ -404,7 +404,7 @@ export default function EventList({
                   <Button
                     type="text"
                     size="small"
-                    onClick={(e) => {
+                    onClick={(e: React.MouseEvent) => {
                       e.stopPropagation();
                       onEventEdit(event);
                     }}
@@ -417,7 +417,7 @@ export default function EventList({
                   <Button
                     type="text"
                     size="small"
-                    onClick={(e) => {
+                    onClick={(e: React.MouseEvent) => {
                       e.stopPropagation();
                       onEventDelete(event.id);
                     }}
@@ -489,7 +489,7 @@ export default function EventList({
                 <Button
                   type="text"
                   size="small"
-                  onClick={(e) => {
+                  onClick={(e: React.MouseEvent) => {
                     e.stopPropagation();
                     onEventEdit(event);
                   }}
@@ -502,7 +502,7 @@ export default function EventList({
                 <Button
                   type="text"
                   size="small"
-                  onClick={(e) => {
+                  onClick={(e: React.MouseEvent) => {
                     e.stopPropagation();
                     onEventDelete(event.id);
                   }}

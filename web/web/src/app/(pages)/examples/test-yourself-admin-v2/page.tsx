@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { createConfigService } from 'sa2kit/business/testYourself/server';
 import type { SavedConfig, TestResult } from 'sa2kit/business/testYourself';
+import { AuthProvider, AuthGuard } from '@/lib/auth';
 
 // 模拟 UniversalFile 客户端（后续会替换为真实实现）
 interface UploadedFile {
@@ -35,7 +36,7 @@ interface UploadedFile {
   size: number;
 }
 
-export default function TestYourselfAdminV2Page() {
+function TestYourselfAdminV2Page() {
   // 配置服务
   const [configService] = useState(() => createConfigService());
   const [storageType, setStorageType] = useState<string>('loading');
@@ -705,9 +706,15 @@ const metadata = await universalFileClient.uploadFile({
   );
 }
 
-
-
-
+export default function TestYourselfAdminV2Route() {
+  return (
+    <AuthProvider>
+      <AuthGuard requireAuth>
+        <TestYourselfAdminV2Page />
+      </AuthGuard>
+    </AuthProvider>
+  );
+}
 
 
 

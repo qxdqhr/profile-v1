@@ -1,25 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { buildTaskFromItems, executeSyncTask, readSyncStateMap, upsertTask, writeSyncStateMap } from '../_lib';
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getApiSessionUser(request);
+    if (!user) {
+      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+    }
+
     const body = (await request.json()) as {
       skillIds?: string[];
       mode?: 'local-to-web';
       strategy?: 'ff-only' | 'manual';
     };
-    const skillIds = Array.isArray(body.skillIds) ? body.skillIds.filter((x) => typeof x === 'string' && x.trim()) : [];
+    const skillIds = Array.isArray(body.skillIds)
+      ? body.skillIds.filter((x) => typeof x === 'string' && x.trim())
+      : [];
     if (!skillIds.length) {
       return NextResponse.json({ error: 'skillIds 不能为空' }, { status: 400 });
     }
-    const mode: 'local-to-web' = 'local-to-web';
     const strategy: 'ff-only' | 'manual' = body.strategy === 'manual' ? 'manual' : 'ff-only';
     const state = await readSyncStateMap();
     const executed = await executeSyncTask({
       skillIds,
       strategy,
-      prevState: state
+      prevState: state,
     });
     await writeSyncStateMap(executed.nextState);
     const task = buildTaskFromItems({
@@ -30,14 +37,14 @@ export async function POST(request: NextRequest) {
         {
           at: new Date().toISOString(),
           level: 'info',
-          message: `创建同步任务，策略=${strategy}，输入=${skillIds.length}项`
+          message: `创建同步任务，策略=${strategy}，输入=${skillIds.length}项`,
         },
         {
           at: new Date().toISOString(),
           level: executed.items.some((x) => x.status === 'failed') ? 'warn' : 'info',
-          message: `执行完成：成功=${executed.items.filter((x) => x.status === 'success').length} 失败=${executed.items.filter((x) => x.status === 'failed').length}`
-        }
-      ]
+          message: `执行完成：成功=${executed.items.filter((x) => x.status === 'success').length} 失败=${executed.items.filter((x) => x.status === 'failed').length}`,
+        },
+      ],
     });
     await upsertTask(task);
     return NextResponse.json(task);
@@ -46,4 +53,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: '创建同步任务失败' }, { status: 500 });
   }
 }
-

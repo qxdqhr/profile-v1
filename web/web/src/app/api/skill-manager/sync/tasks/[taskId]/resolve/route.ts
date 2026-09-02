@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getApiSessionUser } from '@/lib/auth/session';
 import {
   buildTaskFromItems,
   getCurrentSkillMarkdownHash,
@@ -13,6 +14,11 @@ type ResolutionDecision = 'local' | 'remote' | 'merge_edit';
 
 export async function POST(request: NextRequest, context: { params: Promise<{ taskId: string }> }) {
   try {
+    const user = await getApiSessionUser(request);
+    if (!user) {
+      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+    }
+
     const { taskId } = await context.params;
     const body = (await request.json()) as {
       resolutions?: Array<{ skillId?: string; decision?: ResolutionDecision; mergedContent?: string }>;

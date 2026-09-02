@@ -2,7 +2,7 @@
  * 通用导出服务客户端API
  */
 
-import type { ExportConfig } from './types';
+import type { ExportConfig, ExportRequest } from './types';
 
 /**
  * 客户端导出配置服务
@@ -116,14 +116,14 @@ export class UniversalExportClientService {
       }
 
       const isDataArray = Array.isArray(exportData);
-      const requestBody = {
+      const requestBody: Record<string, unknown> = {
         configId: request.configId,
         queryParams: request.queryParams,
         fieldMapping: request.fieldMapping,
         filters: request.filters,
         sortBy: request.sortBy,
         pagination: request.pagination,
-        customFileName: request.customFileName
+        customFileName: request.customFileName,
       };
 
       if (isDataArray) {
@@ -136,7 +136,7 @@ export class UniversalExportClientService {
         url,
         configId: typeof requestBody.configId === 'object' ? '配置对象' : requestBody.configId,
         hasData: !!requestBody.data,
-        dataLength: requestBody.data ? requestBody.data.length : 0,
+        dataLength: Array.isArray(requestBody.data) ? requestBody.data.length : 0,
         hasDataSource: !!requestBody.dataSource,
       });
 

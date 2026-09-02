@@ -1,9 +1,9 @@
 export {
   DEFAULT_MISSION_TEMPLATE,
   composeMissionMarkdown,
-} from '@profile/teach-hub-shared/templates/mission';
+} from '../shared/templates/mission';
 
-export { DEFAULT_RESOURCES_MD } from '@profile/teach-hub-shared/parsers/resourcesParser';
+export { DEFAULT_RESOURCES_MD } from '../shared/parsers/resourcesParser';
 
 export const DEFAULT_NOTES_MD = `# 教学笔记
 

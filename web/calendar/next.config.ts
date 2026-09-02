@@ -33,7 +33,7 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   transpilePackages: ['sa2kit', '@sa2kit-ui/react', '@profile/auth', '@profile/calendar-core'],
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   env: {
     NEXT_PUBLIC_APP_URL: readPublicAppUrl(),

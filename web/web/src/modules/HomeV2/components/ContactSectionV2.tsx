@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { Button, Input, Modal } from 'sa2kit/common/ui';
 
 type SubmitStatus = 'idle' | 'success' | 'error';
@@ -98,7 +98,7 @@ export function ContactSectionV2() {
                 tabIndex={-1}
                 autoComplete="off"
                 value={formData.company}
-                onChange={(event) =>
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
                   handleChange('company', event.target.value)
                 }
               />
@@ -108,7 +108,7 @@ export function ContactSectionV2() {
               <span>姓名</span>
               <Input
                 value={formData.name}
-                onChange={(event) => handleChange('name', event.target.value)}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => handleChange('name', event.target.value)}
                 placeholder="请输入您的姓名"
                 shadow
                 required
@@ -120,7 +120,7 @@ export function ContactSectionV2() {
               <Input
                 type="email"
                 value={formData.email}
-                onChange={(event) => handleChange('email', event.target.value)}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => handleChange('email', event.target.value)}
                 placeholder="请输入您的邮箱"
                 shadow
                 required
@@ -134,7 +134,7 @@ export function ContactSectionV2() {
                 name="message"
                 rows={4}
                 value={formData.message}
-                onChange={(event) =>
+                onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
                   handleChange('message', event.target.value)
                 }
                 placeholder="请输入您的消息"

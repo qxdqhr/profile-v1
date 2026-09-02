@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 import {
   Button,
   Card,
@@ -118,14 +118,14 @@ export function ExerciseLibraryPanel({
           <Input
             placeholder="搜索动作名称"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => {
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+            onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
               if (e.key === 'Enter') void load();
             }}
           />
           <Select
             value={typeFilter}
-            onChange={(value) => setTypeFilter(value as 'all' | ExerciseType)}
+            onChange={(value: string) => setTypeFilter(value as 'all' | ExerciseType)}
             options={[
               { key: 'all', label: '全部类型' },
               { key: 'strength', label: '力量' },
@@ -209,11 +209,11 @@ export function ExerciseLibraryPanel({
           <Input
             placeholder="动作名称"
             value={form.name}
-            onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, name: e.target.value }))}
           />
           <Select
             value={form.type}
-            onChange={(value) =>
+            onChange={(value: string) =>
               setForm((prev) => ({ ...prev, type: value as ExerciseType }))
             }
             options={[
@@ -224,14 +224,14 @@ export function ExerciseLibraryPanel({
           {form.type === 'strength' ? (
             <Select
               value={form.bodyPart ?? 'chest'}
-              onChange={(value) => setForm((prev) => ({ ...prev, bodyPart: value }))}
+              onChange={(value: string) => setForm((prev) => ({ ...prev, bodyPart: value }))}
               options={bodyPartOptions}
             />
           ) : (
             <Input
               placeholder="有氧类型，如 running"
               value={form.cardioType ?? ''}
-              onChange={(e) =>
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setForm((prev) => ({ ...prev, cardioType: e.target.value }))
               }
             />
@@ -239,7 +239,7 @@ export function ExerciseLibraryPanel({
           <Input
             placeholder="说明（可选）"
             value={form.description ?? ''}
-            onChange={(e) =>
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
               setForm((prev) => ({ ...prev, description: e.target.value }))
             }
           />

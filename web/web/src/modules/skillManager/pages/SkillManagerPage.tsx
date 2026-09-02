@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useAuthContext } from '@/lib/auth';
+import { AuthGuard, AuthProvider, useAuthContext } from '@/lib/auth';
 import {
   createSyncTask,
   downloadBatchSkills,
@@ -77,7 +77,7 @@ function getAllowedAdminSources(): SkillSource[] {
   return allowed.size ? Array.from(allowed) : ['local_cursor', 'manual_upload', 'remote'];
 }
 
-export default function SkillManagerPage() {
+function SkillManagerPageContent() {
   const { user } = useAuthContext();
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
 
@@ -921,5 +921,15 @@ export default function SkillManagerPage() {
         )}
       </aside>
     </main>
+  );
+}
+
+export default function SkillManagerPage() {
+  return (
+    <AuthProvider>
+      <AuthGuard requireAuth>
+        <SkillManagerPageContent />
+      </AuthGuard>
+    </AuthProvider>
   );
 }

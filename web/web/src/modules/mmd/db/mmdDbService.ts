@@ -38,7 +38,7 @@ export class MMDModelsDbService {
   /**
    * 获取用户的模型
    */
-  async getUserModels(userId: number): Promise<MMDModel[]> {
+  async getUserModels(userId: string): Promise<MMDModel[]> {
     const result = await db
       .select()
       .from(mmdModels)
@@ -65,7 +65,7 @@ export class MMDModelsDbService {
   /**
    * 搜索模型
    */
-  async searchModels(query: string, userId?: number): Promise<MMDModel[]> {
+  async searchModels(query: string, userId?: string): Promise<MMDModel[]> {
     const conditions = [
       like(mmdModels.name, `%${query}%`),
       like(mmdModels.description, `%${query}%`)
@@ -101,7 +101,7 @@ export class MMDModelsDbService {
     thumbnailPath?: string;
     fileSize: number;
     format: 'pmd' | 'pmx';
-    userId?: number;
+    userId?: string;
     tags?: string[];
     isPublic: boolean;
   }): Promise<MMDModel> {
@@ -125,7 +125,7 @@ export class MMDModelsDbService {
     delete updateData.id;
     delete updateData.uploadTime;
     if (updateData.userId) {
-      updateData.userId = parseInt(updateData.userId);
+      updateData.userId = String(updateData.userId);
     }
 
     const result = await db
@@ -209,7 +209,7 @@ export class MMDAnimationsDbService {
   /**
    * 获取用户的动画
    */
-  async getUserAnimations(userId: number): Promise<MMDAnimation[]> {
+  async getUserAnimations(userId: string): Promise<MMDAnimation[]> {
     const result = await db
       .select()
       .from(mmdAnimations)
@@ -243,7 +243,7 @@ export class MMDAnimationsDbService {
     fileSize: number;
     duration: number;
     frameCount: number;
-    userId?: number;
+    userId?: string;
     tags?: string[];
     isPublic: boolean;
     compatibleModels?: string[];
@@ -265,7 +265,7 @@ export class MMDAnimationsDbService {
     delete updateData.id;
     delete updateData.uploadTime;
     if (updateData.userId) {
-      updateData.userId = parseInt(updateData.userId);
+      updateData.userId = String(updateData.userId);
     }
 
     const result = await db
@@ -321,7 +321,7 @@ export class MMDAudiosDbService {
   /**
    * 获取用户的音频
    */
-  async getUserAudios(userId: number): Promise<MMDAudio[]> {
+  async getUserAudios(userId: string): Promise<MMDAudio[]> {
     const result = await db
       .select()
       .from(mmdAudios)
@@ -354,7 +354,7 @@ export class MMDAudiosDbService {
     fileSize: number;
     duration: number;
     format: 'wav' | 'mp3' | 'ogg';
-    userId?: number;
+    userId?: string;
   }): Promise<MMDAudio> {
     const result = await db
       .insert(mmdAudios)
@@ -400,7 +400,7 @@ export class MMDScenesDbService {
   /**
    * 获取用户的场景
    */
-  async getUserScenes(userId: number): Promise<MMDScene[]> {
+  async getUserScenes(userId: string): Promise<MMDScene[]> {
     const result = await db
       .select()
       .from(mmdScenes)
@@ -437,7 +437,7 @@ export class MMDScenesDbService {
     cameraTarget: { x: number; y: number; z: number };
     lighting: any;
     background: any;
-    userId?: number;
+    userId?: string;
   }): Promise<MMDScene> {
     const result = await db
       .insert(mmdScenes)
@@ -456,7 +456,7 @@ export class MMDScenesDbService {
     delete updateData.id;
     delete updateData.createdAt;
     if (updateData.userId) {
-      updateData.userId = parseInt(updateData.userId);
+      updateData.userId = String(updateData.userId);
     }
     if (updateData.modelId) {
       updateData.modelId = parseInt(updateData.modelId);

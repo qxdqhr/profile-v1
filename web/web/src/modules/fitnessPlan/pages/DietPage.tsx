@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { Button, Card, Input, Modal, Select, Title } from 'sa2kit/common/ui';
 import { fitnessPlanClient } from '../services/fitnessPlanClient';
 import { useFitnessPlanStore } from '../store/fitnessPlanStore';
@@ -245,7 +245,7 @@ export function DietPage() {
             <Select
               value={form.mealType}
               options={mealOptions}
-              onChange={(value) => setForm((prev) => ({ ...prev, mealType: value as MealType }))}
+              onChange={(value: string) => setForm((prev) => ({ ...prev, mealType: value as MealType }))}
             />
           </label>
 
@@ -253,7 +253,7 @@ export function DietPage() {
             <span>名称</span>
             <Input
               value={form.foodName}
-              onChange={(e) => setForm((prev) => ({ ...prev, foodName: e.target.value }))}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, foodName: e.target.value }))}
               placeholder="例如：公司午餐、蛋白粉"
             />
           </label>
@@ -264,7 +264,7 @@ export function DietPage() {
               type="file"
               accept="image/jpeg,image/png,image/webp,image/gif"
               hidden
-              onChange={(e) => {
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
                 const file = e.target.files?.[0];
                 if (file) void handleUpload(file);
                 e.target.value = '';

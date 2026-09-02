@@ -110,9 +110,15 @@ export function ArtworksTab({
           </div>
           <ArtworkOrderManager
             collectionId={selectedCollection}
-            moveArtworkUp={moveArtworkUp}
-            moveArtworkDown={moveArtworkDown}
-            updateArtworkOrder={updateArtworkOrder}
+            moveArtworkUp={async (collectionId, id) => {
+              moveArtworkUp(collectionId, id);
+            }}
+            moveArtworkDown={async (collectionId, id) => {
+              moveArtworkDown(collectionId, id);
+            }}
+            updateArtworkOrder={async (collectionId, orders) => {
+              updateArtworkOrder(collectionId, orders);
+            }}
             onOrderChanged={async () => {}}
           />
         </div>

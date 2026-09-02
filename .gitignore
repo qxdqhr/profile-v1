@@ -27,6 +27,8 @@
 # misc
 .DS_Store
 *.pem
+bun.lock
+bun.lockb
 
 # 配置（明文不进 Git）
 .env

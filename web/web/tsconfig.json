@@ -26,6 +26,8 @@
       "@profile/config/*": ["../../packages/config/src/*"],
       "@profile/db": ["../../packages/db/src/index.ts"],
       "@profile/db/*": ["../../packages/db/src/*"],
+      "@profile/node-notes-core": ["../../packages/node-notes-core/src/index.ts"],
+      "@profile/node-notes-core/*": ["../../packages/node-notes-core/src/*"],
       "@profile/ui/*": ["../../packages/ui/*"]
     }
   },
@@ -34,7 +36,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    "../../packages/showmasterpiece-core/src/types/**/*.d.ts"
   ],
   "exclude": ["node_modules"]
 }

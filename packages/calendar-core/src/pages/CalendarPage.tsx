@@ -36,7 +36,7 @@ import {
 import EventList from '../components/EventList';
 import ImprovedEventModal from '../components/ImprovedEventModal';
 import DraggableMonthView from '../components/DraggableMonthView';
-import CalendarSettings from '../components/CalendarSettings';
+import CalendarSettingsPanel from '../components/CalendarSettings';
 import CalendarToolbar from '../components/CalendarToolbar';
 import CalendarWeekView from '../components/CalendarWeekView';
 import CalendarDayView from '../components/CalendarDayView';
@@ -453,7 +453,7 @@ function CalendarPageContent({ toolsPanel }: CalendarPageProps) {
 
           {activeTab === 'settings' && (
             <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden">
-              <CalendarSettings className="h-full min-h-0" />
+              <CalendarSettingsPanel className="h-full min-h-0" />
             </div>
           )}
         </main>

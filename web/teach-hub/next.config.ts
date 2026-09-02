@@ -38,7 +38,7 @@ const nextConfig: NextConfig = {
     '@profile/teach-hub-core',
   ],
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   env: {
     NEXT_PUBLIC_APP_URL: readPublicAppUrl(),

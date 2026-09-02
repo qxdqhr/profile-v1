@@ -10,13 +10,23 @@
     "./pages": "./src/pages/index.ts",
     "./layout/*": "./src/layout/*",
     "./utils/*": "./src/utils/*",
-    "./api/*": "./src/api/*"
+    "./api/*": "./src/api/*",
+    "./db/schema": "./src/db/schema.ts",
+    "./shared": "./src/shared/index.ts",
+    "./shared/types": "./src/shared/types/index.ts",
+    "./shared/api": "./src/shared/api/client.ts",
+    "./shared/routes": "./src/shared/routes.ts",
+    "./shared/parsers/missionParser": "./src/shared/parsers/missionParser.ts",
+    "./shared/parsers/learningRecordParser": "./src/shared/parsers/learningRecordParser.ts",
+    "./shared/parsers/resourcesParser": "./src/shared/parsers/resourcesParser.ts",
+    "./shared/utils/lessonProgress": "./src/shared/utils/lessonProgress.ts",
+    "./shared/templates/mission": "./src/shared/templates/mission.ts",
+    "./shared/services/learningRecords": "./src/shared/services/learningRecords.ts"
   },
   "dependencies": {
     "@profile/auth": "workspace:*",
     "@profile/config": "workspace:*",
     "@profile/db": "workspace:*",
-    "@profile/teach-hub-shared": "workspace:*",
     "adm-zip": "^0.5.16",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.44.7",
@@ -34,5 +44,9 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.7",
+    "@types/react": "^19",
+    "@types/react-dom": "^19"
+  }
 }

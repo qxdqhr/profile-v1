@@ -13,7 +13,6 @@ import { cn } from '../../../utils/cn';
 
 export interface OrderableItem {
   id: number;
-  [key: string]: unknown;
 }
 
 export interface OrderManagerOperations<T extends OrderableItem> {

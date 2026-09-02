@@ -124,7 +124,7 @@ export function CollectionOrderManagerV2({
   };
 
   return (
-    <GenericOrderManager
+    <GenericOrderManager<ArtCollection>
       operations={operations}
       renderItem={renderCollection}
       title="画集排序管理"

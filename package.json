@@ -35,6 +35,8 @@
     "start": "pnpm --filter @profile/web start",
     "lint": "pnpm --filter @profile/web lint",
     "gate:ui": "node scripts/check-ui-unification-gate.mjs",
+    "gate:architecture": "node scripts/check-architecture-gate.mjs",
+    "gate": "pnpm gate:ui && pnpm gate:architecture",
     "config:doctor": "tsx --import @profile/config/preload scripts/config-doctor.ts",
     "config:verify-business": "tsx --import @profile/config/preload scripts/verify-business-config.ts",
     "config:sops-init": "bash scripts/config-sops-init.sh",

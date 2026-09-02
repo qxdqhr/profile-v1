@@ -24,9 +24,12 @@ export default function OnlineMusicPage() {
 
       {/* 播放器容器 */}
       <div className="flex-1 overflow-hidden">
-        <MusicPlayer />
+        <MusicPlayer
+          isPlaying={false}
+          currentTime={0}
+          duration={0}
+        />
       </div>
     </div>
   );
 }
-

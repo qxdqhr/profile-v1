@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Card, Input, Select, Title } from 'sa2kit/common/ui';
 import { ExerciseLibraryPanel } from '../components/ExerciseLibraryPanel';
@@ -186,13 +186,13 @@ export function PlanDetailPage({ planId }: { planId: string }) {
         <div className="fp-settings-form">
           <label className="fp-field">
             <span>计划名称</span>
-            <Input value={name} onChange={(e) => setName(e.target.value)} />
+            <Input value={name} onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)} />
           </label>
           <label className="fp-field">
             <span>描述</span>
             <Input
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)}
               placeholder="可选"
             />
           </label>
@@ -231,7 +231,7 @@ export function PlanDetailPage({ planId }: { planId: string }) {
                   <Input
                     type="number"
                     value={String(item.targetSets ?? '')}
-                    onChange={(e) =>
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
                       updateItem(item.key, { targetSets: Number(e.target.value) || 0 })
                     }
                   />
@@ -241,7 +241,7 @@ export function PlanDetailPage({ planId }: { planId: string }) {
                   <Input
                     type="number"
                     value={String(item.targetReps ?? '')}
-                    onChange={(e) =>
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
                       updateItem(item.key, { targetReps: Number(e.target.value) || 0 })
                     }
                   />
@@ -251,7 +251,7 @@ export function PlanDetailPage({ planId }: { planId: string }) {
                   <Input
                     type="number"
                     value={item.targetWeight != null ? String(item.targetWeight) : ''}
-                    onChange={(e) =>
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
                       updateItem(item.key, {
                         targetWeight: e.target.value ? Number(e.target.value) : undefined,
                       })
@@ -263,7 +263,7 @@ export function PlanDetailPage({ planId }: { planId: string }) {
                   <Input
                     type="number"
                     value={String(item.restSeconds ?? 90)}
-                    onChange={(e) =>
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
                       updateItem(item.key, { restSeconds: Number(e.target.value) || 90 })
                     }
                   />
@@ -276,7 +276,7 @@ export function PlanDetailPage({ planId }: { planId: string }) {
                   <Input
                     type="number"
                     value={String(item.targetDurationMinutes ?? '')}
-                    onChange={(e) =>
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
                       updateItem(item.key, {
                         targetDurationMinutes: Number(e.target.value) || 0,
                       })
@@ -288,7 +288,7 @@ export function PlanDetailPage({ planId }: { planId: string }) {
                   <Input
                     type="number"
                     value={item.targetDistance != null ? String(item.targetDistance) : ''}
-                    onChange={(e) =>
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
                       updateItem(item.key, {
                         targetDistance: e.target.value ? Number(e.target.value) : undefined,
                       })
@@ -300,7 +300,7 @@ export function PlanDetailPage({ planId }: { planId: string }) {
                   <Input
                     type="number"
                     value={item.targetCalories != null ? String(item.targetCalories) : ''}
-                    onChange={(e) =>
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
                       updateItem(item.key, {
                         targetCalories: e.target.value ? Number(e.target.value) : undefined,
                       })

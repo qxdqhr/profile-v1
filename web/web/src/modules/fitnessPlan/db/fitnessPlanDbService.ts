@@ -1192,7 +1192,7 @@ class FitnessPlanDbService {
         endedAt,
         durationSeconds,
         notes: input.notes ?? session.notes,
-        summaryJson: summary,
+        summaryJson: summary as unknown as Record<string, unknown>,
         updatedAt: new Date(),
       })
       .where(and(eq(workoutSessions.id, sessionId), eq(workoutSessions.userId, userId)));

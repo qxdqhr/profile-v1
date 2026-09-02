@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ChangeEvent } from 'react';
 import { Button, Card, Input, Title } from 'sa2kit/common/ui';
 import { CheckinHeatmap } from '../components/checkin/CheckinHeatmap';
 import { fitnessPlanClient } from '../services/fitnessPlanClient';
@@ -161,7 +161,7 @@ export function CheckinPage() {
                       step="0.1"
                       min={0}
                       value={weightInput}
-                      onChange={(e) => setWeightInput(e.target.value)}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setWeightInput(e.target.value)}
                       placeholder="可选，同步到档案"
                     />
                   </label>

@@ -20,7 +20,8 @@ export async function POST(
       );
     }
 
-    const itemId = parseInt(params.id);
+    const { id } = await params;
+    const itemId = parseInt(id);
     if (isNaN(itemId)) {
       return NextResponse.json(
         { success: false, message: '无效的项目ID' },

@@ -27,7 +27,7 @@ export async function saveHomePageConfig(input: unknown): Promise<HomePageConfig
 
   writeBusinessConfig((business) => ({
     ...business,
-    homePage: normalized as Record<string, unknown>,
+    homePage: normalized as unknown as Record<string, unknown>,
   }));
 
   return normalized;

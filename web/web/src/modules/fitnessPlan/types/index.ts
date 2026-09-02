@@ -109,6 +109,8 @@ export function parseProfileNumbers(profile: FitnessProfile) {
   };
 }
 
+export type FitnessProfileClient = ReturnType<typeof parseProfileNumbers>;
+
 export interface ExerciseRecord {
   id: number;
   userId: string | null;

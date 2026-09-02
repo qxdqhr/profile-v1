@@ -4,4 +4,4 @@ export {
   recordSummary,
   composeLearningRecordMarkdown,
   listReferenceSlugs,
-} from '@profile/teach-hub-shared/parsers/learningRecordParser';
+} from '../shared/parsers/learningRecordParser';

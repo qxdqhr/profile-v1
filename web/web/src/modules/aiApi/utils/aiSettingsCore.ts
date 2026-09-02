@@ -1,4 +1,5 @@
-export type { AiApiSettings, AiClientSettings } from 'sa2kit/common/aiApi/client';
+export type { AiApiSettings } from 'sa2kit/common/aiApi/client';
+export type { AiClientSettings } from 'sa2kit/common/aiApi';
 
 export {
   AI_API_SETTINGS_STORAGE_KEY,

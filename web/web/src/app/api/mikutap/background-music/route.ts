@@ -4,6 +4,7 @@ import { mikutapBackgroundMusic } from '../../../../modules/mikutap/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { blobToBase64 } from '../../../../modules/mikutap/utils/audioUtils';
+import { getApiSessionUser } from '@/lib/auth/session';
 
 // App Router中增加路由配置
 export const maxDuration = 300; // 5分钟超时（增加处理时间）
@@ -23,18 +24,38 @@ export async function GET(request: NextRequest) {
     console.log('🎵 [API GET] 开始数据库查询...');
     const dbStartTime = Date.now();
     
-    const musics = await db
-      .select()
-      .from(mikutapBackgroundMusic)
-      .where(eq(mikutapBackgroundMusic.configId, configId));
+    const metaOnly = searchParams.get('meta') === '1';
+    const musics = metaOnly
+      ? await db
+          .select({
+            id: mikutapBackgroundMusic.id,
+            configId: mikutapBackgroundMusic.configId,
+            name: mikutapBackgroundMusic.name,
+            fileType: mikutapBackgroundMusic.fileType,
+            isDefault: mikutapBackgroundMusic.isDefault,
+            volume: mikutapBackgroundMusic.volume,
+            loop: mikutapBackgroundMusic.loop,
+            bpm: mikutapBackgroundMusic.bpm,
+            description: mikutapBackgroundMusic.description,
+            size: mikutapBackgroundMusic.size,
+            duration: mikutapBackgroundMusic.duration,
+            createdAt: mikutapBackgroundMusic.createdAt,
+            updatedAt: mikutapBackgroundMusic.updatedAt,
+          })
+          .from(mikutapBackgroundMusic)
+          .where(eq(mikutapBackgroundMusic.configId, configId))
+      : await db
+          .select()
+          .from(mikutapBackgroundMusic)
+          .where(eq(mikutapBackgroundMusic.configId, configId));
       
     const dbTime = Date.now() - dbStartTime;
-    console.log(`🎵 [API GET] 数据库查询完成，耗时: ${dbTime}ms，返回${musics.length}条记录`);
+    console.log(`🎵 [API GET] 数据库查询完成，耗时: ${dbTime}ms，返回${musics.length}条记录${metaOnly ? '（meta-only）' : ''}`);
 
     const totalTime = Date.now() - startTime;
     console.log(`✅ [API GET] 请求处理完成，总耗时: ${totalTime}ms`);
 
-    return NextResponse.json({ success: true, data: musics });
+    return NextResponse.json({ success: true, data: musics, metaOnly });
   } catch (error) {
     const totalTime = Date.now() - startTime;
     console.error(`❌ [API GET] 获取背景音乐失败 (耗时: ${totalTime}ms):`, error);
@@ -65,6 +86,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   console.log('🎵 [API POST] 开始处理背景音乐上传请求...');
   const startTime = Date.now();
+
+  const user = await getApiSessionUser(request);
+  if (!user) {
+    return NextResponse.json({ success: false, error: '未授权的访问' }, { status: 401 });
+  }
   
   // 检查系统资源状态
   try {
@@ -272,6 +298,11 @@ export async function POST(request: NextRequest) {
 // 更新背景音乐
 export async function PUT(request: NextRequest) {
   try {
+    const user = await getApiSessionUser(request);
+    if (!user) {
+      return NextResponse.json({ success: false, error: '未授权的访问' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     const configId = searchParams.get('configId') || 'default';
@@ -324,6 +355,11 @@ export async function PUT(request: NextRequest) {
 // 删除背景音乐
 export async function DELETE(request: NextRequest) {
   try {
+    const user = await getApiSessionUser(request);
+    if (!user) {
+      return NextResponse.json({ success: false, error: '未授权的访问' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     const configId = searchParams.get('configId') || 'default';
@@ -350,9 +386,6 @@ export async function DELETE(request: NextRequest) {
         { status: 404 }
       );
     }
-
-    // TODO: 删除文件系统中的文件
-    // 可以在这里添加文件删除逻辑
 
     return NextResponse.json({ success: true, data: deletedMusic });
   } catch (error) {

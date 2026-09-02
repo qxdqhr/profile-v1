@@ -37,8 +37,10 @@ const nextConfig: NextConfig = {
     '@profile/auth',
     '@profile/showmasterpiece-core',
   ],
+  // Avoid webpack re-bundling lru-cache (named export breakage with v11 CJS/min).
+  serverExternalPackages: ['lru-cache'],
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   env: {
     NEXT_PUBLIC_APP_URL: readPublicAppUrl(),
@@ -66,6 +68,14 @@ const nextConfig: NextConfig = {
       '@tarojs/components': false,
       '@tarojs/taro': false,
     };
+
+    if (isServer) {
+      const prev = config.externals;
+      config.externals = [
+        ...(Array.isArray(prev) ? prev : prev ? [prev] : []),
+        'lru-cache',
+      ];
+    }
 
     if (!isServer) {
       config.resolve.fallback = {

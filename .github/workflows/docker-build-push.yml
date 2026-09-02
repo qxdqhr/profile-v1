@@ -53,7 +53,6 @@ jobs:
             calendar:
               - 'web/calendar/**'
               - 'packages/calendar-core/**'
-              - 'npm/calendar-shared/**'
               - 'packages/auth/**'
               - 'packages/config/**'
               - 'packages/db/**'
@@ -63,7 +62,6 @@ jobs:
             teach-hub:
               - 'web/teach-hub/**'
               - 'packages/teach-hub-core/**'
-              - 'npm/teach-hub-shared/**'
               - 'packages/auth/**'
               - 'packages/config/**'
               - 'packages/db/**'
@@ -94,10 +92,10 @@ jobs:
               - 'package.json'
             calendar-mobile:
               - 'mobile/calendar-mobile/**'
-              - 'npm/calendar-shared/**'
+              - 'packages/calendar-core/**'
             teach-hub-mobile:
               - 'mobile/teach-hub-mobile/**'
-              - 'npm/teach-hub-shared/**'
+              - 'packages/teach-hub-core/**'
             games:
               - 'games/**'
               - 'scripts/export-godot-game.sh'

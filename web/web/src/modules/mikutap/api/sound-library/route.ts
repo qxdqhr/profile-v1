@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { saveSoundLibraryItem, getSoundLibraryFromDB, deleteSoundLibraryItem } from '../../services/databaseService';
 
-// GET - 获取音效库列表
+// GET - 获取音效库列表（玩法读取，公开）
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -22,6 +23,11 @@ export async function GET(request: NextRequest) {
 // POST - 添加音效库项目
 export async function POST(request: NextRequest) {
   try {
+    const user = await getApiSessionUser(request);
+    if (!user) {
+      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { configId, ...item } = body;
 
@@ -40,6 +46,11 @@ export async function POST(request: NextRequest) {
 // PUT - 更新音效库项目
 export async function PUT(request: NextRequest) {
   try {
+    const user = await getApiSessionUser(request);
+    if (!user) {
+      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { configId, ...item } = body;
 
@@ -58,6 +69,11 @@ export async function PUT(request: NextRequest) {
 // DELETE - 删除音效库项目
 export async function DELETE(request: NextRequest) {
   try {
+    const user = await getApiSessionUser(request);
+    if (!user) {
+      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const itemId = searchParams.get('id');
 
@@ -71,4 +87,4 @@ export async function DELETE(request: NextRequest) {
     console.error('Failed to delete sound library item:', error);
     return NextResponse.json({ error: 'Failed to delete sound library item' }, { status: 500 });
   }
-} 
+}

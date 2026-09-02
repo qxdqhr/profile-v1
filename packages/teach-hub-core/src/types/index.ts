@@ -1,1 +1,1 @@
-export type * from '@profile/teach-hub-shared/types';
+export type * from '../shared/types';

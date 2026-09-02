@@ -24,7 +24,7 @@ export default function MikuRadioExample() {
           defaultLoopMode: 'list'
         }}
         stage={{
-          renderEffect: 'outline+bloom',
+          renderEffect: 'outline',
           outlineOptions: { thickness: 0.005, color: '#000000' },
           physicsPath: '/libs/ammo.wasm.js',
           ambientLightIntensity: 0.8,

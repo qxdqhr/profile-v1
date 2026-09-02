@@ -44,11 +44,10 @@ profile-v1/                          # 仓库根（可日后改名为 profile-pl
 │   ├── auth/                        # better-auth 客户端 + React 壳
 │   ├── db/                          # Drizzle schema、migrate、db client
 │   ├── ui/                          # 共享 Tailwind / 基础组件（按需）
-│   ├── calendar-core/               # 日历领域逻辑
-│   ├── calendar-shared/             # 日历 RN 共享类型与 API 客户端
-│   ├── teach-hub-core/              # teachHub 领域逻辑
-│   ├── teach-hub-shared/            # teachHub RN 共享
+│   ├── calendar-core/               # 日历领域逻辑（含 ./shared 跨端客户端）
+│   ├── teach-hub-core/              # teachHub 领域逻辑（含 ./shared 跨端客户端）
 │   └── showmasterpiece-core/        # ShowMasterpiece 全量业务
+├── npm/                             # 历史 *-shared 目录（已空，见 npm/README.md）
 ├── drizzle/                         # 迁移文件（短期仍集中，长期可按 package 拆分）
 └── docs/monorepo-migration/         # 本计划
 ```

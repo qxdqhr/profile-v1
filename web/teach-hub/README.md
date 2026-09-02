@@ -30,12 +30,13 @@ web/teach-hub/
   app/                    # Next.js App Router（薄壳，re-export core）
   app/api/teach-hub/      # API 路由 → @profile/teach-hub-core/api/*
   app/api/auth/           # 鉴权（共享 @profile/auth）
-  app/api/ai/             # AI 配置（生成课时依赖）
   instrumentation.ts      # 注册 teach.generateLesson 任务
   next.config.ts          # basePath、transpile、standalone
   Dockerfile              # 独立容器镜像
   docs/                   # 子应用级文档（本目录）
 ```
+
+> **AI**：课时生成在服务端直接 `runAiTask`；浏览器侧 `/api/ai/*`（配置面板等）走主站 web，本子应用不挂载 AI 路由副本。
 
 ## 环境变量
 

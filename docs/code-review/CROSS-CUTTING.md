@@ -7,98 +7,59 @@
 
 ## CX-001 — 全站关闭 TypeScript 构建闸门（P1）
 
-**现象**：以下应用均设置 `typescript.ignoreBuildErrors: true`：
+**现象**：以下应用曾设置 `typescript.ignoreBuildErrors: true`。
 
-- `web/web`
-- `web/calendar` / `teach-hub` / `showmasterpiece`
-- `web/node-notes` / `money-research`
+**进展（2026-09-02）**：`web/calendar`、`web/teach-hub` 已改为 `false`，并通过生产 build 类型检查。其余（web / showmasterpiece / node-notes / money-research）仍待 Phase D3。
 
-**风险**：类型错误可进入 Docker 镜像与生产；CI 矩阵 build 无法拦截。
-
-**建议**：
-
-1. 短期：在 CI 增加独立 `tsc --noEmit`（可不阻塞现有 docker build）。  
-2. 中期：按应用逐个关掉 `ignoreBuildErrors`，先 calendar / teach-hub（体量相对可控）。
-
-**状态**：open
+**状态**：partial
 
 ---
 
 ## CX-002 — `@profile/db` schema 上帝对象（P2）
 
-**现象**：`packages/db/src/schema/index.ts` 用相对路径硬编码聚合：
+**进展（2026-09-02）**：schema 聚合改为包名导出 + `packages/db/src/schema/*` 本地文件；**禁止**相对路径反向依赖 `web/web`。exam 已拆到 `exam.ts`。
 
-- `web/web/src/modules/*/db/schema`
-- `packages/*-core/src/db/schema`
-- sa2kit 内建表、考试表等
-
-**风险**：模块搬迁即破坏 db 包；循环依赖与迁移边界模糊。
-
-**建议**：长期按领域拆 schema 入口（或 workspace 包显式导出 schema 再由 db 聚合）；新模块禁止再加深耦合前先登记本文件。
-
-**状态**：open（接受为当前架构，跟踪演进）
+**状态**：closed（结构债降级为 workspace 环，跟踪演进）
 
 ---
 
 ## CX-003 — import 即连库 / 即初始化 auth（P2）
 
-**现象**：
+**进展（2026-09-02）**：`@profile/db` 改为懒连接（Proxy + `getDb()`）；首次访问才 `ensureAppConfigLoaded` + 建连。Auth 仍可能在 import server 时初始化。
 
-- `import '@profile/db'` → `ensureAppConfigLoaded()` + postgres 连接  
-- `import '@profile/auth/server'` → 拉起 auth + 间接依赖 db
-
-**风险**：脚本、测试、边缘路由副作用大；冷启动与错误面放大。
-
-**建议**：懒连接工厂；脚本明确走 `preload`；文档化「禁止在 client bundle 导入 server 入口」。
-
-**状态**：open
+**状态**：partial（db 已懒；auth 另跟）
 
 ---
 
 ## CX-004 — DB `sslMode` 被忽略（P0/P1）
 
-**位置**：`packages/db/src/client.ts` 读取 `sslMode` 后仍 `ssl: false`。
+**进展（2026-09-02）**：`packages/db/src/client.ts` 按 `disable|prefer|require|verify-full` 映射 postgres `ssl`。
 
-**风险**：生产库若强制 SSL，连接失败或被迫明文。
-
-**建议**：按 `sslMode`（`disable` / `prefer` / `require`）映射到 `postgres` 的 `ssl` 选项；补环境冒烟。
-
-**状态**：open
+**状态**：closed
 
 ---
 
 ## CX-005 — Auth package exports 缺口（P2）
 
-**现象**：消费方广泛使用 `@profile/auth/react`，但 `packages/auth/package.json` `exports` 未声明 `./react`（靠 tsconfig paths）。
+**现象**：`./react` 已在 `packages/auth/package.json` exports 中声明。
 
-**建议**：补上 `exports["./react"]`，与 `./client` / `./server` 对齐。
-
-**状态**：open
+**状态**：closed
 
 ---
 
 ## CX-006 — 子应用 `/api/ai` 与网关分流语义（P1）
 
-**现象**：
+**进展（2026-09-02）**：删除 calendar / teach-hub `/api/ai` 副本；nginx 显式 `/api/ai/` → web；文档写入 KNOWLEDGE_BASE §7.3。门禁：`pnpm gate:architecture`。
 
-- 生产 nginx：`/api/ai/*` → **web**  
-- calendar / teach-hub / showmasterpiece 本地仍挂载 `/api/ai` 副本  
-- calendar 前端默认请求根路径 `/api/ai`（依赖网关）
-
-**风险**：文档不清时易改成相对路径导致子应用容器 404；双实现易 drift。
-
-**建议**：在 KNOWLEDGE_BASE / 部署 runbook 明确「浏览器 AI → web；子应用副本仅 standalone」；考虑子应用去掉副本或共享同一 handler 包。
-
-**状态**：open
+**状态**：closed
 
 ---
 
 ## CX-007 — showmasterpiece API 双挂载（P0）
 
-见 [apps/showmasterpiece.md](./apps/showmasterpiece.md)。  
-`web/web/src/app/api/showmasterpiece/**` 与子应用并存。
+**进展（2026-09-02）**：已删除 `web/web/src/app/api/showmasterpiece/**`；生产仅子应用。门禁：`pnpm gate:architecture`。
 
-**状态**：open
+**状态**：closed
 
 ---
 

@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 获取基础统计信息
-    const basicStats = await fileDbService.getFileStats(moduleId);
+    const basicStats = await fileDbService.getStorageStats();
 
     // 构造响应数据
     const responseData = {

@@ -3,7 +3,7 @@
 import 'sa2kit/common/ui/style';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ChangeEvent } from 'react';
 import {
   Button,
   Card,
@@ -177,7 +177,7 @@ export function HomePageConfigPage() {
                       <Input
                         shadow
                         value={config.homeConfig.title}
-                        onChange={(event) =>
+                        onChange={(event: ChangeEvent<HTMLInputElement>) =>
                           setConfig((prev) => ({
                             ...prev,
                             homeConfig: {
@@ -193,7 +193,7 @@ export function HomePageConfigPage() {
                       <Input
                         shadow
                         value={config.homeConfig.subtitle}
-                        onChange={(event) =>
+                        onChange={(event: ChangeEvent<HTMLInputElement>) =>
                           setConfig((prev) => ({
                             ...prev,
                             homeConfig: {
@@ -209,7 +209,7 @@ export function HomePageConfigPage() {
                       <Input
                         shadow
                         value={config.homeConfig.imageSrc}
-                        onChange={(event) =>
+                        onChange={(event: ChangeEvent<HTMLInputElement>) =>
                           setConfig((prev) => ({
                             ...prev,
                             homeConfig: {
@@ -228,7 +228,7 @@ export function HomePageConfigPage() {
                             <Input
                               shadow
                               value={button.text}
-                              onChange={(event) =>
+                              onChange={(event: ChangeEvent<HTMLInputElement>) =>
                                 setConfig((prev) => {
                                   const buttons = [...prev.homeConfig.buttons];
                                   buttons[index] = {
@@ -248,7 +248,7 @@ export function HomePageConfigPage() {
                             <Input
                               shadow
                               value={button.link}
-                              onChange={(event) =>
+                              onChange={(event: ChangeEvent<HTMLInputElement>) =>
                                 setConfig((prev) => {
                                   const buttons = [...prev.homeConfig.buttons];
                                   buttons[index] = {
@@ -296,7 +296,7 @@ export function HomePageConfigPage() {
                       <Input
                         shadow
                         value={config.navConfig.avatar}
-                        onChange={(event) =>
+                        onChange={(event: ChangeEvent<HTMLInputElement>) =>
                           setConfig((prev) => ({
                             ...prev,
                             navConfig: {
@@ -311,7 +311,7 @@ export function HomePageConfigPage() {
                       <span>导航方向</span>
                       <Radio
                         value={config.navConfig.direction}
-                        onChange={(value) =>
+                        onChange={(value: string) =>
                           setConfig((prev) => ({
                             ...prev,
                             navConfig: {
@@ -357,7 +357,7 @@ export function HomePageConfigPage() {
                             <Input
                               shadow
                               value={item.id}
-                              onChange={(event) =>
+                              onChange={(event: ChangeEvent<HTMLInputElement>) =>
                                 setConfig((prev) => {
                                   const items = [...prev.navConfig.items];
                                   items[index] = {
@@ -377,7 +377,7 @@ export function HomePageConfigPage() {
                             <Input
                               shadow
                               value={item.label}
-                              onChange={(event) =>
+                              onChange={(event: ChangeEvent<HTMLInputElement>) =>
                                 setConfig((prev) => {
                                   const items = [...prev.navConfig.items];
                                   items[index] = {
@@ -397,7 +397,7 @@ export function HomePageConfigPage() {
                             <Input
                               shadow
                               value={item.href}
-                              onChange={(event) =>
+                              onChange={(event: ChangeEvent<HTMLInputElement>) =>
                                 setConfig((prev) => {
                                   const items = [...prev.navConfig.items];
                                   items[index] = {
@@ -473,7 +473,7 @@ export function HomePageConfigPage() {
                             <Input
                               shadow
                               value={item.date}
-                              onChange={(event) =>
+                              onChange={(event: ChangeEvent<HTMLInputElement>) =>
                                 setConfig((prev) => {
                                   const items = [...prev.timelineConfig.items];
                                   items[index] = {
@@ -493,7 +493,7 @@ export function HomePageConfigPage() {
                             <Input
                               shadow
                               value={item.title}
-                              onChange={(event) =>
+                              onChange={(event: ChangeEvent<HTMLInputElement>) =>
                                 setConfig((prev) => {
                                   const items = [...prev.timelineConfig.items];
                                   items[index] = {
@@ -514,7 +514,7 @@ export function HomePageConfigPage() {
                           <Input
                             shadow
                             value={item.description}
-                            onChange={(event) =>
+                            onChange={(event: ChangeEvent<HTMLInputElement>) =>
                               setConfig((prev) => {
                                 const items = [...prev.timelineConfig.items];
                                 items[index] = {
@@ -534,7 +534,7 @@ export function HomePageConfigPage() {
                           <input
                             className="home-config-page__tags-input"
                             value={formatTagsInput(item.tags ?? [])}
-                            onChange={(event) =>
+                            onChange={(event: ChangeEvent<HTMLInputElement>) =>
                               setConfig((prev) => {
                                 const items = [...prev.timelineConfig.items];
                                 items[index] = {
@@ -587,7 +587,7 @@ export function HomePageConfigPage() {
                         <Input
                           shadow
                           value={String(config.collisionBallsConfig.width)}
-                          onChange={(event) =>
+                          onChange={(event: ChangeEvent<HTMLInputElement>) =>
                             setConfig((prev) => ({
                               ...prev,
                               collisionBallsConfig: {
@@ -603,7 +603,7 @@ export function HomePageConfigPage() {
                         <Input
                           shadow
                           value={String(config.collisionBallsConfig.height)}
-                          onChange={(event) =>
+                          onChange={(event: ChangeEvent<HTMLInputElement>) =>
                             setConfig((prev) => ({
                               ...prev,
                               collisionBallsConfig: {
@@ -645,7 +645,7 @@ export function HomePageConfigPage() {
                             <Input
                               shadow
                               value={ball.label}
-                              onChange={(event) =>
+                              onChange={(event: ChangeEvent<HTMLInputElement>) =>
                                 setConfig((prev) => {
                                   const balls = [...prev.collisionBallsConfig.balls];
                                   balls[index] = {
@@ -668,7 +668,7 @@ export function HomePageConfigPage() {
                             <Input
                               shadow
                               value={ball.color}
-                              onChange={(event) =>
+                              onChange={(event: ChangeEvent<HTMLInputElement>) =>
                                 setConfig((prev) => {
                                   const balls = [...prev.collisionBallsConfig.balls];
                                   balls[index] = {
@@ -691,7 +691,7 @@ export function HomePageConfigPage() {
                             <Input
                               shadow
                               value={String(ball.size)}
-                              onChange={(event) =>
+                              onChange={(event: ChangeEvent<HTMLInputElement>) =>
                                 setConfig((prev) => {
                                   const balls = [...prev.collisionBallsConfig.balls];
                                   balls[index] = {
@@ -757,7 +757,7 @@ export function HomePageConfigPage() {
                               ? '已配置，留空则不修改'
                               : 'https://open.feishu.cn/open-apis/bot/v2/hook/...'
                           }
-                          onChange={(event) =>
+                          onChange={(event: ChangeEvent<HTMLInputElement>) =>
                             setConfig((prev) => ({
                               ...prev,
                               contactConfig: {
@@ -780,7 +780,7 @@ export function HomePageConfigPage() {
                           type={showSecret ? 'text' : 'password'}
                           value={config.contactConfig.feishuSignSecret ?? ''}
                           placeholder={secretConfigured ? '已配置，留空则不修改' : '可选'}
-                          onChange={(event) =>
+                          onChange={(event: ChangeEvent<HTMLInputElement>) =>
                             setConfig((prev) => ({
                               ...prev,
                               contactConfig: {
@@ -806,7 +806,7 @@ export function HomePageConfigPage() {
                               : ''
                           }
                           placeholder="123456789"
-                          onChange={(event) =>
+                          onChange={(event: ChangeEvent<HTMLInputElement>) =>
                             setConfig((prev) => ({
                               ...prev,
                               contactConfig: {
@@ -829,7 +829,7 @@ export function HomePageConfigPage() {
                               : ''
                           }
                           placeholder="987654321"
-                          onChange={(event) =>
+                          onChange={(event: ChangeEvent<HTMLInputElement>) =>
                             setConfig((prev) => ({
                               ...prev,
                               contactConfig: {
@@ -882,7 +882,7 @@ export function HomePageConfigPage() {
                           <Input
                             shadow
                             value={project.title}
-                            onChange={(event) =>
+                            onChange={(event: ChangeEvent<HTMLInputElement>) =>
                               setConfig((prev) => {
                                 const projects = [...prev.projectsConfig.projects];
                                 projects[index] = {
@@ -902,7 +902,7 @@ export function HomePageConfigPage() {
                           <Input
                             shadow
                             value={project.description}
-                            onChange={(event) =>
+                            onChange={(event: ChangeEvent<HTMLInputElement>) =>
                               setConfig((prev) => {
                                 const projects = [...prev.projectsConfig.projects];
                                 projects[index] = {
@@ -923,7 +923,7 @@ export function HomePageConfigPage() {
                             <Input
                               shadow
                               value={project.link ?? ''}
-                              onChange={(event) =>
+                              onChange={(event: ChangeEvent<HTMLInputElement>) =>
                                 setConfig((prev) => {
                                   const projects = [...prev.projectsConfig.projects];
                                   projects[index] = {
@@ -943,7 +943,7 @@ export function HomePageConfigPage() {
                             <Input
                               shadow
                               value={project.image ?? ''}
-                              onChange={(event) =>
+                              onChange={(event: ChangeEvent<HTMLInputElement>) =>
                                 setConfig((prev) => {
                                   const projects = [...prev.projectsConfig.projects];
                                   projects[index] = {
@@ -964,7 +964,7 @@ export function HomePageConfigPage() {
                           <input
                             className="home-config-page__tags-input"
                             value={formatTagsInput(project.tags)}
-                            onChange={(event) =>
+                            onChange={(event: ChangeEvent<HTMLInputElement>) =>
                               setConfig((prev) => {
                                 const projects = [...prev.projectsConfig.projects];
                                 projects[index] = {

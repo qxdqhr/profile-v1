@@ -105,9 +105,15 @@ export function CollectionsTab({
                 <p className="text-prussian-blue-600">拖拽或使用按钮调整商品在前台的显示顺序</p>
               </div>
               <CollectionOrderManager
-                moveCollectionUp={moveCollectionUp}
-                moveCollectionDown={moveCollectionDown}
-                updateCollectionOrder={updateCollectionOrder}
+                moveCollectionUp={async (id) => {
+                  moveCollectionUp(id);
+                }}
+                moveCollectionDown={async (id) => {
+                  moveCollectionDown(id);
+                }}
+                updateCollectionOrder={async (orders) => {
+                  updateCollectionOrder(orders);
+                }}
                 onOrderChanged={async () => {}}
               />
             </div>

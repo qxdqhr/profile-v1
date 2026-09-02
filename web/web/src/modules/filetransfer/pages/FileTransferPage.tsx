@@ -11,7 +11,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, CloudUpload, FileIcon, Lock, Shield, Sparkles, Zap } from 'lucide-react';
 import { FileTransferCard } from '../components/FileTransferCard';
 import { FileUploader } from '../components/FileUploader';
-import { AuthProvider, useAuthContext, UserMenu } from '@/lib/auth';
+import { AuthProvider, AuthGuard, useAuthContext, UserMenu } from '@/lib/auth';
 import type { FileTransfer } from '../types';
 
 /**
@@ -222,7 +222,7 @@ function FileTransferContent() {
                 文件中转站
               </h1>
               <p className="text-sm text-slate-600 font-medium">
-                欢迎回来，{user?.name || user?.phone}！
+                欢迎回来，{String(user?.name ?? user?.phone ?? '')}！
               </p>
             </div>
             
@@ -328,7 +328,9 @@ function FileTransferContent() {
 export default function FileTransferPage() {
   return (
     <AuthProvider>
-      <FileTransferContent />
+      <AuthGuard requireAuth>
+        <FileTransferContent />
+      </AuthGuard>
     </AuthProvider>
   );
 } 

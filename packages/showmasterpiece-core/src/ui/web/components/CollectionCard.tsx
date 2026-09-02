@@ -262,7 +262,7 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
           {collection.pages && collection.pages.length > 0 && (
             <Button
               className={smCn('flex-1 gap-2 text-white', sm.webBtnPrimary)}
-              onClick={(e) => {
+              onClick={(e: React.MouseEvent) => {
                 e.stopPropagation();
                 onSelect(collection);
               }}

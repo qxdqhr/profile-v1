@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
   isTicketSource,
   TICKET_SOURCES,
+  type TicketSource,
 } from '@/modules/ticketMonitor/types';
 import { ticketMonitorDb } from '@/modules/ticketMonitor/db/ticketMonitorDbService';
-import { isMaskedValue, verifyAdminToken } from '@/modules/ticketMonitor/api/lib/auth';
+import { isMaskedValue, requireTicketAdmin } from '@/modules/ticketMonitor/api/lib/auth';
 
 function parseConfigBody(body: Record<string, unknown>) {
   const newEventPlatforms = Array.isArray(body.newEventPlatforms)
-    ? body.newEventPlatforms.filter((item): item is string => typeof item === 'string' && isTicketSource(item))
+    ? body.newEventPlatforms.filter((item): item is TicketSource => typeof item === 'string' && isTicketSource(item))
     : undefined;
 
   const endingSoonDaysList = Array.isArray(body.endingSoonDaysList)
@@ -57,7 +58,7 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
-  const unauthorized = verifyAdminToken(request);
+  const unauthorized = await requireTicketAdmin(request);
   if (unauthorized) return unauthorized;
 
   try {

@@ -1,7 +1,9 @@
 import type { Config } from 'tailwindcss';
 
-const preset: Config = {
-  darkMode: ['class'],
+/** Preset；content 由消费方 app 的 tailwind.config 覆盖/合并 */
+const preset = {
+  content: [],
+  darkMode: ['class'] as const,
   theme: {
     extend: {
       colors: {
@@ -129,6 +131,6 @@ const preset: Config = {
     },
   },
   plugins: [require('tailwindcss-animate')],
-};
+} satisfies Config;
 
 export default preset;

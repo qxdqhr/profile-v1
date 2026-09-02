@@ -12,7 +12,10 @@ import {
   type Sa2kitAuthInstance,
 } from 'sa2kit/common/auth/server';
 import { authDrizzleSchema } from '@profile/db/schema/auth';
+import { db } from '@profile/db';
 import { upsertCredentialPassword } from './credential-password';
+
+type ProfileDatabase = typeof db;
 
 function createDevOtpLogger(enabled: boolean | undefined) {
   if (!enabled || process.env.NODE_ENV === 'production') {
@@ -28,6 +31,7 @@ export function createProfileAuth(config: Sa2kitAuthConfig): Sa2kitAuthInstance 
     throw new Error('createProfileAuth: secret 至少 32 字符');
   }
 
+  const database = config.db as ProfileDatabase;
   const devLog = createDevOtpLogger(config.logOtpInDev ?? process.env.NODE_ENV !== 'production');
   const phoneValidator = config.phoneNumberValidator ?? defaultPhoneValidator;
 
@@ -37,7 +41,7 @@ export function createProfileAuth(config: Sa2kitAuthConfig): Sa2kitAuthInstance 
     basePath: config.basePath ?? '/api/auth',
     secret: config.secret,
     trustedOrigins: config.trustedOrigins,
-    database: drizzleAdapter(config.db, {
+    database: drizzleAdapter(database as Parameters<typeof drizzleAdapter>[0], {
       provider: 'pg',
       schema: authDrizzleSchema,
     }),
@@ -76,7 +80,7 @@ export function createProfileAuth(config: Sa2kitAuthConfig): Sa2kitAuthInstance 
         async callbackOnVerification({ phoneNumber: phone, user: verifiedUser }) {
           const pendingPassword = consumePhoneSignupPassword(phone);
           if (pendingPassword && verifiedUser?.id) {
-            await upsertCredentialPassword(config.db, String(verifiedUser.id), pendingPassword);
+            await upsertCredentialPassword(database, String(verifiedUser.id), pendingPassword);
           }
         },
         signUpOnVerification: {

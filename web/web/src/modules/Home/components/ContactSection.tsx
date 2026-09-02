@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, type ChangeEvent, type FormEvent } from 'react';
 import {
   Button,
   Card,
@@ -136,7 +136,7 @@ export function ContactSection() {
             <span>姓名</span>
             <Input
               value={formData.name}
-              onChange={(event) => handleChange('name', event.target.value)}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => handleChange('name', event.target.value)}
               placeholder="请输入您的姓名"
               shadow
               required
@@ -148,7 +148,7 @@ export function ContactSection() {
             <Input
               type="email"
               value={formData.email}
-              onChange={(event) => handleChange('email', event.target.value)}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => handleChange('email', event.target.value)}
               placeholder="请输入您的邮箱"
               shadow
               required

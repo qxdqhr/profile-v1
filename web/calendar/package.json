@@ -17,7 +17,7 @@
     "@profile/config": "workspace:*",
     "@profile/db": "workspace:*",
     "@profile/ui": "workspace:*",
-    "lru-cache": "^11.1.0",
+    "lru-cache": "10.4.3",
     "lucide-react": "^0.474.0",
     "next": "16.0.8",
     "react": "19.2.1",

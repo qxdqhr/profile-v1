@@ -14,8 +14,9 @@ import React, { useState, useEffect } from 'react';
 import { ConfigManager, ConfigList } from 'sa2kit/business/testYourself/admin';
 import { createConfigService } from 'sa2kit/business/testYourself/server';
 import { clsx } from 'clsx';
+import { AuthProvider, AuthGuard } from '@/lib/auth';
 
-export default function TestYourselfAdminPage() {
+function TestYourselfAdminPage() {
   const [activeTab, setActiveTab] = useState<'manage' | 'list'>('manage');
   const [storageType, setStorageType] = useState<string>('loading');
   const [configService] = useState(() => {
@@ -286,9 +287,15 @@ console.log('存储方式:', storageType); // 'database' | 'localStorage' | 'mem
   );
 }
 
-
-
-
+export default function TestYourselfAdminRoute() {
+  return (
+    <AuthProvider>
+      <AuthGuard requireAuth>
+        <TestYourselfAdminPage />
+      </AuthGuard>
+    </AuthProvider>
+  );
+}
 
 
 

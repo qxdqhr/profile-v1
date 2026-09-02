@@ -53,12 +53,8 @@ export async function GET(request: NextRequest) {
         break;
 
       case 'database':
-        // 数据库性能信息
         data = {
           stats: queryOptimizer.getQueryStats(),
-          report: queryOptimizer.generateReport(),
-          slowQueries: queryOptimizer.getSlowQueries(10),
-          frequentQueries: queryOptimizer.getFrequentQueries(10)
         };
         break;
 
@@ -157,15 +153,11 @@ export async function POST(request: NextRequest) {
         break;
 
       case 'resetDatabaseStats':
-        // 重置数据库统计
-        queryOptimizer.reset();
-        result = { message: '数据库统计已重置' };
+        result = { message: '数据库统计暂不支持重置' };
         break;
 
       case 'cleanupOldData':
-        // 清理过期数据
-        queryOptimizer.cleanup();
-        result = { message: '过期数据已清理' };
+        result = { message: '数据库清理暂不支持' };
         break;
 
       case 'warmupCache':
@@ -179,12 +171,11 @@ export async function POST(request: NextRequest) {
         break;
 
       case 'generateReport':
-        // 生成综合报告
         result = {
           performance: performanceMonitor.generateReport(),
-          database: queryOptimizer.generateReport(),
+          database: queryOptimizer.getQueryStats(),
           cache: cacheManager.getStats(),
-          generatedAt: new Date().toISOString()
+          generatedAt: new Date().toISOString(),
         };
         break;
 

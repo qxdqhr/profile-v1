@@ -21,7 +21,8 @@ export async function PUT(
       );
     }
 
-    const listId = parseInt(params.id);
+    const { id } = await params;
+    const listId = parseInt(id);
     if (isNaN(listId)) {
       return NextResponse.json(
         { success: false, message: '无效的清单ID' },
@@ -110,7 +111,8 @@ export async function DELETE(
       );
     }
 
-    const listId = parseInt(params.id);
+    const { id } = await params;
+    const listId = parseInt(id);
     if (isNaN(listId)) {
       return NextResponse.json(
         { success: false, message: '无效的清单ID' },

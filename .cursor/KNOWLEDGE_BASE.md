@@ -23,7 +23,7 @@
 | 项 | 约定 |
 |----|------|
 | 框架 | Next.js（App Router，主站在 `web/web/src/app`） |
-| Monorepo | pnpm workspace：`web/*` + `packages/*` + `npm/*` + `mobile/*` + `desktop/*`；详见 `docs/monorepo-migration/`、`docs/README.md`、`web/README.md` |
+| Monorepo | pnpm workspace：`web/*` + `packages/*` + `npm/*`（现空）+ `mobile/*` + `desktop/*`；详见 `docs/monorepo-migration/`、`docs/README.md`、`web/README.md` |
 | 样式 | Tailwind CSS；预设 `@profile/ui/tailwind.preset`（设计令牌桥；业务组件/主题见 §1.1） |
 | 数据层 | Drizzle ORM + PostgreSQL（`@profile/db`，迁移目录 `drizzle/` 在仓库根） |
 | 包管理 | **pnpm**；开发 `pnpm dev` = `pnpm --filter @profile/web dev` |
@@ -88,8 +88,9 @@ web/web 模块
 
 - 纯工具、表单、管理后台 → `(utility)/<segment>/page.tsx`
 - Phaser 3 小游戏（见全局 Skill `profile-v1-minigame`）→ `(sa2kit)/<gameName>/page.tsx`
-- 其他游戏/玩法原型 → `(game)/` 或沿用同目录下已有同类模块的分组
-- 强业务、与「画集」类同形态 → `(cyhj)/`
+- 其他游戏/玩法原型（非 Phaser 或非 sa2kit 实验）→ `(game)/`
+- 强业务、与「画集」类同形态 → `(cyhj)/`（优先考虑独立子应用，勿在主站堆第二套实现）
+- **Godot / 静态旁路游戏** → 不进 testField leisure；入口走主站 `/games` + `deploy/games/`
 
 ### 2.3 路由文件写法（薄封装）
 
@@ -255,16 +256,15 @@ git submodule update --init --recursive
 | WordPress（旁路） | `wordpress/<slug>/` submodule + `deploy/wordpress/` | —（非 pnpm） | 官方镜像 | `/wp/<slug>/` |
 | Godot 游戏（旁路） | `games/<slug>/` submodule + `deploy/games/` | —（非 pnpm） | nginx 静态 | `/games/<slug>/` |
 
-> WordPress / Godot / Mobile **源码在 submodule**（§7.0）；旁路基建在 `deploy/`。跨端 shared 在 `npm/`。
+> WordPress / Godot / Mobile **源码在 submodule**（§7.0）；旁路基建在 `deploy/`。跨端 client-safe 代码在各 `*-core` 的 `./shared` 导出。
 
 ### 7.2 共享包
 
 | 包 | 用途 |
 |----|------|
 | `@profile/config` / `@profile/auth` / `@profile/db` / `@profile/ui` | 配置、鉴权、数据库、UI 预设 |
-| `@profile/calendar-core` | 日历领域（Web API 实现） |
-| `@profile/calendar-shared` | 日历 RN 类型与 API 客户端（目录 `npm/calendar-shared`） |
-| `@profile/teach-hub-core` / `@profile/teach-hub-shared` | TeachHub 领域与跨端（shared 在 `npm/teach-hub-shared`） |
+| `@profile/calendar-core` | 日历领域；RN/客户端：`@profile/calendar-core/shared` |
+| `@profile/teach-hub-core` | TeachHub 领域；RN/客户端：`@profile/teach-hub-core/shared` |
 | `@profile/showmasterpiece-core` | ShowMasterpiece 全量业务 |
 
 ### 7.3 子应用约定
@@ -272,7 +272,9 @@ git submodule update --init --recursive
 - 页面：`web/<app>/src/app/**/page.tsx` 薄封装，UI 从 `@profile/<app>-core` 导入。
 - API：`web/<app>/src/app/api/**/route.ts` re-export core 内 handlers；对外路径仍为 `/api/<app>/...`（经 nginx 反代）。
 - Auth：子应用 **不** 单独登录；session 由 web `/api/auth/*` 共享（同域 cookie）。
+- **AI**：浏览器 `/api/ai/*` **唯一**落点为 **web**（nginx 显式反代）；calendar / teach-hub **不**挂载 AI 路由副本。课时生成等服务端逻辑可在子应用进程内直接 `runAiTask`。
 - 主站兼容：legacy 实验田路径可 302/301 至子应用 URL（如 ShowMasterPieces → `/showmasterpiece`）。
+- **禁止**已迁出域在主站再挂 API 实现（例：`/api/showmasterpiece` 只存在于 showmasterpiece 子应用）。
 
 ### 7.4 打包与 CI
 

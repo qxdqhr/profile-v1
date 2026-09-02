@@ -7,7 +7,7 @@ React Native（Expo）客户端，以 **git submodule** 挂入。
 | `calendar-mobile/` | [profile-v1-calendar-mobile](https://github.com/qxdqhr/profile-v1-calendar-mobile) | `@profile/calendar-mobile` |
 | `teach-hub-mobile/` | [profile-v1-teach-hub-mobile](https://github.com/qxdqhr/profile-v1-teach-hub-mobile) | `@profile/teach-hub-mobile` |
 
-共享类型：`npm/calendar-shared`、`npm/teach-hub-shared`。  
+共享类型：`@profile/calendar-core/shared`、`@profile/teach-hub-core/shared`。  
 对应 Web：`web/calendar`、`web/teach-hub`。
 
 ```bash

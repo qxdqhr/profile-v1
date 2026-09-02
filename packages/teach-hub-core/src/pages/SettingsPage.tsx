@@ -194,7 +194,7 @@ export function SettingsPage({ workspaceId }: SettingsPageProps) {
             </div>
             <Switch
               checked={autoSyncLessonResources}
-              onChange={(checked) => void handleAutoSyncChange(checked)}
+              onChange={(checked: boolean) => void handleAutoSyncChange(checked)}
               disabled={metaLoading || metaSaving}
               aria-label="自动将课程中的资源添加到资源 tab 中"
             />

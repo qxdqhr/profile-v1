@@ -289,7 +289,7 @@ function ShowMasterPiecesContent() {
   }
 
   // 获取用户ID，临时默认为1（应该要求登录）
-  const userId = user?.id || 1;
+  const userId = Number(user?.id || 1);
 
   const categoryList = visibleHomeTabs.map((tab) => ({
     category: tab.category,

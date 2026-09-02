@@ -1,6 +1,7 @@
 import { ConfigData } from '../types';
 import { mockQuestions, mockStartScreenData, mockResultModalData } from '@/app/(pages)/testField/(utility)/experiment/_utils/mockData';
 import { ExamConfigFrontendService, HttpExamClient } from '@sa2kit/exam/services';
+import type { ExamConfig } from '@sa2kit/exam';
 
 const examConfigService = new ExamConfigFrontendService(new HttpExamClient());
 
@@ -16,7 +17,7 @@ export const listExamTypes = async (): Promise<string[]> => {
 // 从静态文件加载配置
 export const loadConfigurations = async (examId: string = 'default'): Promise<ConfigData> => {
   try {
-    return await examConfigService.load(examId);
+    return (await examConfigService.load(examId)) as unknown as ConfigData;
   } catch (error) {
     console.error('加载配置失败:', error);
 
@@ -33,7 +34,7 @@ export const loadConfigurations = async (examId: string = 'default'): Promise<Co
 // 保存配置到静态文件
 export const saveConfigurations = async (config: ConfigData, examId: string = 'default'): Promise<void> => {
   try {
-    await examConfigService.save(examId, config);
+    await examConfigService.save(examId, config as unknown as ExamConfig);
   } catch (error) {
     console.error('保存配置失败:', error);
     throw error;

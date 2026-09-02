@@ -4,7 +4,7 @@ import { create } from 'zustand';
 import type {
   ActiveWorkoutState,
   CheckinTodayState,
-  FitnessProfile,
+  FitnessProfileClient,
 } from '../types';
 import { formatDateKey } from '../types';
 
@@ -15,14 +15,14 @@ interface FitnessPlanUiState {
 }
 
 interface FitnessPlanStore {
-  profile: FitnessProfile | null;
+  profile: FitnessProfileClient | null;
   profileLoading: boolean;
   profileError: string | null;
   ui: FitnessPlanUiState;
   activeWorkout: ActiveWorkoutState;
   checkinToday: CheckinTodayState;
   scheduleViewMonth: string;
-  setProfile: (profile: FitnessProfile | null) => void;
+  setProfile: (profile: FitnessProfileClient | null) => void;
   setProfileLoading: (loading: boolean) => void;
   setProfileError: (error: string | null) => void;
   setSelectedDate: (date: string) => void;

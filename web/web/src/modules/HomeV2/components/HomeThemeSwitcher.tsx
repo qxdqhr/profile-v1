@@ -39,7 +39,7 @@ export function HomeThemeSwitcher({ compact = false }: HomeThemeSwitcherProps) {
           </span>
         ) : null}
         <span className="home-v2-theme-trigger__label">
-          {compact ? '主题' : `主题 · ${HOME_V2_THEME_LABELS[theme]}`}
+          {compact ? '主题' : `主题 · ${HOME_V2_THEME_LABELS[theme as HomeV2ThemeId]}`}
         </span>
       </Button>
 

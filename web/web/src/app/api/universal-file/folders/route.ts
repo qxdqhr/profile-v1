@@ -10,6 +10,18 @@ import { db } from '@/db';
 // 初始化服务
 const fileDbService = new FileDbService(db);
 
+async function listFolders(options: {
+  parentId?: string;
+  moduleId?: string;
+  businessId?: string;
+}) {
+  const folders = await fileDbService.getFolders(options.moduleId, options.businessId);
+  if (options.parentId) {
+    return folders.filter((folder) => folder.parentId === options.parentId);
+  }
+  return folders;
+}
+
 /**
  * GET /api/universal-file/folders
  * 查询文件夹列表
@@ -28,7 +40,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 查询文件夹列表
-    const folders = await fileDbService.getFolders({
+    const folders = await listFolders({
       parentId,
       moduleId,
       businessId,
@@ -94,7 +106,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 检查文件夹名称冲突
-    const existingFolders = await fileDbService.getFolders({
+    const existingFolders = await listFolders({
       parentId: createParams.parentId,
       moduleId: createParams.moduleId,
       businessId: createParams.businessId,
@@ -198,7 +210,7 @@ export async function PUT(request: NextRequest) {
 
     // 检查名称冲突（如果更新了名称）
     if (updateData.name && updateData.name !== folder.name) {
-      const existingFolders = await fileDbService.getFolders({
+      const existingFolders = await listFolders({
         parentId: updateData.parentId || folder.parentId || undefined,
         moduleId: folder.moduleId || undefined,
         businessId: folder.businessId || undefined,
@@ -272,21 +284,13 @@ export async function DELETE(request: NextRequest) {
 
     // 如果不是递归删除，检查文件夹是否为空
     if (!recursive) {
-      // 检查子文件夹
-      const subFolders = await fileDbService.getFolders({ parentId: folderId });
-      if (subFolders.length > 0) {
-        throw ApiErrorFactory.folderNotEmpty(folderId, 0, subFolders.length);
-      }
-
-      // 检查文件
-      const files = await fileDbService.getFiles({ folderId, isDeleted: false });
-      if (files.total > 0) {
-        throw ApiErrorFactory.folderNotEmpty(folderId, files.total, 0);
+      const contents = await fileDbService.countFolderContents(folderId);
+      if (contents.files > 0 || contents.folders > 0) {
+        throw ApiErrorFactory.folderNotEmpty(folderId, contents.files, contents.folders);
       }
     }
 
-    // 删除文件夹
-    await fileDbService.deleteFolder(folderId, recursive);
+    await fileDbService.deleteFolder(folderId);
 
     return ApiResponseHelper.toNextResponse(
       ApiResponseHelper.success({ folderId, deleted: true })

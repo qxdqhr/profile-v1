@@ -3,6 +3,7 @@ import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import { nanoid } from 'nanoid';
 import { processMmdModelArchive, MMD_MODEL_ARCHIVE_MIME_TYPES } from 'sa2kit/business/mmd/server';
+import { getApiSessionUser } from '@/lib/auth/session';
 import { MMDModelsDbService, MMDAnimationsDbService, MMDAudiosDbService } from '@/modules/mmd/db/mmdDbService';
 
 // 支持的MMD文件类型
@@ -22,6 +23,11 @@ const SUPPORTED_AUDIO_TYPES = [
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getApiSessionUser(request);
+    if (!user) {
+      return NextResponse.json({ error: '未授权的访问' }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const fileType = formData.get('type') as string; // 'model' | 'animation' | 'audio'
@@ -121,6 +127,7 @@ export async function POST(request: NextRequest) {
             filePath: fileUrl,
             fileSize: file.size,
             format: archiveResult.format,
+            userId: String(user.id),
             isPublic: true,
           });
         } catch (extractError) {
@@ -147,6 +154,7 @@ export async function POST(request: NextRequest) {
           fileSize: file.size,
           duration: 0, // 需要实际解析VMD文件获取
           frameCount: 0, // 需要实际解析VMD文件获取
+          userId: String(user.id),
           isPublic: true, // 默认公开
         });
         break;
@@ -165,6 +173,7 @@ export async function POST(request: NextRequest) {
           fileSize: file.size,
           format: ext.slice(1).toLowerCase() as 'wav' | 'mp3' | 'ogg',
           duration: 0, // 需要实际解析音频文件获取
+          userId: String(user.id),
         });
         break;
     }

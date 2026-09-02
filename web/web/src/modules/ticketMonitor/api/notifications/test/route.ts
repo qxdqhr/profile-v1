@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ticketMonitorDb } from '@/modules/ticketMonitor/db/ticketMonitorDbService';
 import { buildTestMessage } from '@/modules/ticketMonitor/server/notifications/buildTicketMessage';
 import { sendFeishuPostMessage } from '@sa2kit/feishu-bot';
-import { isMaskedValue, verifyAdminToken } from '@/modules/ticketMonitor/api/lib/auth';
+import { isMaskedValue, requireTicketAdmin } from '@/modules/ticketMonitor/api/lib/auth';
 
 export async function POST(request: NextRequest) {
-  const unauthorized = verifyAdminToken(request);
+  const unauthorized = await requireTicketAdmin(request);
   if (unauthorized) return unauthorized;
 
   const config = await ticketMonitorDb.getConfigForNotify();

@@ -233,10 +233,10 @@ export async function importWorkspaceZip(input: {
 
   let commonRoot: string | null = null;
   if (input.stripRootFolder !== false) {
-    const fileEntries = entries.filter((e) => !e.isDirectory && !shouldSkipZipEntry(e.entryName));
+    const fileEntries = entries.filter((e: { isDirectory: boolean; entryName: string }) => !e.isDirectory && !shouldSkipZipEntry(e.entryName));
     if (fileEntries.length > 0) {
       const firstSegment = fileEntries[0].entryName.replaceAll('\\', '/').split('/')[0];
-      const allShareRoot = fileEntries.every((e) =>
+      const allShareRoot = fileEntries.every((e: { entryName: string }) =>
         e.entryName.replaceAll('\\', '/').startsWith(`${firstSegment}/`),
       );
       if (allShareRoot && firstSegment && !firstSegment.includes('.')) {

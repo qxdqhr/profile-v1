@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import type { UpdateBookingRequest } from '../../types/booking';
+import type { UpdateBookingRequest } from '../../../types/booking';
 import { BookingCommandError } from '@profile/showmasterpiece-core/server';
 import { isAdminUser, isAuthFailure, requireAdmin } from '../../lib/auth';
 import { bookingMatchesLookup } from '../../lib/bookingAccess';

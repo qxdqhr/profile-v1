@@ -188,7 +188,7 @@ export async function PUT(request: NextRequest) {
       const current = await loadCategories();
       const currentMap = new Map(current.map((cat) => [cat.name, cat]));
 
-      const missingDescription = items.find((item) => {
+      const missingDescription = items.find((item: HomeTabItem) => {
         if (item.description && item.description.trim().length > 0) return false;
         return !currentMap.has(item.name);
       });

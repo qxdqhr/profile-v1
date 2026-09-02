@@ -11,14 +11,14 @@
 | 1 | 顶层：`apps/` → `web/`；RN → `mobile/`；桌面 → `desktop/` |
 | 2 | 顺序：先移动端，再桌面端 |
 | 3 | 子仓：`qxdqhr/profile-v1-*` |
-| 4 | `npm/` 放置 `*-shared` |
+| 4 | `npm/` 曾放 `*-shared`（已并入 `*-core/shared`） |
 | 5 | Next 子应用暂不外迁 |
 
 ## 进度
 
 | 阶段 | 状态 | 说明 |
 |------|------|------|
-| 0 目录重排 | ✅ | `apps`→`web/`，`*-shared`→`npm/` |
+| 0 目录重排 | ✅ | `apps`→`web/`，`*-shared`→`npm/`（后并入 core） |
 | 1 Mobile submodule | ✅ | `mobile/calendar-mobile`、`mobile/teach-hub-mobile` |
 | 2 Desktop submodule | ✅ | `desktop/teach-hub-desktop` |
 | 3 文档收尾 | ✅ | 本文件与 KNOWLEDGE_BASE |
@@ -39,8 +39,8 @@ profile-v1/
 │   └── teach-hub-mobile/         → profile-v1-teach-hub-mobile
 ├── desktop/             # Electron submodule
 │   └── teach-hub-desktop/        → profile-v1-teach-hub-desktop
-├── npm/                 # calendar-shared / teach-hub-shared
-├── packages/            # auth / db / *-core
+├── npm/                 # 历史 *-shared（已空）
+├── packages/            # auth / db / *-core（含 ./shared）
 ├── games/               # 旁路（不动）
 └── wordpress/           # 旁路（不动）
 ```

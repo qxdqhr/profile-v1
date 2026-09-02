@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Card, Input, Title } from 'sa2kit/common/ui';
 import { ExerciseLibraryPanel } from '../components/ExerciseLibraryPanel';
@@ -55,7 +55,7 @@ function SetRow({
             min={0}
             disabled={readOnly}
             value={set.durationMinutes ?? ''}
-            onChange={(e) =>
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
               onChange({
                 durationMinutes: e.target.value === '' ? null : Number(e.target.value),
               })
@@ -70,7 +70,7 @@ function SetRow({
             step="0.1"
             disabled={readOnly}
             value={set.distance ?? ''}
-            onChange={(e) =>
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
               onChange({ distance: e.target.value === '' ? null : Number(e.target.value) })
             }
           />
@@ -82,7 +82,7 @@ function SetRow({
             min={0}
             disabled={readOnly}
             value={set.calories ?? ''}
-            onChange={(e) =>
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
               onChange({ calories: e.target.value === '' ? null : Number(e.target.value) })
             }
           />
@@ -110,7 +110,7 @@ function SetRow({
           step="0.5"
           disabled={readOnly}
           value={set.weight ?? ''}
-          onChange={(e) =>
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
             onChange({ weight: e.target.value === '' ? null : Number(e.target.value) })
           }
         />
@@ -122,7 +122,7 @@ function SetRow({
           min={0}
           disabled={readOnly}
           value={set.reps ?? ''}
-          onChange={(e) =>
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
             onChange({ reps: e.target.value === '' ? null : Number(e.target.value) })
           }
         />
@@ -427,7 +427,7 @@ export function WorkoutSessionPage({ sessionId }: WorkoutSessionPageProps) {
           <Input
             value={notes}
             disabled={readOnly}
-            onChange={(e) => setNotes(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setNotes(e.target.value)}
             placeholder="可选：感受、PR、调整说明…"
           />
         </label>

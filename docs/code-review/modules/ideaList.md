@@ -47,9 +47,9 @@
 
 | ID | 严重度 | 标题 | 位置 | 建议 | 状态 |
 |----|--------|------|------|------|------|
-| IL-001 | **P0** | `params` 为 Promise 却未 `await` | `api/lists/[id]/route.ts:24,113` | `const { id } = await params` | open |
-| IL-002 | **P0** | toggle 同样未 await params | `api/items/[id]/toggle/route.ts:23` | 同上 | open |
-| IL-003 | **P0** | DbService `userId: number` vs schema `text` / session `string` | `ideaListDbService.ts` / `schema.ts` | 统一 `string` | open |
+| IL-001 | **P0** | `params` 为 Promise 却未 `await` | `api/lists/[id]/route.ts` | `const { id } = await params` | **closed** 2026-09-02 |
+| IL-002 | **P0** | toggle 同样未 await params | `api/items/[id]/toggle/route.ts` | 同上 | **closed** 2026-09-02 |
+| IL-003 | **P0** | DbService `userId: number` vs schema `text` / session `string` | `ideaListDbService.ts` | 统一 `string` | **closed** 2026-09-02 |
 | IL-004 | P1 | convert-to-list 无事务，先删后建可丢数据 | `convert-to-list/route.ts` | `db.transaction` | open |
 | IL-005 | P1 | convert 忽略 URL `[id]`，只信 body `itemId` | 同上 | 校验路径 id == body | open |
 | IL-006 | P1 | convert 越权用 401、响应格式不一致 | 同上 | 403 + `{ success }` | open |

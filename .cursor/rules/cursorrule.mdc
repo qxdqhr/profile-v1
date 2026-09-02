@@ -6,19 +6,22 @@ alwaysApply: true
 数据库采用的是drizzle orm + postgress
 生成页面的时候css都采用tailwindcss方式生成
 
-架构、路由分组、模块与实验田约定由规则 `profile-v1-knowledge-ssot.mdc` 经 `@.cursor/KNOWLEDGE_BASE.md` 自动注入；**sa2kit / sa2kit-ui / 登录样式**见 `profile-v1-sa2kit-ui.mdc`；**games / WordPress submodule**见 `profile-v1-submodules.mdc`；**文档目录约定**见 `profile-v1-docs.mdc`（仓库级文档在 `docs/`，索引见 `docs/README.md`）；需要时也可在对话中手动 `@.cursor/KNOWLEDGE_BASE.md`。
+架构、路由分组、模块与实验田约定由规则 `profile-v1-knowledge-ssot.mdc` 经 `@.cursor/KNOWLEDGE_BASE.md` 自动注入；**sa2kit / sa2kit-ui / 登录样式**见 `profile-v1-sa2kit-ui.mdc`；**games / WordPress submodule**见 `profile-v1-submodules.mdc`；**文档目录约定**见 `profile-v1-docs.mdc`（仓库级文档在 `docs/`，索引见 `docs/README.md`）；**P0 架构九项改造**见 `docs/architecture/ARCHITECTURE-REMEDIATION-PLAN.md`；需要时也可在对话中手动 `@.cursor/KNOWLEDGE_BASE.md`。
 
 运行项目 参照package.json中的命令并使用pnpm执行
 build项目 参照package.json中的命令并使用pnpm执行
 生成新的数据库迁移文件 参照package.json中的命令并使用pnpm执行
 
-构建新的模块时,参照 src/modules/ideaList 模块的目录结构构建（含数据库与 API 时）；纯工具无库表模块参照 .cursor/skills/build-utility-module/SKILL.md
+构建新的模块时,参照 `web/web/src/modules/ideaList` 模块的目录结构构建（含数据库与 API 时）；纯工具无库表模块参照 .cursor/skills/build-utility-module/SKILL.md
 构建新模块时,不仅需要构建前端界面URL 还要构建后端路由 
 构建新模块时,在实际路径中使用对应模块的前端导出,薄 page.tsx 参照 ideaList、qrCode 等模块在 app 下的用法
-构建新模块时,后端 API 在 src/app/api 中转发模块内 route 实现,参照 ideaList 与 src/app/api/ideaLists 目录
+构建新模块时,后端 API 在 `web/web/src/app/api` 中转发模块内 route 实现,参照 ideaList 与 `web/web/src/app/api/ideaLists` 目录
 构建新模块时,先在对应模块/功能目录下创建一个分步骤markdown文档并逐步构建且每次执行时需要同步更新文档（跨模块可见文档放 `docs/modules/<module>/`，见 `profile-v1-docs.mdc`）
+含 DB 的新模块：表定义落在 `packages/db/src/schema/`（或 `*-core` 的 `./db/schema` 导出），由 `@profile/db` 聚合；**禁止**再让 `packages/db` 用相对路径反向依赖 `web/web`
 
 构建前端页面样式时,需要适配桌面端和移动端
-如果新增加了模块表在src/db/index.ts中引用新模块中的db/schema.ts中的表结构,并记得自动更新测试环境表结构以及生产环境表结构(分别对应 package.json中的两个命令)
-如果生成了较为通用的UI组件,需要按照支持泛型的方式提取出公共组件并将公共组件放置在components目录下
-添加了新模块,若需在实验田展示入口,在 src/modules/testField/utils/experimentData.ts 的 experiments 数组中追加条目
+如果新增加了模块表,记得自动更新测试环境表结构以及生产环境表结构(分别对应 package.json中的两个命令)
+如果生成了较为通用的UI组件,需要按照支持泛型的方式提取出公共组件并将公共组件放置在 `web/web/src/components` 目录下
+添加了新模块,若需在实验田展示入口,在 `web/web/src/modules/testField/utils/experimentData.ts` 的 experiments 数组中追加条目
+
+跨端 client-safe 代码放在对应 `*-core` 的 `./shared` 导出（**不要**再新建独立 `*-shared` 包）。

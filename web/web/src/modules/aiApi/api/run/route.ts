@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { getApiSessionUser } from '@/lib/auth/session';
 import { registerCoreAiTasks } from '../../server/registerCoreTasks';
 import { runAiTask } from '../../server/runTask';
-import type { AiApiRunRequest } from '../types';
+import type { AiApiRunRequest } from '../../types';
 
 registerCoreAiTasks();
 

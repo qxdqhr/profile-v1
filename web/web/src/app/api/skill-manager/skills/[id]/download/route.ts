@@ -23,7 +23,7 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ id
     headers.set('Content-Type', 'application/zip');
     headers.set('Content-Disposition', `attachment; filename="${id}.zip"`);
 
-    return new NextResponse(buffer, { status: 200, headers });
+    return new NextResponse(new Uint8Array(buffer), { status: 200, headers });
   } catch (error) {
     console.error('[skill-manager] download failed:', error);
     return NextResponse.json({ error: '下载失败' }, { status: 500 });

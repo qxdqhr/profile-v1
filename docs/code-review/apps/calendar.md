@@ -4,7 +4,7 @@
 |----|------|
 | 应用 | `web/calendar`（:3001，basePath `/calendar`） |
 | Core | `packages/calendar-core`（~12.4k 行） |
-| Shared | `npm/calendar-shared`（RN/Web client） |
+| Shared | `@profile/calendar-core/shared`（RN/Web client；原 `npm/calendar-shared`） |
 | 评审日期 | 2026-08-29 |
 | 状态 | ✅ reviewed（边界 + 风险；core 深挖待二轮） |
 

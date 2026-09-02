@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -97,7 +97,7 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
   const router = useRouter();
   const isMobile = useIsMobileCanvas();
   const flowRef = useRef<HTMLDivElement>(null);
-  const flowInstance = useRef<ReactFlowInstance | null>(null);
+  const flowInstance = useRef<ReactFlowInstance<Node<NoteNodeData>, Edge> | null>(null);
   const autoFitAttemptedRef = useRef(false);
   const fitRetryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastIsMobileRef = useRef<boolean | null>(null);
@@ -579,8 +579,8 @@ function CanvasInner({ documentId }: NodeNotesCanvasPageProps) {
     focusFlowNode,
   ]);
 
-  const handleNodeDragStop = useCallback(
-    (_: React.MouseEvent, node: Node<NoteNodeData>) => {
+  const handleNodeDragStop = useCallback<NonNullable<ComponentProps<typeof ReactFlow>['onNodeDragStop']>>(
+    (_, node) => {
       schedulePositionSave(node.id, node.position.x, node.position.y);
     },
     [schedulePositionSave],

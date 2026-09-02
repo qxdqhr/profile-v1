@@ -132,7 +132,7 @@ export default function CalendarSettings({ className = '' }: { className?: strin
               <label className={`${cal.label} mb-2 block`}>一周开始于</label>
               <Select
                 value={String(settings.weekStartsOn)}
-                onChange={(value) => updateSettings({ weekStartsOn: Number(value) })}
+                onChange={(value: string) => updateSettings({ weekStartsOn: Number(value) })}
                 options={WEEK_START_OPTIONS.map((o) => ({
                   label: o.label,
                   key: String(o.value),
@@ -144,7 +144,7 @@ export default function CalendarSettings({ className = '' }: { className?: strin
               <label className={`${cal.label} mb-2 block`}>语言</label>
               <Select
                 value={settings.language}
-                onChange={(value) => updateSettings({ language: value })}
+                onChange={(value: string) => updateSettings({ language: value })}
                 options={LANGUAGE_OPTIONS.map((o) => ({ label: o.label, key: o.value }))}
               />
             </div>
@@ -155,7 +155,7 @@ export default function CalendarSettings({ className = '' }: { className?: strin
               <label className="flex items-center gap-3">
                 <Switch
                   checked={settings.showWeekNumbers}
-                  onChange={(checked) => updateSettings({ showWeekNumbers: checked })}
+                  onChange={(checked: boolean) => updateSettings({ showWeekNumbers: checked })}
                 />
                 <span className={`${cal.textBody} text-sm`}>显示周数</span>
               </label>
@@ -163,7 +163,7 @@ export default function CalendarSettings({ className = '' }: { className?: strin
               <label className="flex items-center gap-3">
                 <Switch
                   checked={settings.showLunarCalendar}
-                  onChange={(checked) => updateSettings({ showLunarCalendar: checked })}
+                  onChange={(checked: boolean) => updateSettings({ showLunarCalendar: checked })}
                 />
                 <span className={`${cal.textBody} text-sm`}>显示农历</span>
               </label>
@@ -190,7 +190,7 @@ export default function CalendarSettings({ className = '' }: { className?: strin
               <label className={`${cal.label} mb-2 block`}>时间格式</label>
               <Select
                 value={settings.timeFormat}
-                onChange={(value) => updateSettings({ timeFormat: value as '12h' | '24h' })}
+                onChange={(value: string) => updateSettings({ timeFormat: value as '12h' | '24h' })}
                 options={TIME_FORMAT_OPTIONS.map((o) => ({ label: o.label, key: o.value }))}
               />
             </div>

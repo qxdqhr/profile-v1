@@ -6,7 +6,12 @@
   "exports": {
     ".": "./src/index.ts",
     "./server": "./src/server.ts",
-    "./api/*": "./src/api/*"
+    "./api/*": "./src/api/*",
+    "./db/schema": "./src/db/schema.ts",
+    "./shared": "./src/shared/index.ts",
+    "./shared/types": "./src/shared/types/index.ts",
+    "./shared/api": "./src/shared/api/client.ts",
+    "./shared/utils/dateUtils": "./src/shared/utils/dateUtils.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -30,5 +35,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19"
+  }
 }

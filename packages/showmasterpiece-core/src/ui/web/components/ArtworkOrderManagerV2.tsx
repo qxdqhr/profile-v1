@@ -198,7 +198,7 @@ export function ArtworkOrderManagerV2({
   };
 
   return (
-    <GenericOrderManager
+    <GenericOrderManager<ArtworkWithOrder>
       operations={operations}
       renderItem={renderArtwork}
       title="作品排序管理"

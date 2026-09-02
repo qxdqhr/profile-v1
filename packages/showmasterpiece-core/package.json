@@ -12,6 +12,10 @@
     "./popupConfigService": "./src/popupConfigService.ts",
     "./utils/showmasterpieceApiPath": "./src/utils/showmasterpieceApiPath.ts",
     "./api/*": "./src/api/*",
+    "./db/schema/masterpieces": "./src/db/schema/masterpieces.ts",
+    "./db/schema/bookings": "./src/db/schema/bookings.ts",
+    "./db/schema/popupConfig": "./src/db/schema/popupConfig.ts",
+    "./db/schema/config": "./src/db/schema/config.ts",
     "./ui/web": "./src/ui/web/index.ts",
     "./ui/web/pages/config/page": "./src/ui/web/pages/config/page.tsx",
     "./ui/web/pages/history/page": "./src/ui/web/pages/history/page.tsx"

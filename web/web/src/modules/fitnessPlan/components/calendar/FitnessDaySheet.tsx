@@ -86,7 +86,7 @@ export function FitnessDaySheet({
           <span>单日安排</span>
           <Select
             value={isRest ? 'rest' : selectedPlanId}
-            onChange={(key) => {
+            onChange={(key: string) => {
               if (key === 'rest') {
                 onRestChange(true);
                 return;

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getApiSessionUser } from '@/lib/auth/session';
 import { fitnessPlanDbService } from '../../../../db/fitnessPlanDbService';
-import type { PlanItemInput } from '../../../types';
+import type { PlanItemInput } from '../../../../types';
 
 interface RouteParams {
   params: Promise<{ id: string }>;

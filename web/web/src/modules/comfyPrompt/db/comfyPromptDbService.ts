@@ -29,11 +29,12 @@ import type {
 
 class ComfyPromptDbService {
   async getGroups(userId: string): Promise<ComfyPromptGroup[]> {
-    return db
+    const rows = await db
       .select()
       .from(comfyPromptGroups)
       .where(eq(comfyPromptGroups.userId, userId))
       .orderBy(asc(comfyPromptGroups.order), desc(comfyPromptGroups.createdAt));
+    return rows.map(normalizeGroup);
   }
 
   async createGroup(userId: string, data: PromptGroupFormData): Promise<ComfyPromptGroup> {
@@ -54,7 +55,7 @@ class ComfyPromptDbService {
         updatedAt: new Date(),
       })
       .returning();
-    return row;
+    return normalizeGroup(row);
   }
 
   async updateGroup(userId: string, id: number, data: Partial<PromptGroupFormData>): Promise<ComfyPromptGroup | null> {
@@ -69,7 +70,7 @@ class ComfyPromptDbService {
       })
       .where(and(eq(comfyPromptGroups.id, id), eq(comfyPromptGroups.userId, userId)))
       .returning();
-    return row ?? null;
+    return row ? normalizeGroup(row) : null;
   }
 
   async deleteGroup(userId: string, id: number): Promise<boolean> {
@@ -156,11 +157,11 @@ class ComfyPromptDbService {
 
     const result: ComfyPromptSet[] = [];
     for (const set of sets) {
-      result.push({
+      result.push(normalizeSet({
         ...set,
         tags: set.tags ?? [],
         items: await this.getSetItems(userId, set.id),
-      });
+      }));
     }
     return result;
   }
@@ -171,11 +172,11 @@ class ComfyPromptDbService {
       .from(comfyPromptSets)
       .where(and(eq(comfyPromptSets.id, id), eq(comfyPromptSets.userId, userId)));
     if (!set) return null;
-    return {
+    return normalizeSet({
       ...set,
       tags: set.tags ?? [],
       items: await this.getSetItems(userId, set.id),
-    };
+    });
   }
 
   async getSetItems(userId: string, setId: number): Promise<ComfyPromptSetItem[]> {
@@ -520,9 +521,30 @@ class ComfyPromptDbService {
   }
 }
 
+function normalizeGroup(row: typeof comfyPromptGroups.$inferSelect): ComfyPromptGroup {
+  return {
+    ...row,
+    kind: row.kind as PromptKind,
+  };
+}
+
+function normalizeSet(
+  row: typeof comfyPromptSets.$inferSelect & {
+    tags: string[];
+    items?: ComfyPromptSetItem[];
+  },
+): ComfyPromptSet {
+  return {
+    ...row,
+    kind: row.kind as PromptKind,
+    tags: row.tags ?? [],
+  };
+}
+
 function normalizePrompt(row: typeof comfyPrompts.$inferSelect): ComfyPrompt {
   return {
     ...row,
+    kind: row.kind as PromptKind,
     tags: row.tags ?? [],
   };
 }

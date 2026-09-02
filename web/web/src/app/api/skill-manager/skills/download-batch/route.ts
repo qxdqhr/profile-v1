@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     const headers = new Headers();
     headers.set('Content-Type', 'application/zip');
     headers.set('Content-Disposition', 'attachment; filename="skills-batch.zip"');
-    return new NextResponse(stdout, { status: 200, headers });
+    return new NextResponse(new Uint8Array(stdout), { status: 200, headers });
   } catch (error) {
     console.error('[skill-manager] batch download failed:', error);
     return NextResponse.json({ error: '批量下载失败' }, { status: 500 });

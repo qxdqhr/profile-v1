@@ -3,14 +3,15 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema/index';
 
-ensureAppConfigLoaded();
-
 interface DatabaseConfig {
   url: string;
   poolSize?: number;
   timeout?: number;
   sslMode?: string;
 }
+
+type SqlClient = ReturnType<typeof postgres>;
+type DrizzleDb = ReturnType<typeof drizzle<typeof schema>>;
 
 function getDatabaseConfig(): DatabaseConfig {
   const appConfig = ensureAppConfigLoaded();
@@ -40,38 +41,88 @@ function getDatabaseConfig(): DatabaseConfig {
   };
 }
 
-const dbConfig = getDatabaseConfig();
+/** Map AppConfig sslMode → postgres.js `ssl` option */
+function resolvePostgresSsl(
+  sslMode: string | undefined,
+): false | 'prefer' | 'require' | 'verify-full' {
+  switch ((sslMode ?? 'prefer').toLowerCase()) {
+    case 'disable':
+    case 'false':
+      return false;
+    case 'require':
+      return 'require';
+    case 'verify-full':
+    case 'verify_full':
+      return 'verify-full';
+    case 'prefer':
+    case 'allow':
+    default:
+      return 'prefer';
+  }
+}
 
-const postgresConfig = {
-  max: dbConfig.poolSize,
-  idle_timeout: dbConfig.timeout,
-  connect_timeout: dbConfig.timeout,
-  ssl: false,
-  connection: {
-    application_name: 'profile-v1-app',
-  },
-  onnotice: () => {},
-  afterConnect: async (connection: { query: (sql: string) => Promise<unknown> }) => {
+let client: SqlClient | undefined;
+let dbInstance: DrizzleDb | undefined;
+let cachedDbConfig: DatabaseConfig | undefined;
+
+function ensureConnection(): { client: SqlClient; db: DrizzleDb; dbConfig: DatabaseConfig } {
+  if (client && dbInstance && cachedDbConfig) {
+    return { client, db: dbInstance, dbConfig: cachedDbConfig };
+  }
+
+  cachedDbConfig = getDatabaseConfig();
+  client = postgres(cachedDbConfig.url, {
+    max: cachedDbConfig.poolSize,
+    idle_timeout: cachedDbConfig.timeout,
+    connect_timeout: cachedDbConfig.timeout,
+    ssl: resolvePostgresSsl(cachedDbConfig.sslMode),
+    connection: {
+      application_name: 'profile-v1-app',
+    },
+    onnotice: () => {},
+  } as Parameters<typeof postgres>[1]);
+  dbInstance = drizzle(client, { schema });
+
+  // 连接后设置会话默认值（不依赖已从类型中移除的 afterConnect）
+  void (async () => {
     try {
-      await connection.query('SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED');
-      await connection.query('SET SESSION synchronous_commit = on');
+      await client!`SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED`;
+      await client!`SET SESSION synchronous_commit = on`;
       console.log('数据库连接已设置事务隔离级别为 READ COMMITTED');
     } catch (error) {
       console.warn('设置事务隔离级别失败:', error);
     }
+  })();
+
+  return { client, db: dbInstance, dbConfig: cachedDbConfig };
+}
+
+/**
+ * 懒连接：仅在首次访问 `db` 时加载配置并建连。
+ * 禁止在 client bundle 导入本模块（server-only）。
+ */
+export const db: DrizzleDb = new Proxy({} as DrizzleDb, {
+  get(_target, prop, receiver) {
+    const real = ensureConnection().db;
+    const value = Reflect.get(real as object, prop, receiver);
+    return typeof value === 'function' ? (value as (...args: unknown[]) => unknown).bind(real) : value;
   },
-};
+});
 
-const client = postgres(dbConfig.url, postgresConfig);
-
-export const db = drizzle(client, { schema });
+/** 懒导出：读取时才解析配置（兼容旧 `dbConfig` 导入） */
+export const dbConfig: DatabaseConfig = new Proxy({} as DatabaseConfig, {
+  get(_target, prop, receiver) {
+    return Reflect.get(ensureConnection().dbConfig as object, prop, receiver);
+  },
+});
 
 export async function forceRefreshDatabaseConnection() {
   try {
     console.log('🔄 强制刷新数据库连接...');
-    await client`SELECT 1 as connection_check`;
-    await client`SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED`;
-    await client`SET SESSION synchronous_commit = on`;
+    const { client: sql } = ensureConnection();
+    await sql`SELECT 1 as connection_check`;
+    await sql`SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED`;
+    await sql`SET SESSION synchronous_commit = on`;
     console.log('✅ 数据库连接刷新完成');
   } catch (error) {
     console.error('❌ 数据库连接刷新失败:', error);
@@ -81,7 +132,8 @@ export async function forceRefreshDatabaseConnection() {
 
 export async function getDatabaseConnectionStatus() {
   try {
-    const result = await client`SELECT version(), current_database(), current_user, inet_server_addr() as server_ip`;
+    const { client: sql } = ensureConnection();
+    const result = await sql`SELECT version(), current_database(), current_user, inet_server_addr() as server_ip`;
     return {
       success: true,
       data: result[0],
@@ -94,4 +146,7 @@ export async function getDatabaseConnectionStatus() {
   }
 }
 
-export { dbConfig };
+/** 显式工厂（脚本 / 测试优先用这个，语义更清晰） */
+export function getDb(): DrizzleDb {
+  return ensureConnection().db;
+}

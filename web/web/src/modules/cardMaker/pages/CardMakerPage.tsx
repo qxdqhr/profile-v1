@@ -1,6 +1,7 @@
  'use client';
 
 import React, { useState } from 'react';
+import { AuthGuard, AuthProvider } from '@/lib/auth';
 import { CharacterDisplay } from '../components/CharacterDisplay';
 import { ActionButtons } from '../components/ActionButtons';
 import { TabNavigation } from '../components/TabNavigation';
@@ -17,7 +18,7 @@ const TABS: TabData[] = [
   { id: 'other', text: 'その他', active: false },
 ];
 
-export const CardMakerPage: React.FC = () => {
+const CardMakerPageContent: React.FC = () => {
   const { state, actions } = useCardMaker();
   const [showNameModal, setShowNameModal] = useState(false);
   const [showCommentModal, setShowCommentModal] = useState(false);
@@ -207,5 +208,15 @@ export const CardMakerPage: React.FC = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+export const CardMakerPage: React.FC = () => {
+  return (
+    <AuthProvider>
+      <AuthGuard requireAuth>
+        <CardMakerPageContent />
+      </AuthGuard>
+    </AuthProvider>
   );
 };

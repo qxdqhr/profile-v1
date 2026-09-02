@@ -8,7 +8,7 @@
 | `pnpm build:calendar` | 生产构建 |
 | `pnpm package:calendar` | Docker 镜像 + Calendar Mobile APK（默认 tag: local） |
 
-API：`/api/calendar/*`、`/api/auth/*`、`/api/ai/*`（识图等）。
+API：`/api/calendar/*`、`/api/auth/*`（同域 cookie）。浏览器 **`/api/ai/*` 一律走主站 web**（生产经 nginx 默认落到 web；子应用不再挂载 AI 副本）。本地仅起 calendar 时请经网关或把 AI 请求指到 `:3000`。
 
 ## 打包发布
 

@@ -32,7 +32,7 @@ export function maskHomePageConfigForAdmin(
   };
 }
 
-export function stripContactConfig(config: HomePageConfig): HomePageConfig {
+export function stripContactConfig(config: HomePageConfig): Omit<HomePageConfig, 'contactConfig'> {
   const { contactConfig: _contactConfig, ...rest } = config;
   return rest;
 }

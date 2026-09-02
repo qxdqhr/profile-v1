@@ -19,7 +19,7 @@ export class IdeaListDbService {
   /**
    * 获取用户的所有想法清单（包含统计信息）
    */
-  async getUserIdeaLists(userId: number): Promise<IdeaListWithItems[]> {
+  async getUserIdeaLists(userId: string): Promise<IdeaListWithItems[]> {
     const lists = await db
       .select({
         id: ideaLists.id,
