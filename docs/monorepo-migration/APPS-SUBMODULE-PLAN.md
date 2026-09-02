@@ -1,197 +1,206 @@
-# apps/ 非 Web 项目 → Submodule + 旁路迁移计划
+# Web / Mobile / Desktop 目录拆分 + Submodule 迁移计划
 
-> **状态**：草案，待确认后执行  
-> **日期**：2026-09-02  
-> **参照模式**：[`deploy/games/`](../deploy/games/README.md)（Godot submodule + nginx 旁路）、[`deploy/wordpress/`](../deploy/wordpress/README.md)（WP submodule + PHP 旁路）
+> **状态**：已确认，待执行  
+> **日期**：2026-09-02（修订）  
+> **确认结论**：见 §0  
+> **参照模式**：[`deploy/games/`](../../deploy/games/README.md)、[`deploy/wordpress/`](../../deploy/wordpress/README.md)
 
-## 1. 背景与目标
+## 0. 已确认事项
 
-当前 `apps/` 混放 **主站 Web**、**Next 子应用**、**Expo RN**、**Electron**、**Python 混合 Demo**。  
-games / WordPress 已证明：**重资产 / 独立技术栈** 用 **git submodule + 父仓 deploy 旁路** 可减 monorepo 体积、独立版本与 CI。
+| # | 结论 |
+|---|------|
+| 1 | 顶层：`apps/` **改名为 `web/`**；RN → **`mobile/`**；桌面 → **`desktop/`** |
+| 2 | 执行顺序：**先移动端，再桌面端** |
+| 3 | 子仓命名：`qxdqhr/profile-v1-*`（与 games 一致） |
+| 4 | 新增顶层 **`npm/`** 放置 `*-shared` 包（供 mobile/desktop 消费；不强制先发公共 npm registry） |
+| 5 | **Next 子应用暂不外迁**（calendar / teach-hub / showmasterpiece / node-notes / money-research 仍留在 `web/`） |
 
-**目标**：
-
-1. `apps/` 收敛为 **Next.js Web 矩阵**（主站 + 共享 Auth/DB 的子应用）。
-2. **非 Web、弱 monorepo 耦合** 的项目迁出为 submodule。
-3. 父仓保留：网关 nginx、compose、CI 触发、实验田/导航链接（整页跳转旁路 URL）。
-
-**不在本次范围**：
-
-- Next 子应用（calendar / teach-hub / showmasterpiece / node-notes）外迁 — 强依赖 `@profile/auth`、`@profile/db`、`*-core`。
-- games / WordPress 已有 submodule 结构 — 不动。
+games / WordPress 旁路 **不动**。
 
 ---
 
-## 2. 现状：`apps/` 清单
-
-| 目录 | 类型 | `@profile/*` | 网关 / CI | 迁出难度 |
-|------|------|--------------|-----------|----------|
-| `web/` | Next 主站 | auth, db, config, ui, *-core | `:3000` / CI 核心 | **留** |
-| `calendar/` | Next 子应用 | auth, db, calendar-core | `:3001` / Docker | **留** |
-| `teach-hub/` | Next 子应用 | auth, db, teach-hub-core | `:3002` / Docker | **留** |
-| `showmasterpiece/` | Next 子应用 | auth, db, showmasterpiece-core | `:3003` / Docker | **留** |
-| `node-notes/` | Next 子应用 | auth, db, node-notes-core | `:3005` / Docker | **留** |
-| `money-research/` | Next + Python demo | **无** workspace 包 | `:3004` / Docker | **低** |
-| `calendar-mobile/` | Expo RN | 仅 calendar-shared | APK CI | **中** |
-| `teach-hub-mobile/` | Expo RN | 仅 teach-hub-shared | APK CI | **中** |
-| `teach-hub-desktop/` | Electron 脚手架 | 仅 teach-hub-shared | 无 CI | **低** |
-
-迁出后 `apps/` 目标态：
+## 1. 目标目录结构
 
 ```
-apps/
-├── web/
-├── calendar/
-├── teach-hub/
-├── showmasterpiece/
-└── node-notes/
+profile-v1/
+├── web/                          # 原 apps/（仅 Next.js Web 矩阵）
+│   ├── web/                      # 主站 @profile/web (:3000)
+│   ├── calendar/                 # :3001
+│   ├── teach-hub/                # :3002
+│   ├── showmasterpiece/          # :3003
+│   ├── money-research/           # :3004（暂留，本计划不迁 submodule）
+│   └── node-notes/               # :3005
+├── mobile/                       # RN 客户端（git submodule）
+│   ├── calendar-mobile/          # → qxdqhr/profile-v1-calendar-mobile
+│   └── teach-hub-mobile/         # → qxdqhr/profile-v1-teach-hub-mobile
+├── desktop/                      # 桌面端（git submodule）
+│   └── teach-hub-desktop/        # → qxdqhr/profile-v1-teach-hub-desktop
+├── npm/                          # 跨端共享包（父仓内，pnpm workspace）
+│   ├── calendar-shared/          # 原 packages/calendar-shared
+│   └── teach-hub-shared/         # 原 packages/teach-hub-shared
+├── packages/                     # 仍保留 auth/db/config/ui/*-core 等
+├── games/                        # 旁路 submodule（不动）
+├── wordpress/                    # 旁路 submodule（不动）
+└── deploy/                       # 网关 / 旁路基建
 ```
 
-旁路 / submodule 目标态（新增顶层目录，与 `games/`、`wordpress/` 并列）：
+### 与现状对照
 
-```
-clients/                    # 或 mobile/、native/ — 待确认命名
-├── calendar-mobile/        # git submodule
-├── teach-hub-mobile/       # git submodule
-└── teach-hub-desktop/      # git submodule
-
-research/                   # 或 sidecars/ — 待确认命名
-└── money-research/         # git submodule
-```
-
-> **命名备选**：`clients/`（多端客户端）、`native/`、`sidecars/`。确认阶段请选定一种，避免与 `packages/*-shared` 混淆。
+| 现状 | 目标 |
+|------|------|
+| `apps/web` | `web/web` |
+| `apps/calendar` 等 Next | `web/calendar` 等 |
+| `apps/calendar-mobile` | `mobile/calendar-mobile`（submodule） |
+| `apps/teach-hub-mobile` | `mobile/teach-hub-mobile`（submodule） |
+| `apps/teach-hub-desktop` | `desktop/teach-hub-desktop`（submodule） |
+| `packages/calendar-shared` | `npm/calendar-shared` |
+| `packages/teach-hub-shared` | `npm/teach-hub-shared` |
+| `packages/*-core`、auth、db… | **仍在 `packages/`** |
 
 ---
 
-## 3. 分层策略
+## 2. Workspace 与依赖约定
 
-### Tier A — 保留在 monorepo（5 个 Next）
+### `pnpm-workspace.yaml`（目标）
 
-**原因**：同域 session、`app.config.yaml`、Drizzle schema、`packages/*-core` 与 Dockerfile `COPY packages/` 强绑定。
+```yaml
+packages:
+  - 'web/*'
+  - 'packages/*'
+  - 'npm/*'
+  # mobile/*、desktop/* 为 submodule，默认不进 workspace
+```
 
-| 应用 | 保留路径 |
-|------|----------|
-| 主站 | `apps/web` |
-| Calendar Web | `apps/calendar` + `packages/calendar-core` |
-| TeachHub Web | `apps/teach-hub` + `packages/teach-hub-core` |
-| ShowMasterpiece | `apps/showmasterpiece` + `packages/showmasterpiece-core` |
-| Node Notes | `apps/node-notes` + `packages/node-notes-core` |
+### `npm/` 包约定
 
-### Tier B — 优先迁出（阶段 1）
+| 包 | 包名 | 消费者 |
+|----|------|--------|
+| `npm/calendar-shared` | `@profile/calendar-shared` | `mobile/calendar-mobile`、可选 `web/calendar` |
+| `npm/teach-hub-shared` | `@profile/teach-hub-shared` | `mobile/teach-hub-mobile`、`desktop/teach-hub-desktop`、可选 `web/teach-hub` |
 
-#### B1. `money-research` → submodule + 旁路 Next
+- **父仓开发**：workspace `workspace:*` 链接 `npm/*`。
+- **子仓（mobile/desktop）**：通过 `file:../../npm/<pkg>`（clone 含父仓时）或日后发 registry；本阶段优先 **父仓 monorepo 内 path / workspace**，子仓独立 clone 时再决定 registry。
+- **不迁入 `npm/`**：`*-core`、`auth`、`db`、`config`、`ui`（仍只给 Web 矩阵用）。
 
-| 项 | 方案 |
-|----|------|
-| 子仓 | `profile-v1-research-money-research`（公开 GitHub） |
-| 父仓路径 | `research/money-research/`（submodule） |
-| 网关 | 保持 `/money-research/`、`/api/money-research/`（nginx 反代不变） |
-| pnpm | 从 `pnpm-workspace.yaml` 移除；父仓 `package.json` 删 `dev:money-research` 等，改文档指向子仓 |
-| CI | `docker-build-push.yml` 构建上下文改为 submodule；或子仓独立 workflow + 父仓 dispatch |
-| 依赖 | 无 `@profile/*`；Python demo 自包含 |
+---
 
-**类比**：WordPress — 独立运行时栈，父仓只保留 deploy 与路由。
+## 3. 分层与范围
 
-#### B2. `teach-hub-desktop` → submodule（无网关）
+### 留在 `web/`（不外迁为 submodule）
 
-| 项 | 方案 |
-|----|------|
-| 子仓 | `profile-v1-client-teach-hub-desktop` |
-| 父仓路径 | `clients/teach-hub-desktop/` |
-| 网关 | 无（本地 Electron / 未来安装包分发） |
-| CI | 可选：子仓 tag 触发 electron-builder |
-| 依赖 | HTTP 调 teach-hub API；`@profile/teach-hub-shared` 需 npm 化或复制类型 |
+| 应用 | 原因 |
+|------|------|
+| `web/web` | Auth / 实验田 / DB 聚合 |
+| `web/calendar` 等 Next 子应用 | `@profile/auth`、`@profile/db`、`*-core` 强耦合 |
+| `web/money-research` | 本计划暂不迁；后续可另开旁路计划 |
 
-**类比**：games 源码仓 — 不参与 pnpm workspace，父仓无 Docker 服务。
+### 迁出为 submodule
 
-### Tier C — 阶段 2 迁出（RN 客户端）
-
-#### C1. `calendar-mobile`、C2. `teach-hub-mobile`
-
-| 项 | 方案 |
-|----|------|
-| 子仓 | `profile-v1-client-calendar-mobile`、`profile-v1-client-teach-hub-mobile` |
-| 父仓路径 | `clients/calendar-mobile/`、`clients/teach-hub-mobile/` |
-| 前置 | **`@profile/calendar-shared`、`@profile/teach-hub-shared` 发布 npm**（或 GitHub Packages），子仓 `pnpm add` 固定版本 |
-| sa2kit-ui | 已用仓外 `link:`；改为 npm 版本或 submodule |
-| CI | 现有 `calendar-mobile-v*` / teach-hub tag workflow 迁入子仓；父仓 workflow 改为 `workflow_dispatch` 或 path filter `clients/**` |
-| 签名 | `config/android-signing.env` 可留父仓 secrets 文档，子仓 CI 读 GitHub Secrets |
-
-**Web 子应用与 `*-core` 不迁出** — RN 仅 HTTP 消费 API。
+| 阶段 | 路径 | 子仓名 | 类型 |
+|------|------|--------|------|
+| **1（先）** | `mobile/calendar-mobile` | `profile-v1-calendar-mobile` | Expo RN |
+| **1（先）** | `mobile/teach-hub-mobile` | `profile-v1-teach-hub-mobile` | Expo RN |
+| **2（后）** | `desktop/teach-hub-desktop` | `profile-v1-teach-hub-desktop` | Electron |
 
 ---
 
 ## 4. 分阶段任务
 
-### 阶段 0 — 准备（1 PR，无迁仓）
+### 阶段 0 — 父仓目录重排（无 submodule，可独立 PR）
 
-- [ ] 确认顶层目录名：`clients/` + `research/`（或用户指定）
-- [ ] 编写 [`deploy/clients/ADD-CLIENT.md`](../deploy/clients/ADD-CLIENT.md)（仿 `ADD-GAME.md`）
-- [ ] 更新 `.cursor/rules/profile-v1-submodules.mdc` 扩展 RN/Electron/research
-- [ ] 更新 `KNOWLEDGE_BASE.md` §7、`apps/README.md`
-- [ ] 发布 `@profile/calendar-shared`、`@profile/teach-hub-shared` v0.x 到 npm（阶段 2 前置，可并行）
-
-### 阶段 1 — money-research + teach-hub-desktop
+> 先改路径，再迁仓，降低一次 PR 爆炸面。
 
 | 步骤 | 动作 |
 |------|------|
-| 1.1 | 在 GitHub 创建空仓，从 `apps/money-research` 导出历史（`git filter-repo` 或 subtree split） |
-| 1.2 | `git submodule add … research/money-research`；删除 `apps/money-research` |
-| 1.3 | 调整 `deploy/docker-compose.gateway.yml`、nginx、`scripts/money-research-docker-package.sh` 路径 |
-| 1.4 | 更新 CI matrix、`build:all`、turbo filter |
-| 1.5 | 对 teach-hub-desktop 重复 1.1–1.2（无 compose 变更） |
-| 1.6 | 冒烟：网关 `/money-research`、本地 Electron dev |
+| 0.1 | 新建 `npm/`，`git mv packages/calendar-shared`、`packages/teach-hub-shared` → `npm/` |
+| 0.2 | `git mv apps` → `web`（整目录改名） |
+| 0.3 | 更新 `pnpm-workspace.yaml`：`apps/*` → `web/*`，并加入 `npm/*` |
+| 0.4 | 全仓替换路径引用：`apps/` → `web/`、`packages/*-shared` → `npm/*-shared`（Dockerfile、scripts、CI、README、KNOWLEDGE_BASE、AGENTS、`.cursor/rules`） |
+| 0.5 | `pnpm install` + 抽样 `pnpm build:web` / `dev:calendar-mobile` 冒烟 |
+| 0.6 | 更新 [`apps/README.md`](../../apps/README.md) → 迁为 `web/README.md`；索引写入 `docs/README.md` |
 
-**预估**：2–3 天，风险低。
+**预估**：0.5–1 天。风险：大量路径字符串，依赖全仓 grep 与 CI 绿。
 
-### 阶段 2 — RN 双端
+### 阶段 1 — 移动端 submodule（优先）
+
+**前置**：阶段 0 完成；APK 签名 Secrets 仍可用。
 
 | 步骤 | 动作 |
 |------|------|
-| 2.1 | 发布 shared 包；子仓改依赖 |
-| 2.2 | submodule 化 calendar-mobile、teach-hub-mobile |
-| 2.3 | 迁移 APK workflow 与 `package:calendar` / `package:teach-hub` 中 Android 段 |
-| 2.4 | 更新 `apps/README.md`、实验田说明（若有 RN 入口） |
+| 1.1 | GitHub 建仓 `qxdqhr/profile-v1-calendar-mobile`、`profile-v1-teach-hub-mobile` |
+| 1.2 | `git subtree split`（或 filter-repo）导出 `web/calendar-mobile`、`web/teach-hub-mobile` 历史 → 推送子仓 |
+| 1.3 | 父仓删除对应目录，`git submodule add` → `mobile/calendar-mobile`、`mobile/teach-hub-mobile` |
+| 1.4 | 子仓 `package.json`：依赖 `@profile/calendar-shared` / `teach-hub-shared` 指向父仓 `npm/`（文档写明需在 monorepo 根开发）或 `file:` 协议 |
+| 1.5 | 迁移 CI：`calendar-mobile-release.yml`、`teach-hub-mobile-release.yml` → 子仓；父仓 workflow 改为 path filter `mobile/**` 或 dispatch |
+| 1.6 | 更新根 `package.json` 脚本路径、`scripts/*-docker-package.sh` 中 Android 段、`docker-build-push.yml` APK path |
+| 1.7 | 冒烟：本地 Expo / APK 构建；`git submodule update --init` 克隆流程 |
 
-**预估**：3–5 天，依赖 npm 发布与签名 secrets 迁移。
+**预估**：2–4 天。
 
-### 阶段 3 — 文档与清理
+### 阶段 2 — 桌面端 submodule
 
-- [ ] `docs/monorepo-migration/` 归档本计划执行结果
-- [ ] 删除父仓内 RN/Electron 残留脚本引用
-- [ ] CI path filter：`clients/**`、`research/**` 类似 `GAMES_CHANGED`
+| 步骤 | 动作 |
+|------|------|
+| 2.1 | 建仓 `qxdqhr/profile-v1-teach-hub-desktop` |
+| 2.2 | 导出 `web/teach-hub-desktop` → 子仓；父仓 `desktop/teach-hub-desktop` submodule |
+| 2.3 | 依赖 `npm/teach-hub-shared`；根脚本 `dev:teach-hub-desktop` 改路径或改为文档指引 |
+| 2.4 | （可选）子仓加 electron-builder CI |
+
+**预估**：1–2 天。无网关变更。
+
+### 阶段 3 — 规则与文档收尾
+
+- [ ] 更新 `.cursor/rules/profile-v1-submodules.mdc`：增加 `mobile/`、`desktop/`、`npm/`
+- [ ] 更新 `KNOWLEDGE_BASE.md` §7、`docs/AGENTS.md`、根 `README.md`
+- [ ] 编写 `deploy/mobile/ADD-MOBILE.md`、`deploy/desktop/ADD-DESKTOP.md`（仿 ADD-GAME）
+- [ ] 本计划标记为「已执行」并链到变更 commit
 
 ---
 
-## 5. 风险与回滚
+## 5. CI / 部署影响摘要
+
+| 组件 | 变更 |
+|------|------|
+| Docker 镜像（Next） | 构建上下文 `apps/` → `web/`；matrix 不变 |
+| 网关 nginx / compose | URL 不变；仅 Dockerfile COPY 路径 |
+| APK workflows | 迁入 `mobile/*` 子仓或 path 改 `mobile/**` |
+| `build:all` | filter 包名不变；turbo 根路径随 workspace 更新 |
+| games / wordpress | **无变更** |
+
+---
+
+## 6. 风险与回滚
 
 | 风险 | 缓解 |
 |------|------|
-| CI 构建上下文找不到 `packages/` | money-research Dockerfile 已独立；迁出前在子仓验证 `docker build` |
-| shared 包未发布导致 RN 子仓 build 失败 | 阶段 2 前必须 npm 发布；或临时 git submodule 引用 `packages/*-shared` |
-| 开发者 clone 忘记 `--recurse-submodules` | 文档 + CI `submodules: recursive`（已有） |
-| 父仓 `pnpm install` 变慢/报错 | 迁出后从 workspace 移除，根 install 只装 Web 矩阵 |
+| `apps` → `web` 漏改路径导致 CI 红 | 阶段 0 单独 PR；全仓 `rg 'apps/'` 清单清零（排除 docs 历史叙述与旁路说明） |
+| `web/web` 路径易混淆 | 文档与脚本一律写全路径；Cursor 规则注明「主站 = `web/web`」 |
+| submodule 内找不到 `npm/*` | 约定：**日常开发在父仓根** `pnpm --filter @profile/calendar-mobile`；独立子仓 clone 时用 `file:` 或后续 registry |
+| APK 签名 Secrets 断链 | Secrets 留在父仓或同步到子仓；阶段 1 完成前跑通一次 release dry-run |
 
-**回滚**：保留 submodule 指针上一版本 + 恢复 `apps/<name>` 目录（git revert 父仓 PR）。
-
----
-
-## 6. 待你确认的事项
-
-1. **顶层目录命名**：`clients/` + `research/` 是否 OK？或有更偏好的 `mobile/`、`sidecars/`？
-2. **执行范围**：是否 **阶段 1 先做**（money-research + teach-hub-desktop），RN 放阶段 2？
-3. **GitHub 组织**：子仓是否统一 `qxdqhr/profile-v1-*` 命名（与 games 一致）？
-4. **shared 包发布**：是否接受阶段 2 前将 `calendar-shared` / `teach-hub-shared` 发布到 npm（@profile scope 或 @qhr123）？
-5. **Next 子应用**：确认 **不外迁** calendar / teach-hub / showmasterpiece / node-notes？
+**回滚**：按阶段 revert 父仓 PR；submodule 可先保留指针再删。
 
 ---
 
-## 7. 确认后第一条执行命令（阶段 1 预览）
+## 7. 明确不做（本计划）
+
+- ❌ 将 calendar / teach-hub / showmasterpiece / node-notes / money-research 拆成独立 submodule
+- ❌ 改动 `games/`、`wordpress/`、`deploy/games`、`deploy/wordpress`
+- ❌ 把 `*-core` 挪进 `npm/`（core 仍属 Web 领域包）
+
+---
+
+## 8. 执行入口（阶段 0 预览）
+
+确认本修订后，建议第一条执行序列：
 
 ```bash
-# 示例：money-research（确认后由 Agent 执行）
-git subtree split --prefix=apps/money-research -b split/money-research
-# → 推送到新仓 → git submodule add → 删 apps/money-research → 改 deploy/CI
+# 阶段 0.1–0.2（示意）
+mkdir -p npm
+git mv packages/calendar-shared npm/calendar-shared
+git mv packages/teach-hub-shared npm/teach-hub-shared
+git mv apps web
+# 随后改 pnpm-workspace.yaml + 全仓路径引用 + pnpm install 冒烟
 ```
 
-**请回复确认项 1–5，或调整范围后再开始执行。**
+**下一句指令**：回复「开始执行阶段 0」或「开始执行阶段 0+1」即可开工。

@@ -9,7 +9,8 @@
 
 | 文档 | 说明 |
 |------|------|
-| [TASKS.md](./TASKS.md) | 任务总表、阶段里程碑、依赖关系 |
+| [**APPS-SUBMODULE-PLAN.md**](./APPS-SUBMODULE-PLAN.md) | **现行**：`apps`→`web`、`mobile/`、`desktop/`、`npm/` 拆分计划（已确认，待执行） |
+| [TASKS.md](./TASKS.md) | 任务总表、阶段里程碑、依赖关系（方案 B 历史） |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | 目标目录、边界、部署与 B→C 演进 |
 | [deploy.md](./deploy.md) | 三应用 Docker 镜像、端口、CI tag |
 | [PHASE-C-CHECKLIST.md](./PHASE-C-CHECKLIST.md) | B→C 演进检查清单（ST-20） |
