@@ -120,6 +120,7 @@ export default function XxxRoute() {
 
 - `src/app/(pages)/examples/**`：演示、联调、PoC，**不一定**进实验田列表。
 - `src/app/(pages)/testField/**`：实验田导航展示的主阵地；**新实验功能若需入口卡片，必须注册实验数据**（见第 4 节）。
+- **3D / Phaser 页**：路由 `page.tsx` 用 `lazyClientPage`（`src/lib/runtime/lazy-client-page.tsx`，`ssr: false`）再 dynamic import 实现；不要在模块 `index.ts` barrel 里 re-export three/phaser/mmd-parser。主站仍保留 `three` / `phaser` 给这些页；已删除未使用的 Pixi / Tesseract / Transformers / imgly / Neon / `react-beautiful-dnd`。
 
 ---
 

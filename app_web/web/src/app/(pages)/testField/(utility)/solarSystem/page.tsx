@@ -1,5 +1,7 @@
-import SolarSystemPage from '@/modules/solarSystem/pages/SolarSystemPage';
+import { lazyClientPage } from '@/lib/runtime/lazy-client-page';
 
-export default function SolarSystemRoute() {
-  return <SolarSystemPage />;
-} 
+const SolarSystemRoute = lazyClientPage(
+  () => import('@/modules/solarSystem/pages/SolarSystemPage'),
+);
+
+export default SolarSystemRoute;

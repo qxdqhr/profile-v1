@@ -2,7 +2,7 @@
  * MMD模块类型定义
  */
 
-import * as THREE from 'three';
+import type * as THREE from 'three';
 
 // ===== 基础数据类型 =====
 

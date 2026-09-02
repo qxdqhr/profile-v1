@@ -2,7 +2,7 @@
  * 太阳系模块类型定义
  */
 
-import * as THREE from 'three';
+import type * as THREE from 'three';
 
 // ===== 基础天体类型 =====
 

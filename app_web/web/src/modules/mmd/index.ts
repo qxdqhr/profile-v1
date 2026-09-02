@@ -7,19 +7,8 @@
  * - 3D场景渲染
  */
 
-// ===== 核心组件导出 =====
-export { MMDViewer } from './components/MMDViewer';
-export { default as MMDViewerPage } from './pages/MMDViewerPage';
-
-// ===== 工具函数导出 =====
-export { createMMDScene, updateCameraAspect, updateRendererSize, disposeObject } from './utils/sceneUtils';
-export { MMDModelBuilder } from './utils/mmdModelBuilder';
-
-// ===== 类型导出 =====
+// ===== 类型导出（避免从 barrel 拉进 three / mmd-parser）=====
 export type { MMDViewerProps } from './types';
-
-// ===== MMD解析器 =====
-export { MMDParser } from 'mmd-parser';
 
 /**
  * 简单的MMD文件解析工具函数

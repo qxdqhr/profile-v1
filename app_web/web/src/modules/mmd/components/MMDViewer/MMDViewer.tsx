@@ -3,7 +3,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { MMDParser } from 'mmd-parser';
 import { createMMDScene, updateCameraAspect, updateRendererSize, disposeObject } from '../../utils/sceneUtils';
 import { TextureManager } from '../../utils/textureManager';
 import type { MMDViewerProps } from '../../types';

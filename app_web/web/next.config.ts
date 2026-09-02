@@ -71,12 +71,11 @@ const nextConfig: NextConfig = {
         "sharp",
         "onnxruntime-node",
         "onnxruntime-web",
-        "@imgly/background-removal",
-        "@xenova/transformers"
     ],
 
     experimental: {
         externalDir: true,
+        optimizePackageImports: ['three', 'three-stdlib', 'lucide-react'],
     },
 
     turbopack: {},
