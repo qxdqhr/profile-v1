@@ -5,7 +5,8 @@
 > 架构约定 SSOT：`.cursor/KNOWLEDGE_BASE.md`  
 > 启动轮次：2026-08-29
 
-**全仓架构审查（从目录取证，2026-09-02）**：[2026-09-02-审查结果.md](./2026-09-02-审查结果.md)
+**全仓架构审查（2026-09-02，已落地快照）**：[2026-09-02-审查结果.md](./2026-09-02-审查结果.md)  
+**待定优化（搁置；用户说「优化项目」时接着做）**：[PENDING-OPTIMIZATION.md](./PENDING-OPTIMIZATION.md)
 
 ---
 
@@ -109,7 +110,7 @@
 | skillManager | 1.3k | 工具 | ⬜ | — |
 | solarSystem | 1.3k | 可视化 | ⬜ | — |
 | cardMaker | 1.2k | 工具 | ⬜ | — |
-| flappyWish / bubbleShooter / arknightsBubbleShooter / suikaGame / mikuFlick | 单文件游戏 | Phaser | ⬜ | — |
+| flappyWish / bubbleShooter 等 Phaser 页 | — | 已迁 Godot，主站已删 | ✔️ | 见 `deploy/games/` |
 | aiApi | 0.5k | AI 转发 | ⬜ | — |
 | dateCalculator / qrCode | 工具 | 工具 | ⬜ | — |
 | ticketBooking / notification / huarongdao / vocaloidBooth / exam / tailwindTest | 小 | 杂项 | ⬜ | — |
@@ -146,7 +147,7 @@
 4. `mikutap`（体量大，分 api/db/ui 子报告）  
 5. `node-notes-core` + `app_web/node-notes`（对照 `docs/node-notes` 需求）  
 6. RN 三端（cookie 同步、API base URL；评估接 `@sa2kit-ui/rn`）  
-7. 小游戏模块批量扫鉴权与资源泄漏（Phaser dispose）
+7. 小游戏走 Godot 旁路；主站减负余项见 [PENDING-OPTIMIZATION.md](./PENDING-OPTIMIZATION.md)（不要在普通任务里主动做）
 
 ---
 

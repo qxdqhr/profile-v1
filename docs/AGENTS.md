@@ -60,6 +60,7 @@ pnpm package:showmasterpiece
 | App Router 补充规则 | `.cursor/rules/profile-v1-routing.mdc` |
 | 模块与组件补充规则 | `.cursor/rules/profile-v1-modules.mdc` |
 | 工具型模块分步 Skill | `.cursor/skills/build-utility-module/SKILL.md` |
+| **待定优化** | [`code-review/PENDING-OPTIMIZATION.md`](./code-review/PENDING-OPTIMIZATION.md)；用户说「优化项目」时用 `.cursor/skills/continue-optimization-backlog/SKILL.md` |
 | **文档目录约定** | `.cursor/rules/profile-v1-docs.mdc`、[`docs/README.md`](./README.md) |
 | Monorepo 子应用迁移（B→C，归档） | [`monorepo-migration/README.md`](./monorepo-migration/README.md) |
 | 网关部署 Runbook | [`deploy/MIGRATION-RUNBOOK.md`](../deploy/MIGRATION-RUNBOOK.md) |

@@ -16,6 +16,8 @@
 
 完整蓝图：[`docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`](../docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md) §0。
 
+**搁置的优化**：安全 / 鉴权面 / Dockerfile / 游戏旁路已落地（快照 [`docs/code-review/2026-09-02-审查结果.md`](../docs/code-review/2026-09-02-审查结果.md)）。余项在 [`docs/code-review/PENDING-OPTIMIZATION.md`](../docs/code-review/PENDING-OPTIMIZATION.md)，**普通任务不要主动做**。用户说 **「优化项目」** / **「继续优化」** / **「待定优化」** 时立刻读该清单与 `.cursor/skills/continue-optimization-backlog/SKILL.md`，从「下次从这里开始」做一小步。
+
 ---
 
 ## 1. 技术栈与命令
@@ -171,6 +173,7 @@ export default function XxxRoute() {
 | SSOT 自动注入 | `.cursor/rules/profile-v1-knowledge-ssot.mdc` | `alwaysApply: true` + `@.cursor/KNOWLEDGE_BASE.md`，每轮对话附带知识库 |
 | 本知识库 | `.cursor/KNOWLEDGE_BASE.md` | 路由 + 模块 + 实验田 SSOT（正文由上文规则引用） |
 | 工具模块 Skill | `.cursor/skills/build-utility-module/SKILL.md` | 无 DB 模块分步流程 |
+| 待定优化 Skill | `.cursor/skills/continue-optimization-backlog/SKILL.md` | 用户说「优化项目」时按 `docs/code-review/PENDING-OPTIMIZATION.md` 续做 |
 | 小游戏 | `app_games/<slug>/` + `/games/<slug>/` | Godot Web 旁路；**不要**再往主站加 Phaser |
 | 按路径触发的规则 | `.cursor/rules/profile-v1-routing.mdc`、`profile-v1-modules.mdc`、**`profile-v1-sa2kit-ui.mdc`**、**`profile-v1-submodules.mdc`** | 编辑 `src/app` / `src/modules` / sa2kit UI / **games·wordpress submodule** 时注入上下文 |
 

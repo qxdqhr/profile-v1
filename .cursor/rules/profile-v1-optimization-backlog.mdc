@@ -1,0 +1,10 @@
+---
+description: 用户说「优化项目」「继续优化」「待定优化」时，按 docs/code-review/PENDING-OPTIMIZATION.md 接着做搁置的优化，不要再问要不要做。
+alwaysApply: false
+---
+
+用户提到 **优化项目** / **继续优化** / **待定优化** 时：
+
+1. 先读并遵循 `.cursor/skills/continue-optimization-backlog/SKILL.md`。
+2. 从 `docs/code-review/PENDING-OPTIMIZATION.md` 的「下次从这里开始」做一小步（默认 OPT-02；OPT-01 Three 除非用户点名否则跳过）。
+3. 普通需求不要主动做该清单。

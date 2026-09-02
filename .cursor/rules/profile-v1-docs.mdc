@@ -13,7 +13,7 @@ alwaysApply: true
 
 | 内容 | 位置 |
 |------|------|
-| Code Review、sa2kit 蓝图、UI 统一计划 | `docs/code-review/` |
+| Code Review、sa2kit 蓝图、UI 统一计划、待定优化 | `docs/code-review/`（搁置项见 `PENDING-OPTIMIZATION.md`；用户说「优化项目」时接着做） |
 | Monorepo 迁移（已完成的归档） | `docs/monorepo-migration/` |
 | OSS / CDN / 生产部署补充 | `docs/infrastructure/` |
 | YAML + SOPS 配置说明 | `docs/infrastructure/config-yaml-sops.md`（`config/` 仅放 YAML 文件 + stub README） |

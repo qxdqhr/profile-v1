@@ -9,3 +9,4 @@
 | 架构 SSOT | [`.cursor/KNOWLEDGE_BASE.md`](.cursor/KNOWLEDGE_BASE.md) |
 | 文档索引 | [`docs/README.md`](docs/README.md) |
 | 文档目录约定 | [`.cursor/rules/profile-v1-docs.mdc`](.cursor/rules/profile-v1-docs.mdc) |
+| 待定优化（说「优化项目」接着做） | [`docs/code-review/PENDING-OPTIMIZATION.md`](docs/code-review/PENDING-OPTIMIZATION.md) |
