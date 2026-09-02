@@ -68,6 +68,14 @@ async function runDrizzlePush(): Promise<{ code: number; output: string }> {
 }
 
 async function main() {
+  const configEnv = process.env.APP_CONFIG_ENV?.trim();
+  if (configEnv === 'production' && process.env.ALLOW_DRIZZLE_PUSH !== '1') {
+    console.error('生产环境禁止 drizzle-kit push（会绕过迁移链、放大全库爆炸半径）。');
+    console.error('请改用: pnpm prodb:migrate');
+    console.error('若必须 push，设置 ALLOW_DRIZZLE_PUSH=1 后重试。');
+    process.exit(1);
+  }
+
   const { code, output } = await runDrizzlePush();
   const hasUserRoleDropBug = output.includes(USER_ROLE_DROP_ERROR);
   const hasExportError = output.includes(PACKAGE_EXPORT_ERROR);

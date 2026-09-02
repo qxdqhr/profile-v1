@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || '.next-money-research',
   output: 'standalone',
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,

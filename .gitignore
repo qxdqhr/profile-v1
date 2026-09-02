@@ -67,6 +67,8 @@ next-env.d.ts
 /public/mmd/**
 app_web/web/public/mmd/
 app_web/web/public/mmd/**
+*.zip
+!deploy/wordpress/**
 
 # money-research demo
 app_web/money-research/demo/.venv/

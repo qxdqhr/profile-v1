@@ -48,7 +48,7 @@
     "devdb:migrate": "tsx --import @profile/config/preload packages/db/src/migrate.ts",
     "devdb:studio": "tsx --import @profile/config/preload node_modules/drizzle-kit/bin.cjs studio --port 3500",
     "prodb:generate": "APP_CONFIG_ENV=production tsx --import @profile/config/preload node_modules/drizzle-kit/bin.cjs generate",
-    "prodb:push": "APP_CONFIG_ENV=production tsx --import @profile/config/preload scripts/ensure-auth-enum.ts && APP_CONFIG_ENV=production tsx --import @profile/config/preload scripts/ensure-account-issuer.ts && APP_CONFIG_ENV=production tsx --import @profile/config/preload scripts/ensure-orphan-user-records.ts && APP_CONFIG_ENV=production tsx --import @profile/config/preload scripts/drizzle-push.ts",
+    "prodb:push": "echo 'prodb:push 已停用，请改用 pnpm prodb:migrate（紧急: ALLOW_DRIZZLE_PUSH=1 APP_CONFIG_ENV=production tsx --import @profile/config/preload scripts/drizzle-push.ts）' && exit 1",
     "prodb:migrate": "APP_CONFIG_ENV=production tsx --import @profile/config/preload packages/db/src/migrate.ts",
     "prodb:studio": "APP_CONFIG_ENV=production tsx --import @profile/config/preload node_modules/drizzle-kit/bin.cjs studio --port 3500",
     "prodb:seed": "APP_CONFIG_ENV=production tsx --import @profile/config/preload scripts/create-prod-masterpieces-data.ts",
