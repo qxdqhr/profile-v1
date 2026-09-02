@@ -67,3 +67,6 @@
 [submodule "mobile/teach-hub-mobile"]
 	path = mobile/teach-hub-mobile
 	url = git@github.com:qxdqhr/profile-v1-teach-hub-mobile.git
+[submodule "desktop/teach-hub-desktop"]
+	path = desktop/teach-hub-desktop
+	url = git@github.com:qxdqhr/profile-v1-teach-hub-desktop.git

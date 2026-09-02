@@ -6,20 +6,20 @@
 
 ```
 profile-v1/
-├── web/
+├── web/                     # Next.js Web 矩阵
 │   ├── web/                 # 主站 @profile/web (:3000)
-│   ├── calendar/            # 日历 Web @profile/calendar (:3001)
-│   ├── calendar-mobile/     # 日历 RN (Expo)
-│   ├── teach-hub/           # TeachHub Web (:3002)
-│   ├── teach-hub-mobile/    # TeachHub RN (Expo)
-│   ├── teach-hub-desktop/   # TeachHub Electron 脚手架
-│   ├── showmasterpiece/     # 画集子应用 (:3003)
-│   └── money-research/      # 副业调研 Demo 测试台 (:3004)
-├── packages/
-│   ├── config, auth, db, ui
-│   ├── calendar-core, calendar-shared
-│   ├── teach-hub-core, teach-hub-shared
-│   └── showmasterpiece-core
+│   ├── calendar/            # :3001
+│   ├── teach-hub/           # :3002
+│   ├── showmasterpiece/     # :3003
+│   ├── money-research/      # :3004
+│   └── node-notes/          # :3005
+├── mobile/                  # RN submodule
+│   ├── calendar-mobile/
+│   └── teach-hub-mobile/
+├── desktop/                 # Electron submodule
+│   └── teach-hub-desktop/
+├── npm/                     # calendar-shared / teach-hub-shared
+├── packages/                # auth, db, ui, *-core
 ├── deploy/                  # 网关 nginx + docker-compose
 └── docs/                    # 仓库级文档（索引 docs/README.md）
 ```

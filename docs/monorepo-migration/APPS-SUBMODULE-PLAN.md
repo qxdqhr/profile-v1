@@ -1,6 +1,6 @@
 # Web / Mobile / Desktop 目录拆分 + Submodule 迁移计划
 
-> **状态**：阶段 0–1 已执行；阶段 2（desktop）待执行  
+> **状态**：阶段 0–2 已执行完成  
 > **日期**：2026-09-02  
 > **参照模式**：[`deploy/games/`](../../deploy/games/README.md)、[`deploy/wordpress/`](../../deploy/wordpress/README.md)
 
@@ -8,51 +8,41 @@
 
 | # | 结论 |
 |---|------|
-| 1 | 顶层：`apps/` **改名为 `web/`**；RN → **`mobile/`**；桌面 → **`desktop/`** |
-| 2 | 执行顺序：**先移动端，再桌面端** |
-| 3 | 子仓命名：`qxdqhr/profile-v1-*`（与 games 一致） |
-| 4 | 新增顶层 **`npm/`** 放置 `*-shared` 包 |
-| 5 | **Next 子应用暂不外迁** |
+| 1 | 顶层：`apps/` → `web/`；RN → `mobile/`；桌面 → `desktop/` |
+| 2 | 顺序：先移动端，再桌面端 |
+| 3 | 子仓：`qxdqhr/profile-v1-*` |
+| 4 | `npm/` 放置 `*-shared` |
+| 5 | Next 子应用暂不外迁 |
 
 ## 进度
 
 | 阶段 | 状态 | 说明 |
 |------|------|------|
-| 0 目录重排 | ✅ | `apps`→`web/`，`*-shared`→`npm/`，config 软链 |
+| 0 目录重排 | ✅ | `apps`→`web/`，`*-shared`→`npm/` |
 | 1 Mobile submodule | ✅ | `mobile/calendar-mobile`、`mobile/teach-hub-mobile` |
-| 2 Desktop submodule | ⬜ | `web/teach-hub-desktop` → `desktop/` |
-| 3 文档收尾 | 进行中 | KNOWLEDGE_BASE / README |
+| 2 Desktop submodule | ✅ | `desktop/teach-hub-desktop` |
+| 3 文档收尾 | ✅ | 本文件与 KNOWLEDGE_BASE |
 
-## 当前目录结构
+## 最终目录结构
 
 ```
 profile-v1/
-├── web/                          # 原 apps/（Next.js Web 矩阵）
-│   ├── web/                      # 主站
+├── web/                 # Next.js Web 矩阵
+│   ├── web/
 │   ├── calendar/
 │   ├── teach-hub/
 │   ├── showmasterpiece/
 │   ├── money-research/
-│   ├── node-notes/
-│   └── teach-hub-desktop/        # 阶段 2 迁出
-├── mobile/                       # RN submodule ✅
-│   ├── calendar-mobile/          # → profile-v1-calendar-mobile
-│   └── teach-hub-mobile/         # → profile-v1-teach-hub-mobile
-├── npm/                          # ✅ calendar-shared / teach-hub-shared
-├── packages/                     # auth / db / *-core
-├── games/                        # 旁路（不动）
-└── wordpress/                    # 旁路（不动）
-```
-
-## 阶段 2 预览（desktop）
-
-```bash
-gh repo create qxdqhr/profile-v1-teach-hub-desktop --public
-git subtree split --prefix=web/teach-hub-desktop -b split/teach-hub-desktop
-git push git@github.com:qxdqhr/profile-v1-teach-hub-desktop.git split/teach-hub-desktop:main
-git rm -rf web/teach-hub-desktop
-git submodule add git@github.com:qxdqhr/profile-v1-teach-hub-desktop.git desktop/teach-hub-desktop
-# 更新 pnpm-workspace：加入 desktop/*；改根脚本路径
+│   └── node-notes/
+├── mobile/              # RN submodule
+│   ├── calendar-mobile/          → profile-v1-calendar-mobile
+│   └── teach-hub-mobile/         → profile-v1-teach-hub-mobile
+├── desktop/             # Electron submodule
+│   └── teach-hub-desktop/        → profile-v1-teach-hub-desktop
+├── npm/                 # calendar-shared / teach-hub-shared
+├── packages/            # auth / db / *-core
+├── games/               # 旁路（不动）
+└── wordpress/           # 旁路（不动）
 ```
 
 ## Workspace
@@ -64,5 +54,13 @@ packages:
   - 'packages/*'
   - 'npm/*'
   - 'mobile/*'
-  # 阶段 2 后：'desktop/*'
+  - 'desktop/*'
 ```
+
+## 子仓清单
+
+| 父仓路径 | GitHub |
+|----------|--------|
+| `mobile/calendar-mobile` | https://github.com/qxdqhr/profile-v1-calendar-mobile |
+| `mobile/teach-hub-mobile` | https://github.com/qxdqhr/profile-v1-teach-hub-mobile |
+| `desktop/teach-hub-desktop` | https://github.com/qxdqhr/profile-v1-teach-hub-desktop |

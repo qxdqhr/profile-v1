@@ -23,7 +23,7 @@
 | 项 | 约定 |
 |----|------|
 | 框架 | Next.js（App Router，主站在 `web/web/src/app`） |
-| Monorepo | pnpm workspace：`web/*` + `packages/*` + `npm/*` + `mobile/*`；详见 `docs/monorepo-migration/`、`docs/README.md`、`web/README.md` |
+| Monorepo | pnpm workspace：`web/*` + `packages/*` + `npm/*` + `mobile/*` + `desktop/*`；详见 `docs/monorepo-migration/`、`docs/README.md`、`web/README.md` |
 | 样式 | Tailwind CSS；预设 `@profile/ui/tailwind.preset`（设计令牌桥；业务组件/主题见 §1.1） |
 | 数据层 | Drizzle ORM + PostgreSQL（`@profile/db`，迁移目录 `drizzle/` 在仓库根） |
 | 包管理 | **pnpm**；开发 `pnpm dev` = `pnpm --filter @profile/web dev` |
@@ -251,7 +251,7 @@ git submodule update --init --recursive
 | ShowMasterpiece | `web/showmasterpiece` | `@profile/showmasterpiece` | 3003 | `/showmasterpiece` |
 | Calendar Mobile | `mobile/calendar-mobile`（submodule） | `@profile/calendar-mobile` | Expo | — |
 | TeachHub Mobile | `mobile/teach-hub-mobile`（submodule） | `@profile/teach-hub-mobile` | Expo | — |
-| TeachHub Desktop | `web/teach-hub-desktop`（阶段 2 → `desktop/`） | `@profile/teach-hub-desktop` | Vite | — |
+| TeachHub Desktop | `desktop/teach-hub-desktop`（submodule） | `@profile/teach-hub-desktop` | Vite | — |
 | WordPress（旁路） | `wordpress/<slug>/` submodule + `deploy/wordpress/` | —（非 pnpm） | 官方镜像 | `/wp/<slug>/` |
 | Godot 游戏（旁路） | `games/<slug>/` submodule + `deploy/games/` | —（非 pnpm） | nginx 静态 | `/games/<slug>/` |
 

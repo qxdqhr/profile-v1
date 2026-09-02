@@ -52,6 +52,46 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  desktop/teach-hub-desktop:
+    dependencies:
+      '@profile/teach-hub-shared':
+        specifier: workspace:*
+        version: link:../../npm/teach-hub-shared
+      react:
+        specifier: 19.2.1
+        version: 19.2.1
+      react-dom:
+        specifier: 19.2.1
+        version: 19.2.1(react@19.2.1)
+      react-router-dom:
+        specifier: ^7.9.1
+        version: 7.18.3(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+    devDependencies:
+      '@types/react':
+        specifier: ^19
+        version: 19.1.17
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.2.5(@types/react@19.1.17)
+      '@vitejs/plugin-react':
+        specifier: ^4.3.4
+        version: 4.7.0(vite@6.4.3(@types/node@26.4.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.51.2)(tsx@4.23.12)(yaml@2.9.0))
+      electron:
+        specifier: ^33.2.1
+        version: 33.4.11
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+      vite:
+        specifier: ^6.0.3
+        version: 6.4.3(@types/node@26.4.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.51.2)(tsx@4.23.12)(yaml@2.9.0)
+      vite-plugin-electron:
+        specifier: ^0.28.8
+        version: 0.28.8(vite-plugin-electron-renderer@0.14.7)
+      vite-plugin-electron-renderer:
+        specifier: ^0.14.6
+        version: 0.14.7
+
   mobile/calendar-mobile:
     dependencies:
       '@babel/runtime':
@@ -316,7 +356,7 @@ importers:
         version: 0.474.0(react@19.2.1)
       next:
         specifier: 16.0.8
-        version: 16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+        version: 16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       react:
         specifier: 19.2.1
         version: 19.2.1
@@ -325,7 +365,7 @@ importers:
         version: 19.2.1(react@19.2.1)
       sa2kit:
         specifier: 3.9.4
-        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@qhr123/sa2kit-ui-react@0.1.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
+        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
       swr:
         specifier: ^2.3.8
         version: 2.5.1(react@19.2.1)
@@ -388,7 +428,7 @@ importers:
         version: 0.474.0(react@19.2.1)
       next:
         specifier: 16.0.8
-        version: 16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+        version: 16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       react:
         specifier: 19.2.1
         version: 19.2.1
@@ -441,7 +481,7 @@ importers:
         version: 0.474.0(react@19.2.1)
       next:
         specifier: 16.0.8
-        version: 16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+        version: 16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       react:
         specifier: 19.2.1
         version: 19.2.1
@@ -450,7 +490,7 @@ importers:
         version: 19.2.1(react@19.2.1)
       sa2kit:
         specifier: 3.9.4
-        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@qhr123/sa2kit-ui-react@0.1.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
+        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
       tailwind-merge:
         specifier: ^2.6.0
         version: 2.6.1
@@ -499,7 +539,7 @@ importers:
         version: 5.1.16
       next:
         specifier: 16.0.8
-        version: 16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+        version: 16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       react:
         specifier: 19.2.1
         version: 19.2.1
@@ -508,7 +548,7 @@ importers:
         version: 19.2.1(react@19.2.1)
       sa2kit:
         specifier: 3.9.4
-        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@qhr123/sa2kit-ui-react@0.1.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
+        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
       swr:
         specifier: ^2.3.8
         version: 2.5.1(react@19.2.1)
@@ -565,7 +605,7 @@ importers:
         version: 0.474.0(react@19.2.1)
       next:
         specifier: 16.0.8
-        version: 16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+        version: 16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       react:
         specifier: 19.2.1
         version: 19.2.1
@@ -574,7 +614,7 @@ importers:
         version: 19.2.1(react@19.2.1)
       sa2kit:
         specifier: 3.9.4
-        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@qhr123/sa2kit-ui-react@0.1.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
+        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@qhr123/sa2kit-ui-react@0.1.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
     devDependencies:
       '@types/node':
         specifier: ^20.17.12
@@ -608,7 +648,7 @@ importers:
     dependencies:
       next:
         specifier: 16.0.8
-        version: 16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+        version: 16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       react:
         specifier: 19.2.1
         version: 19.2.1
@@ -660,7 +700,7 @@ importers:
         version: 0.474.0(react@19.2.1)
       next:
         specifier: 16.0.8
-        version: 16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+        version: 16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       react:
         specifier: 19.2.1
         version: 19.2.1
@@ -672,7 +712,7 @@ importers:
         version: 2.6.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       sa2kit:
         specifier: 3.9.4
-        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@qhr123/sa2kit-ui-react@0.1.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
+        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@qhr123/sa2kit-ui-react@0.1.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
     devDependencies:
       '@types/node':
         specifier: ^20.17.12
@@ -730,7 +770,7 @@ importers:
         version: 0.474.0(react@19.2.1)
       next:
         specifier: 16.0.8
-        version: 16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+        version: 16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       react:
         specifier: 19.2.1
         version: 19.2.1
@@ -739,7 +779,7 @@ importers:
         version: 19.2.1(react@19.2.1)
       sa2kit:
         specifier: 3.9.4
-        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@qhr123/sa2kit-ui-react@0.1.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
+        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@qhr123/sa2kit-ui-react@0.1.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
     devDependencies:
       '@types/node':
         specifier: ^20.17.12
@@ -800,7 +840,7 @@ importers:
         version: 0.474.0(react@19.2.1)
       next:
         specifier: 16.0.8
-        version: 16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+        version: 16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       react:
         specifier: 19.2.1
         version: 19.2.1
@@ -809,7 +849,7 @@ importers:
         version: 19.2.1(react@19.2.1)
       sa2kit:
         specifier: 3.9.4
-        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@qhr123/sa2kit-ui-react@0.1.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
+        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@qhr123/sa2kit-ui-react@0.1.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
       swr:
         specifier: ^2.3.8
         version: 2.5.1(react@19.2.1)
@@ -844,46 +884,6 @@ importers:
       yaml:
         specifier: ^2.8.0
         version: 2.9.0
-
-  web/teach-hub-desktop:
-    dependencies:
-      '@profile/teach-hub-shared':
-        specifier: workspace:*
-        version: link:../../npm/teach-hub-shared
-      react:
-        specifier: 19.2.1
-        version: 19.2.1
-      react-dom:
-        specifier: 19.2.1
-        version: 19.2.1(react@19.2.1)
-      react-router-dom:
-        specifier: ^7.9.1
-        version: 7.18.3(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-    devDependencies:
-      '@types/react':
-        specifier: ^19
-        version: 19.1.17
-      '@types/react-dom':
-        specifier: ^19
-        version: 19.2.5(@types/react@19.1.17)
-      '@vitejs/plugin-react':
-        specifier: ^4.3.4
-        version: 4.7.0(vite@6.4.3(@types/node@26.4.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.51.2)(tsx@4.23.12)(yaml@2.9.0))
-      electron:
-        specifier: ^33.2.1
-        version: 33.4.11
-      typescript:
-        specifier: ^5.7.3
-        version: 5.9.3
-      vite:
-        specifier: ^6.0.3
-        version: 6.4.3(@types/node@26.4.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.51.2)(tsx@4.23.12)(yaml@2.9.0)
-      vite-plugin-electron:
-        specifier: ^0.28.8
-        version: 0.28.8(vite-plugin-electron-renderer@0.14.7)
-      vite-plugin-electron-renderer:
-        specifier: ^0.14.6
-        version: 0.14.7
 
   web/web:
     dependencies:
@@ -1045,7 +1045,7 @@ importers:
         version: 5.1.16
       next:
         specifier: 16.0.8
-        version: 16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+        version: 16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       pg:
         specifier: ^8.15.6
         version: 8.23.0
@@ -1081,7 +1081,7 @@ importers:
         version: 2.6.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       sa2kit:
         specifier: 3.9.4
-        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@qhr123/sa2kit-ui-react@0.1.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
+        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@qhr123/sa2kit-ui-react@0.1.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
       swr:
         specifier: ^2.3.8
         version: 2.5.1(react@19.2.1)
@@ -2512,7 +2512,7 @@ packages:
 
   '@expo/bunyan@4.0.1':
     resolution: {integrity: sha512-+Lla7nYSiHZirgK+U/uYzsLv/X+HaJienbD5AKX1UQZHYfWaP+9uuQluRB4GrEVWF0GZ7vEVp/jzaOT9k/SQlg==}
-    engines: {node: '>=0.10.0'}
+    engines: {'0': node >=0.10.0}
 
   '@expo/cli@0.22.28':
     resolution: {integrity: sha512-lvt72KNitGuixYD2l3SZmRKVu2G4zJpmg5V7WfUBNpmUU5oODBw/6qmiJ6kSLAlfDozscUk+BBGknBBzxUrwrA==}
@@ -8772,8 +8772,8 @@ packages:
   thenify@3.3.1:
     resolution: {integrity: sha512-RVZSIV5IG10Hk3enotrhvz0T9em6cyHBLkH/YAZuKqd8hRkKhSfCGIcP2KUY0EPxndzANBmNllzWPwak+bheSw==}
 
-  three-bmfont-text@git+https://git@github.com:dmarcos/three-bmfont-text.git#c3eec235b9188aa0d8ed949101236e6d5fccf071:
-    resolution: {commit: c3eec235b9188aa0d8ed949101236e6d5fccf071, repo: git@github.com:dmarcos/three-bmfont-text.git, type: git}
+  three-bmfont-text@https://codeload.github.com/dmarcos/three-bmfont-text/tar.gz/c3eec235b9188aa0d8ed949101236e6d5fccf071:
+    resolution: {tarball: https://codeload.github.com/dmarcos/three-bmfont-text/tar.gz/c3eec235b9188aa0d8ed949101236e6d5fccf071}
     version: 3.0.0
 
   three-stdlib@2.36.1:
@@ -12798,7 +12798,7 @@ snapshots:
       stats-gl: 3.8.0(super-three@0.184.0)
       super-animejs: 3.1.0
       three: super-three@0.184.0
-      three-bmfont-text: git+https://git@github.com:dmarcos/three-bmfont-text.git#c3eec235b9188aa0d8ed949101236e6d5fccf071
+      three-bmfont-text: https://codeload.github.com/dmarcos/three-bmfont-text/tar.gz/c3eec235b9188aa0d8ed949101236e6d5fccf071
     transitivePeerDependencies:
       - supports-color
 
@@ -13206,6 +13206,38 @@ snapshots:
 
   before@0.0.1: {}
 
+  better-auth@1.7.2(@prisma/client@6.2.1(prisma@6.2.1))(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(next@16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1):
+    dependencies:
+      '@better-auth/core': 1.7.2(@better-auth/utils@0.4.2)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2)
+      '@better-auth/drizzle-adapter': 1.7.2(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.4.2)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))
+      '@better-auth/kysely-adapter': 1.7.2(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.4.2)(kysely@0.29.5)
+      '@better-auth/memory-adapter': 1.7.2(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.4.2)
+      '@better-auth/mongo-adapter': 1.7.2(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.4.2)
+      '@better-auth/prisma-adapter': 1.7.2(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.4.2)(@prisma/client@6.2.1(prisma@6.2.1))(prisma@6.2.1)
+      '@better-auth/telemetry': 1.7.2(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.4.2)(@better-fetch/fetch@1.3.1)
+      '@better-auth/utils': 0.4.2
+      '@better-fetch/fetch': 1.3.1
+      '@noble/ciphers': 2.4.0
+      '@noble/hashes': 2.4.0
+      better-call: 1.4.0(zod@4.5.2)
+      defu: 6.1.7
+      jose: 6.2.10
+      kysely: 0.29.5
+      nanostores: 1.5.2
+      zod: 4.5.2
+    optionalDependencies:
+      '@prisma/client': 6.2.1(prisma@6.2.1)
+      drizzle-kit: 0.31.10
+      drizzle-orm: 0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1)
+      next: 16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      pg: 8.23.0
+      prisma: 6.2.1
+      react: 19.2.1
+      react-dom: 19.2.1(react@19.2.1)
+    transitivePeerDependencies:
+      - '@cloudflare/workers-types'
+      - '@opentelemetry/api'
+
   better-auth@1.7.2(@prisma/client@6.2.1(prisma@6.2.1))(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(next@16.0.8(@babel/core@7.29.7)(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.8(react@18.3.1))(react@18.3.1):
     dependencies:
       '@better-auth/core': 1.7.2(@better-auth/utils@0.4.2)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2)
@@ -13261,7 +13293,7 @@ snapshots:
       '@prisma/client': 6.2.1(prisma@6.2.1)
       drizzle-kit: 0.31.10
       drizzle-orm: 0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1)
-      next: 16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      next: 16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       pg: 8.23.0
       prisma: 6.2.1
       react: 19.2.1
@@ -16521,6 +16553,29 @@ snapshots:
 
   netmask@2.1.1: {}
 
+  next@16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1):
+    dependencies:
+      '@next/env': 16.0.8
+      '@swc/helpers': 0.5.15
+      caniuse-lite: 1.0.30001810
+      postcss: 8.4.31
+      react: 19.2.1
+      react-dom: 19.2.1(react@19.2.1)
+      styled-jsx: 5.1.6(@babel/core@7.29.7)(react@19.2.1)
+    optionalDependencies:
+      '@next/swc-darwin-arm64': 16.0.8
+      '@next/swc-darwin-x64': 16.0.8
+      '@next/swc-linux-arm64-gnu': 16.0.8
+      '@next/swc-linux-arm64-musl': 16.0.8
+      '@next/swc-linux-x64-gnu': 16.0.8
+      '@next/swc-linux-x64-musl': 16.0.8
+      '@next/swc-win32-arm64-msvc': 16.0.8
+      '@next/swc-win32-x64-msvc': 16.0.8
+      sharp: 0.34.5
+    transitivePeerDependencies:
+      - '@babel/core'
+      - babel-plugin-macros
+
   next@16.0.8(@babel/core@7.29.7)(react-dom@19.2.8(react@18.3.1))(react@18.3.1):
     dependencies:
       '@next/env': 16.0.8
@@ -16544,29 +16599,6 @@ snapshots:
       - '@babel/core'
       - babel-plugin-macros
     optional: true
-
-  next@16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1):
-    dependencies:
-      '@next/env': 16.0.8
-      '@swc/helpers': 0.5.15
-      caniuse-lite: 1.0.30001810
-      postcss: 8.4.31
-      react: 19.2.1
-      react-dom: 19.2.1(react@19.2.1)
-      styled-jsx: 5.1.6(react@19.2.1)
-    optionalDependencies:
-      '@next/swc-darwin-arm64': 16.0.8
-      '@next/swc-darwin-x64': 16.0.8
-      '@next/swc-linux-arm64-gnu': 16.0.8
-      '@next/swc-linux-arm64-musl': 16.0.8
-      '@next/swc-linux-x64-gnu': 16.0.8
-      '@next/swc-linux-x64-musl': 16.0.8
-      '@next/swc-win32-arm64-msvc': 16.0.8
-      '@next/swc-win32-x64-msvc': 16.0.8
-      sharp: 0.34.5
-    transitivePeerDependencies:
-      - '@babel/core'
-      - babel-plugin-macros
 
   next@16.0.8(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
     dependencies:
@@ -17820,7 +17852,70 @@ snapshots:
       - vitest
       - vue
 
-  sa2kit@3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@qhr123/sa2kit-ui-react@0.1.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0)):
+  sa2kit@3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@qhr123/sa2kit-ui-react@0.1.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0)):
+    dependencies:
+      '@ar-js-org/ar.js': 3.4.7
+      '@better-auth/drizzle-adapter': 1.7.2(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))
+      '@dnd-kit/core': 6.3.1(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      '@dnd-kit/sortable': 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react@19.2.1)
+      '@dnd-kit/utilities': 3.2.2(react@19.2.1)
+      '@meting/core': 1.6.1
+      adm-zip: 0.5.18
+      ali-oss: 6.23.0(proxy-agent@6.5.0)
+      bcryptjs: 3.0.3
+      better-auth: 1.7.2(@prisma/client@6.2.1(prisma@6.2.1))(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(next@16.0.8(@babel/core@7.29.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      clsx: 2.1.1
+      framer-motion: 12.43.0(@emotion/is-prop-valid@1.3.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      jsonwebtoken: 9.0.3
+      jszip: 3.10.1
+      onnxruntime-web: 1.21.0
+      postgres: 3.4.9
+      proxy-agent: 6.5.0
+      tailwind-merge: 2.6.1
+      three: 0.181.2
+      three-stdlib: 2.36.1(three@0.181.2)
+      uuid: 13.0.2
+      xlsx: 0.18.5
+      yaml: 2.9.0
+      zod: 4.5.2
+    optionalDependencies:
+      '@alicloud/pop-core': 1.8.0
+      '@imgly/background-removal': 1.7.0(onnxruntime-web@1.21.0)
+      '@sa2kit-ui/react': '@qhr123/sa2kit-ui-react@0.1.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1)'
+      '@xenova/transformers': 2.17.2
+      lucide-react: 0.474.0(react@19.2.1)
+      react: 19.2.1
+      react-dom: 19.2.1(react@19.2.1)
+      swr: 2.5.1(react@19.2.1)
+      tesseract.js: 7.0.0
+      ws: 8.21.3(bufferutil@4.1.0)
+    transitivePeerDependencies:
+      - '@better-auth/core'
+      - '@better-auth/utils'
+      - '@cloudflare/workers-types'
+      - '@emotion/is-prop-valid'
+      - '@lynx-js/react'
+      - '@opentelemetry/api'
+      - '@prisma/client'
+      - '@sveltejs/kit'
+      - '@tanstack/react-start'
+      - '@tanstack/solid-start'
+      - better-sqlite3
+      - debug
+      - drizzle-kit
+      - drizzle-orm
+      - mongodb
+      - mysql2
+      - next
+      - pg
+      - prisma
+      - solid-js
+      - supports-color
+      - svelte
+      - vitest
+      - vue
+
+  sa2kit@3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(lucide-react@0.474.0(react@19.2.1))(next@16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(swr@2.5.1(react@19.2.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0)):
     dependencies:
       '@ar-js-org/ar.js': 3.4.7
       '@better-auth/drizzle-adapter': 1.7.2(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))
@@ -17849,7 +17944,6 @@ snapshots:
     optionalDependencies:
       '@alicloud/pop-core': 1.8.0
       '@imgly/background-removal': 1.7.0(onnxruntime-web@1.21.0)
-      '@sa2kit-ui/react': '@qhr123/sa2kit-ui-react@0.1.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1)'
       '@xenova/transformers': 2.17.2
       lucide-react: 0.474.0(react@19.2.1)
       react: 19.2.1
@@ -18467,10 +18561,12 @@ snapshots:
       '@babel/core': 7.29.7
     optional: true
 
-  styled-jsx@5.1.6(react@19.2.1):
+  styled-jsx@5.1.6(@babel/core@7.29.7)(react@19.2.1):
     dependencies:
       client-only: 0.0.1
       react: 19.2.1
+    optionalDependencies:
+      '@babel/core': 7.29.7
 
   styled-jsx@5.1.6(react@19.2.8):
     dependencies:
@@ -18699,7 +18795,7 @@ snapshots:
     dependencies:
       any-promise: 1.3.0
 
-  three-bmfont-text@git+https://git@github.com:dmarcos/three-bmfont-text.git#c3eec235b9188aa0d8ed949101236e6d5fccf071:
+  three-bmfont-text@https://codeload.github.com/dmarcos/three-bmfont-text/tar.gz/c3eec235b9188aa0d8ed949101236e6d5fccf071:
     dependencies:
       as-number: 1.0.0
       quad-indices: 2.0.1

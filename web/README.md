@@ -11,8 +11,7 @@
 | `@profile/money-research` | `web/money-research/` | 3004 | 调研 Demo（暂留） |
 | `@profile/node-notes` | `web/node-notes/` | 3005 | 节点笔记 |
 
-RN 客户端已迁至 [`mobile/`](../mobile/README.md)；桌面端仍暂存 `web/teach-hub-desktop/`（阶段 2 → `desktop/`）。  
-跨端 shared：[`npm/`](../npm/README.md)。
+RN：[`mobile/`](../mobile/README.md)。桌面：[`desktop/`](../desktop/README.md)。跨端 shared：[`npm/`](../npm/README.md)。
 
 旁路：WordPress [`deploy/wordpress/`](../deploy/wordpress/)，Godot [`deploy/games/`](../deploy/games/)。
 
@@ -24,6 +23,7 @@ pnpm dev:calendar         # :3001
 pnpm dev:teach-hub        # :3002
 pnpm dev:showmasterpiece  # :3003
 pnpm dev:calendar-mobile  # Expo（mobile/）
+pnpm dev:teach-hub-desktop  # Electron（desktop/）
 ```
 
 网关：[`deploy/MIGRATION-RUNBOOK.md`](../deploy/MIGRATION-RUNBOOK.md)。
