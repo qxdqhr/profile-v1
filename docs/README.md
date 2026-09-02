@@ -14,6 +14,7 @@
 | 多端 sa2kit 蓝图 | [`code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`](./code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md) |
 | UI 统一计划（Phase U） | [`code-review/libraries/UI-UNIFICATION-PLAN.md`](./code-review/libraries/UI-UNIFICATION-PLAN.md) |
 | Monorepo 迁移（已完成，归档） | [`monorepo-migration/README.md`](./monorepo-migration/README.md) |
+| apps 非 Web → submodule 计划（草案） | [`monorepo-migration/APPS-SUBMODULE-PLAN.md`](./monorepo-migration/APPS-SUBMODULE-PLAN.md) |
 | 生产配置与部署补充 | [`infrastructure/production-deployment-guide.md`](./infrastructure/production-deployment-guide.md)、[`infrastructure/config-yaml-sops.md`](./infrastructure/config-yaml-sops.md) |
 | 节点笔记 | [`node-notes/README.md`](./node-notes/README.md) |
 | 测试账号（脚本为准） | `pnpm devdb:createusers` / `prodb:createusers`，见 [`scripts/create-test-user-accounts.ts`](../scripts/create-test-user-accounts.ts) |
