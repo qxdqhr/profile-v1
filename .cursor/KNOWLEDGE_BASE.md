@@ -169,7 +169,7 @@ export default function XxxRoute() {
 | 本知识库 | `.cursor/KNOWLEDGE_BASE.md` | 路由 + 模块 + 实验田 SSOT（正文由上文规则引用） |
 | 工具模块 Skill | `.cursor/skills/build-utility-module/SKILL.md` | 无 DB 模块分步流程 |
 | 小游戏 Skill（用户级） | `~/.cursor/skills/profile-v1-minigame/SKILL.md` | Phaser + `(sa2kit)` 流程 |
-| 按路径触发的规则 | `.cursor/rules/profile-v1-routing.mdc`、`profile-v1-modules.mdc`、**`profile-v1-sa2kit-ui.mdc`** | 编辑 `src/app` / `src/modules` / sa2kit UI 与 auth 时注入上下文 |
+| 按路径触发的规则 | `.cursor/rules/profile-v1-routing.mdc`、`profile-v1-modules.mdc`、**`profile-v1-sa2kit-ui.mdc`**、**`profile-v1-submodules.mdc`** | 编辑 `src/app` / `src/modules` / sa2kit UI / **games·wordpress submodule** 时注入上下文 |
 
 ---
 
@@ -182,11 +182,63 @@ export default function XxxRoute() {
 - `ExperimentItem` 类型或 `category` 枚举扩展
 - 新的「标准参考模块」取代 `ideaList` 作为模板
 - 新增/变更 `apps/*` 子应用、网关路由、RN 客户端或 CI 打包脚本
+- 新增/变更 **git submodule**（`games/*`、`wordpress/*`）或 `.gitmodules`
 - 变更与 sa2kit / sa2kit-ui 的依赖方向或 UI 门面约定（同步 `doc/code-review/libraries/TARGET-ARCHITECTURE.md`）
 
 ---
 
-## 7. Monorepo 子应用（方案 B）
+## 7. Monorepo 子应用（方案 B）与旁路 Submodule
+
+### 7.0 Git Submodule 旁路约定（games / WordPress）
+
+**原则**：Godot 游戏源码、WordPress 主题等 **非 pnpm、非 Next** 的重资产，各用 **独立公开 Git 仓**，以 **git submodule** 挂入父仓；父仓只保留网关 compose/nginx、deploy 脚本、导航清单与 CI。
+
+#### 7.0.1 双轨目录（勿混淆）
+
+| 类型 | Submodule 源码 | 父仓旁路/基建 | 公网路径 | 清单索引 |
+|------|----------------|---------------|----------|----------|
+| **Godot 游戏** | `games/<slug>/` | `deploy/games/<slug>/`（`nginx.conf` + CI 生成的 `www/`） | `/games/<slug>/` | [`deploy/games/README.md`](../deploy/games/README.md)、[`games/`](../games/)（各 submodule） |
+| **WordPress 主题站** | `wordpress/<slug>/` | `deploy/wordpress/`（compose 模板、ADD-SITE、php 教程；**全站共享，非 submodule**） | `/wp/<slug>/` | [`wordpress/README.md`](../wordpress/README.md)、[`deploy/wordpress/ADD-SITE.md`](../deploy/wordpress/ADD-SITE.md) |
+
+- **Submodule 内**：游戏 `project.godot` / 导出工程；WP 主题 PHP/CSS/JS + 可选 `data/` 种子 JSON。
+- **父仓内**：`deploy/docker-compose.gateway.yml`、`deploy/nginx/*`、冒烟脚本；主站 [`apps/web/src/modules/games/`](../apps/web/src/modules/games/) 小游戏大厅导航（**不是** Godot 源码）。
+- **禁止**：在父仓直接长期修改 submodule 目录内容却不提交子仓；把 `deploy/wordpress/` 或 `deploy/games/<slug>/www/` 当成 submodule。
+
+#### 7.0.2 克隆与本地开发
+
+```bash
+git clone --recurse-submodules git@github.com:qxdqhr/profile-v1.git
+# 或克隆后：
+git submodule update --init --recursive
+```
+
+- 更新单个子模块：`git submodule update --remote wordpress/holt`（或进入子目录在子仓分支开发）。
+- CI（`.github/workflows/docker-build-push.yml`）checkout 使用 **`submodules: recursive`**。
+
+#### 7.0.3 新增 Submodule 流程
+
+| 类型 | 步骤文档 | 典型命令 |
+|------|----------|----------|
+| 游戏 | [`deploy/games/ADD-GAME.md`](../deploy/games/ADD-GAME.md) | `git submodule add https://github.com/qxdqhr/profile-v1-game-<slug>.git games/<slug>` |
+| WordPress | [`deploy/wordpress/ADD-SITE.md`](../deploy/wordpress/ADD-SITE.md) | `git submodule add https://github.com/qxdqhr/profile-v1-wordpress-<slug>.git wordpress/<slug>` |
+
+登记：更新 `.gitmodules`、compose/nginx、`smoke-test-gateway.sh`、主站导航（games 大厅或实验田）；子仓独立 commit/tag，父仓只 bump submodule 指针。
+
+#### 7.0.4 CI 与生产同步
+
+| 标志 | 路径 filter | deploy-web 行为 |
+|------|-------------|-----------------|
+| `GAMES_CHANGED` | `games/**`、export 脚本 | `export-godot-games` 生成 `www/` → scp 到服务器 `games/<slug>/www/`；未变更则 **保留服务器已有包** |
+| `WORDPRESS_CHANGED` | `wordpress/**`、`.gitmodules` | scp `wordpress/<slug>/*` → 服务器 `/root/profile-v1/wordpress/<slug>/`；未变更则 **不覆盖** 服务器主题目录 |
+| 每次 deploy | `deploy/**` | 同步 compose/nginx/脚本；含 **`deploy/wordpress/`** 文档（非主题源码） |
+
+**首次上线 / 换机**：若服务器上 `wordpress/holt/` 或某游戏 `www/` 为空，需至少一次触发对应 path 变更 deploy，或手动 scp / 在服务器 `git submodule update`。
+
+#### 7.0.5 与主站、实验田的关系
+
+- 休闲 Godot 游戏入口：主站 **`/games`**（[`apps/web/src/modules/games`](../apps/web/src/modules/games/)）；实验田 **`category: utility`**，不再堆 `leisure` 游戏卡片。
+- 旁路 URL（`/games/*`、`/wp/*`）在实验田卡片上须 **整页跳转**（见 `ExperimentNavCard` / `isSidecarPath`），不可走 Next `<Link>` 到不存在的 App Router 路径。
+- 从 Next/Phaser **迁出**到 Godot 后：删 `apps/web` 内旧模块与 API，**保留** `@profile/db` 中仍需要的表定义（如 `purchase-game` → `packages/db/src/schema/purchaseGame.ts`）。
 
 ### 7.1 应用与端口
 
@@ -199,11 +251,10 @@ export default function XxxRoute() {
 | Calendar Mobile | `apps/calendar-mobile` | `@profile/calendar-mobile` | Expo | — |
 | TeachHub Mobile | `apps/teach-hub-mobile` | `@profile/teach-hub-mobile` | Expo | — |
 | Profile RN Mobile | `apps/profile-rn-mobile` | `@profile/profile-rn-mobile` | Expo | — |
-| WordPress（旁路） | `deploy/wordpress/` | —（非 pnpm） | 官方镜像 | `/wp/<slug>/` |
-| Godot 游戏（旁路） | `games/<slug>/` + `deploy/games/` | —（非 pnpm） | nginx 静态 | `/games/<slug>/` |
+| WordPress（旁路） | `wordpress/<slug>/` submodule + `deploy/wordpress/` | —（非 pnpm） | 官方镜像 | `/wp/<slug>/` |
+| Godot 游戏（旁路） | `games/<slug>/` submodule + `deploy/games/` | —（非 pnpm） | nginx 静态 | `/games/<slug>/` |
 
-> WordPress 是网关旁路 PHP 服务，**不是** `apps/*` Next 子应用；多站规程见 `deploy/wordpress/ADD-SITE.md`。  
-> Godot/静态游戏旁路见 `deploy/games/README.md`（现网含 `/games/arknights-bubble-shooter/` 等，清单见 README）。
+> WordPress / Godot **源码在 submodule**（§7.0）；旁路基建在 `deploy/`。多站规程见 `deploy/wordpress/ADD-SITE.md`、`deploy/games/ADD-GAME.md`。
 
 ### 7.2 共享包
 
@@ -236,16 +287,17 @@ export default function XxxRoute() {
 ### 7.5 旁路 WordPress（`/wp/*`）
 
 - 路径：`/wp/holt/`（Holt 音乐作品集 + `holt-portfolio` 主题）；前台为主题，后台为 `wp-admin`。
-- 资产：`deploy/wordpress/` + `deploy/docker-compose.gateway.yml` 中 `wp_mariadb` / `wordpress_*`。
-- 二开/部署教程（面向 H5·iOS·鸿蒙开发者）：[`deploy/wordpress/php/README.md`](../deploy/wordpress/php/README.md)。
+- **主题源码**：git submodule [`wordpress/holt/`](../wordpress/holt/) → compose 挂载 `wp-content/themes/holt-portfolio`（§7.0）。
+- **旁路基建**：[`deploy/wordpress/`](../deploy/wordpress/)（dev compose、ADD-SITE、php 教程；**非 submodule**）+ `deploy/docker-compose.gateway.yml` 中 `wp_mariadb` / `wordpress_*`。
+- 二开/部署教程：[`deploy/wordpress/php/README.md`](../deploy/wordpress/php/README.md)。
 - nginx：每站 **两条** location——`wp-admin|wp-includes|wp-content|xmlrpc|wp-*.php` 去前缀；其余 `/wp/<slug>/` 保留 URI（固定链接 / `wp-json`）。勿逐文件加路由。
 - **不**创建 `apps/blog`、不复用 Next `basePath` / Drizzle / better-auth。
 - 加站：[`deploy/wordpress/ADD-SITE.md`](../deploy/wordpress/ADD-SITE.md)。
 
 ### 7.6 旁路 Godot / 静态游戏（`/games/*`）
 
-- 源码：`games/<slug>/`（Godot 4，**非** `apps/*`）。现网含 `miku-flick` 等，清单见 `deploy/games/README.md`。
-- 路径：`/games/<slug>/`；compose `game_<slug>` 挂载 `deploy/games/<slug>/www/`。
-- CI：改 `games/**` → `export-godot-games`（扫全部 `project.godot`，单线程 Web）→ artifact → `deploy-web` scp。
-- `www/` **不进 git**；加游戏见 [`deploy/games/ADD-GAME.md`](../deploy/games/ADD-GAME.md)。
-- **双轨迁移**（[`GODOT-REWRITE-PLAN.md`](../deploy/games/GODOT-REWRITE-PLAN.md)）：阶段 B 上线 Godot 最简时**保留** testField 原版；全部最简迁完后再逐个精修并删旧。实验田 `/games/` 卡片用整页跳转（`ExperimentNavCard`）。
+- **源码**：`games/<slug>/`（Godot 4，**git submodule**，**非** `apps/*`）。清单见 [`deploy/games/README.md`](../deploy/games/README.md)。
+- **运行时静态包**：`deploy/games/<slug>/www/`（CI 导出，**不进 git**）；路径 `/games/<slug>/`；compose `game_<slug>` 挂载 `www/`。
+- CI：改 `games/**` → `export-godot-games` → artifact → `deploy-web` scp（§7.0.4）。
+- 加游戏：[`deploy/games/ADD-GAME.md`](../deploy/games/ADD-GAME.md)。
+- **双轨迁移**（[`GODOT-REWRITE-PLAN.md`](../deploy/games/GODOT-REWRITE-PLAN.md)）：阶段 B 上线 Godot 最简时**保留** testField 原版；全部最简迁完后再逐个精修并删旧。主站 `/games` 与旁路卡片用整页跳转（`ExperimentNavCard`）。
