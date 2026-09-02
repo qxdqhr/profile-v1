@@ -1,12 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { ActivityForm } from './_components/ActivityForm';
-import { JsonEditor } from './_components/JsonEditor';
 import { ResponseDisplay } from './_components/ResponseDisplay';
 import { FormData, ApiResponse } from './_components/types';
 import { BackButton } from 'sa2kit/common/ui/patterns/next';
 import Link from 'next/link';
+
+const JsonEditor = dynamic(
+  () => import('./_components/JsonEditor').then((mod) => ({ default: mod.JsonEditor })),
+  { ssr: false },
+);
 
 export default function LiveActivity() {
   const [formData, setFormData] = useState<FormData>({

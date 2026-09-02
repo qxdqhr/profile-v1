@@ -9,7 +9,7 @@ function HeavyPageFallback() {
   );
 }
 
-/** 3D / 游戏页不进 SSR，避免把 Three/Phaser 打进首屏共享图。 */
+/** 3D 页不进 SSR，避免把 Three 打进首屏共享图。 */
 export function lazyClientPage<P extends object>(
   loader: () => Promise<{ default: ComponentType<P> }>,
 ) {

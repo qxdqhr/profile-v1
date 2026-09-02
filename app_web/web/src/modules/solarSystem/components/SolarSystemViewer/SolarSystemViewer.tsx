@@ -159,7 +159,7 @@ export const SolarSystemViewer: React.FC<SolarSystemViewerProps> = ({
         planet.orbitalElements,
         finalConfig.quality.orbitSegments,
         finalConfig.scale.distance
-      );
+      ).map((p) => new THREE.Vector3(p.x, p.y, p.z));
       
       const orbitGeometry = new THREE.BufferGeometry().setFromPoints(orbitPoints);
       const orbitMaterial = new THREE.LineBasicMaterial({
@@ -222,13 +222,16 @@ export const SolarSystemViewer: React.FC<SolarSystemViewerProps> = ({
       }
       planetCount++;
       
-      obj.mesh.position.copy(position);
-      obj.position.copy(position);
-      
+      obj.mesh.position.set(position.x, position.y, position.z);
+      obj.position.set(position.x, position.y, position.z);
+
       // 更新标签位置
       if (obj.label) {
-        obj.label.position.copy(position);
-        obj.label.position.y += planet.radius * finalConfig.scale.size + 5;
+        obj.label.position.set(
+          position.x,
+          position.y + planet.radius * finalConfig.scale.size + 5,
+          position.z,
+        );
       }
     });
   }, [finalConfig.scale]);

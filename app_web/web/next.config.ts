@@ -119,6 +119,31 @@ const nextConfig: NextConfig = {
                 'stream': false,
                 'stream/promises': false,
             };
+            config.optimization = {
+                ...config.optimization,
+                splitChunks: {
+                    ...(typeof config.optimization?.splitChunks === 'object'
+                        ? config.optimization.splitChunks
+                        : {}),
+                    cacheGroups: {
+                        ...(typeof config.optimization?.splitChunks === 'object'
+                            ? config.optimization.splitChunks.cacheGroups
+                            : {}),
+                        engine3d: {
+                            test: /[\\/]node_modules[\\/](three|three-stdlib|mmd-parser)[\\/]/,
+                            name: 'engine-3d',
+                            chunks: 'async',
+                            priority: 30,
+                        },
+                        monaco: {
+                            test: /[\\/]node_modules[\\/](@monaco-editor|monaco-editor)[\\/]/,
+                            name: 'monaco',
+                            chunks: 'async',
+                            priority: 30,
+                        },
+                    },
+                },
+            };
         }
 
         return config;

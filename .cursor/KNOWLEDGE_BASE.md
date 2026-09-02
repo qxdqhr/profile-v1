@@ -79,18 +79,18 @@ app_web/web 模块
 
 | Route Group（磁盘路径） | 典型用途 | 路由示例 |
 |-------------------------|----------|----------|
-| `(utility)/` | 工具、配置页、无 Phaser 的实验功能 | `/testField/qrCode`、`/testField/ideaList` |
-| `(sa2kit)/` | Phaser 小游戏、MMD/音视频相关实验 | `/testField/suikaGame` |
-| `(game)/` | 另一类游戏/互动实验 | `/testField/mikutap` |
+| `(utility)/` | 工具、配置页 | `/testField/qrCode`、`/testField/ideaList` |
+| `(sa2kit)/` | sa2kit 实验（MMD / 音视频等） | `/testField/mmd-test` |
+| `(game)/` | Web 互动原型（非 Godot） | `/testField/mikutap` |
 | `(cyhj)/` | 业务向模块（legacy 画集入口） | `/testField/ShowMasterPieces` → 302 至 `/showmasterpiece` |
 
 **选择建议**
 
 - 纯工具、表单、管理后台 → `(utility)/<segment>/page.tsx`
-- Phaser 3 小游戏（见全局 Skill `profile-v1-minigame`）→ `(sa2kit)/<gameName>/page.tsx`
-- 其他游戏/玩法原型（非 Phaser 或非 sa2kit 实验）→ `(game)/`
+- sa2kit 能力演示（MMD、贺卡等）→ `(sa2kit)/<name>/page.tsx`
+- Web 互动原型（非 Godot）→ `(game)/`
 - 强业务、与「画集」类同形态 → `(cyhj)/`（优先考虑独立子应用，勿在主站堆第二套实现）
-- **Godot / 静态旁路游戏** → 不进 testField leisure；入口走主站 `/games` + `deploy/games/`
+- **Godot 休闲游戏** → 不进 testField；入口走主站 `/games` + `app_games/<slug>/` + `deploy/games/`。主站不再使用 Phaser。
 
 ### 2.3 路由文件写法（薄封装）
 
@@ -120,7 +120,7 @@ export default function XxxRoute() {
 
 - `src/app/(pages)/examples/**`：演示、联调、PoC，**不一定**进实验田列表。
 - `src/app/(pages)/testField/**`：实验田导航展示的主阵地；**新实验功能若需入口卡片，必须注册实验数据**（见第 4 节）。
-- **3D / Phaser 页**：路由 `page.tsx` 用 `lazyClientPage`（`src/lib/runtime/lazy-client-page.tsx`，`ssr: false`）再 dynamic import 实现；不要在模块 `index.ts` barrel 里 re-export three/phaser/mmd-parser。主站仍保留 `three` / `phaser` 给这些页；已删除未使用的 Pixi / Tesseract / Transformers / imgly / Neon / `react-beautiful-dnd`。
+- **3D 页**：路由 `page.tsx` 用 `lazyClientPage`（`src/lib/runtime/lazy-client-page.tsx`，`ssr: false`）再 dynamic import 实现；不要在模块 `index.ts` barrel 里 re-export three / mmd-parser。主站仍保留 `three`（MMD/太阳系等），**已去掉 Phaser**。OSS SDK 走 sa2kit 自己的依赖，主站 `package.json` 不再重复声明未引用的包。
 
 ---
 
@@ -171,7 +171,7 @@ export default function XxxRoute() {
 | SSOT 自动注入 | `.cursor/rules/profile-v1-knowledge-ssot.mdc` | `alwaysApply: true` + `@.cursor/KNOWLEDGE_BASE.md`，每轮对话附带知识库 |
 | 本知识库 | `.cursor/KNOWLEDGE_BASE.md` | 路由 + 模块 + 实验田 SSOT（正文由上文规则引用） |
 | 工具模块 Skill | `.cursor/skills/build-utility-module/SKILL.md` | 无 DB 模块分步流程 |
-| 小游戏 Skill（用户级） | `~/.cursor/skills/profile-v1-minigame/SKILL.md` | Phaser + `(sa2kit)` 流程 |
+| 小游戏 | `app_games/<slug>/` + `/games/<slug>/` | Godot Web 旁路；**不要**再往主站加 Phaser |
 | 按路径触发的规则 | `.cursor/rules/profile-v1-routing.mdc`、`profile-v1-modules.mdc`、**`profile-v1-sa2kit-ui.mdc`**、**`profile-v1-submodules.mdc`** | 编辑 `src/app` / `src/modules` / sa2kit UI / **games·wordpress submodule** 时注入上下文 |
 
 ---
