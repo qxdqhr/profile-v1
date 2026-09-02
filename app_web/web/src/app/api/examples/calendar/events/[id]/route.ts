@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { calendarMockDb } from '@/lib/examples/calendar-mock-db';
+import { requireExampleAccess } from '@/lib/examples/guard';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -7,7 +8,9 @@ async function resolveRouteContext(context: RouteContext) {
   return { params: await context.params };
 }
 
-export async function GET(_request: NextRequest, context: RouteContext) {
+export async function GET(request: NextRequest, context: RouteContext) {
+  const gated = await requireExampleAccess(request);
+  if (gated.error) return gated.error;
   const { params } = await resolveRouteContext(context);
   const event = calendarMockDb.getEvent(parseInt(params.id, 10));
   if (!event) {
@@ -17,6 +20,8 @@ export async function GET(_request: NextRequest, context: RouteContext) {
 }
 
 export async function PUT(request: NextRequest, context: RouteContext) {
+  const gated = await requireExampleAccess(request);
+  if (gated.error) return gated.error;
   const { params } = await resolveRouteContext(context);
   const body = await request.json();
   const updatedEvent = calendarMockDb.updateEvent(parseInt(params.id, 10), body);
@@ -26,7 +31,9 @@ export async function PUT(request: NextRequest, context: RouteContext) {
   return NextResponse.json({ success: true, data: updatedEvent });
 }
 
-export async function DELETE(_request: NextRequest, context: RouteContext) {
+export async function DELETE(request: NextRequest, context: RouteContext) {
+  const gated = await requireExampleAccess(request);
+  if (gated.error) return gated.error;
   const { params } = await resolveRouteContext(context);
   calendarMockDb.deleteEvent(parseInt(params.id, 10));
   return NextResponse.json({ success: true, message: '删除成功' });

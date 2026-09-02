@@ -3,6 +3,12 @@
 # + 旁路 Godot/静态游戏（/games/<slug>/，见 deploy/games/README.md）
 # 用法见 deploy/MIGRATION-RUNBOOK.md
 
+x-next-health: &next-health
+  interval: 15s
+  timeout: 5s
+  retries: 5
+  start_period: 45s
+
 services:
   web:
     image: ${REGISTRY}/qhr-profile-web:${IMAGE_TAG}
@@ -24,6 +30,15 @@ services:
       - ./app.config.yaml:/app/config/app.config.production.yaml:ro
     expose:
       - '3000'
+    healthcheck:
+      <<: *next-health
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3000/').then((r)=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))",
+        ]
     networks:
       - profile
 
@@ -41,6 +56,15 @@ services:
       - ./app.config.yaml:/app/config/app.config.production.yaml:ro
     expose:
       - '3001'
+    healthcheck:
+      <<: *next-health
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3001/calendar').then((r)=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))",
+        ]
     networks:
       - profile
 
@@ -59,6 +83,15 @@ services:
       - ./app.config.yaml:/app/config/app.config.production.yaml:ro
     expose:
       - '3002'
+    healthcheck:
+      <<: *next-health
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3002/teach-hub').then((r)=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))",
+        ]
     networks:
       - profile
 
@@ -76,6 +109,15 @@ services:
       - ./app.config.yaml:/app/config/app.config.production.yaml:ro
     expose:
       - '3003'
+    healthcheck:
+      <<: *next-health
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3003/showmasterpiece').then((r)=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))",
+        ]
     networks:
       - profile
 
@@ -86,6 +128,15 @@ services:
       NEXT_PUBLIC_BASE_PATH: /money-research
     expose:
       - '3004'
+    healthcheck:
+      <<: *next-health
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3004/money-research').then((r)=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))",
+        ]
     networks:
       - profile
 
@@ -103,6 +154,15 @@ services:
       - ./app.config.yaml:/app/config/app.config.production.yaml:ro
     expose:
       - '3005'
+    healthcheck:
+      <<: *next-health
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3005/node-notes').then((r)=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))",
+        ]
     networks:
       - profile
 
@@ -172,6 +232,12 @@ services:
       # Godot 静态包由本容器 alias /var/www/games/<slug>/www，不再 depends_on 独立游戏 nginx
     ports:
       - '${GATEWAY_PORT:-3000}:80'
+    healthcheck:
+      test: ['CMD', 'wget', '-qO', '/dev/null', 'http://127.0.0.1/']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     volumes:
       - ./nginx/profile-platform.conf:/etc/nginx/conf.d/default.conf:ro
       - ./nginx/proxy-params.conf:/etc/nginx/proxy-params.conf:ro

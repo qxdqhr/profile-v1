@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getConfigService } from '@/lib/examples/test-config-service';
 import type { SavedConfig } from 'sa2kit/business/testYourself';
+import { requireExampleAccess } from '@/lib/examples/guard';
 
 /**
  * 获取配置列表
@@ -16,8 +17,9 @@ import type { SavedConfig } from 'sa2kit/business/testYourself';
  */
 export async function GET(request: NextRequest) {
   try {
-    // 获取用户ID（从请求头或使用默认值）
-    const userId = request.headers.get('x-user-id') || 'example-user';
+    const gated = await requireExampleAccess(request);
+    if (gated.error) return gated.error;
+    const userId = gated.user.id;
 
     // 获取配置服务
     const { configService, storageType } = getConfigService(userId);
@@ -55,7 +57,9 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id') || 'example-user';
+    const gated = await requireExampleAccess(request);
+    if (gated.error) return gated.error;
+    const userId = gated.user.id;
     const body = await request.json();
 
     // 验证必需字段

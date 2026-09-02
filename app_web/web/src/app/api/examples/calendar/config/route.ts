@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireExampleAccess } from '@/lib/examples/guard';
 
 const mockConfig = {
   firstDayOfWeek: 1,
@@ -18,11 +19,15 @@ const mockConfig = {
   },
 };
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const gated = await requireExampleAccess(request);
+  if (gated.error) return gated.error;
   return NextResponse.json({ success: true, data: mockConfig });
 }
 
 export async function PUT(request: NextRequest) {
+  const gated = await requireExampleAccess(request);
+  if (gated.error) return gated.error;
   const body = await request.json();
   return NextResponse.json({
     success: true,

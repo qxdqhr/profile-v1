@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getConfigService } from '@/lib/examples/test-config-service';
+import { requireExampleAccess } from '@/lib/examples/guard';
 
 /**
  * 获取单个配置
@@ -19,8 +20,10 @@ export async function GET(
   { params }: { params: Promise<{ configId: string }> }
 ) {
   try {
+    const gated = await requireExampleAccess(request);
+    if (gated.error) return gated.error;
     const { configId } = await params;
-    const userId = request.headers.get('x-user-id') || 'example-user';
+    const userId = gated.user.id;
 
     const { configService } = getConfigService(userId);
     
@@ -60,8 +63,10 @@ export async function PUT(
   { params }: { params: Promise<{ configId: string }> }
 ) {
   try {
+    const gated = await requireExampleAccess(request);
+    if (gated.error) return gated.error;
     const { configId } = await params;
-    const userId = request.headers.get('x-user-id') || 'example-user';
+    const userId = gated.user.id;
     const body = await request.json();
 
     const { configService } = getConfigService(userId);
@@ -114,8 +119,10 @@ export async function DELETE(
   { params }: { params: Promise<{ configId: string }> }
 ) {
   try {
+    const gated = await requireExampleAccess(request);
+    if (gated.error) return gated.error;
     const { configId } = await params;
-    const userId = request.headers.get('x-user-id') || 'example-user';
+    const userId = gated.user.id;
 
     const { configService } = getConfigService(userId);
     

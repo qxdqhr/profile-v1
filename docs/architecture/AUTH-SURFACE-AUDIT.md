@@ -34,6 +34,21 @@ Legend for **Auth** column:
 
 ---
 
+## Global middleware (main web)
+
+`app_web/web/src/middleware.ts` matches `/api/:path*`:
+
+| Request | Result |
+|---------|--------|
+| Production `/api/examples/**` | 404 |
+| Path+method in `PUBLIC_API_RULES` | pass |
+| Has `better-auth.session_token` cookie | pass (presence only; routes must still call `getApiSessionUser`) |
+| Otherwise | 401 |
+
+Allowlist is method-aware (`src/lib/auth/public-api.ts`). Do **not** treat arbitrary `Authorization: Bearer` as a session. Ticket-monitor cron/admin token paths are allowlisted so the route can validate the secret.
+
+---
+
 ## Route table
 
 | Module | Route | Auth | Notes |
@@ -64,13 +79,13 @@ Legend for **Auth** column:
 | cardMaker | `/api/cardMaker/assets` GET | `public` | Shared asset catalog |
 | cardMaker | `/api/cardMaker/assets/categories` GET | `public` | Shared catalog |
 | cardMaker | `/api/cardMaker/assets/upload` POST | `session` | Fixed |
-| skillManager | `/api/skill-manager/skills` GET | `public` | Catalog browse |
-| skillManager | `/api/skill-manager/skills/[id]` GET | `public` | Detail + content |
+| skillManager | `/api/skill-manager/skills` GET | `session` | Catalog browse（原 public，已收口） |
+| skillManager | `/api/skill-manager/skills/[id]` GET | `session` | Detail + content |
 | skillManager | `/api/skill-manager/skills/[id]` PUT | `session` (+ `isAdminRole` for `source`) | Fixed: auth was optional before |
-| skillManager | `/api/skill-manager/skills/[id]/file` GET | `public` | File read |
-| skillManager | `/api/skill-manager/skills/[id]/download` GET | `public` | Zip download |
-| skillManager | `/api/skill-manager/skills/download-batch` POST | `public` | Read-like batch zip |
-| skillManager | `/api/skill-manager/skills/download-batch/preflight` POST | `public` | Existence check |
+| skillManager | `/api/skill-manager/skills/[id]/file` GET | `session` | File read |
+| skillManager | `/api/skill-manager/skills/[id]/download` GET | `session` | Zip download |
+| skillManager | `/api/skill-manager/skills/download-batch` POST | `session` | Batch zip |
+| skillManager | `/api/skill-manager/skills/download-batch/preflight` POST | `session` | Existence check |
 | skillManager | `/api/skill-manager/sync/tasks` POST | `session` | Fixed |
 | skillManager | `/api/skill-manager/sync/tasks/[taskId]` GET | `session` | Fixed: was public UUID poll |
 | skillManager | `/api/skill-manager/sync/tasks/[taskId]/retry` POST | `session` | Fixed |
@@ -104,11 +119,12 @@ Verified thin re-exports still hit module handlers for:
 
 ## Remaining risks
 
-1. **skillManager public reads** expose full SKILL.md / zip download without login — intentional catalog today; tighten if skills become private.
+1. **skillManager** 列表/下载已改为 session；middleware 也默认拒绝匿名。
 2. **mikutap background-music GET** (without `?meta=1`) still returns base64 for play surface — bandwidth + content exposure; accepted for public game.
 3. **mmd upload** animation/audio creates are session-gated but lack per-record ownership fields on some create paths (legacy).
 4. **ticketMonitor GET config** is public (masked) — acceptable; ensure production always sets `TICKET_MONITOR_ADMIN_TOKEN` for stronger admin separation.
 5. **Any logged-in user** can mutate shared mikutap configs / skill markdown (except `source` admin-only) — no per-resource ACL beyond session.
+6. **Middleware 只认 cookie 是否存在**，不查 session 真伪。伪造 `better-auth.session_token` 仍可能打到未调用 `getApiSessionUser` 的旧 handler；写操作必须在路由层校验。
 
 ---
 
@@ -120,3 +136,4 @@ Verified thin re-exports still hit module handlers for:
 | vocaloid-booth-test | session + production disabled by default |
 | filetransfer config/collections | mounted under `app/api` |
 | mikutap BGM | `?meta=1` for metadata-only lists |
+| web `/api/*` middleware | default deny + method-aware public allowlist |

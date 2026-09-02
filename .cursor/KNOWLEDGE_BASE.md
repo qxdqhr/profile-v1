@@ -112,6 +112,7 @@ export default function XxxRoute() {
 
 - **实现**放在模块内：`src/modules/<module>/api/**/route.ts`
 - **对外 HTTP 路径**在：`src/app/api/.../route.ts` 中 **re-export** 模块内 handlers（参考 `ideaList` → `src/app/api/ideaLists/**`）
+- **主站全局闸门**：`src/middleware.ts` 默认拒绝未带 session cookie 的 `/api/*`。公开路径（方法敏感）写在 `src/lib/auth/public-api.ts`；生产环境 `/api/examples/**` 直接 404。Edge 不查库，只看 cookie 是否存在；业务路由仍须 `getApiSessionUser` / `requireApiSession`。新增公开 API 必须改 allowlist，并补 `scripts/verify-public-api-allowlist.ts`。
 
 这样保持「按功能模块聚合」，同时符合 Next.js 对 `app/api` 的位置要求。
 

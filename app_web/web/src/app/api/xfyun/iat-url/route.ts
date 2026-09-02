@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { requireApiSession } from '@/lib/auth/api-guard';
 
 const HOST = 'iat-api.xfyun.cn';
 const PATH = '/v2/iat';
@@ -7,7 +8,10 @@ const PATH = '/v2/iat';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   const appId = process.env.XFYUN_APP_ID;
   const apiKey = process.env.XFYUN_API_KEY;
   const apiSecret = process.env.XFYUN_API_SECRET;

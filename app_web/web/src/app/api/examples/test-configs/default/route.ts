@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getConfigService } from '@/lib/examples/test-config-service';
+import { requireExampleAccess } from '@/lib/examples/guard';
 
 /**
  * 获取默认配置
@@ -15,7 +16,9 @@ import { getConfigService } from '@/lib/examples/test-config-service';
  */
 export async function GET(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id') || 'example-user';
+    const gated = await requireExampleAccess(request);
+    if (gated.error) return gated.error;
+    const userId = gated.user.id;
 
     const { configService } = getConfigService(userId);
     
@@ -52,7 +55,9 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id') || 'example-user';
+    const gated = await requireExampleAccess(request);
+    if (gated.error) return gated.error;
+    const userId = gated.user.id;
     const body = await request.json();
 
     if (!body.configId) {

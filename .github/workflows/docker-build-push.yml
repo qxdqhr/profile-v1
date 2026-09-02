@@ -27,8 +27,8 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install ripgrep
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq ripgrep
+      - name: Install ripgrep and tsx
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ripgrep && npm install -g tsx@4.19.4
 
       - name: Run profile gates
         run: pnpm gate

@@ -20,7 +20,7 @@
 | 检查项 | 结果 |
 |--------|------|
 | 子应用不独立登录，共享 session | ✅（网关 `/api/auth` → web） |
-| API 用 `getApiSessionUser` | ✅ 约定存在；模块覆盖不齐需分模块查 |
+| API 用 `getApiSessionUser` | ✅ 约定存在；主站另有 `/api/*` cookie 闸门，模块覆盖不齐需分模块查 |
 | package exports 完整 | ⚠️ 缺 `./react` |
 
 ---

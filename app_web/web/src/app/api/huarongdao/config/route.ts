@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/api-guard';
 import { readBusinessConfig, writeBusinessConfig } from '@/lib/config/business-config';
 import {
   buildPersistedConfig,
@@ -26,6 +27,9 @@ export async function GET() {
 }
 
 export async function PUT(req: NextRequest) {
+  const gated = await requireApiSession(req);
+  if (gated.error) return gated.error;
+
   try {
     const body = await req.json();
     const normalized = buildPersistedConfig(body);

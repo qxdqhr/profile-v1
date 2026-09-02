@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import crypto from 'crypto';
+import { requireApiSession } from '@/lib/auth/api-guard';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -44,7 +45,10 @@ const readSessions = async (): Promise<SessionRecord[]> => {
   }
 };
 
-export async function GET() {
+export async function GET(request: Request) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const sessions = await readSessions();
     sessions.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
@@ -56,6 +60,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const body = await request.json();
     const transcript = (body?.transcript ?? '').toString().trim();
