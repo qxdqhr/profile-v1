@@ -1,7 +1,6 @@
 # web/
 
-原 `apps/` 目录，仅存放 **Next.js Web 矩阵**（主站 + 子应用）。  
-RN / Electron 将迁至顶层 `mobile/`、`desktop/`（见迁移计划）；跨端 shared 在 `npm/`。
+原 `apps/` 目录，仅存放 **Next.js Web 矩阵**（主站 + 子应用）。
 
 | 应用 | 路径 | dev 端口 | 说明 |
 |------|------|----------|------|
@@ -12,16 +11,10 @@ RN / Electron 将迁至顶层 `mobile/`、`desktop/`（见迁移计划）；跨�
 | `@profile/money-research` | `web/money-research/` | 3004 | 调研 Demo（暂留） |
 | `@profile/node-notes` | `web/node-notes/` | 3005 | 节点笔记 |
 
-迁移中仍暂存于此（阶段 1/2 外迁）：
+RN 客户端已迁至 [`mobile/`](../mobile/README.md)；桌面端仍暂存 `web/teach-hub-desktop/`（阶段 2 → `desktop/`）。  
+跨端 shared：[`npm/`](../npm/README.md)。
 
-| 应用 | 路径 | 目标 |
-|------|------|------|
-| `@profile/calendar-mobile` | `web/calendar-mobile/` | → `mobile/calendar-mobile` |
-| `@profile/teach-hub-mobile` | `web/teach-hub-mobile/` | → `mobile/teach-hub-mobile` |
-| `@profile/teach-hub-desktop` | `web/teach-hub-desktop/` | → `desktop/teach-hub-desktop` |
-
-旁路：WordPress [`deploy/wordpress/`](../deploy/wordpress/)，Godot [`deploy/games/`](../deploy/games/)。  
-计划：[`docs/monorepo-migration/APPS-SUBMODULE-PLAN.md`](../docs/monorepo-migration/APPS-SUBMODULE-PLAN.md)。
+旁路：WordPress [`deploy/wordpress/`](../deploy/wordpress/)，Godot [`deploy/games/`](../deploy/games/)。
 
 ## 本地开发
 
@@ -30,7 +23,7 @@ pnpm dev                  # 主站 :3000
 pnpm dev:calendar         # :3001
 pnpm dev:teach-hub        # :3002
 pnpm dev:showmasterpiece  # :3003
-pnpm dev:calendar-mobile  # Expo（暂仍在 web/ 下）
+pnpm dev:calendar-mobile  # Expo（mobile/）
 ```
 
 网关：[`deploy/MIGRATION-RUNBOOK.md`](../deploy/MIGRATION-RUNBOOK.md)。

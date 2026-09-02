@@ -52,6 +52,197 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  mobile/calendar-mobile:
+    dependencies:
+      '@babel/runtime':
+        specifier: ^7.28.4
+        version: 7.29.7
+      '@profile/calendar-shared':
+        specifier: workspace:*
+        version: link:../../npm/calendar-shared
+      '@react-native-async-storage/async-storage':
+        specifier: 1.23.1
+        version: 1.23.1(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))
+      '@react-native-cookies/cookies':
+        specifier: ^6.2.1
+        version: 6.2.1(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))
+      '@react-navigation/native':
+        specifier: ^7.1.17
+        version: 7.3.18(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
+      '@react-navigation/native-stack':
+        specifier: ^7.3.26
+        version: 7.18.10(@react-navigation/native@7.3.18(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native-safe-area-context@4.12.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native-screens@4.4.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
+      '@sa2kit-ui/rn':
+        specifier: link:../../../sa2kit-ui/packages/rn
+        version: link:../../../sa2kit-ui/packages/rn
+      '@sa2kit-ui/shared':
+        specifier: link:../../../sa2kit-ui/packages/shared
+        version: link:../../../sa2kit-ui/packages/shared
+      '@sa2kit-ui/theme-animal-island':
+        specifier: link:../../../sa2kit-ui/packages/themes/animal-island
+        version: link:../../../sa2kit-ui/packages/themes/animal-island
+      '@sa2kit-ui/tokens':
+        specifier: link:../../../sa2kit-ui/packages/tokens
+        version: link:../../../sa2kit-ui/packages/tokens
+      expo:
+        specifier: ~52.0.47
+        version: 52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
+      expo-asset:
+        specifier: ~11.0.5
+        version: 11.0.5(expo@52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
+      expo-constants:
+        specifier: ~17.0.8
+        version: 17.0.8(expo@52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))
+      expo-font:
+        specifier: ~13.0.4
+        version: 13.0.4(expo@52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react@18.3.1)
+      expo-status-bar:
+        specifier: ~2.0.1
+        version: 2.0.1(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
+      nativewind:
+        specifier: ^4.2.1
+        version: 4.2.6(react-native-reanimated@3.16.7(@babel/core@7.29.7)(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native-safe-area-context@4.12.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.19(tsx@4.23.12)(yaml@2.9.0))
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-native:
+        specifier: 0.76.9
+        version: 0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1)
+      react-native-css-interop:
+        specifier: ^0.2.1
+        version: 0.2.6(react-native-reanimated@3.16.7(@babel/core@7.29.7)(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native-safe-area-context@4.12.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.19(tsx@4.23.12)(yaml@2.9.0))
+      react-native-reanimated:
+        specifier: ~3.16.1
+        version: 3.16.7(@babel/core@7.29.7)(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
+      react-native-safe-area-context:
+        specifier: 4.12.0
+        version: 4.12.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
+      react-native-screens:
+        specifier: ~4.4.0
+        version: 4.4.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
+      react-native-webview:
+        specifier: 13.12.5
+        version: 13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
+      sa2kit:
+        specifier: 3.9.4
+        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(next@16.0.8(@babel/core@7.29.7)(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.8(react@18.3.1))(react@18.3.1)(swr@2.5.1(react@18.3.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
+    devDependencies:
+      '@babel/plugin-transform-react-jsx':
+        specifier: ^7.24.7
+        version: 7.29.7(@babel/core@7.29.7)
+      '@types/react':
+        specifier: ~19.1.10
+        version: 19.1.17
+      babel-preset-expo:
+        specifier: ~12.0.6
+        version: 12.0.12(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))
+      tailwindcss:
+        specifier: ^3.4.17
+        version: 3.4.19(tsx@4.23.12)(yaml@2.9.0)
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
+  mobile/teach-hub-mobile:
+    dependencies:
+      '@babel/runtime':
+        specifier: ^7.28.4
+        version: 7.29.7
+      '@profile/teach-hub-shared':
+        specifier: workspace:*
+        version: link:../../npm/teach-hub-shared
+      '@react-native-async-storage/async-storage':
+        specifier: 1.23.1
+        version: 1.23.1(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))
+      '@react-native-community/slider':
+        specifier: ^5.2.0
+        version: 5.2.1
+      '@react-native-cookies/cookies':
+        specifier: ^6.2.1
+        version: 6.2.1(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))
+      '@react-navigation/native':
+        specifier: ^7.1.17
+        version: 7.3.18(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
+      '@react-navigation/native-stack':
+        specifier: ^7.3.26
+        version: 7.18.10(@react-navigation/native@7.3.18(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native-safe-area-context@4.12.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native-screens@4.4.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
+      '@sa2kit-ui/rn':
+        specifier: link:../../../sa2kit-ui/packages/rn
+        version: link:../../../sa2kit-ui/packages/rn
+      '@sa2kit-ui/shared':
+        specifier: link:../../../sa2kit-ui/packages/shared
+        version: link:../../../sa2kit-ui/packages/shared
+      '@sa2kit-ui/theme-animal-island':
+        specifier: link:../../../sa2kit-ui/packages/themes/animal-island
+        version: link:../../../sa2kit-ui/packages/themes/animal-island
+      '@sa2kit-ui/tokens':
+        specifier: link:../../../sa2kit-ui/packages/tokens
+        version: link:../../../sa2kit-ui/packages/tokens
+      expo:
+        specifier: ~52.0.47
+        version: 52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
+      expo-asset:
+        specifier: ~11.0.5
+        version: 11.0.5(expo@52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
+      expo-constants:
+        specifier: ~17.0.8
+        version: 17.0.8(expo@52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))
+      expo-document-picker:
+        specifier: ^13.0.3
+        version: 13.1.6(expo@52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))
+      expo-file-system:
+        specifier: ~18.0.12
+        version: 18.0.12(expo@52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))
+      expo-font:
+        specifier: ~13.0.4
+        version: 13.0.4(expo@52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react@18.3.1)
+      expo-status-bar:
+        specifier: ~2.0.1
+        version: 2.0.1(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
+      nativewind:
+        specifier: ^4.2.1
+        version: 4.2.6(react-native-reanimated@3.16.7(@babel/core@7.29.7)(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native-safe-area-context@4.12.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.19(tsx@4.23.12)(yaml@2.9.0))
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-native:
+        specifier: 0.76.9
+        version: 0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1)
+      react-native-css-interop:
+        specifier: ^0.2.1
+        version: 0.2.6(react-native-reanimated@3.16.7(@babel/core@7.29.7)(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native-safe-area-context@4.12.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.19(tsx@4.23.12)(yaml@2.9.0))
+      react-native-reanimated:
+        specifier: ~3.16.1
+        version: 3.16.7(@babel/core@7.29.7)(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
+      react-native-safe-area-context:
+        specifier: 4.12.0
+        version: 4.12.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
+      react-native-screens:
+        specifier: ~4.4.0
+        version: 4.4.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
+      react-native-webview:
+        specifier: 13.12.5
+        version: 13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
+      sa2kit:
+        specifier: 3.9.4
+        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(next@16.0.8(@babel/core@7.29.7)(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.8(react@18.3.1))(react@18.3.1)(swr@2.5.1(react@18.3.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
+    devDependencies:
+      '@babel/plugin-transform-react-jsx':
+        specifier: ^7.24.7
+        version: 7.29.7(@babel/core@7.29.7)
+      '@types/react':
+        specifier: ~19.1.10
+        version: 19.1.17
+      babel-preset-expo:
+        specifier: ~12.0.6
+        version: 12.0.12(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))
+      tailwindcss:
+        specifier: ^3.4.17
+        version: 3.4.19(tsx@4.23.12)(yaml@2.9.0)
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
   npm/calendar-shared:
     devDependencies:
       typescript:
@@ -413,97 +604,6 @@ importers:
         specifier: ^2.8.0
         version: 2.9.0
 
-  web/calendar-mobile:
-    dependencies:
-      '@babel/runtime':
-        specifier: ^7.28.4
-        version: 7.29.7
-      '@profile/calendar-shared':
-        specifier: workspace:*
-        version: link:../../npm/calendar-shared
-      '@react-native-async-storage/async-storage':
-        specifier: 1.23.1
-        version: 1.23.1(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))
-      '@react-native-cookies/cookies':
-        specifier: ^6.2.1
-        version: 6.2.1(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))
-      '@react-navigation/native':
-        specifier: ^7.1.17
-        version: 7.3.18(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
-      '@react-navigation/native-stack':
-        specifier: ^7.3.26
-        version: 7.18.10(@react-navigation/native@7.3.18(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native-safe-area-context@4.12.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native-screens@4.4.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
-      '@sa2kit-ui/rn':
-        specifier: link:../../../sa2kit-ui/packages/rn
-        version: link:../../../sa2kit-ui/packages/rn
-      '@sa2kit-ui/shared':
-        specifier: link:../../../sa2kit-ui/packages/shared
-        version: link:../../../sa2kit-ui/packages/shared
-      '@sa2kit-ui/theme-animal-island':
-        specifier: link:../../../sa2kit-ui/packages/themes/animal-island
-        version: link:../../../sa2kit-ui/packages/themes/animal-island
-      '@sa2kit-ui/tokens':
-        specifier: link:../../../sa2kit-ui/packages/tokens
-        version: link:../../../sa2kit-ui/packages/tokens
-      expo:
-        specifier: ~52.0.47
-        version: 52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
-      expo-asset:
-        specifier: ~11.0.5
-        version: 11.0.5(expo@52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
-      expo-constants:
-        specifier: ~17.0.8
-        version: 17.0.8(expo@52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))
-      expo-font:
-        specifier: ~13.0.4
-        version: 13.0.4(expo@52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react@18.3.1)
-      expo-status-bar:
-        specifier: ~2.0.1
-        version: 2.0.1(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
-      nativewind:
-        specifier: ^4.2.1
-        version: 4.2.6(react-native-reanimated@3.16.7(@babel/core@7.29.7)(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native-safe-area-context@4.12.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.19(tsx@4.23.12)(yaml@2.9.0))
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-native:
-        specifier: 0.76.9
-        version: 0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1)
-      react-native-css-interop:
-        specifier: ^0.2.1
-        version: 0.2.6(react-native-reanimated@3.16.7(@babel/core@7.29.7)(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native-safe-area-context@4.12.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.19(tsx@4.23.12)(yaml@2.9.0))
-      react-native-reanimated:
-        specifier: ~3.16.1
-        version: 3.16.7(@babel/core@7.29.7)(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
-      react-native-safe-area-context:
-        specifier: 4.12.0
-        version: 4.12.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
-      react-native-screens:
-        specifier: ~4.4.0
-        version: 4.4.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
-      react-native-webview:
-        specifier: 13.12.5
-        version: 13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
-      sa2kit:
-        specifier: 3.9.4
-        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(next@16.0.8(@babel/core@7.29.7)(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.8(react@18.3.1))(react@18.3.1)(swr@2.5.1(react@18.3.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
-    devDependencies:
-      '@babel/plugin-transform-react-jsx':
-        specifier: ^7.24.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@types/react':
-        specifier: ~19.1.10
-        version: 19.1.17
-      babel-preset-expo:
-        specifier: ~12.0.6
-        version: 12.0.12(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))
-      tailwindcss:
-        specifier: ^3.4.17
-        version: 3.4.19(tsx@4.23.12)(yaml@2.9.0)
-      typescript:
-        specifier: ^5.7.3
-        version: 5.9.3
-
   web/money-research:
     dependencies:
       next:
@@ -784,106 +884,6 @@ importers:
       vite-plugin-electron-renderer:
         specifier: ^0.14.6
         version: 0.14.7
-
-  web/teach-hub-mobile:
-    dependencies:
-      '@babel/runtime':
-        specifier: ^7.28.4
-        version: 7.29.7
-      '@profile/teach-hub-shared':
-        specifier: workspace:*
-        version: link:../../npm/teach-hub-shared
-      '@react-native-async-storage/async-storage':
-        specifier: 1.23.1
-        version: 1.23.1(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))
-      '@react-native-community/slider':
-        specifier: ^5.2.0
-        version: 5.2.1
-      '@react-native-cookies/cookies':
-        specifier: ^6.2.1
-        version: 6.2.1(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))
-      '@react-navigation/native':
-        specifier: ^7.1.17
-        version: 7.3.18(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
-      '@react-navigation/native-stack':
-        specifier: ^7.3.26
-        version: 7.18.10(@react-navigation/native@7.3.18(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native-safe-area-context@4.12.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native-screens@4.4.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
-      '@sa2kit-ui/rn':
-        specifier: link:../../../sa2kit-ui/packages/rn
-        version: link:../../../sa2kit-ui/packages/rn
-      '@sa2kit-ui/shared':
-        specifier: link:../../../sa2kit-ui/packages/shared
-        version: link:../../../sa2kit-ui/packages/shared
-      '@sa2kit-ui/theme-animal-island':
-        specifier: link:../../../sa2kit-ui/packages/themes/animal-island
-        version: link:../../../sa2kit-ui/packages/themes/animal-island
-      '@sa2kit-ui/tokens':
-        specifier: link:../../../sa2kit-ui/packages/tokens
-        version: link:../../../sa2kit-ui/packages/tokens
-      expo:
-        specifier: ~52.0.47
-        version: 52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
-      expo-asset:
-        specifier: ~11.0.5
-        version: 11.0.5(expo@52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
-      expo-constants:
-        specifier: ~17.0.8
-        version: 17.0.8(expo@52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))
-      expo-document-picker:
-        specifier: ^13.0.3
-        version: 13.1.6(expo@52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))
-      expo-file-system:
-        specifier: ~18.0.12
-        version: 18.0.12(expo@52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))
-      expo-font:
-        specifier: ~13.0.4
-        version: 13.0.4(expo@52.0.49(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(bufferutil@4.1.0)(react-native-webview@13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react@18.3.1)
-      expo-status-bar:
-        specifier: ~2.0.1
-        version: 2.0.1(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
-      nativewind:
-        specifier: ^4.2.1
-        version: 4.2.6(react-native-reanimated@3.16.7(@babel/core@7.29.7)(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native-safe-area-context@4.12.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.19(tsx@4.23.12)(yaml@2.9.0))
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-native:
-        specifier: 0.76.9
-        version: 0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1)
-      react-native-css-interop:
-        specifier: ^0.2.1
-        version: 0.2.6(react-native-reanimated@3.16.7(@babel/core@7.29.7)(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native-safe-area-context@4.12.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.19(tsx@4.23.12)(yaml@2.9.0))
-      react-native-reanimated:
-        specifier: ~3.16.1
-        version: 3.16.7(@babel/core@7.29.7)(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
-      react-native-safe-area-context:
-        specifier: 4.12.0
-        version: 4.12.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
-      react-native-screens:
-        specifier: ~4.4.0
-        version: 4.4.0(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
-      react-native-webview:
-        specifier: 13.12.5
-        version: 13.12.5(react-native@0.76.9(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(@types/react@19.1.17)(bufferutil@4.1.0)(react@18.3.1))(react@18.3.1)
-      sa2kit:
-        specifier: 3.9.4
-        version: 3.9.4(@better-auth/core@1.7.2(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.2))(jose@6.2.10)(kysely@0.29.5)(nanostores@1.5.2))(@better-auth/utils@0.5.0)(@emotion/is-prop-valid@1.3.1)(@imgly/background-removal@1.7.0(onnxruntime-web@1.21.0))(@prisma/client@6.2.1(prisma@6.2.1))(@xenova/transformers@2.17.2)(drizzle-kit@0.31.10)(drizzle-orm@0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1))(next@16.0.8(@babel/core@7.29.7)(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(pg@8.23.0)(prisma@6.2.1)(react-dom@19.2.8(react@18.3.1))(react@18.3.1)(swr@2.5.1(react@18.3.1))(tesseract.js@7.0.0)(ws@8.21.3(bufferutil@4.1.0))
-    devDependencies:
-      '@babel/plugin-transform-react-jsx':
-        specifier: ^7.24.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@types/react':
-        specifier: ~19.1.10
-        version: 19.1.17
-      babel-preset-expo:
-        specifier: ~12.0.6
-        version: 12.0.12(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))
-      tailwindcss:
-        specifier: ^3.4.17
-        version: 3.4.19(tsx@4.23.12)(yaml@2.9.0)
-      typescript:
-        specifier: ^5.7.3
-        version: 5.9.3
 
   web/web:
     dependencies:

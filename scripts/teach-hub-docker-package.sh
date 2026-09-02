@@ -53,10 +53,10 @@ if [ "${BUILD_ANDROID}" = "1" ]; then
   echo "==> [2/2] Build TeachHub Mobile Android APK"
   # shellcheck source=/dev/null
   source "${ROOT_DIR}/scripts/load-android-signing-env.sh"
-  bash web/teach-hub-mobile/scripts/android-release-build.sh
-  APK_FILE="$(ls -t "${ROOT_DIR}"/web/teach-hub-mobile/dist/*.apk 2>/dev/null | head -1 || true)"
+  bash mobile/teach-hub-mobile/scripts/android-release-build.sh
+  APK_FILE="$(ls -t "${ROOT_DIR}"/mobile/teach-hub-mobile/dist/*.apk 2>/dev/null | head -1 || true)"
   if [ -z "${APK_FILE}" ] || [ ! -f "${APK_FILE}" ]; then
-    echo "ERROR: Android APK not found under web/teach-hub-mobile/dist/" >&2
+    echo "ERROR: Android APK not found under mobile/teach-hub-mobile/dist/" >&2
     exit 1
   fi
   if [ -n "${TEACH_HUB_APK_RELEASE_URL:-}" ]; then

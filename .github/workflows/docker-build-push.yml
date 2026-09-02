@@ -93,10 +93,10 @@ jobs:
               - 'pnpm-lock.yaml'
               - 'package.json'
             calendar-mobile:
-              - 'web/calendar-mobile/**'
+              - 'mobile/calendar-mobile/**'
               - 'npm/calendar-shared/**'
             teach-hub-mobile:
-              - 'web/teach-hub-mobile/**'
+              - 'mobile/teach-hub-mobile/**'
               - 'npm/teach-hub-shared/**'
             games:
               - 'games/**'
@@ -358,7 +358,7 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
       - name: Build signed release APK
-        run: bash web/teach-hub-mobile/scripts/android-release-build.sh
+        run: bash mobile/teach-hub-mobile/scripts/android-release-build.sh
         env:
           SKIP_EXPO_PREBUILD: '1'
           APP_VERSION: '0.1.0'
@@ -372,7 +372,7 @@ jobs:
       - name: Resolve APK metadata
         id: apk_meta
         run: |
-          APK_PATH="$(ls -t web/teach-hub-mobile/dist/*.apk | head -1)"
+          APK_PATH="$(ls -t mobile/teach-hub-mobile/dist/*.apk | head -1)"
           APK_NAME="$(basename "$APK_PATH")"
           TAG_NAME="teach-hub-mobile-ci-${GITHUB_RUN_NUMBER}"
           RELEASE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${TAG_NAME}"
@@ -397,7 +397,7 @@ jobs:
             - versionCode: `${{ github.run_number }}`
             - Auth: `${{ steps.cfg.outputs.auth_base_url }}`
             - API: `${{ steps.cfg.outputs.api_base_url }}`
-          files: web/teach-hub-mobile/dist/*.apk
+          files: mobile/teach-hub-mobile/dist/*.apk
           draft: false
           prerelease: false
         env:
@@ -478,7 +478,7 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
       - name: Build signed release APK
-        run: bash web/calendar-mobile/scripts/android-release-build.sh
+        run: bash mobile/calendar-mobile/scripts/android-release-build.sh
         env:
           SKIP_EXPO_PREBUILD: '1'
           APP_VERSION: '0.1.0'
@@ -492,7 +492,7 @@ jobs:
       - name: Resolve APK metadata
         id: apk_meta
         run: |
-          APK_PATH="$(ls -t web/calendar-mobile/dist/*.apk | head -1)"
+          APK_PATH="$(ls -t mobile/calendar-mobile/dist/*.apk | head -1)"
           APK_NAME="$(basename "$APK_PATH")"
           TAG_NAME="calendar-mobile-ci-${GITHUB_RUN_NUMBER}"
           RELEASE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${TAG_NAME}"
@@ -515,7 +515,7 @@ jobs:
             - versionCode: `${{ github.run_number }}`
             - Auth: `${{ steps.cfg.outputs.auth_base_url }}`
             - API: `${{ steps.cfg.outputs.api_base_url }}`
-          files: web/calendar-mobile/dist/*.apk
+          files: mobile/calendar-mobile/dist/*.apk
           draft: false
           prerelease: false
         env:

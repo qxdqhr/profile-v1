@@ -23,7 +23,7 @@
 | 项 | 约定 |
 |----|------|
 | 框架 | Next.js（App Router，主站在 `web/web/src/app`） |
-| Monorepo | pnpm workspace：`web/*` + `packages/*`；详见 `docs/monorepo-migration/`、`docs/README.md`、`web/README.md` |
+| Monorepo | pnpm workspace：`web/*` + `packages/*` + `npm/*` + `mobile/*`；详见 `docs/monorepo-migration/`、`docs/README.md`、`web/README.md` |
 | 样式 | Tailwind CSS；预设 `@profile/ui/tailwind.preset`（设计令牌桥；业务组件/主题见 §1.1） |
 | 数据层 | Drizzle ORM + PostgreSQL（`@profile/db`，迁移目录 `drizzle/` 在仓库根） |
 | 包管理 | **pnpm**；开发 `pnpm dev` = `pnpm --filter @profile/web dev` |
@@ -249,12 +249,13 @@ git submodule update --init --recursive
 | Calendar | `web/calendar` | `@profile/calendar` | 3001 | `/calendar` |
 | TeachHub | `web/teach-hub` | `@profile/teach-hub` | 3002 | `/teach-hub` |
 | ShowMasterpiece | `web/showmasterpiece` | `@profile/showmasterpiece` | 3003 | `/showmasterpiece` |
-| Calendar Mobile | `web/calendar-mobile` | `@profile/calendar-mobile` | Expo | — |
-| TeachHub Mobile | `web/teach-hub-mobile` | `@profile/teach-hub-mobile` | Expo | — |
+| Calendar Mobile | `mobile/calendar-mobile`（submodule） | `@profile/calendar-mobile` | Expo | — |
+| TeachHub Mobile | `mobile/teach-hub-mobile`（submodule） | `@profile/teach-hub-mobile` | Expo | — |
+| TeachHub Desktop | `web/teach-hub-desktop`（阶段 2 → `desktop/`） | `@profile/teach-hub-desktop` | Vite | — |
 | WordPress（旁路） | `wordpress/<slug>/` submodule + `deploy/wordpress/` | —（非 pnpm） | 官方镜像 | `/wp/<slug>/` |
 | Godot 游戏（旁路） | `games/<slug>/` submodule + `deploy/games/` | —（非 pnpm） | nginx 静态 | `/games/<slug>/` |
 
-> WordPress / Godot **源码在 submodule**（§7.0）；旁路基建在 `deploy/`。多站规程见 `deploy/wordpress/ADD-SITE.md`、`deploy/games/ADD-GAME.md`。
+> WordPress / Godot / Mobile **源码在 submodule**（§7.0）；旁路基建在 `deploy/`。跨端 shared 在 `npm/`。
 
 ### 7.2 共享包
 
@@ -262,8 +263,8 @@ git submodule update --init --recursive
 |----|------|
 | `@profile/config` / `@profile/auth` / `@profile/db` / `@profile/ui` | 配置、鉴权、数据库、UI 预设 |
 | `@profile/calendar-core` | 日历领域（Web API 实现） |
-| `@profile/calendar-shared` | 日历 RN 类型与 API 客户端 |
-| `@profile/teach-hub-core` / `@profile/teach-hub-shared` | TeachHub 领域与跨端 |
+| `@profile/calendar-shared` | 日历 RN 类型与 API 客户端（目录 `npm/calendar-shared`） |
+| `@profile/teach-hub-core` / `@profile/teach-hub-shared` | TeachHub 领域与跨端（shared 在 `npm/teach-hub-shared`） |
 | `@profile/showmasterpiece-core` | ShowMasterpiece 全量业务 |
 
 ### 7.3 子应用约定

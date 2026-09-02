@@ -53,10 +53,10 @@ if [ "${BUILD_ANDROID}" = "1" ]; then
   echo "==> [2/2] Build Calendar Mobile Android APK"
   # shellcheck source=/dev/null
   source "${ROOT_DIR}/scripts/load-android-signing-env.sh"
-  bash web/calendar-mobile/scripts/android-release-build.sh
-  APK_FILE="$(ls -t "${ROOT_DIR}"/web/calendar-mobile/dist/*.apk 2>/dev/null | head -1 || true)"
+  bash mobile/calendar-mobile/scripts/android-release-build.sh
+  APK_FILE="$(ls -t "${ROOT_DIR}"/mobile/calendar-mobile/dist/*.apk 2>/dev/null | head -1 || true)"
   if [ -z "${APK_FILE}" ] || [ ! -f "${APK_FILE}" ]; then
-    echo "ERROR: Android APK not found under web/calendar-mobile/dist/" >&2
+    echo "ERROR: Android APK not found under mobile/calendar-mobile/dist/" >&2
     exit 1
   fi
   if [ -n "${CALENDAR_MOBILE_APK_RELEASE_URL:-}" ]; then

@@ -61,3 +61,9 @@
 [submodule "wordpress/holt"]
 	path = wordpress/holt
 	url = https://github.com/qxdqhr/profile-v1-wordpress-holt.git
+[submodule "mobile/calendar-mobile"]
+	path = mobile/calendar-mobile
+	url = git@github.com:qxdqhr/profile-v1-calendar-mobile.git
+[submodule "mobile/teach-hub-mobile"]
+	path = mobile/teach-hub-mobile
+	url = git@github.com:qxdqhr/profile-v1-teach-hub-mobile.git
