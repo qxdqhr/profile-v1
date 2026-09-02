@@ -33,11 +33,30 @@
 
 **原则（多端 SDK）**：
 
-- **sa2kit** = 可被 Web / RN / Taro / Electron **同时引用**的 SDK：`common`（登录、OSS、配置、AI、UI 门面…）+ **`business/<域>`（多端实现同仓：`ui/web|rn|taro` + `server` + `domain`）**
 - **sa2kit-ui** = **唯一** UI 实现源（含基础件、auth 壳外观、域面板、装饰件、business 可拆件）；主题由 ThemeProvider 管理；showmasterpiece **强制动森**；后期只做新主题 + 确缺新组件
-- **profile-v1** = Web + API **宿主壳**；不堆任何第二套 UI
+- **sa2kit** = 可被 Web / RN / Taro / Electron **同时引用**的 SDK：`common`（登录、OSS、配置、AI、**UI 门面**…）+ **`business/<域>`**；**通用能力内部**依赖 sa2kit-ui，对外只暴露 `common/ui*` 门面与 `common/auth` 组装件
+- **profile-v1** = Web + API **宿主壳**；不堆任何第二套 UI；**登录只引用 sa2kit**（经 `@profile/auth` / `@/lib/auth`）
 
-**不作废的约定**：业务代码不新增 `animal-island-ui`；不直连 `@sa2kit-ui/*`（经 `sa2kit/common/ui*` 门面；mobile 可 link `@sa2kit-ui/rn`）；临时 UI 仅特殊需求且限期回灌。Phase U 已完成，门禁：`pnpm gate:ui`。通用能力默认进 sa2kit / sa2kit-ui（服务接单外接），festivalCard 试点与功能优化按蓝图优先级。
+**依赖链（Web 登录示例）**：
+
+```
+apps/web 模块
+  → @/lib/auth（薄 re-export）
+  → @profile/auth（注入 authClient + sa2kit-ui-bootstrap 样式）
+  → sa2kit/common/auth（session / AuthGuard / LoginModal 组装）
+  → sa2kit/common/ui/auth + admin（壳 UI，门面）
+  → @sa2kit-ui/react（实现，仅 sa2kit 内部直连）
+```
+
+**不作废的约定**：
+
+- 业务代码 **不新增** `animal-island-ui`
+- 宿主/业务 **不直连** `@sa2kit-ui/*`（经 `sa2kit/common/ui*` 门面；RN 宿主可 link `@sa2kit-ui/rn`）
+- **禁止** 在 `apps/web/src/app/layout.tsx` 为修单个页面而全局注入全量 sa2kit-ui CSS
+- Auth 相关样式由 `@profile/auth` 的 `sa2kit-ui-bootstrap` 引导；其他 sa2kit UI 路由段在 **该段 layout** 或模块 layout 引入 `import 'sa2kit/common/ui/style'`
+- 临时 UI 仅特殊需求且限期回灌；门禁：`pnpm gate:ui`
+
+详细规则：`.cursor/rules/profile-v1-sa2kit-ui.mdc`；Phase U 计划：`doc/code-review/libraries/UI-UNIFICATION-PLAN.md`。
 
 **已迁出的 `packages/*-core`**：默认冻结；新多端能力优先进 sa2kit（见蓝图 S1/S2/S3）。
 
@@ -150,7 +169,7 @@ export default function XxxRoute() {
 | 本知识库 | `.cursor/KNOWLEDGE_BASE.md` | 路由 + 模块 + 实验田 SSOT（正文由上文规则引用） |
 | 工具模块 Skill | `.cursor/skills/build-utility-module/SKILL.md` | 无 DB 模块分步流程 |
 | 小游戏 Skill（用户级） | `~/.cursor/skills/profile-v1-minigame/SKILL.md` | Phaser + `(sa2kit)` 流程 |
-| 按路径触发的规则 | `.cursor/rules/profile-v1-routing.mdc`、`profile-v1-modules.mdc` | 编辑 `src/app` / `src/modules` 时注入上下文 |
+| 按路径触发的规则 | `.cursor/rules/profile-v1-routing.mdc`、`profile-v1-modules.mdc`、**`profile-v1-sa2kit-ui.mdc`** | 编辑 `src/app` / `src/modules` / sa2kit UI 与 auth 时注入上下文 |
 
 ---
 

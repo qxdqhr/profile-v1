@@ -8,7 +8,7 @@ alwaysApply: false
 
 编写或修改 `src/modules` 时遵守：
 
-- **SSOT**：`.cursor/KNOWLEDGE_BASE.md`
+- **SSOT**：`.cursor/KNOWLEDGE_BASE.md`；**sa2kit / 登录 / UI 样式**：`.cursor/rules/profile-v1-sa2kit-ui.mdc`
 - **样式**：Tailwind；新界面兼顾桌面与移动端
 - **客户端组件**：文件顶部 `'use client'`
 - **无数据库工具模块**：流程见 `.cursor/skills/build-utility-module/SKILL.md`（含 `DEVELOPMENT.md`、薄路由、`experimentData`）

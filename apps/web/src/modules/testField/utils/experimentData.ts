@@ -91,7 +91,7 @@ export const experiments: ExperimentItem[] = [
     description: "浏览各种艺术画集，支持逐页查看和画集管理",
     path: "/showmasterpiece",
     tags: ["艺术", "画集", "展览"],
-    category: "leisure",
+    category: "utility",
     isCompleted: false,
     createdAt: '2023-04-18',
     updatedAt: '2023-08-10'
@@ -144,15 +144,6 @@ export const experiments: ExperimentItem[] = [
     isCompleted: true,
     createdAt: '2026-06-09',
     updatedAt: '2026-06-09'
-  },
-  {
-    id: "mmd-viewer",
-    title: "MMD模型查看器",
-    description: "基于Three.js的MMD(MikuMikuDance)模型查看器，支持PMD/PMX模型格式和VMD动画播放",
-    path: "/testField/mmdViewer",
-    tags: ["3D", "MMD", "Three.js", "模型", "动画"],
-    category: "leisure",
-    isCompleted: false
   },
   {
     id: "mmd-test-playground",
@@ -217,14 +208,13 @@ export const experiments: ExperimentItem[] = [
     updatedAt: "2026-07-11"
   },
 
-  // 休闲娱乐类
   {
     id: "vocaloider",
     title: "术力口音乐播放器",
     description: "术力口音乐播放器",
     path: "/testField/Vocaloider",
-    tags: ["小游戏", "赛博无料"],
-    category: "leisure"
+    tags: ["音乐", "播放器", "工具"],
+    category: "utility"
   },
   {
     id: "share-monitor",
@@ -232,126 +222,7 @@ export const experiments: ExperimentItem[] = [
     description: "手机投屏",
     path: "/testField/ShareMonitor",
     tags: ["投屏", "工具"],
-    category: "leisure"
-  },
-  {
-    id: "miku-click",
-    title: "米库点击",
-    description: "限时点击连击与最高分；Godot 精修版",
-    path: "/games/miku-click/",
-    tags: ["小游戏", "点击", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-09-01',
-    updatedAt: '2026-09-01'
-  },
-  {
-    id: "mikutap-game",
-    title: "MikutapGame",
-    description: "自由点按与跟敲序列、最高分；Godot 精修版",
-    path: "/games/mikutap-game/",
-    tags: ["音乐游戏", "Mikutap", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2023-12-15',
-    updatedAt: '2026-09-01'
-  },
-  {
-    id: "kannot",
-    title: "坎诺特",
-    description: "四轨节奏、难度与最高分；Godot 精修版",
-    path: "/games/kannot/",
-    tags: ["小游戏", "节奏", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-09-01',
-    updatedAt: '2026-09-01'
-  },
-  {
-    id: "VocaloidtoGO",
-    title: "博立格来冲",
-    description: "假名词练习/挑战与准确率；Godot 精修版",
-    path: "/games/vocaloid-to-go/",
-    tags: ["小游戏", "词汇", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-09-01',
-    updatedAt: '2026-09-01'
-  },
-  {
-    id: "linkGame",
-    title: "葱韵环京连连看",
-    description: "六种模式、计时得分、提示与限次洗牌；Godot 精修版（抽象色块）",
-    path: "/games/link-game/",
-    tags: ["小游戏", "葱韵环京", "连连看", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-09-01',
-    updatedAt: '2026-09-01'
-  },
-
-  {
-    id: "pushBox",
-    title: "推箱子",
-    description: "50 关 Sokoban：选关、推箱、自动过关；Godot 精修版",
-    path: "/games/push-box/",
-    tags: ["小游戏", "推箱子", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-09-01',
-    updatedAt: '2026-09-01'
-  },
-  {
-    id: "raceGame",
-    title: "极速狂飙",
-    description: "四车道躲避障碍、收集金币、加速与最高分；Godot 精修版",
-    path: "/games/race-game/",
-    tags: ["小游戏", "赛车", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-09-01',
-    updatedAt: '2026-09-01'
-  },
-  {
-    id: "tribleGame",
-    title: "三消挑战",
-    description: "四关尺寸/时限、连消倍率与最高分；Godot 精修版",
-    path: "/games/trible-game/",
-    tags: ["小游戏", "三消", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-09-01',
-    updatedAt: '2026-09-01'
-  },
-  {
-    id: "goldMiner",
-    title: "黄金矿工",
-    description: "12 关钩子采矿：摆钩抓金/石/钻，60 秒达目标分；Godot 精修版",
-    path: "/games/gold-miner/",
-    tags: ["小游戏", "黄金矿工", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-09-01',
-    updatedAt: '2026-09-01'
-  },
-  {
-    id: "playMusic",
-    title: "音乐无料",
-    description: "音乐无料",
-    path: "/testField/playMusic",
-    tags: ["小游戏", "赛博无料","新建文件夹"],
-    category: "leisure"
-  },
-  {
-    id: "mikuPlanting",
-    title: "米库种植",
-    description: "限时收获目标与最高分；Godot 精修版",
-    path: "/games/miku-planting/",
-    tags: ["小游戏", "养成", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-09-01',
-    updatedAt: '2026-09-01'
+    category: "utility"
   },
 
   // 新增模块
@@ -403,24 +274,6 @@ export const experiments: ExperimentItem[] = [
     isCompleted: true
   },
   {
-    id: "solar-system",
-    title: "实时太阳系",
-    description: "基于真实天文数据的太阳系3D可视化，使用Three.js展示太阳和八大行星的实时位置与轨道运动。支持时间控制、行星信息查看、轨道可视化等功能",
-    path: "/testField/solarSystem",
-    tags: ["太阳系", "3D", "Three.js", "天文", "可视化", "实时"],
-    category: "leisure",
-    isCompleted: true
-  },
-  {
-    id: "mikutap",
-    title: "Mikutap 音乐互动",
-    description: "复刻经典音乐互动游戏Mikutap，支持点击、拖拽和按键触发音效，具备多种音色包、丰富的动画效果、可配置化视觉效果、响应式设计，完美支持桌面和移动端",
-    path: "/testField/mikutap",
-    tags: ["音乐", "互动", "游戏", "初音未来", "音效", "动画", "可配置", "响应式"],
-    category: "leisure",
-    isCompleted: true
-  },
-  {
     id: "mikutap-config",
     title: "Mikutap 配置管理",
     description: "Mikutap音乐互动游戏的配置管理界面，支持网格布局自定义、音效设置、动画效果配置（脉冲、滑动、弹跳、闪烁、旋转、缩放、涟漪、自定义Lottie）、数据库持久化存储，可创建和管理多种配置预设",
@@ -428,28 +281,6 @@ export const experiments: ExperimentItem[] = [
     tags: ["配置", "管理", "音效", "动画", "Lottie", "数据库", "持久化", "预设"],
     category: "utility",
     isCompleted: true
-  },
-  {
-    id: "purchase-game",
-    title: "谋财害命",
-    description: "购买抉择、评级与最高分；Godot 精修版",
-    path: "/games/purchase-game/",
-    tags: ["小游戏", "策略", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-09-01',
-    updatedAt: '2026-09-01'
-  },
-  {
-    id: "miku-talking",
-    title: "米库说话",
-    description: "类似会说话的汤姆猫的MMD互动游戏，支持点击互动、语音录制变声、拖拽手势、喂食道具等功能。与米库互动，提升亲密度，解锁更多动画和表情！",
-    path: "/gameField/mikutalking",
-    tags: ["小游戏", "MMD", "互动", "语音", "Three.js", "3D", "变声"],
-    category: "leisure",
-    isCompleted: false,
-    createdAt: '2025-11-03',
-    updatedAt: '2025-11-03'
   },
   {
     id: "mmd-test",
@@ -496,94 +327,6 @@ export const experiments: ExperimentItem[] = [
     updatedAt: '2025-12-06'
   },
   {
-    id: "miku-fusion-game",
-    title: "Miku Fusion Game",
-    description: "加权投放、碰撞合并、连消倍率与最高分存档；Godot 精修版（青绿抽象色球）",
-    path: "/games/miku-fusion-game/",
-    tags: ["SA2Kit", "小游戏", "合成", "初音未来", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-02-16',
-    updatedAt: '2026-09-01'
-  },
-  {
-    id: "bubble-shooter",
-    title: "泡泡龙（初版）",
-    description: "瞄准发射、同色连消与悬空掉落；Godot 精修版（抽象色球）",
-    path: "/games/bubble-shooter/",
-    tags: ["SA2Kit", "泡泡龙", "小游戏", "连消", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-03-14',
-    updatedAt: '2026-09-01'
-  },
-  {
-    id: "arknights-bubble-shooter",
-    title: "岁家龙泡泡 · 泡泡龙",
-    description: "岁家五龙角色球：连消与悬空坠落；Godot 精修版（暗红金年节风）",
-    path: "/games/arknights-bubble-shooter/",
-    tags: ["明日方舟", "泡泡龙", "小游戏", "岁家", "龙泡泡", "连消", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-04-25',
-    updatedAt: '2026-09-01'
-  },
-  {
-    id: "suika-game",
-    title: "合成大西瓜",
-    description: "物理合成：投放色球碰撞合并，体积越大分越高；Godot 精修版（抽象色球）",
-    path: "/games/suika-game/",
-    tags: ["小游戏", "物理", "合成", "休闲", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-04-25',
-    updatedAt: '2026-09-01'
-  },
-  {
-    id: "flappy-wish",
-    title: "予愿飞翔",
-    description: "Flappy 风格竖版小游戏：三档难度、穿管/金币计分；Godot 精修版（抽象几何）",
-    path: "/games/flappy-wish/",
-    tags: ["小游戏", "休闲", "Flappy", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-07-30',
-    updatedAt: '2026-09-01'
-  },
-  {
-    id: "diner-dash",
-    title: "罗德厨房",
-    description: "明日方舟同人食堂班次：接待客人、上菜收桌；Godot + Spine（Diner Dash 致敬）",
-    path: "/games/diner-dash/",
-    tags: ["小游戏", "模拟经营", "明日方舟", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-08-29',
-    updatedAt: '2026-09-01'
-  },
-  {
-    id: "miku-flick",
-    title: "Miku Flick（初版）",
-    description: "假名键滑动方向判定与连击计分；Godot 精修版（みくみく…谱面）",
-    path: "/games/miku-flick/",
-    tags: ["SA2Kit", "MikuFlick", "小游戏", "节奏输入", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-03-15',
-    updatedAt: '2026-09-01'
-  },
-  {
-    id: "miku-fireworks-3d",
-    title: "Miku Fireworks 3D",
-    description: "体验 sa2kit 新增的 3D 烟花弹幕模块，支持普通/初音/头像烟花与实时弹幕",
-    path: "/testField/mikuFireworks3D",
-    tags: ["SA2Kit", "3D", "烟花", "弹幕", "初音未来"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-02-16',
-    updatedAt: '2026-02-16'
-  },
-  {
     id: "miku-contest",
     title: "Miku Contest 供稿系统",
     description: "测试 sa2kit/business/mikuContest 的观众端、画师端、管理员端页面骨架与路由联通",
@@ -595,17 +338,6 @@ export const experiments: ExperimentItem[] = [
     updatedAt: '2026-03-11'
   },
   {
-    id: "huarongdao-game",
-    title: "图片华容道（前台）",
-    description: "三关图片切块拼图、计时计分；Godot 精修版（默认 Miku 切图）",
-    path: "/games/huarongdao/",
-    tags: ["SA2Kit", "华容道", "拼图", "图片游戏", "Godot"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-03-11',
-    updatedAt: '2026-09-01'
-  },
-  {
     id: "huarongdao-config",
     title: "图片华容道（配置后台）",
     description: "测试 huarongdao 多套配置管理页面（名称、slug、图片、网格参数）",
@@ -615,17 +347,6 @@ export const experiments: ExperimentItem[] = [
     isCompleted: true,
     createdAt: '2026-03-11',
     updatedAt: '2026-03-11'
-  },
-  {
-    id: "festival-card",
-    title: "节日贺卡 Three.js",
-    description: "3D 翻页节日贺卡，支持 3 页图文、全局背景音乐，并可在页面实时配置页数和元素",
-    path: "/testField/festivalCard",
-    tags: ["SA2Kit", "Three.js", "节日贺卡", "3D翻页", "可配置"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-03-02',
-    updatedAt: '2026-03-02'
   },
   {
     id: "festival-card-config",
@@ -681,16 +402,5 @@ export const experiments: ExperimentItem[] = [
     isCompleted: true,
     createdAt: '2026-05-06',
     updatedAt: '2026-05-06'
-  },
-  {
-    id: "ticket-booking-mvp",
-    title: "演出票务预定 MVP",
-    description: "选择演出、平面选座、订单确认与模拟支付；纯前端演示，无真实库存",
-    path: "/testField/TicketBooking",
-    tags: ["票务", "选座", "演出", "订单"],
-    category: "leisure",
-    isCompleted: true,
-    createdAt: '2026-05-10',
-    updatedAt: '2026-05-10'
   }
 ];

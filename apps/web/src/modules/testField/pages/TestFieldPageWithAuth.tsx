@@ -7,18 +7,16 @@
 'use client';
 
 import React from 'react';
-import { AuthProvider, AuthGuard } from '@/lib/auth';
+import { AuthGuard } from '@/lib/auth';
 import TestFieldPage from './TestFieldPage';
 import { PermissionGuard } from '../components/PermissionGuard';
 
 export const TestFieldPageWithAuth: React.FC = () => {
   return (
-    <AuthProvider>
-      <AuthGuard requireAuth={true}>
-        <PermissionGuard>
-          <TestFieldPage />
-        </PermissionGuard>
-      </AuthGuard>
-    </AuthProvider>
+    <AuthGuard requireAuth={true}>
+      <PermissionGuard>
+        <TestFieldPage />
+      </PermissionGuard>
+    </AuthGuard>
   );
 }; 

@@ -1,5 +1,6 @@
 'use client';
 
+import './sa2kit-ui-bootstrap';
 import {
   AuthProvider as Sa2kitAuthProvider,
   useAuthContext,

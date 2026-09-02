@@ -1,0 +1,70 @@
+---
+description: sa2kit / sa2kit-ui 三层依赖、登录接入与样式加载规范（Phase U）
+globs: apps/**/*.{tsx,ts,css},packages/**/*.{tsx,ts,css}
+alwaysApply: false
+---
+
+# sa2kit / sa2kit-ui 依赖规范
+
+编写或修改 UI、登录鉴权、主题相关代码时遵守。权威背景见 `doc/code-review/libraries/UI-UNIFICATION-PLAN.md` 与 `BLUEPRINT-multiplatform-sa2kit.md` §5。
+
+## 三层分工（禁止颠倒）
+
+```
+sa2kit-ui          ← 唯一 UI 实现源（Button / Modal / ThemeProvider / 主题 CSS）
+    ▲ 仅 sa2kit 内部直连 @sa2kit-ui/*
+sa2kit             ← 通用能力 SDK（auth / OSS / config / AI）+ common/ui* 门面再导出
+    ▲ 宿主/业务只经门面或 @profile/* 薄封装
+profile-v1         ← Web/API 薄宿主（page 转发、模块组装、部署）
+```
+
+| 层 | 职责 | 禁止 |
+|----|------|------|
+| **sa2kit-ui** | 组件实现、主题 tokens、`ThemeProvider` | 业务逻辑、鉴权 session |
+| **sa2kit** | `common/auth` 逻辑 + `common/ui/auth` 壳组装；`common/ui*` 门面 | 在 profile 复制 UI 件 |
+| **profile** | `@/lib/auth` → `@profile/auth`；薄 `page.tsx`；Tailwind 业务布局 | 直连 `@sa2kit-ui/*`；新增 `animal-island-ui`；自建 Button/Modal |
+
+## 登录 / 鉴权（必须走 sa2kit）
+
+- 宿主 **只** 从 `@/lib/auth`（或子应用 `@profile/auth`）引用：`AuthProvider`、`AuthGuard`、`LoginModal`、`UserMenu` 等。
+- **禁止** 在 `apps/web/src/modules` 内直接 `import … from 'sa2kit/common/auth/…'`（经 `@profile/auth` 统一注入 `authClient`）。
+- Auth 弹窗视觉在 `sa2kit/common/ui/auth`；session / hooks 在 `sa2kit/common/auth`（见 UI-UNIFICATION-PLAN U5-auth）。
+
+## UI 组件引用
+
+| 场景 | 正确 import | 错误 |
+|------|-------------|------|
+| 基础件 / 主题 | `sa2kit/common/ui` | `@sa2kit-ui/react` |
+| 模式件（SearchBox、BackButton…） | `sa2kit/common/ui/patterns` 或 `…/patterns/next` | `sa2kit/common/components`（已废弃） |
+| 管理台 / 动森复合 API | `sa2kit/common/ui/admin` | 手写 shadcn |
+| RN | `sa2kit/common/ui/rn` + 宿主 link `@sa2kit-ui/rn` | mobile `src/ui/*` 手写 |
+
+门禁：`pnpm gate:ui`（profile）；sa2kit 仓 `pnpm gate:ui`。
+
+## 样式（CSS）加载 — 禁止 root 全局偷懒
+
+**原则**：不在 `apps/web/src/app/layout.tsx` 为修复单个页面而全局 `@import` 全量 sa2kit-ui CSS。样式随 **消费边界** 加载。
+
+| 消费边界 | 加载方式 | 示例 |
+|----------|----------|------|
+| **登录 / AuthGuard** | `@profile/auth` 内 `sa2kit-ui-bootstrap.ts`：`import 'sa2kit/common/ui/style'` | `packages/auth/src/react.tsx` 首行引入 bootstrap |
+| **独立子应用根** | 子应用 `app/layout.tsx` + 可选 `ThemeProvider` | showmasterpiece `sa2kit-ui.css` + `ShowMasterpieceThemeRoot` |
+| **使用 sa2kit UI 的路由段（无 AuthProvider）** | 该段 `layout.tsx` 引入 `sa2kit/common/ui/style` | `/games` → `app/(pages)/games/layout.tsx` |
+| **单模块重度使用 sa2kit UI** | 模块 layout 组件内 side-effect import | `FitnessPlanLayout` |
+| **多主题页** | 门面 `ThemeProvider` + 同段 style import | HomeV2 `home-v2-sa2kit.css` + `HomeV2ThemeProvider` |
+
+路径 **`sa2kit/common/ui/style`** 是门面转发（→ `@sa2kit-ui/react/style`），**不是**宿主直连 npm 包。
+
+## 新建页面检查清单
+
+1. 需要登录？→ `AuthProvider` + `AuthGuard` from `@/lib/auth`（样式由 auth 包引导，无需重复 import）。
+2. 使用 `sa2kit/common/ui/*` 且 **不在** AuthProvider 子树？→ 在该路由 `layout.tsx` 加 `import 'sa2kit/common/ui/style'`。
+3. 需要换主题？→ `ThemeProvider` from `sa2kit/common/ui`，默认动森 `animal-island`。
+4. 新通用 UI 件？→ 先进 **sa2kit-ui**，再经 **sa2kit 门面** 导出；profile 禁止新建第二套基础件。
+
+## 参考实现
+
+- Auth 样式引导：`packages/auth/src/sa2kit-ui-bootstrap.ts`
+- 子应用标杆：`apps/showmasterpiece/app/layout.tsx`
+- 模块标杆：`apps/web/src/modules/fitnessPlan/layout/FitnessPlanLayout.tsx`
+- 知识库 SSOT：`.cursor/KNOWLEDGE_BASE.md` §1.1

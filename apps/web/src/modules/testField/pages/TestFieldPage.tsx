@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import type { ViewMode, CompletionFilter, TestFieldConfig, ExperimentItem, SortMode } from '../types';
+import { useState, useEffect, useMemo } from 'react';
+import type { CompletionFilter, TestFieldConfig, ExperimentItem, SortMode } from '../types';
 import { experiments as initialExperiments } from '../utils/experimentData';
 import { 
   filterExperiments, 
@@ -11,7 +11,6 @@ import {
 
 import { SearchResultHint } from 'sa2kit/common/ui/patterns';
 import {
-  CategoryFilter,
   CompletionFilter as CompletionFilterComponent,
   PageHeader,
   ExperimentGrid,
@@ -53,14 +52,12 @@ const saveUserOrderToStorage = (items: ExperimentItem[]) => {
 
 // 主页面组件
 export default function TestFieldPage() {
-  const [viewMode, setViewMode] = useState<ViewMode>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [completionFilter, setCompletionFilter] = useState<CompletionFilter>('all');
   const [sortBy, setSortBy] = useState<TestFieldConfig['sortBy']>('title');
   const [sortOrder, setSortOrder] = useState<TestFieldConfig['sortOrder']>('asc');
   const [sortMode, setSortMode] = useState<SortMode>('auto');
   const [experiments, setExperiments] = useState<ExperimentItem[]>(initialExperiments);
-  const [userSortedItems, setUserSortedItems] = useState<ExperimentItem[]>([]);
   const [isMobile, setIsMobile] = useState(false);
 
   // 检测移动设备
@@ -90,20 +87,9 @@ export default function TestFieldPage() {
     setExperiments(itemsWithUserOrder);
   }, []);
 
-  // 从 URL 参数中获取视图模式（仅在客户端）
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const mode = urlParams.get('mode') as ViewMode;
-      if (mode && ['all', 'utility', 'leisure'].includes(mode)) {
-        setViewMode(mode);
-      }
-    }
-  }, []);
-
-  // 过滤实验项目
+  // 过滤实验项目（实验田仅展示工具类）
   const filteredExperiments = filterExperiments(experiments, {
-    viewMode,
+    viewMode: 'utility',
     searchQuery,
     completionFilter
   });
@@ -119,9 +105,6 @@ export default function TestFieldPage() {
 
   // 处理用户手动排序变更
   const handleOrderChange = (newItems: ExperimentItem[]) => {
-    setUserSortedItems(newItems);
-    
-    // 更新用户排序索引
     const updatedItems = experiments.map(item => {
       const newIndex = newItems.findIndex(newItem => newItem.id === item.id);
       return {
@@ -134,36 +117,33 @@ export default function TestFieldPage() {
     saveUserOrderToStorage(newItems);
   };
 
-  // 统计数据
-  const counts = getExperimentCounts(experiments);
+  // 统计数据（实验田仅展示工具类）
+  const utilityExperiments = useMemo(
+    () => experiments.filter((item) => item.category === 'utility'),
+    [experiments],
+  );
+  const counts = getExperimentCounts(utilityExperiments);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 用户信息栏 */}
       <UserInfoBar />
       
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
-        {/* 页面头部 */}
-        <PageHeader counts={counts} />
+        <PageHeader
+          counts={{
+            all: counts.all,
+            completed: counts.completed,
+            inProgress: counts.inProgress,
+          }}
+        />
 
-        {/* 搜索和筛选 */}
         <div className="mb-6 sm:mb-8 space-y-3 sm:space-y-4">
-          {/* 搜索框 */}
           <TestFieldSearchBox
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
           />
 
-          {/* 筛选选项 */}
-          <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl sm:rounded-2xl p-4 sm:p-6 space-y-4 sm:space-y-6 border border-gray-200">
-            {/* 类别筛选 */}
-            <CategoryFilter
-              viewMode={viewMode}
-              onViewModeChange={setViewMode}
-              counts={{ utility: counts.utility, leisure: counts.leisure }}
-            />
-
-            {/* 完成状态筛选 */}
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200">
             <CompletionFilterComponent
               completionFilter={completionFilter}
               onCompletionFilterChange={setCompletionFilter}
@@ -175,7 +155,6 @@ export default function TestFieldPage() {
             />
           </div>
           
-          {/* 排序模式切换 */}
           <SortModeToggle
             sortMode={sortMode}
             onSortModeChange={setSortMode}
