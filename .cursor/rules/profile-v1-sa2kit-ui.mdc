@@ -6,7 +6,7 @@ alwaysApply: false
 
 # sa2kit / sa2kit-ui 依赖规范
 
-编写或修改 UI、登录鉴权、主题相关代码时遵守。权威背景见 `doc/code-review/libraries/UI-UNIFICATION-PLAN.md` 与 `BLUEPRINT-multiplatform-sa2kit.md` §5。
+编写或修改 UI、登录鉴权、主题相关代码时遵守。权威背景见 `docs/code-review/libraries/UI-UNIFICATION-PLAN.md` 与 `BLUEPRINT-multiplatform-sa2kit.md` §5。
 
 ## 三层分工（禁止颠倒）
 

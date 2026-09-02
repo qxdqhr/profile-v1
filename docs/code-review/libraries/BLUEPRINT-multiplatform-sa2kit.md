@@ -2,7 +2,7 @@
 
 > 版本：v0.4 · 2026-08-29  
 > 状态：**已拍板草案**（**北极星：接单多端可复用** · Phase U 统一 UI · S1 冻结 · festivalCard 后移）— 见 §0 / §7 / §12  
-> 取代/修正：先前「business 迁回 profile-v1」方向（见文末与旧 [TARGET-ARCHITECTURE.md](./TARGET-ARCHITECTURE.md) 的关系）  
+> 取代/修正：先前「business 迁回 profile-v1」方向（见文末 §11）  
 > 源码仓：`~/project/sa2kit` · `~/project/sa2kit-ui` · 消费仓 `profile-v1` 及独立 RN/Taro/Electron 宿主
 
 ---
@@ -361,13 +361,12 @@ business/*/ui/* 与各宿主薄页面（编排，不造第二套基础件）
 | 文档 | 角色 |
 |------|------|
 | **本文件（BLUEPRINT）** | **现行推荐蓝图**（多端 SDK + business 留仓） |
-| [TARGET-ARCHITECTURE.md](./TARGET-ARCHITECTURE.md) | 早期「通用面 + UI 门面」仍有价值；其中 **「business 迁回 profile」作废**，以本蓝图为准 |
+| ~~TARGET-ARCHITECTURE.md~~ | 已删除；早期「通用面 + UI 门面」思路已并入本文；其中 **「business 迁回 profile」作废** |
 
 确认本蓝图后建议：
 
-1. 将 TARGET § 中迁出表述改为指向本文；或把 TARGET 降级为「UI 门面专章」。  
-2. 更新 `.cursor/KNOWLEDGE_BASE.md` §1.1。  
-3. 在 sa2kit 仓新增 `docs/adr/00x-multiplatform-business-sdk.md`。
+1. 更新 `.cursor/KNOWLEDGE_BASE.md` §1.1。  
+2. 在 sa2kit 仓新增 `docs/adr/00x-multiplatform-business-sdk.md`。
 
 ---
 

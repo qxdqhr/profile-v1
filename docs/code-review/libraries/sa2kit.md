@@ -86,7 +86,7 @@ sa2kit/business/{mmd,testYourself,festivalCard,music,…}
 | SK-011 | P2 | dist 32MB（three/mmd/music 拖累） | dist/ | 加速 business 迁出 | open |
 | SK-012 | P2 | MMD playlist 保存 TODO | `MmdPlaylistEditor.tsx` | 补 API 或隐藏保存 | open |
 | SK-013 | P2 | 测试覆盖偏 common；business 几乎无测 | `tests/` | 优先 auth role、file bootstrap、aiApi | open |
-| SK-014 | P3 | profile docs 仍写 `sa2kit/mmd` | `docs/sa2kit-mmd-*.md` | 改为 `business/mmd` | open |
+| SK-014 | P3 | profile docs 仍写 `sa2kit/mmd` | `docs/modules/mmd/sa2kit-mmd-*.md` | 改为 `business/mmd` | open |
 
 关联 profile 脚本问题见 [CROSS-CUTTING.md](../CROSS-CUTTING.md) CX-008（`userSessions` + role 小写查询）。
 

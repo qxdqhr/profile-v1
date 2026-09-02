@@ -360,7 +360,7 @@ Access to fetch at 'https://xxx.oss.com/...' has been blocked by CORS policy
 ```
 
 **解决方法：**
-参考 `docs/oss-cors-setup.md` 配置 OSS CORS
+参考 `docs/infrastructure/oss-cors-setup.md` 配置 OSS CORS
 
 ## 📚 相关文档
 

@@ -11,7 +11,7 @@
 - 宿主（profile Web、RN、Taro）只做壳；业务实现不复制
 - sa2kit-ui = 设计系统，经 `sa2kit/common/ui*` 消费
 
-旧稿 [TARGET-ARCHITECTURE.md](./TARGET-ARCHITECTURE.md) 已降级（其中「business 迁出」作废）。
+旧稿 TARGET-ARCHITECTURE.md 已删除（其中「business 迁出」作废）；以 BLUEPRINT 为准。
 
 SSOT 短节：`.cursor/KNOWLEDGE_BASE.md` §1.1。
 

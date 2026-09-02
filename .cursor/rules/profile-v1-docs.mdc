@@ -1,0 +1,35 @@
+---
+description: profile-v1 文档目录约定（docs 单一根目录 + 子项目边界）
+alwaysApply: true
+---
+
+## 文档根目录
+
+- **仓库级文档**统一放在根目录 [`docs/`](../docs/README.md)，**禁止**再新建顶层 `doc/`、`design-system/`、`utils/` 等散落文档目录。
+- 入口索引：[`docs/README.md`](../docs/README.md)；架构 SSOT 仍为 [`.cursor/KNOWLEDGE_BASE.md`](../.cursor/KNOWLEDGE_BASE.md)。
+- **根目录 `AGENTS.md`** 仅为 Cursor 发现用 stub，正文在 [`docs/AGENTS.md`](../docs/AGENTS.md)。
+
+## 放哪里
+
+| 内容 | 位置 |
+|------|------|
+| Code Review、sa2kit 蓝图、UI 统一计划 | `docs/code-review/` |
+| Monorepo 迁移（已完成的归档） | `docs/monorepo-migration/` |
+| OSS / CDN / 生产部署补充 | `docs/infrastructure/` |
+| YAML + SOPS 配置说明 | `docs/infrastructure/config-yaml-sops.md`（`config/` 仅放 YAML 文件 + stub README） |
+| 节点笔记（需求/开发/设计系统） | `docs/node-notes/` |
+| 主站某模块运维/需求（跨仓可见） | `docs/modules/<module>/` |
+| 子应用 / core 包专属 | `apps/<app>/docs/`、`packages/<core>/docs/` |
+| 模块分步构建（开发中） | `apps/web/src/modules/<module>/` 内 markdown |
+| 网关 / Docker 现网 Runbook | `deploy/MIGRATION-RUNBOOK.md` |
+
+## 不迁入 docs/（保持原位）
+
+- **WordPress 旁路**：`deploy/wordpress/`、`wordpress/<slug>/`
+- **Godot games 旁路**：`deploy/games/`、`games/<slug>/`
+
+## Agent 行为
+
+- 规划或修改架构/CI/应用矩阵后，视情况更新 `KNOWLEDGE_BASE.md` 与 `docs/README.md`。
+- **不要**恢复已删除的一次性修复/迁移记录类文档；完成即删或合并进 Runbook/知识库。
+- 引用路径使用 `docs/...`，勿用已废弃的 `doc/...`。

@@ -232,7 +232,7 @@ mmd/
 - [MMD 功能测试页面](/testField/mmdTest)
 - [MMD 播放列表页面](/testField/mmdPlaylist)
 - [配置管理页面](/testField/configManagement)
-- [SA2Kit MMD 文档](../docs/sa2kit-mmd-setup.md)
+- [SA2Kit MMD 文档](./sa2kit-mmd-setup.md)
 
 ## 💡 提示
 

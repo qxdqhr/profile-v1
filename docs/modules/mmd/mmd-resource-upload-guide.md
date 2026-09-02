@@ -283,7 +283,7 @@ mmd/
 
 **解决方法：**
 1. 保持相同的文件夹结构
-2. 配置 OSS CORS（参考 `docs/oss-cors-setup.md`）
+2. 配置 OSS CORS（参考 `docs/infrastructure/oss-cors-setup.md`）
 
 ## 💡 最佳实践
 

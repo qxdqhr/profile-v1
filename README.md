@@ -21,7 +21,7 @@ profile-v1/
 │   ├── teach-hub-core, teach-hub-shared
 │   └── showmasterpiece-core
 ├── deploy/                  # 网关 nginx + docker-compose
-└── docs/monorepo-migration/ # B→C 迁移计划
+└── docs/                    # 仓库级文档（索引 docs/README.md）
 ```
 
 **生产网关**（同域）：`/` → web；`/calendar` → calendar；`/teach-hub` → teach-hub；`/showmasterpiece` → showmasterpiece；`/money-research` → money-research。Auth 统一走 web 的 `/api/auth/*`。详见 [`deploy/MIGRATION-RUNBOOK.md`](deploy/MIGRATION-RUNBOOK.md)。
@@ -76,8 +76,9 @@ RN 签名 APK 与 TeachHub 共用 `config/android-signing.env`（见 `config/and
 ## Agent / 协作
 
 - 架构 SSOT：[`.cursor/KNOWLEDGE_BASE.md`](.cursor/KNOWLEDGE_BASE.md)
-- Agent 入口：[`AGENTS.md`](AGENTS.md)
-- Monorepo 迁移：[`docs/monorepo-migration/README.md`](docs/monorepo-migration/README.md)
+- Agent 入口：[`AGENTS.md`](AGENTS.md)（正文 [`docs/AGENTS.md`](docs/AGENTS.md)）
+- 文档索引：[`docs/README.md`](docs/README.md)
+- Monorepo 迁移（归档）：[`docs/monorepo-migration/README.md`](docs/monorepo-migration/README.md)
 
 ## CI 与发布
 

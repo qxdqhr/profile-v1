@@ -213,7 +213,7 @@ OSS 路径: mmd/{year}/{month}/{day}/{modelName}/
 
 ### 4. CORS 配置
 - 确保 OSS 已配置 CORS 规则
-- 参考 `docs/oss-cors-setup.md`
+- 参考 `docs/infrastructure/oss-cors-setup.md`
 
 ### 5. 网络超时
 - 大文件上传可能需要较长时间
@@ -264,7 +264,7 @@ OSS 路径: mmd/{year}/{month}/{day}/{modelName}/
 **原因：** OSS 未配置 CORS 规则
 
 **解决方法：**
-1. 参考 `docs/oss-cors-setup.md` 配置 CORS
+1. 参考 `docs/infrastructure/oss-cors-setup.md` 配置 CORS
 2. 确保允许的域名包含你的应用域名
 3. 检查 OSS 控制台的 CORS 设置
 

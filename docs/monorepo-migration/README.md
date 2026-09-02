@@ -1,5 +1,7 @@
 # profile-v1 → Monorepo 子应用迁移（方案 B）
 
+> **归档说明（2026-09）**：方案 B 已全部完成；本文档集保留作历史参考。现网部署见 [`deploy/MIGRATION-RUNBOOK.md`](../../deploy/MIGRATION-RUNBOOK.md)；文档索引见 [`docs/README.md`](../README.md)。
+
 > **目标**：将 **calendar**、**teachHub**、**showmasterpiece** 等从单体 `profile-v1` 拆为可独立构建、可独立部署的 Next 应用，并为 **方案 C**（完全脱离 profile、独立域名/独立运维）预留路径。  
 > **当前阶段**：方案 B — pnpm workspace + 多 `apps/*` + 共享 `packages/*`，仍可与主站同仓、同库、同 Auth。Calendar / TeachHub 已有 Expo RN 客户端。
 

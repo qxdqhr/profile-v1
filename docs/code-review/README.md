@@ -1,6 +1,6 @@
 # profile-v1 分模块 Code Review
 
-> 目录：`doc/code-review/`  
+> 目录：`docs/code-review/`  
 > 目标：对 Monorepo 全项目按模块建立可追踪的 Code Review 文档，并持续推进修复。  
 > 架构约定 SSOT：`.cursor/KNOWLEDGE_BASE.md`  
 > 启动轮次：2026-08-29
@@ -142,7 +142,7 @@
 2. `fitnessPlan`、`comfyPrompt`、`filetransfer`（有 DB/API，安全面大）  
 3. `mmd` + OSS 路径与上传链路（大量 `sa2kit/business/mmd`）  
 4. `mikutap`（体量大，分 api/db/ui 子报告）  
-5. `node-notes-core` + `apps/node-notes`（对照 `doc/node-notes` 需求）  
+5. `node-notes-core` + `apps/node-notes`（对照 `docs/node-notes` 需求）  
 6. RN 三端（cookie 同步、API base URL；评估接 `@sa2kit-ui/rn`）  
 7. 小游戏模块批量扫鉴权与资源泄漏（Phaser dispose）
 

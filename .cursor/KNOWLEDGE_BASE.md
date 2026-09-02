@@ -2,7 +2,7 @@
 
 本文档为 **单一事实来源（SSOT）**，描述本仓库的 **App Router 挂载方式**、**模块目录约定** 与 **实验田注册**。
 
-**Cursor 自动加载**：项目规则 `.cursor/rules/profile-v1-knowledge-ssot.mdc` 设为 `alwaysApply: true`，并在规则正文中使用官方支持的 `@.cursor/KNOWLEDGE_BASE.md`，在本仓库的每次 Agent 对话中把本文档纳入上下文（见 [Cursor Rules 文档](https://cursor.com/docs/rules) 中 “@include files” 的说明）。仍可在对话里手动 `@.cursor/KNOWLEDGE_BASE.md` 强化引用。根目录 `AGENTS.md` 指向此处。
+**Cursor 自动加载**：项目规则 `.cursor/rules/profile-v1-knowledge-ssot.mdc` 设为 `alwaysApply: true`，并在规则正文中使用官方支持的 `@.cursor/KNOWLEDGE_BASE.md`，在本仓库的每次 Agent 对话中把本文档纳入上下文（见 [Cursor Rules 文档](https://cursor.com/docs/rules) 中 “@include files” 的说明）。仍可在对话里手动 `@.cursor/KNOWLEDGE_BASE.md` 强化引用。Agent 协作说明见 [`docs/AGENTS.md`](../docs/AGENTS.md)（根目录 `AGENTS.md` 为入口 stub）。
 
 ---
 
@@ -14,7 +14,7 @@
 - profile-v1 是**首个完整宿主与验证场**；通用能力默认进库，宿主只做薄 page / API / 部署。
 - 决策冲突时：先保证「非 profile 宿主可接」→ 再 Phase U 统一 UI → 再业务试点 / 功能优化。
 
-完整蓝图：[`doc/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`](../doc/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md) §0。
+完整蓝图：[`docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`](../docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md) §0。
 
 ---
 
@@ -23,7 +23,7 @@
 | 项 | 约定 |
 |----|------|
 | 框架 | Next.js（App Router，主站在 `apps/web/src/app`） |
-| Monorepo | pnpm workspace：`apps/*` + `packages/*`；详见 `docs/monorepo-migration/`、`apps/README.md` |
+| Monorepo | pnpm workspace：`apps/*` + `packages/*`；详见 `docs/monorepo-migration/`、`docs/README.md`、`apps/README.md` |
 | 样式 | Tailwind CSS；预设 `@profile/ui/tailwind.preset`（设计令牌桥；业务组件/主题见 §1.1） |
 | 数据层 | Drizzle ORM + PostgreSQL（`@profile/db`，迁移目录 `drizzle/` 在仓库根） |
 | 包管理 | **pnpm**；开发 `pnpm dev` = `pnpm --filter @profile/web dev` |
@@ -56,11 +56,11 @@ apps/web 模块
 - Auth 相关样式由 `@profile/auth` 的 `sa2kit-ui-bootstrap` 引导；其他 sa2kit UI 路由段在 **该段 layout** 或模块 layout 引入 `import 'sa2kit/common/ui/style'`
 - 临时 UI 仅特殊需求且限期回灌；门禁：`pnpm gate:ui`
 
-详细规则：`.cursor/rules/profile-v1-sa2kit-ui.mdc`；Phase U 计划：`doc/code-review/libraries/UI-UNIFICATION-PLAN.md`。
+详细规则：`.cursor/rules/profile-v1-sa2kit-ui.mdc`；Phase U 计划：`docs/code-review/libraries/UI-UNIFICATION-PLAN.md`。
 
 **已迁出的 `packages/*-core`**：默认冻结；新多端能力优先进 sa2kit（见蓝图 S1/S2/S3）。
 
-完整蓝图与阶段计划：[`doc/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`](../doc/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md)。
+完整蓝图与阶段计划：[`docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`](../docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md)。
 
 ---
 
@@ -183,7 +183,8 @@ export default function XxxRoute() {
 - 新的「标准参考模块」取代 `ideaList` 作为模板
 - 新增/变更 `apps/*` 子应用、网关路由、RN 客户端或 CI 打包脚本
 - 新增/变更 **git submodule**（`games/*`、`wordpress/*`）或 `.gitmodules`
-- 变更与 sa2kit / sa2kit-ui 的依赖方向或 UI 门面约定（同步 `doc/code-review/libraries/TARGET-ARCHITECTURE.md`）
+- 变更与 sa2kit / sa2kit-ui 的依赖方向或 UI 门面约定（同步 `docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`）
+- 新增/迁移仓库级 Markdown 文档（同步 `docs/README.md` 索引）
 
 ---
 

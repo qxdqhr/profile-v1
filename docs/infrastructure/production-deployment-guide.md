@@ -1,6 +1,6 @@
 # 生产环境部署指南
 
-> 启动级与业务配置（数据库、Auth、OSS、首页、华容道等）统一使用 **YAML + SOPS**，详见 [`config/README.md`](../config/README.md)。
+> 启动级与业务配置（数据库、Auth、OSS、首页、华容道等）统一使用 **YAML + SOPS**，详见 [`config-yaml-sops.md`](./config-yaml-sops.md)（`config/` 目录仍存放 YAML 文件）。
 
 ## 1. 准备生产配置
 
