@@ -25,7 +25,7 @@ alwaysApply: false
 
 1. 改主题/游戏/客户端逻辑 → 进入 submodule 目录，在 **子仓** commit/push，再回到父仓 bump submodule 指针。
 2. 克隆父仓：`git submodule update --init --recursive`（CI 已 `submodules: recursive`）。
-3. 新增旁路 → 先建独立仓，`git submodule add …`，再改 compose/nginx/smoke/导航；见 `deploy/games/ADD-GAME.md`、`deploy/wordpress/ADD-SITE.md`、迁移计划 `docs/monorepo-migration/APPS-SUBMODULE-PLAN.md`。
+3. 新增旁路 → 先建独立仓，`git submodule add …`，再改 compose/nginx/smoke/导航；见 `deploy/games/ADD-GAME.md`、`deploy/wordpress/ADD-SITE.md`、迁移计划 `docs/monorepo-migration/APPS-SUBMODULE-PLAN.md`。新 Godot 游戏必须挂 `addons/sa2kit_godot`（CJK）；`bash scripts/apply-sa2kit-godot-cjk.sh <slug>`。
 4. 从 Next 迁出 Godot：删 `app_web/web` 旧模块；DB schema 迁到 `packages/db/src/schema/`（若表仍保留）。
 5. 实验田/大厅链到 `/games/*`、`/wp/*` → **整页跳转**（`ExperimentNavCard`），勿用 Next 客户端路由。
 

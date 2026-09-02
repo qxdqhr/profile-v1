@@ -65,7 +65,7 @@ pnpm package:showmasterpiece
 | Monorepo 子应用迁移（B→C，归档） | [`monorepo-migration/README.md`](./monorepo-migration/README.md) |
 | 网关部署 Runbook | [`deploy/MIGRATION-RUNBOOK.md`](../deploy/MIGRATION-RUNBOOK.md) |
 
-休闲游戏入口见主站 `/games` 与 [`deploy/games/`](../deploy/games/)。**不要**再往主站加 Phaser；新游戏走 Godot submodule。
+休闲游戏入口见主站 `/games` 与 [`deploy/games/`](../deploy/games/)。**不要**再往主站加 Phaser；新游戏走 Godot submodule，并挂 `sa2kit-godot` CJK 字体（见 `deploy/games/ADD-GAME.md`）。
 
 ## 变更文档的时机
 

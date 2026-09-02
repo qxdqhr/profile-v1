@@ -36,6 +36,10 @@ if [[ ! -f "${GAME_DIR}/project.godot" ]]; then
   echo "ERROR: missing ${GAME_DIR}/project.godot" >&2
   exit 1
 fi
+if [[ ! -f "${GAME_DIR}/addons/sa2kit_godot/fonts/SourceHanSansCN-Regular.otf" ]]; then
+  echo "ERROR: ${SLUG} missing sa2kit-godot CJK font (addons/sa2kit_godot). See deploy/games/ADD-GAME.md" >&2
+  exit 1
+fi
 
 mkdir -p "$OUT_DIR"
 

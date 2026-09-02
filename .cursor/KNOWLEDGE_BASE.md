@@ -306,5 +306,5 @@ git submodule update --init --recursive
 - **源码**：`app_games/<slug>/`（Godot 4，**git submodule**，**非** `app_web/*`）。清单见 [`deploy/games/README.md`](../deploy/games/README.md)。
 - **运行时静态包**：`deploy/games/<slug>/www/`（CI 导出，**不进 git**）；路径 `/games/<slug>/` 由**平台 nginx alias** 直接托管（不再为每游戏起 `game_*` 容器）。
 - CI：改 `app_games/**` → `export-godot-games` → artifact → `deploy-web` scp（§7.0.4）。
-- 加游戏：[`deploy/games/ADD-GAME.md`](../deploy/games/ADD-GAME.md)。
+- 加游戏：[`deploy/games/ADD-GAME.md`](../deploy/games/ADD-GAME.md)。必须挂嵌套 submodule [`sa2kit-godot`](https://github.com/qxdqhr/sa2kit-godot)（`addons/sa2kit_godot` + `gui/theme/custom_font`），否则 Web 中文方框。`.use-prebuilt-web` 的游戏改字体后还要在能编 Spine 的机器上重导 `prebuilt-web/`。
 - **双轨迁移**（[`GODOT-REWRITE-PLAN.md`](../deploy/games/GODOT-REWRITE-PLAN.md)）：阶段 B 上线 Godot 最简时**保留** testField 原版；全部最简迁完后再逐个精修并删旧。主站 `/games` 与旁路卡片用整页跳转（`ExperimentNavCard`）。
