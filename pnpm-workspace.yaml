@@ -2,6 +2,5 @@ packages:
   - '.'
   - 'app_web/*'
   - 'packages/*'
-  - 'npm/*'
   - 'app_mobile/*'
   - 'app_desktop/*'

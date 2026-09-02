@@ -16,7 +16,7 @@
 |----|------|
 | ShowMasterpiece 双挂载 | **1a** — 直接删除主站 `app_web/web/src/app/api/showmasterpiece/**` |
 | 子应用 `/api/ai` | **2a** — 删除 calendar / teach-hub 本地副本；浏览器一律经网关打到 **web** |
-| shared 包位置 | **已并入 `*-core/shared`**（删除 `npm/*-shared`）；禁止再新建独立 shared 包 |
+| shared 包位置 | **已并入 `*-core/shared`**（`npm/` 目录已删除）；禁止再新建独立 shared 包 |
 | 生产库 | Phase B 验证默认只本地/dev；**不主动** `prodb:push` |
 | 执行范围 | **Phase A→E 全做** |
 
@@ -58,8 +58,8 @@
 
 | ID | 动作 | 状态 |
 |----|------|------|
-| C1 | shared 统一在 `npm/`；文档标注后期可撤 | ✅（历史） |
-| C1′ | 撤掉 `npm/*-shared`，并入 `*-core/src/shared` + exports | ✅ |
+| C1 | shared 曾统一在 `npm/` | ✅（历史，已废） |
+| C1′ | 撤掉 `npm/*-shared`，并入 `*-core/src/shared`；**删除顶层 `npm/`** | ✅ |
 | C2 | 根 workspace 职责：脚本 + 门禁；业务依赖在 apps（持续收敛） | ✅ 文档化 |
 | C3 | 删除过时 `bun.lock`（仅 pnpm-lock） | ✅ |
 | C4 | 规则/知识库路径 `app_web/web/src/modules`；Route Group 决策树 | ✅ |
@@ -90,6 +90,7 @@
 |------|------|
 | 2026-09-02 | 本文落地；拍板 1a / 2a；执行 A→E |
 | 2026-09-02 | C1′：`calendar-shared` / `teach-hub-shared` 并入对应 core 的 `./shared`；删除 `npm/*-shared` |
+| 2026-09-02 | 删除顶层空目录 `npm/`，workspace 去掉 `npm/*`；`packages/` 为唯一共享库目录 |
 | 2026-09-02 | D3：showmasterpiece + web `ignoreBuildErrors: false`，build 通过 |
 | 2026-09-02 | D2 扫尾：sync task GET / vocaloid-booth-test 鉴权；filetransfer 挂载；BGM `?meta=1` |
 | 2026-09-02 | **计划关闭**：A→E 全部 ✅；余项转入 AUTH 审计产品级跟踪 |

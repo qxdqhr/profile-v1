@@ -11,7 +11,7 @@
 | `@profile/money-research` | `app_web/money-research/` | 3004 | 调研 Demo（暂留） |
 | `@profile/node-notes` | `app_web/node-notes/` | 3005 | 节点笔记 |
 
-RN：[`app_mobile/`](../app_mobile/README.md)。桌面：[`app_desktop/`](../app_desktop/README.md)。跨端 shared：[`npm/`](../npm/README.md)。
+RN：[`app_mobile/`](../app_mobile/README.md)。桌面：[`app_desktop/`](../app_desktop/README.md)。跨端 shared：[`packages/`](../packages/README.md) 内各 `*-core/shared`。
 
 旁路：WordPress [`deploy/wordpress/`](../deploy/wordpress/)，Godot [`deploy/games/`](../deploy/games/)。
 

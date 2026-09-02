@@ -18,8 +18,7 @@ profile-v1/
 │   └── teach-hub-mobile/
 ├── app_desktop/                 # Electron submodule
 │   └── teach-hub-desktop/
-├── npm/                     # 历史 shared 目录（已空；见 npm/README.md）
-├── packages/                # auth, db, ui, *-core
+├── packages/                # 基建 + 领域 *-core（含 ./shared）；唯一共享库目录
 ├── deploy/                  # 网关 nginx + docker-compose
 └── docs/                    # 仓库级文档（索引 docs/README.md）
 ```

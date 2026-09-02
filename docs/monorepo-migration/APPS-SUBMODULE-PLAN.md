@@ -11,14 +11,14 @@
 | 1 | 顶层：`apps/` → `app_web/`；RN → `app_mobile/`；桌面 → `app_desktop/` |
 | 2 | 顺序：先移动端，再桌面端 |
 | 3 | 子仓：`qxdqhr/profile-v1-*` |
-| 4 | `npm/` 曾放 `*-shared`（已并入 `*-core/shared`） |
+| 4 | 曾用顶层 `npm/` 放 `*-shared`；已并入 `*-core/shared` 并**删除 `npm/`** |
 | 5 | Next 子应用暂不外迁 |
 
 ## 进度
 
 | 阶段 | 状态 | 说明 |
 |------|------|------|
-| 0 目录重排 | ✅ | `apps`→`app_web/`，`*-shared`→`npm/`（后并入 core） |
+| 0 目录重排 | ✅ | `apps`→`app_web/`；`*-shared`→曾入 `npm/`，后并入 core 并删除 `npm/` |
 | 1 Mobile submodule | ✅ | `app_mobile/calendar-mobile`、`app_mobile/teach-hub-mobile` |
 | 2 Desktop submodule | ✅ | `app_desktop/teach-hub-desktop` |
 | 3 文档收尾 | ✅ | 本文件与 KNOWLEDGE_BASE |
@@ -39,8 +39,7 @@ profile-v1/
 │   └── teach-hub-mobile/         → profile-v1-teach-hub-mobile
 ├── app_desktop/             # Electron submodule
 │   └── teach-hub-desktop/        → profile-v1-teach-hub-desktop
-├── npm/                 # 历史 *-shared（已空）
-├── packages/            # auth / db / *-core（含 ./shared）
+├── packages/            # 基建 + *-core（含 ./shared）；唯一共享库目录
 ├── app_games/               # 旁路（不动）
 └── app_wordpress/           # 旁路（不动）
 ```
@@ -52,7 +51,6 @@ packages:
   - '.'
   - 'app_web/*'
   - 'packages/*'
-  - 'npm/*'
   - 'app_mobile/*'
   - 'app_desktop/*'
 ```
