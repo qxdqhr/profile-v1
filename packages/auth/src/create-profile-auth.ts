@@ -17,6 +17,29 @@ import { upsertCredentialPassword } from './credential-password';
 
 type ProfileDatabase = typeof db;
 
+/** 本地多端口子应用跨 origin 打主站 `/api/auth` 时需要 CORS */
+const LOCAL_SIDECAR_ORIGINS = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
+  'http://localhost:3003',
+  'http://localhost:3004',
+  'http://localhost:3005',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3001',
+  'http://127.0.0.1:3002',
+  'http://127.0.0.1:3003',
+  'http://127.0.0.1:3004',
+  'http://127.0.0.1:3005',
+] as const;
+
+function mergeTrustedOrigins(configured: string[] | undefined): string[] {
+  const extra = process.env.NODE_ENV === 'production' ? [] : [...LOCAL_SIDECAR_ORIGINS];
+  return [...(configured ?? []), ...extra].filter(
+    (origin, index, list) => list.indexOf(origin) === index,
+  );
+}
+
 function createDevOtpLogger(enabled: boolean | undefined) {
   if (!enabled || process.env.NODE_ENV === 'production') {
     return undefined;
@@ -40,7 +63,7 @@ export function createProfileAuth(config: Sa2kitAuthConfig): Sa2kitAuthInstance 
     baseURL: config.baseURL,
     basePath: config.basePath ?? '/api/auth',
     secret: config.secret,
-    trustedOrigins: config.trustedOrigins,
+    trustedOrigins: mergeTrustedOrigins(config.trustedOrigins),
     database: drizzleAdapter(database as Parameters<typeof drizzleAdapter>[0], {
       provider: 'pg',
       schema: authDrizzleSchema,

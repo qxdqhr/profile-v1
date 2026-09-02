@@ -271,7 +271,7 @@ git submodule update --init --recursive
 
 - 页面：`app_web/<app>/src/app/**/page.tsx` 薄封装，UI 从 `@profile/<app>-core` 导入。
 - API：`app_web/<app>/src/app/api/**/route.ts` re-export core 内 handlers；对外路径仍为 `/api/<app>/...`（经 nginx 反代）。
-- Auth：子应用 **不** 单独登录；session 由 web `/api/auth/*` 共享（同域 cookie）。
+- Auth：子应用 **不** 单独登录、**不** 挂 `/api/auth`；session 仅由 web `/api/auth/*` 签发。生产同域 cookie；本地多端口时 auth client 打 `NEXT_PUBLIC_APP_URL`（主站 :3000）。
 - **AI**：浏览器 `/api/ai/*` **唯一**落点为 **web**（nginx 显式反代）；calendar / teach-hub **不**挂载 AI 路由副本。课时生成等服务端逻辑可在子应用进程内直接 `runAiTask`。
 - 主站兼容：legacy 实验田路径可 302/301 至子应用 URL（如 ShowMasterPieces → `/showmasterpiece`）。
 - **禁止**已迁出域在主站再挂 API 实现（例：`/api/showmasterpiece` 只存在于 showmasterpiece 子应用）。

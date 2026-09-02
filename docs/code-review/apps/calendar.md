@@ -14,7 +14,7 @@
 
 - 页面：`app/page.tsx` → `CalendarPageCore`；`events/[id]` 薄包装  
 - API：`export { GET, POST } from '@profile/calendar-core/api/...'`  
-- 另挂：`/api/auth/[...all]`、`/api/ai/*`（standalone / 与网关分流见 CX-006）
+- 鉴权面仅主站 `/api/auth`（本地跨端口打 `NEXT_PUBLIC_APP_URL`）；不挂 `/api/ai`
 
 ---
 

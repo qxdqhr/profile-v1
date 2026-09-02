@@ -18,6 +18,10 @@ auth:
   trustedOrigins:
     - http://localhost:3000
     - http://localhost:3001
+    - http://localhost:3002
+    - http://localhost:3003
+    - http://localhost:3004
+    - http://localhost:3005
     # 网关同域生产：https://qhr062.top
     # 子域方案 C：追加 https://calendar.qhr062.top、https://teach.qhr062.top（ST-20）
   logOtpInDev: true

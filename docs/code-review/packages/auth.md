@@ -11,7 +11,7 @@
 ## 范围
 
 - `server.ts` / `client.ts` / `session.ts` / `react.tsx` / `schema.ts`  
-- 各 app `app/api/auth/[...all]/route.ts` 挂载
+- 各 app 曾挂 `app/api/auth/[...all]/route.ts`；现仅主站 web 挂载，子应用由 architecture gate 禁止再挂
 
 ---
 

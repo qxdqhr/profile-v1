@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Architecture remediation gate (D1):
- * Forbid re-introducing main-web API mounts for cutover domains.
+ * Forbid re-introducing main-web API mounts for cutover domains,
+ * and forbid sidecar apps from remounting `/api/auth`.
  */
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -12,6 +13,11 @@ const forbidden = [
   'app_web/web/src/app/api/node-notes',
   'app_web/calendar/app/api/ai',
   'app_web/teach-hub/app/api/ai',
+  'app_web/calendar/app/api/auth',
+  'app_web/teach-hub/app/api/auth',
+  'app_web/showmasterpiece/app/api/auth',
+  'app_web/node-notes/app/api/auth',
+  'app_web/money-research/app/api/auth',
 ];
 
 const hits = forbidden.filter((rel) => existsSync(resolve(root, rel)));

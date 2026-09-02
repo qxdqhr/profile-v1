@@ -22,7 +22,7 @@ function readPublicAppUrl(): string {
     }
   }
 
-  return process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3005';
+  return process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 }
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH?.replace(/\/$/, '') || '';
