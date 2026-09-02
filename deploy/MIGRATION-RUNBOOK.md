@@ -23,25 +23,7 @@
 | `/node-notes/` | node_notes:3005 | `NEXT_PUBLIC_BASE_PATH=/node-notes` |
 | `/api/node-notes/` | node_notes:3005 | API |
 | `/wp/holt/` | wordpress_holt:80 | **Holt 音乐作品集**（旁路 WordPress + `holt-portfolio` 主题） |
-| `/games/pulse-parade/` | game_pulse_parade:80 | **Pulse Parade**（旁路 Godot Web） |
-| `/games/flappy-wish/` | game_flappy_wish:80 | **予愿飞翔**（旁路 Godot Web） |
-| `/games/suika-game/` | game_suika_game:80 | **合成大西瓜**（旁路 Godot Web） |
-| `/games/bubble-shooter/` | game_bubble_shooter:80 | **泡泡龙**（旁路 Godot Web） |
-| `/games/arknights-bubble-shooter/` | game_arknights_bubble_shooter:80 | **岁家龙泡泡**（旁路 Godot Web） |
-| `/games/miku-flick/` | game_miku_flick:80 | **Miku Flick**（旁路 Godot Web） |
-| `/games/huarongdao/` | game_huarongdao:80 | **华容道**（旁路 Godot Web） |
-| `/games/push-box/` | game_push_box:80 | **推箱子**（旁路 Godot Web） |
-| `/games/gold-miner/` | game_gold_miner:80 | **黄金矿工**（旁路 Godot Web） |
-| `/games/miku-fusion-game/` | game_miku_fusion_game:80 | **Miku Fusion**（旁路 Godot Web） |
-| `/games/link-game/` | game_link_game:80 | **连连看**（旁路 Godot Web） |
-| `/games/race-game/` | game_race_game:80 | **赛车**（旁路 Godot Web） |
-| `/games/trible-game/` | game_trible_game:80 | **三消**（旁路 Godot Web） |
-| `/games/miku-click/` | game_miku_click:80 | **米库点击**（旁路 Godot Web） |
-| `/games/kannot/` | game_kannot:80 | **坎诺特**（旁路 Godot Web） |
-| `/games/vocaloid-to-go/` | game_vocaloid_to_go:80 | **博立格来冲**（旁路 Godot Web） |
-| `/games/purchase-game/` | game_purchase_game:80 | **购买挑战**（旁路 Godot Web） |
-| `/games/mikutap-game/` | game_mikutap_game:80 | **MikutapGame**（旁路 Godot Web） |
-| `/games/miku-planting/` | game_miku_planting:80 | **米库种植**（旁路 Godot Web） |
+| `/games/<slug>/` | 平台 nginx 静态 | **Godot Web**（`deploy/games/<slug>/www/`，无独立容器） |
 | `/api/auth/` | web:3000 | **共享 session**（Next 子应用不单独登录） |
 
 Legacy：`/testField/calendar`、`/testField/teachHub` → nginx 301 至新路径；`/testField/ShowMasterPieces` → 301 至 `/showmasterpiece`。

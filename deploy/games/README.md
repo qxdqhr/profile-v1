@@ -34,12 +34,12 @@
 | 层 | 路径 |
 |---|---|
 | 源码 | `app_games/<slug>/`（**git submodule**，独立仓） |
-| 旁路静态站 | `deploy/games/<slug>/`（nginx.conf + CI 生成的 `www/`） |
-| 网关 | `/games/<slug>/` → `game_<slug>`（下划线） |
+| 旁路静态站 | `deploy/games/<slug>/www/`（CI 生成） |
+| 网关 | `/games/<slug>/` → 平台 nginx alias `/var/www/games/<slug>/www/` |
 
-- **game_\<slug\>**：`nginx:alpine`，挂载 `deploy/games/<slug>/www/`
+- **平台 nginx**：挂载整个 `deploy/games/`，一条正则 location 覆盖全部 slug（小写 + 连字符）
 - **`www/` 不进 git**，由 Actions `export-godot-games` 导出后 artifact → `deploy-web` scp
-- **不进** pnpm / Next Docker matrix
+- **不进** pnpm / Next Docker matrix；**不再**为每游戏起 `nginx:alpine` 容器
 - **阶段 B**：上线 Godot 最简时**保留** testField 原版；仅阶段 C 精修通过后才删游戏路由
 
 ## URL

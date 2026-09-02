@@ -141,7 +141,7 @@ fi
 echo "=== 拉取镜像 tag=${IMAGE_TAG} ==="
 compose_cmd -f "$COMPOSE_FILE" pull
 
-echo "=== 启动网关栈（先核心+游戏，WordPress 可失败）==="
+echo "=== 启动网关栈（先核心；游戏静态由平台 nginx 托管，WordPress 可失败）==="
 # 排除 WordPress：wp_mariadb 崩溃时不应阻断整站 /games
 WP_SERVICES="wp_mariadb wordpress_holt"
 CORE_SERVICES="$(compose_cmd -f "$COMPOSE_FILE" config --services | grep -vE '^(wp_mariadb|wordpress_holt)$' | tr '\n' ' ')"

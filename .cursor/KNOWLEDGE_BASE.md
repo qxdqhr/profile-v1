@@ -199,7 +199,7 @@ export default function XxxRoute() {
 
 | 类型 | Submodule 源码 | 父仓旁路/基建 | 公网路径 | 清单索引 |
 |------|----------------|---------------|----------|----------|
-| **Godot 游戏** | `app_games/<slug>/` | `deploy/games/<slug>/`（`nginx.conf` + CI 生成的 `www/`） | `/games/<slug>/` | [`deploy/games/README.md`](../deploy/games/README.md)、[`app_games/`](../games/)（各 submodule） |
+| **Godot 游戏** | `app_games/<slug>/` | `deploy/games/<slug>/www/`（CI 生成；平台 nginx alias） | `/games/<slug>/` | [`deploy/games/README.md`](../deploy/games/README.md)、[`app_games/`](../games/)（各 submodule） |
 | **WordPress 主题站** | `app_wordpress/<slug>/` | `deploy/wordpress/`（compose 模板、ADD-SITE、php 教程；**全站共享，非 submodule**） | `/wp/<slug>/` | [`app_wordpress/README.md`](../app_wordpress/README.md)、[`deploy/wordpress/ADD-SITE.md`](../deploy/wordpress/ADD-SITE.md) |
 
 - **Submodule 内**：游戏 `project.godot` / 导出工程；WP 主题 PHP/CSS/JS + 可选 `data/` 种子 JSON。
@@ -299,7 +299,7 @@ git submodule update --init --recursive
 ### 7.6 旁路 Godot / 静态游戏（`/games/*`）
 
 - **源码**：`app_games/<slug>/`（Godot 4，**git submodule**，**非** `app_web/*`）。清单见 [`deploy/games/README.md`](../deploy/games/README.md)。
-- **运行时静态包**：`deploy/games/<slug>/www/`（CI 导出，**不进 git**）；路径 `/games/<slug>/`；compose `game_<slug>` 挂载 `www/`。
+- **运行时静态包**：`deploy/games/<slug>/www/`（CI 导出，**不进 git**）；路径 `/games/<slug>/` 由**平台 nginx alias** 直接托管（不再为每游戏起 `game_*` 容器）。
 - CI：改 `app_games/**` → `export-godot-games` → artifact → `deploy-web` scp（§7.0.4）。
 - 加游戏：[`deploy/games/ADD-GAME.md`](../deploy/games/ADD-GAME.md)。
 - **双轨迁移**（[`GODOT-REWRITE-PLAN.md`](../deploy/games/GODOT-REWRITE-PLAN.md)）：阶段 B 上线 Godot 最简时**保留** testField 原版；全部最简迁完后再逐个精修并删旧。主站 `/games` 与旁路卡片用整页跳转（`ExperimentNavCard`）。

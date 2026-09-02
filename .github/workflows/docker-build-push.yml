@@ -707,9 +707,8 @@ jobs:
           for game_dir in deploy/games/*/; do
             [ -d "$game_dir" ] || continue
             slug="$(basename "$game_dir")"
-            [ -f "${game_dir}nginx.conf" ] || continue
+            [ -d "${game_dir}www" ] || continue
             ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/games/${slug}/www"
-            scp $SSH_OPTS "${game_dir}nginx.conf" "$REMOTE:/root/profile-v1/games/${slug}/nginx.conf"
             if [ "${GAMES_CHANGED}" = "true" ] && [ -f "${game_dir}www/index.html" ]; then
               echo "=== 同步 Godot Web 产物: ${slug} ==="
               scp -r $SSH_OPTS "${game_dir}www/"* "$REMOTE:/root/profile-v1/games/${slug}/www/"
