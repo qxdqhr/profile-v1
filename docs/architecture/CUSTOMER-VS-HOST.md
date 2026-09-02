@@ -1,6 +1,6 @@
 # 客户仓最小依赖 vs profile 验证场
 
-> 架构身份说明（Phase E）。配套：[ARCHITECTURE-REMEDIATION-PLAN.md](./ARCHITECTURE-REMEDIATION-PLAN.md)
+> 架构身份说明。配套鉴权面：[`AUTH-SURFACE-AUDIT.md`](./AUTH-SURFACE-AUDIT.md)
 
 ## 两类用途
 

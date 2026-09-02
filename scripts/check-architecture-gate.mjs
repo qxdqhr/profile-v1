@@ -18,7 +18,7 @@ if (hits.length > 0) {
   console.error('[gate:architecture] Forbidden dual-mount paths present:');
   for (const h of hits) console.error(`  - ${h}`);
   console.error(
-    'See docs/architecture/ARCHITECTURE-REMEDIATION-PLAN.md (Phase A/D).',
+    'See docs/code-review/CROSS-CUTTING.md and docs/architecture/AUTH-SURFACE-AUDIT.md.',
   );
   process.exit(1);
 }

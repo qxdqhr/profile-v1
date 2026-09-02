@@ -6,7 +6,7 @@ alwaysApply: true
 数据库采用的是drizzle orm + postgress
 生成页面的时候css都采用tailwindcss方式生成
 
-架构、路由分组、模块与实验田约定由规则 `profile-v1-knowledge-ssot.mdc` 经 `@.cursor/KNOWLEDGE_BASE.md` 自动注入；**sa2kit / sa2kit-ui / 登录样式**见 `profile-v1-sa2kit-ui.mdc`；**games / WordPress submodule**见 `profile-v1-submodules.mdc`；**文档目录约定**见 `profile-v1-docs.mdc`（仓库级文档在 `docs/`，索引见 `docs/README.md`）；**P0 架构九项改造**见 `docs/architecture/ARCHITECTURE-REMEDIATION-PLAN.md`；需要时也可在对话中手动 `@.cursor/KNOWLEDGE_BASE.md`。
+架构、路由分组、模块与实验田约定由规则 `profile-v1-knowledge-ssot.mdc` 经 `@.cursor/KNOWLEDGE_BASE.md` 自动注入；**sa2kit / sa2kit-ui / 登录样式**见 `profile-v1-sa2kit-ui.mdc`；**games / WordPress submodule**见 `profile-v1-submodules.mdc`；**文档目录约定**见 `profile-v1-docs.mdc`（仓库级文档在 `docs/`，索引见 `docs/README.md`）；需要时也可在对话中手动 `@.cursor/KNOWLEDGE_BASE.md`。
 
 运行项目 参照package.json中的命令并使用pnpm执行
 build项目 参照package.json中的命令并使用pnpm执行
