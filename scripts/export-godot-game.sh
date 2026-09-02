@@ -111,8 +111,8 @@ echo "Exporting slug=${SLUG}"
 
 "$EDITOR_BIN" --headless --path "$GAME_DIR" --import --quit
 mkdir -p "${GAME_DIR}/export/web"
-"$EDITOR_BIN" --headless --path "$GAME_DIR" --export-release "Web" "${GAME_DIR}/export/app_web/index.html"
-rsync -a --delete --exclude '.gitkeep' "${GAME_DIR}/export/app_web/" "${OUT_DIR}/"
+"$EDITOR_BIN" --headless --path "$GAME_DIR" --export-release "Web" "${GAME_DIR}/export/web/index.html"
+rsync -a --delete --exclude '.gitkeep' "${GAME_DIR}/export/web/" "${OUT_DIR}/"
 test -f "${OUT_DIR}/index.html"
 test -f "${OUT_DIR}/index.wasm"
 test -f "${OUT_DIR}/index.pck"
