@@ -2,10 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '../../../../../db';
 import { mikutapBackgroundMusic } from '../../../../../modules/mikutap/db/schema';
 import { getApiSessionUser } from '@/lib/auth/session';
+import { notFoundJson } from '@/lib/auth/api-guard';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
+  if (process.env.NODE_ENV === 'production') {
+    return notFoundJson();
+  }
+
   const user = await getApiSessionUser(request);
   if (!user) {
     return NextResponse.json({ success: false, error: '未授权的访问' }, { status: 401 });

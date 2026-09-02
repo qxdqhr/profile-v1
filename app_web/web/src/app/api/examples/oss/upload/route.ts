@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireOssExampleAdmin } from '../_guard';
 import { getOSSProvider } from '@/lib/examples/oss';
 import { UploadFileInfo } from 'sa2kit/common/file/server';
 
 export async function POST(req: NextRequest) {
+  const denied = await requireOssExampleAdmin(req);
+  if (denied) return denied;
+
   try {
     const formData = await req.formData();
     const file = formData.get('file') as File;

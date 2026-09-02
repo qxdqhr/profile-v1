@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/api-guard';
 import { buildSkillZip, listSkillFiles } from '../../../_fileStore';
 
 function sanitizeSkillId(raw: string): string | null {
   return /^[a-zA-Z0-9_-]+$/.test(raw) ? raw : null;
 }
 
-export async function GET(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const { id: rawId } = await context.params;
     const id = sanitizeSkillId(rawId);

@@ -105,7 +105,7 @@ compose_cmd() {
   fi
 } > .env
 
-# 补全 WordPress 缺省键（不覆盖已有非空值；首次上线写入 change-me / 公网 URL）
+# 补全 WordPress 非密钥键；密码缺失或弱口令时 ensure-wordpress-env.sh 会失败
 if [ -x ./ensure-wordpress-env.sh ]; then
   ./ensure-wordpress-env.sh .env
 elif [ -f ./ensure-wordpress-env.sh ]; then

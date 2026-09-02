@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/api-guard';
 import { getSkillFileByRelativePath, readTextFileById } from '../../../_fileStore';
 
 function sanitizeSkillId(raw: string): string | null {
@@ -21,6 +22,9 @@ function detectContentType(filePath: string): string {
 }
 
 export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const { id: rawId } = await context.params;
     const id = sanitizeSkillId(rawId);

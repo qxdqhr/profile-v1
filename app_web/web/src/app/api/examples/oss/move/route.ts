@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireOssExampleAdmin } from '../_guard';
 import { getOSSProvider } from '@/lib/examples/oss';
 
 export async function POST(req: NextRequest) {
+  const denied = await requireOssExampleAdmin(req);
+  if (denied) return denied;
+
   try {
     const { sourcePath, targetPath } = await req.json();
     

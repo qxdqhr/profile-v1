@@ -1,7 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { requireAdminSession } from '@/lib/auth/api-guard';
 import { ensureAppConfigLoaded } from '@/lib/config/init';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const gated = await requireAdminSession(request);
+  if (gated.error) return gated.error;
+
   const config = ensureAppConfigLoaded();
 
   return NextResponse.json({
@@ -11,13 +15,12 @@ export async function GET() {
       app: config.app.name,
       database: config.database.url ? '已设置' : '未设置',
       auth: {
-        url: config.auth.url,
-        publicUrl: config.auth.publicUrl,
+        publicUrlSet: Boolean(config.auth.publicUrl),
         smsProvider: config.auth.sms?.provider ?? '未设置',
       },
       storage: {
         ossEnabled: config.storage?.aliyunOss?.enabled !== false && Boolean(config.storage?.aliyunOss?.accessKeyId),
-        bucket: config.storage?.aliyunOss?.bucket ?? null,
+        bucketSet: Boolean(config.storage?.aliyunOss?.bucket),
       },
     },
   });

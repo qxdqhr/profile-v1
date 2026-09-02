@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/api-guard';
 import { getApiSessionUser, isAdminRole } from '@/lib/auth/session';
 import { parseSkillFrontmatter, validateSkillMarkdownContent } from '@/modules/skillManager/services/skillMarkdown';
 import { getSkillFileByRelativePath, listSkillFiles, readMeta, readTextFileById, uploadSkillFile } from '../../_fileStore';
@@ -59,7 +60,10 @@ function getAllowedAdminSources(): SkillSource[] {
   return allowed.size ? Array.from(allowed) : ['local_cursor', 'manual_upload', 'remote'];
 }
 
-export async function GET(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const { id: rawId } = await context.params;
     const id = sanitizeSkillId(rawId);

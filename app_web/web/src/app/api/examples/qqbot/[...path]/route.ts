@@ -1,4 +1,6 @@
 import { NapCatClient, createNextNapCatRouteHandler } from 'sa2kit/business/qqbot/server';
+import type { NextRequest } from 'next/server';
+import { notFoundJson } from '@/lib/auth/api-guard';
 
 const client = new NapCatClient({
   // Default to NapCat common local HTTP port to avoid accidentally looping back to Next.js app (:3000).
@@ -15,5 +17,22 @@ const handler = createNextNapCatRouteHandler({
   },
 });
 
-export const GET = handler;
-export const POST = handler;
+function productionBlocked() {
+  if (process.env.NODE_ENV === 'production') {
+    return notFoundJson();
+  }
+  return null;
+}
+
+export async function GET(request: NextRequest) {
+  const blocked = productionBlocked();
+  if (blocked) return blocked;
+  return handler(request);
+}
+
+export async function POST(request: NextRequest) {
+  const blocked = productionBlocked();
+  if (blocked) return blocked;
+  return handler(request);
+}
+

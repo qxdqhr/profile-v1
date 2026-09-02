@@ -6,6 +6,10 @@ import { getApiSessionUser } from '@/lib/auth/session';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
+  }
+
   const user = await getApiSessionUser(request);
   if (!user) {
     return NextResponse.json({ success: false, error: '未授权的访问' }, { status: 401 });

@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireOssExampleAdmin } from '../_guard';
 import { getOSSProvider } from '@/lib/examples/oss';
 
 export async function DELETE(req: NextRequest) {
+  const denied = await requireOssExampleAdmin(req);
+  if (denied) return denied;
+
   try {
     const { searchParams } = new URL(req.url);
     const path = searchParams.get('path');
@@ -20,6 +24,9 @@ export async function DELETE(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const denied = await requireOssExampleAdmin(req);
+  if (denied) return denied;
+
   try {
     const { paths } = await req.json();
     

@@ -13,6 +13,7 @@
 | Agent / 架构 SSOT | [`.cursor/KNOWLEDGE_BASE.md`](../.cursor/KNOWLEDGE_BASE.md)、[`AGENTS.md`](./AGENTS.md)（根目录 [`AGENTS.md`](../AGENTS.md) 为入口 stub） |
 | 网关与生产部署 Runbook | [`deploy/MIGRATION-RUNBOOK.md`](../deploy/MIGRATION-RUNBOOK.md) |
 | 分模块 Code Review | [`code-review/README.md`](./code-review/README.md) |
+| 2026-09-02 全仓架构审查（目录取证） | [`code-review/2026-09-02-审查结果.md`](./code-review/2026-09-02-审查结果.md) |
 | 多端 sa2kit 蓝图 | [`code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`](./code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md) |
 | UI 统一计划（Phase U） | [`code-review/libraries/UI-UNIFICATION-PLAN.md`](./code-review/libraries/UI-UNIFICATION-PLAN.md) |
 | Monorepo 迁移（已完成，归档） | [`monorepo-migration/README.md`](./monorepo-migration/README.md) |

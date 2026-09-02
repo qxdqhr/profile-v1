@@ -29,6 +29,9 @@
 *.pem
 bun.lock
 bun.lockb
+.idea/dataSources.xml
+.idea/dataSources/
+.idea/dataSources.local.xml
 
 # 配置（明文不进 Git）
 .env

@@ -111,10 +111,10 @@ services:
     image: docker.m.daocloud.io/library/mariadb:11
     restart: unless-stopped
     environment:
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-change-me-root}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?set MARIADB_ROOT_PASSWORD}
       MARIADB_DATABASE: ${WORDPRESS_DB_NAME:-wp_holt}
-      MARIADB_USER: ${WORDPRESS_DB_USER:-wp}
-      MARIADB_PASSWORD: ${WORDPRESS_DB_PASSWORD:-change-me-wp}
+      MARIADB_USER: ${WORDPRESS_DB_USER:?set WORDPRESS_DB_USER}
+      MARIADB_PASSWORD: ${WORDPRESS_DB_PASSWORD:?set WORDPRESS_DB_PASSWORD}
     volumes:
       - wp_mariadb_data:/var/lib/mysql
     healthcheck:
@@ -134,8 +134,8 @@ services:
         condition: service_started
     environment:
       WORDPRESS_DB_HOST: wp_mariadb:3306
-      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER:-wp}
-      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD:-change-me-wp}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER:?set WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD:?set WORDPRESS_DB_PASSWORD}
       WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME:-wp_holt}
       WP_HOLT_PUBLIC_URL: ${WP_HOLT_PUBLIC_URL:-https://qhr062.top/wp/holt}
       WORDPRESS_CONFIG_EXTRA: |

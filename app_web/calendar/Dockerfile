@@ -12,9 +12,8 @@ WORKDIR /app
 
 RUN npm install -g pnpm@9.15.0
 
-COPY pnpm-workspace.yaml package.json pnpm-lock.yaml* .npmrc* ./
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
 COPY packages ./packages
-COPY npm ./npm
 COPY app_web/calendar/package.json ./app_web/calendar/
 
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
@@ -33,12 +32,10 @@ RUN npm install -g pnpm@9.15.0
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/app_web/calendar/node_modules ./app_web/calendar/node_modules
 COPY --from=deps /app/packages ./packages
-COPY --from=deps /app/npm ./npm
 
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml turbo.json tsconfig.json ./
 COPY config ./config
 COPY packages ./packages
-COPY npm ./npm
 # @profile/db schema 仍聚合 app_web/web 模块表定义
 COPY app_web/web/src/modules ./app_web/web/src/modules
 COPY app_web/calendar ./app_web/calendar
@@ -60,7 +57,7 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 RUN mkdir -p app_web/calendar/.next-calendar
-RUN chown -R nextjs:nodejs web
+RUN chown -R nextjs:nodejs app_web
 
 COPY --from=builder --chown=nextjs:nodejs /app/app_web/calendar/.next-calendar/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/app_web/calendar/.next-calendar/static ./app_web/calendar/.next-calendar/static

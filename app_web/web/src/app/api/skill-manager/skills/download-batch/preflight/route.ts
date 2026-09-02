@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/api-guard';
 import { listSkillFiles } from '../../../_fileStore';
 
 function sanitizeSkillId(raw: string): string | null {
@@ -6,6 +7,9 @@ function sanitizeSkillId(raw: string): string | null {
 }
 
 export async function POST(request: NextRequest) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const body = (await request.json()) as { ids?: string[] };
     const ids = Array.isArray(body.ids) ? body.ids : [];

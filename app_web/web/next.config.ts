@@ -123,50 +123,6 @@ const nextConfig: NextConfig = {
 
         return config;
     },
-
-    async headers() {
-        return [
-            {
-                source: '/:path*',
-                headers: [
-                    {
-                        key: 'Access-Control-Allow-Origin',
-                        value: '*'
-                    },
-                ],
-            },
-            {
-                source: '/api/showmasterpiece/bookings/admin',
-                headers: [
-                    {
-                        key: 'Cache-Control',
-                        value: 'no-cache, no-store, must-revalidate, max-age=0'
-                    },
-                    {
-                        key: 'Pragma',
-                        value: 'no-cache'
-                    },
-                    {
-                        key: 'Expires',
-                        value: '0'
-                    },
-                    {
-                        key: 'Surrogate-Control',
-                        value: 'no-store'
-                    },
-                ],
-            },
-        ];
-    },
-
-    async rewrites() {
-        return [
-            {
-                source: '/vue-app/:path*',
-                destination: 'http://localhost:8081/:path*'
-            },
-        ];
-    },
 };
 
 export default nextConfig;

@@ -10,7 +10,7 @@ WORKDIR /app
 
 RUN npm install -g pnpm@9.15.0
 
-COPY pnpm-workspace.yaml package.json pnpm-lock.yaml* .npmrc* ./
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
 COPY app_web/money-research/package.json ./app_web/money-research/
 
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
@@ -54,7 +54,7 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 RUN mkdir -p app_web/money-research/.next-money-research
-RUN chown -R nextjs:nodejs web
+RUN chown -R nextjs:nodejs app_web
 
 COPY --from=builder --chown=nextjs:nodejs /app/app_web/money-research/.next-money-research/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/app_web/money-research/.next-money-research/static ./app_web/money-research/.next-money-research/static

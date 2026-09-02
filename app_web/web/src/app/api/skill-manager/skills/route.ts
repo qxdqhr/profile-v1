@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/api-guard';
 import { listSkillIds, listSkillFiles, readTextFileById, readMeta } from '../_fileStore';
 
 type SkillSource = 'local_cursor' | 'manual_upload' | 'remote';
@@ -53,6 +54,9 @@ function parseFrontmatter(content: string): { description: string; tags: string[
 }
 
 export async function GET(request: NextRequest) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const params = new URL(request.url).searchParams;
     const q = params.get('q')?.trim().toLowerCase() || '';

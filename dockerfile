@@ -13,9 +13,8 @@ WORKDIR /app
 
 RUN npm install -g pnpm@9.15.0
 
-COPY pnpm-workspace.yaml package.json pnpm-lock.yaml* .npmrc* ./
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
 COPY packages ./packages
-COPY npm ./npm
 COPY app_web/web/package.json ./app_web/web/
 
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
@@ -29,12 +28,10 @@ RUN npm install -g pnpm@9.15.0
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/app_web/web/node_modules ./app_web/web/node_modules
 COPY --from=deps /app/packages ./packages
-COPY --from=deps /app/npm ./npm
 
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml turbo.json tsconfig.json ./
 COPY config ./config
 COPY packages ./packages
-COPY npm ./npm
 COPY app_web/web ./app_web/web
 
 ENV NEXT_TELEMETRY_DISABLED=1
