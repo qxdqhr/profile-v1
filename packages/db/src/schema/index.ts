@@ -19,7 +19,7 @@ export * from '../../../../apps/web/src/modules/comfyPrompt/db/schema';
 export * from 'sa2kit/common/file/server';
 export * from 'sa2kit/business/festivalCard/server';
 export * from '../../../../apps/web/src/modules/ticketMonitor/db/schema';
-export * from '../../../../apps/web/src/modules/purchaseGame/db/schema';
+export * from './purchaseGame';
 export * from './universalExport';
 export * from '../../../../apps/web/src/modules/vocaloidBooth/db/schema';
 export * from '../../../../packages/node-notes-core/src/db/schema';
