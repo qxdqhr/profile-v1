@@ -1,6 +1,6 @@
 # 单模块 Code Review 模板
 
-复制本文件到 `packages/`、`modules/` 或 `web/` 下，改名为模块名后填写。
+复制本文件到 `packages/`、`modules/` 或 `app_web/` 下，改名为模块名后填写。
 
 ---
 

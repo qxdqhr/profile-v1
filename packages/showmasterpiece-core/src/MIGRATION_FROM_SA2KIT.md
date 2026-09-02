@@ -12,7 +12,7 @@
 |------|------|------|
 | API 路由 | `src/modules/showmasterpiece/api/` | ✅ profile-v1 |
 | 服务端 DB/Command | `@/modules/showmasterpiece/server` | ✅ 已本地化 |
-| 前端页面/组件 | `@/modules/showmasterpiece` → `ui/web/` | ✅ 已本地化 |
+| 前端页面/组件 | `@/modules/showmasterpiece` → `ui/app_web/` | ✅ 已本地化 |
 | 类型补丁 | ~~`src/types/sa2kit-showmasterpiece*.d.ts`~~ | ✅ 已删除 |
 | Schema 挂载 | `src/db/schema/index.ts` re-export 模块内 schema | ✅ |
 
@@ -35,8 +35,8 @@ src/modules/showmasterpiece/
 ├── types/
 ├── logic/                      # hooks、contexts、shared
 ├── services/                   # 客户端 API / 业务 service
-├── components/                 # 原 ui/web/components
-├── pages/                      # 原 ui/web/pages
+├── components/                 # 原 ui/app_web/components
+├── pages/                      # 原 ui/app_web/pages
 └── api/                        # 已有 Next route handlers
 ```
 
@@ -67,7 +67,7 @@ src/modules/showmasterpiece/
 |----|------|------|------|
 | P2-1 | 复制 `logic/` | hooks、CartContext | ✅ |
 | P2-2 | 复制 `service/` | api client、bookingService 等 | ✅ |
-| P2-3 | 复制 `ui/web/` | 保留原目录层级 | ✅ |
+| P2-3 | 复制 `ui/app_web/` | 保留原目录层级 | ✅ |
 | P2-4 | 修正 `fileService.ts` → `sa2kit/common/file/server` | 客户端配置辅助 | ✅ |
 | P2-5 | 修正 `exportConfig.ts` → `@/services/universalExport/types` | ✅ |
 | P2-6 | 薄页面改 import `@/modules/showmasterpiece` | ShowMasterPieces 三页 | ✅ |

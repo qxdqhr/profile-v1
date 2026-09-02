@@ -1,6 +1,6 @@
-# 兼容旧命令：等价于 web/web/Dockerfile（monorepo 根目录构建）
+# 兼容旧命令：等价于 app_web/web/Dockerfile（monorepo 根目录构建）
 #   docker build -f dockerfile -t qhr-profile-web .
-# 推荐：docker build -f web/web/Dockerfile -t qhr-profile-web .
+# 推荐：docker build -f app_web/web/Dockerfile -t qhr-profile-web .
 
 # syntax=docker/dockerfile:1
 FROM node:20-alpine AS base
@@ -16,7 +16,7 @@ RUN npm install -g pnpm@9.15.0
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml* .npmrc* ./
 COPY packages ./packages
 COPY npm ./npm
-COPY web/web/package.json ./web/web/
+COPY app_web/web/package.json ./app_web/web/
 
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile --prefer-offline --filter @profile/web...
@@ -27,7 +27,7 @@ WORKDIR /app
 RUN npm install -g pnpm@9.15.0
 
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/web/web/node_modules ./web/web/node_modules
+COPY --from=deps /app/app_web/web/node_modules ./app_web/web/node_modules
 COPY --from=deps /app/packages ./packages
 COPY --from=deps /app/npm ./npm
 
@@ -35,7 +35,7 @@ COPY pnpm-workspace.yaml package.json pnpm-lock.yaml turbo.json tsconfig.json ./
 COPY config ./config
 COPY packages ./packages
 COPY npm ./npm
-COPY web/web ./web/web
+COPY app_web/web ./app_web/web
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
@@ -50,13 +50,13 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/web/web/public ./public
+COPY --from=builder /app/app_web/web/public ./public
 
 RUN mkdir .next
 RUN chown nextjs:nodejs .next
 
-COPY --from=builder --chown=nextjs:nodejs /app/web/web/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/web/web/.next/static ./web/web/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/app_web/web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/app_web/web/.next/static ./app_web/web/.next/static
 
 RUN rm -rf /app/.next/cache /tmp/*
 
@@ -67,4 +67,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "web/web/server.js"]
+CMD ["node", "app_web/web/server.js"]

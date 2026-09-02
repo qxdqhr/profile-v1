@@ -14,7 +14,7 @@ import {
   createBooking as createBookingBySharedClient,
   getBookableCollections as getBookableCollectionsBySharedClient,
   getBookings as getBookingsBySharedClient,
-} from '../web/client';
+} from '../app_web/client';
 
 export type BookingCredentials = Pick<BookingListParams, 'qqNumber' | 'phoneNumber'>;
 

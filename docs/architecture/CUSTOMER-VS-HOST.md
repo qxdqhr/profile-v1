@@ -31,8 +31,8 @@
 
 | 旁路 | 源码 | 基建 |
 |------|------|------|
-| Godot 游戏 | `games/<slug>/` submodule | `deploy/games/` |
-| WordPress | `wordpress/<slug>/` submodule | `deploy/wordpress/` |
-| Mobile / Desktop | `mobile/*` / `desktop/*` submodule | 各自 Expo / Electron |
+| Godot 游戏 | `app_games/<slug>/` submodule | `deploy/games/` |
+| WordPress | `app_wordpress/<slug>/` submodule | `deploy/wordpress/` |
+| Mobile / Desktop | `app_mobile/*` / `app_desktop/*` submodule | 各自 Expo / Electron |
 
 旁路 URL（`/games/*`、`/wp/*`）须整页跳转，不可走 Next `<Link>` 到不存在的 App Router 路径。

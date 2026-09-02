@@ -1,72 +1,72 @@
-[submodule "games/arknights-bubble-shooter"]
-	path = games/arknights-bubble-shooter
+[submodule "app_games/arknights-bubble-shooter"]
+	path = app_games/arknights-bubble-shooter
 	url = https://github.com/qxdqhr/profile-v1-game-arknights-bubble-shooter.git
-[submodule "games/bubble-shooter"]
-	path = games/bubble-shooter
+[submodule "app_games/bubble-shooter"]
+	path = app_games/bubble-shooter
 	url = https://github.com/qxdqhr/profile-v1-game-bubble-shooter.git
-[submodule "games/flappy-wish"]
-	path = games/flappy-wish
+[submodule "app_games/flappy-wish"]
+	path = app_games/flappy-wish
 	url = https://github.com/qxdqhr/profile-v1-game-flappy-wish.git
-[submodule "games/gold-miner"]
-	path = games/gold-miner
+[submodule "app_games/gold-miner"]
+	path = app_games/gold-miner
 	url = https://github.com/qxdqhr/profile-v1-game-gold-miner.git
-[submodule "games/huarongdao"]
-	path = games/huarongdao
+[submodule "app_games/huarongdao"]
+	path = app_games/huarongdao
 	url = https://github.com/qxdqhr/profile-v1-game-huarongdao.git
-[submodule "games/kannot"]
-	path = games/kannot
+[submodule "app_games/kannot"]
+	path = app_games/kannot
 	url = https://github.com/qxdqhr/profile-v1-game-kannot.git
-[submodule "games/link-game"]
-	path = games/link-game
+[submodule "app_games/link-game"]
+	path = app_games/link-game
 	url = https://github.com/qxdqhr/profile-v1-game-link-game.git
-[submodule "games/miku-click"]
-	path = games/miku-click
+[submodule "app_games/miku-click"]
+	path = app_games/miku-click
 	url = https://github.com/qxdqhr/profile-v1-game-miku-click.git
-[submodule "games/miku-flick"]
-	path = games/miku-flick
+[submodule "app_games/miku-flick"]
+	path = app_games/miku-flick
 	url = https://github.com/qxdqhr/profile-v1-game-miku-flick.git
-[submodule "games/miku-fusion-game"]
-	path = games/miku-fusion-game
+[submodule "app_games/miku-fusion-game"]
+	path = app_games/miku-fusion-game
 	url = https://github.com/qxdqhr/profile-v1-game-miku-fusion-game.git
-[submodule "games/miku-planting"]
-	path = games/miku-planting
+[submodule "app_games/miku-planting"]
+	path = app_games/miku-planting
 	url = https://github.com/qxdqhr/profile-v1-game-miku-planting.git
-[submodule "games/mikutap-game"]
-	path = games/mikutap-game
+[submodule "app_games/mikutap-game"]
+	path = app_games/mikutap-game
 	url = https://github.com/qxdqhr/profile-v1-game-mikutap-game.git
-[submodule "games/pulse-parade"]
-	path = games/pulse-parade
+[submodule "app_games/pulse-parade"]
+	path = app_games/pulse-parade
 	url = https://github.com/qxdqhr/profile-v1-game-pulse-parade.git
-[submodule "games/purchase-game"]
-	path = games/purchase-game
+[submodule "app_games/purchase-game"]
+	path = app_games/purchase-game
 	url = https://github.com/qxdqhr/profile-v1-game-purchase-game.git
-[submodule "games/push-box"]
-	path = games/push-box
+[submodule "app_games/push-box"]
+	path = app_games/push-box
 	url = https://github.com/qxdqhr/profile-v1-game-push-box.git
-[submodule "games/race-game"]
-	path = games/race-game
+[submodule "app_games/race-game"]
+	path = app_games/race-game
 	url = https://github.com/qxdqhr/profile-v1-game-race-game.git
-[submodule "games/suika-game"]
-	path = games/suika-game
+[submodule "app_games/suika-game"]
+	path = app_games/suika-game
 	url = https://github.com/qxdqhr/profile-v1-game-suika-game.git
-[submodule "games/trible-game"]
-	path = games/trible-game
+[submodule "app_games/trible-game"]
+	path = app_games/trible-game
 	url = https://github.com/qxdqhr/profile-v1-game-trible-game.git
-[submodule "games/vocaloid-to-go"]
-	path = games/vocaloid-to-go
+[submodule "app_games/vocaloid-to-go"]
+	path = app_games/vocaloid-to-go
 	url = https://github.com/qxdqhr/profile-v1-game-vocaloid-to-go.git
-[submodule "games/diner-dash"]
-	path = games/diner-dash
+[submodule "app_games/diner-dash"]
+	path = app_games/diner-dash
 	url = https://github.com/qxdqhr/diner-dash-clone.git
-[submodule "wordpress/holt"]
-	path = wordpress/holt
+[submodule "app_wordpress/holt"]
+	path = app_wordpress/holt
 	url = https://github.com/qxdqhr/profile-v1-wordpress-holt.git
-[submodule "mobile/calendar-mobile"]
-	path = mobile/calendar-mobile
+[submodule "app_mobile/calendar-mobile"]
+	path = app_mobile/calendar-mobile
 	url = git@github.com:qxdqhr/profile-v1-calendar-mobile.git
-[submodule "mobile/teach-hub-mobile"]
-	path = mobile/teach-hub-mobile
+[submodule "app_mobile/teach-hub-mobile"]
+	path = app_mobile/teach-hub-mobile
 	url = git@github.com:qxdqhr/profile-v1-teach-hub-mobile.git
-[submodule "desktop/teach-hub-desktop"]
-	path = desktop/teach-hub-desktop
+[submodule "app_desktop/teach-hub-desktop"]
+	path = app_desktop/teach-hub-desktop
 	url = git@github.com:qxdqhr/profile-v1-teach-hub-desktop.git

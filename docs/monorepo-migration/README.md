@@ -3,13 +3,13 @@
 > **归档说明（2026-09）**：方案 B 已全部完成；本文档集保留作历史参考。现网部署见 [`deploy/MIGRATION-RUNBOOK.md`](../../deploy/MIGRATION-RUNBOOK.md)；文档索引见 [`docs/README.md`](../README.md)。
 
 > **目标**：将 **calendar**、**teachHub**、**showmasterpiece** 等从单体 `profile-v1` 拆为可独立构建、可独立部署的 Next 应用，并为 **方案 C**（完全脱离 profile、独立域名/独立运维）预留路径。  
-> **当前阶段**：方案 B — pnpm workspace + 多 `web/*` + 共享 `packages/*`，仍可与主站同仓、同库、同 Auth。Calendar / TeachHub 已有 Expo RN 客户端。
+> **当前阶段**：方案 B — pnpm workspace + 多 `app_web/*` + 共享 `packages/*`，仍可与主站同仓、同库、同 Auth。Calendar / TeachHub 已有 Expo RN 客户端。
 
 ## 文档索引
 
 | 文档 | 说明 |
 |------|------|
-| [**APPS-SUBMODULE-PLAN.md**](./APPS-SUBMODULE-PLAN.md) | **现行**：`apps`→`web`、`mobile/`、`desktop/`、`npm/` 拆分计划（已确认，待执行） |
+| [**APPS-SUBMODULE-PLAN.md**](./APPS-SUBMODULE-PLAN.md) | **现行**：`apps`→`web`、`app_mobile/`、`app_desktop/`、`npm/` 拆分计划（已确认，待执行） |
 | [TASKS.md](./TASKS.md) | 任务总表、阶段里程碑、依赖关系（方案 B 历史） |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | 目标目录、边界、部署与 B→C 演进 |
 | [deploy.md](./deploy.md) | 三应用 Docker 镜像、端口、CI tag |
@@ -31,8 +31,8 @@
 profile-v1/                          # 仓库根（可日后改名为 profile-platform）
 ├── pnpm-workspace.yaml
 ├── turbo.json
-├── web/
-│   ├── web/                         # 原 profile 主站（个人页、实验田等）
+├── app_web/
+│   ├── app_web/                         # 原 profile 主站（个人页、实验田等）
 │   ├── calendar/                    # 日历子应用
 │   ├── calendar-mobile/             # 日历 RN（Expo）
 │   ├── teach-hub/                   # teachHub 子应用

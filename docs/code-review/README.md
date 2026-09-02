@@ -15,8 +15,8 @@
 | [CROSS-CUTTING.md](./CROSS-CUTTING.md) | 跨模块共性问题与全局债务 |
 | [libraries/](./libraries/) | 外部库 CR；**蓝图** [BLUEPRINT-multiplatform-sa2kit.md](./libraries/BLUEPRINT-multiplatform-sa2kit.md) |
 | `packages/*.md` | 共享基建包评审 |
-| `modules/*.md` | 主站 `web/web/src/modules/*` 评审 |
-| `web/*.md` | 子应用 / 壳层评审 |
+| `modules/*.md` | 主站 `app_web/web/src/modules/*` 评审 |
+| `app_web/*.md` | 子应用 / 壳层评审 |
 
 **状态图例**
 
@@ -41,9 +41,9 @@
         ↓
 领域 core  packages/{calendar,teach-hub,showmasterpiece,node-notes}-core (+ shared)
         ↓
-应用壳   web/{web,calendar,teach-hub,showmasterpiece,...}
+应用壳   app_web/{web,calendar,teach-hub,showmasterpiece,...}
         ↓
-主站模块 web/web/src/modules/*（实验田 + 业务）
+主站模块 app_web/web/src/modules/*（实验田 + 业务）
 ```
 
 评审时对照：
@@ -79,18 +79,18 @@
 | `node-notes-core` | ~3.7k | ⬜ | — |
 | `sa2kit-exam` / `sa2kit-feishu` | 小 | ⬜ | — |
 
-### 3.2 子应用 `web/*`
+### 3.2 子应用 `app_web/*`
 
 | 应用 | 状态 | 报告 |
 |------|------|------|
-| `web`（边界与主站职责） | ✅ | [web/web-overview.md](./web/web-overview.md) |
+| `web`（边界与主站职责） | ✅ | [app_web/web-overview.md](./app_web/web-overview.md) |
 | `calendar` | ✅ | [apps/calendar.md](./apps/calendar.md) |
 | `teach-hub` | ✅ | [apps/teach-hub.md](./apps/teach-hub.md) |
 | `showmasterpiece` | ✅ | [apps/showmasterpiece.md](./apps/showmasterpiece.md) |
 | `calendar-mobile` / `teach-hub-mobile` | ⬜ | — |
 | `node-notes` / `money-research` / `teach-hub-desktop` | ⬜ | — |
 
-### 3.3 主站模块 `web/web/src/modules/*`（按代码量优先）
+### 3.3 主站模块 `app_web/web/src/modules/*`（按代码量优先）
 
 | 模块 | 约行数 | 类型 | 状态 | 报告 |
 |------|--------|------|------|------|
@@ -121,7 +121,7 @@
 ### 必须优先处理（跨切 P0/P1）
 
 1. **ideaList Next.js 15 `params` 未 await** — 清单更新/删除与 toggle 可能直接坏掉（见 modules/ideaList.md）。  
-2. **showmasterpiece API 双挂载** — `web/web/src/app/api/showmasterpiece/**` 与子应用并存，易 drift（见 web/showmasterpiece.md）。  
+2. **showmasterpiece API 双挂载** — `app_web/web/src/app/api/showmasterpiece/**` 与子应用并存，易 drift（见 app_web/showmasterpiece.md）。  
 3. **DB `sslMode` 配置被忽略** — `packages/db` 硬编码 `ssl: false`（见 packages/db.md）。  
 4. **全站 `typescript.ignoreBuildErrors: true`** — web + 三子应用 + 其他 app，类型错误可进镜像（见 CROSS-CUTTING.md）。  
 5. **sa2kit**：`UserMenu` role 大小写错误；`testYourself` admin 示例无鉴权（见 libraries/sa2kit.md）。  
@@ -142,7 +142,7 @@
 2. `fitnessPlan`、`comfyPrompt`、`filetransfer`（有 DB/API，安全面大）  
 3. `mmd` + OSS 路径与上传链路（大量 `sa2kit/business/mmd`）  
 4. `mikutap`（体量大，分 api/db/ui 子报告）  
-5. `node-notes-core` + `web/node-notes`（对照 `docs/node-notes` 需求）  
+5. `node-notes-core` + `app_web/node-notes`（对照 `docs/node-notes` 需求）  
 6. RN 三端（cookie 同步、API base URL；评估接 `@sa2kit-ui/rn`）  
 7. 小游戏模块批量扫鉴权与资源泄漏（Phaser dispose）
 
@@ -151,5 +151,5 @@
 ## 6. 变更本目录的时机
 
 - 完成或关闭某一模块 CR → 更新对应报告状态与本 README 进度表  
-- 新增 `web/*` / `packages/*` / 主站模块 → 追加清单条目  
+- 新增 `app_web/*` / `packages/*` / 主站模块 → 追加清单条目  
 - 跨切修复落地 → 更新 [CROSS-CUTTING.md](./CROSS-CUTTING.md)

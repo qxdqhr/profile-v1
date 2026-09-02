@@ -27,9 +27,9 @@
 
 | 应用 | 模板 | 说明 |
 |------|------|------|
-| web | [web/web/.env.example](../../web/web/.env.example) | 子应用链接 `NEXT_PUBLIC_*_URL`、可选 AI 覆盖 |
-| calendar | [web/calendar/.env.example](../../web/calendar/.env.example) | `NEXT_PUBLIC_BASE_PATH`、`PORT=3001` |
-| teach-hub | [web/teach-hub/.env.example](../../web/teach-hub/.env.example) | `NEXT_PUBLIC_TEACH_HUB_BASE_URL`、`PORT=3002` |
+| web | [app_web/web/.env.example](../../app_web/web/.env.example) | 子应用链接 `NEXT_PUBLIC_*_URL`、可选 AI 覆盖 |
+| calendar | [app_web/calendar/.env.example](../../app_web/calendar/.env.example) | `NEXT_PUBLIC_BASE_PATH`、`PORT=3001` |
+| teach-hub | [app_web/teach-hub/.env.example](../../app_web/teach-hub/.env.example) | `NEXT_PUBLIC_TEACH_HUB_BASE_URL`、`PORT=3002` |
 | 网关部署 | [deploy/.env.example](../../deploy/.env.example) | `REGISTRY`、`IMAGE_TAG`、`GATEWAY_PORT` |
 | 共享配置 | [config/app.config.example.yaml](../../config/app.config.example.yaml) | DB、Auth、OSS、AI |
 
@@ -74,8 +74,8 @@ auth:
 
 | 模式 | 适用 | 要点 |
 |------|------|------|
-| **A. 主站签发 cookie（推荐 B→C 第一步）** | 同父域子域 | Auth 路由留在 `web/web` 或迁至 `auth.{domain}`；子应用只消费 session |
-| **B. 独立 auth 服务** | 完全拆仓、多团队 | 新建 `web/auth` 或独立仓；所有 app `BETTER_AUTH_URL` 指向 auth 服务 |
+| **A. 主站签发 cookie（推荐 B→C 第一步）** | 同父域子域 | Auth 路由留在 `app_web/web` 或迁至 `auth.{domain}`；子应用只消费 session |
+| **B. 独立 auth 服务** | 完全拆仓、多团队 | 新建 `app_web/auth` 或独立仓；所有 app `BETTER_AUTH_URL` 指向 auth 服务 |
 | **C. 各 app 自带 Auth 副本** | 不推荐 | 配置漂移、secret 轮换困难 |
 
 **迁移顺序**：A →（可选）B。拆仓时 `packages/auth` 可先发布为 private npm，三仓共用。
@@ -94,8 +94,8 @@ auth:
 **推荐**：
 
 - **短期**：git subtree / submodule 同步 `packages/*` 到子仓，版本 tag 对齐。
-- **中期**：Changesets + GitHub Actions 发布 `@profile/*` 到 registry，`web/*` 消费 semver。
-- **约束**：domain 包禁止反向依赖 `web/*`；`calendar-core` ↔ `teach-hub-core` 禁止互依赖。
+- **中期**：Changesets + GitHub Actions 发布 `@profile/*` 到 registry，`app_web/*` 消费 semver。
+- **约束**：domain 包禁止反向依赖 `app_web/*`；`calendar-core` ↔ `teach-hub-core` 禁止互依赖。
 
 ### 2.5 数据库拆分评估
 
@@ -140,8 +140,8 @@ auth:
 | 仓库 | 内容 |
 |------|------|
 | `profile-web` | 主站 + `packages/config|auth|db|ui`（或 auth/db 独立仓） |
-| `profile-calendar` | `web/calendar` + `packages/calendar-core` |
-| `profile-teach-hub` | `web/teach-hub` + `packages/teach-hub-core` |
+| `profile-calendar` | `app_web/calendar` + `packages/calendar-core` |
+| `profile-teach-hub` | `app_web/teach-hub` + `packages/teach-hub-core` |
 | `profile-platform`（可选） | 仅 deploy、docs、compose、共享 packages 发布 |
 
 ### 3.3 CI 跨仓版本对齐

@@ -9,7 +9,7 @@
 
 **现象**：以下应用曾设置 `typescript.ignoreBuildErrors: true`。
 
-**进展（2026-09-02）**：`web/calendar`、`web/teach-hub` 已改为 `false`，并通过生产 build 类型检查。其余（web / showmasterpiece / node-notes / money-research）仍待 Phase D3。
+**进展（2026-09-02）**：`app_web/calendar`、`app_web/teach-hub` 已改为 `false`，并通过生产 build 类型检查。其余（web / showmasterpiece / node-notes / money-research）仍待 Phase D3。
 
 **状态**：partial
 
@@ -17,7 +17,7 @@
 
 ## CX-002 — `@profile/db` schema 上帝对象（P2）
 
-**进展（2026-09-02）**：schema 聚合改为包名导出 + `packages/db/src/schema/*` 本地文件；**禁止**相对路径反向依赖 `web/web`。exam 已拆到 `exam.ts`。
+**进展（2026-09-02）**：schema 聚合改为包名导出 + `packages/db/src/schema/*` 本地文件；**禁止**相对路径反向依赖 `app_web/web`。exam 已拆到 `exam.ts`。
 
 **状态**：closed（结构债降级为 workspace 环，跟踪演进）
 
@@ -57,7 +57,7 @@
 
 ## CX-007 — showmasterpiece API 双挂载（P0）
 
-**进展（2026-09-02）**：已删除 `web/web/src/app/api/showmasterpiece/**`；生产仅子应用。门禁：`pnpm gate:architecture`。
+**进展（2026-09-02）**：已删除 `app_web/web/src/app/api/showmasterpiece/**`；生产仅子应用。门禁：`pnpm gate:architecture`。
 
 **状态**：closed
 

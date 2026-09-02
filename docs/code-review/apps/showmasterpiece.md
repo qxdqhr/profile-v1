@@ -2,7 +2,7 @@
 
 | 项 | 内容 |
 |----|------|
-| 应用 | `web/showmasterpiece`（:3003，basePath `/showmasterpiece`） |
+| 应用 | `app_web/showmasterpiece`（:3003，basePath `/showmasterpiece`） |
 | Core | `packages/showmasterpiece-core`（~24.8k 行，含 web + miniapp UI） |
 | Shared | 无独立 shared 包 |
 | 评审日期 | 2026-08-29 |
@@ -34,7 +34,7 @@ Helper：`packages/showmasterpiece-core/src/api/lib/auth.ts`
 
 | ID | 严重度 | 标题 | 位置 | 建议 | 状态 |
 |----|--------|------|------|------|------|
-| SM-001 | **P0** | web 仍挂载全套 `/api/showmasterpiece/**` | `web/web/src/app/api/showmasterpiece/` | 生产摘除或 CI 冻结；防 drift | open |
+| SM-001 | **P0** | web 仍挂载全套 `/api/showmasterpiece/**` | `app_web/web/src/app/api/showmasterpiece/` | 生产摘除或 CI 冻结；防 drift | open |
 | SM-002 | P1 | 公开 GET config 是否含敏感字段 | core `api/config` | 脱敏审计 | open |
 | SM-003 | P1 | `ignoreBuildErrors: true` | next.config | CX-001 | open |
 | SM-004 | P2 | web `modules/showmasterpiece` 薄 re-export 是否仍被引用 | modules/ | 无引用则删 | open |

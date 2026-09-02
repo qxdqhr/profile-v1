@@ -7,4 +7,4 @@ ShowMasterpiece（葱韵环京魔法屋）业务核心包。
 - Web UI：`./ui/web`
 - 服务端：`./server`
 
-子应用壳：`web/showmasterpiece`（`:3003`，网关 `/showmasterpiece`）
+子应用壳：`app_web/showmasterpiece`（`:3003`，网关 `/showmasterpiece`）

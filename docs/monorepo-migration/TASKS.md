@@ -22,11 +22,11 @@
 
 ---
 
-## Phase 1 — 主站 web/web 搬迁
+## Phase 1 — 主站 app_web/web 搬迁
 
 | ID | 任务 | 子任务 | 状态 | 依赖 |
 |----|------|--------|------|------|
-| M-07 | 创建 web/web 并搬迁现有 Next 应用 | [ST-07](./subtasks/ST-07-app-web-migration.md) | done | M-02～M-06 |
+| M-07 | 创建 app_web/web 并搬迁现有 Next 应用 | [ST-07](./subtasks/ST-07-app-web-migration.md) | done | M-02～M-06 |
 | M-08 | 根目录 scripts / drizzle / CI 适配 web | [ST-08](./subtasks/ST-08-root-scripts-ci-web.md) | done | M-07 |
 
 **里程碑 M1**：`pnpm --filter @profile/web build` 绿；生产部署暂仍单镜像（仅 web）。
@@ -38,7 +38,7 @@
 | ID | 任务 | 子任务 | 状态 | 依赖 |
 |----|------|--------|------|------|
 | M-09 | packages/calendar-core 搬迁 | [ST-09](./subtasks/ST-09-calendar-core.md) | done | M-05, M-07 |
-| M-10 | web/calendar 脚手架与页面 | [ST-10](./subtasks/ST-10-app-calendar.md) | done | M-09, M-04 |
+| M-10 | app_web/calendar 脚手架与页面 | [ST-10](./subtasks/ST-10-app-calendar.md) | done | M-09, M-04 |
 | M-11 | calendar API 与 DB 联通 | [ST-11](./subtasks/ST-11-calendar-api.md) | done | M-10 |
 | M-12 | 入口切换与 web 旧路径兼容 | [ST-12](./subtasks/ST-12-calendar-cutover.md) | done | M-11 |
 
@@ -51,7 +51,7 @@
 | ID | 任务 | 子任务 | 状态 | 依赖 |
 |----|------|--------|------|------|
 | M-13 | packages/teach-hub-core 搬迁 | [ST-13](./subtasks/ST-13-teach-hub-core.md) | done | M-05, M-07 |
-| M-14 | web/teach-hub 脚手架与路由 | [ST-14](./subtasks/ST-14-app-teach-hub.md) | done | M-13, M-04 |
+| M-14 | app_web/teach-hub 脚手架与路由 | [ST-14](./subtasks/ST-14-app-teach-hub.md) | done | M-13, M-04 |
 | M-15 | teach-hub API / OSS / AI 任务注册 | [ST-15](./subtasks/ST-15-teach-hub-api-ai.md) | done | M-14 |
 | M-16 | 入口切换与链接/路径环境变量 | [ST-16](./subtasks/ST-16-teach-hub-cutover.md) | done | M-15 |
 
@@ -91,7 +91,7 @@ M-00
 
 ## 勾选记录
 
-- [x] 2026-06-11 M-10 `web/calendar`
+- [x] 2026-06-11 M-10 `app_web/calendar`
 - [x] 2026-06-11 M-11 calendar API
 
 ## 勾选记录
@@ -100,10 +100,10 @@ M-00
 
 ## 勾选记录
 
-- [x] 2026-06-11 M-07 web/web 搬迁
+- [x] 2026-06-11 M-07 app_web/web 搬迁
 - [x] 2026-06-11 M-08 Docker / 根脚本适配
 - [x] 2026-06-17 M-15 teach-hub API / AI 单点注册
-- [x] 2026-06-17 M-14 `web/teach-hub`
+- [x] 2026-06-17 M-14 `app_web/teach-hub`
 - [x] 2026-06-17 M-13 `@profile/teach-hub-core`
 - [x] 2026-06-11 M-12 calendar 切换
 - [x] 2026-06-17 M-18 网关 nginx + compose 部署

@@ -52,7 +52,7 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
-  desktop/teach-hub-desktop:
+  app_desktop/teach-hub-desktop:
     dependencies:
       '@profile/teach-hub-core':
         specifier: workspace:*
@@ -92,7 +92,7 @@ importers:
         specifier: ^0.14.6
         version: 0.14.7
 
-  mobile/calendar-mobile:
+  app_mobile/calendar-mobile:
     dependencies:
       '@babel/runtime':
         specifier: ^7.28.4
@@ -183,7 +183,7 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
-  mobile/teach-hub-mobile:
+  app_mobile/teach-hub-mobile:
     dependencies:
       '@babel/runtime':
         specifier: ^7.28.4
@@ -617,7 +617,7 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.19(tsx@4.23.12)(yaml@2.9.0))
 
-  web/calendar:
+  app_web/calendar:
     dependencies:
       '@dnd-kit/core':
         specifier: ^6.3.1
@@ -693,7 +693,7 @@ importers:
         specifier: ^2.8.0
         version: 2.9.0
 
-  web/money-research:
+  app_web/money-research:
     dependencies:
       next:
         specifier: 16.0.8
@@ -721,7 +721,7 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
-  web/node-notes:
+  app_web/node-notes:
     dependencies:
       '@profile/auth':
         specifier: workspace:*
@@ -791,7 +791,7 @@ importers:
         specifier: ^2.8.0
         version: 2.9.0
 
-  web/showmasterpiece:
+  app_web/showmasterpiece:
     dependencies:
       '@profile/auth':
         specifier: workspace:*
@@ -858,7 +858,7 @@ importers:
         specifier: ^2.8.0
         version: 2.9.0
 
-  web/teach-hub:
+  app_web/teach-hub:
     dependencies:
       '@profile/auth':
         specifier: workspace:*
@@ -934,7 +934,7 @@ importers:
         specifier: ^2.8.0
         version: 2.9.0
 
-  web/web:
+  app_web/web:
     dependencies:
       '@alicloud/pop-core':
         specifier: ^1.8.0

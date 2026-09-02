@@ -21,7 +21,7 @@
 ## 代码在哪
 
 ```
-wordpress/holt/                   ← Holt 主题 submodule（前台二开主战场）
+app_wordpress/holt/                   ← Holt 主题 submodule（前台二开主战场）
 deploy/wordpress/
 ├── php/                          ← 你正在读的文档
 ├── docker-compose.dev.yml        ← 本地独立起站
@@ -37,6 +37,6 @@ deploy/wordpress/
 浏览器 → 外层 HTTPS nginx → 网关 nginx → wordpress_holt 容器(Apache+PHP)
                                       ↘ wp_mariadb（独立库 wp_holt）
 主题 submodule 挂到：
-  ./wordpress/holt → /var/www/html/wp-content/themes/holt-portfolio/
+  ./app_wordpress/holt → /var/www/html/wp-content/themes/holt-portfolio/
 公网路径必须带前缀：/wp/holt/
 ```

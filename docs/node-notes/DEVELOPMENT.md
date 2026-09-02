@@ -10,10 +10,10 @@
 
 ```text
 packages/node-notes-core/src/     # 全部业务逻辑（页面、API、DB、组件）
-web/node-notes/app/              # 子应用薄壳（page + api re-export）
-web/web/src/modules/nodeNotes/   # 主站兼容层（仅 index.ts re-export）
-web/web/src/app/.../nodeNotes/   # 实验田薄 page.tsx
-web/web/src/app/api/node-notes/  # 主站 API 薄 re-export
+app_web/node-notes/app/              # 子应用薄壳（page + api re-export）
+app_web/web/src/modules/nodeNotes/   # 主站兼容层（仅 index.ts re-export）
+app_web/web/src/app/.../nodeNotes/   # 实验田薄 page.tsx
+app_web/web/src/app/api/node-notes/  # 主站 API 薄 re-export
 ```
 
 ## 环境变量

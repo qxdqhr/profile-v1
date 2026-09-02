@@ -22,7 +22,7 @@
 | 检查项 | 结果 |
 |--------|------|
 | 作为 monorepo 唯一 DB 入口 | ✅ |
-| `web/web/src/db` 为兼容 re-export | ✅（deprecated） |
+| `app_web/web/src/db` 为兼容 re-export | ✅（deprecated） |
 | schema 聚合耦合度 | ⚠️ 过高（接受现状，见 CX-002） |
 
 ---

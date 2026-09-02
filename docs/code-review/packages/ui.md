@@ -13,7 +13,7 @@
 - `tailwind.preset.ts` — 设计令牌 / 动画  
 - `postcss.config.js` — 导出存在但各 app 多为本地复制
 
-**说明**：本包 **不是** React 组件库；共享组件在 `web/web/src/components/` 与 sa2kit。
+**说明**：本包 **不是** React 组件库；共享组件在 `app_web/web/src/components/` 与 sa2kit。
 
 ---
 

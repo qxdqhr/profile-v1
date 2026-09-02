@@ -26,4 +26,4 @@
 
 **禁止**新建独立 `*-shared` 包（无论 `packages/` 还是 `npm/`）。shared 路径不得依赖 Next server-only 或 `@profile/db`。
 
-主站 Next：`web/web/`（`@profile/web`）。架构改造：[`docs/architecture/ARCHITECTURE-REMEDIATION-PLAN.md`](../docs/architecture/ARCHITECTURE-REMEDIATION-PLAN.md)。
+主站 Next：`app_web/web/`（`@profile/web`）。架构改造：[`docs/architecture/ARCHITECTURE-REMEDIATION-PLAN.md`](../docs/architecture/ARCHITECTURE-REMEDIATION-PLAN.md)。

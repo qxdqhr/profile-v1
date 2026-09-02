@@ -6,17 +6,17 @@
 
 ```
 profile-v1/
-├── web/                     # Next.js Web 矩阵
-│   ├── web/                 # 主站 @profile/web (:3000)
+├── app_web/                     # Next.js Web 矩阵
+│   ├── app_web/                 # 主站 @profile/web (:3000)
 │   ├── calendar/            # :3001
 │   ├── teach-hub/           # :3002
 │   ├── showmasterpiece/     # :3003
 │   ├── money-research/      # :3004
 │   └── node-notes/          # :3005
-├── mobile/                  # RN submodule
+├── app_mobile/                  # RN submodule
 │   ├── calendar-mobile/
 │   └── teach-hub-mobile/
-├── desktop/                 # Electron submodule
+├── app_desktop/                 # Electron submodule
 │   └── teach-hub-desktop/
 ├── npm/                     # 历史 shared 目录（已空；见 npm/README.md）
 ├── packages/                # auth, db, ui, *-core
@@ -65,13 +65,13 @@ RN 签名 APK 与 TeachHub 共用 `config/android-signing.env`（见 `config/and
 
 | 应用 | README |
 |------|--------|
-| 应用总览 | [`web/README.md`](web/README.md) |
+| 应用总览 | [`app_web/README.md`](app_web/README.md) |
 | 共享包 | [`packages/README.md`](packages/README.md) |
-| Calendar Web | [`web/calendar/README.md`](web/calendar/README.md) |
-| Calendar Mobile | [`web/calendar-mobile/README.md`](web/calendar-mobile/README.md) |
-| TeachHub | [`web/teach-hub/README.md`](web/teach-hub/README.md) |
-| ShowMasterpiece | [`web/showmasterpiece/README.md`](web/showmasterpiece/README.md) |
-| Money Research | [`web/money-research/README.md`](web/money-research/README.md) |
+| Calendar Web | [`app_web/calendar/README.md`](app_web/calendar/README.md) |
+| Calendar Mobile | [`app_mobile/calendar-mobile/README.md`](app_mobile/calendar-mobile/README.md) |
+| TeachHub | [`app_web/teach-hub/README.md`](app_web/teach-hub/README.md) |
+| ShowMasterpiece | [`app_web/showmasterpiece/README.md`](app_web/showmasterpiece/README.md) |
+| Money Research | [`app_web/money-research/README.md`](app_web/money-research/README.md) |
 
 ## Agent / 协作
 

@@ -51,7 +51,7 @@ Legacy：`/testField/calendar`、`/testField/teachHub` → nginx 301 至新路�
 - 纯 PHP 前台+后台，**不**进 pnpm / Next CI matrix。
 - 独立 MariaDB（`wp_mariadb` volume），与宿主机 Postgres 隔离。
 - 首期站点：`/wp/holt/`（后台 `/wp/holt/wp-admin/`；旧 `/wp/personal/` 301 至 holt）。
-- 多主题站：复制实例，路径 `/wp/<slug>/`；规程见 [`wordpress/ADD-SITE.md`](./wordpress/ADD-SITE.md)。
+- 多主题站：复制实例，路径 `/wp/<slug>/`；规程见 [`app_wordpress/ADD-SITE.md`](./app_wordpress/ADD-SITE.md)。
 - 服务器 `.env` 需含 `MARIADB_ROOT_PASSWORD`、`WORDPRESS_DB_*`、`WP_HOLT_PUBLIC_URL`（`deploy-profile-v1.sh` 会保留这些键）。
 - GitHub Secrets（可选，CI 注入）：`WP_MARIADB_ROOT_PASSWORD`、`WP_DB_USER`、`WP_DB_PASSWORD`、`WP_HOLT_PUBLIC_URL`。
 - 仅改 `deploy/**`（无镜像重建）时，`deploy-web` 仍会执行（workflow 已处理 `build` skipped）。
@@ -59,10 +59,10 @@ Legacy：`/testField/calendar`、`/testField/teachHub` → nginx 301 至新路�
 
 ### Godot / 静态游戏旁路（`/games/*`）
 
-- 源码：`games/<slug>/`；纯静态 nginx，**不**进 Next CI matrix。
+- 源码：`app_games/<slug>/`；纯静态 nginx，**不**进 Next CI matrix。
 - `www/` 由 Actions `export-godot-games` 生成后 scp（不进 git）。
 - 现网含 `/games/miku-flick/` 等（Godot 4 单线程 Web）；完整清单见 `deploy/games/README.md`。
-- **双轨**：原版 testField 先保留；计划见 [`games/GODOT-REWRITE-PLAN.md`](./games/GODOT-REWRITE-PLAN.md)；加站 [`games/ADD-GAME.md`](./games/ADD-GAME.md)。
+- **双轨**：原版 testField 先保留；计划见 [`app_games/GODOT-REWRITE-PLAN.md`](./games/GODOT-REWRITE-PLAN.md)；加站 [`app_games/ADD-GAME.md`](./games/ADD-GAME.md)。
 
 ## 目录布局（服务器 `/root/profile-v1`）
 
@@ -76,7 +76,7 @@ Legacy：`/testField/calendar`、`/testField/teachHub` → nginx 301 至新路�
     └── proxy-params.conf
 ```
 
-本地 WordPress 独立调试（无 Next）：见 [`wordpress/README.md`](./wordpress/README.md)。
+本地 WordPress 独立调试（无 Next）：见 [`app_wordpress/README.md`](./app_wordpress/README.md)。
 
 ## 日常发布（推 main 即可，无需手改 nginx）
 

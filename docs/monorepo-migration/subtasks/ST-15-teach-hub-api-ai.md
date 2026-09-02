@@ -10,15 +10,15 @@
 
 ## 交付物
 
-- [x] `web/teach-hub/app/api/teach-hub/**` — 全部 re-export
-- [x] `web/teach-hub/instrumentation.ts` 调用 `ensureTeachHubAiTasksRegistered`
+- [x] `app_web/teach-hub/app/api/teach-hub/**` — 全部 re-export
+- [x] `app_web/teach-hub/instrumentation.ts` 调用 `ensureTeachHubAiTasksRegistered`
 - [x] `packages/teach-hub-core/src/server/registerTasks.ts` — 单点注册 sa2kit + teach.generateLesson
-- [x] 从 `web/web` 的 `registerCoreTasks.ts` **移除** teachHub 注册
+- [x] 从 `app_web/web` 的 `registerCoreTasks.ts` **移除** teachHub 注册
 - [x] OSS `moduleId: teach-hub` 路径不变（`teachWorkspacePaths.ts`）
 
 ## API 清单
 
-基路径 `/api/teach-hub`，由 `web/teach-hub` 承载；web 兼容期仍保留转发（ST-16 删除）。
+基路径 `/api/teach-hub`，由 `app_web/teach-hub` 承载；web 兼容期仍保留转发（ST-16 删除）。
 
 ## AI 任务
 

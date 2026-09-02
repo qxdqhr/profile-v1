@@ -10,9 +10,9 @@
 
 ## 交付物
 
-- [x] `web/web/Dockerfile`
-- [x] `web/calendar/Dockerfile`
-- [x] `web/teach-hub/Dockerfile`
+- [x] `app_web/web/Dockerfile`
+- [x] `app_web/calendar/Dockerfile`
+- [x] `app_web/teach-hub/Dockerfile`
 - [x] `.github/workflows/docker-build-push.yml` matrix（web / calendar / teach-hub）
 - [x] 阿里云镜像 tag：`qhr-profile-web:NNN`、`qhr-profile-calendar:NNN`、`qhr-profile-teach-hub:NNN`（web 兼容推送 `qhr-profile:NNN`）
 - [x] 共享：deps 阶段 git、HTTPS git rewrite、pnpm filter + ignore-scripts（子应用）

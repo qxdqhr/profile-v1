@@ -19,15 +19,15 @@ alwaysApply: true
 | YAML + SOPS 配置说明 | `docs/infrastructure/config-yaml-sops.md`（`config/` 仅放 YAML 文件 + stub README） |
 | 节点笔记（需求/开发/设计系统） | `docs/node-notes/` |
 | 主站某模块运维/需求（跨仓可见） | `docs/modules/<module>/` |
-| 子应用 / core 包专属 | `web/<app>/docs/`、`packages/<core>/docs/`（含 `src/shared`） |
-| 模块分步构建（开发中） | `web/web/src/modules/<module>/` 内 markdown |
+| 子应用 / core 包专属 | `app_web/<app>/docs/`、`packages/<core>/docs/`（含 `src/shared`） |
+| 模块分步构建（开发中） | `app_web/web/src/modules/<module>/` 内 markdown |
 | 网关 / Docker 现网 Runbook | `deploy/MIGRATION-RUNBOOK.md` |
 
 ## 不迁入 docs/（保持原位）
 
-- **WordPress 旁路**：`deploy/wordpress/`、`wordpress/<slug>/`
-- **Godot games 旁路**：`deploy/games/`、`games/<slug>/`
-- **Mobile / Desktop 源码**（迁出后）：`mobile/<slug>/`、`desktop/<slug>/`（git submodule）
+- **WordPress 旁路**：`deploy/wordpress/`、`app_wordpress/<slug>/`
+- **Godot games 旁路**：`deploy/games/`、`app_games/<slug>/`
+- **Mobile / Desktop 源码**（迁出后）：`app_mobile/<slug>/`、`app_desktop/<slug>/`（git submodule）
 
 ## Agent 行为
 

@@ -1,8 +1,8 @@
-# CR — web/web 边界总览
+# CR — app_web/web 边界总览
 
 | 项 | 内容 |
 |----|------|
-| 路径 | `web/web/` |
+| 路径 | `app_web/web/` |
 | 评审日期 | 2026-08-29 |
 | 状态 | ✅ reviewed（边界层；模块逐个见 `modules/`） |
 

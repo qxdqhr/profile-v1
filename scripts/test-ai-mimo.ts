@@ -53,7 +53,7 @@ async function main() {
 
   console.log('\n多模态识图探测（1x1 PNG）…');
   const { mimoAwareStructuredMultimodalTask } = await import(
-    '../../web/web/src/modules/aiApi/server/mimoStructuredMultimodalTask'
+    '../../app_web/web/src/modules/aiApi/server/mimoStructuredMultimodalTask'
   );
   const png =
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # 加载 Android release 签名环境变量（TeachHub / Calendar Mobile 共用同一套 ANDROID_*）。
-# 优先级：已 export 的变量 > config/android-signing.env > mobile/teach-hub-mobile/teach-hub-release.jks
+# 优先级：已 export 的变量 > config/android-signing.env > app_mobile/teach-hub-mobile/teach-hub-release.jks
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_FILE="${ANDROID_SIGNING_ENV_FILE:-${ROOT_DIR}/config/android-signing.env}"
-DEFAULT_JKS="${ROOT_DIR}/mobile/teach-hub-mobile/teach-hub-release.jks"
+DEFAULT_JKS="${ROOT_DIR}/app_mobile/teach-hub-mobile/teach-hub-release.jks"
 
 if [ -f "${ENV_FILE}" ]; then
   # shellcheck disable=SC1090

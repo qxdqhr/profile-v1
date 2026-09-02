@@ -1,7 +1,7 @@
 packages:
   - '.'
-  - 'web/*'
+  - 'app_web/*'
   - 'packages/*'
   - 'npm/*'
-  - 'mobile/*'
-  - 'desktop/*'
+  - 'app_mobile/*'
+  - 'app_desktop/*'

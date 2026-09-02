@@ -21,7 +21,7 @@ import {
   BatchBookingResponse
 } from '../../types/cart';
 import { saveCartHistory } from './cartHistoryService';
-import { batchBooking as submitBatchBookingBySharedClient } from '../web/client';
+import { batchBooking as submitBatchBookingBySharedClient } from '../app_web/client';
 
 /**
  * 购物车本地存储键名

@@ -8,9 +8,9 @@ import { resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
 const forbidden = [
-  'web/web/src/app/api/showmasterpiece',
-  'web/calendar/app/api/ai',
-  'web/teach-hub/app/api/ai',
+  'app_web/web/src/app/api/showmasterpiece',
+  'app_web/calendar/app/api/ai',
+  'app_web/teach-hub/app/api/ai',
 ];
 
 const hits = forbidden.filter((rel) => existsSync(resolve(root, rel)));

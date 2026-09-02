@@ -2,7 +2,7 @@
 
 > **单一文档根目录**：仓库级 Markdown 文档集中在 `docs/`。  
 > **子项目自有文档**仍放在各 app/package 内（见下表）。  
-> **旁路部署**（WordPress、`games/*` submodule）的文档留在 `deploy/wordpress/`、`deploy/games/`、`wordpress/`、`games/`，不在此合并。
+> **旁路部署**（WordPress、`app_games/*` submodule）的文档留在 `deploy/wordpress/`、`deploy/games/`、`app_wordpress/`、`app_games/`，不在此合并。
 
 ## 快速入口
 
@@ -51,16 +51,16 @@ docs/
 
 | 范围 | 路径 |
 |------|------|
-| Web 主站模块内 | `web/web/src/modules/<module>/`（如 `DEVELOPMENT.md`、分步构建 md） |
-| Calendar / TeachHub 等子应用 | `web/<app>/docs/`、`web/<app>/README.md` |
+| Web 主站模块内 | `app_web/web/src/modules/<module>/`（如 `DEVELOPMENT.md`、分步构建 md） |
+| Calendar / TeachHub 等子应用 | `app_web/<app>/docs/`、`app_web/<app>/README.md` |
 | 领域 core 包 | `packages/<core>/docs/`、`packages/<core>/README.md` |
-| Money Research 调研 | `web/money-research/docs/` |
-| WordPress 旁路 | `deploy/wordpress/`、`wordpress/<slug>/` |
-| Godot 游戏旁路 | `deploy/games/`、`games/<slug>/` |
+| Money Research 调研 | `app_web/money-research/docs/` |
+| WordPress 旁路 | `deploy/wordpress/`、`app_wordpress/<slug>/` |
+| Godot 游戏旁路 | `deploy/games/`、`app_games/<slug>/` |
 
 ## 新增文档约定
 
 1. **跨模块 / 架构 / CR** → `docs/code-review/` 或 `docs/` 对应子目录。  
-2. **单模块实施记录** → 优先 `web/web/src/modules/<name>/` 或对应 `packages/*-core/docs/`。  
+2. **单模块实施记录** → 优先 `app_web/web/src/modules/<name>/` 或对应 `packages/*-core/docs/`。  
 3. **一次性修复记录**（已合并进代码）→ 不必新建；过时即删。  
 4. 变更应用矩阵、网关、CI 时同步 [`.cursor/KNOWLEDGE_BASE.md`](../.cursor/KNOWLEDGE_BASE.md)。

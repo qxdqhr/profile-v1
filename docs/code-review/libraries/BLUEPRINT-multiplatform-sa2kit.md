@@ -110,7 +110,7 @@ src/business/<feature>/
   domain/           # 纯逻辑、类型、校验（无 React / 无 Node API）
   server/           # Next/Hono 可用的 route handlers、DbService、OSS 编排
   ui/
-    web/            # React DOM（Next / Vite）
+    app_web/            # React DOM（Next / Vite）
     rn/             # React Native / Expo
     taro/           # 微信·支付宝小程序
     electron/       # 可选：桌面专属；多数直接复用 web
@@ -186,7 +186,7 @@ common 同理，例如：
 | **S2 下沉** | 从 `*-core` 抽出 `domain` + `ui/rn` 等到 `sa2kit/business/<name>`，core 改为 re-export | 要开正式小程序/第二 RN 宿主时 |
 | **S3 新域只进 sa2kit** | 新业务（含多端）禁止新建巨大 `*-core`，直接 `sa2kit/business/*` | 强制执行 |
 
-**ideaList / fitnessPlan 等仍在 `web/web/src/modules` 的**：若明确要多端，再升格进 `sa2kit/business`；纯 Web 实验可暂留 modules。
+**ideaList / fitnessPlan 等仍在 `app_web/web/src/modules` 的**：若明确要多端，再升格进 `sa2kit/business`；纯 Web 实验可暂留 modules。
 
 ---
 
@@ -376,7 +376,7 @@ business/*/ui/* 与各宿主薄页面（编排，不造第二套基础件）
 |---|------|------|
 | 1 | calendar / teach-hub / showmasterpiece | **S1 冻结**（保留子应用 + `*-core`；新多端优先进 sa2kit；开正式小程序再评估 S2） |
 | 2 | UI 是否只经 `sa2kit/common/ui*` | **是**（门面）；**实现只在 sa2kit-ui** |
-| 3 | Phase C 试点 | 推荐 **festivalCard**（已有 web/server/miniapp 雏形）；修改清单见下节 |
+| 3 | Phase C 试点 | 推荐 **festivalCard**（已有 app_web/server/miniapp 雏形）；修改清单见下节 |
 | 4 | UI 组件策略 | **全部 UI 回签 sa2kit-ui**（含 auth 壳、域面板、装饰件、business 可拆件）；逻辑留 sa2kit；库后期 = 新主题 + 新缺组件 |
 | 5 | 执行优先级 | **北极星（接单可复用）最高** → Phase U → 试点 / 功能优化后移 |
 | 6 | 库 vs 宿主 | 通用能力进 sa2kit / sa2kit-ui；profile 与客户仓都是薄宿主 |
@@ -397,7 +397,7 @@ business/*/ui/* 与各宿主薄页面（编排，不造第二套基础件）
 
 ### 12.2 Phase C 试点（festivalCard）要改什么
 
-现状：`web/`、`server/`、`miniapp/`、`components/` 等已有，但未对齐蓝图标准骨架与 UI 门面。
+现状：`app_web/`、`server/`、`miniapp/`、`components/` 等已有，但未对齐蓝图标准骨架与 UI 门面。
 
 | 步骤 | 改动 | 验收 |
 |------|------|------|

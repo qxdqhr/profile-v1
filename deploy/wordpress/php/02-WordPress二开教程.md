@@ -9,7 +9,7 @@ WordPress 认主题：目录里至少有 `style.css`（带主题头）+ `index.p
 Holt 实际结构：
 
 ```
-wordpress/holt/                   ← Holt 主题 submodule（二开主战场）
+app_wordpress/holt/                   ← Holt 主题 submodule（二开主战场）
 deploy/wordpress/                 ← 旁路基建与教程
 ├── style.css              # 主题元信息（Theme Name 等）
 ├── functions.php          # 注册资源、CPT、启动逻辑（≈ AppDelegate）

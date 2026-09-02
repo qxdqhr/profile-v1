@@ -42,7 +42,7 @@ jobs:
         with:
           filters: |
             web:
-              - 'web/web/**'
+              - 'app_web/web/**'
               - 'packages/auth/**'
               - 'packages/config/**'
               - 'packages/db/**'
@@ -51,7 +51,7 @@ jobs:
               - 'pnpm-lock.yaml'
               - 'package.json'
             calendar:
-              - 'web/calendar/**'
+              - 'app_web/calendar/**'
               - 'packages/calendar-core/**'
               - 'packages/auth/**'
               - 'packages/config/**'
@@ -60,7 +60,7 @@ jobs:
               - 'pnpm-lock.yaml'
               - 'package.json'
             teach-hub:
-              - 'web/teach-hub/**'
+              - 'app_web/teach-hub/**'
               - 'packages/teach-hub-core/**'
               - 'packages/auth/**'
               - 'packages/config/**'
@@ -69,7 +69,7 @@ jobs:
               - 'pnpm-lock.yaml'
               - 'package.json'
             showmasterpiece:
-              - 'web/showmasterpiece/**'
+              - 'app_web/showmasterpiece/**'
               - 'packages/showmasterpiece-core/**'
               - 'packages/auth/**'
               - 'packages/config/**'
@@ -78,11 +78,11 @@ jobs:
               - 'pnpm-lock.yaml'
               - 'package.json'
             money-research:
-              - 'web/money-research/**'
+              - 'app_web/money-research/**'
               - 'pnpm-lock.yaml'
               - 'package.json'
             node-notes:
-              - 'web/node-notes/**'
+              - 'app_web/node-notes/**'
               - 'packages/node-notes-core/**'
               - 'packages/auth/**'
               - 'packages/config/**'
@@ -91,22 +91,22 @@ jobs:
               - 'pnpm-lock.yaml'
               - 'package.json'
             calendar-mobile:
-              - 'mobile/calendar-mobile/**'
+              - 'app_mobile/calendar-mobile/**'
               - 'packages/calendar-core/**'
             teach-hub-mobile:
-              - 'mobile/teach-hub-mobile/**'
+              - 'app_mobile/teach-hub-mobile/**'
               - 'packages/teach-hub-core/**'
             games:
-              - 'games/**'
+              - 'app_games/**'
               - 'scripts/export-godot-game.sh'
               - 'scripts/export-all-godot-games.sh'
               - 'scripts/export-pulse-parade-web.sh'
             wordpress:
-              - 'wordpress/**'
+              - 'app_wordpress/**'
               - '.gitmodules'
             deploy:
               - 'deploy/**'
-              - 'wordpress/**'
+              - 'app_wordpress/**'
               - '.github/workflows/docker-build-push.yml'
               - 'scripts/send-ci-feishu-notify.mjs'
 
@@ -171,7 +171,7 @@ jobs:
       - name: Build Docker image (${{ matrix.app }})
         run: |
           docker buildx build --platform linux/amd64 \
-            -f web/${{ matrix.app }}/Dockerfile \
+            -f app_web/${{ matrix.app }}/Dockerfile \
             -t qhr-profile-${{ matrix.app }}:amd64 \
             --load .
 
@@ -356,7 +356,7 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
       - name: Build signed release APK
-        run: bash mobile/teach-hub-mobile/scripts/android-release-build.sh
+        run: bash app_mobile/teach-hub-mobile/scripts/android-release-build.sh
         env:
           SKIP_EXPO_PREBUILD: '1'
           APP_VERSION: '0.1.0'
@@ -370,7 +370,7 @@ jobs:
       - name: Resolve APK metadata
         id: apk_meta
         run: |
-          APK_PATH="$(ls -t mobile/teach-hub-mobile/dist/*.apk | head -1)"
+          APK_PATH="$(ls -t app_mobile/teach-hub-mobile/dist/*.apk | head -1)"
           APK_NAME="$(basename "$APK_PATH")"
           TAG_NAME="teach-hub-mobile-ci-${GITHUB_RUN_NUMBER}"
           RELEASE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${TAG_NAME}"
@@ -395,7 +395,7 @@ jobs:
             - versionCode: `${{ github.run_number }}`
             - Auth: `${{ steps.cfg.outputs.auth_base_url }}`
             - API: `${{ steps.cfg.outputs.api_base_url }}`
-          files: mobile/teach-hub-mobile/dist/*.apk
+          files: app_mobile/teach-hub-mobile/dist/*.apk
           draft: false
           prerelease: false
         env:
@@ -476,7 +476,7 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
       - name: Build signed release APK
-        run: bash mobile/calendar-mobile/scripts/android-release-build.sh
+        run: bash app_mobile/calendar-mobile/scripts/android-release-build.sh
         env:
           SKIP_EXPO_PREBUILD: '1'
           APP_VERSION: '0.1.0'
@@ -490,7 +490,7 @@ jobs:
       - name: Resolve APK metadata
         id: apk_meta
         run: |
-          APK_PATH="$(ls -t mobile/calendar-mobile/dist/*.apk | head -1)"
+          APK_PATH="$(ls -t app_mobile/calendar-mobile/dist/*.apk | head -1)"
           APK_NAME="$(basename "$APK_PATH")"
           TAG_NAME="calendar-mobile-ci-${GITHUB_RUN_NUMBER}"
           RELEASE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${TAG_NAME}"
@@ -513,7 +513,7 @@ jobs:
             - versionCode: `${{ github.run_number }}`
             - Auth: `${{ steps.cfg.outputs.auth_base_url }}`
             - API: `${{ steps.cfg.outputs.api_base_url }}`
-          files: mobile/calendar-mobile/dist/*.apk
+          files: app_mobile/calendar-mobile/dist/*.apk
           draft: false
           prerelease: false
         env:
@@ -591,9 +591,9 @@ jobs:
         run: |
           set -euo pipefail
           # Artifact may nest as <slug>/www or deploy/games/<slug>/www
-          mapfile -t slugs < <(for p in games/*/project.godot; do [ -f "$p" ] && basename "$(dirname "$p")"; done | sort -u)
+          mapfile -t slugs < <(for p in app_games/*/project.godot; do [ -f "$p" ] && basename "$(dirname "$p")"; done | sort -u)
           if [ "${#slugs[@]}" -eq 0 ]; then
-            echo "ERROR: no games/*/project.godot" >&2
+            echo "ERROR: no app_games/*/project.godot" >&2
             exit 1
           fi
           for slug in "${slugs[@]}"; do
@@ -679,7 +679,7 @@ jobs:
             "$REMOTE:/root/profile-v1/deploy/wordpress/"
           if [ "${WORDPRESS_CHANGED}" = "true" ]; then
             echo "=== 同步 WordPress 子站 submodule: holt ==="
-            scp -r $SSH_OPTS wordpress/holt/* "$REMOTE:/root/profile-v1/wordpress/holt/"
+            scp -r $SSH_OPTS app_wordpress/holt/* "$REMOTE:/root/profile-v1/wordpress/holt/"
           fi
           scp $SSH_OPTS deploy/games/README.md deploy/games/ADD-GAME.md \
             "$REMOTE:/root/profile-v1/games/"

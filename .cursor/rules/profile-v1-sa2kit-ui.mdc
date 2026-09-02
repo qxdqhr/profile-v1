@@ -1,6 +1,6 @@
 ---
 description: sa2kit / sa2kit-ui 三层依赖、登录接入与样式加载规范（Phase U）
-globs: web/**/*.{tsx,ts,css},packages/**/*.{tsx,ts,css}
+globs: app_web/**/*.{tsx,ts,css},packages/**/*.{tsx,ts,css}
 alwaysApply: false
 ---
 
@@ -27,7 +27,7 @@ profile-v1         ← Web/API 薄宿主（page 转发、模块组装、部署�
 ## 登录 / 鉴权（必须走 sa2kit）
 
 - 宿主 **只** 从 `@/lib/auth`（或子应用 `@profile/auth`）引用：`AuthProvider`、`AuthGuard`、`LoginModal`、`UserMenu` 等。
-- **禁止** 在 `web/web/src/modules` 内直接 `import … from 'sa2kit/common/auth/…'`（经 `@profile/auth` 统一注入 `authClient`）。
+- **禁止** 在 `app_web/web/src/modules` 内直接 `import … from 'sa2kit/common/auth/…'`（经 `@profile/auth` 统一注入 `authClient`）。
 - Auth 弹窗视觉在 `sa2kit/common/ui/auth`；session / hooks 在 `sa2kit/common/auth`（见 UI-UNIFICATION-PLAN U5-auth）。
 
 ## UI 组件引用
@@ -43,7 +43,7 @@ profile-v1         ← Web/API 薄宿主（page 转发、模块组装、部署�
 
 ## 样式（CSS）加载 — 禁止 root 全局偷懒
 
-**原则**：不在 `web/web/src/app/layout.tsx` 为修复单个页面而全局 `@import` 全量 sa2kit-ui CSS。样式随 **消费边界** 加载。
+**原则**：不在 `app_web/web/src/app/layout.tsx` 为修复单个页面而全局 `@import` 全量 sa2kit-ui CSS。样式随 **消费边界** 加载。
 
 | 消费边界 | 加载方式 | 示例 |
 |----------|----------|------|
@@ -65,6 +65,6 @@ profile-v1         ← Web/API 薄宿主（page 转发、模块组装、部署�
 ## 参考实现
 
 - Auth 样式引导：`packages/auth/src/sa2kit-ui-bootstrap.ts`
-- 子应用标杆：`web/showmasterpiece/app/layout.tsx`
-- 模块标杆：`web/web/src/modules/fitnessPlan/layout/FitnessPlanLayout.tsx`
+- 子应用标杆：`app_web/showmasterpiece/app/layout.tsx`
+- 模块标杆：`app_web/web/src/modules/fitnessPlan/layout/FitnessPlanLayout.tsx`
 - 知识库 SSOT：`.cursor/KNOWLEDGE_BASE.md` §1.1

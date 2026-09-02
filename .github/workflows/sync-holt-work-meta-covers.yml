@@ -38,7 +38,7 @@ jobs:
           chmod 600 /tmp/ssh_key
 
           ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/wordpress/holt/data"
-          scp $SSH_OPTS wordpress/holt/data/holt-bilibili-works.json \
+          scp $SSH_OPTS app_wordpress/holt/data/holt-bilibili-works.json \
             "$REMOTE:/root/profile-v1/wordpress/holt/data/holt-bilibili-works.json"
           scp $SSH_OPTS deploy/sync-holt-work-meta-covers.sh \
             "$REMOTE:/root/profile-v1/sync-holt-work-meta-covers.sh"

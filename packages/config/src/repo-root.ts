@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
-/** 向上查找含 pnpm-workspace.yaml 的 monorepo 根（供 web/web 内 cwd 仍为子目录时使用） */
+/** 向上查找含 pnpm-workspace.yaml 的 monorepo 根（供 app_web/web 内 cwd 仍为子目录时使用） */
 export function findMonorepoRoot(startDir = process.cwd()): string {
   let dir = startDir;
   for (let i = 0; i < 8; i++) {

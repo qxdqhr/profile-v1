@@ -41,7 +41,7 @@ cd "${ROOT_DIR}"
 if [ "${BUILD_DOCKER}" = "1" ]; then
   echo "==> [1/2] Build TeachHub Docker image (tag: ${IMAGE_TAG})"
   docker buildx build --platform "${PLATFORM}" \
-    -f web/teach-hub/Dockerfile \
+    -f app_web/teach-hub/Dockerfile \
     -t "qhr-profile-teach-hub:${IMAGE_TAG}" \
     --load .
   echo "==> Docker image ready: qhr-profile-teach-hub:${IMAGE_TAG}"
@@ -53,10 +53,10 @@ if [ "${BUILD_ANDROID}" = "1" ]; then
   echo "==> [2/2] Build TeachHub Mobile Android APK"
   # shellcheck source=/dev/null
   source "${ROOT_DIR}/scripts/load-android-signing-env.sh"
-  bash mobile/teach-hub-mobile/scripts/android-release-build.sh
-  APK_FILE="$(ls -t "${ROOT_DIR}"/mobile/teach-hub-mobile/dist/*.apk 2>/dev/null | head -1 || true)"
+  bash app_mobile/teach-hub-mobile/scripts/android-release-build.sh
+  APK_FILE="$(ls -t "${ROOT_DIR}"/app_mobile/teach-hub-mobile/dist/*.apk 2>/dev/null | head -1 || true)"
   if [ -z "${APK_FILE}" ] || [ ! -f "${APK_FILE}" ]; then
-    echo "ERROR: Android APK not found under mobile/teach-hub-mobile/dist/" >&2
+    echo "ERROR: Android APK not found under app_mobile/teach-hub-mobile/dist/" >&2
     exit 1
   fi
   if [ -n "${TEACH_HUB_APK_RELEASE_URL:-}" ]; then

@@ -33,7 +33,7 @@
 
 | 层 | 路径 |
 |---|---|
-| 源码 | `games/<slug>/`（**git submodule**，独立仓） |
+| 源码 | `app_games/<slug>/`（**git submodule**，独立仓） |
 | 旁路静态站 | `deploy/games/<slug>/`（nginx.conf + CI 生成的 `www/`） |
 | 网关 | `/games/<slug>/` → `game_<slug>`（下划线） |
 
@@ -62,9 +62,9 @@
 
 ## 开发流
 
-1. 改 `games/<slug>/**`，push `main`
-2. CI：安装 Godot 4.7.1 → Web 导出全部 `games/*/project.godot` → 旁路部署 + smoke
-3. 本地预览：`godot --path games/<slug>`
+1. 改 `app_games/<slug>/**`，push `main`
+2. CI：安装 Godot 4.7.1 → Web 导出全部 `app_games/*/project.godot` → 旁路部署 + smoke
+3. 本地预览：`godot --path app_games/<slug>`
 4. 本地导出：`bash scripts/export-godot-game.sh <slug>` 或 `bash scripts/export-all-godot-games.sh`
 
 ## 加游戏

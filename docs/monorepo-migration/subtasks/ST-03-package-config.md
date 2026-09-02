@@ -21,7 +21,7 @@
 ## 验收记录（2026-06-11）
 
 1. `tsx --import @profile/config/preload` 可加载（需本地 `config/app.config.local.yaml` 时 `pnpm config:doctor` 才绿）
-2. `packages/config` 无依赖 `web/*`
+2. `packages/config` 无依赖 `app_web/*`
 3. 根 `package.json` 已依赖 `workspace:*` 的 `@profile/config`
 
 ## 未迁入（后续 ST）

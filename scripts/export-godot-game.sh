@@ -49,7 +49,7 @@ if [[ -f "${GAME_DIR}/.use-prebuilt-web" ]]; then
     fi
   done
   if [[ -z "$SRC" ]]; then
-    echo "ERROR: ${SLUG} has .use-prebuilt-web but neither prebuilt-web/ nor web/ contains index.html" >&2
+    echo "ERROR: ${SLUG} has .use-prebuilt-web but neither prebuilt-app_web/ nor app_web/ contains index.html" >&2
     exit 1
   fi
   echo "Using prebuilt web for slug=${SLUG} from ${SRC}"
@@ -110,8 +110,8 @@ echo "Exporting slug=${SLUG}"
 
 "$EDITOR_BIN" --headless --path "$GAME_DIR" --import --quit
 mkdir -p "${GAME_DIR}/export/web"
-"$EDITOR_BIN" --headless --path "$GAME_DIR" --export-release "Web" "${GAME_DIR}/export/web/index.html"
-rsync -a --delete --exclude '.gitkeep' "${GAME_DIR}/export/web/" "${OUT_DIR}/"
+"$EDITOR_BIN" --headless --path "$GAME_DIR" --export-release "Web" "${GAME_DIR}/export/app_web/index.html"
+rsync -a --delete --exclude '.gitkeep' "${GAME_DIR}/export/app_web/" "${OUT_DIR}/"
 test -f "${OUT_DIR}/index.html"
 test -f "${OUT_DIR}/index.wasm"
 test -f "${OUT_DIR}/index.pck"

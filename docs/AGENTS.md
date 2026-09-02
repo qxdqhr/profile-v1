@@ -37,7 +37,7 @@ A→E 已关闭，归档见：
 
 领域逻辑在 `packages/*-core`；跨端类型与 API 客户端在各 core 的 **`./shared` 导出**（勿再新建独立 `*-shared` 包）。ShowMasterpiece 业务在 `@profile/showmasterpiece-core`。
 WordPress 为同域 nginx 旁路 PHP，与 Next 子应用隔离。  
-Godot 源码在 `games/<slug>/`，旁路见 `deploy/games/`（现网含 `miku-flick` 等；CI `export-godot-games`）。小游戏迁移为**双轨**，见 `deploy/games/GODOT-REWRITE-PLAN.md`。
+Godot 源码在 `app_games/<slug>/`，旁路见 `deploy/games/`（现网含 `miku-flick` 等；CI `export-godot-games`）。小游戏迁移为**双轨**，见 `deploy/games/GODOT-REWRITE-PLAN.md`。
 
 ## 执行命令（pnpm）
 
@@ -76,6 +76,6 @@ Phaser 小游戏流程见用户级 Skill：`profile-v1-minigame`（`~/.agents/sk
 
 以下变更后应同步更新 `KNOWLEDGE_BASE.md`、[`docs/README.md`](./README.md)、根 `README.md` 或 `deploy/MIGRATION-RUNBOOK.md`：
 
-- 新增/移除 `web/*` 或 `packages/*`
+- 新增/移除 `app_web/*` 或 `packages/*`
 - 网关路由、端口、CI 镜像矩阵变化
-- 子应用从 `web/web/src/modules` 迁出或兼容层调整
+- 子应用从 `app_web/web/src/modules` 迁出或兼容层调整

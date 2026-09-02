@@ -10,13 +10,13 @@
 
 ## 交付物
 
-- [x] 删除 `web/web/src/modules/calendar`（若仍存在）— ST-12 已删
-- [x] 删除 `web/web/src/modules/teachHub` — ST-16 已删
-- [x] 删除 `web/web/src/app/api/calendar`、`api/teach-hub` — ST-12/ST-16 已删
-- [x] 删除 `web/web/src/app/.../calendar`、`.../teachHub` 重定向页面（路由改由 nginx 网关承担）
+- [x] 删除 `app_web/web/src/modules/calendar`（若仍存在）— ST-12 已删
+- [x] 删除 `app_web/web/src/modules/teachHub` — ST-16 已删
+- [x] 删除 `app_web/web/src/app/api/calendar`、`api/teach-hub` — ST-12/ST-16 已删
+- [x] 删除 `app_web/web/src/app/.../calendar`、`.../teachHub` 重定向页面（路由改由 nginx 网关承担）
 - [x] 根目录遗留 `src/` — 已删除空目录
-- [x] `web/web` 内 `grep modules/calendar|modules/teachHub` 零命中
-- [x] 移除 `web/web/tsconfig.json` 未使用的 `@profile/calendar-core` paths
+- [x] `app_web/web` 内 `grep modules/calendar|modules/teachHub` 零命中
+- [x] 移除 `app_web/web/tsconfig.json` 未使用的 `@profile/calendar-core` paths
 
 ## 验收标准
 
@@ -26,5 +26,5 @@
 ## 备注
 
 - `fitnessPlan` 使用自复制精简日历 UI，不依赖 `@profile/calendar-core`。
-- `web/web/src/app/api/examples/calendar/*` 为 **演示 mock API**，非生产 calendar，保留。
+- `app_web/web/src/app/api/examples/calendar/*` 为 **演示 mock API**，非生产 calendar，保留。
 - 生产入口：`/calendar`、`/teach-hub` 及 legacy 路径由 `deploy/nginx/profile-platform.conf` 反代。

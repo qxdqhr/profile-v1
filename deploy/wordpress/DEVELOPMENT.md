@@ -9,7 +9,7 @@
 
 - [x] personal → holt 旁路重命名（compose / nginx / deploy 脚本 / CI / smoke）
 - [x] `ensure-wordpress-database.sh` 幂等建库 `wp_holt`
-- [x] 主题 submodule `wordpress/holt/`（独立仓）
+- [x] 主题 submodule `app_wordpress/holt/`（独立仓）
 - [x] CPT `work` + taxonomy `work_role` + meta（bilibili_url / audio_url / work_year）
 - [x] B 站 BV 解析与 iframe 嵌入
 - [x] Customizer 默认值（Holt、`https://b23.tv/ylj7b9x`）

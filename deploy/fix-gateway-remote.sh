@@ -94,7 +94,7 @@ if [ -n "$FIXED_URL" ]; then
   printf 'DATABASE_URL=%s\n' "$FIXED_URL" >> .env
   echo "已写入校验后的 DATABASE_URL"
   if [ "${POST_DEPLOY:-}" = "1" ] && [ "$OLD_URL" != "$FIXED_URL" ]; then
-    echo "DATABASE_URL 已变更，重建 web/calendar/teach_hub"
+    echo "DATABASE_URL 已变更，重建 app_web/calendar/teach_hub"
     compose -f "$COMPOSE_FILE" up -d --force-recreate web calendar teach_hub
     if [ -x ./wait-gateway-ready.sh ]; then
       GATEWAY_PORT="${GATEWAY_PORT:-3000}" ./wait-gateway-ready.sh

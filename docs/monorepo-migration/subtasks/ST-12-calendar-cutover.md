@@ -11,10 +11,10 @@
 ## 交付物
 
 - [x] 产品路径：`/calendar` 或独立子域（见 ST-18）
-- [x] `web/web`：删除或 302 旧 `/testField/calendar`
+- [x] `app_web/web`：删除或 302 旧 `/testField/calendar`
 - [x] `experimentData.ts` 更新 path 指向新 URL
-- [x] 删除 `web/web` 内 `src/modules/calendar` 兼容层
-- [x] 删除 `web/web` 内 `/api/calendar`（若 API 已迁至 calendar app）
+- [x] 删除 `app_web/web` 内 `src/modules/calendar` 兼容层
+- [x] 删除 `app_web/web` 内 `/api/calendar`（若 API 已迁至 calendar app）
 
 ## 兼容策略（二选一）
 
@@ -23,7 +23,7 @@
 | **反代** | Nginx `/api/calendar` → calendar upstream |
 | **重定向** | web 仅 302 到 calendar 域名 |
 
-**本次采用**：重定向（B 阶段）。`web/web/src/lib/calendar-app-url.ts` + `NEXT_PUBLIC_CALENDAR_URL`（默认 `http://localhost:3001`）。
+**本次采用**：重定向（B 阶段）。`app_web/web/src/lib/calendar-app-url.ts` + `NEXT_PUBLIC_CALENDAR_URL`（默认 `http://localhost:3001`）。
 
 ## 验收标准
 

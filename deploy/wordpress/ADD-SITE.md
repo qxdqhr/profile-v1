@@ -9,15 +9,15 @@
 
 ## 1. 主题 submodule
 
-在仓根创建独立仓并接入父项目（与 `games/<slug>` 相同流程）：
+在仓根创建独立仓并接入父项目（与 `app_games/<slug>` 相同流程）：
 
 ```
-wordpress/theme-a/     # git submodule（主题 PHP/CSS/JS + 可选 data/）
+app_wordpress/theme-a/     # git submodule（主题 PHP/CSS/JS + 可选 data/）
 deploy/wordpress/        # 旁路基建（compose 模板、ADD-SITE、文档）
 ```
 
 ```bash
-git submodule add https://github.com/qxdqhr/profile-v1-wordpress-theme-a.git wordpress/theme-a
+git submodule add https://github.com/qxdqhr/profile-v1-wordpress-theme-a.git app_wordpress/theme-a
 ```
 
 主题目录挂载到容器内 `wp-content/themes/<theme-dir>`（目录名可与 slug 不同，如 holt → `holt-portfolio`）。
@@ -44,7 +44,7 @@ docker compose -f docker-compose.gateway.yml exec -T wp_mariadb \
 - `WP_THEME_A_PUBLIC_URL` → `WORDPRESS_CONFIG_EXTRA` 中的 `WP_HOME` / `WP_SITEURL`
 - **必须**复制 holt 的 REQUEST_URI 补前缀逻辑（防止登录跳到裸 `/wp-admin` 404）
 - volume：`wp_theme_a_uploads:/var/www/html/wp-content/uploads`
-- 主题：`./wordpress/theme-a:/var/www/html/wp-content/themes/theme-a:ro`
+- 主题：`./app_wordpress/theme-a:/var/www/html/wp-content/themes/theme-a:ro`
 - `nginx.depends_on` 追加该服务
 
 ## 4. nginx
@@ -103,4 +103,4 @@ curl -sS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3000/wp/theme-a/
 
 | slug | 路径 | DB | compose service | submodule | 主题目录 |
 |------|------|-----|-----------------|-------------|----------|
-| holt | `/wp/holt/` | `wp_holt` | `wordpress_holt` | `wordpress/holt` | `holt-portfolio` |
+| holt | `/wp/holt/` | `wp_holt` | `wordpress_holt` | `app_wordpress/holt` | `holt-portfolio` |

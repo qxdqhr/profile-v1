@@ -52,7 +52,7 @@ services:
         }
     volumes:
       - wp_holt_uploads_dev:/var/www/html/wp-content/uploads
-      - ../../wordpress/holt:/var/www/html/wp-content/themes/holt-portfolio:ro
+      - ../../app_wordpress/holt:/var/www/html/wp-content/themes/holt-portfolio:ro
     networks:
       - wp_dev
 

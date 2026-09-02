@@ -56,7 +56,7 @@ MARIADB_ROOT_PASSWORD                            # 建库 / 运维
 
 ## 4. 挂上自定义主题 `holt-portfolio`
 
-- 代码在 git：`wordpress/holt/`（submodule `profile-v1-wordpress-holt`）
+- 代码在 git：`app_wordpress/holt/`（submodule `profile-v1-wordpress-holt`）
 - 生产：compose volume + CI `scp` 到服务器同路径  
 - 后台：**外观 → 主题 → 启用 Holt Portfolio**
 
@@ -82,7 +82,7 @@ WordPress 文件在容器**文档根**（`/wp-admin`、`/wp-content`），公网
 ## 6. 内容从哪来
 
 1. 后台手工加作品；或  
-2. 抓取 B 站空间 → `wordpress/holt/data/holt-bilibili-works.json` →
+2. 抓取 B 站空间 → `app_wordpress/holt/data/holt-bilibili-works.json` →
    `import-holt-bilibili-works.sh` / Actions 导入 →  
    `sync-holt-work-meta-covers.sh` 补封面  
 

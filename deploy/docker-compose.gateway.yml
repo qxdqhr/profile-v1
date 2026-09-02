@@ -153,8 +153,8 @@ services:
         }
     volumes:
       - wp_holt_uploads:/var/www/html/wp-content/uploads
-      # 主题源码：仓根 wordpress/holt（git submodule）
-      - ./wordpress/holt:/var/www/html/wp-content/themes/holt-portfolio:ro
+      # 主题源码：仓根 app_wordpress/holt（git submodule）
+      - ./app_wordpress/holt:/var/www/html/wp-content/themes/holt-portfolio:ro
     networks:
       - profile
 
