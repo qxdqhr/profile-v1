@@ -147,7 +147,7 @@ common 同理，例如：
 | 宿主 | 引用什么 | 自己写什么 | 不写什么 |
 |------|----------|------------|----------|
 | **profile-v1 Web / 子应用** | `common/*`、`business/*/ui/web`、`business/*/server` | 薄 `page.tsx`、`app/api/**` re-export、网关、实验田注册、部署 | 不复制业务 UI / DbService |
-| **calendar-mobile / teach-hub-mobile / profile-rn-mobile** | `common/*/rn`、`business/*/ui/rn`、shared API client | 导航壳、原生权限、推送、cookie 同步 | 不手写第二套 Button/业务页（目标态） |
+| **calendar-mobile / teach-hub-mobile** | `common/*/rn`、`business/*/ui/rn`、shared API client | 导航壳、原生权限、推送、cookie 同步 | 不手写第二套 Button/业务页（目标态） |
 | **Taro 小程序**（可独立仓） | `common/*/taro`、`business/*/ui/taro` | app 配置、分包、发布 | 不复制 domain/server |
 | **Electron 桌面** | 多数 `ui/web` + `common`；专属用 `ui/electron` | 窗口/自动更新 | 同左 |
 

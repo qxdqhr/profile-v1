@@ -24,7 +24,6 @@
 | ShowMasterpiece | `@profile/showmasterpiece` | 3003 | `/showmasterpiece` |
 | Calendar Mobile | `@profile/calendar-mobile` | Expo | — |
 | TeachHub Mobile | `@profile/teach-hub-mobile` | Expo | — |
-| Profile RN Mobile | `@profile/profile-rn-mobile` | Expo | — |
 | WordPress（旁路） | —（非 pnpm） | 官方 PHP | `/wp/<slug>/` |
 | Godot 游戏（旁路） | —（非 pnpm） | nginx 静态 | `/games/<slug>/` |
 
@@ -40,12 +39,10 @@ pnpm dev:calendar
 pnpm dev:teach-hub
 pnpm dev:showmasterpiece
 pnpm dev:calendar-mobile
-pnpm dev:profile-rn-mobile
 pnpm build:all              # 四 Web 子应用
 pnpm package:calendar       # Docker + 可选 APK
 pnpm package:teach-hub
 pnpm package:showmasterpiece
-pnpm build:profile-rn-mobile:android  # Profile RN Mobile Android Release APK
 ```
 
 跳过 Android APK：`BUILD_ANDROID=0 pnpm package:calendar`

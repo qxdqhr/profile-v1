@@ -14,8 +14,7 @@ profile-v1/
 │   ├── teach-hub-mobile/    # TeachHub RN (Expo)
 │   ├── teach-hub-desktop/   # TeachHub Electron 脚手架
 │   ├── showmasterpiece/     # 画集子应用 (:3003)
-│   ├── money-research/      # 副业调研 Demo 测试台 (:3004)
-│   └── profile-rn-mobile/   # Profile RN Mobile (Expo + React Native)
+│   └── money-research/      # 副业调研 Demo 测试台 (:3004)
 ├── packages/
 │   ├── config, auth, db, ui
 │   ├── calendar-core, calendar-shared
@@ -39,7 +38,6 @@ pnpm dev:teach-hub     # :3002
 pnpm dev:showmasterpiece  # :3003
 pnpm dev:money-research   # :3004
 pnpm dev:calendar-mobile    # Expo
-pnpm dev:profile-rn-mobile  # Profile RN Mobile
 ```
 
 ## 常用命令
@@ -52,8 +50,6 @@ pnpm dev:profile-rn-mobile  # Profile RN Mobile
 | `pnpm package:teach-hub` | TeachHub Docker + 可选 RN APK |
 | `pnpm package:showmasterpiece` | ShowMasterpiece Docker |
 | `pnpm package:money-research` | Money Research Docker |
-| `pnpm build:profile-rn-mobile` | Profile RN Mobile 类型检查 |
-| `pnpm build:profile-rn-mobile:android` | Profile RN Mobile Android Release APK |
 
 本地仅打 Docker 镜像、跳过 Android APK：
 
@@ -76,7 +72,6 @@ RN 签名 APK 与 TeachHub 共用 `config/android-signing.env`（见 `config/and
 | TeachHub | [`apps/teach-hub/README.md`](apps/teach-hub/README.md) |
 | ShowMasterpiece | [`apps/showmasterpiece/README.md`](apps/showmasterpiece/README.md) |
 | Money Research | [`apps/money-research/README.md`](apps/money-research/README.md) |
-| Profile RN Mobile | [`apps/profile-rn-mobile/README.md`](apps/profile-rn-mobile/README.md) |
 
 ## Agent / 协作
 
@@ -92,7 +87,6 @@ RN 客户端独立 workflow：
 
 - `calendar-mobile-v*` → `.github/workflows/calendar-mobile-release.yml`
 - TeachHub Mobile 见 teach-hub 相关 workflow
-- Profile RN Mobile 见 `.github/workflows/android-release.yml`
 
 ## 技术栈
 

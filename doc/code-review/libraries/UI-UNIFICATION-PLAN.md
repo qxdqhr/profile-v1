@@ -108,7 +108,6 @@ sa2kit package.json → ❌ 未依赖 @sa2kit-ui/*
 | showmasterpiece-core | ❌ | ❌ | ✅ 主 UI | 业务编排 ui/ |
 | calendar-mobile | ❌ | ❌ | ❌ | ✅ Button/Input/Modal/Title/Loading |
 | teach-hub-mobile | ❌ | ❌ | ❌ | ✅ 同上 + Card（与 calendar 拷贝） |
-| profile-rn-mobile | ❌ | ❌ | ❌ | 局部 ActionButton（低优先） |
 
 ### 4.2 动森轨高频符号（animal-island 字面 import，约 49 文件）
 
@@ -198,7 +197,6 @@ Button · Title · Card · Modal · Input · Loading · Select · Switch · Foot
 | 项 | 动作 | 阶段 |
 |----|------|------|
 | calendar-mobile / teach-hub-mobile `src/ui` | 删实现，吃 rn；缺件补进 sa2kit-ui | U4 |
-| profile-rn ActionButton 等 | 能映射用库件，否则升格进 rn 包 | U4 |
 
 ### C. **不再存在「明确不迁 UI」**
 

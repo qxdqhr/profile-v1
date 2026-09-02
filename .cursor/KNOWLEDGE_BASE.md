@@ -250,7 +250,6 @@ git submodule update --init --recursive
 | ShowMasterpiece | `apps/showmasterpiece` | `@profile/showmasterpiece` | 3003 | `/showmasterpiece` |
 | Calendar Mobile | `apps/calendar-mobile` | `@profile/calendar-mobile` | Expo | — |
 | TeachHub Mobile | `apps/teach-hub-mobile` | `@profile/teach-hub-mobile` | Expo | — |
-| Profile RN Mobile | `apps/profile-rn-mobile` | `@profile/profile-rn-mobile` | Expo | — |
 | WordPress（旁路） | `wordpress/<slug>/` submodule + `deploy/wordpress/` | —（非 pnpm） | 官方镜像 | `/wp/<slug>/` |
 | Godot 游戏（旁路） | `games/<slug>/` submodule + `deploy/games/` | —（非 pnpm） | nginx 静态 | `/games/<slug>/` |
 
@@ -280,7 +279,6 @@ git submodule update --init --recursive
 - Docker 镜像：`qhr-profile-{web,calendar,teach-hub,showmasterpiece}:TAG`
 - CI：`.github/workflows/docker-build-push.yml`（matrix 四应用）
 - RN：`calendar-mobile-v*` tag 触发 calendar-mobile release workflow
-- RN：Profile RN Mobile 见 `.github/workflows/android-release.yml`
 
 部署细节：`deploy/MIGRATION-RUNBOOK.md`、`docs/monorepo-migration/deploy.md`。
 

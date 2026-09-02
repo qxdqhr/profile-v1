@@ -87,7 +87,7 @@
 | `calendar` | ✅ | [apps/calendar.md](./apps/calendar.md) |
 | `teach-hub` | ✅ | [apps/teach-hub.md](./apps/teach-hub.md) |
 | `showmasterpiece` | ✅ | [apps/showmasterpiece.md](./apps/showmasterpiece.md) |
-| `calendar-mobile` / `teach-hub-mobile` / `profile-rn-mobile` | ⬜ | — |
+| `calendar-mobile` / `teach-hub-mobile` | ⬜ | — |
 | `node-notes` / `money-research` / `teach-hub-desktop` | ⬜ | — |
 
 ### 3.3 主站模块 `apps/web/src/modules/*`（按代码量优先）
