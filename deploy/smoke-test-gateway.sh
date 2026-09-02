@@ -124,7 +124,9 @@ check_http "GET /games/miku-planting/" "${BASE}/games/miku-planting/" "200"
 check_http "GET /games/miku-planting/index.wasm" "${BASE}/games/miku-planting/index.wasm" "200"
 check_http "GET /games/miku-planting/index.pck" "${BASE}/games/miku-planting/index.pck" "200"
 check_http "GET /games (Next hub)" "${BASE}/games" "200"
+# diner-dash：Spine 预构建，包在 submodule prebuilt-web（含 wasm/pck）
 check_http "GET /games/diner-dash/" "${BASE}/games/diner-dash/" "200"
+check_http "GET /games/diner-dash/index.js" "${BASE}/games/diner-dash/index.js" "200"
 check_http "GET /games/diner-dash/index.wasm" "${BASE}/games/diner-dash/index.wasm" "200"
 check_http "GET /games/diner-dash/index.pck" "${BASE}/games/diner-dash/index.pck" "200"
 

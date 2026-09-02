@@ -16,7 +16,7 @@ GODOT_TAG="${GODOT_TAG:-4.7.1-stable}"
 CACHE_DIR="${GODOT_CACHE_DIR:-$HOME/.cache/godot-ci}"
 TEMPLATES_DIR="${HOME}/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-GAME_DIR="${REPO_ROOT}/games/${SLUG}"
+GAME_DIR="${REPO_ROOT}/app_games/${SLUG}"
 OUT_DIR="${REPO_ROOT}/deploy/games/${SLUG}/www"
 EDITOR_ZIP="${CACHE_DIR}/Godot_v${GODOT_TAG}_linux.x86_64.zip"
 TEMPLATES_TPZ="${CACHE_DIR}/Godot_v${GODOT_TAG}_export_templates.tpz"
@@ -49,14 +49,15 @@ if [[ -f "${GAME_DIR}/.use-prebuilt-web" ]]; then
     fi
   done
   if [[ -z "$SRC" ]]; then
-    echo "ERROR: ${SLUG} has .use-prebuilt-web but neither prebuilt-app_web/ nor app_web/ contains index.html" >&2
+    echo "ERROR: ${SLUG} has .use-prebuilt-web but neither prebuilt-web/ nor web/ contains index.html" >&2
     exit 1
   fi
   echo "Using prebuilt web for slug=${SLUG} from ${SRC}"
   rsync -a --delete --exclude '.gitkeep' "${SRC}/" "${OUT_DIR}/"
   test -f "${OUT_DIR}/index.html"
-  test -f "${OUT_DIR}/index.wasm"
-  test -f "${OUT_DIR}/index.pck"
+  if [[ -f "${OUT_DIR}/index.wasm" ]]; then
+    test -f "${OUT_DIR}/index.pck"
+  fi
   ls -lh "${OUT_DIR}"
   echo "OK: ${SLUG} → ${OUT_DIR} (prebuilt)"
   exit 0

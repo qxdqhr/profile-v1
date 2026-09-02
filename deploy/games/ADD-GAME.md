@@ -11,7 +11,7 @@
 git submodule update --init --recursive
 ```
 
-Spine 等无法在 CI 重导出的工程：在 submodule 根放置 `.use-prebuilt-web`，并把 Web 产物放在 `prebuilt-app_web/`（文件名 `index.*`）；`export-godot-game.sh` 会直接拷贝到 `deploy/games/<slug>/www/`。
+Spine 等无法在 CI 重导出的工程：在 submodule 根放置 `.use-prebuilt-web`，并把 Web 产物放在 `prebuilt-web/`（文件名 `index.html`）；`export-godot-game.sh` / `scripts/sync-prebuilt-game-www.sh` 会拷贝到 `deploy/games/<slug>/www/`。
 
 假设 slug = `my-game`（URL：`/games/my-game/`）。slug 只能是小写字母、数字、连字符。
 

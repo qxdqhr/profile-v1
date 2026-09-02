@@ -704,18 +704,25 @@ jobs:
           fi
           scp $SSH_OPTS deploy/games/README.md deploy/games/ADD-GAME.md \
             "$REMOTE:/root/profile-v1/games/"
+          bash scripts/sync-prebuilt-game-www.sh
           for game_dir in deploy/games/*/; do
             [ -d "$game_dir" ] || continue
             slug="$(basename "$game_dir")"
             [ -d "${game_dir}www" ] || continue
             ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/games/${slug}/www"
-            if [ "${GAMES_CHANGED}" = "true" ] && [ -f "${game_dir}www/index.html" ]; then
-              echo "=== 同步 Godot Web 产物: ${slug} ==="
+            should_sync=0
+            if [ -f "${game_dir}www/index.html" ]; then
+              if [ "${GAMES_CHANGED}" = "true" ] || [ -f "app_games/${slug}/.use-prebuilt-web" ]; then
+                should_sync=1
+              fi
+            fi
+            if [ "$should_sync" = "1" ]; then
+              echo "=== 同步游戏 Web 产物: ${slug} ==="
               scp -r $SSH_OPTS "${game_dir}www/"* "$REMOTE:/root/profile-v1/games/${slug}/www/"
             fi
           done
           if [ "${GAMES_CHANGED}" != "true" ]; then
-            echo "=== 跳过 www 同步（未改 games；保留服务器已有包）==="
+            echo "=== 未改 Godot 源码：保留服务器已有导出包；仍同步 .use-prebuilt-web ==="
           fi
           ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/cleanup-server-disk.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/wait-gateway-ready.sh /root/profile-v1/ensure-database-url.sh /root/profile-v1/ensure-wordpress-env.sh /root/profile-v1/ensure-wordpress-database.sh /root/profile-v1/ensure-calendar-schema.sh /root/profile-v1/ensure-node-notes-schema.sh /root/profile-v1/smoke-test-gateway.sh /root/profile-v1/check-gateway-health.sh /root/profile-v1/audit-outer-nginx.sh"
 
