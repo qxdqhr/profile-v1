@@ -22,5 +22,11 @@ export function getAuth(): Sa2kitAuthInstance {
   return authInstance;
 }
 
-/** 兼容现有 import { auth } */
-export const auth = getAuth();
+/** 兼容现有 import { auth } — 首次访问属性时才连库，避免 import 即初始化 */
+export const auth: Sa2kitAuthInstance = new Proxy({} as Sa2kitAuthInstance, {
+  get(_target, prop) {
+    const instance = getAuth();
+    const value = Reflect.get(instance, prop, instance);
+    return typeof value === 'function' ? value.bind(instance) : value;
+  },
+});

@@ -1,10 +1,12 @@
-import { NodeNotesCanvasPage } from '@/modules/nodeNotes';
+import { redirect } from 'next/navigation';
+import { getNodeNotesAppUrl } from '@/lib/node-notes-app-url';
 
-export default async function NodeNotesDocumentRoute({
+/** 节点笔记已迁至 @profile/node-notes 子应用 */
+export default async function NodeNotesDocumentRedirectPage({
   params,
 }: {
   params: Promise<{ documentId: string }>;
 }) {
   const { documentId } = await params;
-  return <NodeNotesCanvasPage documentId={documentId} />;
+  redirect(getNodeNotesAppUrl(`/${documentId}`));
 }

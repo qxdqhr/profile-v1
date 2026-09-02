@@ -200,12 +200,12 @@ export const experiments: ExperimentItem[] = [
     id: "node-notes",
     title: "节点笔记",
     description: "多文档节点图谱：有向连线、Markdown 导入导出、画布 PNG 导出",
-    path: "/testField/nodeNotes",
+    path: "/node-notes",
     tags: ["笔记", "知识图谱", "画布", "Markdown", "导入导出"],
     category: "utility",
     isCompleted: false,
     createdAt: "2026-07-11",
-    updatedAt: "2026-07-11"
+    updatedAt: "2026-09-02"
   },
 
   {

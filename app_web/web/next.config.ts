@@ -36,7 +36,6 @@ const nextConfig: NextConfig = {
         "@sa2kit-ui/react",
         "@profile/auth",
         "@profile/showmasterpiece-core",
-        "@profile/node-notes-core",
     ],
 
     typescript: {
@@ -58,7 +57,9 @@ const nextConfig: NextConfig = {
         NEXT_PUBLIC_MONEY_RESEARCH_URL:
             process.env.NEXT_PUBLIC_MONEY_RESEARCH_URL ??
             (process.env.NODE_ENV === 'production' ? '/money-research' : 'http://localhost:3004'),
-        NEXT_PUBLIC_NODE_NOTES_EMBED_PATH: '/testField/nodeNotes',
+        NEXT_PUBLIC_NODE_NOTES_URL:
+            process.env.NEXT_PUBLIC_NODE_NOTES_URL ??
+            (process.env.NODE_ENV === 'production' ? '/node-notes' : 'http://localhost:3005'),
     },
 
     images: {

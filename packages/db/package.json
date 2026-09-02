@@ -23,7 +23,6 @@
     "./migrate": "./src/migrate.ts"
   },
   "dependencies": {
-    "@profile/auth": "workspace:*",
     "@profile/calendar-core": "workspace:*",
     "@profile/config": "workspace:*",
     "@profile/node-notes-core": "workspace:*",

@@ -24,7 +24,6 @@
     "@profile/auth": "workspace:*",
     "@profile/config": "workspace:*",
     "@profile/db": "workspace:*",
-    "@profile/node-notes-core": "workspace:*",
     "@profile/showmasterpiece-core": "workspace:*",
     "@profile/ui": "workspace:*",
     "@radix-ui/react-alert-dialog": "^1.1.15",
