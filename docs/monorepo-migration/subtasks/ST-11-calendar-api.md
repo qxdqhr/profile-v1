@@ -6,9 +6,9 @@
 
 ## 交付物
 
-- [x] `apps/calendar/app/api/calendar/*`（re-export `@profile/calendar-core` handlers）
-- [x] `apps/calendar/app/api/auth/[...all]` — Better Auth
-- [x] `apps/calendar/app/api/ai/*` — 识图 / 设置面板（sa2kit 内置任务）
+- [x] `web/calendar/app/api/calendar/*`（re-export `@profile/calendar-core` handlers）
+- [x] `web/calendar/app/api/auth/[...all]` — Better Auth
+- [x] `web/calendar/app/api/ai/*` — 识图 / 设置面板（sa2kit 内置任务）
 
 ## 验收记录（2026-06-11）
 

@@ -23,4 +23,4 @@
 | `@profile/teach-hub-core` | `teach-hub-core/` |
 | `@profile/teach-hub-shared` | `teach-hub-shared/` | 跨端类型与 API 客户端 |
 
-当前主站 Next 应用在 `apps/web/`（`@profile/web`），见 `docs/monorepo-migration/`。
+当前主站 Next 应用在 `web/web/`（`@profile/web`），见 `docs/monorepo-migration/`。

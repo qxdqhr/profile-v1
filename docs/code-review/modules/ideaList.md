@@ -2,8 +2,8 @@
 
 | 项 | 内容 |
 |----|------|
-| 路径 | `apps/web/src/modules/ideaList/` |
-| API | `apps/web/src/app/api/ideaLists/**` → re-export |
+| 路径 | `web/web/src/modules/ideaList/` |
+| API | `web/web/src/app/api/ideaLists/**` → re-export |
 | 页面 | `/testField/ideaList`（`(utility)`） |
 | 评审日期 | 2026-08-29 |
 | 状态 | ✅ reviewed |

@@ -186,7 +186,7 @@ common 同理，例如：
 | **S2 下沉** | 从 `*-core` 抽出 `domain` + `ui/rn` 等到 `sa2kit/business/<name>`，core 改为 re-export | 要开正式小程序/第二 RN 宿主时 |
 | **S3 新域只进 sa2kit** | 新业务（含多端）禁止新建巨大 `*-core`，直接 `sa2kit/business/*` | 强制执行 |
 
-**ideaList / fitnessPlan 等仍在 `apps/web/src/modules` 的**：若明确要多端，再升格进 `sa2kit/business`；纯 Web 实验可暂留 modules。
+**ideaList / fitnessPlan 等仍在 `web/web/src/modules` 的**：若明确要多端，再升格进 `sa2kit/business`；纯 Web 实验可暂留 modules。
 
 ---
 

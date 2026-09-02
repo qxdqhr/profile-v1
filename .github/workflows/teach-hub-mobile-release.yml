@@ -88,7 +88,7 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
       - name: Build signed release APK
-        run: bash apps/teach-hub-mobile/scripts/android-release-build.sh
+        run: bash web/teach-hub-mobile/scripts/android-release-build.sh
         env:
           SKIP_EXPO_PREBUILD: '1'
           APP_VERSION: ${{ steps.meta.outputs.app_version }}
@@ -103,7 +103,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: teach-hub-mobile-apk-${{ steps.meta.outputs.app_version }}+${{ github.run_number }}
-          path: apps/teach-hub-mobile/dist/*.apk
+          path: web/teach-hub-mobile/dist/*.apk
           if-no-files-found: error
 
       - name: Create GitHub Release (tag only)
@@ -118,7 +118,7 @@ jobs:
             - versionCode: `${{ github.run_number }}`
             - Auth: `${{ steps.meta.outputs.auth_base_url }}`
             - API: `${{ steps.meta.outputs.api_base_url }}`
-          files: apps/teach-hub-mobile/dist/*.apk
+          files: web/teach-hub-mobile/dist/*.apk
           draft: false
           prerelease: false
         env:

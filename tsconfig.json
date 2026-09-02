@@ -14,7 +14,7 @@
     "jsx": "react-jsx",
     "incremental": true,
     "paths": {
-      "@/*": ["./apps/web/src/*"],
+      "@/*": ["./web/web/src/*"],
       "@sa2kit/exam": ["./packages/sa2kit-exam/src/index.ts"],
       "@sa2kit/exam/*": ["./packages/sa2kit-exam/src/*"],
       "@sa2kit/feishu-bot": ["./packages/sa2kit-feishu/src/index.ts"],
@@ -31,12 +31,12 @@
     }
   },
   "include": [
-    "apps/web/next-env.d.ts",
-    "apps/web/**/*.ts",
-    "apps/web/**/*.tsx",
+    "web/web/next-env.d.ts",
+    "web/web/**/*.ts",
+    "web/web/**/*.tsx",
     "packages/**/*.ts",
     "scripts/**/*.ts",
     "drizzle.config.ts"
   ],
-  "exclude": ["node_modules", "apps/web/.next"]
+  "exclude": ["node_modules", "web/web/.next"]
 }

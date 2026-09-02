@@ -6,22 +6,22 @@ export * from '../../../../packages/showmasterpiece-core/src/db/schema/bookings'
 export * from '../../../../packages/showmasterpiece-core/src/db/schema/popupConfig';
 export * from '../../../../packages/showmasterpiece-core/src/db/schema/config';
 export * from './auth';
-export * from '../../../../apps/web/src/modules/filetransfer/db/schema';
+export * from '../../../../web/web/src/modules/filetransfer/db/schema';
 export * from '../../../../packages/calendar-core/src/db/schema';
-export * from '../../../../apps/web/src/modules/ideaList/db/schema';
-export * from '../../../../apps/web/src/modules/fitnessPlan/db/schema';
-export * from '../../../../apps/web/src/modules/mmd/db/schema';
-export * from '../../../../apps/web/src/modules/cardMaker/db/schema';
-export * from '../../../../apps/web/src/modules/mikutap/db/schema';
-export * from '../../../../apps/web/src/modules/skillManager/db/schema';
+export * from '../../../../web/web/src/modules/ideaList/db/schema';
+export * from '../../../../web/web/src/modules/fitnessPlan/db/schema';
+export * from '../../../../web/web/src/modules/mmd/db/schema';
+export * from '../../../../web/web/src/modules/cardMaker/db/schema';
+export * from '../../../../web/web/src/modules/mikutap/db/schema';
+export * from '../../../../web/web/src/modules/skillManager/db/schema';
 export * from '../../../../packages/teach-hub-core/src/db/schema';
-export * from '../../../../apps/web/src/modules/comfyPrompt/db/schema';
+export * from '../../../../web/web/src/modules/comfyPrompt/db/schema';
 export * from 'sa2kit/common/file/server';
 export * from 'sa2kit/business/festivalCard/server';
-export * from '../../../../apps/web/src/modules/ticketMonitor/db/schema';
+export * from '../../../../web/web/src/modules/ticketMonitor/db/schema';
 export * from './purchaseGame';
 export * from './universalExport';
-export * from '../../../../apps/web/src/modules/vocaloidBooth/db/schema';
+export * from '../../../../web/web/src/modules/vocaloidBooth/db/schema';
 export * from '../../../../packages/node-notes-core/src/db/schema';
 
 export const examTypes = pgTable('exam_types', {

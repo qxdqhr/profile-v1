@@ -29,7 +29,7 @@ cd "${ROOT_DIR}"
 if [ "${BUILD_DOCKER}" = "1" ]; then
   echo "==> Build ShowMasterpiece Docker image (tag: ${IMAGE_TAG})"
   docker buildx build --platform "${PLATFORM}" \
-    -f apps/showmasterpiece/Dockerfile \
+    -f web/showmasterpiece/Dockerfile \
     -t "qhr-profile-showmasterpiece:${IMAGE_TAG}" \
     --load .
   echo "==> Docker image ready: qhr-profile-showmasterpiece:${IMAGE_TAG}"

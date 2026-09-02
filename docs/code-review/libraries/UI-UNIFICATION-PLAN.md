@@ -52,7 +52,7 @@ sa2kit-ui (@sa2kit-ui/react = @qhr123/sa2kit-ui-react@0.1.6)
 
 animal-island-ui@0.9.8
     ▲ 真依赖
- calendar-core / teach-hub-core / apps/calendar|teach-hub
+ calendar-core / teach-hub-core / web/calendar|teach-hub
  showmasterpiece（声明但源码零引用 → 死依赖）
 
 sa2kit/common/components（自建 shadcn，无 Radix）
@@ -101,9 +101,9 @@ sa2kit package.json → ❌ 未依赖 @sa2kit-ui/*
 
 | 包 | animal-island-ui | @sa2kit-ui/react | sa2kit/common/components | 手写 ui |
 |----|:---:|:---:|:---:|:---:|
-| apps/web | 字面 import + **alias** | HomeV2 直连 | 实验页 | — |
-| calendar-core / apps/calendar | ✅ 真依赖 | ❌ | 少量 | — |
-| teach-hub-core / apps/teach-hub | ✅ 真依赖 | ❌ | ❌ | — |
+| web/web | 字面 import + **alias** | HomeV2 直连 | 实验页 | — |
+| calendar-core / web/calendar | ✅ 真依赖 | ❌ | 少量 | — |
+| teach-hub-core / web/teach-hub | ✅ 真依赖 | ❌ | ❌ | — |
 | showmasterpiece | ✅ **死依赖** | ❌ | — | — |
 | showmasterpiece-core | ❌ | ❌ | ✅ 主 UI | 业务编排 ui/ |
 | calendar-mobile | ❌ | ❌ | ❌ | ✅ Button/Input/Modal/Title/Loading |
@@ -250,9 +250,9 @@ Button · Title · Card · Modal · Input · Loading · Select · Switch · Foot
 
 | 步骤 | 仓 | 内容 | 验收 |
 |------|-----|------|------|
-| U2.1 | calendar-core + apps/calendar | animal-island → 门面；删依赖 | ✅ 源码换轨；`pnpm --filter @profile/calendar build` 绿 |
-| U2.2 | teach-hub-core + apps/teach-hub | 同上 | ✅ 源码换轨 |
-| U2.3 | apps/showmasterpiece | 删死依赖 animal-island + transpile | ✅ |
+| U2.1 | calendar-core + web/calendar | animal-island → 门面；删依赖 | ✅ 源码换轨；`pnpm --filter @profile/calendar build` 绿 |
+| U2.2 | teach-hub-core + web/teach-hub | 同上 | ✅ 源码换轨 |
+| U2.3 | web/showmasterpiece | 删死依赖 animal-island + transpile | ✅ |
 | **U2.4** | **showmasterpiece-core** | **`sa2kit/common/components` → `sa2kit/common/ui/admin`（动森兼容层）** | ✅ build 绿 |
 | U2.5 | showmasterpiece app | ThemeProvider + style 接入 | ✅ |
 
@@ -261,7 +261,7 @@ Button · Title · Card · Modal · Input · Loading · Select · Switch · Foot
 | 步骤 | 内容 | 验收 |
 |------|------|------|
 | U3.1 | web Home / fitnessPlan 字面 → `sa2kit/common/ui` | ✅ |
-| U3.2 | 删除 `apps/web/next.config.ts` animal-island alias | ✅ |
+| U3.2 | 删除 `web/web/next.config.ts` animal-island alias | ✅ |
 | U3.3 | 全仓 `rg animal-island-ui`（除 docs）趋零 | ⬜ docs/描述文案仍有；源码依赖已无 |
 ### U4 — Mobile → `@sa2kit-ui/rn` / `sa2kit/common/ui/rn`
 

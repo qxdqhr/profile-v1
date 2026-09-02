@@ -6,7 +6,7 @@
 
 ```
 profile-v1/
-├── apps/
+├── web/
 │   ├── web/                 # 主站 @profile/web (:3000)
 │   ├── calendar/            # 日历 Web @profile/calendar (:3001)
 │   ├── calendar-mobile/     # 日历 RN (Expo)
@@ -65,13 +65,13 @@ RN 签名 APK 与 TeachHub 共用 `config/android-signing.env`（见 `config/and
 
 | 应用 | README |
 |------|--------|
-| 应用总览 | [`apps/README.md`](apps/README.md) |
+| 应用总览 | [`web/README.md`](web/README.md) |
 | 共享包 | [`packages/README.md`](packages/README.md) |
-| Calendar Web | [`apps/calendar/README.md`](apps/calendar/README.md) |
-| Calendar Mobile | [`apps/calendar-mobile/README.md`](apps/calendar-mobile/README.md) |
-| TeachHub | [`apps/teach-hub/README.md`](apps/teach-hub/README.md) |
-| ShowMasterpiece | [`apps/showmasterpiece/README.md`](apps/showmasterpiece/README.md) |
-| Money Research | [`apps/money-research/README.md`](apps/money-research/README.md) |
+| Calendar Web | [`web/calendar/README.md`](web/calendar/README.md) |
+| Calendar Mobile | [`web/calendar-mobile/README.md`](web/calendar-mobile/README.md) |
+| TeachHub | [`web/teach-hub/README.md`](web/teach-hub/README.md) |
+| ShowMasterpiece | [`web/showmasterpiece/README.md`](web/showmasterpiece/README.md) |
+| Money Research | [`web/money-research/README.md`](web/money-research/README.md) |
 
 ## Agent / 协作
 

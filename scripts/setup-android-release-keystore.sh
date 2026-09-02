@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 将 ANDROID_* 写入指定 android/ 目录的 keystore.properties + app/keystore.jks
-# 用法: setup-android-release-keystore.sh /path/to/apps/foo-mobile/android
+# 用法: setup-android-release-keystore.sh /path/to/web/foo-mobile/android
 set -euo pipefail
 
 ANDROID_DIR="${1:?android dir required}"

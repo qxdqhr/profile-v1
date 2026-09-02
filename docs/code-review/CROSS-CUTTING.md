@@ -9,9 +9,9 @@
 
 **现象**：以下应用均设置 `typescript.ignoreBuildErrors: true`：
 
-- `apps/web`
-- `apps/calendar` / `teach-hub` / `showmasterpiece`
-- `apps/node-notes` / `money-research`
+- `web/web`
+- `web/calendar` / `teach-hub` / `showmasterpiece`
+- `web/node-notes` / `money-research`
 
 **风险**：类型错误可进入 Docker 镜像与生产；CI 矩阵 build 无法拦截。
 
@@ -28,7 +28,7 @@
 
 **现象**：`packages/db/src/schema/index.ts` 用相对路径硬编码聚合：
 
-- `apps/web/src/modules/*/db/schema`
+- `web/web/src/modules/*/db/schema`
 - `packages/*-core/src/db/schema`
 - sa2kit 内建表、考试表等
 
@@ -96,7 +96,7 @@
 ## CX-007 — showmasterpiece API 双挂载（P0）
 
 见 [apps/showmasterpiece.md](./apps/showmasterpiece.md)。  
-`apps/web/src/app/api/showmasterpiece/**` 与子应用并存。
+`web/web/src/app/api/showmasterpiece/**` 与子应用并存。
 
 **状态**：open
 

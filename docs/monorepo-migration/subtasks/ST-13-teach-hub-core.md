@@ -37,4 +37,4 @@
 
 ## 后续（ST-14）
 
-创建 `apps/teach-hub` 独立 Next 应用。
+创建 `web/teach-hub` 独立 Next 应用。

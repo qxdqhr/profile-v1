@@ -22,8 +22,8 @@
 
 | 项 | 约定 |
 |----|------|
-| 框架 | Next.js（App Router，主站在 `apps/web/src/app`） |
-| Monorepo | pnpm workspace：`apps/*` + `packages/*`；详见 `docs/monorepo-migration/`、`docs/README.md`、`apps/README.md` |
+| 框架 | Next.js（App Router，主站在 `web/web/src/app`） |
+| Monorepo | pnpm workspace：`web/*` + `packages/*`；详见 `docs/monorepo-migration/`、`docs/README.md`、`web/README.md` |
 | 样式 | Tailwind CSS；预设 `@profile/ui/tailwind.preset`（设计令牌桥；业务组件/主题见 §1.1） |
 | 数据层 | Drizzle ORM + PostgreSQL（`@profile/db`，迁移目录 `drizzle/` 在仓库根） |
 | 包管理 | **pnpm**；开发 `pnpm dev` = `pnpm --filter @profile/web dev` |
@@ -40,7 +40,7 @@
 **依赖链（Web 登录示例）**：
 
 ```
-apps/web 模块
+web/web 模块
   → @/lib/auth（薄 re-export）
   → @profile/auth（注入 authClient + sa2kit-ui-bootstrap 样式）
   → sa2kit/common/auth（session / AuthGuard / LoginModal 组装）
@@ -52,7 +52,7 @@ apps/web 模块
 
 - 业务代码 **不新增** `animal-island-ui`
 - 宿主/业务 **不直连** `@sa2kit-ui/*`（经 `sa2kit/common/ui*` 门面；RN 宿主可 link `@sa2kit-ui/rn`）
-- **禁止** 在 `apps/web/src/app/layout.tsx` 为修单个页面而全局注入全量 sa2kit-ui CSS
+- **禁止** 在 `web/web/src/app/layout.tsx` 为修单个页面而全局注入全量 sa2kit-ui CSS
 - Auth 相关样式由 `@profile/auth` 的 `sa2kit-ui-bootstrap` 引导；其他 sa2kit UI 路由段在 **该段 layout** 或模块 layout 引入 `import 'sa2kit/common/ui/style'`
 - 临时 UI 仅特殊需求且限期回灌；门禁：`pnpm gate:ui`
 
@@ -70,7 +70,7 @@ apps/web 模块
 
 ### 2.1 主布局前缀
 
-- 多数业务页面在：`apps/web/src/app/(pages)/...`
+- 多数业务页面在：`web/web/src/app/(pages)/...`
 - 顶层另有少量路由（如 `src/app/page.tsx`、`src/app/timestamp/` 等），按具体需求放置。
 
 ### 2.2 实验田 `testField`
@@ -105,7 +105,7 @@ export default function XxxRoute() {
 
 需要模块级副作用（如初始化）时，优先在 **layout** 统一 `import '@/modules/.../init'`；薄 `page.tsx` 仅 re-export 组件。
 
-**已独立为子应用**（业务在 `packages/*-core`，Web 壳在 `apps/*`）：calendar、teach-hub、showmasterpiece。主站 `apps/web/src/modules/<name>/` 仅保留 **薄 re-export 或重定向**，勿再新增大段业务逻辑。
+**已独立为子应用**（业务在 `packages/*-core`，Web 壳在 `web/*`）：calendar、teach-hub、showmasterpiece。主站 `web/web/src/modules/<name>/` 仅保留 **薄 re-export 或重定向**，勿再新增大段业务逻辑。
 
 ### 2.4 API 路由与模块代码的对应关系
 
@@ -181,7 +181,7 @@ export default function XxxRoute() {
 - 约定「API 一律从模块 re-export」的路径命名变化
 - `ExperimentItem` 类型或 `category` 枚举扩展
 - 新的「标准参考模块」取代 `ideaList` 作为模板
-- 新增/变更 `apps/*` 子应用、网关路由、RN 客户端或 CI 打包脚本
+- 新增/变更 `web/*` 子应用、网关路由、RN 客户端或 CI 打包脚本
 - 新增/变更 **git submodule**（`games/*`、`wordpress/*`）或 `.gitmodules`
 - 变更与 sa2kit / sa2kit-ui 的依赖方向或 UI 门面约定（同步 `docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`）
 - 新增/迁移仓库级 Markdown 文档（同步 `docs/README.md` 索引）
@@ -202,7 +202,7 @@ export default function XxxRoute() {
 | **WordPress 主题站** | `wordpress/<slug>/` | `deploy/wordpress/`（compose 模板、ADD-SITE、php 教程；**全站共享，非 submodule**） | `/wp/<slug>/` | [`wordpress/README.md`](../wordpress/README.md)、[`deploy/wordpress/ADD-SITE.md`](../deploy/wordpress/ADD-SITE.md) |
 
 - **Submodule 内**：游戏 `project.godot` / 导出工程；WP 主题 PHP/CSS/JS + 可选 `data/` 种子 JSON。
-- **父仓内**：`deploy/docker-compose.gateway.yml`、`deploy/nginx/*`、冒烟脚本；主站 [`apps/web/src/modules/games/`](../apps/web/src/modules/games/) 小游戏大厅导航（**不是** Godot 源码）。
+- **父仓内**：`deploy/docker-compose.gateway.yml`、`deploy/nginx/*`、冒烟脚本；主站 [`web/web/src/modules/games/`](../web/web/src/modules/games/) 小游戏大厅导航（**不是** Godot 源码）。
 - **禁止**：在父仓直接长期修改 submodule 目录内容却不提交子仓；把 `deploy/wordpress/` 或 `deploy/games/<slug>/www/` 当成 submodule。
 
 #### 7.0.2 克隆与本地开发
@@ -237,20 +237,20 @@ git submodule update --init --recursive
 
 #### 7.0.5 与主站、实验田的关系
 
-- 休闲 Godot 游戏入口：主站 **`/games`**（[`apps/web/src/modules/games`](../apps/web/src/modules/games/)）；实验田 **`category: utility`**，不再堆 `leisure` 游戏卡片。
+- 休闲 Godot 游戏入口：主站 **`/games`**（[`web/web/src/modules/games`](../web/web/src/modules/games/)）；实验田 **`category: utility`**，不再堆 `leisure` 游戏卡片。
 - 旁路 URL（`/games/*`、`/wp/*`）在实验田卡片上须 **整页跳转**（见 `ExperimentNavCard` / `isSidecarPath`），不可走 Next `<Link>` 到不存在的 App Router 路径。
-- 从 Next/Phaser **迁出**到 Godot 后：删 `apps/web` 内旧模块与 API，**保留** `@profile/db` 中仍需要的表定义（如 `purchase-game` → `packages/db/src/schema/purchaseGame.ts`）。
+- 从 Next/Phaser **迁出**到 Godot 后：删 `web/web` 内旧模块与 API，**保留** `@profile/db` 中仍需要的表定义（如 `purchase-game` → `packages/db/src/schema/purchaseGame.ts`）。
 
 ### 7.1 应用与端口
 
 | 应用 | 目录 | 包名 | dev 端口 | 网关 basePath |
 |------|------|------|----------|---------------|
-| 主站 | `apps/web` | `@profile/web` | 3000 | `/` |
-| Calendar | `apps/calendar` | `@profile/calendar` | 3001 | `/calendar` |
-| TeachHub | `apps/teach-hub` | `@profile/teach-hub` | 3002 | `/teach-hub` |
-| ShowMasterpiece | `apps/showmasterpiece` | `@profile/showmasterpiece` | 3003 | `/showmasterpiece` |
-| Calendar Mobile | `apps/calendar-mobile` | `@profile/calendar-mobile` | Expo | — |
-| TeachHub Mobile | `apps/teach-hub-mobile` | `@profile/teach-hub-mobile` | Expo | — |
+| 主站 | `web/web` | `@profile/web` | 3000 | `/` |
+| Calendar | `web/calendar` | `@profile/calendar` | 3001 | `/calendar` |
+| TeachHub | `web/teach-hub` | `@profile/teach-hub` | 3002 | `/teach-hub` |
+| ShowMasterpiece | `web/showmasterpiece` | `@profile/showmasterpiece` | 3003 | `/showmasterpiece` |
+| Calendar Mobile | `web/calendar-mobile` | `@profile/calendar-mobile` | Expo | — |
+| TeachHub Mobile | `web/teach-hub-mobile` | `@profile/teach-hub-mobile` | Expo | — |
 | WordPress（旁路） | `wordpress/<slug>/` submodule + `deploy/wordpress/` | —（非 pnpm） | 官方镜像 | `/wp/<slug>/` |
 | Godot 游戏（旁路） | `games/<slug>/` submodule + `deploy/games/` | —（非 pnpm） | nginx 静态 | `/games/<slug>/` |
 
@@ -268,8 +268,8 @@ git submodule update --init --recursive
 
 ### 7.3 子应用约定
 
-- 页面：`apps/<app>/src/app/**/page.tsx` 薄封装，UI 从 `@profile/<app>-core` 导入。
-- API：`apps/<app>/src/app/api/**/route.ts` re-export core 内 handlers；对外路径仍为 `/api/<app>/...`（经 nginx 反代）。
+- 页面：`web/<app>/src/app/**/page.tsx` 薄封装，UI 从 `@profile/<app>-core` 导入。
+- API：`web/<app>/src/app/api/**/route.ts` re-export core 内 handlers；对外路径仍为 `/api/<app>/...`（经 nginx 反代）。
 - Auth：子应用 **不** 单独登录；session 由 web `/api/auth/*` 共享（同域 cookie）。
 - 主站兼容：legacy 实验田路径可 302/301 至子应用 URL（如 ShowMasterPieces → `/showmasterpiece`）。
 
@@ -290,12 +290,12 @@ git submodule update --init --recursive
 - **旁路基建**：[`deploy/wordpress/`](../deploy/wordpress/)（dev compose、ADD-SITE、php 教程；**非 submodule**）+ `deploy/docker-compose.gateway.yml` 中 `wp_mariadb` / `wordpress_*`。
 - 二开/部署教程：[`deploy/wordpress/php/README.md`](../deploy/wordpress/php/README.md)。
 - nginx：每站 **两条** location——`wp-admin|wp-includes|wp-content|xmlrpc|wp-*.php` 去前缀；其余 `/wp/<slug>/` 保留 URI（固定链接 / `wp-json`）。勿逐文件加路由。
-- **不**创建 `apps/blog`、不复用 Next `basePath` / Drizzle / better-auth。
+- **不**创建 `web/blog`、不复用 Next `basePath` / Drizzle / better-auth。
 - 加站：[`deploy/wordpress/ADD-SITE.md`](../deploy/wordpress/ADD-SITE.md)。
 
 ### 7.6 旁路 Godot / 静态游戏（`/games/*`）
 
-- **源码**：`games/<slug>/`（Godot 4，**git submodule**，**非** `apps/*`）。清单见 [`deploy/games/README.md`](../deploy/games/README.md)。
+- **源码**：`games/<slug>/`（Godot 4，**git submodule**，**非** `web/*`）。清单见 [`deploy/games/README.md`](../deploy/games/README.md)。
 - **运行时静态包**：`deploy/games/<slug>/www/`（CI 导出，**不进 git**）；路径 `/games/<slug>/`；compose `game_<slug>` 挂载 `www/`。
 - CI：改 `games/**` → `export-godot-games` → artifact → `deploy-web` scp（§7.0.4）。
 - 加游戏：[`deploy/games/ADD-GAME.md`](../deploy/games/ADD-GAME.md)。

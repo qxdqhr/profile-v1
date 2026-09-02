@@ -7,9 +7,9 @@
 ## 交付物
 
 - [x] 根 `package.json` 聚合脚本委托 `@profile/web`
-- [x] `dockerfile`：monorepo 安装 + `pnpm --filter @profile/web build` + standalone 路径 `apps/web/server.js`
-- [x] `components.json` 路径指向 `apps/web`
-- [x] 根脚本中 `src/` 引用已更新为 `@profile/*` 或 `apps/web/src`
+- [x] `dockerfile`：monorepo 安装 + `pnpm --filter @profile/web build` + standalone 路径 `web/web/server.js`
+- [x] `components.json` 路径指向 `web/web`
+- [x] 根脚本中 `src/` 引用已更新为 `@profile/*` 或 `web/web/src`
 
 ## 验收记录（2026-06-11）
 

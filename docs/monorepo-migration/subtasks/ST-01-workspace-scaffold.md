@@ -11,7 +11,7 @@
 ## 交付物
 
 - [x] 根目录 `pnpm-workspace.yaml`（含 `'.'` 以便 Turborepo 识别根包）
-- [x] 目录占位：`apps/.gitkeep`、`apps/README.md`
+- [x] 目录占位：`web/.gitkeep`、`web/README.md`
 - [x] `packages/README.md`（已有 `sa2kit-*` 与计划 `@profile/*` 说明）
 - [x] 根 `package.json` 已有 `private: true` 与 `packageManager`
 
@@ -20,7 +20,7 @@
 ```yaml
 packages:
   - '.'
-  - 'apps/*'
+  - 'web/*'
   - 'packages/*'
 ```
 
@@ -30,9 +30,9 @@ packages:
 
 | 路径 | npm name |
 |------|----------|
-| `apps/web` | `@profile/web` |
-| `apps/calendar` | `@profile/calendar` |
-| `apps/teach-hub` | `@profile/teach-hub` |
+| `web/web` | `@profile/web` |
+| `web/calendar` | `@profile/calendar` |
+| `web/teach-hub` | `@profile/teach-hub` |
 | `packages/config` | `@profile/config` |
 | `packages/auth` | `@profile/auth` |
 | `packages/db` | `@profile/db` |
@@ -55,8 +55,8 @@ packages:
 
 ## 风险
 
-- 过早把整个项目挪进 `apps/web` 会导致路径大面积变更 — **本 ST 禁止搬迁源码**
+- 过早把整个项目挪进 `web/web` 会导致路径大面积变更 — **本 ST 禁止搬迁源码**
 
 ## 备注
 
-ST-07 才真正搬迁 `src/` → `apps/web/`；本 ST 仅搭架子。
+ST-07 才真正搬迁 `src/` → `web/web/`；本 ST 仅搭架子。

@@ -1,4 +1,4 @@
-# ST-10 apps/calendar 脚手架
+# ST-10 web/calendar 脚手架
 
 **任务 ID**：M-10  
 **状态**：done  
@@ -6,7 +6,7 @@
 
 ## 交付物
 
-- [x] `apps/calendar/package.json`（`PORT=3001`，`NEXT_DIST_DIR=.next-calendar`）
+- [x] `web/calendar/package.json`（`PORT=3001`，`NEXT_DIST_DIR=.next-calendar`）
 - [x] `next.config.ts`、`tailwind` / `postcss`、`globals.css`
 - [x] `app/page.tsx` — `CalendarPageCore`
 - [x] `app/events/[id]/page.tsx` — `EventDetailPage`

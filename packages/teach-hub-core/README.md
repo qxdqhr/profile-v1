@@ -1,6 +1,6 @@
 # @profile/teach-hub-core
 
-teachHub 业务逻辑与 UI 共享包，供 `apps/teach-hub`（`@profile/teach-hub`）消费。主站 `@profile/web` 在 ST-16 后仅通过 `/teach-hub` 重定向至子应用，不再直接依赖本包。
+teachHub 业务逻辑与 UI 共享包，供 `web/teach-hub`（`@profile/teach-hub`）消费。主站 `@profile/web` 在 ST-16 后仅通过 `/teach-hub` 重定向至子应用，不再直接依赖本包。
 
 ## 导出
 

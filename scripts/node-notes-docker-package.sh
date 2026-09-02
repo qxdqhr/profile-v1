@@ -28,7 +28,7 @@ cd "${ROOT_DIR}"
 if [ "${BUILD_DOCKER}" = "1" ]; then
   echo "==> Build Node Notes Docker image (tag: ${IMAGE_TAG})"
   docker buildx build --platform "${PLATFORM}" \
-    -f apps/node-notes/Dockerfile \
+    -f web/node-notes/Dockerfile \
     -t "qhr-profile-node-notes:${IMAGE_TAG}" \
     --load .
   echo "==> Docker image ready: qhr-profile-node-notes:${IMAGE_TAG}"

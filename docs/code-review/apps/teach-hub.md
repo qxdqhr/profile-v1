@@ -2,9 +2,9 @@
 
 | 项 | 内容 |
 |----|------|
-| 应用 | `apps/teach-hub`（:3002，basePath `/teach-hub`） |
+| 应用 | `web/teach-hub`（:3002，basePath `/teach-hub`） |
 | Core | `packages/teach-hub-core`（~6.5k 行） |
-| Shared | `packages/teach-hub-shared` |
+| Shared | `npm/teach-hub-shared` |
 | 评审日期 | 2026-08-29 |
 | 状态 | ✅ reviewed（边界 + 风险；core 深挖待二轮） |
 

@@ -42,7 +42,7 @@ jobs:
         with:
           filters: |
             web:
-              - 'apps/web/**'
+              - 'web/web/**'
               - 'packages/auth/**'
               - 'packages/config/**'
               - 'packages/db/**'
@@ -51,9 +51,9 @@ jobs:
               - 'pnpm-lock.yaml'
               - 'package.json'
             calendar:
-              - 'apps/calendar/**'
+              - 'web/calendar/**'
               - 'packages/calendar-core/**'
-              - 'packages/calendar-shared/**'
+              - 'npm/calendar-shared/**'
               - 'packages/auth/**'
               - 'packages/config/**'
               - 'packages/db/**'
@@ -61,9 +61,9 @@ jobs:
               - 'pnpm-lock.yaml'
               - 'package.json'
             teach-hub:
-              - 'apps/teach-hub/**'
+              - 'web/teach-hub/**'
               - 'packages/teach-hub-core/**'
-              - 'packages/teach-hub-shared/**'
+              - 'npm/teach-hub-shared/**'
               - 'packages/auth/**'
               - 'packages/config/**'
               - 'packages/db/**'
@@ -71,7 +71,7 @@ jobs:
               - 'pnpm-lock.yaml'
               - 'package.json'
             showmasterpiece:
-              - 'apps/showmasterpiece/**'
+              - 'web/showmasterpiece/**'
               - 'packages/showmasterpiece-core/**'
               - 'packages/auth/**'
               - 'packages/config/**'
@@ -80,11 +80,11 @@ jobs:
               - 'pnpm-lock.yaml'
               - 'package.json'
             money-research:
-              - 'apps/money-research/**'
+              - 'web/money-research/**'
               - 'pnpm-lock.yaml'
               - 'package.json'
             node-notes:
-              - 'apps/node-notes/**'
+              - 'web/node-notes/**'
               - 'packages/node-notes-core/**'
               - 'packages/auth/**'
               - 'packages/config/**'
@@ -93,11 +93,11 @@ jobs:
               - 'pnpm-lock.yaml'
               - 'package.json'
             calendar-mobile:
-              - 'apps/calendar-mobile/**'
-              - 'packages/calendar-shared/**'
+              - 'web/calendar-mobile/**'
+              - 'npm/calendar-shared/**'
             teach-hub-mobile:
-              - 'apps/teach-hub-mobile/**'
-              - 'packages/teach-hub-shared/**'
+              - 'web/teach-hub-mobile/**'
+              - 'npm/teach-hub-shared/**'
             games:
               - 'games/**'
               - 'scripts/export-godot-game.sh'
@@ -173,7 +173,7 @@ jobs:
       - name: Build Docker image (${{ matrix.app }})
         run: |
           docker buildx build --platform linux/amd64 \
-            -f apps/${{ matrix.app }}/Dockerfile \
+            -f web/${{ matrix.app }}/Dockerfile \
             -t qhr-profile-${{ matrix.app }}:amd64 \
             --load .
 
@@ -358,7 +358,7 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
       - name: Build signed release APK
-        run: bash apps/teach-hub-mobile/scripts/android-release-build.sh
+        run: bash web/teach-hub-mobile/scripts/android-release-build.sh
         env:
           SKIP_EXPO_PREBUILD: '1'
           APP_VERSION: '0.1.0'
@@ -372,7 +372,7 @@ jobs:
       - name: Resolve APK metadata
         id: apk_meta
         run: |
-          APK_PATH="$(ls -t apps/teach-hub-mobile/dist/*.apk | head -1)"
+          APK_PATH="$(ls -t web/teach-hub-mobile/dist/*.apk | head -1)"
           APK_NAME="$(basename "$APK_PATH")"
           TAG_NAME="teach-hub-mobile-ci-${GITHUB_RUN_NUMBER}"
           RELEASE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${TAG_NAME}"
@@ -397,7 +397,7 @@ jobs:
             - versionCode: `${{ github.run_number }}`
             - Auth: `${{ steps.cfg.outputs.auth_base_url }}`
             - API: `${{ steps.cfg.outputs.api_base_url }}`
-          files: apps/teach-hub-mobile/dist/*.apk
+          files: web/teach-hub-mobile/dist/*.apk
           draft: false
           prerelease: false
         env:
@@ -478,7 +478,7 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
       - name: Build signed release APK
-        run: bash apps/calendar-mobile/scripts/android-release-build.sh
+        run: bash web/calendar-mobile/scripts/android-release-build.sh
         env:
           SKIP_EXPO_PREBUILD: '1'
           APP_VERSION: '0.1.0'
@@ -492,7 +492,7 @@ jobs:
       - name: Resolve APK metadata
         id: apk_meta
         run: |
-          APK_PATH="$(ls -t apps/calendar-mobile/dist/*.apk | head -1)"
+          APK_PATH="$(ls -t web/calendar-mobile/dist/*.apk | head -1)"
           APK_NAME="$(basename "$APK_PATH")"
           TAG_NAME="calendar-mobile-ci-${GITHUB_RUN_NUMBER}"
           RELEASE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${TAG_NAME}"
@@ -515,7 +515,7 @@ jobs:
             - versionCode: `${{ github.run_number }}`
             - Auth: `${{ steps.cfg.outputs.auth_base_url }}`
             - API: `${{ steps.cfg.outputs.api_base_url }}`
-          files: apps/calendar-mobile/dist/*.apk
+          files: web/calendar-mobile/dist/*.apk
           draft: false
           prerelease: false
         env:

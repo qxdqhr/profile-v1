@@ -68,6 +68,6 @@ Phaser 小游戏流程见用户级 Skill：`profile-v1-minigame`（`~/.agents/sk
 
 以下变更后应同步更新 `KNOWLEDGE_BASE.md`、[`docs/README.md`](./README.md)、根 `README.md` 或 `deploy/MIGRATION-RUNBOOK.md`：
 
-- 新增/移除 `apps/*` 或 `packages/*`
+- 新增/移除 `web/*` 或 `packages/*`
 - 网关路由、端口、CI 镜像矩阵变化
-- 子应用从 `apps/web/src/modules` 迁出或兼容层调整
+- 子应用从 `web/web/src/modules` 迁出或兼容层调整

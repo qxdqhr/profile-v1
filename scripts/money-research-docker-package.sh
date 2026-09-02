@@ -28,7 +28,7 @@ cd "${ROOT_DIR}"
 if [ "${BUILD_DOCKER}" = "1" ]; then
   echo "==> Build Money Research Docker image (tag: ${IMAGE_TAG})"
   docker buildx build --platform "${PLATFORM}" \
-    -f apps/money-research/Dockerfile \
+    -f web/money-research/Dockerfile \
     -t "qhr-profile-money-research:${IMAGE_TAG}" \
     --load .
   echo "==> Docker image ready: qhr-profile-money-research:${IMAGE_TAG}"

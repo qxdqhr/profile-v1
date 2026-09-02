@@ -5,9 +5,9 @@
 ```mermaid
 flowchart TB
   subgraph apps [apps - 可独立部署]
-    WEB[apps/web]
-    CAL[apps/calendar]
-    TH[apps/teach-hub]
+    WEB[web/web]
+    CAL[web/calendar]
+    TH[web/teach-hub]
   end
 
   subgraph packages [packages - 库]
@@ -55,18 +55,18 @@ flowchart TB
 | 现状 | 目标 |
 |------|------|
 | `src/modules/calendar/**` | `packages/calendar-core/**` |
-| `src/app/.../calendar/**` | `apps/calendar/app/**` |
-| `src/app/api/calendar/**` | `apps/calendar/app/api/calendar/**` |
+| `src/app/.../calendar/**` | `web/calendar/app/**` |
+| `src/app/api/calendar/**` | `web/calendar/app/api/calendar/**` |
 | `src/modules/teachHub/**` | `packages/teach-hub-core/**` |
-| `src/app/.../teachHub/**` | `apps/teach-hub/app/**` |
-| `src/app/api/teach-hub/**` | `apps/teach-hub/app/api/teach-hub/**` |
+| `src/app/.../teachHub/**` | `web/teach-hub/app/**` |
+| `src/app/api/teach-hub/**` | `web/teach-hub/app/api/teach-hub/**` |
 | `src/lib/auth/**` | `packages/auth/**` |
 | `src/db/**` + 各模块 `db/schema` | `packages/db/**`（schema 按域分文件 re-export） |
 | `scripts/preload-app-config.ts` 等 | `packages/config/**` |
 
 ## 4. 依赖规则
 
-- `apps/*` **只能**依赖 `packages/*`，禁止 `apps/calendar` → `apps/web`。
+- `web/*` **只能**依赖 `packages/*`，禁止 `web/calendar` → `web/web`。
 - `packages/calendar-core` **禁止**依赖 `packages/teach-hub-core`。
 - `packages/teach-hub-core` 可依赖 `packages/ai`（自 `aiApi` 抽出，ST-16）或短期通过接口注入。
 - 共享 `sa2kit`：各 app `transpilePackages: ['sa2kit']`，版本在根 `pnpm-workspace.yaml` catalog 锁定。
@@ -87,8 +87,8 @@ flowchart TB
 
 ### 选项 A（推荐过渡期）：各 app 自承载 API
 
-- `apps/calendar` 暴露 `/api/calendar/*`
-- `apps/teach-hub` 暴露 `/api/teach-hub/*`
+- `web/calendar` 暴露 `/api/calendar/*`
+- `web/teach-hub` 暴露 `/api/teach-hub/*`
 - Nginx / 网关按路径转发到不同 upstream
 
 ### 选项 B：仅 web 对外，内部转发
@@ -99,7 +99,7 @@ flowchart TB
 
 | 耦合点 | 现状 | B 阶段处理 |
 |--------|------|------------|
-| `registerTeachHubAiTasks` | `aiApi/server/registerCoreTasks.ts` | 迁至 `apps/teach-hub/instrumentation.ts` 或 `packages/teach-hub-core/server/registerTasks.ts` |
+| `registerTeachHubAiTasks` | `aiApi/server/registerCoreTasks.ts` | 迁至 `web/teach-hub/instrumentation.ts` 或 `packages/teach-hub-core/server/registerTasks.ts` |
 | OSS `moduleId: teach-hub` | teachHubFileStore | 不变，路径契约见 teachHub DATA.md |
 | HTML 链接改写 | 硬编码 `/testField/teachHub` | `packages/teach-hub-core` 内 `BASE_PATH` 环境变量 |
 
@@ -109,7 +109,7 @@ flowchart TB
 |--------|------|------------|
 | `AiApiSettingsProvider` | CalendarPage 内嵌 | 保留；`packages/calendar-core` 依赖 `packages/ai`（可选 ST-16 一并抽） |
 | `DateCalculatorTool` | Tab 嵌入 | 短期保留 import；或改为链接跳转 web 的 dateCalculator |
-| `examples/calendar-demo` | 独立 demo 路由 | 迁入 `apps/calendar` 或删除，避免 web build 预渲染 |
+| `examples/calendar-demo` | 独立 demo 路由 | 迁入 `web/calendar` 或删除，避免 web build 预渲染 |
 
 ## 10. 本地开发端口（ST-02）
 
@@ -123,7 +123,7 @@ flowchart TB
 
 ## 11. pnpm workspace 现状（ST-01）
 
-根 `pnpm-workspace.yaml` 纳入 `apps/*` 与 `packages/*`。迁移前已存在：
+根 `pnpm-workspace.yaml` 纳入 `web/*` 与 `packages/*`。迁移前已存在：
 
 | 包名 | 路径 |
 |------|------|
@@ -152,7 +152,7 @@ jobs:
 
 | B 能力 | C 时怎么用 |
 |--------|------------|
-| 独立 `apps/*/Dockerfile` | 直接拆仓，镜像不变 |
+| 独立 `web/*/Dockerfile` | 直接拆仓，镜像不变 |
 | `packages/*` | 发布为私有 npm 或 git submodule |
 | 环境变量 `*_PUBLIC_BASE_URL` | 换独立域名 |
 | API 前缀不变 | 网关层切换 upstream，客户端无感 |

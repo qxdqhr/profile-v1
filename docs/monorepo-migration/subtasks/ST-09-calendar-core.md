@@ -8,7 +8,7 @@
 
 - [x] `packages/calendar-core/`（原 `modules/calendar` 全量迁入）
 - [x] `package.json` exports：`.`、`./server`、`./api/*`
-- [x] `apps/web/src/modules/calendar/` 兼容层（re-export + `CalendarPage` 注入 dateCalculator）
+- [x] `web/web/src/modules/calendar/` 兼容层（re-export + `CalendarPage` 注入 dateCalculator）
 - [x] `packages/db` schema 改引 `calendar-core/src/db/schema`
 
 ## 依赖处理
@@ -24,8 +24,8 @@
 ## 验收记录（2026-06-11）
 
 1. `@/modules/calendar` 路径在 web 仍可用
-2. `calendar-core` 不 import `apps/web`
-3. API 转发 `apps/web/src/app/api/calendar/*` 不变
+2. `calendar-core` 不 import `web/web`
+3. API 转发 `web/web/src/app/api/calendar/*` 不变
 
 ## 后续（ST-12）
 

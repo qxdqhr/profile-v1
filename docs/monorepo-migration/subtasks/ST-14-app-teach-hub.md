@@ -1,4 +1,4 @@
-# ST-14 apps/teach-hub 脚手架
+# ST-14 web/teach-hub 脚手架
 
 **任务 ID**：M-14  
 **状态**：done  
@@ -6,11 +6,11 @@
 
 ## 目标
 
-创建 `apps/teach-hub`，承载 teachHub 全部页面路由。
+创建 `web/teach-hub`，承载 teachHub 全部页面路由。
 
 ## 交付物
 
-- [x] `apps/teach-hub/package.json`
+- [x] `web/teach-hub/package.json`
 - [x] 路由树（自 `app/(pages)/testField/(utility)/teachHub/` 迁移）：
   - `/` — 仪表盘
   - `/w/[workspaceId]/**` — 工作区子路由

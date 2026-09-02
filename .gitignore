@@ -60,12 +60,12 @@ next-env.d.ts
 # local test assets
 /public/mmd/
 /public/mmd/**
-apps/web/public/mmd/
-apps/web/public/mmd/**
+web/web/public/mmd/
+web/web/public/mmd/**
 
 # money-research demo
-apps/money-research/demo/.venv/
-apps/money-research/demo/**/data/cookies.json
+web/money-research/demo/.venv/
+web/money-research/demo/**/data/cookies.json
 
 # Godot web export artifacts (CI-generated)
 deploy/games/*/www/*

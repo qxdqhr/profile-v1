@@ -18,7 +18,7 @@
 
 ## 兼容策略
 
-**重定向（B 阶段）**：`apps/web/src/lib/teach-hub-app-url.ts`，与 calendar 一致。
+**重定向（B 阶段）**：`web/web/src/lib/teach-hub-app-url.ts`，与 calendar 一致。
 
 ## 验收记录（2026-06-17）
 

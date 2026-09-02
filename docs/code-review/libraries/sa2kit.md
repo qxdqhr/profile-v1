@@ -19,10 +19,10 @@ sa2kit/common/{auth,config,file,aiApi,components,…}
         ↓ 薄封装
 @profile/{auth,config,db}
         ↓
-apps/* + packages/*-core
+web/* + packages/*-core
 
 sa2kit/business/{mmd,testYourself,festivalCard,music,…}
-        ↓ 直接 import（多数仍在 apps/web）
+        ↓ 直接 import（多数仍在 web/web）
 实验田页面 / examples
 ```
 
@@ -80,7 +80,7 @@ sa2kit/business/{mmd,testYourself,festivalCard,music,…}
 | SK-005 | P1 | 双份 PermissionGuard，且只验登录 | `common/components` vs `business/testField` | 合并；增加 role 可选参数 | open |
 | SK-006 | P1 | 无统一 `requireAdminSession` | auth/server | 在 sa2kit 或 `@profile/auth` 提供 | open |
 | SK-007 | P1 | 构建期 auth secret 回退占位 | `resolve-auth-env.ts` | 运行时禁止占位 secret；仅允许 build phase | open |
-| SK-008 | P1 | profile `modules/aiApi` 几乎全是 re-export | `apps/web/src/modules/aiApi` | 删薄层，直连 sa2kit | open |
+| SK-008 | P1 | profile `modules/aiApi` 几乎全是 re-export | `web/web/src/modules/aiApi` | 删薄层，直连 sa2kit | open |
 | SK-009 | P1 | `@profile/db` 强绑 sa2kit schema | `packages/db/schema` | 变更需双边迁移 checklist | open |
 | SK-010 | P2 | business 源码有、export 无（ar/bubbleShooter/…） | `src/business` vs tsup entries | 迁出 / 删除 / 补 export | open |
 | SK-011 | P2 | dist 32MB（three/mmd/music 拖累） | dist/ | 加速 business 迁出 | open |

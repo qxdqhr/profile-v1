@@ -22,10 +22,10 @@ Compose：`deploy/docker-compose.gateway.yml`
 
 | 应用 | Dockerfile | 镜像 tag（阿里云） | 容器端口 |
 |------|------------|-------------------|----------|
-| web（主站） | `apps/web/Dockerfile` | `qhr-profile-web:NNN` | 3000 |
-| calendar | `apps/calendar/Dockerfile` | `qhr-profile-calendar:NNN` | 3001 |
-| teach-hub | `apps/teach-hub/Dockerfile` | `qhr-profile-teach-hub:NNN` | 3002 |
-| showmasterpiece | `apps/showmasterpiece/Dockerfile` | `qhr-profile-showmasterpiece:NNN` | 3003 |
+| web（主站） | `web/web/Dockerfile` | `qhr-profile-web:NNN` | 3000 |
+| calendar | `web/calendar/Dockerfile` | `qhr-profile-calendar:NNN` | 3001 |
+| teach-hub | `web/teach-hub/Dockerfile` | `qhr-profile-teach-hub:NNN` | 3002 |
+| showmasterpiece | `web/showmasterpiece/Dockerfile` | `qhr-profile-showmasterpiece:NNN` | 3003 |
 
 **兼容**：CI 仍额外推送 `qhr-profile:NNN`（与 `qhr-profile-web:NNN` 相同层），供旧部署脚本过渡。
 
@@ -36,10 +36,10 @@ Compose：`deploy/docker-compose.gateway.yml`
 构建上下文均为**仓库根目录**：
 
 ```bash
-docker build -f apps/web/Dockerfile -t qhr-profile-web:local .
-docker build -f apps/calendar/Dockerfile -t qhr-profile-calendar:local .
-docker build -f apps/teach-hub/Dockerfile -t qhr-profile-teach-hub:local .
-docker build -f apps/showmasterpiece/Dockerfile -t qhr-profile-showmasterpiece:local .
+docker build -f web/web/Dockerfile -t qhr-profile-web:local .
+docker build -f web/calendar/Dockerfile -t qhr-profile-calendar:local .
+docker build -f web/teach-hub/Dockerfile -t qhr-profile-teach-hub:local .
+docker build -f web/showmasterpiece/Dockerfile -t qhr-profile-showmasterpiece:local .
 ```
 
 或使用根脚本（Calendar/TeachHub 可附带 RN APK）：
@@ -50,7 +50,7 @@ BUILD_ANDROID=0 pnpm package:teach-hub local
 pnpm package:showmasterpiece local
 ```
 
-根目录 `dockerfile` 等价于 `apps/web/Dockerfile`。
+根目录 `dockerfile` 等价于 `web/web/Dockerfile`。
 
 ## 运行示例
 
@@ -102,7 +102,7 @@ RN 客户端（非 Docker 网关栈）：
 
 各 Dockerfile `deps` 阶段仅 `pnpm install --filter @profile/{app}...`，不安装 Phaser、aframe 等 web 专用依赖。
 
-`@profile/db` schema 聚合引用各 `packages/*-core` 的 schema；部分 Dockerfile 仍 COPY `apps/web/src/modules` 以兼容历史构建路径。
+`@profile/db` schema 聚合引用各 `packages/*-core` 的 schema；部分 Dockerfile 仍 COPY `web/web/src/modules` 以兼容历史构建路径。
 
 ## 注册表示例
 

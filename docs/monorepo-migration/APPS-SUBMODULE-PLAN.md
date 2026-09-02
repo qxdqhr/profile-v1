@@ -9,7 +9,7 @@
 
 | # | 结论 |
 |---|------|
-| 1 | 顶层：`apps/` **改名为 `web/`**；RN → **`mobile/`**；桌面 → **`desktop/`** |
+| 1 | 顶层：`web/` **改名为 `web/`**；RN → **`mobile/`**；桌面 → **`desktop/`** |
 | 2 | 执行顺序：**先移动端，再桌面端** |
 | 3 | 子仓命名：`qxdqhr/profile-v1-*`（与 games 一致） |
 | 4 | 新增顶层 **`npm/`** 放置 `*-shared` 包（供 mobile/desktop 消费；不强制先发公共 npm registry） |
@@ -23,7 +23,7 @@ games / WordPress 旁路 **不动**。
 
 ```
 profile-v1/
-├── web/                          # 原 apps/（仅 Next.js Web 矩阵）
+├── web/                          # 原 web/（仅 Next.js Web 矩阵）
 │   ├── web/                      # 主站 @profile/web (:3000)
 │   ├── calendar/                 # :3001
 │   ├── teach-hub/                # :3002
@@ -36,8 +36,8 @@ profile-v1/
 ├── desktop/                      # 桌面端（git submodule）
 │   └── teach-hub-desktop/        # → qxdqhr/profile-v1-teach-hub-desktop
 ├── npm/                          # 跨端共享包（父仓内，pnpm workspace）
-│   ├── calendar-shared/          # 原 packages/calendar-shared
-│   └── teach-hub-shared/         # 原 packages/teach-hub-shared
+│   ├── calendar-shared/          # 原 npm/calendar-shared
+│   └── teach-hub-shared/         # 原 npm/teach-hub-shared
 ├── packages/                     # 仍保留 auth/db/config/ui/*-core 等
 ├── games/                        # 旁路 submodule（不动）
 ├── wordpress/                    # 旁路 submodule（不动）
@@ -48,13 +48,13 @@ profile-v1/
 
 | 现状 | 目标 |
 |------|------|
-| `apps/web` | `web/web` |
-| `apps/calendar` 等 Next | `web/calendar` 等 |
-| `apps/calendar-mobile` | `mobile/calendar-mobile`（submodule） |
-| `apps/teach-hub-mobile` | `mobile/teach-hub-mobile`（submodule） |
-| `apps/teach-hub-desktop` | `desktop/teach-hub-desktop`（submodule） |
-| `packages/calendar-shared` | `npm/calendar-shared` |
-| `packages/teach-hub-shared` | `npm/teach-hub-shared` |
+| `web/web` | `web/web` |
+| `web/calendar` 等 Next | `web/calendar` 等 |
+| `web/calendar-mobile` | `mobile/calendar-mobile`（submodule） |
+| `web/teach-hub-mobile` | `mobile/teach-hub-mobile`（submodule） |
+| `web/teach-hub-desktop` | `desktop/teach-hub-desktop`（submodule） |
+| `npm/calendar-shared` | `npm/calendar-shared` |
+| `npm/teach-hub-shared` | `npm/teach-hub-shared` |
 | `packages/*-core`、auth、db… | **仍在 `packages/`** |
 
 ---
@@ -112,12 +112,12 @@ packages:
 
 | 步骤 | 动作 |
 |------|------|
-| 0.1 | 新建 `npm/`，`git mv packages/calendar-shared`、`packages/teach-hub-shared` → `npm/` |
+| 0.1 | 新建 `npm/`，`git mv npm/calendar-shared`、`npm/teach-hub-shared` → `npm/` |
 | 0.2 | `git mv apps` → `web`（整目录改名） |
-| 0.3 | 更新 `pnpm-workspace.yaml`：`apps/*` → `web/*`，并加入 `npm/*` |
-| 0.4 | 全仓替换路径引用：`apps/` → `web/`、`packages/*-shared` → `npm/*-shared`（Dockerfile、scripts、CI、README、KNOWLEDGE_BASE、AGENTS、`.cursor/rules`） |
+| 0.3 | 更新 `pnpm-workspace.yaml`：`web/*` → `web/*`，并加入 `npm/*` |
+| 0.4 | 全仓替换路径引用：`web/` → `web/`、`packages/*-shared` → `npm/*-shared`（Dockerfile、scripts、CI、README、KNOWLEDGE_BASE、AGENTS、`.cursor/rules`） |
 | 0.5 | `pnpm install` + 抽样 `pnpm build:web` / `dev:calendar-mobile` 冒烟 |
-| 0.6 | 更新 [`apps/README.md`](../../apps/README.md) → 迁为 `web/README.md`；索引写入 `docs/README.md` |
+| 0.6 | 更新 [`web/README.md`](../../web/README.md) → 迁为 `web/README.md`；索引写入 `docs/README.md` |
 
 **预估**：0.5–1 天。风险：大量路径字符串，依赖全仓 grep 与 CI 绿。
 
@@ -161,7 +161,7 @@ packages:
 
 | 组件 | 变更 |
 |------|------|
-| Docker 镜像（Next） | 构建上下文 `apps/` → `web/`；matrix 不变 |
+| Docker 镜像（Next） | 构建上下文 `web/` → `web/`；matrix 不变 |
 | 网关 nginx / compose | URL 不变；仅 Dockerfile COPY 路径 |
 | APK workflows | 迁入 `mobile/*` 子仓或 path 改 `mobile/**` |
 | `build:all` | filter 包名不变；turbo 根路径随 workspace 更新 |
@@ -173,7 +173,7 @@ packages:
 
 | 风险 | 缓解 |
 |------|------|
-| `apps` → `web` 漏改路径导致 CI 红 | 阶段 0 单独 PR；全仓 `rg 'apps/'` 清单清零（排除 docs 历史叙述与旁路说明） |
+| `apps` → `web` 漏改路径导致 CI 红 | 阶段 0 单独 PR；全仓 `rg 'web/'` 清单清零（排除 docs 历史叙述与旁路说明） |
 | `web/web` 路径易混淆 | 文档与脚本一律写全路径；Cursor 规则注明「主站 = `web/web`」 |
 | submodule 内找不到 `npm/*` | 约定：**日常开发在父仓根** `pnpm --filter @profile/calendar-mobile`；独立子仓 clone 时用 `file:` 或后续 registry |
 | APK 签名 Secrets 断链 | Secrets 留在父仓或同步到子仓；阶段 1 完成前跑通一次 release dry-run |
@@ -197,8 +197,8 @@ packages:
 ```bash
 # 阶段 0.1–0.2（示意）
 mkdir -p npm
-git mv packages/calendar-shared npm/calendar-shared
-git mv packages/teach-hub-shared npm/teach-hub-shared
+git mv npm/calendar-shared npm/calendar-shared
+git mv npm/teach-hub-shared npm/teach-hub-shared
 git mv apps web
 # 随后改 pnpm-workspace.yaml + 全仓路径引用 + pnpm install 冒烟
 ```

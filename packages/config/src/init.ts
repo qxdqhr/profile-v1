@@ -7,7 +7,7 @@ let initialized = false;
 function resolveConfigLoadOptions() {
   const explicitPath = process.env.APP_CONFIG_PATH?.trim();
   if (explicitPath) {
-    // standalone 镜像 cwd 常为 /app/apps/web，配置应相对 monorepo 根解析
+    // standalone 镜像 cwd 常为 /app/web/web，配置应相对 monorepo 根解析
     return { cwd: findMonorepoRoot(), explicitPath };
   }
   return { cwd: findMonorepoRoot() };

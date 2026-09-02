@@ -26,8 +26,8 @@
 
 | 消费方 | 实际依赖 |
 |--------|----------|
-| `apps/web` HomeV2 | `@sa2kit-ui/react` → `@qhr123/sa2kit-ui-react@0.1.6` ✅ |
-| `apps/web` Home / fitnessPlan | 源码写 `animal-island-ui`，靠 **webpack alias** 偷换到 `@sa2kit-ui/react` |
+| `web/web` HomeV2 | `@sa2kit-ui/react` → `@qhr123/sa2kit-ui-react@0.1.6` ✅ |
+| `web/web` Home / fitnessPlan | 源码写 `animal-island-ui`，靠 **webpack alias** 偷换到 `@sa2kit-ui/react` |
 | calendar / teach-hub / showmasterpiece（及 core） | 真实 **`animal-island-ui@^0.9.6`**，无 alias |
 | calendar-mobile / teach-hub-mobile | 手写 `src/ui/*`，未接 `@sa2kit-ui/rn` |
 
@@ -43,7 +43,7 @@ packages/
   react/            唯一正式 npm 发布面 + ThemeProvider
   theme-runtime/    实为 re-export react（命名易误导）
   rn/ taro/ electron/
-apps/demo-* + docs (Ladle)
+web/demo-* + docs (Ladle)
 ```
 
 主题切换：`ThemeProvider` → `document.documentElement[data-theme]` + overlay CSS。  
@@ -65,7 +65,7 @@ apps/demo-* + docs (Ladle)
 | SUI-008 | P1 | 根 0.2.0 / react 0.1.6 版本漂移；无 publish CI | package.json / workflows | changeset + 自动发布 | open |
 | SUI-009 | P2 | HomeV2 Google Fonts 与包内 `@fontsource` 重复 | layout + 发布 deps | 二选一 | open |
 | SUI-010 | P2 | `theme-runtime` 整包 re-export 无独立价值 | packages/theme-runtime | 收窄或删除 | open |
-| SUI-011 | P2 | web 未声明 animal-island-ui，依赖 alias | apps/web | 迁移后删除 alias | open |
+| SUI-011 | P2 | web 未声明 animal-island-ui，依赖 alias | web/web | 迁移后删除 alias | open |
 | SUI-012 | P3 | `@profile/ui` 与 sa2kit-ui tokens 双轨 | 两套色板 | 知识库写清选用规则 | open |
 
 ---

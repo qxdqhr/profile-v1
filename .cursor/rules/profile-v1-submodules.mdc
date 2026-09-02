@@ -1,30 +1,32 @@
 ---
-description: games / WordPress git submodule 旁路约定（源码子仓 vs 父仓 deploy）
-globs: games/**/*,wordpress/**/*,deploy/games/**/*,deploy/wordpress/**/*,.gitmodules
+description: games / WordPress / mobile / desktop git submodule 旁路约定
+globs: games/**/*,wordpress/**/*,deploy/games/**/*,deploy/wordpress/**/*,mobile/**/*,desktop/**/*,.gitmodules
 alwaysApply: false
 ---
 
 # Git Submodule 旁路约定
 
-完整 SSOT：`.cursor/KNOWLEDGE_BASE.md` §7.0。编辑 `games/`、`wordpress/` 或相关 deploy 时遵守。
+完整 SSOT：`.cursor/KNOWLEDGE_BASE.md` §7.0。编辑 `games/`、`wordpress/`、`mobile/`、`desktop/` 或相关 deploy 时遵守。
 
 ## 分层（禁止混淆）
 
 | 层 | 路径 | 内容 |
 |----|------|------|
-| **Submodule 源码** | `games/<slug>/`、`wordpress/<slug>/` | 独立 Git 仓；父仓只存指针 |
+| **Submodule 源码** | `games/<slug>/`、`wordpress/<slug>/`、`mobile/<slug>/`、`desktop/<slug>/` | 独立 Git 仓；父仓只存指针 |
 | **父仓旁路** | `deploy/games/<slug>/`、`deploy/wordpress/` | nginx、compose 模板、ADD-* 文档、CI 生成的 `www/` |
-| **主站导航** | `apps/web/src/modules/games/` | 大厅卡片与筛选；**不是** Godot 源码 |
+| **跨端 shared** | `npm/*-shared` | 父仓 workspace 包，供 mobile/desktop 消费 |
+| **主站导航** | `web/web/src/modules/games/` | 大厅卡片与筛选；**不是** Godot 源码 |
 
 - `deploy/wordpress/` = 全站 WP **基建文档**，**不是** submodule。
 - `deploy/games/<slug>/www/` = 导出产物，**不进 git**。
+- Web 矩阵在 `web/`（原 `apps/`）；**不要**把 RN/Electron 再放回 `web/`。
 
 ## 开发规则
 
-1. 改主题/游戏逻辑 → 进入 submodule 目录，在 **子仓** commit/push，再回到父仓 bump submodule 指针。
+1. 改主题/游戏/客户端逻辑 → 进入 submodule 目录，在 **子仓** commit/push，再回到父仓 bump submodule 指针。
 2. 克隆父仓：`git submodule update --init --recursive`（CI 已 `submodules: recursive`）。
-3. 新增旁路 → 先建独立仓，`git submodule add …`，再改 compose/nginx/smoke/导航；见 `deploy/games/ADD-GAME.md` 或 `deploy/wordpress/ADD-SITE.md`。
-4. 从 Next 迁出 Godot：删 `apps/web` 旧模块；DB schema 迁到 `packages/db/src/schema/`（若表仍保留）。
+3. 新增旁路 → 先建独立仓，`git submodule add …`，再改 compose/nginx/smoke/导航；见 `deploy/games/ADD-GAME.md`、`deploy/wordpress/ADD-SITE.md`、迁移计划 `docs/monorepo-migration/APPS-SUBMODULE-PLAN.md`。
+4. 从 Next 迁出 Godot：删 `web/web` 旧模块；DB schema 迁到 `packages/db/src/schema/`（若表仍保留）。
 5. 实验田/大厅链到 `/games/*`、`/wp/*` → **整页跳转**（`ExperimentNavCard`），勿用 Next 客户端路由。
 
 ## CI / 部署
@@ -37,4 +39,5 @@ alwaysApply: false
 
 - 在父仓直接改 submodule 内文件却不更新子仓与指针。
 - 把 `deploy/wordpress/` 当作 Holt 主题源码目录。
-- 将 Godot 源码放进 `apps/web/src/modules`。
+- 将 Godot 源码放进 `web/web/src/modules`。
+- 新建顶层 `apps/`（已改名为 `web/`）。
