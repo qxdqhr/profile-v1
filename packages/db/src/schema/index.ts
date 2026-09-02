@@ -5,7 +5,7 @@ export * from '../../../../packages/showmasterpiece-core/src/db/schema/masterpie
 export * from '../../../../packages/showmasterpiece-core/src/db/schema/bookings';
 export * from '../../../../packages/showmasterpiece-core/src/db/schema/popupConfig';
 export * from '../../../../packages/showmasterpiece-core/src/db/schema/config';
-export * from 'sa2kit/common/auth/schema';
+export * from './auth';
 export * from '../../../../apps/web/src/modules/filetransfer/db/schema';
 export * from '../../../../packages/calendar-core/src/db/schema';
 export * from '../../../../apps/web/src/modules/ideaList/db/schema';

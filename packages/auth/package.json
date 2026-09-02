@@ -12,7 +12,11 @@
     "./react": "./src/react.tsx"
   },
   "dependencies": {
+    "@better-auth/drizzle-adapter": "^1.7.2",
     "@profile/db": "workspace:*",
+    "better-auth": "^1.7.2",
+    "drizzle-orm": "^0.44.7",
+    "nanoid": "^5.1.5",
     "sa2kit": "3.9.4"
   },
   "peerDependencies": {

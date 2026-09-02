@@ -8,8 +8,7 @@ import { and, eq } from 'drizzle-orm';
 import { hashPassword } from 'better-auth/crypto';
 import { nanoid } from 'nanoid';
 import { db } from '@profile/db';
-import { account, user } from '@profile/auth/schema';
-import type { UserRole } from 'sa2kit/common/auth/schema';
+import { account, user, CREDENTIAL_ACCOUNT_ISSUER, type UserRole } from '@profile/auth/schema';
 
 type TestAccount = {
   phoneNumber: string;
@@ -92,6 +91,8 @@ async function upsertTestAccount(spec: TestAccount) {
     await db
       .update(account)
       .set({
+        issuer: CREDENTIAL_ACCOUNT_ISSUER,
+        accountId: userId,
         password: passwordHash,
         updatedAt: now,
       })
@@ -99,6 +100,7 @@ async function upsertTestAccount(spec: TestAccount) {
   } else {
     await db.insert(account).values({
       id: nanoid(),
+      issuer: CREDENTIAL_ACCOUNT_ISSUER,
       accountId: userId,
       providerId: 'credential',
       userId,

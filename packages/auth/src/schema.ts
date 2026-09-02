@@ -8,7 +8,10 @@ export {
   sessionRelations,
   accountRelations,
   authDrizzleSchema,
-} from 'sa2kit/common/auth/schema';
+  userRole,
+  CREDENTIAL_ACCOUNT_ISSUER,
+  type UserRole,
+} from '@profile/db/schema/auth';
 
 /** 兼容旧模块 import { users } from '@/lib/auth/schema' */
-export { user as users } from 'sa2kit/common/auth/schema';
+export { user as users } from '@profile/db/schema/auth';
