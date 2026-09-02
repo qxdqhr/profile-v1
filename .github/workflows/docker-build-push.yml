@@ -657,7 +657,7 @@ jobs:
           chmod 600 /tmp/ssh_key
 
           echo "=== 同步配置与 deploy 文件 ==="
-          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/nginx /root/profile-v1/wordpress/holt"
+          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/nginx /root/profile-v1/wordpress/holt /root/profile-v1/deploy/wordpress /root/profile-v1/games"
           scp $SSH_OPTS "$DEPLOY_CFG_DIR/app.config.yaml" "$REMOTE:/root/profile-v1/app.config.yaml"
           scp $SSH_OPTS deploy/docker-compose.gateway.yml "$REMOTE:/root/profile-v1/docker-compose.gateway.yml"
           scp $SSH_OPTS deploy/nginx/profile-platform.conf "$REMOTE:/root/profile-v1/nginx/profile-platform.conf"
