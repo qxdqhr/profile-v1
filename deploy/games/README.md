@@ -39,6 +39,7 @@
 
 - **平台 nginx**：挂载整个 `deploy/games/`，一条正则 location 覆盖全部 slug（小写 + 连字符）
 - **`www/` 不进 git**，由 Actions `export-godot-games` 导出后 artifact → `deploy-web` scp
+- **加载**：Godot 4.7 单线程 wasm 约 38MB；导出脚本预压 `.gz`，平台 nginx `gzip_static` 直出（见 `scripts/compress-godot-www.sh`）
 - **不进** pnpm / Next Docker matrix；**不再**为每游戏起 `nginx:alpine` 容器
 - **阶段 B**：上线 Godot 最简时**保留** testField 原版；仅阶段 C 精修通过后才删游戏路由
 

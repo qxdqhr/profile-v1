@@ -121,6 +121,8 @@ jobs:
               - 'app_games/**'
               - 'scripts/export-godot-game.sh'
               - 'scripts/export-all-godot-games.sh'
+              - 'scripts/compress-godot-www.sh'
+              - 'scripts/sync-prebuilt-game-www.sh'
               - 'scripts/export-pulse-parade-web.sh'
             wordpress:
               - 'app_wordpress/**'

@@ -63,6 +63,7 @@ if [[ -f "${GAME_DIR}/.use-prebuilt-web" ]]; then
     test -f "${OUT_DIR}/index.pck"
   fi
   ls -lh "${OUT_DIR}"
+  bash "${REPO_ROOT}/scripts/compress-godot-www.sh" "$OUT_DIR"
   echo "OK: ${SLUG} → ${OUT_DIR} (prebuilt)"
   exit 0
 fi
@@ -121,4 +122,5 @@ test -f "${OUT_DIR}/index.html"
 test -f "${OUT_DIR}/index.wasm"
 test -f "${OUT_DIR}/index.pck"
 ls -lh "${OUT_DIR}"
+bash "${REPO_ROOT}/scripts/compress-godot-www.sh" "$OUT_DIR"
 echo "OK: ${SLUG} → ${OUT_DIR}"

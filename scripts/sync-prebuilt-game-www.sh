@@ -23,6 +23,7 @@ for marker in "${REPO_ROOT}"/app_games/*/.use-prebuilt-web; do
   out="${REPO_ROOT}/deploy/games/${slug}/www"
   mkdir -p "$out"
   rsync -a --delete --exclude '.gitkeep' "${src}/" "${out}/"
+  bash "${REPO_ROOT}/scripts/compress-godot-www.sh" "$out"
   echo "synced prebuilt ${slug} ← ${src}"
   synced=$((synced + 1))
 done

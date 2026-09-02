@@ -27,10 +27,12 @@ deploy/games/my-game/
 
 Web 导出预设须 **单线程**：`variant/thread_support=false`（Compatibility）。
 
+`export-godot-game.sh` 结束时会 `gzip -9` 生成 `index.wasm.gz` / `index.pck.gz` / `index.js.gz`，供网关 `gzip_static` 直出。不要把这些 `.gz` 提交进 git。
+
 ## 2. 网关
 
 不必改 `docker-compose.gateway.yml` 或 `profile-platform.conf`。  
-平台 nginx 把 `/games/<slug>/*` 映射到 `deploy/games/<slug>/www/`（容器内 `/var/www/games/<slug>/www/`）。
+平台 nginx 把 `/games/<slug>/*` 映射到 `deploy/games/<slug>/www/`（容器内 `/var/www/games/<slug>/www/`）。`/__games/` 已开 `gzip_static`；缺 `.gz` 时才现场压缩。
 
 `deploy/smoke-test-gateway.sh`：为新 slug 加上 `index.html` / `index.wasm` / `index.pck` 检查。
 
