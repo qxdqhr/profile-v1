@@ -96,7 +96,8 @@
     "overrides": {
       "@sa2kit-ui/react": "workspace:*",
       "@types/react": "19.1.17",
-      "@types/react-dom": "19.2.5"
+      "@types/react-dom": "19.2.5",
+      "three-bmfont-text": "https://codeload.github.com/dmarcos/three-bmfont-text/tar.gz/c3eec235b9188aa0d8ed949101236e6d5fccf071"
     },
     "peerDependencyRules": {
       "ignoreMissing": [

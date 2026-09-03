@@ -71,6 +71,7 @@ const nextConfig: NextConfig = {
         "sharp",
         "onnxruntime-node",
         "onnxruntime-web",
+        "@xenova/transformers",
     ],
 
     experimental: {
@@ -80,7 +81,14 @@ const nextConfig: NextConfig = {
 
     turbopack: {},
 
-    webpack: (config, { isServer }) => {
+    webpack: (config, { isServer, webpack }) => {
+        // 阻断 onnxruntime 原生二进制进入 webpack 模块图（@xenova/transformers → onnxruntime-node）
+        config.plugins.push(
+            new webpack.IgnorePlugin({
+                resourceRegExp: /\.node$/,
+            }),
+        );
+
         config.module.rules.push({
             test: /\.(mp3)$/,
             type: 'asset/resource',
