@@ -5,9 +5,9 @@
 > 状态：⬜ 待办 · 🔄 进行中 · ✅ 完成 · ⏸ 依赖 sa2kit/产品设计 · N/A 暂不处理
 
 **实现**：`src/modules/showmasterpiece/api/` · **URL**：`src/app/api/showmasterpiece/**`（薄 re-export）  
-**关联文档**：[`src/app/api/showmasterpiece/OPTIMIZATION.md`](../../app/api/showmasterpiece/OPTIMIZATION.md)（全景）· [`SA2KIT_PLAN.md`](./SA2KIT_PLAN.md)（sa2kit 仓改动）
+**关联文档**：[`docs/modules/showmasterpiece/DOMAIN-MIGRATION.md`](../../../docs/modules/showmasterpiece/DOMAIN-MIGRATION.md)（新域下沉 sa2kit business）· 模块内 [`OPTIMIZATION.md`](../../app/api/showmasterpiece/OPTIMIZATION.md)（若仍存在）
 
-**架构**：页面薄封装 `sa2kit/showmasterpiece`；npm 当前 `sa2kit@^1.6.114`；**1.6.115 删单已编码待发版**（见 [`SA2KIT_PUBLISH_CHECKLIST.md`](./SA2KIT_PUBLISH_CHECKLIST.md)）。
+**架构**：`@profile/showmasterpiece-core` + 子应用 `/showmasterpiece`；目标态 `sa2kit/business/showmasterpiece/*`（Phase F）。
 
 ---
 

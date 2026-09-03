@@ -60,8 +60,9 @@ app_web/web 模块
 - **禁止** 在 `app_web/web/src/app/layout.tsx` 为修单个页面而全局注入全量 sa2kit-ui CSS
 - Auth 相关样式由 `@profile/auth` 的 `sa2kit-ui-bootstrap` 引导；其他 sa2kit UI 路由段在 **该段 layout** 或模块 layout 引入 `import 'sa2kit/common/ui/style'`
 - 临时 UI 仅特殊需求且限期回灌；门禁：`pnpm gate:ui`
+- **Phase F**：calendar / teach-hub / showmasterpiece 下沉 `sa2kit/business/*` — `docs/modules/<域>/DOMAIN-MIGRATION.md`
 
-详细规则：`.cursor/rules/profile-v1-sa2kit-ui.mdc`；Phase U 计划：`docs/code-review/libraries/UI-UNIFICATION-PLAN.md`。
+详细规则：`.cursor/rules/profile-v1-sa2kit-ui.mdc`；蓝图 `docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md` §5。
 
 **已迁出的 `packages/*-core`**：默认冻结；新多端能力优先进 sa2kit（见蓝图 S1/S2/S3）。
 

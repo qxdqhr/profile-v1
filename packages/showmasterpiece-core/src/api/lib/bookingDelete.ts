@@ -11,7 +11,7 @@ import {
 
 /**
  * 删单：宿主先校验（兼容 sa2kit@1.6.114）；1.6.115+ Command 层二次校验。
- * 见 SA2KIT_PLAN「待发版」— 发版前勿仅依赖 Command 第二参数。
+ * 删单校验在宿主 bookingDelete；下沉 sa2kit business 时迁入 server 层。
  */
 export async function deleteBookingWithCredentialGuard(
   id: number,

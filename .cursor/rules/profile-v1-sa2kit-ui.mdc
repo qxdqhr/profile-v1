@@ -6,7 +6,7 @@ alwaysApply: false
 
 # sa2kit / sa2kit-ui 依赖规范
 
-编写或修改 UI、登录鉴权、主题相关代码时遵守。权威背景见 `docs/code-review/libraries/UI-UNIFICATION-PLAN.md` 与 `BLUEPRINT-multiplatform-sa2kit.md` §5。
+编写或修改 UI、登录鉴权、主题相关代码时遵守。权威背景见 `docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md` §5；UI 门禁 `pnpm gate:ui`。
 
 ## 三层分工（禁止颠倒）
 
@@ -28,7 +28,7 @@ profile-v1         ← Web/API 薄宿主（page 转发、模块组装、部署�
 
 - 宿主 **只** 从 `@/lib/auth`（或子应用 `@profile/auth`）引用：`AuthProvider`、`AuthGuard`、`LoginModal`、`UserMenu` 等。
 - **禁止** 在 `app_web/web/src/modules` 内直接 `import … from 'sa2kit/common/auth/…'`（经 `@profile/auth` 统一注入 `authClient`）。
-- Auth 弹窗视觉在 `sa2kit/common/ui/auth`；session / hooks 在 `sa2kit/common/auth`（见 UI-UNIFICATION-PLAN U5-auth）。
+- Auth 弹窗视觉在 `sa2kit/common/ui/auth`；session / hooks 在 `sa2kit/common/auth`
 
 ## UI 组件引用
 

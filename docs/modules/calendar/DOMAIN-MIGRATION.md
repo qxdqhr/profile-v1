@@ -1,0 +1,74 @@
+# calendar — 新域迁移计划（`*-core` → `sa2kit/business/calendar`）
+
+> SSOT 进度：本文件 · 总览：[DOMAIN-MIGRATION-ROADMAP.md](../../code-review/libraries/DOMAIN-MIGRATION-ROADMAP.md)  
+> 现状包：`@profile/calendar-core` · 子应用 `app_web/calendar` · RN `app_mobile/calendar-mobile`
+
+## 1. 目标
+
+| 项 | 迁移后 |
+|----|--------|
+| 领域类型 / 校验 | `sa2kit/business/calendar/domain` |
+| API handler 工厂 | `sa2kit/business/calendar/server` + `…/routes` |
+| Web UI | `sa2kit/business/calendar/ui/web` |
+| RN | `sa2kit/business/calendar/ui/rn`（先 stub，后从 mobile 抽） |
+| 宿主 | `app_web/calendar` 薄 page；`app/api/calendar/*` re-export + 鉴权 |
+| DB schema | 仍 `@profile/db` 聚合（禁止反向依赖 web） |
+
+## 2. 现状映射
+
+| 现路径 | 目标 |
+|--------|------|
+| `calendar-core/src/shared/*` | `business/calendar/domain` + `domain/client` |
+| `calendar-core/src/types/*` | `domain/types` |
+| `calendar-core/src/services/*` | `server/services` |
+| `calendar-core/src/server.ts` / `api/*` | `server/routes`（Next handler 工厂） |
+| `calendar-core/src/components/*` | `ui/web/components` |
+| `calendar-core/src/pages/CalendarPage.tsx` | `ui/web/pages` |
+| `calendar-core/src/integrations/*` | 保留 thin wrapper 或 `server/bootstrap` |
+| AI 识图 | 已用 `sa2kit/common/aiApi` — **不搬** |
+
+## 3. 分步任务
+
+### C1 — domain + PLATFORMS（F1）
+
+- [ ] 新建 `sa2kit/business/calendar/domain/`（从 `shared` 抽类型 + `eventDisplay` 纯函数）
+- [ ] 新建 `PLATFORMS.md`（web ✅ / server ✅ / rn ⬜ stub）
+- [ ] `package.json` exports + `tsup.entries.business.ts`
+- [ ] `calendar-core/shared` → re-export domain（过渡期）
+
+### C2 — server（F2）
+
+- [ ] 迁 `server` 服务与 drizzle schema 引用至 `business/calendar/server`
+- [ ] `create*Handler(config)` 模式（参照 festivalCard/routes）
+- [ ] `app_web/calendar/app/api/calendar/*` 仅 re-export + session 鉴权
+- [ ] `@profile/db` schema 行仍 `export * from 'sa2kit/business/calendar/server/schema'`
+
+### C3 — ui/web（F3）
+
+- [ ] 迁 `CalendarPage` 及视图组件至 `ui/web`
+- [ ] UI 仅 `sa2kit/common/ui`（已无 animal-island）
+- [ ] `calendar-core` 改为 `export * from 'sa2kit/business/calendar/ui/web'`
+- [ ] `pnpm --filter @profile/calendar build` 绿
+
+### C4 — RN（F4）
+
+- [ ] `ui/rn/index.ts` stub 或迁 calendar-mobile 共用组件
+- [ ] mobile 改 import：`sa2kit/business/calendar/ui/rn` 或 `domain` + 自绘壳
+
+### C5 — 收尾（F5）
+
+- [ ] 删 `calendar-core` 内重复实现，保留 `index.ts` 兼容导出 1 个小版本
+- [ ] 更新 `docs/monorepo-migration/` 归档说明
+
+## 4. 风险
+
+| 风险 | 对策 |
+|------|------|
+| 主站 `/api/calendar` 与日历子应用双路由 | 以子应用 `app_web/calendar` 为 SSOT；主站仅兼容 redirect |
+| RN 与 Web 设置同步 | 继续 `shared` client types 经 domain 导出 |
+
+## 5. 验收
+
+- [ ] 客户仓可 `import { … } from 'sa2kit/business/calendar/domain'` 无 profile 路径
+- [ ] Docker 日历镜像 build + smoke `/calendar`
+- [ ] `calendar-mobile` Expo 编译通过

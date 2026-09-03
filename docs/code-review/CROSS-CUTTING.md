@@ -117,9 +117,9 @@
 
 **建议**：凡改动先问「能否让下一单客户仓直接引用库」；执行上按蓝图 **北极星 > Phase U（UI 统一）> 试点 / 功能优化**。
 
-**详见**：[libraries/sa2kit-ui.md](./libraries/sa2kit-ui.md) SUI-001；**执行计划** [libraries/UI-UNIFICATION-PLAN.md](./libraries/UI-UNIFICATION-PLAN.md)；蓝图 §0 / §7 Phase U  
+**详见**：[libraries/sa2kit-ui.md](./libraries/sa2kit-ui.md) SUI-001；蓝图 §0 / §5；门禁 `pnpm gate:ui`  
 
-**状态**：closed（2026-08-29）— Phase U 完成：UI 经 `sa2kit/common/ui*`；profile `pnpm gate:ui` / sa2kit `pnpm gate:ui` 固化；见 [UI-UNIFICATION-PLAN.md](./libraries/UI-UNIFICATION-PLAN.md)
+**状态**：closed（2026-08-29）— Phase U 完成：UI 经 `sa2kit/common/ui*`；profile `pnpm gate:ui` / sa2kit `gate:ui` 固化
 
 ---
 

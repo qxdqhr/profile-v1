@@ -4,7 +4,7 @@
 
 **本仓 + sa2kit + sa2kit-ui 是为后期接单多端付费项目准备的可复用弹药库。**  
 通用能力（登录、OSS、UI/主题等）进库、宿主变薄；客户仓应能直接 `import` 库接入，而不是复制 profile 代码。  
-执行上：北极星 > **Phase U（已完成，门禁 `pnpm gate:ui`）** > 业务试点 / 功能优化。详见蓝图 §0 / UI-UNIFICATION-PLAN。
+执行上：北极星 > **Phase F（大域新域迁移）** > 各域功能优化。详见 [DOMAIN-MIGRATION-ROADMAP.md](./code-review/libraries/DOMAIN-MIGRATION-ROADMAP.md)；UI 门禁 `pnpm gate:ui`。
 
 产品级鉴权余项见 [`architecture/AUTH-SURFACE-AUDIT.md`](./architecture/AUTH-SURFACE-AUDIT.md)；宿主身份见 [`architecture/CUSTOMER-VS-HOST.md`](./architecture/CUSTOMER-VS-HOST.md)。
 

@@ -1,7 +1,7 @@
 # 蓝图：多端 sa2kit SDK（common + business 同仓多端）
 
 > 版本：v0.4 · 2026-08-29  
-> 状态：**已拍板草案**（**北极星：接单多端可复用** · Phase U 统一 UI · S1 冻结 · festivalCard 后移）— 见 §0 / §7 / §12  
+> 状态：**执行中**（**北极星：接单多端可复用** · Phase F 大域新域迁移）— 见 §0 / §7  
 > 取代/修正：先前「business 迁回 profile-v1」方向（见文末 §11）  
 > 源码仓：独立仓库 `github.com/qxdqhr/sa2kit` · `github.com/qxdqhr/sa2kit-ui`（profile-v1 以 git submodule 挂载于 `packages/sa2kit/` · `packages/sa2kit-ui/`，仍可 npm 发布）· 消费仓 `profile-v1` 及独立 RN/Taro/Electron 宿主
 
@@ -215,7 +215,7 @@ business/*/ui/* 与各宿主薄页面（编排，不造第二套基础件）
 
 ### 5.2 现有代码的统一化（本轮目标，非只防新增）
 
-> **拍板（2026-08-29）**：**所有 UI 组件回签 sa2kit-ui**（含 auth 壳、域面板、CollisionBalls、business 可拆件）；**showmasterpiece 强制动森**。sa2kit/profile 只留逻辑与组装。详见 [UI-UNIFICATION-PLAN.md](./UI-UNIFICATION-PLAN.md)。
+> **拍板（2026-08-29，已完成 2026-09-03）**：UI 实现只在 **sa2kit-ui**；消费经 **`sa2kit/common/ui*`** 门面；门禁 `pnpm gate:ui`。
 
 | 来源 | 处置 |
 |------|------|
@@ -257,57 +257,20 @@ business/*/ui/* 与各宿主薄页面（编排，不造第二套基础件）
 
 ## 7. 分阶段计划（蓝图执行）
 
-> **优先级总序**：§0 北极星（接单可复用）> **Phase U（UI 统一）** > common 接入完备 > festivalCard 试点 > 功能优化。  
-> 日常改动先问：这件事能否让**下一单客户仓**少写代码？不能则降级或改方案。
+> **优先级总序**：§0 北极星 > **Phase F（大域新域）** > 各域功能优化。  
+> **已完成归档**（2026-09-03）：Phase A/B/U/C(festivalCard)/D/E1 — 见 [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)「已完成启明星阶段」；UI 门禁 `pnpm gate:ui`。
 
-### Phase A — 约定与门禁（开工即做，可与 U0 并行）
+### Phase F — 大域下沉 `sa2kit/business/*`（**当前主线**）
 
-- [x] 更新 KNOWLEDGE_BASE §1.1、归档旧「business 迁出」表述  
-- [x] 写入北极星愿景（接单多端 / 库可外接）  
-- [x] sa2kit `REFACTOR_2.0_BACKLOG` 增补 ADR：「business 多端同仓，不再迁出」+ 接单弹药库定位（见 `packages/sa2kit/docs/adr/002-*.md`）  
-- [x] profile：禁止新增 `animal-island-ui` / 禁止新增同功能手写基础件（`pnpm gate:ui` + sa2kit eslint）  
-- [x] 文档：宿主引用矩阵（本文 §3）+ **新宿主接入清单**贴进 sa2kit / sa2kit-ui README（`HOST-ONBOARDING.md`）  
+| 域 | 计划 | 首步 |
+|----|------|------|
+| calendar | [docs/modules/calendar/DOMAIN-MIGRATION.md](../../modules/calendar/DOMAIN-MIGRATION.md) | C1 domain + PLATFORMS |
+| teach-hub | [docs/modules/teach-hub/DOMAIN-MIGRATION.md](../../modules/teach-hub/DOMAIN-MIGRATION.md) | T1 domain + PLATFORMS |
+| showmasterpiece | [docs/modules/showmasterpiece/DOMAIN-MIGRATION.md](../../modules/showmasterpiece/DOMAIN-MIGRATION.md) | M1 domain + server |
 
-### Phase U — UI 统一化（**当前执行主线**，服务北极星）
+总览与 gates：[DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)
 
-对应 §5.2；关闭 CX-011 / SUI-001。顺序建议：
-
-| 子阶段 | 内容 | 验收 |
-|--------|------|------|
-| **U0** 盘点 | ✅ [UI-UNIFICATION-PLAN.md](./UI-UNIFICATION-PLAN.md) | ✅ |
-| **U1** 门面 | `sa2kit/common/ui` + HomeV2 | ✅ |
-| **U2** 子应用 | calendar/teach-hub/smp（admin 兼容层） | ✅ |
-| **U3** 主站 alias | 删除 animal-island alias | ✅ |
-| **U4** mobile | 手写 `src/ui` → rn / 门面 | ✅ |
-| **U5** 全量回签 | auth 壳 / widget / biz / 清 components | ✅ |
-| **U6** 门禁固化 | lint/CR | ✅ `gate:ui`；eslint 禁 animal-island |
-
-**U 完成前不做**：Phase C festivalCard 骨架整理、多端 stub、功能优化、S2 下沉。
-
-### Phase B — common 非 UI 多端表（UI 之后）
-
-- [x] auth / file / config / aiApi 导出表按端列齐（缺端标 `unsupported`）— 见 `packages/sa2kit/docs/COMMON-PLATFORMS-EXPORTS.md`  
-- [ ] （U1 已含 ui 门面；此处不重复）
-
-### Phase C — business 模块「多端模板」试点（**UI 统一化之后**）
-
-选 **festivalCard**（已拍板）：
-
-- [x] 补齐 `domain` + `ui/web` + `server`（已有则整理）  
-- [x] 增加最小 `ui/rn` stub  
-- [x] exports + 示例宿主页 + `PLATFORMS.md`  
-- [x] 页面内 UI **只**用已统一的门面组件（交互按钮已迁 `sa2kit/common/ui`；3D 画布内拖拽手柄保留原生 control）
-
-### Phase D — 宿主薄化扫尾（可与 U 尾声重叠）
-
-- [x] `modules/aiApi` 纯 re-export 删除 → 路由与 MiMo 任务迁至 `app/api/ai/*`、`lib/ai/*`  
-- [x] 文档与实验田引用路径清理（2026-09-03）
-
-### Phase E — 大域 / 功能优化（按需，最后）
-
-- [x] 评估 teach-hub / calendar 是否 S2 下沉 — 见 [PHASE-E-S2-EVALUATION.md](./PHASE-E-S2-EVALUATION.md)（**维持 S1**）  
-- [x] sa2kit 包体拆分、tree-shake — `measure:dist` + [PACKAGE-SPLIT-ROADMAP.md](../../packages/sa2kit/docs/PACKAGE-SPLIT-ROADMAP.md)（E1 落地）  
-- [ ] 各业务功能优化（排期在 UI 与试点之后）  
+**`*-core` 规则**：F1 起新功能只加 sa2kit business；core 仅 re-export，避免双轨。
 
 ---
 
