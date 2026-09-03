@@ -151,9 +151,23 @@ if [ "${POST_DEPLOY:-}" = "1" ]; then
   sleep 5
 else
   echo "========== 6. 重启网关栈 =========="
-  compose -f "$COMPOSE_FILE" pull
+  # WordPress/MariaDB 常走 Docker Hub，公网 TLS 超时不应阻断主站恢复
+  WP_SERVICES="wp_mariadb wordpress_holt"
+  CORE_SERVICES="$(compose -f "$COMPOSE_FILE" config --services | grep -vE '^(wp_mariadb|wordpress_holt)$' | tr '\n' ' ')"
+  # shellcheck disable=SC2086
+  compose -f "$COMPOSE_FILE" pull $CORE_SERVICES
   compose -f "$COMPOSE_FILE" down --remove-orphans
-  compose -f "$COMPOSE_FILE" up -d
+  # shellcheck disable=SC2086
+  compose -f "$COMPOSE_FILE" up -d --remove-orphans $CORE_SERVICES
+  echo "=== 尝试拉取/启动 WordPress 旁路（失败不阻断）==="
+  # shellcheck disable=SC2086
+  if ! compose -f "$COMPOSE_FILE" pull $WP_SERVICES; then
+    echo "WARN: WordPress 镜像拉取失败，继续主站"
+  fi
+  # shellcheck disable=SC2086
+  if ! compose -f "$COMPOSE_FILE" up -d $WP_SERVICES; then
+    echo "WARN: WordPress / MariaDB 启动失败，继续主站"
+  fi
   sleep 20
 fi
 
