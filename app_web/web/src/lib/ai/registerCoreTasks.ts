@@ -5,7 +5,7 @@ import {
 import { mimoAwareStructuredMultimodalTask } from './mimoStructuredMultimodalTask';
 
 /**
- * 主站 AI 任务注册（不含 teachHub — teach.generateLesson 仅由 @profile/teach-hub 注册，见 ST-15）
+ * 主站 AI 任务注册（不含 teachHub — teach.generateLesson 仅由 @profile/teach-hub 注册）
  */
 export function registerCoreAiTasks() {
   registerAiTask(mimoAwareStructuredMultimodalTask);

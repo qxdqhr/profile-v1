@@ -132,5 +132,5 @@ src/app/api/teach-hub/
 
 - OSS 文件：`src/app/api/skill-manager/_fileStore.ts`
 - 多页模块：`src/modules/fitnessPlan/`
-- AI 任务：`src/modules/aiApi/`
+- AI 任务：`sa2kit/common/aiApi` + `packages/teach-hub-core/src/ai/`（主站路由 `app/api/ai/*`）
 - 样例工作区：`/home/qhr/Desktop/musicStudy/`

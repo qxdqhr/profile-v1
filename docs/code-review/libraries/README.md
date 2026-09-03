@@ -41,9 +41,10 @@ sa2kit/common/*  +  sa2kit/business/<域>/{domain,server,ui/*}
 ### 现状债（收敛中）
 
 ```
-animal-island-ui ──仍被──► calendar / teach-hub / showmasterpiece
-@sa2kit-ui/react ──► HomeV2；web 旧页靠 webpack alias
-sa2kit/common/components ──► 另一套 shadcn 风（与动森 UI 并存）
+Phase U ✅ — UI 经 sa2kit/common/ui*；pnpm gate:ui
+Phase A/B ✅ — ADR-002、HOST-ONBOARDING、COMMON-PLATFORMS-EXPORTS
+Phase C 🔄 — festivalCard 骨架/exports/PLATFORMS；UI 门面迁移进行中
+Phase E — S2 评估见 [PHASE-E-S2-EVALUATION.md](./PHASE-E-S2-EVALUATION.md)（大域 S1）；包体 `measure:dist`
 *-core 已 cutover ──► 默认冻结，新多端优先进 sa2kit
 ```
 

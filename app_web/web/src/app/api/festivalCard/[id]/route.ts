@@ -4,6 +4,7 @@ import {
   createGetFestivalCardHandler,
   createUpsertFestivalCardHandler,
 } from 'sa2kit/business/festivalCard/routes';
+import { requireAdminSession } from '@/lib/auth/api-guard';
 import { db } from '@/db';
 
 const config = { db };
@@ -19,9 +20,13 @@ export async function GET(request: NextRequest, context: IdRouteContext) {
 }
 
 export async function PUT(request: NextRequest, context: IdRouteContext) {
+  const gated = await requireAdminSession(request);
+  if (gated.error) return gated.error;
   return putHandler(request, context);
 }
 
 export async function DELETE(request: NextRequest, context: IdRouteContext) {
+  const gated = await requireAdminSession(request);
+  if (gated.error) return gated.error;
   return deleteHandler(request, context);
 }

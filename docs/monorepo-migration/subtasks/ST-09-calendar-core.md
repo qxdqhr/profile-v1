@@ -18,7 +18,7 @@
 | `@/lib/auth` | `@profile/auth` |
 | `@/db` | `@profile/db` |
 | `@/lib/utils` | `calendar-core/src/utils/cn.ts` |
-| `@/modules/aiApi` | `sa2kit/common/aiApi/client` + `integrations/aiDefaults.ts` |
+| `@/modules/aiApi`（已删除） | `sa2kit/common/aiApi/client` + `integrations/aiDefaults.ts` |
 | `@/modules/dateCalculator` | `CalendarPage.toolsPanel` 由 web 兼容层注入 |
 
 ## 验收记录（2026-06-11）

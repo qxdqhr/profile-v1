@@ -11,10 +11,7 @@ import {
   type AiTaskDefinition,
   type StructuredMultimodalInput,
 } from 'sa2kit/common/aiApi/server';
-import {
-  isMimoApiBaseUrl,
-  isMimoVisionCapableModel,
-} from '../utils/mimoVisionModels';
+import { isMimoApiBaseUrl, isMimoVisionCapableModel } from './mimoVisionModels';
 
 function joinChatCompletionsUrl(baseUrl: string): string {
   return `${baseUrl.replace(/\/+$/, '')}/chat/completions`;
@@ -117,7 +114,3 @@ export const mimoAwareStructuredMultimodalTask: AiTaskDefinition<
     };
   },
 };
-
-export function registerProfileAiTasks() {
-  registerAiTask(mimoAwareStructuredMultimodalTask);
-}

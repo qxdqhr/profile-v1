@@ -2,6 +2,7 @@
 
 import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { AuthGuard, AuthProvider } from '@/lib/auth';
 import { FestivalCardConfigPage } from 'sa2kit/business/festivalCard';
 
 function FestivalCardConfigRoutePageContent() {
@@ -28,8 +29,12 @@ function FestivalCardConfigRoutePageContent() {
 
 export default function FestivalCardConfigRoutePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-950" />}>
-      <FestivalCardConfigRoutePageContent />
-    </Suspense>
+    <AuthProvider>
+      <AuthGuard requireAuth>
+        <Suspense fallback={<div className="min-h-screen bg-slate-950" />}>
+          <FestivalCardConfigRoutePageContent />
+        </Suspense>
+      </AuthGuard>
+    </AuthProvider>
   );
 }

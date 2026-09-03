@@ -21,7 +21,7 @@
 |--------|------|
 | `@/lib/auth` | `@profile/auth/react`（客户端）/ `@profile/auth/session`（API） |
 | `sa2kit` file/OSS | `integrations/ossFile.ts` + sa2kit |
-| `@/modules/aiApi` | `ai/generateLessonTask.ts` 直接注册 sa2kit 任务 |
+| `@/modules/aiApi`（已删除） | `ai/generateLessonTask.ts` 直接注册 `sa2kit/common/aiApi/server` 任务 |
 | skill-manager 文件持久化模式 | 保留在 teach-hub-core/utils |
 
 ## 文档迁移

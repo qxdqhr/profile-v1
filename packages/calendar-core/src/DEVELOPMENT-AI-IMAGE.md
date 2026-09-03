@@ -1,7 +1,7 @@
 # 日历模块：API 封装与多模态识图创建活动
 
 > 状态：**进行中** — 基于 sa2kit `core.structuredMultimodal` 通用任务  
-> 通用模块文档：[`../aiApi/DEVELOPMENT.md`](../aiApi/DEVELOPMENT.md)
+> 通用 AI 文档：[`docs/modules/aiApi/DEVELOPMENT.md`](../../../../docs/modules/aiApi/DEVELOPMENT.md)（SSOT：`sa2kit/common/aiApi`）
 
 ## 架构（2026-06 重构）
 

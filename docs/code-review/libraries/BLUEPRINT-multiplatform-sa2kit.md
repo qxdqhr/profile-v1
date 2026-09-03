@@ -264,9 +264,9 @@ business/*/ui/* 与各宿主薄页面（编排，不造第二套基础件）
 
 - [x] 更新 KNOWLEDGE_BASE §1.1、归档旧「business 迁出」表述  
 - [x] 写入北极星愿景（接单多端 / 库可外接）  
-- [ ] sa2kit `REFACTOR_2.0_BACKLOG` 增补 ADR：「business 多端同仓，不再迁出」+ 接单弹药库定位  
-- [ ] profile：禁止新增 `animal-island-ui` / 禁止新增同功能手写基础件（lint 或 CR 清单）  
-- [ ] 文档：宿主引用矩阵（本文 §3）+ **新宿主接入清单**贴进 sa2kit / sa2kit-ui README  
+- [x] sa2kit `REFACTOR_2.0_BACKLOG` 增补 ADR：「business 多端同仓，不再迁出」+ 接单弹药库定位（见 `packages/sa2kit/docs/adr/002-*.md`）  
+- [x] profile：禁止新增 `animal-island-ui` / 禁止新增同功能手写基础件（`pnpm gate:ui` + sa2kit eslint）  
+- [x] 文档：宿主引用矩阵（本文 §3）+ **新宿主接入清单**贴进 sa2kit / sa2kit-ui README（`HOST-ONBOARDING.md`）  
 
 ### Phase U — UI 统一化（**当前执行主线**，服务北极星）
 
@@ -286,27 +286,27 @@ business/*/ui/* 与各宿主薄页面（编排，不造第二套基础件）
 
 ### Phase B — common 非 UI 多端表（UI 之后）
 
-- [ ] auth / file / config / aiApi 导出表按端列齐（缺端标 `unsupported`）  
+- [x] auth / file / config / aiApi 导出表按端列齐（缺端标 `unsupported`）— 见 `packages/sa2kit/docs/COMMON-PLATFORMS-EXPORTS.md`  
 - [ ] （U1 已含 ui 门面；此处不重复）
 
 ### Phase C — business 模块「多端模板」试点（**UI 统一化之后**）
 
 选 **festivalCard**（已拍板）：
 
-- [ ] 补齐 `domain` + `ui/web` + `server`（已有则整理）  
-- [ ] 增加最小 `ui/rn` stub  
-- [ ] exports + 示例宿主页 + `PLATFORMS.md`  
-- [ ] 页面内 UI **只**用已统一的门面组件（不再引入第二套）
+- [x] 补齐 `domain` + `ui/web` + `server`（已有则整理）  
+- [x] 增加最小 `ui/rn` stub  
+- [x] exports + 示例宿主页 + `PLATFORMS.md`  
+- [x] 页面内 UI **只**用已统一的门面组件（交互按钮已迁 `sa2kit/common/ui`；3D 画布内拖拽手柄保留原生 control）
 
 ### Phase D — 宿主薄化扫尾（可与 U 尾声重叠）
 
-- [ ] `modules/aiApi` 等纯 re-export 删除  
-- [ ] 文档与实验田引用路径清理  
+- [x] `modules/aiApi` 纯 re-export 删除 → 路由与 MiMo 任务迁至 `app/api/ai/*`、`lib/ai/*`  
+- [x] 文档与实验田引用路径清理（2026-09-03）
 
 ### Phase E — 大域 / 功能优化（按需，最后）
 
-- [ ] 评估 teach-hub / calendar 是否 S2 下沉  
-- [ ] sa2kit 包体拆分、tree-shake  
+- [x] 评估 teach-hub / calendar 是否 S2 下沉 — 见 [PHASE-E-S2-EVALUATION.md](./PHASE-E-S2-EVALUATION.md)（**维持 S1**）  
+- [x] sa2kit 包体拆分、tree-shake — `measure:dist` + [PACKAGE-SPLIT-ROADMAP.md](../../packages/sa2kit/docs/PACKAGE-SPLIT-ROADMAP.md)（E1 落地）  
 - [ ] 各业务功能优化（排期在 UI 与试点之后）  
 
 ---

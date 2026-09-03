@@ -38,7 +38,7 @@
 
 - `@/lib/auth` — 用户鉴权，工作区归属校验
 - `sa2kit/common/file` — OSS 上传与读取（参考 `skill-manager/_fileStore`）
-- `@/modules/aiApi` — Mimo Teach Agent（Phase 2+）
+- `sa2kit/common/aiApi` — Mimo Teach Agent（Phase 2+）；主站 `app/api/ai/run` + `lib/ai/registerCoreTasks`
 
 ## 参考
 
