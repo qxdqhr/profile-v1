@@ -16,9 +16,11 @@
     "./db/schema/bookings": "./src/db/schema/bookings.ts",
     "./db/schema/popupConfig": "./src/db/schema/popupConfig.ts",
     "./db/schema/config": "./src/db/schema/config.ts",
-    "./ui/web": "./src/ui/app_web/index.ts",
-    "./ui/app_web/pages/config/page": "./src/ui/app_web/pages/config/page.tsx",
-    "./ui/app_web/pages/history/page": "./src/ui/app_web/pages/history/page.tsx"
+    "./ui/web": "./src/ui/web/index.ts",
+    "./ui/app_web/pages/config/page": "./src/ui/web/pages/config/page.tsx",
+    "./ui/app_web/pages/history/page": "./src/ui/web/pages/history/page.tsx",
+    "./ui/web/pages/config/page": "./src/ui/web/pages/config/page.tsx",
+    "./ui/web/pages/history/page": "./src/ui/web/pages/history/page.tsx"
   },
   "dependencies": {
     "@profile/auth": "workspace:*",
