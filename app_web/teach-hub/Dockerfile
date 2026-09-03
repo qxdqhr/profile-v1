@@ -51,8 +51,10 @@ ENV NEXT_PUBLIC_BASE_PATH=/teach-hub
 # 子应用 basePath 已含 /teach-hub，站内 Link 勿再叠一层前缀
 ENV NEXT_PUBLIC_TEACH_HUB_BASE_URL=
 
+ENV SA2KIT_SKIP_PREPARE=1
+ENV SA2KIT_SKIP_DTS=1
 COPY scripts/docker-build-sa2kit-libs.sh ./scripts/docker-build-sa2kit-libs.sh
-RUN bash scripts/docker-build-sa2kit-libs.sh \
+RUN sh scripts/docker-build-sa2kit-libs.sh \
  && pnpm --filter @profile/teach-hub build
 
 FROM base AS runner

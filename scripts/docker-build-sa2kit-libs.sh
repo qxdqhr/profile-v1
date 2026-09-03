@@ -1,8 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # Docker / CI：在 pnpm install 之后构建 submodule 库产物（dist 不进 git）。
+# Alpine 镜像无 bash，必须用 sh。
 # SA2KIT_SKIP_DTS=1：宿主 monorepo 内 React 19 @types 会让 sa2kit DTS 失败，镜像只需 JS 产物。
-set -euo pipefail
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+set -eu
+ROOT="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 pnpm --filter @sa2kit-ui/shared build

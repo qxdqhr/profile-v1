@@ -50,8 +50,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_DIST_DIR=.next-calendar
 ENV NEXT_PUBLIC_BASE_PATH=/calendar
 
+ENV SA2KIT_SKIP_PREPARE=1
+ENV SA2KIT_SKIP_DTS=1
 COPY scripts/docker-build-sa2kit-libs.sh ./scripts/docker-build-sa2kit-libs.sh
-RUN bash scripts/docker-build-sa2kit-libs.sh \
+RUN sh scripts/docker-build-sa2kit-libs.sh \
  && pnpm --filter @profile/calendar build
 
 FROM base AS runner
