@@ -50,12 +50,18 @@ done
 
 if [ -n "$PG_CONF" ]; then
   echo "PG conf: $PG_CONF"
-  BRIDGE_IP="$(docker network inspect profile-v1_profile -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' 2>/dev/null || echo 172.17.0.1)"
-  if ! grep -qE "listen_addresses.*(${BRIDGE_IP//./\\.}|172\.17\.0\.1|\*)" "$PG_CONF"; then
+  # 网关栈 down 时 network 可能不存在；空 Gateway 不能喂给 grep/sed（会 Unmatched (/unterminated s）
+  BRIDGE_IP="$(docker network inspect profile-v1_profile -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}' 2>/dev/null || true)"
+  BRIDGE_IP="$(printf '%s' "$BRIDGE_IP" | tr -d '\r\n' | awk '{print $1}')"
+  case "$BRIDGE_IP" in
+    ''|*[!0-9.]*) BRIDGE_IP=172.17.0.1 ;;
+  esac
+  BRIDGE_RE="$(printf '%s' "$BRIDGE_IP" | sed 's/\./\\./g')"
+  if ! grep -qE "listen_addresses.*(${BRIDGE_RE}|172\\.17\\.0\\.1|\\*)" "$PG_CONF"; then
     if grep -q "^listen_addresses" "$PG_CONF"; then
-      sed -i "s/^listen_addresses.*/listen_addresses = 'localhost,${BRIDGE_IP}'/" "$PG_CONF"
+      sed -i "s|^listen_addresses.*|listen_addresses = 'localhost,${BRIDGE_IP}'|" "$PG_CONF"
     elif grep -q "^#listen_addresses" "$PG_CONF"; then
-      sed -i "s/^#listen_addresses.*/listen_addresses = 'localhost,${BRIDGE_IP}'/" "$PG_CONF"
+      sed -i "s|^#listen_addresses.*|listen_addresses = 'localhost,${BRIDGE_IP}'|" "$PG_CONF"
     else
       echo "listen_addresses = 'localhost,${BRIDGE_IP}'" >> "$PG_CONF"
     fi
