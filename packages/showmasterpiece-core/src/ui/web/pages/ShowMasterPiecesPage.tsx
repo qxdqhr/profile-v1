@@ -257,15 +257,13 @@ function ShowMasterPiecesContent() {
         <h3 className="text-xl font-semibold mb-2 text-rich-black">暂无可用画集</h3>
         <p className="text-prussian-blue-600 mb-6">当前没有可预订的画集，请稍后再试</p>
         {hasAdminAccess && (
-          <Button 
-            asChild 
-            className="bg-gradient-to-r from-moonstone to-cerulean hover:from-cerulean hover:to-moonstone text-white shadow-lg transition-all duration-300"
+          <a
+            href={showmasterpiecePagePath('/config')}
+            className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-moonstone to-cerulean px-4 py-2 text-white shadow-lg transition-all duration-300 hover:from-cerulean hover:to-moonstone"
           >
-            <a href={showmasterpiecePagePath('/config')} className="gap-2">
             <Settings size={20} />
             前往配置页面
           </a>
-          </Button>
         )}
       </div>
     </div>

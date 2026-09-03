@@ -68,7 +68,9 @@ function CustomUIExample() {
       {/* 错误提示 */}
       {error && (
         <div className="p-4 mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <p className="text-red-700 dark:text-red-400">错误: {error.message}</p>
+          <p className="text-red-700 dark:text-red-400">
+            错误: {error instanceof Error ? error.message : String(error)}
+          </p>
         </div>
       )}
 
