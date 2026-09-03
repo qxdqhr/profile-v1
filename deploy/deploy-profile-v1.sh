@@ -154,18 +154,27 @@ echo "=== 拉取业务镜像 tag=${IMAGE_TAG} ==="
 # shellcheck disable=SC2086
 compose_cmd -f "$COMPOSE_FILE" pull $APP_SERVICES
 
-echo "=== 尝试拉取 nginx 基础镜像（失败不阻断）==="
-# shellcheck disable=SC2086
-if ! compose_cmd -f "$COMPOSE_FILE" pull $BASE_SERVICES; then
-  echo "WARN: nginx 镜像拉取失败，将尝试使用本地已有层"
+echo "=== 尝试准备 nginx 镜像（短超时；失败用本地/官方源）==="
+NGINX_IMG="docker.m.daocloud.io/library/nginx:1.27-alpine"
+if docker image inspect "$NGINX_IMG" >/dev/null 2>&1; then
+  echo "nginx 本地已有，跳过拉取"
+else
+  if ! timeout 90s compose_cmd -f "$COMPOSE_FILE" pull $BASE_SERVICES; then
+    echo "WARN: DaoCloud nginx 拉取超时/失败，尝试 docker.io"
+    if timeout 90s docker pull nginx:1.27-alpine; then
+      docker tag nginx:1.27-alpine "$NGINX_IMG"
+    else
+      echo "WARN: nginx 仍不可用，up 可能失败"
+    fi
+  fi
 fi
 
 echo "=== 启动网关栈（先核心；游戏静态由平台 nginx 托管，WordPress 可失败）==="
 # shellcheck disable=SC2086
 compose_cmd -f "$COMPOSE_FILE" up -d --remove-orphans $APP_SERVICES $BASE_SERVICES
-echo "=== 尝试拉取/启动 WordPress 旁路（失败不阻断部署）==="
+echo "=== 尝试拉取/启动 WordPress 旁路（短超时，失败不阻断）==="
 # shellcheck disable=SC2086
-if ! compose_cmd -f "$COMPOSE_FILE" pull $WP_SERVICES; then
+if ! timeout 90s compose_cmd -f "$COMPOSE_FILE" pull $WP_SERVICES; then
   echo "WARN: WordPress 镜像拉取失败，继续部署主站与 /games"
 fi
 # shellcheck disable=SC2086
