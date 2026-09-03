@@ -138,16 +138,22 @@ else
   docker builder prune -af || true
 fi
 
-echo "=== 拉取镜像 tag=${IMAGE_TAG} ==="
-compose_cmd -f "$COMPOSE_FILE" pull
-
-echo "=== 启动网关栈（先核心；游戏静态由平台 nginx 托管，WordPress 可失败）==="
-# 排除 WordPress：wp_mariadb 崩溃时不应阻断整站 /games
+# 排除 WordPress：DaoCloud/MariaDB 公网 TLS 超时不应阻断主站 pull/up
 WP_SERVICES="wp_mariadb wordpress_holt"
 CORE_SERVICES="$(compose_cmd -f "$COMPOSE_FILE" config --services | grep -vE '^(wp_mariadb|wordpress_holt)$' | tr '\n' ' ')"
+
+echo "=== 拉取核心镜像 tag=${IMAGE_TAG} ==="
+# shellcheck disable=SC2086
+compose_cmd -f "$COMPOSE_FILE" pull $CORE_SERVICES
+
+echo "=== 启动网关栈（先核心；游戏静态由平台 nginx 托管，WordPress 可失败）==="
 # shellcheck disable=SC2086
 compose_cmd -f "$COMPOSE_FILE" up -d --remove-orphans $CORE_SERVICES
-echo "=== 尝试启动 WordPress 旁路（失败不阻断部署）==="
+echo "=== 尝试拉取/启动 WordPress 旁路（失败不阻断部署）==="
+# shellcheck disable=SC2086
+if ! compose_cmd -f "$COMPOSE_FILE" pull $WP_SERVICES; then
+  echo "WARN: WordPress 镜像拉取失败，继续部署主站与 /games"
+fi
 # shellcheck disable=SC2086
 if ! compose_cmd -f "$COMPOSE_FILE" up -d $WP_SERVICES; then
   echo "WARN: WordPress / MariaDB 启动失败，继续部署主站与 /games"
