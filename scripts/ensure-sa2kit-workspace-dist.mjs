@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * profile-v1 将 sa2kit / sa2kit-ui 以 git submodule + workspace 引用。
- * 两库 dist 不进 git；根 pnpm.overrides 钉 @types/react@18 以便 sa2kit 发 d.ts。
+ * 两库 dist 不进 git；sa2kit common 发 d.ts，business 跳过声明。
  */
 import { existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -37,7 +37,7 @@ if (needUi) {
 }
 
 if (needSa2kit) {
-  console.log('[ensure-sa2kit-workspace-dist] building sa2kit (common + business + d.ts)…');
+  console.log('[ensure-sa2kit-workspace-dist] building sa2kit (common d.ts + business js)…');
   run('pnpm', ['--filter', 'sa2kit', 'run', 'build'], {
     SA2KIT_WITH_BUSINESS: '1',
     SA2KIT_SKIP_DTS: '0',

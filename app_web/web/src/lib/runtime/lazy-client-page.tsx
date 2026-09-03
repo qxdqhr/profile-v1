@@ -1,3 +1,5 @@
+'use client';
+
 import dynamic from 'next/dynamic';
 import type { ComponentType } from 'react';
 
@@ -9,7 +11,7 @@ function HeavyPageFallback() {
   );
 }
 
-/** 3D 页不进 SSR，避免把 Three 打进首屏共享图。 */
+/** 3D 页不进 SSR，避免把 Three 打进首屏共享图。调用方 page 也须为 Client Component。 */
 export function lazyClientPage<P extends object>(
   loader: () => Promise<{ default: ComponentType<P> }>,
 ) {
