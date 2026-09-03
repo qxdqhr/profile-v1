@@ -19,10 +19,11 @@ app_wordpress
 drizzle
 deploy
 /scripts
+!/scripts/docker-build-sa2kit-libs.sh
 *.md
 !packages/**/README.md
-!sa2kit/**/README.md
-!sa2kit-ui/**/README.md
+!packages/sa2kit/**/README.md
+!packages/sa2kit-ui/**/README.md
 app_web/web/src/*.zip
 app_web/web/src/modules/*.zip
 app_web/web/public/mmd

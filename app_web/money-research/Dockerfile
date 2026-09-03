@@ -35,6 +35,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/app_web/money-research/node_modules ./app_web/money-research/node_modules
 
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml turbo.json tsconfig.json ./
+COPY config ./config
 COPY app_web/money-research ./app_web/money-research
 
 RUN pip3 install --no-cache-dir --break-system-packages -r app_web/money-research/demo/requirements.txt

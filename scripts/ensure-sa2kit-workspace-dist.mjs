@@ -39,9 +39,10 @@ if (needUi) {
 }
 
 if (needSa2kit) {
-  console.log('[ensure-sa2kit-workspace-dist] building sa2kit (common + business)…');
+  console.log('[ensure-sa2kit-workspace-dist] building sa2kit (common + business, skip DTS)…');
   run('pnpm', ['--filter', 'sa2kit', 'run', 'build'], {
     SA2KIT_WITH_BUSINESS: '1',
+    SA2KIT_SKIP_DTS: '1',
   });
 }
 

@@ -344,6 +344,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Decrypt production config for API URLs
         id: cfg
@@ -465,6 +467,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Decrypt production config for API URLs
         id: cfg
