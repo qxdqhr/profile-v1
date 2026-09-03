@@ -128,27 +128,41 @@ if ids="$(docker ps -aq --filter 'name=profile-v1_')"; then
   docker rm -f $ids 2>/dev/null || true
 fi
 
-echo "=== 释放 Docker 镜像缓存（防 no space left）==="
-if [ -x ./cleanup-server-disk.sh ]; then
-  ./cleanup-server-disk.sh || true
-elif [ -f ./cleanup-server-disk.sh ]; then
-  bash ./cleanup-server-disk.sh || true
+echo "=== 释放 Docker 镜像缓存（仅在磁盘紧张时）==="
+ROOT_USE="$(df -P / | awk 'NR==2 {gsub(/%/,"",$5); print $5}')"
+if [ "${ROOT_USE:-0}" -ge 85 ] 2>/dev/null; then
+  echo "磁盘使用 ${ROOT_USE}% ≥ 85%，执行清理"
+  if [ -x ./cleanup-server-disk.sh ]; then
+    ./cleanup-server-disk.sh || true
+  elif [ -f ./cleanup-server-disk.sh ]; then
+    bash ./cleanup-server-disk.sh || true
+  else
+    docker image prune -af || true
+    docker builder prune -af || true
+  fi
 else
-  docker image prune -af || true
-  docker builder prune -af || true
+  echo "磁盘使用 ${ROOT_USE:-?}% < 85%，跳过 image prune（避免强依赖 DaoCloud 重拉 nginx/MariaDB）"
+  docker container prune -f || true
 fi
 
-# 排除 WordPress：DaoCloud/MariaDB 公网 TLS 超时不应阻断主站 pull/up
+# DaoCloud 公网 TLS 不稳：阿里云业务镜像必须拉成功；nginx/WP 失败则沿用本地层
+APP_SERVICES="web calendar teach_hub showmasterpiece money_research node_notes"
+BASE_SERVICES="nginx"
 WP_SERVICES="wp_mariadb wordpress_holt"
-CORE_SERVICES="$(compose_cmd -f "$COMPOSE_FILE" config --services | grep -vE '^(wp_mariadb|wordpress_holt)$' | tr '\n' ' ')"
 
-echo "=== 拉取核心镜像 tag=${IMAGE_TAG} ==="
+echo "=== 拉取业务镜像 tag=${IMAGE_TAG} ==="
 # shellcheck disable=SC2086
-compose_cmd -f "$COMPOSE_FILE" pull $CORE_SERVICES
+compose_cmd -f "$COMPOSE_FILE" pull $APP_SERVICES
+
+echo "=== 尝试拉取 nginx 基础镜像（失败不阻断）==="
+# shellcheck disable=SC2086
+if ! compose_cmd -f "$COMPOSE_FILE" pull $BASE_SERVICES; then
+  echo "WARN: nginx 镜像拉取失败，将尝试使用本地已有层"
+fi
 
 echo "=== 启动网关栈（先核心；游戏静态由平台 nginx 托管，WordPress 可失败）==="
 # shellcheck disable=SC2086
-compose_cmd -f "$COMPOSE_FILE" up -d --remove-orphans $CORE_SERVICES
+compose_cmd -f "$COMPOSE_FILE" up -d --remove-orphans $APP_SERVICES $BASE_SERVICES
 echo "=== 尝试拉取/启动 WordPress 旁路（失败不阻断部署）==="
 # shellcheck disable=SC2086
 if ! compose_cmd -f "$COMPOSE_FILE" pull $WP_SERVICES; then

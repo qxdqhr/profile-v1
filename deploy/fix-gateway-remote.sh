@@ -151,14 +151,25 @@ if [ "${POST_DEPLOY:-}" = "1" ]; then
   sleep 5
 else
   echo "========== 6. 重启网关栈 =========="
-  # WordPress/MariaDB 常走 Docker Hub，公网 TLS 超时不应阻断主站恢复
+  # 阿里云业务镜像必须成功；DaoCloud 的 nginx/WP 失败则尽量用本地层
+  APP_SERVICES="web calendar teach_hub showmasterpiece money_research node_notes"
+  BASE_SERVICES="nginx"
   WP_SERVICES="wp_mariadb wordpress_holt"
-  CORE_SERVICES="$(compose -f "$COMPOSE_FILE" config --services | grep -vE '^(wp_mariadb|wordpress_holt)$' | tr '\n' ' ')"
   # shellcheck disable=SC2086
-  compose -f "$COMPOSE_FILE" pull $CORE_SERVICES
+  compose -f "$COMPOSE_FILE" pull $APP_SERVICES
+  echo "=== 尝试拉取 nginx 基础镜像（失败则尝试官方/其它源并 retag）==="
+  # shellcheck disable=SC2086
+  if ! compose -f "$COMPOSE_FILE" pull $BASE_SERVICES; then
+    echo "WARN: DaoCloud nginx 拉取失败，尝试 docker.io/nginx:1.27-alpine"
+    if docker pull nginx:1.27-alpine; then
+      docker tag nginx:1.27-alpine docker.m.daocloud.io/library/nginx:1.27-alpine
+    else
+      echo "WARN: nginx 拉取仍失败，将尝试使用本地已有层"
+    fi
+  fi
   compose -f "$COMPOSE_FILE" down --remove-orphans
   # shellcheck disable=SC2086
-  compose -f "$COMPOSE_FILE" up -d --remove-orphans $CORE_SERVICES
+  compose -f "$COMPOSE_FILE" up -d --remove-orphans $APP_SERVICES $BASE_SERVICES
   echo "=== 尝试拉取/启动 WordPress 旁路（失败不阻断）==="
   # shellcheck disable=SC2086
   if ! compose -f "$COMPOSE_FILE" pull $WP_SERVICES; then
