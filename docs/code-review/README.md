@@ -64,8 +64,8 @@
 
 | 库 | 本地路径 | 状态 | 报告 |
 |----|----------|------|------|
-| sa2kit@3.9.1 | `/home/qhr/project/sa2kit` | ✅ | [libraries/sa2kit.md](./libraries/sa2kit.md) |
-| sa2kit-ui / `@qhr123/sa2kit-ui-react@0.1.6` | `/home/qhr/project/sa2kit-ui` | ✅ | [libraries/sa2kit-ui.md](./libraries/sa2kit-ui.md) |
+| sa2kit | submodule `packages/sa2kit/` | ✅ | [libraries/sa2kit.md](./libraries/sa2kit.md) |
+| sa2kit-ui / `@sa2kit-ui/react` | submodule `packages/sa2kit-ui/` | ✅ | [libraries/sa2kit-ui.md](./libraries/sa2kit-ui.md) |
 | 索引 | — | — | [libraries/README.md](./libraries/README.md) |
 
 ### 3.1 共享包 `packages/*`

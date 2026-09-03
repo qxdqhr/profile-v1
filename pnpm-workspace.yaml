@@ -4,3 +4,5 @@ packages:
   - 'packages/*'
   - 'app_mobile/*'
   - 'app_desktop/*'
+  - 'packages/sa2kit-ui/packages/*'
+  - 'packages/sa2kit-ui/packages/themes/*'

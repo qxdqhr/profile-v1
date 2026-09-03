@@ -14,6 +14,8 @@ RUN npm install -g pnpm@9.15.0
 
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
 COPY packages ./packages
+COPY packages/sa2kit ./packages/sa2kit
+COPY packages/sa2kit-ui ./packages/sa2kit-ui
 COPY app_web/calendar/package.json ./app_web/calendar/
 
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
@@ -32,10 +34,14 @@ RUN npm install -g pnpm@9.15.0
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/app_web/calendar/node_modules ./app_web/calendar/node_modules
 COPY --from=deps /app/packages ./packages
+COPY --from=deps /app/packages/sa2kit ./packages/sa2kit
+COPY --from=deps /app/packages/sa2kit-ui ./packages/sa2kit-ui
 
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml turbo.json tsconfig.json ./
 COPY config ./config
 COPY packages ./packages
+COPY packages/sa2kit ./packages/sa2kit
+COPY packages/sa2kit-ui ./packages/sa2kit-ui
 # @profile/db schema 仍聚合 app_web/web 模块表定义
 COPY app_web/web/src/modules ./app_web/web/src/modules
 COPY app_web/calendar ./app_web/calendar
@@ -44,7 +50,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_DIST_DIR=.next-calendar
 ENV NEXT_PUBLIC_BASE_PATH=/calendar
 
-RUN pnpm --filter @profile/calendar build
+RUN pnpm --filter @sa2kit-ui/shared build \
+ && pnpm --filter @sa2kit-ui/react build \
+ && SA2KIT_WITH_BUSINESS=1 pnpm --filter sa2kit run build \
+ && pnpm --filter @profile/calendar build
 
 FROM base AS runner
 WORKDIR /app

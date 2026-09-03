@@ -10,6 +10,7 @@
 | **基建** | `config` / `auth` / `db` / `ui` | 配置加载、登录薄封装、Drizzle 客户端与 schema 聚合、Tailwind preset | 各 `app_*`、领域 core |
 | **领域 core** | `calendar-core` / `teach-hub-core` / `showmasterpiece-core` / `node-notes-core` | 业务逻辑、服务端 API、可选 Web UI；跨端 client-safe 走 `./shared` | 对应 Web / RN / Electron 壳 |
 | **仓内扩展** | `sa2kit-exam` / `sa2kit-feishu` | 挂在本仓的 sa2kit 业务扩展（考试、飞书通知） | 主站或脚本 |
+| **外部 SDK（submodule）** | `sa2kit` / `sa2kit-ui` | 独立仓 + npm 发布；本仓 `workspace:*` | 各 app / core |
 
 ## 包一览
 
@@ -25,6 +26,8 @@
 | `@profile/node-notes-core` | `node-notes-core/` | 节点笔记 |
 | `@sa2kit/exam` | `sa2kit-exam/` | 考试模块 |
 | `@sa2kit/feishu-bot` | `sa2kit-feishu/` | 飞书通知 |
+| `sa2kit` | `sa2kit/`（git submodule） | 多端 SDK；可独立 npm publish |
+| `@sa2kit-ui/*` | `sa2kit-ui/`（git submodule） | UI 设计系统；可独立 npm publish |
 
 ## 跨端 client-safe（`./shared`）
 
@@ -39,6 +42,6 @@
 
 - **放这里**：可被多个 app 复用的库、领域逻辑、schema。
 - **不放这里**：可独立部署的应用壳（→ `app_web` / `app_mobile` / …）、旁路源码（→ `app_games` / `app_wordpress`）、部署基建（→ `deploy/`）。
-- **新多端通用能力**：优先进外部 **sa2kit / sa2kit-ui**，本目录 `*-core` 默认冻结扩面（见蓝图）。
+- **新多端通用能力**：优先进 **`packages/sa2kit` / `packages/sa2kit-ui`**（submodule，仍可 npm 发布），本目录 `*-core` 默认冻结扩面（见蓝图）。
 
 主站 Next：`app_web/web/`（`@profile/web`）。

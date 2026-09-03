@@ -3,7 +3,7 @@
 > 版本：v0.4 · 2026-08-29  
 > 状态：**已拍板草案**（**北极星：接单多端可复用** · Phase U 统一 UI · S1 冻结 · festivalCard 后移）— 见 §0 / §7 / §12  
 > 取代/修正：先前「business 迁回 profile-v1」方向（见文末 §11）  
-> 源码仓：`~/project/sa2kit` · `~/project/sa2kit-ui` · 消费仓 `profile-v1` 及独立 RN/Taro/Electron 宿主
+> 源码仓：独立仓库 `github.com/qxdqhr/sa2kit` · `github.com/qxdqhr/sa2kit-ui`（profile-v1 以 git submodule 挂载于 `packages/sa2kit/` · `packages/sa2kit-ui/`，仍可 npm 发布）· 消费仓 `profile-v1` 及独立 RN/Taro/Electron 宿主
 
 ---
 

@@ -56,7 +56,7 @@ pnpm package:showmasterpiece
 | 全局简短规则 | `.cursor/rules/cursorrule.mdc` |
 | 知识库自动注入 | `.cursor/rules/profile-v1-knowledge-ssot.mdc` |
 | **sa2kit / sa2kit-ui / 登录样式** | `.cursor/rules/profile-v1-sa2kit-ui.mdc` |
-| **games / WordPress submodule** | `.cursor/rules/profile-v1-submodules.mdc` |
+| **sa2kit / games / WordPress submodule** | `.cursor/rules/profile-v1-submodules.mdc` |
 | App Router 补充规则 | `.cursor/rules/profile-v1-routing.mdc` |
 | 模块与组件补充规则 | `.cursor/rules/profile-v1-modules.mdc` |
 | 工具型模块分步 Skill | `.cursor/skills/build-utility-module/SKILL.md` |

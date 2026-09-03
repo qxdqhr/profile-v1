@@ -1,4 +1,5 @@
 # 构建上下文：仅白名单 COPY 仍会传输整个 context；忽略大目录以加速 CI。
+# 注意：路径前加 / 表示仅仓库根，避免误忽略 packages/sa2kit/scripts、packages/sa2kit/docs。
 .git
 .github
 .idea
@@ -14,12 +15,14 @@ app_games
 app_desktop
 app_mobile
 app_wordpress
-docs
+/docs
 drizzle
 deploy
-scripts
+/scripts
 *.md
 !packages/**/README.md
+!sa2kit/**/README.md
+!sa2kit-ui/**/README.md
 app_web/web/src/*.zip
 app_web/web/src/modules/*.zip
 app_web/web/public/mmd

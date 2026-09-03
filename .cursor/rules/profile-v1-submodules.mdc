@@ -1,36 +1,41 @@
 ---
-description: games / WordPress / mobile / desktop git submodule 旁路约定
-globs: app_games/**/*,app_wordpress/**/*,deploy/games/**/*,deploy/wordpress/**/*,app_mobile/**/*,app_desktop/**/*,.gitmodules
+description: sa2kit / sa2kit-ui / games / WordPress / mobile / desktop git submodule 约定
+globs: packages/sa2kit/**/*,packages/sa2kit-ui/**/*,app_games/**/*,app_wordpress/**/*,deploy/games/**/*,deploy/wordpress/**/*,app_mobile/**/*,app_desktop/**/*,.gitmodules
 alwaysApply: false
 ---
 
-# Git Submodule 旁路约定
+# Git Submodule 约定
 
-完整 SSOT：`.cursor/KNOWLEDGE_BASE.md` §7.0。编辑 `app_games/`、`app_wordpress/`、`app_mobile/`、`app_desktop/` 或相关 deploy 时遵守。
+完整 SSOT：`.cursor/KNOWLEDGE_BASE.md` §7.0。编辑 `packages/sa2kit/`、`packages/sa2kit-ui/`、`app_games/`、`app_wordpress/`、`app_mobile/`、`app_desktop/` 或相关 deploy 时遵守。
 
 ## 分层（禁止混淆）
 
 | 层 | 路径 | 内容 |
 |----|------|------|
-| **Submodule 源码** | `app_games/<slug>/`、`app_wordpress/<slug>/`、`app_mobile/<slug>/`、`app_desktop/<slug>/` | 独立 Git 仓；父仓只存指针 |
+| **SDK submodule + workspace** | `packages/sa2kit/`、`packages/sa2kit-ui/` | 独立 Git 仓；父仓指针；`pnpm-workspace` 用 `workspace:*`；仍可各自 npm publish |
+| **旁路 submodule 源码** | `app_games/<slug>/`、`app_wordpress/<slug>/`、`app_mobile/<slug>/`、`app_desktop/<slug>/` | 独立 Git 仓；父仓只存指针 |
 | **父仓旁路** | `deploy/games/<slug>/`、`deploy/wordpress/` | nginx、compose 模板、ADD-* 文档、CI 生成的 `www/` |
 | **跨端 client** | `packages/*-core/src/shared`（`@profile/<domain>-core/shared`） | 供 `app_mobile` / `app_desktop` 消费；勿依赖 Next/`@profile/db` |
 | **主站导航** | `app_web/web/src/modules/games/` | 大厅卡片与筛选；**不是** Godot 源码 |
 
 - `deploy/wordpress/` = 全站 WP **基建文档**，**不是** submodule。
 - `deploy/games/<slug>/www/` = 导出产物，**不进 git**。
-- Web 矩阵在 `app_web/`（原 `apps/`）；**不要**把 RN/Electron 再放回 `app_web/`。
+- `sa2kit` / `sa2kit-ui` 的 **dist 不进 git**；本地 `pnpm build:libs`，Docker 构建阶段编库。
+- Web 矩阵在 `app_web/`；**不要**把 RN/Electron 再放回 `app_web/`。
+- **启明星蓝图**（`docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md` §0）不变：客户仓仍直引可发布的库，而非拷贝 profile。
 
 ## 开发规则
 
-1. 改主题/游戏/客户端逻辑 → 进入 submodule 目录，在 **子仓** commit/push，再回到父仓 bump submodule 指针。
+1. 改库 / 主题 / 游戏 / 客户端 → 进入 submodule 目录，在 **子仓** commit/push（库可选 npm publish），再回到父仓 bump submodule 指针。
 2. 克隆父仓：`git submodule update --init --recursive`（CI 已 `submodules: recursive`）。
-3. 新增旁路 → 先建独立仓，`git submodule add …`，再改 compose/nginx/smoke/导航；见 `deploy/games/ADD-GAME.md`、`deploy/wordpress/ADD-SITE.md`、迁移计划 `docs/monorepo-migration/APPS-SUBMODULE-PLAN.md`。新 Godot 游戏必须挂 `addons/sa2kit_godot`（CJK）；`bash scripts/apply-sa2kit-godot-cjk.sh <slug>`。
+3. 新增旁路 → 先建独立仓，`git submodule add …`，再改 compose/nginx/smoke/导航；见 `deploy/games/ADD-GAME.md`、`deploy/wordpress/ADD-SITE.md`。新 Godot 游戏必须挂 `addons/sa2kit_godot`（CJK）；`bash scripts/apply-sa2kit-godot-cjk.sh <slug>`。
 4. 从 Next 迁出 Godot：删 `app_web/web` 旧模块；DB schema 迁到 `packages/db/src/schema/`（若表仍保留）。
 5. 实验田/大厅链到 `/games/*`、`/wp/*` → **整页跳转**（`ExperimentNavCard`），勿用 Next 客户端路由。
+6. 宿主 **不要** 再把 `sa2kit` / `@sa2kit-ui/react` pin 成 npm 版本号；用 `workspace:*`。
 
 ## CI / 部署
 
+- 改 `packages/sa2kit/**` / `packages/sa2kit-ui/**` → 触发依赖它们的 Web 镜像重建（path filter 已含）。
 - `GAMES_CHANGED`：导出并 scp `www/`；未变更保留服务器已有包。
 - `WORDPRESS_CHANGED`：scp `app_wordpress/<slug>/*` 到服务器；未变更不覆盖主题目录。
 - 每次 deploy 同步 `deploy/**`（含 `deploy/wordpress/` 文档目录）。
@@ -40,4 +45,5 @@ alwaysApply: false
 - 在父仓直接改 submodule 内文件却不更新子仓与指针。
 - 把 `deploy/wordpress/` 当作 Holt 主题源码目录。
 - 将 Godot 源码放进 `app_web/web/src/modules`。
-- 新建顶层 `apps/`（已改名为 `app_web/`）。子应用顶层统一 `app_*`：`app_web` / `app_games` / `app_mobile` / `app_desktop` / `app_wordpress`。
+- 新建顶层 `apps/`（已改名为 `app_web/`）。子应用顶层统一 `app_*`；SDK 库在 `packages/sa2kit` / `packages/sa2kit-ui`。
+- 为「方便」把两库 **拷贝进仓内**（非 submodule）而丢掉独立仓 / npm 发布面。

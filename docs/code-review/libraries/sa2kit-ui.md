@@ -2,7 +2,7 @@
 
 | 项 | 内容 |
 |----|------|
-| 源码 | `/home/qhr/project/sa2kit-ui`（独立 git monorepo） |
+| 源码 | submodule `packages/sa2kit-ui/`（独立 git monorepo / npm；原 `~/project/sa2kit-ui`） |
 | 根版本 | 0.2.0（private）；发布面 `@sa2kit-ui/react` = **0.1.6** → npm `@qhr123/sa2kit-ui-react` |
 | 形态 | pnpm + Turborepo：tokens / themes / react / rn / taro / electron |
 | 组件 | Web 24/24；RN 源码有但未作可消费 dist |

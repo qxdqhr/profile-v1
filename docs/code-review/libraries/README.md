@@ -1,6 +1,7 @@
 # 外部维护库（sa2kit / sa2kit-ui）
 
-> 源码不在 profile-v1 monorepo 内，但由同一维护者维护，且被 profile-v1 **强依赖**。  
+> 源码以 **git submodule** 挂在 `packages/sa2kit/`、`packages/sa2kit-ui/`，同时保持独立 GitHub 仓与 **npm 发布面**。  
+> 本仓用 `workspace:*` 引用；客户仓 / 接单项目仍 `npm i sa2kit` 等（**启明星不变**）。  
 > 本目录存放「目标架构 + 消费方/库源码联合 CR」。
 
 ## 目标架构（先读）
@@ -13,7 +14,7 @@
 
 旧稿 TARGET-ARCHITECTURE.md 已删除（其中「business 迁出」作废）；以 BLUEPRINT 为准。
 
-SSOT 短节：`.cursor/KNOWLEDGE_BASE.md` §1.1。
+SSOT 短节：`.cursor/KNOWLEDGE_BASE.md` §1.1 / §7.0。
 
 ---
 
@@ -21,8 +22,8 @@ SSOT 短节：`.cursor/KNOWLEDGE_BASE.md` §1.1。
 
 | 库 | 本地源码 | npm / 消费方式 | 报告 |
 |----|----------|----------------|------|
-| **sa2kit** | `/home/qhr/project/sa2kit` | `sa2kit@3.9.1` | [sa2kit.md](./sa2kit.md) |
-| **sa2kit-ui** | `/home/qhr/project/sa2kit-ui` | `@sa2kit-ui/react` → `@qhr123/sa2kit-ui-react@0.1.6`；部分子应用仍用 `animal-island-ui@^0.9.6` | [sa2kit-ui.md](./sa2kit-ui.md) |
+| **sa2kit** | submodule `packages/sa2kit/`（`github.com/qxdqhr/sa2kit`） | 本仓 `workspace:*`；对外 npm `sa2kit` | [sa2kit.md](./sa2kit.md) |
+| **sa2kit-ui** | submodule `packages/sa2kit-ui/`（`github.com/qxdqhr/sa2kit-ui`） | 本仓 `@sa2kit-ui/*` → `workspace:*`；对外 `@qhr123/sa2kit-ui-react` | [sa2kit-ui.md](./sa2kit-ui.md) |
 
 ### 关系示意（目标态）
 

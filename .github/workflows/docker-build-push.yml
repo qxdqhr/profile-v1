@@ -71,6 +71,9 @@ jobs:
               - 'packages/node-notes-core/**'
               - 'pnpm-lock.yaml'
               - 'package.json'
+              - 'packages/sa2kit/**'
+              - 'packages/sa2kit-ui/**'
+              - '.gitmodules'
             calendar:
               - 'app_web/calendar/**'
               - 'packages/calendar-core/**'
@@ -80,6 +83,9 @@ jobs:
               - 'packages/ui/**'
               - 'pnpm-lock.yaml'
               - 'package.json'
+              - 'packages/sa2kit/**'
+              - 'packages/sa2kit-ui/**'
+              - '.gitmodules'
             teach-hub:
               - 'app_web/teach-hub/**'
               - 'packages/teach-hub-core/**'
@@ -89,6 +95,9 @@ jobs:
               - 'packages/ui/**'
               - 'pnpm-lock.yaml'
               - 'package.json'
+              - 'packages/sa2kit/**'
+              - 'packages/sa2kit-ui/**'
+              - '.gitmodules'
             showmasterpiece:
               - 'app_web/showmasterpiece/**'
               - 'packages/showmasterpiece-core/**'
@@ -98,6 +107,9 @@ jobs:
               - 'packages/ui/**'
               - 'pnpm-lock.yaml'
               - 'package.json'
+              - 'packages/sa2kit/**'
+              - 'packages/sa2kit-ui/**'
+              - '.gitmodules'
             money-research:
               - 'app_web/money-research/**'
               - 'pnpm-lock.yaml'
@@ -111,12 +123,21 @@ jobs:
               - 'packages/ui/**'
               - 'pnpm-lock.yaml'
               - 'package.json'
+              - 'packages/sa2kit/**'
+              - 'packages/sa2kit-ui/**'
+              - '.gitmodules'
             calendar-mobile:
               - 'app_mobile/calendar-mobile/**'
               - 'packages/calendar-core/**'
+              - 'packages/sa2kit/**'
+              - 'packages/sa2kit-ui/**'
+              - '.gitmodules'
             teach-hub-mobile:
               - 'app_mobile/teach-hub-mobile/**'
               - 'packages/teach-hub-core/**'
+              - 'packages/sa2kit/**'
+              - 'packages/sa2kit-ui/**'
+              - '.gitmodules'
             games:
               - 'app_games/**'
               - 'scripts/export-godot-game.sh'
@@ -181,6 +202,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          submodules: recursive
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

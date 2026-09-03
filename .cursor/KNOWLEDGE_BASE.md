@@ -25,11 +25,14 @@
 | 项 | 约定 |
 |----|------|
 | 框架 | Next.js（App Router，主站在 `app_web/web/src/app`） |
-| Monorepo | pnpm workspace：`app_web/*` + `packages/*` + `app_mobile/*` + `app_desktop/*`；详见 `docs/monorepo-migration/`、`docs/README.md`、`app_web/README.md` |
+| Monorepo | pnpm workspace：`app_web/*` + `packages/*` + `app_mobile/*` + `app_desktop/*` + `packages/sa2kit-ui/packages/*`；详见 `docs/monorepo-migration/`、`docs/README.md`、`app_web/README.md` |
 | 样式 | Tailwind CSS；预设 `@profile/ui/tailwind.preset`（设计令牌桥；业务组件/主题见 §1.1） |
 | 数据层 | Drizzle ORM + PostgreSQL（`@profile/db`，迁移目录 `drizzle/` 在仓库根） |
 | 包管理 | **pnpm**；开发 `pnpm dev` = `pnpm --filter @profile/web dev` |
-| 通用 SDK | **`sa2kit`**（登录、OSS/文件、配置、AI、UI/主题门面）；源码仓 `~/project/sa2kit` |
+| 通用 SDK | **`sa2kit`**（登录、OSS/文件、配置、AI、UI/主题门面）；git submodule `packages/sa2kit/`（独立仓可 npm 发布） |
+| UI 设计系统 | **`sa2kit-ui`**（`@sa2kit-ui/*`）；git submodule `packages/sa2kit-ui/`（独立仓可 npm 发布） |
+
+本地开发：`pnpm install` 后若缺 dist，跑 `pnpm build:libs`（`scripts/ensure-sa2kit-workspace-dist.mjs`）。宿主依赖用 `workspace:*`，**不**再 pin npm 版；对外客户仓仍可 `npm i sa2kit` / `@qhr123/sa2kit-ui-react`。
 
 ### 1.1 与 sa2kit / sa2kit-ui 的依赖方向（目标态）
 
@@ -196,20 +199,23 @@ export default function XxxRoute() {
 
 ## 7. Monorepo 子应用（方案 B）与旁路 Submodule
 
-### 7.0 Git Submodule 旁路约定（games / WordPress）
+### 7.0 Git Submodule 约定（SDK 库 + games / WordPress / mobile / desktop）
 
-**原则**：Godot 游戏源码、WordPress 主题等 **非 pnpm、非 Next** 的重资产，各用 **独立公开 Git 仓**，以 **git submodule** 挂入父仓；父仓只保留网关 compose/nginx、deploy 脚本、导航清单与 CI。
+**原则**：独立 Git 仓以 **git submodule** 挂入父仓；父仓只存指针 + 宿主/旁路基建。  
+**sa2kit / sa2kit-ui** 另属 **pnpm workspace 成员**（`workspace:*`），仍各自独立 `npm publish`；**北极星「客户仓直引库」不变**。
 
 #### 7.0.1 双轨目录（勿混淆）
 
-| 类型 | Submodule 源码 | 父仓旁路/基建 | 公网路径 | 清单索引 |
-|------|----------------|---------------|----------|----------|
+| 类型 | Submodule 源码 | 父仓旁路/基建 | 公网路径 / 消费 | 清单索引 |
+|------|----------------|---------------|-----------------|----------|
+| **sa2kit SDK** | `packages/sa2kit/` | workspace + Docker 内 `build:libs` | npm `sa2kit`；本仓 `workspace:*` | [`docs/code-review/libraries/`](../docs/code-review/libraries/) |
+| **sa2kit-ui** | `packages/sa2kit-ui/` | 同上；包在 `packages/sa2kit-ui/packages/*` | npm `@qhr123/sa2kit-ui-react`；本仓 `@sa2kit-ui/*` | 同上 |
 | **Godot 游戏** | `app_games/<slug>/` | `deploy/games/<slug>/www/`（CI 生成；平台 nginx alias） | `/games/<slug>/` | [`deploy/games/README.md`](../deploy/games/README.md)、[`app_games/`](../games/)（各 submodule） |
 | **WordPress 主题站** | `app_wordpress/<slug>/` | `deploy/wordpress/`（compose 模板、ADD-SITE、php 教程；**全站共享，非 submodule**） | `/wp/<slug>/` | [`app_wordpress/README.md`](../app_wordpress/README.md)、[`deploy/wordpress/ADD-SITE.md`](../deploy/wordpress/ADD-SITE.md) |
 
-- **Submodule 内**：游戏 `project.godot` / 导出工程；WP 主题 PHP/CSS/JS + 可选 `data/` 种子 JSON。
-- **父仓内**：`deploy/docker-compose.gateway.yml`、`deploy/nginx/*`、冒烟脚本；主站 [`app_web/web/src/modules/games/`](../app_web/web/src/modules/games/) 小游戏大厅导航（**不是** Godot 源码）。
-- **禁止**：在父仓直接长期修改 submodule 目录内容却不提交子仓；把 `deploy/wordpress/` 或 `deploy/games/<slug>/www/` 当成 submodule。
+- **Submodule 内**：`sa2kit` / `sa2kit-ui` 完整库源码（dist 本地/CI 构建）；游戏 `project.godot` / 导出工程；WP 主题 PHP/CSS/JS + 可选 `data/` 种子 JSON。
+- **父仓内**：`deploy/docker-compose.gateway.yml`、`deploy/nginx/*`、冒烟脚本；主站 [`app_web/web/src/modules/games/`](../app_web/web/src/modules/games/) 小游戏大厅导航（**不是** Godot 源码）；`pnpm-workspace.yaml` 经 `packages/*` 纳入 sa2kit，并显式纳入 `packages/sa2kit-ui/packages/*`。
+- **禁止**：在父仓直接长期修改 submodule 目录内容却不提交子仓；把 `deploy/wordpress/` 或 `deploy/games/<slug>/www/` 当成 submodule；把两库源码脱离独立仓/submodule、丢掉 npm 发布面。
 
 #### 7.0.2 克隆与本地开发
 
@@ -219,17 +225,19 @@ git clone --recurse-submodules git@github.com:qxdqhr/profile-v1.git
 git submodule update --init --recursive
 ```
 
-- 更新单个子模块：`git submodule update --remote app_wordpress/holt`（或进入子目录在子仓分支开发）。
-- CI（`.github/workflows/docker-build-push.yml`）checkout 使用 **`submodules: recursive`**。
+- 更新单个子模块：`git submodule update --remote sa2kit`（或 `app_wordpress/holt`）；进入子目录在子仓分支开发后，父仓 bump 指针。
+- 改 sa2kit / sa2kit-ui 后：子仓 commit/push/（可选）npm publish → 父仓 bump 指针 → `pnpm build:libs`（或 Docker 构建阶段自动编 dist）。
+- CI（`.github/workflows/docker-build-push.yml`）checkout 使用 **`submodules: recursive`**（含 Docker build job）。
 
 #### 7.0.3 新增 Submodule 流程
 
 | 类型 | 步骤文档 | 典型命令 |
 |------|----------|----------|
+| sa2kit / sa2kit-ui | 已挂载；勿再 `submodule add` 到其它路径 | `packages/sa2kit` → `https://github.com/qxdqhr/sa2kit.git`；`packages/sa2kit-ui` → `https://github.com/qxdqhr/sa2kit-ui.git` |
 | 游戏 | [`deploy/games/ADD-GAME.md`](../deploy/games/ADD-GAME.md) | `git submodule add https://github.com/qxdqhr/profile-v1-game-<slug>.git app_games/<slug>` |
 | WordPress | [`deploy/wordpress/ADD-SITE.md`](../deploy/wordpress/ADD-SITE.md) | `git submodule add https://github.com/qxdqhr/profile-v1-wordpress-<slug>.git app_wordpress/<slug>` |
 
-登记：更新 `.gitmodules`、compose/nginx、`smoke-test-gateway.sh`、主站导航（games 大厅或实验田）；子仓独立 commit/tag，父仓只 bump submodule 指针。
+登记：更新 `.gitmodules`；库类还要改 `pnpm-workspace.yaml` / Docker COPY / CI path filter；游戏/WP 还要 compose/nginx/smoke/导航。子仓独立 commit/tag，父仓只 bump submodule 指针。
 
 #### 7.0.4 CI 与生产同步
 

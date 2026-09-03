@@ -27,10 +27,13 @@
     "build:web": "pnpm --filter @profile/web build",
     "build:all": "turbo run build --filter=@profile/web --filter=@profile/calendar --filter=@profile/teach-hub --filter=@profile/showmasterpiece --filter=@profile/money-research --filter=@profile/node-notes",
     "dev": "pnpm --filter @profile/web dev",
-    "dev:sync-sa2kit": "pnpm --filter @profile/web dev:sync-sa2kit",
+    "dev:sync-sa2kit": "pnpm build:libs && pnpm --filter @profile/web dev",
     "dev:3002": "pnpm --filter @profile/web dev:3002",
     "dev:3003": "pnpm --filter @profile/web dev:3003",
     "dev:https": "pnpm --filter @profile/web dev:https",
+    "build:libs": "node scripts/ensure-sa2kit-workspace-dist.mjs",
+    "build:libs:force": "rm -rf packages/sa2kit/dist packages/sa2kit-ui/packages/shared/dist packages/sa2kit-ui/packages/react/dist && pnpm build:libs",
+    "postinstall": "node scripts/ensure-sa2kit-workspace-dist.mjs",
     "build": "pnpm --filter @profile/web build",
     "start": "pnpm --filter @profile/web start",
     "lint": "pnpm --filter @profile/web lint",
@@ -76,7 +79,7 @@
     "@profile/db": "workspace:*",
     "drizzle-orm": "^0.44.7",
     "postgres": "^3.4.5",
-    "sa2kit": "3.9.4",
+    "sa2kit": "workspace:*",
     "nanoid": "^5.1.5",
     "yaml": "^2.8.0"
   },
@@ -88,5 +91,15 @@
     "turbo": "^2.5.4",
     "typescript": "^5.7.3"
   },
-  "packageManager": "pnpm@9.15.0+sha512.76e2379760a4328ec4415815bcd6628dee727af3779aaa4c914e3944156c4299921a89f976381ee107d41f12cfa4b66681ca9c718f0668fa0831ed4c6d8ba56c"
+  "packageManager": "pnpm@9.15.0+sha512.76e2379760a4328ec4415815bcd6628dee727af3779aaa4c914e3944156c4299921a89f976381ee107d41f12cfa4b66681ca9c718f0668fa0831ed4c6d8ba56c",
+  "pnpm": {
+    "overrides": {
+      "@sa2kit-ui/react": "workspace:*"
+    },
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "@sa2kit-ui/rn"
+      ]
+    }
+  }
 }

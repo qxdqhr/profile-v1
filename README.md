@@ -18,7 +18,7 @@ profile-v1/
 │   └── teach-hub-mobile/
 ├── app_desktop/                 # Electron submodule
 │   └── teach-hub-desktop/
-├── packages/                # 基建 + 领域 *-core（含 ./shared）；唯一共享库目录
+├── packages/                # 基建 + *-core + sa2kit / sa2kit-ui submodule
 ├── deploy/                  # 网关 nginx + docker-compose
 └── docs/                    # 仓库级文档（索引 docs/README.md）
 ```

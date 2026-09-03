@@ -11,6 +11,11 @@ WORKDIR /app
 RUN npm install -g pnpm@9.15.0
 
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+COPY packages ./packages
+COPY packages/sa2kit/package.json ./packages/sa2kit/
+COPY packages/sa2kit-ui/package.json ./packages/sa2kit-ui/
+COPY packages/sa2kit-ui/pnpm-workspace.yaml ./packages/sa2kit-ui/
+COPY packages/sa2kit-ui/packages ./packages/sa2kit-ui/packages
 COPY app_web/money-research/package.json ./app_web/money-research/
 
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \

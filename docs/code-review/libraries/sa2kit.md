@@ -2,7 +2,7 @@
 
 | 项 | 内容 |
 |----|------|
-| 源码 | `/home/qhr/project/sa2kit`（独立 git） |
+| 源码 | submodule `packages/sa2kit/`（独立 git / npm；原 `~/project/sa2kit`） |
 | 版本 | **3.9.1**（与 profile-v1 pin 一致） |
 | 形态 | 单包 npm；`src/common` + `src/business`；tsup 双阶段构建 |
 | 规模 | ~697 源文件 / ~92k 行；`dist/` ≈ 32MB |

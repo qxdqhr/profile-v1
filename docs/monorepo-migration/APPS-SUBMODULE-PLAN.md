@@ -53,12 +53,16 @@ packages:
   - 'packages/*'
   - 'app_mobile/*'
   - 'app_desktop/*'
+  - 'packages/sa2kit-ui/packages/*'
+  - 'packages/sa2kit-ui/packages/themes/*'
 ```
 
 ## 子仓清单
 
 | 父仓路径 | GitHub |
 |----------|--------|
+| `packages/sa2kit` | https://github.com/qxdqhr/sa2kit |
+| `packages/sa2kit-ui` | https://github.com/qxdqhr/sa2kit-ui |
 | `app_mobile/calendar-mobile` | https://github.com/qxdqhr/profile-v1-calendar-mobile |
 | `app_mobile/teach-hub-mobile` | https://github.com/qxdqhr/profile-v1-teach-hub-mobile |
 | `app_desktop/teach-hub-desktop` | https://github.com/qxdqhr/profile-v1-teach-hub-desktop |

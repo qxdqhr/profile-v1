@@ -27,7 +27,7 @@
     "next": "16.0.8",
     "react": "19.2.1",
     "react-dom": "19.2.1",
-    "sa2kit": "3.9.4",
+    "sa2kit": "workspace:*",
     "swr": "^2.3.8",
     "tailwind-merge": "^2.6.0"
   },
