@@ -1,9 +1,13 @@
-export { TeachHubHomePage } from './TeachHubHomePage';
-export { NewWorkspacePage } from './NewWorkspacePage';
-export { WorkspacePage } from './WorkspacePage';
-export { LessonPage } from './LessonPage';
-export { MissionPage } from './MissionPage';
-export { ReferencePage } from './ReferencePage';
-export { RecordsPage } from './RecordsPage';
-export { ResourcesPage } from './ResourcesPage';
-export { SettingsPage } from './SettingsPage';
+'use client';
+
+export {
+  TeachHubHomePage,
+  NewWorkspacePage,
+  WorkspacePage,
+  LessonPage,
+  MissionPage,
+  ReferencePage,
+  RecordsPage,
+  ResourcesPage,
+  SettingsPage,
+} from 'sa2kit/business/teachHub/ui/web';

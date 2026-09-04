@@ -47,9 +47,9 @@
 
 ### T3 — ui/web（F3）
 
-- [ ] 仪表盘、工作区、课时 iframe 页迁 `ui/web`
-- [ ] 动森 UI 经 `sa2kit/common/ui`（子应用 layout 已 load style）
-- [ ] `teach-hub-core` → re-export
+- [x] 仪表盘、工作区、课时 iframe 页迁 `ui/web`
+- [x] 动森 UI 经 `sa2kit/common/ui`；鉴权用 `sa2kit/common/auth`
+- [x] `teach-hub-core` layout Auth 壳 + pages re-export
 
 ### T4 — 多端（F4）
 

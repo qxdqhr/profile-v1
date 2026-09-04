@@ -9,15 +9,15 @@ import {
   readWorkspaceFileText,
   putWorkspaceFileText,
   importWorkspaceZip,
-} from '../../services/teachHubFileStore';
-import { formatTeachHubStorageError } from '../../utils/storageFallback';
-import { teachHubPublicBase } from '../../utils/routes';
+} from '../services/teachHubFileStore';
+import { formatTeachHubStorageError } from '../utils/storageFallback';
+import { teachHubPublicBase } from '../utils/routes';
 import {
   checkGeneratePreconditions,
   getGenerateJobForUser,
   listGenerateJobsForUser,
   runGenerateLesson,
-} from '../../services/generateLessonService';
+} from '../services/generateLessonService';
 
 /** profile 宿主共用的 teachHub route config（session + OSS + generate） */
 export function createTeachHubHostRouteConfig(): TeachHubRouteConfig {

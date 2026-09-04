@@ -1,7 +1,7 @@
 # 大域新域迁移总览（Phase F）
 
 > 日期：2026-09-04  
-> **当前主线**：Phase F **F3** — teachHub `ui/web` / SMP1；calendar C3 ✅。  
+> **当前主线**：Phase F **F3** — SMP1 / teachHub AI tasks；calendar ✅ / teachHub ui/web ✅。  
 > **模板**：festivalCard Phase C（`sa2kit/business/festivalCard/PLATFORMS.md`）  
 > **门禁**：UI 仍只经 `sa2kit/common/ui*`；`pnpm gate:ui`
 
@@ -41,7 +41,7 @@ sa2kit/business/<domain>/
 | F0 | 三份 DOMAIN-MIGRATION.md + 本总览 | ✅ 2026-09-03 |
 | F1 | 每域 `domain/` + `PLATFORMS.md` + package exports 占位 | ✅ 2026-09-04 |
 | F2 | `server/` + schema 在 `@profile/db` 仍聚合导出 | 🟡 calendar ✅；teachHub routes ✅ / AI task ⬜；SMP ⬜ |
-| F3 | `ui/web` 切 import；`*-core` 仅 re-export | 🟡 calendar ✅；teachHub / SMP ⬜ |
+| F3 | `ui/web` 切 import；`*-core` 仅 re-export | 🟡 calendar ✅；teachHub ✅；SMP ⬜ |
 | F4 | RN：`ui/rn` stub 或 mobile 直引 web 子集 | ⬜（F1 已有 rn stub） |
 | F5 | 删 `*-core` 冗余实现（保留子应用壳） | ⬜ |
 
@@ -66,7 +66,8 @@ sa2kit/business/<domain>/
 | 域 | 成果 |
 |----|------|
 | calendar | `ui/web` 迁入 pages/components/hooks；`calendar-core` Auth 壳 + 组件 re-export |
-| teachHub / SMP | 未开 |
+| teachHub | `ui/web` 迁入 pages/layout/components；`teach-hub-core` Auth 壳 + pages re-export |
+| showmasterpiece | 未开 |
 
 ## 已完成启明星阶段（归档摘要）
 
