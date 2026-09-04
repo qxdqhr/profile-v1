@@ -254,7 +254,7 @@ git submodule update --init --recursive
 
 - 休闲 Godot 游戏入口：主站 **`/games`**（[`app_web/web/src/modules/games`](../app_web/web/src/modules/games/)）；实验田 **`category: utility`**，不再堆 `leisure` 游戏卡片。
 - 旁路 URL（`/games/*`、`/wp/*`）在实验田卡片上须 **整页跳转**（见 `ExperimentNavCard` / `isSidecarPath`），不可走 Next `<Link>` 到不存在的 App Router 路径。
-- 从 Next/Phaser **迁出**到 Godot 后：删 `app_web/web` 内旧模块与 API，**保留** `@profile/db` 中仍需要的表定义（如 `purchase-game` → `packages/db/src/schema/purchaseGame.ts`）。
+- 从 Next/Phaser **迁出**到 Godot 后：删 `app_web/web` 内旧模块与 API，**保留** `@profile/db` 中仍需要的表定义（如 `purchase-game` → `host/db/src/schema/purchaseGame.ts`）。
 
 ### 7.1 应用与端口
 

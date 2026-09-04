@@ -14,6 +14,7 @@ RUN npm install -g pnpm@9.15.0
 
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
 COPY packages ./packages
+COPY host ./host
 COPY packages/sa2kit ./packages/sa2kit
 COPY packages/sa2kit-ui ./packages/sa2kit-ui
 COPY app_web/web/package.json ./app_web/web/
@@ -29,12 +30,14 @@ RUN npm install -g pnpm@9.15.0
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/app_web/web/node_modules ./app_web/web/node_modules
 COPY --from=deps /app/packages ./packages
+COPY --from=deps /app/host ./host
 COPY --from=deps /app/packages/sa2kit ./packages/sa2kit
 COPY --from=deps /app/packages/sa2kit-ui ./packages/sa2kit-ui
 
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml turbo.json tsconfig.json ./
 COPY config ./config
 COPY packages ./packages
+COPY host ./host
 COPY packages/sa2kit ./packages/sa2kit
 COPY packages/sa2kit-ui ./packages/sa2kit-ui
 COPY app_web/web ./app_web/web

@@ -1,4 +1,4 @@
-import { resolveAuthBaseURL } from '../packages/auth/src/resolve-auth-base-url';
+import { resolveAuthBaseURL } from '../host/auth/src/resolve-auth-base-url';
 
 function assert(cond: unknown, msg: string): asserts cond {
   if (!cond) throw new Error(msg);

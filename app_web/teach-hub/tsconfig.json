@@ -17,13 +17,13 @@
     "paths": {
       "@/*": ["./src/*"],
       "@lib/*": ["./lib/*"],
-      "@profile/auth": ["../../packages/auth/src/index.ts"],
-      "@profile/auth/*": ["../../packages/auth/src/*"],
-      "@profile/config": ["../../packages/config/src/index.ts"],
-      "@profile/config/*": ["../../packages/config/src/*"],
-      "@profile/db": ["../../packages/db/src/index.ts"],
-      "@profile/db/*": ["../../packages/db/src/*"],
-      "@profile/ui/*": ["../../packages/ui/*"]
+      "@profile/auth": ["../../host/auth/src/index.ts"],
+      "@profile/auth/*": ["../../host/auth/src/*"],
+      "@profile/config": ["../../host/config/src/index.ts"],
+      "@profile/config/*": ["../../host/config/src/*"],
+      "@profile/db": ["../../host/db/src/index.ts"],
+      "@profile/db/*": ["../../host/db/src/*"],
+      "@profile/ui/*": ["../../host/ui/*"]
     }
   },
   "include": [

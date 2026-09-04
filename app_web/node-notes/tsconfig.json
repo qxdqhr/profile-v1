@@ -16,15 +16,15 @@
     "plugins": [{ "name": "next" }],
     "paths": {
       "@/*": ["./src/*"],
-      "@profile/auth": ["../../packages/auth/src/index.ts"],
-      "@profile/auth/*": ["../../packages/auth/src/*"],
-      "@profile/config": ["../../packages/config/src/index.ts"],
-      "@profile/config/*": ["../../packages/config/src/*"],
-      "@profile/db": ["../../packages/db/src/index.ts"],
-      "@profile/db/*": ["../../packages/db/src/*"],
+      "@profile/auth": ["../../host/auth/src/index.ts"],
+      "@profile/auth/*": ["../../host/auth/src/*"],
+      "@profile/config": ["../../host/config/src/index.ts"],
+      "@profile/config/*": ["../../host/config/src/*"],
+      "@profile/db": ["../../host/db/src/index.ts"],
+      "@profile/db/*": ["../../host/db/src/*"],
       "@profile/node-notes-core": ["../../packages/node-notes-core/src/index.ts"],
       "@profile/node-notes-core/*": ["../../packages/node-notes-core/src/*"],
-      "@profile/ui/*": ["../../packages/ui/*"]
+      "@profile/ui/*": ["../../host/ui/*"]
     }
   },
   "include": [

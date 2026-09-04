@@ -1,28 +1,24 @@
 # packages/
 
-本仓 **唯一** 的共享/领域库目录（pnpm workspace：`packages/*`）。  
-可运行的宿主在 `app_*`；**不要**再建顶层 `npm/` 放包。
+本仓 **共享/领域库**目录（pnpm workspace：`packages/*` + `host/*`）。  
+可运行的宿主在 `app_*`；profile 基建在 `../host/`。
 
 ## 职责分层
 
-| 层 | 包 | 作用 |
-|----|-----|------|
-| **基建** | `config` / `auth` / `db` / `ui` | 配置、登录、Drizzle、Tailwind preset（G6 消融） |
-| **领域 core（过渡）** | `node-notes-core` | Phase G；calendar-core 已清零 |
-| **外部 SDK** | `sa2kit` / `sa2kit-ui` | submodule；含 feishu / exam / teachHub / showmasterpiece 等 |
+| 层 | 位置 | 作用 |
+|----|------|------|
+| **宿主基建** | `../host/{config,auth,db,ui}` | 配置、登录、Drizzle、Tailwind preset（G6 已迁出 packages） |
+| **领域 core（过渡）** | `node-notes-core` | Phase G7 清零 |
+| **外部 SDK** | `sa2kit` / `sa2kit-ui` | submodule |
 
 ## 包一览
 
 | 包名 | 路径 | 说明 |
 |------|------|------|
-| `@profile/config` | `config/` | YAML/SOPS |
-| `@profile/auth` | `auth/` | better-auth 注入 |
-| `@profile/db` | `db/` | DB 客户端 + schema 聚合 |
-| `@profile/ui` | `ui/` | Tailwind preset |
 | `@profile/node-notes-core` | `node-notes-core/` | 节点笔记（G7） |
 | `sa2kit` | `sa2kit/` | 多端 SDK |
 | `@sa2kit-ui/*` | `sa2kit-ui/` | UI 设计系统 |
 
-> **Phase G**：已删 `sa2kit-feishu` / `sa2kit-exam` / `teach-hub-core` / `showmasterpiece-core` / `calendar-core`。下一刀 G6 基建四包消融。
+> **Phase G**：业务 core 与基建四包已迁出/删除；`packages/` 目标只剩 `sa2kit` + `sa2kit-ui`。下一刀 G7 `node-notes-core`。
 
 主站：`app_web/web/`（`@profile/web`）。

@@ -19,13 +19,13 @@ importers:
     dependencies:
       '@profile/auth':
         specifier: workspace:*
-        version: link:packages/auth
+        version: link:host/auth
       '@profile/config':
         specifier: workspace:*
-        version: link:packages/config
+        version: link:host/config
       '@profile/db':
         specifier: workspace:*
-        version: link:packages/db
+        version: link:host/db
       drizzle-orm:
         specifier: 0.44.7
         version: 0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1)
@@ -299,16 +299,16 @@ importers:
         version: 3.2.2(react@19.2.1)
       '@profile/auth':
         specifier: workspace:*
-        version: link:../../packages/auth
+        version: link:../../host/auth
       '@profile/config':
         specifier: workspace:*
-        version: link:../../packages/config
+        version: link:../../host/config
       '@profile/db':
         specifier: workspace:*
-        version: link:../../packages/db
+        version: link:../../host/db
       '@profile/ui':
         specifier: workspace:*
-        version: link:../../packages/ui
+        version: link:../../host/ui
       '@sa2kit-ui/react':
         specifier: workspace:*
         version: link:../../packages/sa2kit-ui/packages/react
@@ -391,19 +391,19 @@ importers:
     dependencies:
       '@profile/auth':
         specifier: workspace:*
-        version: link:../../packages/auth
+        version: link:../../host/auth
       '@profile/config':
         specifier: workspace:*
-        version: link:../../packages/config
+        version: link:../../host/config
       '@profile/db':
         specifier: workspace:*
-        version: link:../../packages/db
+        version: link:../../host/db
       '@profile/node-notes-core':
         specifier: workspace:*
         version: link:../../packages/node-notes-core
       '@profile/ui':
         specifier: workspace:*
-        version: link:../../packages/ui
+        version: link:../../host/ui
       '@sa2kit-ui/react':
         specifier: workspace:*
         version: link:../../packages/sa2kit-ui/packages/react
@@ -461,16 +461,16 @@ importers:
     dependencies:
       '@profile/auth':
         specifier: workspace:*
-        version: link:../../packages/auth
+        version: link:../../host/auth
       '@profile/config':
         specifier: workspace:*
-        version: link:../../packages/config
+        version: link:../../host/config
       '@profile/db':
         specifier: workspace:*
-        version: link:../../packages/db
+        version: link:../../host/db
       '@profile/ui':
         specifier: workspace:*
-        version: link:../../packages/ui
+        version: link:../../host/ui
       '@sa2kit-ui/react':
         specifier: workspace:*
         version: link:../../packages/sa2kit-ui/packages/react
@@ -525,16 +525,16 @@ importers:
     dependencies:
       '@profile/auth':
         specifier: workspace:*
-        version: link:../../packages/auth
+        version: link:../../host/auth
       '@profile/config':
         specifier: workspace:*
-        version: link:../../packages/config
+        version: link:../../host/config
       '@profile/db':
         specifier: workspace:*
-        version: link:../../packages/db
+        version: link:../../host/db
       '@profile/ui':
         specifier: workspace:*
-        version: link:../../packages/ui
+        version: link:../../host/ui
       '@sa2kit-ui/react':
         specifier: workspace:*
         version: link:../../packages/sa2kit-ui/packages/react
@@ -616,16 +616,16 @@ importers:
         version: 4.7.0(monaco-editor@0.52.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@profile/auth':
         specifier: workspace:*
-        version: link:../../packages/auth
+        version: link:../../host/auth
       '@profile/config':
         specifier: workspace:*
-        version: link:../../packages/config
+        version: link:../../host/config
       '@profile/db':
         specifier: workspace:*
-        version: link:../../packages/db
+        version: link:../../host/db
       '@profile/ui':
         specifier: workspace:*
-        version: link:../../packages/ui
+        version: link:../../host/ui
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.15
         version: 1.1.23(@types/react-dom@19.2.5(@types/react@19.1.17))(@types/react@19.1.17)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -811,7 +811,7 @@ importers:
         specifier: ^2.8.0
         version: 2.9.0
 
-  packages/auth:
+  host/auth:
     dependencies:
       '@better-auth/drizzle-adapter':
         specifier: ^1.7.2
@@ -836,7 +836,7 @@ importers:
         version: 19.2.1(react@19.2.1)
       sa2kit:
         specifier: workspace:*
-        version: link:../sa2kit
+        version: link:../../packages/sa2kit
     devDependencies:
       '@types/react':
         specifier: 19.1.17
@@ -845,23 +845,23 @@ importers:
         specifier: 19.2.5
         version: 19.2.5(@types/react@19.1.17)
 
-  packages/config:
+  host/config:
     dependencies:
       sa2kit:
         specifier: workspace:*
-        version: link:../sa2kit
+        version: link:../../packages/sa2kit
       yaml:
         specifier: ^2.8.0
         version: 2.9.0
 
-  packages/db:
+  host/db:
     dependencies:
       '@profile/config':
         specifier: workspace:*
         version: link:../config
       '@profile/node-notes-core':
         specifier: workspace:*
-        version: link:../node-notes-core
+        version: link:../../packages/node-notes-core
       drizzle-orm:
         specifier: 0.44.7
         version: 0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1)
@@ -873,16 +873,25 @@ importers:
         version: 3.4.9
       sa2kit:
         specifier: workspace:*
-        version: link:../sa2kit
+        version: link:../../packages/sa2kit
+
+  host/ui:
+    dependencies:
+      tailwindcss:
+        specifier: ^3.4.0
+        version: 3.4.19(tsx@4.23.12)(yaml@2.9.0)
+      tailwindcss-animate:
+        specifier: ^1.0.7
+        version: 1.0.7(tailwindcss@3.4.19(tsx@4.23.12)(yaml@2.9.0))
 
   packages/node-notes-core:
     dependencies:
       '@profile/auth':
         specifier: workspace:*
-        version: link:../auth
+        version: link:../../host/auth
       '@profile/db':
         specifier: workspace:*
-        version: link:../db
+        version: link:../../host/db
       '@xyflow/react':
         specifier: ^12.11.2
         version: 12.11.5(@types/react-dom@19.2.5(@types/react@19.1.17))(@types/react@19.1.17)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -1392,15 +1401,6 @@ importers:
         version: link:../../tokens
 
   packages/sa2kit-ui/packages/tokens: {}
-
-  packages/ui:
-    dependencies:
-      tailwindcss:
-        specifier: ^3.4.0
-        version: 3.4.19(tsx@4.23.12)(yaml@2.9.0)
-      tailwindcss-animate:
-        specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@3.4.19(tsx@4.23.12)(yaml@2.9.0))
 
 packages:
 

@@ -29,7 +29,7 @@
 | WordPress（旁路） | —（非 pnpm） | 官方 PHP | `/wp/<slug>/` |
 | Godot 游戏（旁路） | —（非 pnpm） | nginx 静态 | `/games/<slug>/` |
 
-领域逻辑优先在 `sa2kit/business/*`；过渡期残留 `node-notes-core`（G7）。calendar / TeachHub / ShowMasterpiece core **已删**。
+领域逻辑优先在 `sa2kit/business/*`；基建在 `host/{auth,db,config,ui}`（G6）；过渡期残留 `node-notes-core`（G7）。业务 *-core **已删**。
 WordPress 为同域 nginx 旁路 PHP，与 Next 子应用隔离。  
 Godot 源码在 `app_games/<slug>/`，旁路见 `deploy/games/`（现网含 `miku-flick` 等；CI `export-godot-games`）。小游戏迁移为**双轨**，见 `deploy/games/GODOT-REWRITE-PLAN.md`。
 
