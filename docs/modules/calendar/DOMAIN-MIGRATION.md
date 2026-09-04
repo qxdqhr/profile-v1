@@ -38,10 +38,10 @@
 
 ### C2 — server（F2）
 
-- [ ] 迁 `server` 服务与 drizzle schema 引用至 `business/calendar/server`
-- [ ] `create*Handler(config)` 模式（参照 festivalCard/routes）
-- [ ] `app_web/calendar/app/api/calendar/*` 仅 re-export + session 鉴权
-- [ ] `@profile/db` schema 行仍 `export * from 'sa2kit/business/calendar/server/schema'`
+- [x] 迁 `server` 服务与 drizzle schema 引用至 `business/calendar/server`
+- [x] `create*Handler(config)` 模式（参照 festivalCard/routes）
+- [x] `app_web/calendar/app/api/calendar/*` 仅 re-export + session 鉴权（注入 getSessionUser）
+- [x] `@profile/db` schema 行 `export * from 'sa2kit/business/calendar/server'`
 
 ### C3 — ui/web（F3）
 

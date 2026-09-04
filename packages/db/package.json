@@ -23,11 +23,9 @@
     "./migrate": "./src/migrate.ts"
   },
   "dependencies": {
-    "@profile/calendar-core": "workspace:*",
     "@profile/config": "workspace:*",
     "@profile/node-notes-core": "workspace:*",
     "@profile/showmasterpiece-core": "workspace:*",
-    "@profile/teach-hub-core": "workspace:*",
     "drizzle-orm": "^0.44.7",
     "nanoid": "^5.1.5",
     "postgres": "^3.4.5",

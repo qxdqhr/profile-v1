@@ -39,10 +39,11 @@
 
 ### T2 — server（F2）
 
+- [x] schema 下沉 `sa2kit/business/teachHub/server`；`@profile/db` 聚合（2026-09-04）
 - [ ] 迁 workspace CRUD、OSS 文件读写 handler 工厂
 - [ ] `generateLesson` 任务定义进 `server/tasks`（仍 `registerAiTask`）
 - [ ] `app_web/teach-hub/app/api/teach-hub/*` 薄 re-export + **workspace 归属校验**在宿主
-- [ ] schema 经 `@profile/db` 聚合
+- [x] schema 经 `@profile/db` 聚合
 
 ### T3 — ui/web（F3）
 

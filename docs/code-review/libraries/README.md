@@ -43,9 +43,11 @@ sa2kit/common/*  +  sa2kit/business/<域>/{domain,server,ui/*}
 ### 现状（2026-09-04）
 
 ```
-Phase F · F1 ✅ — calendar / teachHub / showmasterpiece domain + PLATFORMS + exports
-下一刀：F2 server（优先 calendar C2 / teach-hub T2）
-*-core 过渡 re-export；新功能只进 sa2kit business
+Phase F · F1 ✅ · F2 🟡
+  calendar: server+routes ✅
+  teachHub: schema ✅ / handlers ⬜
+  showmasterpiece: 未开
+下一刀：teachHub T2 handlers，或 calendar C3 ui/web
 ```
 
 详见 [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)。
