@@ -112,7 +112,7 @@ export default function XxxRoute() {
 
 需要模块级副作用（如初始化）时，优先在 **layout** 统一 `import '@/modules/.../init'`；薄 `page.tsx` 仅 re-export 组件。
 
-**已独立为子应用**（业务在 `packages/*-core`，Web 壳在 `app_web/*`）：calendar、teach-hub、showmasterpiece。主站 `app_web/web/src/modules/<name>/` 仅保留 **薄 re-export 或重定向**，勿再新增大段业务逻辑。
+**已独立为子应用**（业务在 `sa2kit/business/*`，宿主注入在 `app_web/*/lib`）：calendar、teach-hub、showmasterpiece。主站 `app_web/web/src/modules/<name>/` 仅保留 **薄 re-export 或重定向**，勿再新增大段业务逻辑。
 
 ### 2.4 API 路由与模块代码的对应关系
 
@@ -277,7 +277,7 @@ git submodule update --init --recursive
 | 包 | 用途 |
 |----|------|
 | `@profile/config` / `@profile/auth` / `@profile/db` / `@profile/ui` | 配置、鉴权、数据库、UI 预设 |
-| `@profile/calendar-core` | 日历领域；RN/客户端：`@profile/calendar-core/shared`（Phase G5 清零） |
+| `sa2kit/business/calendar` | 日历领域（G5 已清零 calendar-core；宿主 `app_web/calendar/lib`） |
 | ~~`@profile/teach-hub-core`~~ | **已删（G3）** → `sa2kit/business/teachHub/*`；宿主 `app_web/teach-hub/lib/` |
 | ~~`@profile/showmasterpiece-core`~~ | **已删（G4）** → `sa2kit/business/showmasterpiece/*`；宿主 `app_web/showmasterpiece/lib/` |
 

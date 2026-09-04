@@ -1,7 +1,7 @@
 'use client';
 
-import { CalendarPageCore } from '@profile/calendar-core';
+import CalendarPage from '../lib/CalendarPage';
 
 export default function CalendarHomePage() {
-  return <CalendarPageCore />;
+  return <CalendarPage />;
 }

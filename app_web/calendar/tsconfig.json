@@ -44,12 +44,6 @@
       "@profile/db/*": [
         "../../packages/db/src/*"
       ],
-      "@profile/calendar-core": [
-        "../../packages/calendar-core/src/index.ts"
-      ],
-      "@profile/calendar-core/*": [
-        "../../packages/calendar-core/src/*"
-      ],
       "@profile/ui/*": [
         "../../packages/ui/*"
       ]

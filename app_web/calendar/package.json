@@ -13,7 +13,6 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@profile/auth": "workspace:*",
-    "@profile/calendar-core": "workspace:*",
     "@profile/config": "workspace:*",
     "@profile/db": "workspace:*",
     "@profile/ui": "workspace:*",

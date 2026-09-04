@@ -300,9 +300,6 @@ importers:
       '@profile/auth':
         specifier: workspace:*
         version: link:../../packages/auth
-      '@profile/calendar-core':
-        specifier: workspace:*
-        version: link:../../packages/calendar-core
       '@profile/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -840,64 +837,6 @@ importers:
       sa2kit:
         specifier: workspace:*
         version: link:../sa2kit
-    devDependencies:
-      '@types/react':
-        specifier: 19.1.17
-        version: 19.1.17
-      '@types/react-dom':
-        specifier: 19.2.5
-        version: 19.2.5(@types/react@19.1.17)
-
-  packages/calendar-core:
-    dependencies:
-      '@dnd-kit/core':
-        specifier: ^6.3.1
-        version: 6.3.1(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      '@dnd-kit/sortable':
-        specifier: ^10.0.0
-        version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react@19.2.1)
-      '@dnd-kit/utilities':
-        specifier: ^3.2.2
-        version: 3.2.2(react@19.2.1)
-      '@profile/auth':
-        specifier: workspace:*
-        version: link:../auth
-      '@profile/db':
-        specifier: workspace:*
-        version: link:../db
-      class-variance-authority:
-        specifier: ^0.7.1
-        version: 0.7.1
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
-      drizzle-orm:
-        specifier: 0.44.7
-        version: 0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1)
-      framer-motion:
-        specifier: ^12.6.5
-        version: 12.43.0(@emotion/is-prop-valid@1.3.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      lucide-react:
-        specifier: ^0.474.0
-        version: 0.474.0(react@19.2.1)
-      next:
-        specifier: 16.0.8
-        version: 16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      react:
-        specifier: 19.2.1
-        version: 19.2.1
-      react-dom:
-        specifier: 19.2.1
-        version: 19.2.1(react@19.2.1)
-      sa2kit:
-        specifier: workspace:*
-        version: link:../sa2kit
-      swr:
-        specifier: ^2.3.8
-        version: 2.5.1(react@19.2.1)
-      tailwind-merge:
-        specifier: ^2.6.0
-        version: 2.6.1
     devDependencies:
       '@types/react':
         specifier: 19.1.17

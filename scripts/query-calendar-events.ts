@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 import { desc } from 'drizzle-orm';
 import { db } from '@profile/db';
-import { calendarEvents } from '@profile/calendar-core/server';
+import { calendarEvents } from 'sa2kit/business/calendar/server';
 
 async function main() {
   const rows = await db

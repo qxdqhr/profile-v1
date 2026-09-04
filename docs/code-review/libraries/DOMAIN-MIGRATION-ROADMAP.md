@@ -1,7 +1,7 @@
 # 大域新域迁移总览（Phase F）
 
 > 日期：2026-09-04  
-> **状态**：Phase F **完成**。Phase G **执行中**（G1–G4 ✅ · 下一刀 G5 calendar-core）。  
+> **状态**：Phase F **完成**。Phase G **执行中**（G1–G5 ✅ · 下一刀 G6 基建消融）。  
 > **模板**：festivalCard Phase C（`sa2kit/business/festivalCard/PLATFORMS.md`）  
 > **门禁**：UI 仍只经 `sa2kit/common/ui*`；`pnpm gate:ui`
 
@@ -109,8 +109,8 @@ sa2kit/business/<domain>/
 | G2 | exam → `sa2kit/business/exam`；删 `sa2kit-exam` | ✅ |
 | G3 | teach-hub-core **清零**；宿主 `app_web/teach-hub/lib` | ✅ |
 | G4 | showmasterpiece-core **清零**；宿主 `app_web/showmasterpiece/lib` + `ui/miniapp` | ✅ |
-| G5 | calendar-core **清零** | ⏳ 下一刀 |
-| G6 | `@profile/{auth,db,config,ui}` 消融 | 待办 |
+| G5 | calendar-core **清零**；宿主 `app_web/calendar/lib` | ✅ |
+| G6 | `@profile/{auth,db,config,ui}` 消融 | ⏳ 下一刀 |
 | G7–G8 | node-notes + 仓库门禁 | 待办 |
 
 全文：[BLUEPRINT §14](./BLUEPRINT-multiplatform-sa2kit.md#14-phase-g--双库收敛packages-仅保留-sa2kit--sa2kit-ui)。
@@ -149,3 +149,13 @@ sa2kit/business/<domain>/
 | miniapp | → `sa2kit/business/showmasterpiece/ui/miniapp` |
 | 宿主注入 | `app_web/showmasterpiece/lib/`：OSS、fileUrl、HostRouteConfig、rateLimit、Auth 壳、bootstrapDb |
 | 删除 | `packages/showmasterpiece-core`；主站 modules 薄兼容；CI / db 依赖清零 |
+
+### G5 落地摘要（2026-09-04）
+
+| 项 | 成果 |
+|----|------|
+| domain | export/import/recurrence/reminder → `sa2kit/business/calendar/domain` |
+| server | legacy helpers → `server/legacyHelpers`（`checkEventPermission` 注入 dbService） |
+| 宿主 | `app_web/calendar/lib/CalendarPage` Auth+font 壳；pages/API 直引 sa2kit |
+| 删除 | `packages/calendar-core`；CI / tsconfig / package.json 清零 |
+

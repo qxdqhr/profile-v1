@@ -76,7 +76,6 @@ jobs:
               - '.gitmodules'
             calendar:
               - 'app_web/calendar/**'
-              - 'packages/calendar-core/**'
               - 'packages/auth/**'
               - 'packages/config/**'
               - 'packages/db/**'
@@ -126,7 +125,6 @@ jobs:
               - '.gitmodules'
             calendar-mobile:
               - 'app_mobile/calendar-mobile/**'
-              - 'packages/calendar-core/**'
               - 'packages/sa2kit/**'
               - 'packages/sa2kit-ui/**'
               - '.gitmodules'

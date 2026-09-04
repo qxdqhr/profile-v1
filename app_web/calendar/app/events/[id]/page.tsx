@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { EventDetailPage } from '@profile/calendar-core';
+import { EventDetailPage } from 'sa2kit/business/calendar/ui/web';
 
 export default function EventDetailRoute() {
   const params = useParams();
