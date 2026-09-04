@@ -40,9 +40,9 @@
 ### T2 — server（F2）
 
 - [x] schema 下沉 `sa2kit/business/teachHub/server`；`@profile/db` 聚合（2026-09-04）
-- [x] 迁 workspace CRUD + progress handler 工厂（fileStore 注入；OSS files/generate/import 仍 core）
-- [ ] `generateLesson` 任务定义进 `server/tasks`（仍 `registerAiTask`）
-- [x] `app_web/teach-hub/app/api/teach-hub/workspaces*` 经 core 薄封装 → sa2kit routes + session
+- [x] 迁 workspace CRUD + progress + files + import + generate **route 工厂**（OSS/AI 经 adapter 注入）
+- [ ] `generateLesson` 任务定义进 `server/tasks`（仍 `registerAiTask`；实现暂在 core，经 generate adapter）
+- [x] `app_web/teach-hub/app/api/teach-hub/*` 经 core `hostRouteConfig` → sa2kit routes + session
 - [x] schema 经 `@profile/db` 聚合
 
 ### T3 — ui/web（F3）

@@ -11,6 +11,10 @@ import {
   initEmptyWorkspaceFiles,
   listWorkspaceLessons,
   repairWorkspaceSeedFilesIfMissing,
+  listWorkspaceFiles,
+  readWorkspaceFileText,
+  putWorkspaceFileText,
+  importWorkspaceZip,
 } from './teachHubFileStore';
 import { formatTeachHubStorageError } from '../utils/storageFallback';
 
@@ -18,6 +22,7 @@ export {
   createTeachHubDbService,
   TeachHubDbService,
   type TeachHubFileStoreAdapter,
+  type TeachHubGenerateAdapter,
   type DrizzleLikeDb,
 } from 'sa2kit/business/teachHub/server';
 
@@ -26,6 +31,10 @@ const service: TeachHubDbService = createTeachHubDbService(db, {
     initEmptyWorkspaceFiles,
     listWorkspaceLessons,
     repairWorkspaceSeedFilesIfMissing,
+    listWorkspaceFiles,
+    readWorkspaceFileText,
+    putWorkspaceFileText,
+    importWorkspaceZip,
   },
   formatStorageError: formatTeachHubStorageError,
 });
