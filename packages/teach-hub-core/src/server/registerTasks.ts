@@ -1,5 +1,5 @@
 import { registerCoreAiTasks as registerSa2kitCoreTasks } from 'sa2kit/common/aiApi/server';
-import { registerTeachHubAiTasks } from '../ai/generateLessonTask';
+import { registerTeachHubAiTasks } from 'sa2kit/business/teachHub/server';
 
 let registered = false;
 

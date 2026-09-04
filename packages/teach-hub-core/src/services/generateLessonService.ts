@@ -2,10 +2,13 @@ import { randomUUID } from 'crypto';
 import { and, desc, eq } from 'drizzle-orm';
 import { db } from '@profile/db';
 import { runAiTask } from 'sa2kit/common/aiApi/server';
+import {
+  registerTeachHubAiTasks,
+  TEACH_GENERATE_LESSON_TASK_ID,
+  outputFilePaths,
+  type TeachGenerateLessonTaskInput,
+} from 'sa2kit/business/teachHub/server';
 import { teachGenerateJobs } from '../db/schema';
-import { registerTeachHubAiTasks, TEACH_GENERATE_LESSON_TASK_ID } from '../ai/generateLessonTask';
-import type { TeachGenerateLessonTaskInput } from '../ai/teachAgentPrompt';
-import { outputFilePaths } from '../ai/validateGenerateOutput';
 import type { GenerateTrigger, TeachGenerateJob } from '../types';
 import { parseMissionMarkdown } from '../utils/missionParser';
 import { getNextLessonOrder } from '../utils/lessonIndex';
