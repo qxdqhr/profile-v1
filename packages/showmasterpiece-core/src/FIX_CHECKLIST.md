@@ -55,7 +55,7 @@
 | T6-sa2kit-cmd | `deleteBooking(id, options?)` + `UNAUTHORIZED` | sa2kit **1.6.115 代码就绪** | 🔄 待发版 npm |
 | T1-host | profile-v1 `sa2kit-showmasterpiece.d.ts` | 宿主类型 | ✅ |
 | T1-sa2kit | showmasterpiece 导出收紧 `any` | sa2kit 仓 | ⬜ |
-| T4 | `masterpiecesDbService` 去模块级全局 `db` | 见 SA2KIT_PLAN | ⬜ |
+| T4 | `masterpiecesDbService` 去模块级全局 `db` | sa2kit 工厂注入 + core `initializeShowmasterpieceDb` | ✅ |
 | T5 | migration 子包 | 宿主已弃用 CLI | N/A |
 | S5 | `showmaster_config_permissions` 接 API | 产品设计 | ⏸ |
 
