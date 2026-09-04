@@ -52,13 +52,13 @@
 
 ### C4 — RN（F4）
 
-- [ ] `ui/rn/index.ts` stub 或迁 calendar-mobile 共用组件
+- [ ] `ui/rn/index.ts` stub 或迁 calendar-mobile 共用组件（**暂缓**）
 - [ ] mobile 改 import：`sa2kit/business/calendar/ui/rn` 或 `domain` + 自绘壳
 
 ### C5 — 收尾（F5）
 
-- [ ] 删 `calendar-core` 内重复实现，保留 `index.ts` 兼容导出 1 个小版本
-- [ ] 更新 `docs/monorepo-migration/` 归档说明
+- [x] 删 `calendar-core` 内重复实现，保留 `index.ts` 兼容导出（Auth 壳 + 薄 re-export；export/import/recurrence/reminder 仍本地）
+- [ ] 更新 `docs/monorepo-migration/` 归档说明（可选）
 
 ## 4. 风险
 

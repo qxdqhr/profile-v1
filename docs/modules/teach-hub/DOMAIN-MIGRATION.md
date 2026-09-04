@@ -53,12 +53,12 @@
 
 ### T4 — 多端（F4）
 
-- [ ] `ui/rn` stub；teach-hub-mobile 先继续 `*-core/shared` → 改引 `domain`
+- [ ] `ui/rn` stub；teach-hub-mobile 先继续 `*-core/shared` → 改引 `domain`（**暂缓**）
 - [ ] teach-hub-desktop 同 Web 子集或 WebView
 
 ### T5 — 收尾（F5）
 
-- [ ] 删 core 重复代码；保留 package 名 `@profile/teach-hub-core` 作兼容 facade
+- [x] 删 core 重复代码；保留 package 名 `@profile/teach-hub-core` 作兼容 facade
 - [ ] 更新 [teach-hub-plan.md](../../../packages/teach-hub-core/src/teach-hub-plan.md) 指向本计划
 
 ## 4. 鉴权要点

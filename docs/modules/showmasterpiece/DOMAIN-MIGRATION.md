@@ -65,9 +65,9 @@ sa2kit/business/showmasterpiece/
 ### M3 — 删 core 冗余 / 宿主（F5）
 
 - [x] core `logic` / `types` / `service(client)` / `utils` / `ui/shared` → sa2kit 薄 re-export（保留 miniapp + wechat）
-- [ ] `app_web/showmasterpiece` 仅 page + api re-export
+- [x] `app_web/showmasterpiece` 仅 page + api re-export（经 core 宿主注入层）
 - [ ] Docker 镜像 build 不变；验证 nginx `/showmasterpiece`
-- [ ] `measure:dist` 确认未 import `business/index` 聚合
+- [x] `measure:dist` 确认未 import `business/index` 聚合（宿主无聚合 barrel）
 
 ### M4 — 可选产品化
 

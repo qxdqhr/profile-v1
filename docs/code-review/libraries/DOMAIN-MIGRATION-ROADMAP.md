@@ -1,7 +1,7 @@
 # 大域新域迁移总览（Phase F）
 
 > 日期：2026-09-04  
-> **当前主线**：Phase F — SMP1 domain/server；calendar / teachHub F2–F3 ✅（含 generateLesson tasks）。  
+> **当前主线**：Phase F — F5 收尾（`*-core` 删冗余）；F4 RN 暂缓。  
 > **模板**：festivalCard Phase C（`sa2kit/business/festivalCard/PLATFORMS.md`）  
 > **门禁**：UI 仍只经 `sa2kit/common/ui*`；`pnpm gate:ui`
 
@@ -40,10 +40,10 @@ sa2kit/business/<domain>/
 |------|------|------|
 | F0 | 三份 DOMAIN-MIGRATION.md + 本总览 | ✅ 2026-09-03 |
 | F1 | 每域 `domain/` + `PLATFORMS.md` + package exports 占位 | ✅ 2026-09-04 |
-| F2 | `server/` + schema 在 `@profile/db` 仍聚合导出 | 🟡 calendar ✅；teachHub ✅；SMP server DbService 全家桶 ✅（SMP2 ui 仍 ⬜） |
-| F3 | `ui/web` 切 import；`*-core` 仅 re-export | 🟡 calendar ✅；teachHub ✅；SMP ✅（Auth 壳） |
-| F4 | RN：`ui/rn` stub 或 mobile 直引 web 子集 | ⬜（F1 已有 rn stub） |
-| F5 | 删 `*-core` 冗余实现（保留子应用壳） | 🟡 SMP client 层已薄 re-export；宿主壳仍待收 |
+| F2 | `server/` + schema 在 `@profile/db` 仍聚合导出 | ✅ calendar / teachHub / SMP |
+| F3 | `ui/web` 切 import；`*-core` 仅 re-export | ✅ calendar / teachHub / SMP（Auth 壳） |
+| F4 | RN：`ui/rn` stub 或 mobile 直引 web 子集 | ⏸ 暂缓（F1 已有 rn stub） |
+| F5 | 删 `*-core` 冗余实现（保留子应用壳） | ✅ 2026-09-04：三域 core 薄 re-export；宿主 page/api 壳 |
 
 ### F1 落地摘要（2026-09-04）
 
@@ -51,7 +51,7 @@ sa2kit/business/<domain>/
 |----|--------|-----------|
 | calendar | `sa2kit/business/calendar/domain` | `@profile/calendar-core/shared` re-export |
 | teachHub | `sa2kit/business/teachHub/domain` | `shared/types` + `lessonProgress` re-export |
-| showmasterpiece | `sa2kit/business/showmasterpiece/domain` | 占位类型；全集仍在 core |
+| showmasterpiece | `sa2kit/business/showmasterpiece/domain` | domain + server 类型；UI 经 `ui/web` |
 
 ### F2 落地摘要（2026-09-04）
 
@@ -59,7 +59,7 @@ sa2kit/business/<domain>/
 |----|------|
 | calendar | `server` schema + DbService + `routes` handler 工厂；宿主 API 直引 sa2kit + session 注入 |
 | teachHub | schema + DbService + **全套 API routes** + `server/tasks`（generateLesson） |
-| showmasterpiece | `server` 全套 DbService + **API routes 全家桶**（含 artwork image）；SMP2 ui/web ⬜ |
+| showmasterpiece | `server` 全套 DbService + **API routes 全家桶**（含 artwork image） |
 
 ### F3 落地摘要（2026-09-04）
 
@@ -68,6 +68,15 @@ sa2kit/business/<domain>/
 | calendar | `ui/web` 迁入 pages/components/hooks；`calendar-core` Auth 壳 + 组件 re-export |
 | teachHub | `ui/web` 迁入 pages/layout/components；`teach-hub-core` Auth 壳 + pages re-export |
 | showmasterpiece | `ui/web` + `ui/web/client`；`*-core` Auth 壳 + logic/types/services 薄 re-export（miniapp 保留） |
+
+### F5 落地摘要（2026-09-04）
+
+| 域 | 成果 |
+|----|------|
+| calendar | 删 core `components/` 重复实现；hooks/utils/ai/context → 薄 re-export；保留 export/import/recurrence/reminder 本地服务 |
+| teachHub | 删 core `components/` 与 pages 实现体；hooks/store/styles/client → 薄 re-export；`pages/index` 仍 barrel |
+| showmasterpiece | core 已薄；宿主 `app_web/showmasterpiece` page + api 壳；`ShowmasterpieceFileUrlResolver` 与 common `FileUrlResolver` 解耦 |
+| 公共 | sa2kit `ui/web/*` exports 补 `.ts`/`.tsx` 后缀，保证 TypeScript 深路径可解析；`measure:dist`：勿 import `business/index`（~920KB） |
 
 ## 已完成启明星阶段（归档摘要）
 

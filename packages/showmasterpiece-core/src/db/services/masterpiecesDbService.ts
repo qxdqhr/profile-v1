@@ -10,10 +10,12 @@ import {
   type TagsDbService,
   type CollectionsDbService,
   type ArtworksDbService,
-  type FileUrlResolver,
+  type ShowmasterpieceFileUrlResolver,
 } from 'sa2kit/business/showmasterpiece/server';
 
-export type { FileUrlResolver };
+export type { ShowmasterpieceFileUrlResolver };
+/** @deprecated 使用 ShowmasterpieceFileUrlResolver */
+export type FileUrlResolver = ShowmasterpieceFileUrlResolver;
 
 export let masterpiecesConfigDbService: MasterpiecesConfigDbService;
 export let categoriesDbService: CategoriesDbService;
@@ -25,7 +27,7 @@ let initialized = false;
 
 export function initializeShowmasterpieceDb(
   database: any,
-  resolver?: FileUrlResolver,
+  resolver?: ShowmasterpieceFileUrlResolver,
 ): void {
   masterpiecesConfigDbService = createMasterpiecesConfigDbService(database);
   categoriesDbService = createCategoriesDbService(database);

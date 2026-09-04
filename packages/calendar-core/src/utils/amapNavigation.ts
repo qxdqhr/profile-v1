@@ -1,11 +1,2 @@
-export {
-  openAmapNavigation,
-  buildAmapNavigationUrl,
-  launchAmapNavigation,
-  MAP_NAVIGATION_OPTIONS,
-  launchMapNavigation,
-  openMapNavigation,
-  type AppLaunchCallbacks,
-  type AppLaunchResult,
-  type MapNavigationProviderId,
-} from './mapNavigation';
+/** @deprecated */
+export * from 'sa2kit/business/calendar/ui/web/utils/amapNavigation';
