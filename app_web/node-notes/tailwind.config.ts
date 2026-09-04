@@ -5,7 +5,7 @@ const config: Config = {
   presets: [uiPreset],
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
-    '../../packages/node-notes-core/src/**/*.{js,ts,jsx,tsx}',
+    '../../packages/sa2kit/src/business/nodeNotes/**/*.{js,ts,jsx,tsx}',
     '../../packages/sa2kit/src/**/*.{ts,tsx}',
     '../../packages/sa2kit/dist/**/*.{js,mjs,ts,tsx}',
     './node_modules/sa2kit/dist/**/*.{js,mjs}',

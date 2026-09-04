@@ -1,4 +1,5 @@
-import { NodeNotesCanvasPage } from '@profile/node-notes-core';
+import NodeNotesAuthShell from '../../lib/NodeNotesAuthShell';
+import { NodeNotesCanvasPage } from 'sa2kit/business/nodeNotes/ui/web';
 
 export default async function NodeNotesDocumentPage({
   params,
@@ -6,5 +7,9 @@ export default async function NodeNotesDocumentPage({
   params: Promise<{ documentId: string }>;
 }) {
   const { documentId } = await params;
-  return <NodeNotesCanvasPage documentId={documentId} />;
+  return (
+    <NodeNotesAuthShell>
+      <NodeNotesCanvasPage documentId={documentId} />
+    </NodeNotesAuthShell>
+  );
 }

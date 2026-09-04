@@ -68,7 +68,6 @@ jobs:
               - 'host/config/**'
               - 'host/db/**'
               - 'host/ui/**'
-              - 'packages/node-notes-core/**'
               - 'pnpm-lock.yaml'
               - 'package.json'
               - 'packages/sa2kit/**'
@@ -113,7 +112,6 @@ jobs:
               - 'package.json'
             node-notes:
               - 'app_web/node-notes/**'
-              - 'packages/node-notes-core/**'
               - 'host/auth/**'
               - 'host/config/**'
               - 'host/db/**'

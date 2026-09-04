@@ -35,7 +35,7 @@ middleware 只认 cookie **是否存在**。伪造 `better-auth.session_token` �
 
 ### OPT-04 按域拆 schema / 解开 core 环
 
-`@profile/db` 仍聚合全站表。剩余环：`db` ↔ `node-notes-core` ↔ `auth`（及 calendar-core）。
+`@profile/db` 仍聚合全站表。业务 core 环已随 G3–G7 清零；schema 来自 `sa2kit/business/*/server`。
 
 - [ ] 至少 calendar / teach-hub / 主站实验表分离方案
 - [ ] 禁止新的 db→auth 直接依赖

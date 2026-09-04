@@ -12,7 +12,6 @@
     "@profile/auth": "workspace:*",
     "@profile/config": "workspace:*",
     "@profile/db": "workspace:*",
-    "@profile/node-notes-core": "workspace:*",
     "@profile/ui": "workspace:*",
     "lru-cache": "^11.1.0",
     "lucide-react": "^0.474.0",

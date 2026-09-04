@@ -79,7 +79,7 @@
 | `calendar-core`（含 `/shared`） | ~12.8k | ✅（应用视角） | [apps/calendar.md](./apps/calendar.md) |
 | `teach-hub-core`（含 `/shared`） | ~7.4k | ✅（应用视角） | [apps/teach-hub.md](./apps/teach-hub.md) |
 | `showmasterpiece-core` | ~24.8k | ✅（应用视角） | [apps/showmasterpiece.md](./apps/showmasterpiece.md) |
-| `node-notes-core` | ~3.7k | ⬜ | — |
+| `node-notes`（原 core） | ~3.7k | ✅ G7 → `sa2kit/business/nodeNotes` | — |
 | `sa2kit-exam` / `sa2kit-feishu` | — | ✅ 已并入 sa2kit（G1/G2） | — |
 
 ### 3.2 子应用 `app_web/*`
@@ -145,7 +145,7 @@
 2. `fitnessPlan`、`comfyPrompt`、`filetransfer`（有 DB/API，安全面大）  
 3. `mmd` + OSS 路径与上传链路（大量 `sa2kit/business/mmd`）  
 4. `mikutap`（体量大，分 api/db/ui 子报告）  
-5. `node-notes-core` + `app_web/node-notes`（对照 `docs/node-notes` 需求）  
+5. `app_web/node-notes`（对照 `docs/node-notes` 需求；领域在 sa2kit G7）  
 6. RN 三端（cookie 同步、API base URL；评估接 `@sa2kit-ui/rn`）  
 7. 小游戏走 Godot 旁路；主站减负余项见 [PENDING-OPTIMIZATION.md](./PENDING-OPTIMIZATION.md)（不要在普通任务里主动做）
 

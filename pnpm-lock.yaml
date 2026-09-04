@@ -398,9 +398,6 @@ importers:
       '@profile/db':
         specifier: workspace:*
         version: link:../../host/db
-      '@profile/node-notes-core':
-        specifier: workspace:*
-        version: link:../../packages/node-notes-core
       '@profile/ui':
         specifier: workspace:*
         version: link:../../host/ui
@@ -859,9 +856,6 @@ importers:
       '@profile/config':
         specifier: workspace:*
         version: link:../config
-      '@profile/node-notes-core':
-        specifier: workspace:*
-        version: link:../../packages/node-notes-core
       drizzle-orm:
         specifier: 0.44.7
         version: 0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1)
@@ -883,67 +877,6 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.19(tsx@4.23.12)(yaml@2.9.0))
-
-  packages/node-notes-core:
-    dependencies:
-      '@profile/auth':
-        specifier: workspace:*
-        version: link:../../host/auth
-      '@profile/db':
-        specifier: workspace:*
-        version: link:../../host/db
-      '@xyflow/react':
-        specifier: ^12.11.2
-        version: 12.11.5(@types/react-dom@19.2.5(@types/react@19.1.17))(@types/react@19.1.17)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      adm-zip:
-        specifier: ^0.5.16
-        version: 0.5.18
-      drizzle-orm:
-        specifier: 0.44.7
-        version: 0.44.7(@neondatabase/serverless@1.1.0)(@prisma/client@6.2.1(prisma@6.2.1))(@types/pg@8.23.1)(@vercel/postgres@0.10.0)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)(prisma@6.2.1)
-      gray-matter:
-        specifier: ^4.0.3
-        version: 4.0.3
-      html-to-image:
-        specifier: ^1.11.13
-        version: 1.11.13
-      lucide-react:
-        specifier: ^0.474.0
-        version: 0.474.0(react@19.2.1)
-      next:
-        specifier: 16.0.8
-        version: 16.0.8(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      react:
-        specifier: 19.2.1
-        version: 19.2.1
-      react-dom:
-        specifier: 19.2.1
-        version: 19.2.1(react@19.2.1)
-      react-hot-toast:
-        specifier: ^2.5.2
-        version: 2.6.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      react-markdown:
-        specifier: ^10.1.0
-        version: 10.1.0(@types/react@19.1.17)(react@19.2.1)
-      rehype-sanitize:
-        specifier: ^6.0.0
-        version: 6.0.0
-      remark-gfm:
-        specifier: ^4.0.1
-        version: 4.0.1
-    devDependencies:
-      '@types/adm-zip':
-        specifier: ^0.5.7
-        version: 0.5.8
-      '@types/react':
-        specifier: 19.1.17
-        version: 19.1.17
-      '@types/react-dom':
-        specifier: 19.2.5
-        version: 19.2.5(@types/react@19.1.17)
-      typescript:
-        specifier: ^5.7.3
-        version: 5.9.3
 
   packages/sa2kit:
     dependencies:
@@ -968,6 +901,9 @@ importers:
       '@sa2kit-ui/react':
         specifier: workspace:*
         version: link:../sa2kit-ui/packages/react
+      '@xyflow/react':
+        specifier: ^12.11.2
+        version: 12.11.5(@types/react-dom@19.2.5(@types/react@19.1.17))(@types/react@19.1.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       adm-zip:
         specifier: ^0.5.16
         version: 0.5.18
@@ -986,6 +922,12 @@ importers:
       framer-motion:
         specifier: ^12.23.24
         version: 12.43.0(@emotion/is-prop-valid@1.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      gray-matter:
+        specifier: ^4.0.3
+        version: 4.0.3
+      html-to-image:
+        specifier: ^1.11.13
+        version: 1.11.13
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.3
@@ -1007,6 +949,18 @@ importers:
       react-dom:
         specifier: '>=18.0.0'
         version: 18.3.1(react@18.3.1)
+      react-hot-toast:
+        specifier: ^2.5.2
+        version: 2.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-markdown:
+        specifier: ^10.1.0
+        version: 10.1.0(@types/react@19.1.17)(react@18.3.1)
+      rehype-sanitize:
+        specifier: ^6.0.0
+        version: 6.0.0
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
       swr:
         specifier: ^2.0.0
         version: 2.5.1(react@18.3.1)
@@ -15273,13 +15227,13 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
-  '@xyflow/react@12.11.5(@types/react-dom@19.2.5(@types/react@19.1.17))(@types/react@19.1.17)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
+  '@xyflow/react@12.11.5(@types/react-dom@19.2.5(@types/react@19.1.17))(@types/react@19.1.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@xyflow/system': 0.0.81
       classcat: 5.0.5
-      react: 19.2.1
-      react-dom: 19.2.1(react@19.2.1)
-      zustand: 4.5.7(@types/react@19.1.17)(react@19.2.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      zustand: 4.5.7(@types/react@19.1.17)(react@18.3.1)
     optionalDependencies:
       '@types/react': 19.1.17
       '@types/react-dom': 19.2.5(@types/react@19.1.17)
@@ -20224,6 +20178,13 @@ snapshots:
     dependencies:
       react: 18.3.1
 
+  react-hot-toast@2.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      csstype: 3.2.3
+      goober: 2.1.19(csstype@3.2.3)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
   react-hot-toast@2.6.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1):
     dependencies:
       csstype: 3.2.3
@@ -20239,7 +20200,7 @@ snapshots:
 
   react-is@19.2.8: {}
 
-  react-markdown@10.1.0(@types/react@19.1.17)(react@19.2.1):
+  react-markdown@10.1.0(@types/react@19.1.17)(react@18.3.1):
     dependencies:
       '@types/hast': 3.0.5
       '@types/mdast': 4.0.4
@@ -20248,7 +20209,7 @@ snapshots:
       hast-util-to-jsx-runtime: 2.3.6
       html-url-attributes: 3.0.1
       mdast-util-to-hast: 13.2.1
-      react: 19.2.1
+      react: 18.3.1
       remark-parse: 11.0.0
       remark-rehype: 11.1.2
       unified: 11.0.5
@@ -22263,12 +22224,12 @@ snapshots:
 
   zod@4.5.2: {}
 
-  zustand@4.5.7(@types/react@19.1.17)(react@19.2.1):
+  zustand@4.5.7(@types/react@19.1.17)(react@18.3.1):
     dependencies:
-      use-sync-external-store: 1.6.0(react@19.2.1)
+      use-sync-external-store: 1.6.0(react@18.3.1)
     optionalDependencies:
       '@types/react': 19.1.17
-      react: 19.2.1
+      react: 18.3.1
 
   zustand@5.0.15(@types/react@19.1.17)(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1)):
     optionalDependencies:

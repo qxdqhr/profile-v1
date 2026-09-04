@@ -1,7 +1,7 @@
 # 蓝图：多端 sa2kit SDK（common + business 同仓多端）
 
 > 版本：v0.5 · 2026-09-04  
-> 状态：**执行中**（**北极星：接单多端可复用** · Phase F ✅ · **Phase G：G1–G6 ✅ · 下一刀 G7**）— 见 §0 / §7 / **§14**  
+> 状态：**执行中**（**北极星：接单多端可复用** · Phase F ✅ · **Phase G：G1–G7 ✅ · 下一刀 G8**）— 见 §0 / §7 / **§14**  
 > 取代/修正：先前「business 迁回 profile-v1」方向（见文末 §11）  
 > 源码仓：独立仓库 `github.com/qxdqhr/sa2kit` · `github.com/qxdqhr/sa2kit-ui`（profile-v1 以 git submodule 挂载于 `packages/sa2kit/` · `packages/sa2kit-ui/`，仍可 npm 发布）· 消费仓 `profile-v1` 及独立 RN/Taro/Electron 宿主
 
@@ -260,7 +260,7 @@ business/*/ui/* 与各宿主薄页面（编排，不造第二套基础件）
 > **优先级总序**：§0 北极星 > **Phase G（双库收敛）**（G1–G2 ✅ · G3 起继续）> 各域产品优化。  
 > **已完成归档**（2026-09-03～04）：Phase A/B/U/C/D/E1/F — 见 [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)。  
 > **Phase F**（2026-09-04）：F1–F5 ✅。  
-> **Phase G**：G1–G4 ✅ · **下一刀 G7 node-notes**。
+> **Phase G**：G1–G4 ✅ · **下一刀 G8 仓库门禁**。
 
 ### Phase F — 大域下沉 `sa2kit/business/*`（**已完成**）
 
@@ -388,7 +388,7 @@ business/*/ui/* 与各宿主薄页面（编排，不造第二套基础件）
 
 ## 14. Phase G — 双库收敛（`packages/` 仅保留 sa2kit + sa2kit-ui）
 
-> **状态**：**执行中** — G1–G6 ✅ · 下一刀 G7（2026-09-04）  
+> **状态**：**执行中** — G1–G7 ✅ · 下一刀 G8（2026-09-04）  
 > **目标**：profile-v1 的**共享库面**只剩两个 submodule：`packages/sa2kit`、`packages/sa2kit-ui`。其余 `@profile/*-core`、`@sa2kit/exam`、`sa2kit/common/feishu`、以及 `auth` / `db` / `config` / `ui` 基建薄包，全部并入 sa2kit（business / common）或收成**宿主本地**代码。  
 > **关联**：Phase F 已完成 calendar / teachHub / showmasterpiece 的 domain·server·ui 主体下沉；本阶段清零剩余 facade 与仓内扩展包。  
 > **包体纪律**：继续遵守 [PACKAGE-SPLIT-ROADMAP](../../packages/sa2kit/docs/PACKAGE-SPLIT-ROADMAP.md) —— 禁止客户仓 import `sa2kit` / `sa2kit/business` 聚合 barrel。
@@ -413,7 +413,7 @@ business/*/ui/* 与各宿主薄页面（编排，不造第二套基础件）
 | `@profile/teach-hub-core` | ~1.9k 行剩余 | Auth 壳 + hostRouteConfig + FileStore/generateLesson 宿主编排 | → business 补齐后 **删包**；编排留宿主或 `server/hostAdapters` 文档化 |
 | `@profile/showmasterpiece-core` | ~2.9k 行剩余 | Auth 壳 + host route config + **miniapp** + rate-limit 等 | → business 补齐（含 `ui/miniapp` 或 `ui/taro`）后 **删包** |
 | `@profile/calendar-core` | ~0.2MB 源 | Auth 壳 + 本地 export/import/recurrence/reminder + API 薄层 | → **同模式清零**（G5，与 TH/SMP 对齐） |
-| `@profile/node-notes-core` | ~0.3MB | 未进 Phase F | → `sa2kit/business/nodeNotes`（G7） |
+| `@profile/node-notes-core` | ~0.3MB | ✅ G7 | → `sa2kit/business/nodeNotes` |
 | `@profile/auth` | 薄封装 | 已委托 `sa2kit/common/auth` | → 宿主 bootstrap；**删包**（G6） |
 | `@profile/config` | YAML/SOPS | 与 `sa2kit/common/config` 重叠 | → common 能力 + 宿主路径注入；**删包**（G6） |
 | `@profile/db` | schema 聚合 + 客户端 | 反向依赖多个 core / sa2kit server | → schema 已在各 `business/*/server`；宿主保留**本地** `drizzle` 客户端文件（非共享包）或 `app_web/web/src/db`（G6） |
@@ -455,7 +455,7 @@ app_web/teach-hub/
 | **G4** | showmasterpiece-core **清零**：host config + miniapp 进 business；删包 | `@profile/showmasterpiece` build；miniapp 编译路径声明于 PLATFORMS | ✅ |
 | **G5** | calendar-core **清零**（对齐 G3/G4） | calendar Web + mobile tsc | ✅ |
 | **G6** | 基建迁出：`auth` / `config` / `db` / `ui` → `host/*` | packages/ 无四包；Docker/CI 已改 | ✅ |
-| **G7** | node-notes-core → `business/nodeNotes`；删包 | node-notes 子应用 build | 中 |
+| **G7** | node-notes-core → `business/nodeNotes`；删包 | node-notes 子应用 tsc | ✅ |
 | **G8** | 收尾：`packages/README`、`pnpm-workspace`、tsconfig paths、KNOWLEDGE_BASE、architecture gate | `packages/*` 仅两 submodule；CI gate 禁新建第三共享包 | 收束 |
 
 ### 14.5 各刀细节
@@ -519,9 +519,9 @@ app_web/teach-hub/
 
 风险：全仓 import 面大，须 **codemod + CI 禁回归**；建议 G6 单独里程碑，可先 G1–G5。
 
-#### G7 — node-notes
+#### G7 — node-notes ✅
 
-按 Phase F 模板：`domain` → `server/routes` → `ui/web` → 删 `node-notes-core`。细节可另开 `docs/modules/node-notes/DOMAIN-MIGRATION.md`。
+按 Phase F 模板落地：`domain` → `server/routes` → `ui/web`；宿主 `app_web/node-notes/lib`；已删 `node-notes-core`。下一刀 G8。
 
 #### G8 — 仓库门禁
 

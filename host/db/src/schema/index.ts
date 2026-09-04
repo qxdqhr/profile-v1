@@ -16,5 +16,5 @@ export * from './ticketMonitor';
 export * from './purchaseGame';
 export * from './universalExport';
 export * from './vocaloidBooth';
-export * from '@profile/node-notes-core/db/schema';
+export * from 'sa2kit/business/nodeNotes/server';
 export * from './exam';

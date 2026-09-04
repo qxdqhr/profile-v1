@@ -1,7 +1,7 @@
 # 大域新域迁移总览（Phase F）
 
 > 日期：2026-09-04  
-> **状态**：Phase F **完成**。Phase G **执行中**（G1–G6 ✅ · 下一刀 G7 node-notes）。  
+> **状态**：Phase F **完成**。Phase G **执行中**（G1–G7 ✅ · 下一刀 G8 仓库门禁）。  
 > **模板**：festivalCard Phase C（`sa2kit/business/festivalCard/PLATFORMS.md`）  
 > **门禁**：UI 仍只经 `sa2kit/common/ui*`；`pnpm gate:ui`
 
@@ -111,8 +111,8 @@ sa2kit/business/<domain>/
 | G4 | showmasterpiece-core **清零**；宿主 `app_web/showmasterpiece/lib` + `ui/miniapp` | ✅ |
 | G5 | calendar-core **清零**；宿主 `app_web/calendar/lib` | ✅ |
 | G6 | `@profile/{auth,db,config,ui}` → `host/*`（迁出 packages） | ✅ |
-| G7 | node-notes-core 清零 | ⏳ 下一刀 |
-| G8 | 仓库门禁 | 待办 |
+| G7 | node-notes-core 清零 | ✅ |
+| G8 | 仓库门禁 | ⏳ 下一刀 |
 
 全文：[BLUEPRINT §14](./BLUEPRINT-multiplatform-sa2kit.md#14-phase-g--双库收敛packages-仅保留-sa2kit--sa2kit-ui)。
 
@@ -168,5 +168,14 @@ sa2kit/business/<domain>/
 | workspace | `pnpm-workspace.yaml` 增加 `host/*` |
 | 包名 | 暂保留 `@profile/*` workspace 名（避免全仓 import 大爆炸）；能力仍委托 `sa2kit/common/*` |
 | Docker / CI / drizzle / tsconfig | 路径改指 `host/` |
-| packages/ | 仅剩 `sa2kit`、`sa2kit-ui`、`node-notes-core` |
+| packages/ | 仅剩 `sa2kit`、`sa2kit-ui` |
+
+### G7 落地摘要（2026-09-05）
+
+| 项 | 成果 |
+|----|------|
+| 库 | `sa2kit/business/nodeNotes/{domain,server,routes,ui/web}` + PLATFORMS.md |
+| schema | `server/schema.ts`（无 auth FK）；`@profile/db` 聚合 `sa2kit/business/nodeNotes/server` |
+| 宿主 | `app_web/node-notes/lib` Auth 壳 + hostRouteConfig；API 直引 routes 工厂 |
+| 删除 | `packages/node-notes-core`；CI / tsconfig / package.json 清零 |
 

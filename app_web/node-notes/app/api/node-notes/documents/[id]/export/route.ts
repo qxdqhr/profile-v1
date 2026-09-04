@@ -1,1 +1,6 @@
-export { GET } from '@profile/node-notes-core/api/documents/[id]/export/route';
+import { createExportDocumentHandler } from 'sa2kit/business/nodeNotes/routes';
+import { createNodeNotesHostRouteConfig } from '../../../../../../lib/hostRouteConfig';
+
+const config = createNodeNotesHostRouteConfig();
+
+export const GET = createExportDocumentHandler(config);

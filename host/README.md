@@ -10,4 +10,4 @@ Profile 仓库宿主基建（原 `packages/{auth,db,config,ui}`，Phase G6 迁�
 | `@profile/ui` | `ui/` | Tailwind preset |
 
 通用能力在 `sa2kit/common/{auth,config}`；本目录只保留 profile 路径约定与 schema 聚合。  
-`packages/` 共享库目标：仅 `sa2kit` + `sa2kit-ui`（`node-notes-core` 待 G7）。
+`packages/` 共享库目标：仅 `sa2kit` + `sa2kit-ui`（G7 已清零 `node-notes-core`）。

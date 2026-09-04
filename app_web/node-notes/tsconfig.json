@@ -22,8 +22,6 @@
       "@profile/config/*": ["../../host/config/src/*"],
       "@profile/db": ["../../host/db/src/index.ts"],
       "@profile/db/*": ["../../host/db/src/*"],
-      "@profile/node-notes-core": ["../../packages/node-notes-core/src/index.ts"],
-      "@profile/node-notes-core/*": ["../../packages/node-notes-core/src/*"],
       "@profile/ui/*": ["../../host/ui/*"]
     }
   },
