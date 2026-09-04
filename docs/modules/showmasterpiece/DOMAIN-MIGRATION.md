@@ -48,6 +48,7 @@ sa2kit/business/showmasterpiece/
 - [x] 迁 booking Query/Command + `bookingDelete` → `server/`；公开 + admin booking route 工厂（含 collections/batch）
 - [x] 迁 popup / config / basic（categories·tags·site config）DbService；`homeTabConfig` normalize → domain
 - [x] 迁 `collectionsDbService` / `artworksDbService`（去模块级全局 `db`，工厂注入 + core `initializeShowmasterpieceDb`）
+- [x] catalog API route 工厂（collections / categories / tags / artworks）；image 仍宿主
 - [ ] 抽 booking、category、collection、popup 全集类型与校验 → `domain/`（补齐）
 - [x] route 工厂补齐 admin：`createListAdminBookingsHandler` 等
 - [x] 删除 obsolete `SA2KIT_PLAN` / 1.x 发版文档（2026-09-03）

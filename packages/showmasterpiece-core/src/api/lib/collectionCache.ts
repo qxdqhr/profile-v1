@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 
-/** collections GET 缓存策略（PERF1） */
+/** collections GET 缓存策略（PERF1）；接受 Web Response，返回带头的同对象 */
 export function applyCollectionsCacheHeaders(
-  response: NextResponse,
+  response: Response,
   options: { overview: boolean; nocache: boolean },
-): NextResponse {
+): Response {
   if (options.nocache) {
     response.headers.set(
       'Cache-Control',
@@ -31,4 +31,12 @@ export function applyCollectionsCacheHeaders(
   response.headers.set('Expires', '0');
   response.headers.set('Surrogate-Control', 'no-store');
   return response;
+}
+
+/** @deprecated 兼容旧 NextResponse 调用方 */
+export function applyCollectionsCacheHeadersNext(
+  response: NextResponse,
+  options: { overview: boolean; nocache: boolean },
+): NextResponse {
+  return applyCollectionsCacheHeaders(response, options) as NextResponse;
 }
