@@ -51,6 +51,7 @@ sa2kit/business/showmasterpiece/
 - [x] catalog API route 工厂（collections / categories / tags / artworks）；image 仍宿主
 - [x] popup-config API route 工厂
 - [x] site config / config items API route 工厂
+- [x] artwork image GET/HEAD route 工厂（宿主注入 fileUrl resolver）
 - [ ] 抽 booking、category、collection、popup 全集类型与校验 → `domain/`（补齐）
 - [x] route 工厂补齐 admin：`createListAdminBookingsHandler` 等
 - [x] 删除 obsolete `SA2KIT_PLAN` / 1.x 发版文档（2026-09-03）
