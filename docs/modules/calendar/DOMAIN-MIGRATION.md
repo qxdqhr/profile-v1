@@ -45,10 +45,10 @@
 
 ### C3 — ui/web（F3）
 
-- [ ] 迁 `CalendarPage` 及视图组件至 `ui/web`
-- [ ] UI 仅 `sa2kit/common/ui`（已无 animal-island）
-- [ ] `calendar-core` 改为 `export * from 'sa2kit/business/calendar/ui/web'`
-- [ ] `pnpm --filter @profile/calendar build` 绿
+- [x] 迁 `CalendarPage` 及视图组件至 `ui/web`
+- [x] UI 仅 `sa2kit/common/ui`（已无 animal-island）；鉴权用 `sa2kit/common/auth`
+- [x] `calendar-core` 页面为 Auth 壳 + re-export；组件/hooks 自 `sa2kit/.../ui/web`
+- [x] `pnpm --filter @profile/calendar` / sa2kit `build:business` 绿（ui/web 入口）
 
 ### C4 — RN（F4）
 

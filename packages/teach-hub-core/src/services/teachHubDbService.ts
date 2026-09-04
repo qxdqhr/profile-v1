@@ -23,7 +23,8 @@ export {
   TeachHubDbService,
   type TeachHubFileStoreAdapter,
   type TeachHubGenerateAdapter,
-  type DrizzleLikeDb,
+  type TeachHubDrizzleDb,
+  type TeachHubDrizzleDb as DrizzleLikeDb,
 } from 'sa2kit/business/teachHub/server';
 
 const service: TeachHubDbService = createTeachHubDbService(db, {

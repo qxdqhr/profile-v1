@@ -125,7 +125,7 @@ export {
   cloneDate,
 } from './utils/dateUtils';
 
-// ===== 组件导出 =====
+// ===== 组件导出（C3：实现在 sa2kit/business/calendar/ui/web；Auth 壳在 pages）=====
 /** 页面组件 */
 export { default as CalendarPageCore, type CalendarPageProps } from './pages/CalendarPage';
 /** @deprecated 使用 CalendarPageCore；web 兼容层提供带日期工具的 CalendarPage */
@@ -133,21 +133,23 @@ export { default as CalendarPage } from './pages/CalendarPage';
 export { default as EventDetailPage } from './pages/EventDetailPage';
 
 /** 客户端组件 */
-export { default as EventForm } from './components/EventForm';
-export { default as EventModal } from './components/EventModal';
-export { default as EventList } from './components/EventList';
-export { default as EventSearch } from './components/EventSearch';
-export { default as DraggableEvent } from './components/DraggableEvent';
-export { default as DroppableCalendarCell } from './components/DroppableCalendarCell';
-export { default as DraggableMonthView } from './components/DraggableMonthView';
-
-// ===== Hook导出 =====
-/** 自定义Hook */
-export { useEvents } from './hooks/useEvents';
-export { useEnhancedEvents } from './hooks/useEnhancedEvents';
-export type { UseEnhancedEventsReturn } from './hooks/useEnhancedEvents';
-export { useEventDrag } from './hooks/useEventDrag';
-export type { UseEventDragReturn, DragState } from './hooks/useEventDrag';
+export {
+  EventForm,
+  EventModal,
+  EventList,
+  EventSearch,
+  DraggableEvent,
+  DroppableCalendarCell,
+  DraggableMonthView,
+  useEvents,
+  useEnhancedEvents,
+  useEventDrag,
+} from 'sa2kit/business/calendar/ui/web';
+export type {
+  UseEnhancedEventsReturn,
+  UseEventDragReturn,
+  DragState,
+} from 'sa2kit/business/calendar/ui/web';
 
 // ===== 服务导出 =====
 /** 导出服务 */

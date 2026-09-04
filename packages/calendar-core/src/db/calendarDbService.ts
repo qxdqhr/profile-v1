@@ -7,7 +7,8 @@ import { createCalendarDbService } from 'sa2kit/business/calendar/server';
 export {
   CalendarDbService,
   createCalendarDbService,
-  type DrizzleLikeDb,
+  type CalendarDrizzleDb,
+  type CalendarDrizzleDb as DrizzleLikeDb,
 } from 'sa2kit/business/calendar/server';
 
 export const calendarDbService = createCalendarDbService(db);
