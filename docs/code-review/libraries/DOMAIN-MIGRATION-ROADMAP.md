@@ -1,7 +1,7 @@
 # 大域新域迁移总览（Phase F）
 
 > 日期：2026-09-04  
-> **状态**：Phase F **完成**（F0–F5；SMP 无 RN 计划）。后续见蓝图拆包 / 各域产品化。  
+> **状态**：Phase F **完成**。下一阶段：**Phase G 双库收敛**（计划见蓝图 [§14](../../code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md#14-phase-g--双库收敛packages-仅保留-sa2kit--sa2kit-ui) · **待确认**）。  
 > **模板**：festivalCard Phase C（`sa2kit/business/festivalCard/PLATFORMS.md`）  
 > **门禁**：UI 仍只经 `sa2kit/common/ui*`；`pnpm gate:ui`
 
@@ -97,3 +97,18 @@ sa2kit/business/<domain>/
 | Phase E1 | `measure:dist`、PACKAGE-SPLIT-ROADMAP |
 
 详见蓝图 [BLUEPRINT-multiplatform-sa2kit.md](./BLUEPRINT-multiplatform-sa2kit.md) §0。
+
+## 下一阶段：Phase G（双库收敛）
+
+> 📝 **计划已写入蓝图 §14 · 待确认后执行**  
+> 目标：`packages/` 共享库只剩 `sa2kit` + `sa2kit-ui`；迁入 exam / feishu；清零 `*-core` facade；消融 `auth|db|config|ui`。
+
+| Gate | 摘要 |
+|------|------|
+| G1 | `@sa2kit/feishu-bot` → `sa2kit/common/feishu` |
+| G2 | `@sa2kit/exam` → `sa2kit/business/exam` |
+| G3–G5 | teach-hub / showmasterpiece / calendar **core 删包** |
+| G6 | `@profile/{auth,db,config,ui}` 消融 |
+| G7–G8 | node-notes + 仓库门禁 |
+
+全文与待确认问题：[BLUEPRINT §14](./BLUEPRINT-multiplatform-sa2kit.md#14-phase-g--双库收敛packages-仅保留-sa2kit--sa2kit-ui)。

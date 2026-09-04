@@ -1,7 +1,7 @@
 # 蓝图：多端 sa2kit SDK（common + business 同仓多端）
 
-> 版本：v0.4 · 2026-08-29  
-> 状态：**执行中**（**北极星：接单多端可复用** · Phase F 大域新域迁移）— 见 §0 / §7  
+> 版本：v0.5 · 2026-09-04  
+> 状态：**计划中**（**北极星：接单多端可复用** · Phase F ✅ · **Phase G 双库收敛待确认**）— 见 §0 / §7 / **§14**  
 > 取代/修正：先前「business 迁回 profile-v1」方向（见文末 §11）  
 > 源码仓：独立仓库 `github.com/qxdqhr/sa2kit` · `github.com/qxdqhr/sa2kit-ui`（profile-v1 以 git submodule 挂载于 `packages/sa2kit/` · `packages/sa2kit-ui/`，仍可 npm 发布）· 消费仓 `profile-v1` 及独立 RN/Taro/Electron 宿主
 
@@ -257,11 +257,12 @@ business/*/ui/* 与各宿主薄页面（编排，不造第二套基础件）
 
 ## 7. 分阶段计划（蓝图执行）
 
-> **优先级总序**：§0 北极星 > **Phase F（大域新域）** > 各域功能优化。  
-> **已完成归档**（2026-09-03）：Phase A/B/U/C(festivalCard)/D/E1 — 见 [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)「已完成启明星阶段」；UI 门禁 `pnpm gate:ui`。  
-> **Phase F**（2026-09-04）：F1–F5 ✅（三域下沉、core 薄壳、mobile/desktop 改引 domain）；SMP RN 无计划。详见 [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)。
+> **优先级总序**：§0 北极星 > **Phase G（双库收敛）**（待确认）> 各域产品优化。  
+> **已完成归档**（2026-09-03～04）：Phase A/B/U/C/D/E1/F — 见 [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)。  
+> **Phase F**（2026-09-04）：F1–F5 ✅。  
+> **下一刀**：§14 Phase G（待你确认后再执行）。
 
-### Phase F — 大域下沉 `sa2kit/business/*`（**当前主线**）
+### Phase F — 大域下沉 `sa2kit/business/*`（**已完成**）
 
 | 域 | 计划 | 首步 |
 |----|------|------|
@@ -375,8 +376,184 @@ business/*/ui/* 与各宿主薄页面（编排，不造第二套基础件）
 **不在试点范围**：把 calendar/teach-hub/showmasterpiece 搬进 sa2kit。  
 **时机**：须在 **Phase U 验收后**再开；试点内 UI 只复用已统一组件。
 
+> **历史注**：上表「不在试点范围」已被 **Phase F**（大域下沉）与 **§14 Phase G**（双库收敛）超越；保留原文仅作时间线。
+
 ---
 
 ## 13. 请你拍板的三个问题（历史）
 
 已由 §12 关闭。若改选 testYourself 为试点，用其替换 §12.2 并优先补 admin 鉴权。
+
+---
+
+## 14. Phase G — 双库收敛（`packages/` 仅保留 sa2kit + sa2kit-ui）
+
+> **状态**：📝 **计划就绪 · 待确认后执行**（2026-09-04）  
+> **目标**：profile-v1 的**共享库面**只剩两个 submodule：`packages/sa2kit`、`packages/sa2kit-ui`。其余 `@profile/*-core`、`@sa2kit/exam`、`@sa2kit/feishu-bot`、以及 `auth` / `db` / `config` / `ui` 基建薄包，全部并入 sa2kit（business / common）或收成**宿主本地**代码。  
+> **关联**：Phase F 已完成 calendar / teachHub / showmasterpiece 的 domain·server·ui 主体下沉；本阶段清零剩余 facade 与仓内扩展包。  
+> **包体纪律**：继续遵守 [PACKAGE-SPLIT-ROADMAP](../../packages/sa2kit/docs/PACKAGE-SPLIT-ROADMAP.md) —— 禁止客户仓 import `sa2kit` / `sa2kit/business` 聚合 barrel。
+
+### 14.1 成功画面
+
+| 项 | 达成后 |
+|----|--------|
+| `packages/` 共享库 | **仅** `sa2kit/`、`sa2kit-ui/`（git submodule） |
+| 删除（或降级为宿主内联） | `sa2kit-exam`、`sa2kit-feishu`、`*-core`、`@profile/auth|db|config|ui` |
+| 业务能力 | `sa2kit/business/{exam,teachHub,showmasterpiece,calendar,…}` |
+| 飞书通知 | `sa2kit/common/feishu`（或 `common/notifications/feishu`） |
+| 宿主 | `app_web/*`、`app_mobile/*`、`app_desktop/*` 只做：薄 page、API re-export、session/db/OSS **注入**、Docker/basePath |
+| 客户仓 | `pnpm add sa2kit @sa2kit-ui/react`（按需）即可复用，无 `@profile/*` 共享依赖 |
+
+### 14.2 现状盘点（2026-09-04）
+
+| 包 | 约体积 | Phase F 后角色 | Phase G 处置 |
+|----|--------|----------------|--------------|
+| `@sa2kit/exam`（`packages/sa2kit-exam`） | ~0.8k 行 | 仓内扩展；schema 仍在 `@profile/db` | → `sa2kit/business/exam` |
+| `@sa2kit/feishu-bot`（`packages/sa2kit-feishu`） | ~0.1k 行 | Webhook 工具；Home / ticketMonitor / CI 脚本在用 | → `sa2kit/common/feishu` |
+| `@profile/teach-hub-core` | ~1.9k 行剩余 | Auth 壳 + hostRouteConfig + FileStore/generateLesson 宿主编排 | → business 补齐后 **删包**；编排留宿主或 `server/hostAdapters` 文档化 |
+| `@profile/showmasterpiece-core` | ~2.9k 行剩余 | Auth 壳 + host route config + **miniapp** + rate-limit 等 | → business 补齐（含 `ui/miniapp` 或 `ui/taro`）后 **删包** |
+| `@profile/calendar-core` | ~0.2MB 源 | Auth 壳 + 本地 export/import/recurrence/reminder + API 薄层 | → **同模式清零**（G5，与 TH/SMP 对齐） |
+| `@profile/node-notes-core` | ~0.3MB | 未进 Phase F | → `sa2kit/business/nodeNotes`（G7） |
+| `@profile/auth` | 薄封装 | 已委托 `sa2kit/common/auth` | → 宿主 bootstrap；**删包**（G6） |
+| `@profile/config` | YAML/SOPS | 与 `sa2kit/common/config` 重叠 | → common 能力 + 宿主路径注入；**删包**（G6） |
+| `@profile/db` | schema 聚合 + 客户端 | 反向依赖多个 core / sa2kit server | → schema 已在各 `business/*/server`；宿主保留**本地** `drizzle` 客户端文件（非共享包）或 `app_web/web/src/db`（G6） |
+| `@profile/ui` | Tailwind preset | 可被 sa2kit-ui / 宿主 preset 替代 | → **删包**（G6） |
+
+> **明确范围**：你点名的首刀是 **exam + showmasterpiece-core + teach-hub-core + feishu**。calendar / node-notes / auth·db·config·ui 写入同一 Phase G，是因为「只剩两库」的终态离不开它们；可按 gate **分批合并**，不必一次 PR。
+
+### 14.3 目标骨架（与 Phase F 一致）
+
+```
+sa2kit/
+  common/feishu/          ← 原 @sa2kit/feishu-bot
+  business/exam/
+    domain/ | server/ | routes/ | ui/{web,rn,wechat,desktop}/ | PLATFORMS.md
+  business/teachHub/      ← 补齐 core 残留（fileStore 工厂、generateLesson 宿主无关部分）
+  business/showmasterpiece/
+    … + ui/miniapp/       ← 原 core miniapp
+  business/calendar/      ← 补齐本地 services + 删 core
+  business/nodeNotes/     ← G7
+```
+
+宿主（示例 teach-hub）：
+
+```
+app_web/teach-hub/
+  app/**/page.tsx          ← 直引 sa2kit/business/teachHub/ui/web
+  app/api/**/route.ts      ← create*Handler + getSessionUser + db/OSS 注入
+  lib/hostBootstrap.ts     ← 仅本应用：db、fileUrl、rateLimit 等
+```
+
+### 14.4 分阶段 gates
+
+| Gate | 内容 | 验收 | 建议顺序 |
+|------|------|------|----------|
+| **G0** | 冻结扩面；本计划进蓝图；inventory 表冻结 | 文档 ✅；禁止新 `@profile/*` 共享包 | 确认后立即 |
+| **G1** | 飞书 → `sa2kit/common/feishu`；改 import；删 `sa2kit-feishu` | Home / ticketMonitor / CI 脚本绿；`pnpm --filter sa2kit build:common` | 小、先做 |
+| **G2** | exam → `sa2kit/business/exam`（含 schema 从 `@profile/db` 迁入 `server`）；主站改引；删 `sa2kit-exam` | experiment / exam API 绿；`@profile/db` 只聚合 re-export 或移除 exam 表 | 小～中 |
+| **G3** | teach-hub-core **清零**：残留服务进 business；宿主直引 sa2kit；删包 | `@profile/teach-hub` build；mobile/desktop 已吃 domain（F4）无回归 | 中 |
+| **G4** | showmasterpiece-core **清零**：host config + miniapp 进 business；删包 | `@profile/showmasterpiece` build；miniapp 编译路径声明于 PLATFORMS | 中～大 |
+| **G5** | calendar-core **清零**（对齐 G3/G4） | calendar Web + mobile tsc | 中 |
+| **G6** | 基建消融：`auth` / `config` / `db` / `ui` | 全仓无 `@profile/auth|db|config|ui`；schema 聚合策略文档化 | 大 · 可拆 PR |
+| **G7** | node-notes-core → `business/nodeNotes`；删包 | node-notes 子应用 build | 中 |
+| **G8** | 收尾：`packages/README`、`pnpm-workspace`、tsconfig paths、KNOWLEDGE_BASE、architecture gate | `packages/*` 仅两 submodule；CI gate 禁新建第三共享包 | 收束 |
+
+### 14.5 各刀细节
+
+#### G1 — Feishu → `sa2kit/common/feishu`
+
+| 项 | 说明 |
+|----|------|
+| 迁入 | `sendFeishuPostMessage`、`buildFeishuPostMessage`、contact/ci 模板、`formatDateTime`、类型 |
+| exports | `sa2kit/common/feishu`（server-safe；无 React） |
+| 兼容 | 过渡 1 个小版本可留 `packages/sa2kit-feishu` 薄 re-export，或直接改消费者后删包 |
+| 消费者 | `modules/Home`、`ticketMonitor`、`scripts/send-ci-feishu-notify.ts` |
+| 禁区 | 不把 webhook URL / sign secret 写进库；继续由宿主 env 注入 |
+
+#### G2 — Exam → `sa2kit/business/exam`
+
+| 项 | 说明 |
+|----|------|
+| 映射 | 现 `core/` → `domain/`；`server/` → `server/` + `routes/`；`ui/*` → `ui/{web,rn,wechat,desktop}`；`services/` → `domain/client` 或 `ui/web/client` |
+| schema | `packages/db/src/schema/exam.ts` → `business/exam/server/schema.ts`；`@profile/db`（或宿主 db）聚合 `export *` |
+| 宿主 | `app_web/web` 的 exam / experiment 改 `sa2kit/business/exam/*`；去掉 tsconfig `@sa2kit/exam` paths |
+| PLATFORMS | web ✅ / server ✅ / rn·wechat·desktop 按现 Adapter 标状态 |
+| UI | 经 `sa2kit/common/ui`；禁止新增第二套基础件 |
+
+#### G3 — teach-hub-core 清零
+
+| 残留（当前） | 去向 |
+|--------------|------|
+| `layout` Auth 壳 | 宿主 layout 或 `ui/web` 内可选 `withAuthShell` 文档；默认宿主自包 AuthProvider |
+| `api/hostRouteConfig`、`_helpers` | **留宿主** `app_web/teach-hub/lib/`（注入 session/db/OSS） |
+| `teachHubFileStore` / `generateLessonService` / `syncLessonResources` / persistence | 能无 profile 硬编码的进 `business/teachHub/server`；必须绑 profile 配置的留宿主 adapter |
+| `shared` facade | 已 domain；删包后只保留 `sa2kit/business/teachHub/domain` |
+| package | 删除 `@profile/teach-hub-core`；workspace / Docker 依赖改挂 sa2kit |
+
+#### G4 — showmasterpiece-core 清零
+
+| 残留（当前） | 去向 |
+|--------------|------|
+| `api/lib/*HostRouteConfig`、rateLimit、auth helper | **宿主** `app_web/showmasterpiece/lib/` |
+| `ui/miniapp/**`、`service/miniapp` | `sa2kit/business/showmasterpiece/ui/miniapp`（或 `ui/taro` 命名对齐 festivalCard） |
+| `useDeadlinePopupWechat` | 随 miniapp 或 `ui/web/client` |
+| `initializeShowmasterpieceDb` | 宿主 bootstrap 调用 sa2kit server 工厂 |
+| package | 删除 `@profile/showmasterpiece-core` |
+
+#### G5 — calendar-core 清零
+
+| 残留 | 去向 |
+|------|------|
+| export/import/recurrence/reminder services | `business/calendar/domain` 或 `server`（按是否需 Node API） |
+| Auth 壳 pages | 同 G3：宿主或文档化壳 |
+| API re-export | 宿主 `app/api` 已直连 sa2kit routes 的保持；删 core 中转 |
+
+#### G6 — 基建四包消融（最敏感）
+
+| 包 | 策略 |
+|----|------|
+| `@profile/auth` | 宿主 `createAuth` / `AuthProvider` 直接调 `sa2kit/common/auth`；主站挂 `/api/auth` 不变 |
+| `@profile/config` | 加载 YAML/SOPS 的「profile 路径约定」进宿主 `lib/config`；通用解析留 `sa2kit/common/config` |
+| `@profile/db` | **不再作为共享包**：各 app 或 monorepo 根保留 `src/db/client.ts` + `schema/index.ts`（仅聚合 `sa2kit/business/*/server` schema）；migrate 脚本改指该路径 |
+| `@profile/ui` | Tailwind preset 迁到宿主或 `@sa2kit-ui/*` 文档推荐 preset |
+
+风险：全仓 import 面大，须 **codemod + CI 禁回归**；建议 G6 单独里程碑，可先 G1–G5。
+
+#### G7 — node-notes
+
+按 Phase F 模板：`domain` → `server/routes` → `ui/web` → 删 `node-notes-core`。细节可另开 `docs/modules/node-notes/DOMAIN-MIGRATION.md`。
+
+#### G8 — 仓库门禁
+
+- `pnpm-workspace.yaml`：`packages/*` 实际只解析两 submodule（或显式列出）。  
+- architecture gate：禁止新增 `packages/<new-shared>`。  
+- 更新：`packages/README.md`、`.cursor/KNOWLEDGE_BASE.md`、`docs/AGENTS.md`、本蓝图 §0.1 示意。
+
+### 14.6 非目标（本阶段不做）
+
+- 把 `app_web/*` 子应用合并回主站（部署单元保持）。  
+- 强制实现 showmasterpiece / teachHub **原生 RN UI**（继续 stub + domain）。  
+- sa2kit npm 拆成 `@sa2kit/biz-*` 多包发布（仍按 PACKAGE-SPLIT 中期；本阶段只做**目录与依赖收敛**）。  
+- WordPress / Godot games 旁路迁入 sa2kit。
+
+### 14.7 执行约定（确认后遵守）
+
+1. **先 sa2kit 仓 commit/push → 再 bump profile submodule → 再改宿主/删包**。  
+2. 每 gate 独立可回滚；G1/G2 可当日合并，G3–G5 按域，G6 单独窗口。  
+3. 每刀后：相关 `pnpm --filter <app> build` 或 `tsc --noEmit`；sa2kit `build:business` / `build:common`；必要时 `measure:dist`。  
+4. 删除包前：grep 清零旧包名；更新 tsconfig paths。  
+5. **确认前不改代码**——仅文档；你回复确认范围（例如「先 G1–G4」或「G1–G8 全做」）后再动手。
+
+### 14.8 待你确认的问题
+
+| # | 问题 | 默认建议 |
+|---|------|----------|
+| Q1 | G5 calendar-core、G7 node-notes 是否纳入本轮？ | **纳入同一 Phase G**，但可排在 G3/G4 之后 |
+| Q2 | G6 auth/db/config/ui 是否本轮必做？ | **本轮做完才算「只剩两库」**；若只求「业务扩展进 sa2kit」，可先停在 G5 |
+| Q3 | feishu 子路径名 | 推荐 `sa2kit/common/feishu` |
+| Q4 | exam schema 是否立即迁出 `@profile/db` | **是**（与 festivalCard/calendar 一致） |
+| Q5 | showmasterpiece miniapp 目录名 | 推荐 `ui/miniapp`（保留现名）或对齐为 `ui/taro`——执行前再定 |
+
+---
+
+**确认口令（示例）**：`确认 Phase G：G1–G4` 或 `确认 Phase G：G1–G8`。确认前 **不执行**迁移。

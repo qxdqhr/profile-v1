@@ -8,13 +8,14 @@
 
 **[BLUEPRINT-multiplatform-sa2kit.md](./BLUEPRINT-multiplatform-sa2kit.md)** — 多端 SDK 蓝图 §0 北极星。
 
-**当前执行**：**Phase F** 大域新域 — [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)
+**当前执行**：**Phase F ✅** · **Phase G 双库收敛（计划 · 待确认）** — 蓝图 [§14](./BLUEPRINT-multiplatform-sa2kit.md#14-phase-g--双库收敛packages-仅保留-sa2kit--sa2kit-ui) · [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)
 
 | 已完成（归档） | 文档 |
 |----------------|------|
 | UI 统一 + 门禁 | `pnpm gate:ui`；`.cursor/rules/profile-v1-sa2kit-ui.mdc` |
 | 接入 / ADR | `packages/sa2kit/docs/HOST-ONBOARDING.md`、`adr/002-*.md` |
 | festivalCard 试点 | `packages/sa2kit/.../festivalCard/PLATFORMS.md` |
+| Phase F 大域 | calendar / teachHub / showmasterpiece → `sa2kit/business/*` |
 
 SSOT 短节：`.cursor/KNOWLEDGE_BASE.md` §1.1 / §7.0。
 
@@ -43,15 +44,15 @@ sa2kit/common/*  +  sa2kit/business/<域>/{domain,server,ui/*}
 ### 现状（2026-09-04）
 
 ```
-Phase F · F1 ✅ · F2 🟡（teachHub API routes ✅ / AI task ⬜；SMP ⬜）
-下一刀：calendar C3 ui/web，或 teachHub generateLesson → server/tasks
+Phase F · F0–F5 ✅
+下一刀：Phase G 双库收敛（蓝图 §14 · 待确认）— exam/feishu 入仓、*-core 清零、基建消融
 ```
 
-详见 [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)。
+详见 [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md) 与蓝图 §14。
 
-### profile-v1 内同名扩展（非上述两库）
+### profile-v1 内同名扩展（Phase G 将迁入主库）
 
-| 包 | 说明 |
-|----|------|
-| `@sa2kit/exam` | 考试 SDK，profile 私有扩展 |
-| `@sa2kit/feishu-bot` | 飞书 webhook 工具 |
+| 包 | 说明 | Phase G |
+|----|------|---------|
+| `@sa2kit/exam` | 考试 SDK，profile 仓内扩展 | → `sa2kit/business/exam`（G2） |
+| `@sa2kit/feishu-bot` | 飞书 webhook 工具 | → `sa2kit/common/feishu`（G1） |
