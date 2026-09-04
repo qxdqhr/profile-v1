@@ -62,13 +62,14 @@ sa2kit/business/showmasterpiece/
 - [x] `ShowMasterpieceThemeRoot` 仍在子应用 layout；组件经门面
 - [x] `showmasterpiece-core` Auth 薄壳 re-export `ui/web`
 
-### M3 — 宿主与发布（F5）
+### M3 — 删 core 冗余 / 宿主（F5）
 
+- [x] core `logic` / `types` / `service(client)` / `utils` / `ui/shared` → sa2kit 薄 re-export（保留 miniapp + wechat）
 - [ ] `app_web/showmasterpiece` 仅 page + api re-export
 - [ ] Docker 镜像 build 不变；验证 nginx `/showmasterpiece`
 - [ ] `measure:dist` 确认未 import `business/index` 聚合
 
-### M4 — 可选产品化（SMP3）
+### M4 — 可选产品化
 
 - [ ] 评估独立 npm `@sa2kit/business-showmasterpiece`（仅当有外售画集 SaaS）
 - [ ] PLATFORMS.md 声明 web ✅ only

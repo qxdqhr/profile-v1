@@ -1,10 +1,2 @@
-export { CATEGORY_LABELS, getCategoryLabel } from './category';
-export { formatPrice } from './format';
-export {
-  getCart as getMiniappCart,
-  addToCart as addToMiniappCart,
-  updateCartItem as updateMiniappCartItem,
-  removeCartItem as removeMiniappCartItem,
-  clearCart as clearMiniappCart
-} from './cart';
-export { useDeadlinePopupCore } from './useDeadlinePopupCore';
+/** @deprecated 请改引 `sa2kit/business/showmasterpiece/ui/web/client` */
+export * from 'sa2kit/business/showmasterpiece/ui/web/logic/shared';

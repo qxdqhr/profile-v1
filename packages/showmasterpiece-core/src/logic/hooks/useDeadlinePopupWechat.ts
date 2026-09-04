@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { checkPopupConfigs } from '../../service/miniapp';
-import { useDeadlinePopupCore } from '../shared/useDeadlinePopupCore';
+import { useDeadlinePopupCore } from 'sa2kit/business/showmasterpiece/ui/web/logic/shared/useDeadlinePopupCore';
 
 export function useDeadlinePopup(
   businessModule: string,

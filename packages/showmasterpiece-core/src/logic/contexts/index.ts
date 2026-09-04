@@ -1,2 +1,2 @@
-export { CartProvider } from './CartContext';
-export { useCartContext } from '../hooks';
+/** @deprecated */
+export { CartProvider, CartContext } from './CartContext';

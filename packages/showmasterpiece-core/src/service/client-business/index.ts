@@ -1,3 +1,4 @@
+/** @deprecated 请改引 sa2kit showmasterpiece ui/web */
 export * as masterpiecesService from './masterpiecesService';
 export * as masterpiecesConfigService from './masterpiecesConfigService';
 export * as cartService from './cartService';

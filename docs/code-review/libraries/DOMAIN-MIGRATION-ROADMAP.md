@@ -43,7 +43,7 @@ sa2kit/business/<domain>/
 | F2 | `server/` + schema 在 `@profile/db` 仍聚合导出 | 🟡 calendar ✅；teachHub ✅；SMP server DbService 全家桶 ✅（SMP2 ui 仍 ⬜） |
 | F3 | `ui/web` 切 import；`*-core` 仅 re-export | 🟡 calendar ✅；teachHub ✅；SMP ✅（Auth 壳） |
 | F4 | RN：`ui/rn` stub 或 mobile 直引 web 子集 | ⬜（F1 已有 rn stub） |
-| F5 | 删 `*-core` 冗余实现（保留子应用壳） | ⬜ |
+| F5 | 删 `*-core` 冗余实现（保留子应用壳） | 🟡 SMP client 层已薄 re-export；宿主壳仍待收 |
 
 ### F1 落地摘要（2026-09-04）
 
@@ -67,7 +67,7 @@ sa2kit/business/<domain>/
 |----|------|
 | calendar | `ui/web` 迁入 pages/components/hooks；`calendar-core` Auth 壳 + 组件 re-export |
 | teachHub | `ui/web` 迁入 pages/layout/components；`teach-hub-core` Auth 壳 + pages re-export |
-| showmasterpiece | `ui/web` pages/components + client hooks/services；`*-core` AuthProvider 薄壳 |
+| showmasterpiece | `ui/web` + `ui/web/client`；`*-core` Auth 壳 + logic/types/services 薄 re-export（miniapp 保留） |
 
 ## 已完成启明星阶段（归档摘要）
 

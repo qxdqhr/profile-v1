@@ -1,26 +1,4 @@
+/** @deprecated 请改引 `sa2kit/business/showmasterpiece/ui/web/client` */
 export * from './hooks';
 export * from './contexts';
 export * from './shared';
-export type {
-  MasterpiecesConfig,
-  ArtCollection,
-  ArtworkPage,
-  CollectionFormData,
-  ArtworkFormData,
-  CollectionCategory,
-  CollectionCategoryType,
-  getAvailableCategories,
-  isValidCategory,
-} from '../types';
-export type {
-  Cart,
-  CartItem,
-  AddToCartRequest,
-  UpdateCartItemRequest,
-  RemoveFromCartRequest,
-  ClearCartRequest,
-  CartAction,
-  CartState,
-  BatchBookingRequest,
-  BatchBookingResponse,
-} from '../types/cart';
