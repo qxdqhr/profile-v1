@@ -1,7 +1,7 @@
 # 大域新域迁移总览（Phase F）
 
 > 日期：2026-09-04  
-> **当前主线**：Phase F **F2 收尾** — teachHub files/generate routes，或 calendar C3 ui/web。  
+> **当前主线**：Phase F **F3** — calendar / teachHub `ui/web`；或 SMP1 domain+server。teachHub T2 routes 已齐。  
 > **模板**：festivalCard Phase C（`sa2kit/business/festivalCard/PLATFORMS.md`）  
 > **门禁**：UI 仍只经 `sa2kit/common/ui*`；`pnpm gate:ui`
 

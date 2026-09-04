@@ -43,11 +43,8 @@ sa2kit/common/*  +  sa2kit/business/<域>/{domain,server,ui/*}
 ### 现状（2026-09-04）
 
 ```
-Phase F · F1 ✅ · F2 🟡
-  calendar: server+routes ✅
-  teachHub: schema + workspace/progress routes ✅；files/generate ⬜
-  showmasterpiece: 未开
-下一刀：teachHub files/AI，或 calendar C3 ui/web
+Phase F · F1 ✅ · F2 🟡（teachHub API routes ✅ / AI task ⬜；SMP ⬜）
+下一刀：calendar C3 ui/web，或 teachHub generateLesson → server/tasks
 ```
 
 详见 [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)。
