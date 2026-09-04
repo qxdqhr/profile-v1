@@ -42,7 +42,8 @@ sa2kit/business/showmasterpiece/
 
 ### M1 — domain + server（SMP1 / F2）
 
-- [ ] 抽 booking、category、collection、popup 类型与校验 → `domain/`
+- [x] F1 占位：`domain/` booking/popup 类型 + `PLATFORMS.md` + exports（2026-09-04）
+- [ ] 抽 booking、category、collection、popup 全集类型与校验 → `domain/`（补齐）
 - [ ] 迁 `masterpiecesDbService`、`bookingDelete` 宿主校验契约 → `server/`
 - [ ] route 工厂：`createListBookingsHandler` 等（参照 festivalCard）
 - [ ] `@profile/db` schema 聚合导出

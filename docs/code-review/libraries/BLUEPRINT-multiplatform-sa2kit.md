@@ -258,7 +258,8 @@ business/*/ui/* 与各宿主薄页面（编排，不造第二套基础件）
 ## 7. 分阶段计划（蓝图执行）
 
 > **优先级总序**：§0 北极星 > **Phase F（大域新域）** > 各域功能优化。  
-> **已完成归档**（2026-09-03）：Phase A/B/U/C(festivalCard)/D/E1 — 见 [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)「已完成启明星阶段」；UI 门禁 `pnpm gate:ui`。
+> **已完成归档**（2026-09-03）：Phase A/B/U/C(festivalCard)/D/E1 — 见 [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)「已完成启明星阶段」；UI 门禁 `pnpm gate:ui`。  
+> **Phase F / F1**（2026-09-04）：三域 `domain` + `PLATFORMS` + exports 已落地；**当前主线 F2 server**。
 
 ### Phase F — 大域下沉 `sa2kit/business/*`（**当前主线**）
 

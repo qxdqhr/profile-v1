@@ -33,9 +33,9 @@
 
 ### T1 — domain + PLATFORMS（F1）
 
-- [ ] `business/teachHub/domain`：Workspace、Lesson、Mission、Progress 类型
-- [ ] `PLATFORMS.md`（web ✅ / server ✅ / rn 🟡 / taro ⬜）
-- [ ] exports + tsup entry
+- [x] `business/teachHub/domain`：Workspace、Lesson、Mission、Progress 类型
+- [x] `PLATFORMS.md`（web ✅ / server ✅ / rn 🟡 / taro ⬜）
+- [x] exports + tsup entry
 
 ### T2 — server（F2）
 

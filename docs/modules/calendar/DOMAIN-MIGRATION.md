@@ -31,10 +31,10 @@
 
 ### C1 — domain + PLATFORMS（F1）
 
-- [ ] 新建 `sa2kit/business/calendar/domain/`（从 `shared` 抽类型 + `eventDisplay` 纯函数）
-- [ ] 新建 `PLATFORMS.md`（web ✅ / server ✅ / rn ⬜ stub）
-- [ ] `package.json` exports + `tsup.entries.business.ts`
-- [ ] `calendar-core/shared` → re-export domain（过渡期）
+- [x] 新建 `sa2kit/business/calendar/domain/`（从 `shared` 抽类型 + `eventDisplay` 纯函数）
+- [x] 新建 `PLATFORMS.md`（web ✅ / server ✅ / rn ⬜ stub）
+- [x] `package.json` exports + `tsup.entries.business.ts`
+- [x] `calendar-core/shared` → re-export domain（过渡期）
 
 ### C2 — server（F2）
 

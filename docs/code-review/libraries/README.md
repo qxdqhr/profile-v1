@@ -40,10 +40,11 @@ sa2kit/common/*  +  sa2kit/business/<域>/{domain,server,ui/*}
  (web+api壳)  (ui/rn)    (ui/taro|web)
 ```
 
-### 现状（2026-09-03）
+### 现状（2026-09-04）
 
 ```
-Phase F 🔄 — calendar / teach-hub / showmasterpiece → sa2kit/business/*
+Phase F · F1 ✅ — calendar / teachHub / showmasterpiece domain + PLATFORMS + exports
+下一刀：F2 server（优先 calendar C2 / teach-hub T2）
 *-core 过渡 re-export；新功能只进 sa2kit business
 ```
 

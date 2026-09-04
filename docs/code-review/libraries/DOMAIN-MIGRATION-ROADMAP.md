@@ -1,7 +1,7 @@
 # 大域新域迁移总览（Phase F）
 
-> 日期：2026-09-03  
-> **当前主线**：将 calendar / teach-hub / showmasterpiece 从 `packages/*-core` 渐进下沉到 `sa2kit/business/<域>`（蓝图 §2.2），`*-core` 过渡为薄 re-export。  
+> 日期：2026-09-04  
+> **当前主线**：Phase F **F2** — calendar / teach-hub / showmasterpiece 的 `server/` 下沉（F1 domain 已完成 2026-09-04）。  
 > **模板**：festivalCard Phase C（`sa2kit/business/festivalCard/PLATFORMS.md`）  
 > **门禁**：UI 仍只经 `sa2kit/common/ui*`；`pnpm gate:ui`
 
@@ -36,14 +36,22 @@ sa2kit/business/<domain>/
 
 ## 阶段 gates
 
-| Gate | 验收 |
-|------|------|
+| Gate | 验收 | 状态 |
+|------|------|------|
 | F0 | 三份 DOMAIN-MIGRATION.md + 本总览 | ✅ 2026-09-03 |
-| F1 | 每域 `domain/` + `PLATFORMS.md` + package exports 占位 |
-| F2 | `server/` + schema 在 `@profile/db` 仍聚合导出 |
-| F3 | `ui/web` 切 import；`*-core` 仅 re-export |
-| F4 | RN：`ui/rn` stub 或 mobile 直引 web 子集 |
-| F5 | 删 `*-core` 冗余实现（保留子应用壳） |
+| F1 | 每域 `domain/` + `PLATFORMS.md` + package exports 占位 | ✅ 2026-09-04 |
+| F2 | `server/` + schema 在 `@profile/db` 仍聚合导出 | ⬜ 下一主线 |
+| F3 | `ui/web` 切 import；`*-core` 仅 re-export | ⬜ |
+| F4 | RN：`ui/rn` stub 或 mobile 直引 web 子集 | ⬜（F1 已有 rn stub） |
+| F5 | 删 `*-core` 冗余实现（保留子应用壳） | ⬜ |
+
+### F1 落地摘要（2026-09-04）
+
+| 域 | 子路径 | core 过渡 |
+|----|--------|-----------|
+| calendar | `sa2kit/business/calendar/domain` | `@profile/calendar-core/shared` re-export |
+| teachHub | `sa2kit/business/teachHub/domain` | `shared/types` + `lessonProgress` re-export |
+| showmasterpiece | `sa2kit/business/showmasterpiece/domain` | 占位类型；全集仍在 core |
 
 ## 已完成启明星阶段（归档摘要）
 
