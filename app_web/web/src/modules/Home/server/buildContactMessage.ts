@@ -2,7 +2,7 @@ import {
   buildContactFeishuMessage,
   formatDateTime,
   type ContactSubmission,
-} from '@sa2kit/feishu-bot';
+} from 'sa2kit/common/feishu';
 
 export type { ContactSubmission };
 export { buildContactFeishuMessage };

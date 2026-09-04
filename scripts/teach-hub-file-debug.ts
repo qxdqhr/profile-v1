@@ -1,10 +1,12 @@
 import {
   getWorkspaceForUser,
+} from '../app_web/teach-hub/lib/teachHubDbService';
+import {
   listWorkspaceFiles,
   putWorkspaceFileText,
   readWorkspaceFileText,
   repairWorkspaceSeedFilesIfMissing,
-} from '@profile/teach-hub-core/server';
+} from '../app_web/teach-hub/lib/teachHubFileStore';
 
 async function main() {
   const userId = process.argv[2] || 'YRMAoATU4uNCjkIaxCQQI';
@@ -21,7 +23,10 @@ async function main() {
   console.log('repaired seed files:', repaired);
 
   const before = await listWorkspaceFiles(userId, workspaceId);
-  console.log('files:', before.map((f) => f.relativePath));
+  console.log(
+    'files:',
+    before.map((f) => f.relativePath),
+  );
 
   if (!before.some((f) => f.relativePath === 'MISSION.md')) {
     await putWorkspaceFileText({
@@ -33,14 +38,17 @@ async function main() {
   }
 
   const after = await listWorkspaceFiles(userId, workspaceId);
-  console.log('files after write:', after.map((f) => f.relativePath));
+  console.log(
+    'files after write:',
+    after.map((f) => f.relativePath),
+  );
 
   const text = await readWorkspaceFileText(userId, workspaceId, 'MISSION.md');
   console.log('MISSION preview:', text.slice(0, 120));
   process.exit(0);
 }
 
-main().catch((error) => {
-  console.error(error);
+main().catch((err) => {
+  console.error(err);
   process.exit(1);
 });

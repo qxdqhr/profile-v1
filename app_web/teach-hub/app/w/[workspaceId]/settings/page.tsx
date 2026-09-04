@@ -1,4 +1,4 @@
-import { SettingsPage } from '@profile/teach-hub-core/pages';
+import { SettingsPage } from 'sa2kit/business/teachHub/ui/web';
 
 type Props = { params: Promise<{ workspaceId: string }> };
 

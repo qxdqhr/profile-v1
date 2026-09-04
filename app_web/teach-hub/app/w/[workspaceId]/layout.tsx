@@ -1,4 +1,4 @@
-import { WorkspaceShell } from '@profile/teach-hub-core/layout/WorkspaceShell';
+import { WorkspaceShell } from 'sa2kit/business/teachHub/ui/web';
 
 type Props = {
   children: React.ReactNode;

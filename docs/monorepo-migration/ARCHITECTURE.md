@@ -127,8 +127,8 @@ flowchart TB
 
 | 包名 | 路径 |
 |------|------|
-| `@sa2kit/exam` | `packages/sa2kit-exam/` |
-| `@sa2kit/feishu-bot` | `packages/sa2kit-feishu/` |
+| `@sa2kit/exam` | ~~`packages/sa2kit-exam/`~~ → `sa2kit/business/exam`（G2 ✅） |
+| `sa2kit/common/feishu` | ~~`packages/sa2kit-feishu/`~~ → `sa2kit/common/feishu`（G1 ✅） |
 
 与计划中的 `@profile/*` 包共存，无需迁出。
 

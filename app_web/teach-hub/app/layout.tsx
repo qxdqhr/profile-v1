@@ -1,6 +1,6 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
-import { TeachHubLayout } from '@profile/teach-hub-core/layout/TeachHubLayout';
+import { TeachHubLayout } from '@lib/TeachHubLayout';
 
 export const metadata: Metadata = {
   title: 'Profile Teach Hub',

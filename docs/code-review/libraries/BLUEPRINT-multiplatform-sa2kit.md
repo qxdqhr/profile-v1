@@ -1,7 +1,7 @@
 # 蓝图：多端 sa2kit SDK（common + business 同仓多端）
 
 > 版本：v0.5 · 2026-09-04  
-> 状态：**计划中**（**北极星：接单多端可复用** · Phase F ✅ · **Phase G 双库收敛待确认**）— 见 §0 / §7 / **§14**  
+> 状态：**执行中**（**北极星：接单多端可复用** · Phase F ✅ · **Phase G：G1–G4 ✅ · 下一刀 G5**）— 见 §0 / §7 / **§14**  
 > 取代/修正：先前「business 迁回 profile-v1」方向（见文末 §11）  
 > 源码仓：独立仓库 `github.com/qxdqhr/sa2kit` · `github.com/qxdqhr/sa2kit-ui`（profile-v1 以 git submodule 挂载于 `packages/sa2kit/` · `packages/sa2kit-ui/`，仍可 npm 发布）· 消费仓 `profile-v1` 及独立 RN/Taro/Electron 宿主
 
@@ -257,10 +257,10 @@ business/*/ui/* 与各宿主薄页面（编排，不造第二套基础件）
 
 ## 7. 分阶段计划（蓝图执行）
 
-> **优先级总序**：§0 北极星 > **Phase G（双库收敛）**（待确认）> 各域产品优化。  
+> **优先级总序**：§0 北极星 > **Phase G（双库收敛）**（G1–G2 ✅ · G3 起继续）> 各域产品优化。  
 > **已完成归档**（2026-09-03～04）：Phase A/B/U/C/D/E1/F — 见 [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)。  
 > **Phase F**（2026-09-04）：F1–F5 ✅。  
-> **下一刀**：§14 Phase G（待你确认后再执行）。
+> **Phase G**：G1–G4 ✅ · **下一刀 G5 calendar-core**。
 
 ### Phase F — 大域下沉 `sa2kit/business/*`（**已完成**）
 
@@ -388,8 +388,8 @@ business/*/ui/* 与各宿主薄页面（编排，不造第二套基础件）
 
 ## 14. Phase G — 双库收敛（`packages/` 仅保留 sa2kit + sa2kit-ui）
 
-> **状态**：📝 **计划就绪 · 待确认后执行**（2026-09-04）  
-> **目标**：profile-v1 的**共享库面**只剩两个 submodule：`packages/sa2kit`、`packages/sa2kit-ui`。其余 `@profile/*-core`、`@sa2kit/exam`、`@sa2kit/feishu-bot`、以及 `auth` / `db` / `config` / `ui` 基建薄包，全部并入 sa2kit（business / common）或收成**宿主本地**代码。  
+> **状态**：**执行中** — G1–G4 ✅ · 下一刀 G5（2026-09-04）  
+> **目标**：profile-v1 的**共享库面**只剩两个 submodule：`packages/sa2kit`、`packages/sa2kit-ui`。其余 `@profile/*-core`、`@sa2kit/exam`、`sa2kit/common/feishu`、以及 `auth` / `db` / `config` / `ui` 基建薄包，全部并入 sa2kit（business / common）或收成**宿主本地**代码。  
 > **关联**：Phase F 已完成 calendar / teachHub / showmasterpiece 的 domain·server·ui 主体下沉；本阶段清零剩余 facade 与仓内扩展包。  
 > **包体纪律**：继续遵守 [PACKAGE-SPLIT-ROADMAP](../../packages/sa2kit/docs/PACKAGE-SPLIT-ROADMAP.md) —— 禁止客户仓 import `sa2kit` / `sa2kit/business` 聚合 barrel。
 
@@ -409,7 +409,7 @@ business/*/ui/* 与各宿主薄页面（编排，不造第二套基础件）
 | 包 | 约体积 | Phase F 后角色 | Phase G 处置 |
 |----|--------|----------------|--------------|
 | `@sa2kit/exam`（`packages/sa2kit-exam`） | ~0.8k 行 | 仓内扩展；schema 仍在 `@profile/db` | → `sa2kit/business/exam` |
-| `@sa2kit/feishu-bot`（`packages/sa2kit-feishu`） | ~0.1k 行 | Webhook 工具；Home / ticketMonitor / CI 脚本在用 | → `sa2kit/common/feishu` |
+| `sa2kit/common/feishu`（`packages/sa2kit-feishu`） | ~0.1k 行 | Webhook 工具；Home / ticketMonitor / CI 脚本在用 | → `sa2kit/common/feishu` |
 | `@profile/teach-hub-core` | ~1.9k 行剩余 | Auth 壳 + hostRouteConfig + FileStore/generateLesson 宿主编排 | → business 补齐后 **删包**；编排留宿主或 `server/hostAdapters` 文档化 |
 | `@profile/showmasterpiece-core` | ~2.9k 行剩余 | Auth 壳 + host route config + **miniapp** + rate-limit 等 | → business 补齐（含 `ui/miniapp` 或 `ui/taro`）后 **删包** |
 | `@profile/calendar-core` | ~0.2MB 源 | Auth 壳 + 本地 export/import/recurrence/reminder + API 薄层 | → **同模式清零**（G5，与 TH/SMP 对齐） |
@@ -425,7 +425,7 @@ business/*/ui/* 与各宿主薄页面（编排，不造第二套基础件）
 
 ```
 sa2kit/
-  common/feishu/          ← 原 @sa2kit/feishu-bot
+  common/feishu/          ← 原 sa2kit/common/feishu
   business/exam/
     domain/ | server/ | routes/ | ui/{web,rn,wechat,desktop}/ | PLATFORMS.md
   business/teachHub/      ← 补齐 core 残留（fileStore 工厂、generateLesson 宿主无关部分）
@@ -448,12 +448,12 @@ app_web/teach-hub/
 
 | Gate | 内容 | 验收 | 建议顺序 |
 |------|------|------|----------|
-| **G0** | 冻结扩面；本计划进蓝图；inventory 表冻结 | 文档 ✅；禁止新 `@profile/*` 共享包 | 确认后立即 |
-| **G1** | 飞书 → `sa2kit/common/feishu`；改 import；删 `sa2kit-feishu` | Home / ticketMonitor / CI 脚本绿；`pnpm --filter sa2kit build:common` | 小、先做 |
-| **G2** | exam → `sa2kit/business/exam`（含 schema 从 `@profile/db` 迁入 `server`）；主站改引；删 `sa2kit-exam` | experiment / exam API 绿；`@profile/db` 只聚合 re-export 或移除 exam 表 | 小～中 |
-| **G3** | teach-hub-core **清零**：残留服务进 business；宿主直引 sa2kit；删包 | `@profile/teach-hub` build；mobile/desktop 已吃 domain（F4）无回归 | 中 |
-| **G4** | showmasterpiece-core **清零**：host config + miniapp 进 business；删包 | `@profile/showmasterpiece` build；miniapp 编译路径声明于 PLATFORMS | 中～大 |
-| **G5** | calendar-core **清零**（对齐 G3/G4） | calendar Web + mobile tsc | 中 |
+| **G0** | 冻结扩面；本计划进蓝图；inventory 表冻结 | 文档 ✅；禁止新 `@profile/*` 共享包 | ✅ |
+| **G1** | 飞书 → `sa2kit/common/feishu`；改 import；删 `sa2kit-feishu` | Home / ticketMonitor / CI 脚本绿；`pnpm --filter sa2kit build:common` | ✅ |
+| **G2** | exam → `sa2kit/business/exam`（含 schema 从 `@profile/db` 迁入 `server`）；主站改引；删 `sa2kit-exam` | experiment / exam API 绿；`@profile/db` 只聚合 re-export 或移除 exam 表 | ✅ |
+| **G3** | teach-hub-core **清零**：残留服务进 business；宿主直引 sa2kit；删包 | `@profile/teach-hub` build；mobile/desktop 已吃 domain（F4）无回归 | ✅ |
+| **G4** | showmasterpiece-core **清零**：host config + miniapp 进 business；删包 | `@profile/showmasterpiece` build；miniapp 编译路径声明于 PLATFORMS | ✅ |
+| **G5** | calendar-core **清零**（对齐 G3/G4） | calendar Web + mobile tsc | ⏳ 下一刀 |
 | **G6** | 基建消融：`auth` / `config` / `db` / `ui` | 全仓无 `@profile/auth|db|config|ui`；schema 聚合策略文档化 | 大 · 可拆 PR |
 | **G7** | node-notes-core → `business/nodeNotes`；删包 | node-notes 子应用 build | 中 |
 | **G8** | 收尾：`packages/README`、`pnpm-workspace`、tsconfig paths、KNOWLEDGE_BASE、architecture gate | `packages/*` 仅两 submodule；CI gate 禁新建第三共享包 | 收束 |

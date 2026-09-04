@@ -4,7 +4,7 @@ import {
   buildCiFeishuMessage,
   sendFeishuPostMessage,
   type CiNotifyStatus,
-} from '@sa2kit/feishu-bot';
+} from 'sa2kit/common/feishu';
 
 function readWebhookFromAppConfig(): string | null {
   const configPath = process.env.APP_CONFIG_PATH?.trim();

@@ -2,7 +2,7 @@ import {
   buildFeishuPostMessage,
   formatDateTime,
   type FeishuPostMessage,
-} from '@sa2kit/feishu-bot';
+} from 'sa2kit/common/feishu';
 import type { TicketEvent } from '../../types';
 import { SOURCE_LABEL_MAP } from '../../types';
 

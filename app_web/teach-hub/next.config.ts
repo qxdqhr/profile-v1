@@ -35,7 +35,6 @@ const nextConfig: NextConfig = {
     'sa2kit',
     '@sa2kit-ui/react',
     '@profile/auth',
-    '@profile/teach-hub-core',
   ],
   typescript: {
     ignoreBuildErrors: false,

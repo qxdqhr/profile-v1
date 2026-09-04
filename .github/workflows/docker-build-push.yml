@@ -88,7 +88,6 @@ jobs:
               - '.gitmodules'
             teach-hub:
               - 'app_web/teach-hub/**'
-              - 'packages/teach-hub-core/**'
               - 'packages/auth/**'
               - 'packages/config/**'
               - 'packages/db/**'
@@ -100,7 +99,6 @@ jobs:
               - '.gitmodules'
             showmasterpiece:
               - 'app_web/showmasterpiece/**'
-              - 'packages/showmasterpiece-core/**'
               - 'packages/auth/**'
               - 'packages/config/**'
               - 'packages/db/**'
@@ -134,7 +132,6 @@ jobs:
               - '.gitmodules'
             teach-hub-mobile:
               - 'app_mobile/teach-hub-mobile/**'
-              - 'packages/teach-hub-core/**'
               - 'packages/sa2kit/**'
               - 'packages/sa2kit-ui/**'
               - '.gitmodules'

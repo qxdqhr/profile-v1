@@ -1,7 +1,7 @@
 # 大域新域迁移总览（Phase F）
 
 > 日期：2026-09-04  
-> **状态**：Phase F **完成**。下一阶段：**Phase G 双库收敛**（计划见蓝图 [§14](../../code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md#14-phase-g--双库收敛packages-仅保留-sa2kit--sa2kit-ui) · **待确认**）。  
+> **状态**：Phase F **完成**。Phase G **执行中**（G1–G4 ✅ · 下一刀 G5 calendar-core）。  
 > **模板**：festivalCard Phase C（`sa2kit/business/festivalCard/PLATFORMS.md`）  
 > **门禁**：UI 仍只经 `sa2kit/common/ui*`；`pnpm gate:ui`
 
@@ -100,15 +100,52 @@ sa2kit/business/<domain>/
 
 ## 下一阶段：Phase G（双库收敛）
 
-> 📝 **计划已写入蓝图 §14 · 待确认后执行**  
+> **执行中**（2026-09-04）— 蓝图 [§14](./BLUEPRINT-multiplatform-sa2kit.md#14-phase-g--双库收敛packages-仅保留-sa2kit--sa2kit-ui)  
 > 目标：`packages/` 共享库只剩 `sa2kit` + `sa2kit-ui`；迁入 exam / feishu；清零 `*-core` facade；消融 `auth|db|config|ui`。
 
-| Gate | 摘要 |
-|------|------|
-| G1 | `@sa2kit/feishu-bot` → `sa2kit/common/feishu` |
-| G2 | `@sa2kit/exam` → `sa2kit/business/exam` |
-| G3–G5 | teach-hub / showmasterpiece / calendar **core 删包** |
-| G6 | `@profile/{auth,db,config,ui}` 消融 |
-| G7–G8 | node-notes + 仓库门禁 |
+| Gate | 摘要 | 状态 |
+|------|------|------|
+| G1 | 飞书 → `sa2kit/common/feishu`；删 `sa2kit-feishu` | ✅ |
+| G2 | exam → `sa2kit/business/exam`；删 `sa2kit-exam` | ✅ |
+| G3 | teach-hub-core **清零**；宿主 `app_web/teach-hub/lib` | ✅ |
+| G4 | showmasterpiece-core **清零**；宿主 `app_web/showmasterpiece/lib` + `ui/miniapp` | ✅ |
+| G5 | calendar-core **清零** | ⏳ 下一刀 |
+| G6 | `@profile/{auth,db,config,ui}` 消融 | 待办 |
+| G7–G8 | node-notes + 仓库门禁 | 待办 |
 
-全文与待确认问题：[BLUEPRINT §14](./BLUEPRINT-multiplatform-sa2kit.md#14-phase-g--双库收敛packages-仅保留-sa2kit--sa2kit-ui)。
+全文：[BLUEPRINT §14](./BLUEPRINT-multiplatform-sa2kit.md#14-phase-g--双库收敛packages-仅保留-sa2kit--sa2kit-ui)。
+
+### G1 落地摘要（2026-09-04）
+
+| 项 | 成果 |
+|----|------|
+| 库 | `sa2kit/src/common/feishu/*` + exports `sa2kit/common/feishu` |
+| 消费者 | Home / ticketMonitor / `scripts/send-ci-feishu-notify.ts` → `sa2kit/common/feishu` |
+| 删除 | `packages/sa2kit-feishu`；tsconfig `@sa2kit/feishu-bot` paths |
+
+### G2 落地摘要（2026-09-04）
+
+| 项 | 成果 |
+|----|------|
+| 库 | `sa2kit/business/exam/{domain,server,ui/*}` + PLATFORMS.md |
+| schema | `server/schema.ts`；`@profile/db` `schema/exam` 薄 re-export |
+| 消费者 | experiment / exam API / `modules/exam/server` → `sa2kit/business/exam/*` |
+| 删除 | `packages/sa2kit-exam`；tsconfig `@sa2kit/exam` paths |
+
+### G3 落地摘要（2026-09-04）
+
+| 项 | 成果 |
+|----|------|
+| UI / routes / domain | 宿主直引 `sa2kit/business/teachHub/{ui/web,routes,domain,server}` |
+| 宿主注入 | `app_web/teach-hub/lib/`：OSS、FileStore、generate、hostRouteConfig、Auth 壳 |
+| 删除 | `packages/teach-hub-core`；CI path filter / tsconfig / package.json 清零 |
+| 说明 | FileStore/generate 仍含 `@profile/db|config` 绑定，按蓝图留宿主；后续可再工厂化进 sa2kit |
+
+### G4 落地摘要（2026-09-04）
+
+| 项 | 成果 |
+|----|------|
+| UI / routes | 宿主直引 `sa2kit/business/showmasterpiece/{ui/web,routes,server}` |
+| miniapp | → `sa2kit/business/showmasterpiece/ui/miniapp` |
+| 宿主注入 | `app_web/showmasterpiece/lib/`：OSS、fileUrl、HostRouteConfig、rateLimit、Auth 壳、bootstrapDb |
+| 删除 | `packages/showmasterpiece-core`；主站 modules 薄兼容；CI / db 依赖清零 |

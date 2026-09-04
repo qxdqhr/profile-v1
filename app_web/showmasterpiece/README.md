@@ -8,17 +8,13 @@
 | `pnpm build:showmasterpiece` | 生产构建 |
 | `pnpm package:showmasterpiece` | Docker 镜像打包（默认 tag: local） |
 
-业务核心：`packages/showmasterpiece-core`  
+业务：`sa2kit/business/showmasterpiece/*`  
+宿主注入：`lib/`（db/OSS/session/rateLimit）  
 API：`/api/showmasterpiece/*`、`/api/auth/*`
 
 ## 打包发布
 
-### Web 子应用（Docker）
-
-与 CI `docker-build-push` 对齐，本地打包：
-
 ```bash
-pnpm package:showmasterpiece              # 默认 tag: local
+pnpm package:showmasterpiece
 bash scripts/showmasterpiece-docker-package.sh v1.2.3
 ```
-

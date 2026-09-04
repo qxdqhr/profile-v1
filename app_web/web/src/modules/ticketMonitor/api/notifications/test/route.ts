@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ticketMonitorDb } from '@/modules/ticketMonitor/db/ticketMonitorDbService';
 import { buildTestMessage } from '@/modules/ticketMonitor/server/notifications/buildTicketMessage';
-import { sendFeishuPostMessage } from '@sa2kit/feishu-bot';
+import { sendFeishuPostMessage } from 'sa2kit/common/feishu';
 import { isMaskedValue, requireTicketAdmin } from '@/modules/ticketMonitor/api/lib/auth';
 
 export async function POST(request: NextRequest) {

@@ -35,7 +35,6 @@ const nextConfig: NextConfig = {
     'sa2kit',
     '@sa2kit-ui/react',
     '@profile/auth',
-    '@profile/showmasterpiece-core',
   ],
   // Avoid webpack re-bundling lru-cache (named export breakage with v11 CJS/min).
   serverExternalPackages: ['lru-cache'],

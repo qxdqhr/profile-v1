@@ -1,1 +1,4 @@
-export * from '@profile/showmasterpiece-core/configService';
+export {
+  createShowmasterConfigService,
+  ShowmasterConfigService,
+} from 'sa2kit/business/showmasterpiece/server';

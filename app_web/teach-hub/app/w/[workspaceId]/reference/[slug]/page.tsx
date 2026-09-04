@@ -1,4 +1,4 @@
-import { ReferencePage } from '@profile/teach-hub-core/pages';
+import { ReferencePage } from 'sa2kit/business/teachHub/ui/web';
 
 type Props = { params: Promise<{ workspaceId: string; slug: string }> };
 

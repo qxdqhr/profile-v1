@@ -44,8 +44,8 @@ packages:
 
 | 包名 | 路径 |
 |------|------|
-| `@sa2kit/exam` | `packages/sa2kit-exam/` |
-| `@sa2kit/feishu-bot` | `packages/sa2kit-feishu/` |
+| `@sa2kit/exam` | ~~`packages/sa2kit-exam/`~~ → `sa2kit/business/exam` |
+| `sa2kit/common/feishu` | ~~`packages/sa2kit-feishu/`~~ → `sa2kit/common/feishu` |
 
 ## 验收记录（2026-06-11）
 

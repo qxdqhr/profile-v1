@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { ExamResultReviewList } from '@sa2kit/exam';
+import { ExamResultReviewList } from 'sa2kit/business/exam/ui/web';
 import { useExam } from '../_context';
 import styles from '../styles.module.css';
 import { assert } from '../_utils/utils';

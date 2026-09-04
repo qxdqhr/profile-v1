@@ -12,7 +12,6 @@
     "@profile/auth": "workspace:*",
     "@profile/config": "workspace:*",
     "@profile/db": "workspace:*",
-    "@profile/showmasterpiece-core": "workspace:*",
     "@profile/ui": "workspace:*",
     "lru-cache": "10.4.3",
     "lucide-react": "^0.474.0",

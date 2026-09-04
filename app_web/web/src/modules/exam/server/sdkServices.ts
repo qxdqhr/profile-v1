@@ -1,4 +1,4 @@
-import { createExamServices } from '@sa2kit/exam/server';
+import { createExamServices } from 'sa2kit/business/exam/server';
 import { db } from '@/db';
 import {
   examMetadata,

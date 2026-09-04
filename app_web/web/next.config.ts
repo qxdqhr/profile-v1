@@ -35,7 +35,6 @@ const nextConfig: NextConfig = {
         "sa2kit",
         "@sa2kit-ui/react",
         "@profile/auth",
-        "@profile/showmasterpiece-core",
     ],
 
     // business 层 tsup dts:false（three/MMD）；宽松 stub 会让 demo 回调变 implicit any。

@@ -2,7 +2,7 @@
 
 teachHub 子应用：用户级 **teach skill 学习工作区** 的独立 Next.js 服务。
 
-> 业务逻辑与 UI 在 `@profile/teach-hub-core`；本子应用只负责路由壳、API 挂载、构建与部署。
+> UI / domain / routes 在 `sa2kit/business/teachHub/*`；本子应用负责薄 page、API 挂载、`lib/` 宿主注入（db/OSS/session）、构建与部署。
 
 ## 快速启动
 
@@ -21,35 +21,19 @@ pnpm build:teach-hub
 | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | 子应用架构、工作流、部署 |
 | [docs/CHANGELOG.md](./docs/CHANGELOG.md) | 版本变更记录 |
 | [docs/AI_ONBOARDING.md](./docs/AI_ONBOARDING.md) | 给 AI / 新协作者的一页全貌 |
-| [packages/teach-hub-core/docs/](../packages/teach-hub-core/docs/) | 数据契约、子任务、API 细节 |
+| [docs/modules/teach-hub/](../../docs/modules/teach-hub/) | 域迁移与归档契约 |
 
 ## 目录职责
 
 ```
 app_web/teach-hub/
-  app/                    # Next.js App Router（薄壳，re-export core）
-  app/api/teach-hub/      # API 路由 → @profile/teach-hub-core/api/*
-  app/api/auth/           # 鉴权（共享 @profile/auth）
+  app/                    # Next.js App Router（薄壳 → sa2kit ui/web）
+  app/api/teach-hub/      # create*Handler + lib/hostRouteConfig
+  lib/                    # OSS / FileStore / generate / Auth 壳（宿主注入）
   instrumentation.ts      # 注册 teach.generateLesson 任务
-  next.config.ts          # basePath、transpile、standalone
-  Dockerfile              # 独立容器镜像
-  docs/                   # 子应用级文档（本目录）
+  next.config.ts
+  Dockerfile
+  docs/
 ```
 
-> **AI**：课时生成在服务端直接 `runAiTask`；浏览器侧 `/api/ai/*`（配置面板等）走主站 web，本子应用不挂载 AI 路由副本。
-
-## 环境变量
-
-复制 `.env.example` 为 `.env.local`。数据库、Auth、OSS、AI 等共享配置见仓库根 `config/app.config.local.yaml`。
-
-| 变量 | 说明 |
-|------|------|
-| `NEXT_PUBLIC_BASE_PATH` | 生产网关前缀，通常 `/teach-hub` |
-| `NEXT_PUBLIC_TEACH_HUB_BASE_URL` | HTML 内链改写基路径；basePath 模式下留空 |
-| `NEXT_DIST_DIR` | 构建输出目录，默认 `.next-teach-hub` |
-
-## 与 core 包的关系
-
-- **改 UI / 业务逻辑** → `packages/teach-hub-core/src/`
-- **改路由 / 部署 / 环境** → `app_web/teach-hub/`
-- **改 API handler** → 优先改 `teach-hub-core/src/api/`，子应用 `app/api/` 仅 re-export
+> **AI**：课时生成在服务端直接 `runAiTask`；浏览器侧 `/api/ai/*` 走主站 web。

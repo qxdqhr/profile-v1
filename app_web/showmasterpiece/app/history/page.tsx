@@ -1,1 +1,1 @@
-export { default } from '@profile/showmasterpiece-core/ui/app_web/pages/history/page';
+export { default } from '@lib/pages/historyPage';

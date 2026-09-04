@@ -1,7 +1,7 @@
 import { ConfigData } from '../types';
 import { mockQuestions, mockStartScreenData, mockResultModalData } from '@/app/(pages)/testField/(utility)/experiment/_utils/mockData';
-import { ExamConfigFrontendService, HttpExamClient } from '@sa2kit/exam/services';
-import type { ExamConfig } from '@sa2kit/exam';
+import { ExamConfigFrontendService, HttpExamClient } from 'sa2kit/business/exam/domain';
+import type { ExamConfig } from 'sa2kit/business/exam/domain';
 
 const examConfigService = new ExamConfigFrontendService(new HttpExamClient());
 

@@ -1,1 +1,1 @@
-export * from '@profile/showmasterpiece-core/server';
+export * from 'sa2kit/business/showmasterpiece/server';

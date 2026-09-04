@@ -277,9 +277,9 @@ git submodule update --init --recursive
 | 包 | 用途 |
 |----|------|
 | `@profile/config` / `@profile/auth` / `@profile/db` / `@profile/ui` | 配置、鉴权、数据库、UI 预设 |
-| `@profile/calendar-core` | 日历领域；RN/客户端：`@profile/calendar-core/shared` |
-| `@profile/teach-hub-core` | TeachHub 领域；RN/客户端：`@profile/teach-hub-core/shared` |
-| `@profile/showmasterpiece-core` | ShowMasterpiece 全量业务 |
+| `@profile/calendar-core` | 日历领域；RN/客户端：`@profile/calendar-core/shared`（Phase G5 清零） |
+| ~~`@profile/teach-hub-core`~~ | **已删（G3）** → `sa2kit/business/teachHub/*`；宿主 `app_web/teach-hub/lib/` |
+| ~~`@profile/showmasterpiece-core`~~ | **已删（G4）** → `sa2kit/business/showmasterpiece/*`；宿主 `app_web/showmasterpiece/lib/` |
 
 ### 7.3 子应用约定
 

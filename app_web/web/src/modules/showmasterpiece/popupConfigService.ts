@@ -1,1 +1,4 @@
-export * from '@profile/showmasterpiece-core/popupConfigService';
+export {
+  createPopupConfigService,
+  PopupConfigService,
+} from 'sa2kit/business/showmasterpiece/server';

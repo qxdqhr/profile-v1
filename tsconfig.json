@@ -15,10 +15,6 @@
     "incremental": true,
     "paths": {
       "@/*": ["./app_web/web/src/*"],
-      "@sa2kit/exam": ["./packages/sa2kit-exam/src/index.ts"],
-      "@sa2kit/exam/*": ["./packages/sa2kit-exam/src/*"],
-      "@sa2kit/feishu-bot": ["./packages/sa2kit-feishu/src/index.ts"],
-      "@sa2kit/feishu-bot/*": ["./packages/sa2kit-feishu/src/*"],
       "@profile/auth": ["./packages/auth/src/index.ts"],
       "@profile/auth/*": ["./packages/auth/src/*"],
       "@profile/config": ["./packages/config/src/index.ts"],

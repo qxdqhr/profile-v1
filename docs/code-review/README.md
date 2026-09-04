@@ -80,7 +80,7 @@
 | `teach-hub-core`（含 `/shared`） | ~7.4k | ✅（应用视角） | [apps/teach-hub.md](./apps/teach-hub.md) |
 | `showmasterpiece-core` | ~24.8k | ✅（应用视角） | [apps/showmasterpiece.md](./apps/showmasterpiece.md) |
 | `node-notes-core` | ~3.7k | ⬜ | — |
-| `sa2kit-exam` / `sa2kit-feishu` | 小 | ⬜ | — |
+| `sa2kit-exam` / `sa2kit-feishu` | — | ✅ 已并入 sa2kit（G1/G2） | — |
 
 ### 3.2 子应用 `app_web/*`
 
