@@ -40,7 +40,7 @@ sa2kit/business/<domain>/
 |------|------|------|
 | F0 | 三份 DOMAIN-MIGRATION.md + 本总览 | ✅ 2026-09-03 |
 | F1 | 每域 `domain/` + `PLATFORMS.md` + package exports 占位 | ✅ 2026-09-04 |
-| F2 | `server/` + schema 在 `@profile/db` 仍聚合导出 | 🟡 calendar ✅；teachHub ✅；SMP schema+booking ✅ / 其余 DbService ⬜ |
+| F2 | `server/` + schema 在 `@profile/db` 仍聚合导出 | 🟡 calendar ✅；teachHub ✅；SMP schema+booking+popup/config/basic ✅ / masterpiecesDbService ⬜ |
 | F3 | `ui/web` 切 import；`*-core` 仅 re-export | 🟡 calendar ✅；teachHub ✅；SMP ⬜ |
 | F4 | RN：`ui/rn` stub 或 mobile 直引 web 子集 | ⬜（F1 已有 rn stub） |
 | F5 | 删 `*-core` 冗余实现（保留子应用壳） | ⬜ |
@@ -59,7 +59,7 @@ sa2kit/business/<domain>/
 |----|------|
 | calendar | `server` schema + DbService + `routes` handler 工厂；宿主 API 直引 sa2kit + session 注入 |
 | teachHub | schema + DbService + **全套 API routes** + `server/tasks`（generateLesson） |
-| showmasterpiece | `server` schema + booking services；`routes` 公开+admin booking 全家桶；其余 DbService ⬜ |
+| showmasterpiece | `server` schema + booking + popup/config/basic services；`routes` 公开+admin booking 全家桶；`masterpiecesDbService` ⬜ |
 
 ### F3 落地摘要（2026-09-04）
 

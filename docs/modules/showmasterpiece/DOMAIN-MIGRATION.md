@@ -46,8 +46,9 @@ sa2kit/business/showmasterpiece/
 - [x] schema 下沉 `sa2kit/business/showmasterpiece/server`；`@profile/db` 聚合（2026-09-04）
 - [x] bookingAccess 纯函数进 domain；core 薄 re-export
 - [x] 迁 booking Query/Command + `bookingDelete` → `server/`；公开 + admin booking route 工厂（含 collections/batch）
+- [x] 迁 popup / config / basic（categories·tags·site config）DbService；`homeTabConfig` normalize → domain
 - [ ] 抽 booking、category、collection、popup 全集类型与校验 → `domain/`（补齐）
-- [ ] 迁其余 `masterpiecesDbService` / config / popup
+- [ ] 迁 `masterpiecesDbService`（collections 主服务）
 - [x] route 工厂补齐 admin：`createListAdminBookingsHandler` 等
 - [x] 删除 obsolete `SA2KIT_PLAN` / 1.x 发版文档（2026-09-03）
 
