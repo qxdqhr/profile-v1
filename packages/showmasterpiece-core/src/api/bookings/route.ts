@@ -1,63 +1,39 @@
 /**
  * ShowMasterpiece — 预订列表 / 创建
+ * GET/DELETE 经 sa2kit routes；POST 保留宿主限流后调 create handler。
  */
-
-import { NextRequest, NextResponse } from 'next/server';
-import type { CreateBookingRequest, BookingListParams } from '../../types/booking';
-import { BookingCommandError } from '@profile/showmasterpiece-core/server';
-import { isAdminUser } from '../lib/auth';
-import { validatePublicBookingLookup } from '../lib/bookingAccess';
+import { db } from '@profile/db';
+import { getApiSessionUser, isAdminRole } from '@profile/auth/session';
 import {
-  bookingCommandService,
-  bookingQueryService,
-} from '../lib/bookingServices';
+  createCreateBookingHandler,
+  createListBookingsHandler,
+} from 'sa2kit/business/showmasterpiece/routes';
 import { enforceBookingWriteRateLimit } from '../lib/bookingRateLimit';
-import { apiError, logRouteError } from '../lib/response';
-import { getApiSessionUser } from '@profile/auth/session';
+
+const config = {
+  db,
+  getSessionUser: getApiSessionUser,
+  isAdminUser: (user: { role?: string | null } | null) => isAdminRole(user?.role),
+};
+
+export const GET = createListBookingsHandler(config);
+
+const createBooking = createCreateBookingHandler(config);
 
 function credentialKey(qqNumber: string, phoneNumber: string): string {
   return `${qqNumber}:${phoneNumber}`;
 }
 
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const params: BookingListParams = {
-      collectionId: searchParams.get('collectionId')
-        ? parseInt(searchParams.get('collectionId')!, 10)
-        : undefined,
-      qqNumber: searchParams.get('qqNumber') || undefined,
-      phoneNumber: searchParams.get('phoneNumber') || undefined,
-      status: (searchParams.get('status') as BookingListParams['status']) || undefined,
-      page: searchParams.get('page') ? parseInt(searchParams.get('page')!, 10) : 1,
-      limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!, 10) : 20,
-    };
-
-    const user = await getApiSessionUser(request);
-    if (isAdminUser(user)) {
-      const result = await bookingQueryService.getBookingsList(params);
-      return NextResponse.json(result);
-    }
-
-    const lookupError = validatePublicBookingLookup(params);
-    if (lookupError) {
-      return apiError(lookupError, 400);
-    }
-
-    const result = await bookingQueryService.getBookingsList(params);
-    return NextResponse.json(result);
-  } catch (error) {
-    logRouteError('获取预订列表失败:', error);
-    return apiError('获取预订列表失败', 500);
-  }
-}
-
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   const ipLimited = enforceBookingWriteRateLimit(request, 'create');
   if (ipLimited) return ipLimited;
 
   try {
-    const body: CreateBookingRequest = await request.json();
+    const cloned = request.clone();
+    const body = (await cloned.json()) as {
+      qqNumber?: string;
+      phoneNumber?: string;
+    };
     const qq = String(body?.qqNumber ?? '').trim();
     const phone = String(body?.phoneNumber ?? '').trim();
     if (qq && phone) {
@@ -68,15 +44,9 @@ export async function POST(request: NextRequest) {
       );
       if (credLimited) return credLimited;
     }
-
-    const result = await bookingCommandService.createBooking(body);
-    return NextResponse.json(result, { status: 201 });
-  } catch (error) {
-    if (error instanceof BookingCommandError) {
-      const status = error.code === 'COLLECTION_NOT_FOUND' ? 404 : 400;
-      return NextResponse.json({ error: error.message }, { status });
-    }
-    logRouteError('创建预订失败:', error);
-    return apiError('创建预订失败', 500);
+  } catch {
+    // body 解析失败时仍交给 handler
   }
+
+  return createBooking(request);
 }

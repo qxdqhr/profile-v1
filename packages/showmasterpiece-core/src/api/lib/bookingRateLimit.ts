@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 interface RateLimitBucket {
   count: number;
@@ -23,7 +23,7 @@ function pruneExpired(now: number) {
   }
 }
 
-export function getClientIp(request: NextRequest): string {
+export function getClientIp(request: Request): string {
   const forwarded = request.headers.get('x-forwarded-for');
   if (forwarded) {
     const first = forwarded.split(',')[0]?.trim();
@@ -49,7 +49,7 @@ function consume(key: string, limit: number, now: number): boolean {
  * 公开写接口限流。返回 429 响应表示应中止；返回 null 表示通过。
  */
 export function enforceBookingWriteRateLimit(
-  request: NextRequest,
+  request: Request,
   scope: BookingWriteScope,
   extraKey?: string,
 ): NextResponse | null {
