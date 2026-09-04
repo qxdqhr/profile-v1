@@ -13,15 +13,7 @@
     "./api/*": "./src/api/*",
     "./db/schema": "./src/db/schema.ts",
     "./shared": "./src/shared/index.ts",
-    "./shared/types": "./src/shared/types/index.ts",
-    "./shared/api": "./src/shared/api/client.ts",
-    "./shared/routes": "./src/shared/routes.ts",
-    "./shared/parsers/missionParser": "./src/shared/parsers/missionParser.ts",
-    "./shared/parsers/learningRecordParser": "./src/shared/parsers/learningRecordParser.ts",
-    "./shared/parsers/resourcesParser": "./src/shared/parsers/resourcesParser.ts",
-    "./shared/utils/lessonProgress": "./src/shared/utils/lessonProgress.ts",
-    "./shared/templates/mission": "./src/shared/templates/mission.ts",
-    "./shared/services/learningRecords": "./src/shared/services/learningRecords.ts"
+    "./shared/*": "./src/shared/index.ts"
   },
   "dependencies": {
     "@profile/auth": "workspace:*",

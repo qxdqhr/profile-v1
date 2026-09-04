@@ -1,7 +1,7 @@
 # 大域新域迁移总览（Phase F）
 
 > 日期：2026-09-04  
-> **当前主线**：Phase F — F5 收尾（`*-core` 删冗余）；F4 RN 暂缓。  
+> **状态**：Phase F **完成**（F0–F5；SMP 无 RN 计划）。后续见蓝图拆包 / 各域产品化。  
 > **模板**：festivalCard Phase C（`sa2kit/business/festivalCard/PLATFORMS.md`）  
 > **门禁**：UI 仍只经 `sa2kit/common/ui*`；`pnpm gate:ui`
 
@@ -42,7 +42,7 @@ sa2kit/business/<domain>/
 | F1 | 每域 `domain/` + `PLATFORMS.md` + package exports 占位 | ✅ 2026-09-04 |
 | F2 | `server/` + schema 在 `@profile/db` 仍聚合导出 | ✅ calendar / teachHub / SMP |
 | F3 | `ui/web` 切 import；`*-core` 仅 re-export | ✅ calendar / teachHub / SMP（Auth 壳） |
-| F4 | RN：`ui/rn` stub 或 mobile 直引 web 子集 | ⏸ 暂缓（F1 已有 rn stub） |
+| F4 | RN：`ui/rn` stub 或 mobile 直引 domain | ✅ 2026-09-04：calendar/teachHub mobile → domain；ui/rn re-export；SMP 仍无 RN |
 | F5 | 删 `*-core` 冗余实现（保留子应用壳） | ✅ 2026-09-04：三域 core 薄 re-export；宿主 page/api 壳 |
 
 ### F1 落地摘要（2026-09-04）
@@ -77,6 +77,14 @@ sa2kit/business/<domain>/
 | teachHub | 删 core `components/` 与 pages 实现体；hooks/store/styles/client → 薄 re-export；`pages/index` 仍 barrel |
 | showmasterpiece | core 已薄；宿主 `app_web/showmasterpiece` page + api 壳；`ShowmasterpieceFileUrlResolver` 与 common `FileUrlResolver` 解耦 |
 | 公共 | sa2kit `ui/web/*` exports 补 `.ts`/`.tsx` 后缀，保证 TypeScript 深路径可解析；`measure:dist`：勿 import `business/index`（~920KB） |
+
+### F4 落地摘要（2026-09-04）
+
+| 域 | 成果 |
+|----|------|
+| calendar | `ui/rn` stub + re-export domain；`calendar-mobile` 改引 `sa2kit/business/calendar/domain`，去掉 `@profile/calendar-core` |
+| teachHub | domain 扩入 ApiClient/parsers/templates；`ui/rn` re-export；`teach-hub-mobile` 改引 domain；core/shared 薄 facade |
+| showmasterpiece | 仍无 RN 计划；`ui/rn` 占位保持 |
 
 ## 已完成启明星阶段（归档摘要）
 

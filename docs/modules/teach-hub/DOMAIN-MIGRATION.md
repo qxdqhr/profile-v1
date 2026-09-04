@@ -53,8 +53,8 @@
 
 ### T4 — 多端（F4）
 
-- [ ] `ui/rn` stub；teach-hub-mobile 先继续 `*-core/shared` → 改引 `domain`（**暂缓**）
-- [ ] teach-hub-desktop 同 Web 子集或 WebView
+- [x] `ui/rn` stub + re-export domain；teach-hub-mobile / desktop 改引 domain
+- [x] teach-hub-desktop 同 domain（脚手架，非完整 Web UI）
 
 ### T5 — 收尾（F5）
 

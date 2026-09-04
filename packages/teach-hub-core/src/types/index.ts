@@ -1,1 +1,1 @@
-export type * from '../shared/types';
+export type * from 'sa2kit/business/teachHub/domain';

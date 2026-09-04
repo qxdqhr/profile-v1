@@ -52,8 +52,8 @@
 
 ### C4 — RN（F4）
 
-- [ ] `ui/rn/index.ts` stub 或迁 calendar-mobile 共用组件（**暂缓**）
-- [ ] mobile 改 import：`sa2kit/business/calendar/ui/rn` 或 `domain` + 自绘壳
+- [x] `ui/rn` stub + re-export domain；calendar-mobile 改引 domain（原生组件仍在 mobile）
+- [x] mobile 改 import：`sa2kit/business/calendar/domain`
 
 ### C5 — 收尾（F5）
 

@@ -1,4 +1,6 @@
 export {
   lessonProgressMap,
   mergeLessonsWithProgress,
-} from '../shared/utils/lessonProgress';
+  lessonProgressLabel,
+  completedLessonCount,
+} from 'sa2kit/business/teachHub/domain';
