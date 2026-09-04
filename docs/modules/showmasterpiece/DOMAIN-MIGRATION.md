@@ -58,9 +58,9 @@ sa2kit/business/showmasterpiece/
 
 ### M2 — ui/web（SMP2 / F3）
 
-- [ ] 迁 `ui/web/components` 至 sa2kit；**禁止** shadcn 新件
-- [ ] `ShowMasterpieceThemeRoot` 仍在子应用 layout；组件经门面
-- [ ] `showmasterpiece-core` re-export `ui/web`
+- [x] 迁 `ui/web` pages/components + client hooks/services/types 至 sa2kit（2026-09-04）
+- [x] `ShowMasterpieceThemeRoot` 仍在子应用 layout；组件经门面
+- [x] `showmasterpiece-core` Auth 薄壳 re-export `ui/web`
 
 ### M3 — 宿主与发布（F5）
 
