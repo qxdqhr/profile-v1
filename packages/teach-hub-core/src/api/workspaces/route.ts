@@ -1,50 +1,26 @@
-import { NextRequest } from 'next/server';
+import { db } from '@profile/db';
+import { getApiSessionUser } from '@profile/auth/session';
 import {
-  createWorkspace,
-  listWorkspacesByUser,
-} from '../../services/teachHubDbService';
-import type { CreateWorkspaceInput } from '../../types';
-import { jsonError, jsonOk, requireUser } from '../_helpers';
+  createListWorkspacesHandler,
+  createCreateWorkspaceHandler,
+} from 'sa2kit/business/teachHub/routes';
+import {
+  initEmptyWorkspaceFiles,
+  listWorkspaceLessons,
+  repairWorkspaceSeedFilesIfMissing,
+} from '../../services/teachHubFileStore';
+import { formatTeachHubStorageError } from '../../utils/storageFallback';
 
-export async function GET(request: NextRequest) {
-  const auth = await requireUser(request);
-  if ('response' in auth) return auth.response;
+const config = {
+  db,
+  getSessionUser: getApiSessionUser,
+  fileStore: {
+    initEmptyWorkspaceFiles,
+    listWorkspaceLessons,
+    repairWorkspaceSeedFilesIfMissing,
+  },
+  formatStorageError: formatTeachHubStorageError,
+};
 
-  try {
-    const status = new URL(request.url).searchParams.get('status');
-    let items = await listWorkspacesByUser(auth.user.id);
-    if (status === 'active' || status === 'archived') {
-      items = items.filter((w) => w.status === status);
-    }
-    return jsonOk({ items });
-  } catch (error) {
-    console.error('[teach-hub/workspaces GET]', error);
-    return jsonError('获取工作区列表失败', 500);
-  }
-}
-
-export async function POST(request: NextRequest) {
-  const auth = await requireUser(request);
-  if ('response' in auth) return auth.response;
-
-  try {
-    const body = (await request.json()) as CreateWorkspaceInput;
-    const title = body.title?.trim();
-    if (!title) {
-      return jsonError('title 不能为空');
-    }
-
-    const workspace = await createWorkspace(auth.user.id, {
-      title,
-      topic: body.topic,
-      missionDraft: body.missionDraft,
-    });
-
-    return jsonOk(workspace, 201);
-  } catch (error) {
-    console.error('[teach-hub/workspaces POST]', error);
-    const message =
-      error instanceof Error ? error.message : '创建工作区失败';
-    return jsonError(message.includes('文件存储') ? message : `创建工作区失败：${message}`, 500);
-  }
-}
+export const GET = createListWorkspacesHandler(config);
+export const POST = createCreateWorkspaceHandler(config);

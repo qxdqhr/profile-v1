@@ -1,7 +1,7 @@
 # 大域新域迁移总览（Phase F）
 
 > 日期：2026-09-04  
-> **当前主线**：Phase F **F2 收尾 / F3** — teachHub server handlers + calendar ui/web；calendar C2 已完成。  
+> **当前主线**：Phase F **F2 收尾** — teachHub files/generate routes，或 calendar C3 ui/web。  
 > **模板**：festivalCard Phase C（`sa2kit/business/festivalCard/PLATFORMS.md`）  
 > **门禁**：UI 仍只经 `sa2kit/common/ui*`；`pnpm gate:ui`
 
@@ -40,7 +40,7 @@ sa2kit/business/<domain>/
 |------|------|------|
 | F0 | 三份 DOMAIN-MIGRATION.md + 本总览 | ✅ 2026-09-03 |
 | F1 | 每域 `domain/` + `PLATFORMS.md` + package exports 占位 | ✅ 2026-09-04 |
-| F2 | `server/` + schema 在 `@profile/db` 仍聚合导出 | 🟡 calendar ✅；teachHub schema ✅ / handlers ⬜；SMP ⬜ |
+| F2 | `server/` + schema 在 `@profile/db` 仍聚合导出 | 🟡 calendar ✅；teachHub schema+workspace routes ✅ / files·AI ⬜；SMP ⬜ |
 | F3 | `ui/web` 切 import；`*-core` 仅 re-export | ⬜ |
 | F4 | RN：`ui/rn` stub 或 mobile 直引 web 子集 | ⬜（F1 已有 rn stub） |
 | F5 | 删 `*-core` 冗余实现（保留子应用壳） | ⬜ |
@@ -58,7 +58,7 @@ sa2kit/business/<domain>/
 | 域 | 成果 |
 |----|------|
 | calendar | `server` schema + DbService + `routes` handler 工厂；宿主 API 直引 sa2kit + session 注入 |
-| teachHub | schema 下沉；DbService/OSS/AI 路由仍在 `*-core`（下一批） |
+| teachHub | schema + TeachHubDbService + workspace/progress routes；files/generate 仍 core |
 | showmasterpiece | 未开（P2） |
 
 ## 已完成启明星阶段（归档摘要）

@@ -1,31 +1,8 @@
+/** @deprecated 请改引 `sa2kit/business/teachHub/server` */
 export {
   DEFAULT_MISSION_TEMPLATE,
   composeMissionMarkdown,
-} from '../shared/templates/mission';
-
-export { DEFAULT_RESOURCES_MD } from '../shared/parsers/resourcesParser';
-
-export const DEFAULT_NOTES_MD = `# 教学笔记
-
-## 学习偏好
-
-- 
-
-`;
-
-export function buildWorkspaceMeta(input: {
-  title: string;
-  topic?: string | null;
-  forkedFrom?: string | null;
-  autoSyncLessonResources?: boolean;
-}) {
-  return {
-    version: 1,
-    title: input.title,
-    topic: input.topic ?? null,
-    language: 'zh-CN',
-    createdAt: new Date().toISOString(),
-    forkedFrom: input.forkedFrom ?? null,
-    autoSyncLessonResources: input.autoSyncLessonResources ?? false,
-  };
-}
+  DEFAULT_RESOURCES_MD,
+  DEFAULT_NOTES_MD,
+  buildWorkspaceMeta,
+} from 'sa2kit/business/teachHub/server';
