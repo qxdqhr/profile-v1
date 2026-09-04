@@ -1,9 +1,11 @@
 packages:
   - '.'
   - 'app_web/*'
-  - 'packages/*'
   - 'host/*'
   - 'app_mobile/*'
   - 'app_desktop/*'
+  # Phase G8：packages/ 仅允许两 submodule（勿再加 packages/* 通配）
+  - 'packages/sa2kit'
+  - 'packages/sa2kit-ui'
   - 'packages/sa2kit-ui/packages/*'
   - 'packages/sa2kit-ui/packages/themes/*'

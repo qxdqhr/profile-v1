@@ -25,7 +25,7 @@
 | 项 | 约定 |
 |----|------|
 | 框架 | Next.js（App Router，主站在 `app_web/web/src/app`） |
-| Monorepo | pnpm workspace：`app_web/*` + `packages/*` + `app_mobile/*` + `app_desktop/*` + `packages/sa2kit-ui/packages/*`；详见 `docs/monorepo-migration/`、`docs/README.md`、`app_web/README.md` |
+| Monorepo | pnpm workspace：`app_web/*` + `host/*` + 显式 `packages/sa2kit` + `packages/sa2kit-ui`（及 ui 子包）+ `app_mobile/*` + `app_desktop/*`；`pnpm gate:architecture` 禁 `packages/` 第三共享包；详见 `docs/monorepo-migration/`、`docs/README.md` |
 | 样式 | Tailwind CSS；预设 `@profile/ui/tailwind.preset`（设计令牌桥；业务组件/主题见 §1.1） |
 | 数据层 | Drizzle ORM + PostgreSQL（`@profile/db`，迁移目录 `drizzle/` 在仓库根） |
 | 包管理 | **pnpm**；开发 `pnpm dev` = `pnpm --filter @profile/web dev` |
@@ -64,7 +64,7 @@ app_web/web 模块
 
 详细规则：`.cursor/rules/profile-v1-sa2kit-ui.mdc`；蓝图 `docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md` §5。
 
-**已迁出的 `packages/*-core`**：默认冻结；新多端能力优先进 sa2kit（见蓝图 S1/S2/S3）。
+**Phase G 完成**：`packages/` 仅 `sa2kit` + `sa2kit-ui`；基建在 `host/`；业务 *-core 已清零。新多端能力优先进 sa2kit（见蓝图）。
 
 完整蓝图与阶段计划：[`docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`](../docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md)。
 
@@ -215,7 +215,7 @@ export default function XxxRoute() {
 | **WordPress 主题站** | `app_wordpress/<slug>/` | `deploy/wordpress/`（compose 模板、ADD-SITE、php 教程；**全站共享，非 submodule**） | `/wp/<slug>/` | [`app_wordpress/README.md`](../app_wordpress/README.md)、[`deploy/wordpress/ADD-SITE.md`](../deploy/wordpress/ADD-SITE.md) |
 
 - **Submodule 内**：`sa2kit` / `sa2kit-ui` 完整库源码（dist 本地/CI 构建）；游戏 `project.godot` / 导出工程；WP 主题 PHP/CSS/JS + 可选 `data/` 种子 JSON。
-- **父仓内**：`deploy/docker-compose.gateway.yml`、`deploy/nginx/*`、冒烟脚本；主站 [`app_web/web/src/modules/games/`](../app_web/web/src/modules/games/) 小游戏大厅导航（**不是** Godot 源码）；`pnpm-workspace.yaml` 经 `packages/*` 纳入 sa2kit，并显式纳入 `packages/sa2kit-ui/packages/*`。
+- **父仓内**：`deploy/docker-compose.gateway.yml`、`deploy/nginx/*`、冒烟脚本；主站 [`app_web/web/src/modules/games/`](../app_web/web/src/modules/games/) 小游戏大厅导航（**不是** Godot 源码）；`pnpm-workspace.yaml` 显式纳入 `packages/sa2kit` 与 `packages/sa2kit-ui/packages/*`。
 - **禁止**：在父仓直接长期修改 submodule 目录内容却不提交子仓；把 `deploy/wordpress/` 或 `deploy/games/<slug>/www/` 当成 submodule；把两库源码脱离独立仓/submodule、丢掉 npm 发布面。
 
 #### 7.0.2 克隆与本地开发

@@ -1,7 +1,7 @@
 # 大域新域迁移总览（Phase F）
 
 > 日期：2026-09-04  
-> **状态**：Phase F **完成**。Phase G **执行中**（G1–G7 ✅ · 下一刀 G8 仓库门禁）。  
+> **状态**：Phase F **完成**。Phase G **完成**（G1–G8 ✅）。  
 > **模板**：festivalCard Phase C（`sa2kit/business/festivalCard/PLATFORMS.md`）  
 > **门禁**：UI 仍只经 `sa2kit/common/ui*`；`pnpm gate:ui`
 
@@ -112,7 +112,7 @@ sa2kit/business/<domain>/
 | G5 | calendar-core **清零**；宿主 `app_web/calendar/lib` | ✅ |
 | G6 | `@profile/{auth,db,config,ui}` → `host/*`（迁出 packages） | ✅ |
 | G7 | node-notes-core 清零 | ✅ |
-| G8 | 仓库门禁 | ⏳ 下一刀 |
+| G8 | 仓库门禁：workspace 显式两库 + architecture gate | ✅ |
 
 全文：[BLUEPRINT §14](./BLUEPRINT-multiplatform-sa2kit.md#14-phase-g--双库收敛packages-仅保留-sa2kit--sa2kit-ui)。
 
@@ -179,3 +179,10 @@ sa2kit/business/<domain>/
 | 宿主 | `app_web/node-notes/lib` Auth 壳 + hostRouteConfig；API 直引 routes 工厂 |
 | 删除 | `packages/node-notes-core`；CI / tsconfig / package.json 清零 |
 
+### G8 落地摘要（2026-09-05）
+
+| 项 | 成果 |
+|----|------|
+| workspace | `pnpm-workspace.yaml` 去掉 `packages/*`，显式 `packages/sa2kit` + `packages/sa2kit-ui` |
+| gate | `scripts/check-architecture-gate.mjs` 禁止 `packages/` 出现第三共享包 |
+| 文档 | `packages/README.md` / 蓝图 / KNOWLEDGE_BASE 对齐「只剩两库」 |
