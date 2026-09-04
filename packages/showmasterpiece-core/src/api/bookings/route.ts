@@ -1,20 +1,14 @@
 /**
  * ShowMasterpiece — 预订列表 / 创建
- * GET/DELETE 经 sa2kit routes；POST 保留宿主限流后调 create handler。
  */
-import { db } from '@profile/db';
-import { getApiSessionUser, isAdminRole } from '@profile/auth/session';
 import {
   createCreateBookingHandler,
   createListBookingsHandler,
 } from 'sa2kit/business/showmasterpiece/routes';
+import { createBookingHostRouteConfig } from '../lib/bookingHostRouteConfig';
 import { enforceBookingWriteRateLimit } from '../lib/bookingRateLimit';
 
-const config = {
-  db,
-  getSessionUser: getApiSessionUser,
-  isAdminUser: (user: { role?: string | null } | null) => isAdminRole(user?.role),
-};
+const config = createBookingHostRouteConfig();
 
 export const GET = createListBookingsHandler(config);
 

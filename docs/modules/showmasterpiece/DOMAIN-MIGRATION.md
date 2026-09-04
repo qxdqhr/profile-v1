@@ -45,10 +45,10 @@ sa2kit/business/showmasterpiece/
 - [x] F1 占位：`domain/` booking/popup 类型 + `PLATFORMS.md` + exports（2026-09-04）
 - [x] schema 下沉 `sa2kit/business/showmasterpiece/server`；`@profile/db` 聚合（2026-09-04）
 - [x] bookingAccess 纯函数进 domain；core 薄 re-export
-- [x] 迁 booking Query/Command + `bookingDelete` → `server/`；list/get/create/update/delete route 工厂
+- [x] 迁 booking Query/Command + `bookingDelete` → `server/`；公开 + admin booking route 工厂（含 collections/batch）
 - [ ] 抽 booking、category、collection、popup 全集类型与校验 → `domain/`（补齐）
-- [ ] 迁其余 `masterpiecesDbService` / admin routes
-- [ ] route 工厂补齐 admin：`createListAdminBookingsHandler` 等
+- [ ] 迁其余 `masterpiecesDbService` / config / popup
+- [x] route 工厂补齐 admin：`createListAdminBookingsHandler` 等
 - [x] 删除 obsolete `SA2KIT_PLAN` / 1.x 发版文档（2026-09-03）
 
 ### M2 — ui/web（SMP2 / F3）

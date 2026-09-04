@@ -1,19 +1,14 @@
 /**
  * ShowMasterpiece — 单条预订
  */
-import { db } from '@profile/db';
-import { getApiSessionUser, isAdminRole } from '@profile/auth/session';
 import {
   createDeleteBookingHandler,
   createGetBookingHandler,
   createUpdateBookingHandler,
 } from 'sa2kit/business/showmasterpiece/routes';
+import { createBookingHostRouteConfig } from '../../lib/bookingHostRouteConfig';
 
-const config = {
-  db,
-  getSessionUser: getApiSessionUser,
-  isAdminUser: (user: { role?: string | null } | null) => isAdminRole(user?.role),
-};
+const config = createBookingHostRouteConfig();
 
 export const GET = createGetBookingHandler(config);
 export const PUT = createUpdateBookingHandler(config);

@@ -59,7 +59,7 @@ sa2kit/business/<domain>/
 |----|------|
 | calendar | `server` schema + DbService + `routes` handler 工厂；宿主 API 直引 sa2kit + session 注入 |
 | teachHub | schema + DbService + **全套 API routes** + `server/tasks`（generateLesson） |
-| showmasterpiece | `server` schema + booking Query/Command/Delete；`routes` public booking 工厂；admin / 其它 DbService ⬜ |
+| showmasterpiece | `server` schema + booking services；`routes` 公开+admin booking 全家桶；其余 DbService ⬜ |
 
 ### F3 落地摘要（2026-09-04）
 
