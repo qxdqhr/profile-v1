@@ -8,7 +8,7 @@
 
 **[BLUEPRINT-multiplatform-sa2kit.md](./BLUEPRINT-multiplatform-sa2kit.md)** — 多端 SDK 蓝图 §0 北极星。
 
-**当前执行**：**Phase G 双库收敛（G1–G4 ✅ · 下一刀 G5）** — 蓝图 [§14](./BLUEPRINT-multiplatform-sa2kit.md#14-phase-g--双库收敛packages-仅保留-sa2kit--sa2kit-ui) · [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)
+**Phase G 完成**（G1–G8 ✅）：`packages/` 仅 `sa2kit` + `sa2kit-ui`。蓝图 [§14](./BLUEPRINT-multiplatform-sa2kit.md#14-phase-g--双库收敛packages-仅保留-sa2kit--sa2kit-ui) · [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)
 
 | 已完成（归档） | 文档 |
 |----------------|------|
@@ -47,7 +47,7 @@ sa2kit/common/*  +  sa2kit/business/<域>/{domain,server,ui/*}
 ```
 Phase F · F0–F5 ✅
 Phase G · G1–G4 ✅（feishu / exam / teach-hub-core / showmasterpiece-core）
-下一刀：G5 calendar-core 清零
+Phase G 已收束；各域产品优化见 PENDING-OPTIMIZATION（需用户点名「优化项目」）
 ```
 
 详见 [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md) 与蓝图 §14。

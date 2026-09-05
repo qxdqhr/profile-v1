@@ -98,9 +98,9 @@ sa2kit/business/<domain>/
 
 详见蓝图 [BLUEPRINT-multiplatform-sa2kit.md](./BLUEPRINT-multiplatform-sa2kit.md) §0。
 
-## 下一阶段：Phase G（双库收敛）
+## Phase G（双库收敛）— **已完成**
 
-> **执行中**（2026-09-04）— 蓝图 [§14](./BLUEPRINT-multiplatform-sa2kit.md#14-phase-g--双库收敛packages-仅保留-sa2kit--sa2kit-ui)  
+> **完成**（2026-09-05）— 蓝图 [§14](./BLUEPRINT-multiplatform-sa2kit.md#14-phase-g--双库收敛packages-仅保留-sa2kit--sa2kit-ui)  
 > 目标：`packages/` 共享库只剩 `sa2kit` + `sa2kit-ui`；迁入 exam / feishu；清零 `*-core` facade；消融 `auth|db|config|ui`。
 
 | Gate | 摘要 | 状态 |

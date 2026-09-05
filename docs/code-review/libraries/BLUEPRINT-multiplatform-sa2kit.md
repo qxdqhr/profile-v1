@@ -1,7 +1,7 @@
 # 蓝图：多端 sa2kit SDK（common + business 同仓多端）
 
 > 版本：v0.5 · 2026-09-04  
-> 状态：**执行中**（**北极星：接单多端可复用** · Phase F ✅ · **Phase G：G1–G8 ✅（完成）**）— 见 §0 / §7 / **§14**  
+> 状态：**北极星执行中**（Phase F ✅ · **Phase G ✅ 完成**）— 见 §0 / §7 / **§14**  
 > 取代/修正：先前「business 迁回 profile-v1」方向（见文末 §11）  
 > 源码仓：独立仓库 `github.com/qxdqhr/sa2kit` · `github.com/qxdqhr/sa2kit-ui`（profile-v1 以 git submodule 挂载于 `packages/sa2kit/` · `packages/sa2kit-ui/`，仍可 npm 发布）· 消费仓 `profile-v1` 及独立 RN/Taro/Electron 宿主
 
@@ -257,10 +257,10 @@ business/*/ui/* 与各宿主薄页面（编排，不造第二套基础件）
 
 ## 7. 分阶段计划（蓝图执行）
 
-> **优先级总序**：§0 北极星 > **Phase G（双库收敛）**（G1–G2 ✅ · G3 起继续）> 各域产品优化。  
+> **优先级总序**：§0 北极星 > Phase G（**已完成**）> 各域产品优化 / 待定优化队列。  
 > **已完成归档**（2026-09-03～04）：Phase A/B/U/C/D/E1/F — 见 [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)。  
 > **Phase F**（2026-09-04）：F1–F5 ✅。  
-> **Phase G**：G1–G4 ✅ · **Phase G 完成**。
+> **Phase G**：G1–G8 ✅（**完成**）。
 
 ### Phase F — 大域下沉 `sa2kit/business/*`（**已完成**）
 
@@ -521,7 +521,7 @@ app_web/teach-hub/
 
 #### G7 — node-notes ✅
 
-按 Phase F 模板落地：`domain` → `server/routes` → `ui/web`；宿主 `app_web/node-notes/lib`；已删 `node-notes-core`。下一刀 G8。
+按 Phase F 模板落地：`domain` → `server/routes` → `ui/web`；宿主 `app_web/node-notes/lib`；已删 `node-notes-core`。
 
 #### G8 — 仓库门禁
 
