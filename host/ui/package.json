@@ -3,9 +3,14 @@
   "version": "0.0.1",
   "private": true,
   "exports": {
-    "./tailwind.preset": "./tailwind.preset.ts",
+    "./tailwind.preset": "./tailwind.preset.js",
     "./postcss": "./postcss.config.js"
   },
+  "files": [
+    "tailwind.preset.js",
+    "postcss.config.js"
+  ],
+
   "dependencies": {
     "tailwindcss-animate": "^1.0.7"
   },
