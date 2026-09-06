@@ -68,7 +68,22 @@ check_http "GET /api/calendar/events/" \
   "${BASE}/api/calendar/events/?startDate=2026-01-01&endDate=2026-12-31" "401"
 check_http "GET /api/teach-hub/workspaces/" "${BASE}/api/teach-hub/workspaces/" "401"
 # showmasterpiece 画集列表 GET 为公开接口（未登录 200）；管理接口应 401
-check_http "GET /api/showmasterpiece/collections/" "${BASE}/api/showmasterpiece/collections/" "200"
+# 容器冷启动时 API 可能暂未就绪，重试 3 次
+check_http_retry() {
+  local name="$1" url="$2" expect="$3" max="${4:-3}"
+  local i code
+  for i in $(seq 1 "$max"); do
+    code="$(curl -sS -o /dev/null -w '%{http_code}' "$url" 2>/dev/null || echo ERR)"
+    if [ "$code" = "$expect" ]; then
+      echo "${name} => ${code} (期望 ${expect})"
+      return 0
+    fi
+    [ "$i" -lt "$max" ] && sleep 3
+  done
+  echo "${name} => ${code} (期望 ${expect})"
+  fail=1
+}
+check_http_retry "GET /api/showmasterpiece/collections/" "${BASE}/api/showmasterpiece/collections/" "200"
 check_http "GET /api/showmasterpiece/bookings/admin/" "${BASE}/api/showmasterpiece/bookings/admin/" "401"
 check_http "GET /api/node-notes/documents/" "${BASE}/api/node-notes/documents/" "401"
 # 旁路 Godot / 静态游戏
