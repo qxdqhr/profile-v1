@@ -41,6 +41,20 @@ if ! compose_cmd -f "$COMPOSE_FILE" ps --status running wp_mariadb 2>/dev/null |
   exit 0
 fi
 
+echo "=== 等待 MariaDB 就绪 ==="
+for i in $(seq 1 30); do
+  if compose_cmd -f "$COMPOSE_FILE" exec -T wp_mariadb \
+    mariadb -uroot -p"${ROOT_PW}" -e "SELECT 1" >/dev/null 2>&1; then
+    echo "MariaDB ready (attempt $i)"
+    break
+  fi
+  if [ "$i" -eq 30 ]; then
+    echo "WARN: MariaDB 未在 30s 内就绪，跳过建库 ${DB_NAME}" >&2
+    exit 0
+  fi
+  sleep 1
+done
+
 echo "=== 确保 MariaDB 库 ${DB_NAME} 存在 ==="
 compose_cmd -f "$COMPOSE_FILE" exec -T wp_mariadb \
   mariadb -uroot -p"${ROOT_PW}" \
