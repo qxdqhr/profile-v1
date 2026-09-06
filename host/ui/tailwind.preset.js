@@ -2,7 +2,7 @@
 /** Preset；content 由消费方 app 的 tailwind.config 覆盖/合并 */
 const preset = {
   content: [],
-  darkMode: ['class'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
