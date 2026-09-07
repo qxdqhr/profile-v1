@@ -1,6 +1,32 @@
 import { existsSync, readFileSync } from 'node:fs';
+import path from 'node:path';
+import { createRequire } from 'node:module';
 import { parse as parseYaml } from 'yaml';
 import type { NextConfig } from 'next';
+
+/** next.config 由 jiti 加载；用 cwd 锚定，避免 ESM 下无 __filename */
+const requireFromWeb = createRequire(path.join(process.cwd(), 'package.json'));
+
+function resolveSa2kitUiReactEsm(): string | undefined {
+  try {
+    const resolved = requireFromWeb.resolve('@sa2kit-ui/react');
+    // prefer ESM entry so webpack named re-exports from sa2kit/common/ui work
+    if (resolved.includes(`${path.sep}dist${path.sep}cjs${path.sep}`)) {
+      return path.join(path.dirname(resolved), '..', 'es', 'index.js');
+    }
+    if (resolved.endsWith(`${path.sep}dist${path.sep}es${path.sep}index.js`)) {
+      return resolved;
+    }
+    const esCandidate = path.join(path.dirname(resolved), 'dist', 'es', 'index.js');
+    return existsSync(esCandidate) ? esCandidate : resolved;
+  } catch {
+    const fallback = path.join(
+      process.cwd(),
+      '../../packages/sa2kit-ui/packages/react/dist/es/index.js',
+    );
+    return existsSync(fallback) ? fallback : undefined;
+  }
+}
 
 function readPublicAppUrl(): string {
   const explicit = process.env.APP_CONFIG_PATH;
@@ -26,6 +52,7 @@ function readPublicAppUrl(): string {
 }
 
 const publicAppUrl = readPublicAppUrl();
+const sa2kitUiReactEsm = resolveSa2kitUiReactEsm();
 
 const nextConfig: NextConfig = {
     distDir: process.env.NEXT_DIST_DIR || '.next',
@@ -80,6 +107,9 @@ const nextConfig: NextConfig = {
         optimizePackageImports: ['three', 'three-stdlib', 'lucide-react'],
     },
 
+    // 抑制误把 ~/pnpm-lock.yaml 当成 workspace root（cwd 为 app_web/web）
+    outputFileTracingRoot: path.join(process.cwd(), '../..'),
+
     turbopack: {},
 
     webpack: (config, { isServer, webpack }) => {
@@ -111,6 +141,7 @@ const nextConfig: NextConfig = {
             'react-native': false,
             '@tarojs/components': false,
             '@tarojs/taro': false,
+            ...(sa2kitUiReactEsm ? { '@sa2kit-ui/react$': sa2kitUiReactEsm } : {}),
         };
 
         if (!isServer) {

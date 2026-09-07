@@ -1,11 +1,12 @@
 /**
- * 将 role 为 admin / super_admin 的用户的密码更新为 ADMIN_NEW_PASSWORD 的 bcrypt(12) 哈希。
- * 用法: ADMIN_NEW_PASSWORD='...' APP_CONFIG_ENV=production tsx --import ./scripts/preload-app-config.ts scripts/update-admin-password.ts
+ * 将 role 为 ADMIN / SUPER_ADMIN 的用户 credential 密码更新为 ADMIN_NEW_PASSWORD。
+ * 用法: ADMIN_NEW_PASSWORD='...' pnpm exec tsx --import @profile/config/preload scripts/update-admin-password.ts
  */
-import bcrypt from 'bcryptjs';
-import { eq, inArray, or } from 'drizzle-orm';
+import { and, eq, inArray, or } from 'drizzle-orm';
+import { hashPassword } from 'better-auth/crypto';
+import { nanoid } from 'nanoid';
 import { db } from '@profile/db';
-import { userSessions, users } from '@profile/auth/schema';
+import { account, session, user, CREDENTIAL_ACCOUNT_ISSUER } from '@profile/auth/schema';
 
 const pwd = process.env.ADMIN_NEW_PASSWORD?.trim();
 if (!pwd || pwd.length < 6) {
@@ -14,24 +15,56 @@ if (!pwd || pwd.length < 6) {
 }
 
 async function main() {
-  const hash = await bcrypt.hash(pwd, 12);
+  const passwordHash = await hashPassword(pwd);
 
-  const updated = await db
-    .update(users)
-    .set({ password: hash, updatedAt: new Date() })
-    .where(or(eq(users.role, 'admin'), eq(users.role, 'super_admin')))
-    .returning({ id: users.id, phone: users.phone, role: users.role });
+  const admins = await db
+    .select({ id: user.id, phoneNumber: user.phoneNumber, role: user.role })
+    .from(user)
+    .where(or(eq(user.role, 'ADMIN'), eq(user.role, 'SUPER_ADMIN')));
 
-  if (updated.length === 0) {
-    console.error('未找到 role 为 admin 或 super_admin 的用户，未做任何更新。');
+  if (admins.length === 0) {
+    console.error('未找到 role 为 ADMIN 或 SUPER_ADMIN 的用户，未做任何更新。');
     process.exit(2);
   }
 
-  const ids = updated.map((r) => r.id);
-  await db.delete(userSessions).where(inArray(userSessions.userId, ids));
+  const ids = admins.map((r) => r.id);
+  const now = new Date();
 
-  console.log('已更新管理员密码并清除其会话，需重新登录。受影响行数:', updated.length);
-  console.table(updated.map((r) => ({ id: r.id, phone: r.phone, role: r.role })));
+  for (const admin of admins) {
+    const [cred] = await db
+      .select({ id: account.id })
+      .from(account)
+      .where(and(eq(account.userId, admin.id), eq(account.providerId, 'credential')))
+      .limit(1);
+
+    if (cred) {
+      await db
+        .update(account)
+        .set({
+          issuer: CREDENTIAL_ACCOUNT_ISSUER,
+          accountId: admin.id,
+          password: passwordHash,
+          updatedAt: now,
+        })
+        .where(eq(account.id, cred.id));
+    } else {
+      await db.insert(account).values({
+        id: nanoid(),
+        issuer: CREDENTIAL_ACCOUNT_ISSUER,
+        accountId: admin.id,
+        providerId: 'credential',
+        userId: admin.id,
+        password: passwordHash,
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+  }
+
+  await db.delete(session).where(inArray(session.userId, ids));
+
+  console.log('已更新管理员 credential 密码并清除其 session，需重新登录。受影响行数:', admins.length);
+  console.table(admins.map((r) => ({ id: r.id, phone: r.phoneNumber, role: r.role })));
 }
 
 main()

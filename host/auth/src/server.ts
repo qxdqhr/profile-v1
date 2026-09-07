@@ -29,4 +29,8 @@ export const auth: Sa2kitAuthInstance = new Proxy({} as Sa2kitAuthInstance, {
     const value = Reflect.get(instance, prop, instance);
     return typeof value === 'function' ? value.bind(instance) : value;
   },
+  // `"handler" in auth` 走 has，不能只靠 get（否则 better-auth 会把 proxy 当函数调用）
+  has(_target, prop) {
+    return Reflect.has(getAuth() as object, prop);
+  },
 });

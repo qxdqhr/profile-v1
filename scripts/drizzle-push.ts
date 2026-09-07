@@ -97,6 +97,23 @@ async function main() {
     }
   }
 
+  if (output.includes('Interactive prompts require a TTY')) {
+    const ok = await verifyAuthSchema();
+    if (ok) {
+      console.warn(
+        '⚠ drizzle-kit push 需交互确认（非 TTY），但 auth 四表已存在，视为可用。',
+      );
+      return;
+    }
+    console.error(
+      '✗ drizzle-kit push 需要交互 TTY（与现库表名冲突）。请在终端直接运行: pnpm devdb:push',
+    );
+    console.error(
+      '  或手动确保存在 better-auth 四表: user / session / account / verification',
+    );
+    process.exit(1);
+  }
+
   if (code === 0) {
     console.log('✓ drizzle-kit push 完成');
     return;

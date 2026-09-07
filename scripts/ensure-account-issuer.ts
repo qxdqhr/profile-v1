@@ -14,6 +14,19 @@ async function main() {
   const sql = postgres(connectionString, { ssl: false, max: 1 });
 
   try {
+    const [exists] = await sql<{ ok: boolean }[]>`
+      SELECT EXISTS (
+        SELECT 1
+        FROM information_schema.tables
+        WHERE table_schema = 'public' AND table_name = 'account'
+      ) AS ok
+    `;
+
+    if (!exists?.ok) {
+      console.log('⊘ account 表尚不存在，跳过 issuer 回填（请先 drizzle-push）');
+      return;
+    }
+
     await sql.unsafe(`
       ALTER TABLE account ADD COLUMN IF NOT EXISTS issuer text;
     `);
