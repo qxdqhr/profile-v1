@@ -79,3 +79,4 @@ Web 导出预设须 **单线程**：`variant/thread_support=false`（Compatibili
 | mikutap-game | `app_games/mikutap-game/` | `/games/mikutap-game/` |
 | miku-planting | `app_games/miku-planting/` | `/games/miku-planting/` |
 | diner-dash | `app_games/diner-dash/`（submodule；`.use-prebuilt-web`） | `/games/diner-dash/` |
+| 9dot-music | `app_games/9dot-music/` | `/games/9dot-music/` |

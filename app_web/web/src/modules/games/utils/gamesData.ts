@@ -226,6 +226,17 @@ export const games: GameItem[] = [
     updatedAt: '2026-09-01',
   },
   {
+    id: '9dot-music',
+    title: '9dot Music',
+    description: '九宫格音乐垫：点按发声（脚手架）',
+    path: '/games/9dot-music/',
+    tags: ['音乐', '九宫格', 'Godot'],
+    platform: 'godot',
+    isCompleted: false,
+    createdAt: '2026-09-07',
+    updatedAt: '2026-09-07',
+  },
+  {
     id: 'miku-talking',
     title: '米库说话',
     description: 'MMD 互动：点击、语音变声、喂食与亲密度',

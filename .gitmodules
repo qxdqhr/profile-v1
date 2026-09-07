@@ -76,3 +76,9 @@
 [submodule "sa2kit-ui"]
 	path = packages/sa2kit-ui
 	url = https://github.com/qxdqhr/sa2kit-ui.git
+[submodule "app_games/9dot-music"]
+	path = app_games/9dot-music
+	url = https://github.com/qxdqhr/profile-v1-game-9dot-music.git
+[submodule "packages/sa2kit-skill"]
+	path = packages/sa2kit-skill
+	url = git@github.com:qxdqhr/sa2kit-skill.git

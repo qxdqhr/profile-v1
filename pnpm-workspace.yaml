@@ -4,7 +4,7 @@ packages:
   - 'host/*'
   - 'app_mobile/*'
   - 'app_desktop/*'
-  # Phase G8：packages/ 仅允许两 submodule（勿再加 packages/* 通配）
+  # Phase G8：packages/ npm 库仅两 submodule（勿 packages/* 通配）；sa2kit-skill 不进 workspace
   - 'packages/sa2kit'
   - 'packages/sa2kit-ui'
   - 'packages/sa2kit-ui/packages/*'

@@ -3,8 +3,9 @@
  * Architecture remediation gate:
  * 1) Forbid re-introducing main-web API mounts for cutover domains,
  *    and forbid sidecar apps from remounting `/api/auth`.
- * 2) Phase G8: packages/ shared libs may only contain sa2kit + sa2kit-ui
- *    (plus README). Forbid new third shared packages under packages/.
+ * 2) Phase G8: packages/ may only contain sa2kit + sa2kit-ui (+ README)
+ *    and sa2kit-skill (Agent skills submodule; not a pnpm/npm package).
+ *    Forbid other third shared packages under packages/.
  */
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { resolve, join } from 'node:path';
@@ -34,13 +35,18 @@ if (mountHits.length > 0) {
 }
 
 const packagesDir = resolve(root, 'packages');
-const allowedPackageEntries = new Set(['sa2kit', 'sa2kit-ui', 'README.md']);
+const allowedPackageEntries = new Set([
+  'sa2kit',
+  'sa2kit-ui',
+  'sa2kit-skill', // Agent skills submodule; not workspace / npm
+  'README.md',
+]);
 if (existsSync(packagesDir)) {
   const entries = readdirSync(packagesDir).filter((name) => !name.startsWith('.'));
   const illegal = entries.filter((name) => !allowedPackageEntries.has(name));
   if (illegal.length > 0) {
     console.error(
-      '[gate:architecture] packages/ may only contain sa2kit + sa2kit-ui (+ README.md). Found:',
+      '[gate:architecture] packages/ may only contain sa2kit + sa2kit-ui + sa2kit-skill (+ README.md). Found:',
     );
     for (const name of illegal) {
       const full = join(packagesDir, name);
@@ -48,10 +54,12 @@ if (existsSync(packagesDir)) {
       console.error(`  - ${name} (${kind})`);
     }
     console.error(
-      'Phase G8: put profile glue under host/; domain code under sa2kit/business|common. See BLUEPRINT §14 G8.',
+      'Phase G8: put profile glue under host/; domain code under sa2kit/business|common. See BLUEPRINT §14 G8. Skills → sa2kit-skill.',
     );
     process.exit(1);
   }
 }
 
-console.log('[gate:architecture] OK — dual-mount clean; packages/ only sa2kit + sa2kit-ui.');
+console.log(
+  '[gate:architecture] OK — dual-mount clean; packages/ only sa2kit + sa2kit-ui + sa2kit-skill.',
+);

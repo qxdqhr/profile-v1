@@ -49,6 +49,7 @@
 | mikutap-game | `/mikutapGame`（旧保留） | **阶段 C 精修完成**；主入口 `/games/mikutap-game/` |
 | miku-planting | `/testField/mikuPlanting`（旧保留） | **阶段 C 精修完成**；主入口 `/games/miku-planting/` |
 | diner-dash | —（迁自 `diner-dash-clone`） | 已旁路 `/games/diner-dash/`（Spine 预构建） |
+| 9dot-music | —（新作） | 脚手架 `/games/9dot-music/`（九宫格音乐垫） |
 
 ### leisure 待迁 backlog（实验田 `category: leisure`）
 

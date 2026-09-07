@@ -136,6 +136,9 @@ check_http "GET /games/diner-dash/" "${BASE}/games/diner-dash/" "200"
 check_http "GET /games/diner-dash/index.js" "${BASE}/games/diner-dash/index.js" "200"
 check_http "GET /games/diner-dash/index.wasm" "${BASE}/games/diner-dash/index.wasm" "200"
 check_http "GET /games/diner-dash/index.pck" "${BASE}/games/diner-dash/index.pck" "200"
+check_http "GET /games/9dot-music/" "${BASE}/games/9dot-music/" "200"
+check_http "GET /games/9dot-music/index.wasm" "${BASE}/games/9dot-music/index.wasm" "200"
+check_http "GET /games/9dot-music/index.pck" "${BASE}/games/9dot-music/index.pck" "200"
 
 # 旁路 WordPress（纯 PHP；未安装也可能 302）
 check_http_wp "GET /wp/holt/" "${BASE}/wp/holt/"

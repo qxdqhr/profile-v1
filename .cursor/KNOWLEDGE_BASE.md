@@ -25,12 +25,13 @@
 | 项 | 约定 |
 |----|------|
 | 框架 | Next.js（App Router，主站在 `app_web/web/src/app`） |
-| Monorepo | pnpm workspace：`app_web/*` + `host/*` + 显式 `packages/sa2kit` + `packages/sa2kit-ui`（及 ui 子包）+ `app_mobile/*` + `app_desktop/*`；`pnpm gate:architecture` 禁 `packages/` 第三共享包；详见 `docs/monorepo-migration/`、`docs/README.md` |
+| Monorepo | pnpm workspace：`app_web/*` + `host/*` + 显式 `packages/sa2kit` + `packages/sa2kit-ui`（及 ui 子包）+ `app_mobile/*` + `app_desktop/*`；`pnpm gate:architecture` 禁 `packages/` 第三 **npm** 共享包（允许 `sa2kit-skill` Agent skills submodule）；详见 `docs/monorepo-migration/`、`docs/README.md` |
 | 样式 | Tailwind CSS；预设 `@profile/ui/tailwind.preset`（设计令牌桥；业务组件/主题见 §1.1） |
 | 数据层 | Drizzle ORM + PostgreSQL（`@profile/db`，迁移目录 `drizzle/` 在仓库根） |
 | 包管理 | **pnpm**；开发 `pnpm dev` = `pnpm --filter @profile/web dev` |
 | 通用 SDK | **`sa2kit`**（登录、OSS/文件、配置、AI、UI/主题门面）；git submodule `packages/sa2kit/`（独立仓可 npm 发布） |
 | UI 设计系统 | **`sa2kit-ui`**（`@sa2kit-ui/*`）；git submodule `packages/sa2kit-ui/`（独立仓可 npm 发布） |
+| Agent Skills | **`sa2kit-skill`**；git submodule `packages/sa2kit-skill/`（**非** npm / **不进** workspace；Cursor skills） |
 
 本地开发：`pnpm install` 后若缺 dist，跑 `pnpm build:libs`（`scripts/ensure-sa2kit-workspace-dist.mjs`）。宿主依赖用 `workspace:*`，**不**再 pin npm 版；对外客户仓仍可 `npm i sa2kit` / `@qhr123/sa2kit-ui-react`。
 
@@ -64,7 +65,7 @@ app_web/web 模块
 
 详细规则：`.cursor/rules/profile-v1-sa2kit-ui.mdc`；蓝图 `docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md` §5。
 
-**Phase G 完成**：`packages/` 仅 `sa2kit` + `sa2kit-ui`；基建在 `host/`；业务 *-core 已清零。新多端能力优先进 sa2kit（见蓝图）。
+**Phase G 完成**：`packages/` npm 库仅 `sa2kit` + `sa2kit-ui`；另有 **`sa2kit-skill`**（Agent skills，非 workspace）。基建在 `host/`；业务 *-core 已清零。新多端能力优先进 sa2kit（见蓝图）。
 
 完整蓝图与阶段计划：[`docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`](../docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md)。
 
@@ -177,6 +178,7 @@ export default function XxxRoute() {
 | SSOT 自动注入 | `.cursor/rules/profile-v1-knowledge-ssot.mdc` | `alwaysApply: true` + `@.cursor/KNOWLEDGE_BASE.md`，每轮对话附带知识库 |
 | 本知识库 | `.cursor/KNOWLEDGE_BASE.md` | 路由 + 模块 + 实验田 SSOT（正文由上文规则引用） |
 | 工具模块 Skill | `.cursor/skills/build-utility-module/SKILL.md` | 无 DB 模块分步流程 |
+| Godot 新游戏 Skill | `.cursor/skills/add-godot-game-submodule` → `packages/sa2kit-skill/skills/...` | 新建 Godot 旁路 submodule |
 | 待定优化 Skill | `.cursor/skills/continue-optimization-backlog/SKILL.md` | 用户说「优化项目」时按 `docs/code-review/PENDING-OPTIMIZATION.md` 续做 |
 | 小游戏 | `app_games/<slug>/` + `/games/<slug>/` | Godot Web 旁路；**不要**再往主站加 Phaser |
 | 按路径触发的规则 | `.cursor/rules/profile-v1-routing.mdc`、`profile-v1-modules.mdc`、**`profile-v1-sa2kit-ui.mdc`**、**`profile-v1-submodules.mdc`** | 编辑 `src/app` / `src/modules` / sa2kit UI / **games·wordpress submodule** 时注入上下文 |
@@ -203,7 +205,8 @@ export default function XxxRoute() {
 ### 7.0 Git Submodule 约定（SDK 库 + games / WordPress / mobile / desktop）
 
 **原则**：独立 Git 仓以 **git submodule** 挂入父仓；父仓只存指针 + 宿主/旁路基建。  
-**sa2kit / sa2kit-ui** 另属 **pnpm workspace 成员**（`workspace:*`），仍各自独立 `npm publish`；**北极星「客户仓直引库」不变**。
+**sa2kit / sa2kit-ui** 另属 **pnpm workspace 成员**（`workspace:*`），仍各自独立 `npm publish`；**北极星「客户仓直引库」不变**。  
+**sa2kit-skill** 同挂 `packages/`，但是 **Cursor Agent Skills** 集合，**不进** `pnpm-workspace.yaml`。
 
 #### 7.0.1 双轨目录（勿混淆）
 
@@ -211,12 +214,13 @@ export default function XxxRoute() {
 |------|----------------|---------------|-----------------|----------|
 | **sa2kit SDK** | `packages/sa2kit/` | workspace + Docker 内 `build:libs` | npm `sa2kit`；本仓 `workspace:*` | [`docs/code-review/libraries/`](../docs/code-review/libraries/) |
 | **sa2kit-ui** | `packages/sa2kit-ui/` | 同上；包在 `packages/sa2kit-ui/packages/*` | npm `@qhr123/sa2kit-ui-react`；本仓 `@sa2kit-ui/*` | 同上 |
+| **sa2kit-skill** | `packages/sa2kit-skill/` | `.cursor/skills/<name>` → 相对 symlink | Agent `@` / 自动发现；非 npm | [`packages/sa2kit-skill/README.md`](../packages/sa2kit-skill/README.md) |
 | **Godot 游戏** | `app_games/<slug>/` | `deploy/games/<slug>/www/`（CI 生成；平台 nginx alias） | `/games/<slug>/` | [`deploy/games/README.md`](../deploy/games/README.md)、[`app_games/`](../games/)（各 submodule） |
 | **WordPress 主题站** | `app_wordpress/<slug>/` | `deploy/wordpress/`（compose 模板、ADD-SITE、php 教程；**全站共享，非 submodule**） | `/wp/<slug>/` | [`app_wordpress/README.md`](../app_wordpress/README.md)、[`deploy/wordpress/ADD-SITE.md`](../deploy/wordpress/ADD-SITE.md) |
 
-- **Submodule 内**：`sa2kit` / `sa2kit-ui` 完整库源码（dist 本地/CI 构建）；游戏 `project.godot` / 导出工程；WP 主题 PHP/CSS/JS + 可选 `data/` 种子 JSON。
-- **父仓内**：`deploy/docker-compose.gateway.yml`、`deploy/nginx/*`、冒烟脚本；主站 [`app_web/web/src/modules/games/`](../app_web/web/src/modules/games/) 小游戏大厅导航（**不是** Godot 源码）；`pnpm-workspace.yaml` 显式纳入 `packages/sa2kit` 与 `packages/sa2kit-ui/packages/*`。
-- **禁止**：在父仓直接长期修改 submodule 目录内容却不提交子仓；把 `deploy/wordpress/` 或 `deploy/games/<slug>/www/` 当成 submodule；把两库源码脱离独立仓/submodule、丢掉 npm 发布面。
+- **Submodule 内**：`sa2kit` / `sa2kit-ui` 完整库源码（dist 本地/CI 构建）；`sa2kit-skill` 的 `skills/*/SKILL.md`；游戏 `project.godot` / 导出工程；WP 主题 PHP/CSS/JS + 可选 `data/` 种子 JSON。
+- **父仓内**：`deploy/docker-compose.gateway.yml`、`deploy/nginx/*`、冒烟脚本；主站 [`app_web/web/src/modules/games/`](../app_web/web/src/modules/games/) 小游戏大厅导航（**不是** Godot 源码）；`pnpm-workspace.yaml` 显式纳入 `packages/sa2kit` 与 `packages/sa2kit-ui/packages/*`（**不含** `sa2kit-skill`）。
+- **禁止**：在父仓直接长期修改 submodule 目录内容却不提交子仓；把 `deploy/wordpress/` 或 `deploy/games/<slug>/www/` 当成 submodule；把两库源码脱离独立仓/submodule、丢掉 npm 发布面；在 `packages/` 再增第三 **npm** 共享包（skill 请进 `sa2kit-skill`）。
 
 #### 7.0.2 克隆与本地开发
 
@@ -235,6 +239,7 @@ git submodule update --init --recursive
 | 类型 | 步骤文档 | 典型命令 |
 |------|----------|----------|
 | sa2kit / sa2kit-ui | 已挂载；勿再 `submodule add` 到其它路径 | `packages/sa2kit` → `https://github.com/qxdqhr/sa2kit.git`；`packages/sa2kit-ui` → `https://github.com/qxdqhr/sa2kit-ui.git` |
+| sa2kit-skill | 已挂载；新 skill 在子仓 `skills/<name>/` 追加 | `packages/sa2kit-skill` → `git@github.com:qxdqhr/sa2kit-skill.git`；父仓 `.cursor/skills/<name>` symlink |
 | 游戏 | [`deploy/games/ADD-GAME.md`](../deploy/games/ADD-GAME.md) | `git submodule add https://github.com/qxdqhr/profile-v1-game-<slug>.git app_games/<slug>` |
 | WordPress | [`deploy/wordpress/ADD-SITE.md`](../deploy/wordpress/ADD-SITE.md) | `git submodule add https://github.com/qxdqhr/profile-v1-wordpress-<slug>.git app_wordpress/<slug>` |
 

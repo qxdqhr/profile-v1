@@ -28,6 +28,7 @@
 | `mikutap-game` | MikutapGame Godot 最简（原版 `/mikutapGame`） |
 | `miku-planting` | 米库种植 Godot 最简（原版 `/testField/mikuPlanting`） |
 | `diner-dash` | 罗德厨房（submodule `diner-dash-clone`；Spine 预构建 Web） |
+| `9dot-music` | 9dot Music 九宫格音乐垫（脚手架） |
 
 ## 架构
 
