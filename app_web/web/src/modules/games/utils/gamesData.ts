@@ -228,7 +228,7 @@ export const games: GameItem[] = [
   {
     id: '9dot-music',
     title: '9dot Music',
-    description: '九宫格音乐垫：点按发声（脚手架）',
+    description: '九宫格 Tap/Slide 音游（Metronome Lab）',
     path: '/games/9dot-music/',
     tags: ['音乐', '九宫格', 'Godot'],
     platform: 'godot',
