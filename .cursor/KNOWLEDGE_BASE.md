@@ -31,7 +31,7 @@
 | 包管理 | **pnpm**；开发 `pnpm dev` = `pnpm --filter @profile/web dev` |
 | 通用 SDK | **`sa2kit`**（登录、OSS/文件、配置、AI、UI/主题门面）；git submodule `packages/sa2kit/`（独立仓可 npm 发布） |
 | UI 设计系统 | **`sa2kit-ui`**（`@sa2kit-ui/*`）；git submodule `packages/sa2kit-ui/`（独立仓可 npm 发布） |
-| Agent Skills | **`sa2kit-skill`**；git submodule `packages/sa2kit-skill/`（**非** npm / **不进** workspace；Cursor skills）；第三方整仓在其子仓 `third-party/<slug>` 嵌套 submodule（如 `mattpocock-skills` / `grill-me`） |
+| Agent Skills | **`sa2kit-skill`**；git submodule `packages/sa2kit-skill/`（**非** npm / **不进** workspace；Cursor skills）；第三方整仓在其子仓 `third-party/<slug>` 嵌套 submodule（如 `mattpocock-skills`、`gd-agentic-skills`） |
 
 本地开发：`pnpm install` 后若缺 dist，跑 `pnpm build:libs`（`scripts/ensure-sa2kit-workspace-dist.mjs`）。宿主依赖用 `workspace:*`，**不**再 pin npm 版；对外客户仓仍可 `npm i sa2kit` / `@qhr123/sa2kit-ui-react`。
 
@@ -181,6 +181,7 @@ export default function XxxRoute() {
 | Godot 新游戏 Skill | `.cursor/skills/add-godot-game-submodule` → `packages/sa2kit-skill/skills/...` | 新建 Godot 旁路 submodule |
 | 需求/方案压力测试 | `.cursor/skills/grill-me` + `grilling` → `sa2kit-skill/third-party/mattpocock-skills/...` | Matt Pocock grilling；澄清决策树后再接 `to-spec` |
 | 接入第三方 Skill | `.cursor/skills/add-third-party-skill` → `sa2kit-skill/skills/add-third-party-skill` | 检索上游 → `third-party/<slug>` 嵌套 submodule → symlink |
+| Godot UI/引擎 Skill 库 | `sa2kit-skill/third-party/gd-agentic-skills`（按需 symlink） | [gd-agentic-skills](https://github.com/thedivergentai/gd-agentic-skills)；LGPL-3.0 |
 | 待定优化 Skill | `.cursor/skills/continue-optimization-backlog/SKILL.md` | 用户说「优化项目」时按 `docs/code-review/PENDING-OPTIMIZATION.md` 续做 |
 | 小游戏 | `app_games/<slug>/` + `/games/<slug>/` | Godot Web 旁路；**不要**再往主站加 Phaser |
 | 按路径触发的规则 | `.cursor/rules/profile-v1-routing.mdc`、`profile-v1-modules.mdc`、**`profile-v1-sa2kit-ui.mdc`**、**`profile-v1-submodules.mdc`** | 编辑 `src/app` / `src/modules` / sa2kit UI / **games·wordpress submodule** 时注入上下文 |
