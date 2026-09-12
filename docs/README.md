@@ -22,6 +22,7 @@
 | apps→web / mobile / desktop / npm 拆分计划（已完成） | [`monorepo-migration/APPS-SUBMODULE-PLAN.md`](./monorepo-migration/APPS-SUBMODULE-PLAN.md) |
 | 生产配置与部署补充 | [`infrastructure/production-deployment-guide.md`](./infrastructure/production-deployment-guide.md)、[`infrastructure/config-yaml-sops.md`](./infrastructure/config-yaml-sops.md) |
 | 节点笔记 | [`node-notes/README.md`](./node-notes/README.md) |
+| LanDrop 局域网互传桌面工具（需求） | [`modules/lan-drop/REQUIREMENTS.md`](./modules/lan-drop/REQUIREMENTS.md) |
 | 测试账号（脚本为准） | `pnpm devdb:createusers` / `prodb:createusers`，见 [`scripts/create-test-user-accounts.ts`](../scripts/create-test-user-accounts.ts) |
 
 ## 目录结构
@@ -41,6 +42,7 @@ docs/
 ├── monorepo-migration/       # B→C 迁移计划（已完成，作归档）
 ├── infrastructure/           # OSS / CDN / HTTPS / 生产部署
 ├── modules/                  # 主站模块运维与需求（按模块分子目录）
+│   ├── lan-drop/             # 桌面局域网互传（需求，见 REQUIREMENTS.md）
 │   ├── mmd/
 │   ├── showmasterpiece/
 │   ├── skill-manager/

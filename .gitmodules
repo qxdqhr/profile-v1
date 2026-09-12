@@ -82,3 +82,6 @@
 [submodule "packages/sa2kit-skill"]
 	path = packages/sa2kit-skill
 	url = git@github.com:qxdqhr/sa2kit-skill.git
+[submodule "app_desktop/lan-drop"]
+	path = app_desktop/lan-drop
+	url = git@github.com:qxdqhr/profile-v1-lan-drop.git

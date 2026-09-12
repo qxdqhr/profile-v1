@@ -16,6 +16,7 @@
     "build:node-notes": "pnpm --filter @profile/node-notes build",
     "build:money-research": "pnpm --filter @profile/money-research build",
     "dev:teach-hub-desktop": "pnpm --filter @profile/teach-hub-desktop dev",
+    "dev:lan-drop": "pnpm --filter @profile/lan-drop dev",
     "build:teach-hub": "pnpm --filter @profile/teach-hub build",
     "build:teach-hub-mobile": "pnpm --filter @profile/teach-hub-mobile build",
     "build:teach-hub-mobile:android": "bash app_mobile/teach-hub-mobile/scripts/android-release-build.sh",

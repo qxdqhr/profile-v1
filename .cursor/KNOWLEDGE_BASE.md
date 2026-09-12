@@ -275,6 +275,7 @@ git submodule update --init --recursive
 | Calendar Mobile | `app_mobile/calendar-mobile`（submodule） | `@profile/calendar-mobile` | Expo | — |
 | TeachHub Mobile | `app_mobile/teach-hub-mobile`（submodule） | `@profile/teach-hub-mobile` | Expo | — |
 | TeachHub Desktop | `app_desktop/teach-hub-desktop`（submodule） | `@profile/teach-hub-desktop` | Vite | — |
+| LanDrop Desktop | `app_desktop/lan-drop`（submodule） | `@profile/lan-drop` | Vite/Electron `5175` | — |
 | WordPress（旁路） | `app_wordpress/<slug>/` submodule + `deploy/wordpress/` | —（非 pnpm） | 官方镜像 | `/wp/<slug>/` |
 | Godot 游戏（旁路） | `app_games/<slug>/` submodule + `deploy/games/` | —（非 pnpm） | nginx 静态 | `/games/<slug>/` |
 

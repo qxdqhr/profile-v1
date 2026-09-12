@@ -38,7 +38,8 @@ profile-v1/
 │   ├── calendar-mobile/          → profile-v1-calendar-mobile
 │   └── teach-hub-mobile/         → profile-v1-teach-hub-mobile
 ├── app_desktop/             # Electron submodule
-│   └── teach-hub-desktop/        → profile-v1-teach-hub-desktop
+│   ├── teach-hub-desktop/        → profile-v1-teach-hub-desktop
+│   └── lan-drop/                 → profile-v1-lan-drop
 ├── packages/            # 基建 + *-core（含 ./shared）；唯一共享库目录
 ├── app_games/               # 旁路（不动）
 └── app_wordpress/           # 旁路（不动）
@@ -66,3 +67,4 @@ packages:
 | `app_mobile/calendar-mobile` | https://github.com/qxdqhr/profile-v1-calendar-mobile |
 | `app_mobile/teach-hub-mobile` | https://github.com/qxdqhr/profile-v1-teach-hub-mobile |
 | `app_desktop/teach-hub-desktop` | https://github.com/qxdqhr/profile-v1-teach-hub-desktop |
+| `app_desktop/lan-drop` | https://github.com/qxdqhr/profile-v1-lan-drop |

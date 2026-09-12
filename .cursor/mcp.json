@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "blender": {
+      "command": "/Users/qihongrui/.local/bin/blender-mcp",
+      "args": []
+    }
+  }
+}

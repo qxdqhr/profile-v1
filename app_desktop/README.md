@@ -5,13 +5,17 @@
 | 路径 | 子仓 | 包名 |
 |------|------|------|
 | `teach-hub-desktop/` | [profile-v1-teach-hub-desktop](https://github.com/qxdqhr/profile-v1-teach-hub-desktop) | `@profile/teach-hub-desktop` |
+| `lan-drop/` | [profile-v1-lan-drop](https://github.com/qxdqhr/profile-v1-lan-drop) | `@profile/lan-drop` |
 
 共享类型：`sa2kit/business/teachHub/domain`。对应 Web：`web/teach-hub`。
+
+LanDrop（局域网发现 + 互传）需求：[`docs/modules/lan-drop/REQUIREMENTS.md`](../docs/modules/lan-drop/REQUIREMENTS.md)。
 
 ```bash
 git submodule update --init --recursive
 pnpm install
 pnpm dev:teach-hub-desktop
+pnpm dev:lan-drop
 ```
 
 计划：[`docs/monorepo-migration/APPS-SUBMODULE-PLAN.md`](../docs/monorepo-migration/APPS-SUBMODULE-PLAN.md)。
