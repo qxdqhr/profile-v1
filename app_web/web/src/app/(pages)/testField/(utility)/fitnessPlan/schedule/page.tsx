@@ -1,3 +1,5 @@
-import { SchedulePage } from '@/modules/fitnessPlan';
+import { redirect } from 'next/navigation';
 
-export default SchedulePage;
+export default function FitnessPlanLegacyRedirect() {
+  redirect('/fitness-plan/schedule');
+}

@@ -1,10 +1,10 @@
-import { WorkoutSessionPage } from '@/modules/fitnessPlan';
+import { redirect } from 'next/navigation';
 
-interface PageProps {
+export default async function FitnessPlanSessionLegacyRedirect({
+  params,
+}: {
   params: Promise<{ sessionId: string }>;
-}
-
-export default async function FitnessWorkoutSessionRoute({ params }: PageProps) {
+}) {
   const { sessionId } = await params;
-  return <WorkoutSessionPage sessionId={sessionId} />;
+  redirect(`/fitness-plan/workout/${sessionId}`);
 }

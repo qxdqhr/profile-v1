@@ -88,6 +88,12 @@ const nextConfig: NextConfig = {
         NEXT_PUBLIC_NODE_NOTES_URL:
             process.env.NEXT_PUBLIC_NODE_NOTES_URL ??
             (process.env.NODE_ENV === 'production' ? '/node-notes' : 'http://localhost:3005'),
+        NEXT_PUBLIC_IDEA_LIST_URL:
+            process.env.NEXT_PUBLIC_IDEA_LIST_URL ??
+            (process.env.NODE_ENV === 'production' ? '/idea-list' : 'http://localhost:3006'),
+        NEXT_PUBLIC_FILETRANSFER_URL:
+            process.env.NEXT_PUBLIC_FILETRANSFER_URL ??
+            (process.env.NODE_ENV === 'production' ? '/filetransfer' : 'http://localhost:3007'),
     },
 
     images: {

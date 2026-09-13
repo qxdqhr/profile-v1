@@ -43,6 +43,11 @@ jobs:
       showmasterpiece: ${{ steps.filter.outputs.showmasterpiece }}
       money-research: ${{ steps.filter.outputs.money-research }}
       node-notes: ${{ steps.filter.outputs.node-notes }}
+      idea-list: ${{ steps.filter.outputs.idea-list }}
+      filetransfer: ${{ steps.filter.outputs.filetransfer }}
+      ticket-monitor: ${{ steps.filter.outputs.ticket-monitor }}
+      fitness-plan: ${{ steps.filter.outputs.fitness-plan }}
+      comfy-prompt: ${{ steps.filter.outputs.comfy-prompt }}
       calendar-mobile: ${{ steps.filter.outputs.calendar-mobile }}
       teach-hub-mobile: ${{ steps.filter.outputs.teach-hub-mobile }}
       deploy: ${{ steps.filter.outputs.deploy }}
@@ -121,6 +126,61 @@ jobs:
               - 'packages/sa2kit/**'
               - 'packages/sa2kit-ui/**'
               - '.gitmodules'
+            idea-list:
+              - 'app_web/idea-list/**'
+              - 'host/auth/**'
+              - 'host/config/**'
+              - 'host/db/**'
+              - 'host/ui/**'
+              - 'pnpm-lock.yaml'
+              - 'package.json'
+              - 'packages/sa2kit/**'
+              - 'packages/sa2kit-ui/**'
+              - '.gitmodules'
+            filetransfer:
+              - 'app_web/filetransfer/**'
+              - 'host/auth/**'
+              - 'host/config/**'
+              - 'host/db/**'
+              - 'host/ui/**'
+              - 'pnpm-lock.yaml'
+              - 'package.json'
+              - 'packages/sa2kit/**'
+              - 'packages/sa2kit-ui/**'
+              - '.gitmodules'
+            ticket-monitor:
+              - 'app_web/ticket-monitor/**'
+              - 'host/auth/**'
+              - 'host/config/**'
+              - 'host/db/**'
+              - 'host/ui/**'
+              - 'pnpm-lock.yaml'
+              - 'package.json'
+              - 'packages/sa2kit/**'
+              - 'packages/sa2kit-ui/**'
+              - '.gitmodules'
+            fitness-plan:
+              - 'app_web/fitness-plan/**'
+              - 'host/auth/**'
+              - 'host/config/**'
+              - 'host/db/**'
+              - 'host/ui/**'
+              - 'pnpm-lock.yaml'
+              - 'package.json'
+              - 'packages/sa2kit/**'
+              - 'packages/sa2kit-ui/**'
+              - '.gitmodules'
+            comfy-prompt:
+              - 'app_web/comfy-prompt/**'
+              - 'host/auth/**'
+              - 'host/config/**'
+              - 'host/db/**'
+              - 'host/ui/**'
+              - 'pnpm-lock.yaml'
+              - 'package.json'
+              - 'packages/sa2kit/**'
+              - 'packages/sa2kit-ui/**'
+              - '.gitmodules'
             calendar-mobile:
               - 'app_mobile/calendar-mobile/**'
               - 'packages/sa2kit/**'
@@ -152,7 +212,7 @@ jobs:
         run: |
           set -euo pipefail
           apps=()
-          for app in web calendar teach-hub showmasterpiece money-research node-notes; do
+          for app in web calendar teach-hub showmasterpiece money-research node-notes idea-list filetransfer ticket-monitor fitness-plan comfy-prompt; do
             case "$app" in
               web) changed="${{ steps.filter.outputs.web }}" ;;
               calendar) changed="${{ steps.filter.outputs.calendar }}" ;;
@@ -160,6 +220,11 @@ jobs:
               showmasterpiece) changed="${{ steps.filter.outputs.showmasterpiece }}" ;;
               money-research) changed="${{ steps.filter.outputs.money-research }}" ;;
               node-notes) changed="${{ steps.filter.outputs.node-notes }}" ;;
+              idea-list) changed="${{ steps.filter.outputs.idea-list }}" ;;
+              filetransfer) changed="${{ steps.filter.outputs.filetransfer }}" ;;
+              ticket-monitor) changed="${{ steps.filter.outputs.ticket-monitor }}" ;;
+              fitness-plan) changed="${{ steps.filter.outputs.fitness-plan }}" ;;
+              comfy-prompt) changed="${{ steps.filter.outputs.comfy-prompt }}" ;;
             esac
             if [ "$changed" = "true" ]; then
               apps+=("$app")
@@ -240,13 +305,18 @@ jobs:
         needs.changes.outputs.teach-hub == 'true' ||
         needs.changes.outputs.showmasterpiece == 'true' ||
         needs.changes.outputs.money-research == 'true' ||
-        needs.changes.outputs.node-notes == 'true'
+        needs.changes.outputs.node-notes == 'true' ||
+        needs.changes.outputs.idea-list == 'true' ||
+        needs.changes.outputs.filetransfer == 'true' ||
+        needs.changes.outputs.ticket-monitor == 'true' ||
+        needs.changes.outputs.fitness-plan == 'true' ||
+        needs.changes.outputs.comfy-prompt == 'true'
       )
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        app: [web, calendar, teach-hub, showmasterpiece, money-research, node-notes]
+        app: [web, calendar, teach-hub, showmasterpiece, money-research, node-notes, idea-list, filetransfer, ticket-monitor, fitness-plan, comfy-prompt]
     steps:
       - name: Skip if app was rebuilt
         id: gate
@@ -258,6 +328,11 @@ jobs:
             showmasterpiece) changed="${{ needs.changes.outputs.showmasterpiece }}" ;;
             money-research) changed="${{ needs.changes.outputs.money-research }}" ;;
             node-notes) changed="${{ needs.changes.outputs.node-notes }}" ;;
+            idea-list) changed="${{ needs.changes.outputs.idea-list }}" ;;
+            filetransfer) changed="${{ needs.changes.outputs.filetransfer }}" ;;
+            ticket-monitor) changed="${{ needs.changes.outputs.ticket-monitor }}" ;;
+            fitness-plan) changed="${{ needs.changes.outputs.fitness-plan }}" ;;
+            comfy-prompt) changed="${{ needs.changes.outputs.comfy-prompt }}" ;;
           esac
           if [ "$changed" = "true" ]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
@@ -807,7 +882,7 @@ jobs:
           FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
           FEISHU_SIGN_SECRET: ${{ secrets.FEISHU_SIGN_SECRET }}
           CI_NOTIFY_STATUS: ${{ (needs.build.result == 'success' || needs.build.result == 'skipped') && (needs.promote-images.result == 'success' || needs.promote-images.result == 'skipped') && (needs.export-godot-games.result == 'success' || needs.export-godot-games.result == 'skipped') && (needs.deploy-web.result == 'success' || needs.deploy-web.result == 'skipped') && (needs.build-teach-hub-mobile.result == 'success' || needs.build-teach-hub-mobile.result == 'skipped') && (needs.build-calendar-mobile.result == 'success' || needs.build-calendar-mobile.result == 'skipped') && 'success' || 'failure' }}
-          CI_IMAGE_TAG: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && (needs.build.result == 'success' || needs.promote-images.result == 'success') && format('web:{0} calendar:{0} teach-hub:{0} showmasterpiece:{0} money-research:{0} node-notes:{0}', github.run_number) || '' }}
+          CI_IMAGE_TAG: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && (needs.build.result == 'success' || needs.promote-images.result == 'success') && format('web:{0} calendar:{0} teach-hub:{0} showmasterpiece:{0} money-research:{0} node-notes:{0} idea-list:{0} filetransfer:{0} ticket-monitor:{0} fitness-plan:{0} comfy-prompt:{0}', github.run_number) || '' }}
           CI_TEACH_HUB_APK_BUILD_RESULT: ${{ needs.build-teach-hub-mobile.result }}
           CI_TEACH_HUB_APK_RELEASE_URL: ${{ needs.build-teach-hub-mobile.result == 'success' && needs.build-teach-hub-mobile.outputs.release_url || '' }}
           CI_TEACH_HUB_APK_DOWNLOAD_URL: ${{ needs.build-teach-hub-mobile.result == 'success' && needs.build-teach-hub-mobile.outputs.apk_download_url || '' }}

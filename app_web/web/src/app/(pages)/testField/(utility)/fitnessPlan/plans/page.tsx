@@ -1,3 +1,5 @@
-import { PlansPage } from '@/modules/fitnessPlan';
+import { redirect } from 'next/navigation';
 
-export default PlansPage;
+export default function FitnessPlanLegacyRedirect() {
+  redirect('/fitness-plan/plans');
+}

@@ -1,4 +1,4 @@
-# 生产网关栈：nginx + web + calendar + teach-hub + showmasterpiece + money-research + node-notes
+# 生产网关栈：nginx + web + calendar + teach-hub + showmasterpiece + money-research + node-notes + idea-list + filetransfer + ticket-monitor + fitness-plan + comfy-prompt
 # + 旁路 WordPress（/wp/<slug>/，非 Next；见 deploy/wordpress/README.md）
 # + 旁路 Godot/静态游戏（/games/<slug>/，见 deploy/games/README.md）
 # 用法见 deploy/MIGRATION-RUNBOOK.md
@@ -24,6 +24,11 @@ services:
       NEXT_PUBLIC_SHOWMASTERPIECE_URL: /showmasterpiece
       NEXT_PUBLIC_MONEY_RESEARCH_URL: /money-research
       NEXT_PUBLIC_NODE_NOTES_URL: /node-notes
+      NEXT_PUBLIC_IDEA_LIST_URL: /idea-list
+      NEXT_PUBLIC_FILETRANSFER_URL: /filetransfer
+      NEXT_PUBLIC_TICKET_MONITOR_URL: /ticket-monitor
+      NEXT_PUBLIC_FITNESS_PLAN_URL: /fitness-plan
+      NEXT_PUBLIC_COMFY_PROMPT_URL: /comfy-prompt
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     volumes:
@@ -166,6 +171,142 @@ services:
     networks:
       - profile
 
+  idea_list:
+    image: ${REGISTRY}/qhr-profile-idea-list:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      APP_CONFIG_ENV: production
+      APP_CONFIG_PATH: /app/config/app.config.production.yaml
+      DATABASE_URL: ${DATABASE_URL:-}
+      NEXT_PUBLIC_BASE_PATH: /idea-list
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - ./app.config.yaml:/app/config/app.config.production.yaml:ro
+    expose:
+      - '3006'
+    healthcheck:
+      <<: *next-health
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3006/idea-list').then((r)=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))",
+        ]
+    networks:
+      - profile
+
+  filetransfer:
+    image: ${REGISTRY}/qhr-profile-filetransfer:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      APP_CONFIG_ENV: production
+      APP_CONFIG_PATH: /app/config/app.config.production.yaml
+      DATABASE_URL: ${DATABASE_URL:-}
+      NEXT_PUBLIC_BASE_PATH: /filetransfer
+      FILE_STORAGE_PATH: /app/uploads
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - ./app.config.yaml:/app/config/app.config.production.yaml:ro
+      - filetransfer_uploads:/app/uploads
+    expose:
+      - '3007'
+    healthcheck:
+      <<: *next-health
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3007/filetransfer').then((r)=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))",
+        ]
+    networks:
+      - profile
+
+  ticket_monitor:
+    image: ${REGISTRY}/qhr-profile-ticket-monitor:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      APP_CONFIG_ENV: production
+      APP_CONFIG_PATH: /app/config/app.config.production.yaml
+      DATABASE_URL: ${DATABASE_URL:-}
+      NEXT_PUBLIC_BASE_PATH: /ticket-monitor
+      TICKET_MONITOR_CRON_SECRET: ${TICKET_MONITOR_CRON_SECRET:-}
+      TICKET_MONITOR_ADMIN_TOKEN: ${TICKET_MONITOR_ADMIN_TOKEN:-}
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - ./app.config.yaml:/app/config/app.config.production.yaml:ro
+    expose:
+      - '3008'
+    healthcheck:
+      <<: *next-health
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3008/ticket-monitor').then((r)=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))",
+        ]
+    networks:
+      - profile
+
+
+  fitness_plan:
+    image: ${REGISTRY}/qhr-profile-fitness-plan:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      APP_CONFIG_ENV: production
+      APP_CONFIG_PATH: /app/config/app.config.production.yaml
+      DATABASE_URL: ${DATABASE_URL:-}
+      NEXT_PUBLIC_BASE_PATH: /fitness-plan
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - ./app.config.yaml:/app/config/app.config.production.yaml:ro
+    expose:
+      - '3009'
+    healthcheck:
+      <<: *next-health
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3009/fitness-plan').then((r)=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))",
+        ]
+    networks:
+      - profile
+
+
+  comfy_prompt:
+    image: ${REGISTRY}/qhr-profile-comfy-prompt:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      APP_CONFIG_ENV: production
+      APP_CONFIG_PATH: /app/config/app.config.production.yaml
+      DATABASE_URL: ${DATABASE_URL:-}
+      NEXT_PUBLIC_BASE_PATH: /comfy-prompt
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - ./app.config.yaml:/app/config/app.config.production.yaml:ro
+    expose:
+      - '3010'
+    healthcheck:
+      <<: *next-health
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3010/comfy-prompt').then((r)=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))",
+        ]
+    networks:
+      - profile
+
   # --- WordPress 旁路（独立 MariaDB；与宿主机 Postgres 无关）---
   wp_mariadb:
     image: docker.m.daocloud.io/library/mariadb:11
@@ -228,6 +369,11 @@ services:
       - showmasterpiece
       - money_research
       - node_notes
+      - idea_list
+      - filetransfer
+      - ticket_monitor
+      - fitness_plan
+      - comfy_prompt
       # wordpress_holt 不作为硬依赖：MariaDB 不健康时不应拖垮整站 /games
       # Godot 静态包由本容器 alias /var/www/games/<slug>/www，不再 depends_on 独立游戏 nginx
     ports:
@@ -252,3 +398,4 @@ networks:
 volumes:
   wp_mariadb_data:
   wp_holt_uploads:
+  filetransfer_uploads:

@@ -146,7 +146,7 @@ else
 fi
 
 # DaoCloud 公网 TLS 不稳：阿里云业务镜像必须拉成功；nginx/WP 失败则沿用本地层
-APP_SERVICES="web calendar teach_hub showmasterpiece money_research node_notes"
+APP_SERVICES="web calendar teach_hub showmasterpiece money_research node_notes idea_list filetransfer ticket_monitor fitness_plan comfy_prompt"
 BASE_SERVICES="nginx"
 WP_SERVICES="wp_mariadb wordpress_holt"
 

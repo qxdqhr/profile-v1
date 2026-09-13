@@ -1,3 +1,5 @@
-import { TicketMonitorPage } from '@/modules/ticketMonitor';
+import { redirect } from 'next/navigation';
 
-export default TicketMonitorPage;
+export default function TicketMonitorLegacyRedirect() {
+  redirect('/ticket-monitor');
+}

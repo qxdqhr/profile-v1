@@ -129,7 +129,7 @@ export const experiments: ExperimentItem[] = [
     id: "idea-list",
     title: "想法清单",
     description: "管理和组织各种想法的清单工具，支持多个清单、优先级设置、标签分类和完成状态跟踪",
-    path: "/testField/ideaList",
+    path: "/idea-list",
     tags: ["想法", "清单", "待办事项", "管理"],
     category: "utility",
     isCompleted: false
@@ -138,7 +138,7 @@ export const experiments: ExperimentItem[] = [
     id: "comfy-prompt",
     title: "ComfyUI 管理",
     description: "提示词资产 + 远程运行：管理提示词/工作流 JSON，经后端代理提交 ComfyUI 任务（v1 HTTP 轮询出图）",
-    path: "/testField/comfyPrompt/prompts",
+    path: "/comfy-prompt/prompts",
     tags: ["ComfyUI", "AI绘画", "提示词", "工作流", "Stable Diffusion"],
     category: "utility",
     isCompleted: true,
@@ -163,7 +163,7 @@ export const experiments: ExperimentItem[] = [
     path: "/testField/cardMaker",
     tags: ["名片", "设计", "移动端", "编辑器", "个性化"],
     category: "utility",
-    isCompleted: false
+    isCompleted: true
   },
   {
     id: "tailwind-test",
@@ -178,10 +178,10 @@ export const experiments: ExperimentItem[] = [
     id: "ticket-monitor",
     title: "开票信息聚合监控",
     description: "后台定时同步开票数据，飞书通知新演出与截止提醒，支持多档天数与平台配置",
-    path: "/testField/ticketMonitor",
+    path: "/ticket-monitor",
     tags: ["开票", "聚合", "票务", "动漫演出"],
     category: "utility",
-    isCompleted: false,
+    isCompleted: true,
     createdAt: "2026-03-08",
     updatedAt: "2026-03-08"
   },
@@ -189,10 +189,10 @@ export const experiments: ExperimentItem[] = [
     id: "fitness-plan",
     title: "健身计划",
     description: "训练计划、日历排期、力量/有氧记录、饮食截图、跨模块打卡与数据统计（animal-island-ui）",
-    path: "/testField/fitnessPlan",
+    path: "/fitness-plan",
     tags: ["健身", "训练", "饮食", "打卡", "计划"],
     category: "utility",
-    isCompleted: false,
+    isCompleted: true,
     createdAt: "2026-06-08",
     updatedAt: "2026-06-08"
   },
@@ -239,7 +239,7 @@ export const experiments: ExperimentItem[] = [
     id: "filetransfer", 
     title: "文件中转站",
     description: "安全、快速的文件传输服务，支持文件上传和下载",
-    path: "/testField/filetransfer",
+    path: "/filetransfer",
     tags: ["文件", "传输", "上传", "下载"],
     category: "utility", 
     isCompleted: true

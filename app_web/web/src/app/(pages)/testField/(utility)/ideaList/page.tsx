@@ -1,5 +1,6 @@
-import { IdeaListPage } from '@/modules/ideaList';
+import { redirect } from 'next/navigation';
 
-export default function IdeaListTestPage() {
-  return <IdeaListPage />;
-} 
+/** Legacy testField 入口 → 独立子应用 */
+export default function IdeaListLegacyRedirect() {
+  redirect('/idea-list');
+}

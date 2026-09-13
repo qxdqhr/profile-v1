@@ -1,7 +1,8 @@
 # 蓝图：多端 sa2kit SDK（common + business 同仓多端）
 
-> 版本：v0.5 · 2026-09-04  
-> 状态：**北极星执行中**（Phase F ✅ · **Phase G ✅ 完成**）— 见 §0 / §7 / **§14**  
+> 版本：v0.6 · 2026-09-13  
+> 状态：**北极星执行中**（Phase F ✅ · Phase G ✅ · **Phase H / 启明星二期 规划中**）— 见 §0 / §7 / §14 / **§15**  
+> 主站功能盘点：[WEB-MODULE-INVENTORY.md](./WEB-MODULE-INVENTORY.md)  
 > 取代/修正：先前「business 迁回 profile-v1」方向（见文末 §11）  
 > 源码仓：独立仓库 `github.com/qxdqhr/sa2kit` · `github.com/qxdqhr/sa2kit-ui`（profile-v1 以 git submodule 挂载于 `packages/sa2kit/` · `packages/sa2kit-ui/`，仍可 npm 发布）· 消费仓 `profile-v1` 及独立 RN/Taro/Electron 宿主
 
@@ -557,3 +558,110 @@ app_web/teach-hub/
 ---
 
 **确认口令（示例）**：`确认 Phase G：G1–G4` 或 `确认 Phase G：G1–G8`。确认前 **不执行**迁移。
+
+---
+
+## 15. Phase H — 启明星二期（主站变薄 + 接单契约 + 包体）
+
+> **日期**：2026-09-13（grill 共识冻结）  
+> **状态**：规划已确认；**代码迁出按 H 门禁逐步执行**（本文先定边界）  
+> **清单 SSOT**：[WEB-MODULE-INVENTORY.md](./WEB-MODULE-INVENTORY.md)
+
+### 15.1 一期回顾与二期目标
+
+| 一期（已完成） | 二期要补的一期余项 | 二期新增 |
+|----------------|-------------------|----------|
+| U / A–B / C / D / E1 / F / G | **P1** 接单契约实战化；**E2/E3** 包体继续拆 | **主站工具分层迁出**（A Next 子应用 + B sa2kit + 终态 webTools） |
+
+**二期北极星（并重）**：
+
+1. **接单弹药**：非 profile 宿主可按 `HOST-ONBOARDING` 空目录演练接入（auth + 一页 UI + 可选一域）。  
+2. **主站变薄**：`app_web/web` 不再堆大域实现；实验田退回目录壳。  
+
+**终态（跨期）**：`modules` 几乎清空（字面目标 1）。**本期**先迁「有 API + DB + 独立运维价值」的一批（目标 2）。
+
+### 15.2 拆分形态（默认纪律）
+
+| 级别 | 形态 | 何时用 |
+|------|------|--------|
+| **A** | monorepo `app_web/<slug>` Next 子应用 + Docker/网关 | **同时**具备：独立 API、独立 DB 表、需要独立发版/镜像 |
+| **B** | 仅 `sa2kit/business/<feature>`；主站或 utilities 薄 page | 要复用/接单，但不值得新进程 |
+| **C** | 留主站 | Home / testField 壳 / 极小 demo |
+| **D/E** | 旁路或后续 | Godot/游戏原型、已迁子应用只验收「够薄」 |
+
+- **禁止默认**：把 Next 子应用做成 git submodule（与 `APPS-SUBMODULE-PLAN`「Next 暂不外迁」一致）。  
+- **例外**：仅当「第二团队/客户只要这一个 Next、不要 profile」时开 RFC（§15.8）。  
+- 若名单项盘点后不满足 A 门槛 → **降为 B**，空位由清单下一符合项补上。
+
+### 15.3 本期（H1）必做名单
+
+迁出顺序（依赖风险升序）：
+
+1. **ideaList** → `app_web/idea-list`（样板脚手架）  
+2. **filetransfer**  
+3. **ticketMonitor**  
+4. **fitnessPlan**  
+5. **comfyPrompt**  
+
+每件验收：
+
+- 实现进 `sa2kit/business/<domain>/{domain,server,ui/web}`（或先宿主完整再下沉，但禁止双轨长期）  
+- 新 Next：`basePath` 正式路径（如 `/idea-list`）；旧 `/testField/...` **302**；实验田卡片改链正式路径  
+- **Docker + gateway + `pnpm package:<slug>`** 进现有矩阵（端口建议自 **3006** 起顺延）  
+- 主站 `modules/<name>` 仅剩 re-export / 删除  
+
+并行库侧：
+
+- **P1**：空目录按 `packages/sa2kit/docs/HOST-ONBOARDING.md` 跑通；模板仓 `profile-customer-template` **后置**  
+- **E**：延续 `measure:dist`；推进 E2/E3（可选 `@sa2kit/*` 分包，对外路径兼容）
+
+### 15.4 URL / 宿主 / 数据
+
+| 项 | 约定 |
+|----|------|
+| URL | 正式路径产品化；testField 只当目录（卡片外链） |
+| Auth / DB | profile 内继续 **共享** Better Auth cookie + 同一 Postgres；客户仓走注入，不绑死 profile 库 |
+| Home | 主站保留品牌首页 + 实验田目录 + Home 配置/API |
+| 小工具终态 | `sa2kit/business/webTools/*` + 可选单一 `app_web/utilities` 壳（**不**一工具一镜像） |
+
+### 15.5 非目标（二期不做）
+
+- 大域 **S2**（calendar / teach-hub 再为小程序重做 UI）— 等第二宿主真实出现  
+- mikutap / vocaloidBooth 本期迁代码（清单标 E/旁路优先）  
+- exam：已在 sa2kit，只清主站残留，不占 H1 五席  
+- money-research / node-notes：已是子应用；只验收是否够薄  
+- WordPress / Godot 旁路迁入 sa2kit  
+
+### 15.6 门禁
+
+1. 禁止在 `app_web/web/src/modules/<已迁域>` 新增非 re-export 实现（architecture gate 扩展）。  
+2. 新 A 类必须同时登记：inventory 行 + gateway + `package:<slug>`。  
+3. 客户误 import 全家桶：`measure:dist` 回归（E）。  
+
+执行节奏：**库侧 P1/E 与宿主迁出双轨并行**；每刀可回滚；先 sa2kit commit → bump submodule → 改宿主。
+
+### 15.7 H 门禁表
+
+| Gate | 内容 | 状态 |
+|------|------|------|
+| H0 | 本文 §15 + [WEB-MODULE-INVENTORY.md](./WEB-MODULE-INVENTORY.md) | ✅ 2026-09-13 |
+| H1a | ideaList → A 类样板（含镜像/网关） | ✅ 2026-09-13（代码已落地；待镜像/现网验证） |
+| H1b | filetransfer ✅ / ticketMonitor ✅ | 部分 |
+| H1c | fitnessPlan ✅ / comfyPrompt ✅ | ✅ |
+| H1-P1 | 空目录 HOST-ONBOARDING 演练记录 | ⬜ |
+| H1-E | E2/E3 推进或明确延期理由 | ⬜ |
+| H2 | 按清单下一批 A/B（下一期） | ⬜ |
+| H∞ | modules 近清空 + webTools/utilities | ⬜ 终态 |
+
+### 15.8 子仓例外 RFC（占位）
+
+触发条件：外部只要单个 Next 应用源码、拒绝 monorepo。流程：单独 ADR → 命名 `profile-v1-<slug>` → 仍消费 npm `sa2kit`，**不**复制业务实现进子仓。
+
+### 15.9 Grill 决策索引（2026-09-13）
+
+| 题 | 结论 |
+|----|------|
+| Q1–Q4 | 弹药+变薄并重；分级拆；本期目标 2、终态 1；正文含 P1+E+迁出 |
+| Q5–Q10 | A=API+DB+独立发版；五件名单+清单；URL 混用正式/实验田；小工具→webTools；共享 auth/db；双轨执行 |
+| Q11–Q16 | 正式路径+卡片；五镜像全进矩阵；Home=壳+配置；清单独立 md；蓝图本文件 §15；顺序 ideaList→…→comfyPrompt |
+| Q17–Q22 | 不达标降 B；非目标写死；门禁 1+2+3；子仓仅 RFC；P1 先空目录；先文档后迁码 |

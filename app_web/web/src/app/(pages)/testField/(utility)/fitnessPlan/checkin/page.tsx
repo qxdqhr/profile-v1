@@ -1,3 +1,5 @@
-import { CheckinPage } from '@/modules/fitnessPlan';
+import { redirect } from 'next/navigation';
 
-export default CheckinPage;
+export default function FitnessPlanLegacyRedirect() {
+  redirect('/fitness-plan/checkin');
+}

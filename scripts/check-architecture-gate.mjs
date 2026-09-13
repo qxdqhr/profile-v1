@@ -15,6 +15,11 @@ const root = resolve(import.meta.dirname, '..');
 const forbiddenMounts = [
   'app_web/web/src/app/api/showmasterpiece',
   'app_web/web/src/app/api/node-notes',
+  'app_web/web/src/app/api/ideaLists',
+  'app_web/web/src/app/api/filetransfer',
+  'app_web/web/src/app/api/ticket-monitor',
+  'app_web/web/src/app/api/fitnessPlan',
+  'app_web/web/src/app/api/comfyPrompt',
   'app_web/calendar/app/api/ai',
   'app_web/teach-hub/app/api/ai',
   'app_web/calendar/app/api/auth',
@@ -22,6 +27,11 @@ const forbiddenMounts = [
   'app_web/showmasterpiece/app/api/auth',
   'app_web/node-notes/app/api/auth',
   'app_web/money-research/app/api/auth',
+  'app_web/idea-list/app/api/auth',
+  'app_web/filetransfer/app/api/auth',
+  'app_web/ticket-monitor/app/api/auth',
+  'app_web/fitness-plan/app/api/auth',
+  'app_web/comfy-prompt/app/api/auth',
 ];
 
 const mountHits = forbiddenMounts.filter((rel) => existsSync(resolve(root, rel)));

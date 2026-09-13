@@ -1,3 +1,3 @@
-import { ComfyPromptLayout } from '@/modules/comfyPrompt';
-
-export default ComfyPromptLayout;
+export default function ComfyPromptLegacyLayout({ children }: { children: React.ReactNode }) {
+  return children;
+}

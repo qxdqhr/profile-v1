@@ -1,0 +1,36 @@
+{
+  "name": "@profile/ticket-monitor",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "NEXT_DIST_DIR=.next-ticket-monitor next dev --webpack -p 3008",
+    "build": "NEXT_DIST_DIR=.next-ticket-monitor next build --webpack",
+    "start": "NEXT_DIST_DIR=.next-ticket-monitor next start -p 3008",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@profile/auth": "workspace:*",
+    "@profile/config": "workspace:*",
+    "@profile/db": "workspace:*",
+    "@profile/ui": "workspace:*",
+    "lru-cache": "^11.1.0",
+    "lucide-react": "^0.474.0",
+    "next": "16.0.8",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
+    "react-hot-toast": "^2.5.2",
+    "sa2kit": "workspace:*",
+    "@sa2kit-ui/react": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.12",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.20",
+    "eslint-config-next": "16.0.8",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "yaml": "^2.8.0"
+  }
+}

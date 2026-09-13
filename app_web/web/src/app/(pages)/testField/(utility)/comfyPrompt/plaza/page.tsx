@@ -1,5 +1,5 @@
-import PromptPlazaPage from '@/modules/comfyPrompt/pages/PromptPlazaPage';
+import { redirect } from 'next/navigation';
 
-export default function ComfyPromptPlazaRoute() {
-  return <PromptPlazaPage />;
+export default function ComfyPromptLegacyRedirect() {
+  redirect('/comfy-prompt/plaza');
 }

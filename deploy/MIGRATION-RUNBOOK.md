@@ -22,11 +22,21 @@
 | `/money-research/` | money_research:3004 | `NEXT_PUBLIC_BASE_PATH=/money-research` |
 | `/node-notes/` | node_notes:3005 | `NEXT_PUBLIC_BASE_PATH=/node-notes` |
 | `/api/node-notes/` | node_notes:3005 | API |
+| `/idea-list/` | idea_list:3006 | `NEXT_PUBLIC_BASE_PATH=/idea-list` |
+| `/api/ideaLists/` | idea_list:3006 | API |
+| `/filetransfer/` | filetransfer:3007 | `NEXT_PUBLIC_BASE_PATH=/filetransfer` |
+| `/api/filetransfer/` | filetransfer:3007 | API |
+| `/ticket-monitor/` | ticket_monitor:3008 | `NEXT_PUBLIC_BASE_PATH=/ticket-monitor` |
+| `/api/ticket-monitor/` | ticket_monitor:3008 | API |
+| `/fitness-plan/` | fitness_plan:3009 | `NEXT_PUBLIC_BASE_PATH=/fitness-plan` |
+| `/api/fitnessPlan/` | fitness_plan:3009 | API |
+| `/comfy-prompt/` | comfy_prompt:3010 | `NEXT_PUBLIC_BASE_PATH=/comfy-prompt` |
+| `/api/comfyPrompt/` | comfy_prompt:3010 | API |
 | `/wp/holt/` | wordpress_holt:80 | **Holt 音乐作品集**（旁路 WordPress + `holt-portfolio` 主题） |
 | `/games/<slug>/` | 平台 nginx 静态 | **Godot Web**（`deploy/games/<slug>/www/`，无独立容器） |
 | `/api/auth/` | web:3000 | **共享 session**（Next 子应用不单独登录） |
 
-Legacy：`/testField/calendar`、`/testField/teachHub` → nginx 301 至新路径；`/testField/ShowMasterPieces` → 301 至 `/showmasterpiece`。
+Legacy：`/testField/calendar`、`/testField/teachHub` → nginx 301 至新路径；`/testField/ShowMasterPieces` → 301 至 `/showmasterpiece`；`/testField/ideaList` → 301 至 `/idea-list`；`/testField/filetransfer` → 301 至 `/filetransfer`；`/testField/ticketMonitor` → 301 至 `/ticket-monitor`；`/testField/fitnessPlan` → 301 至 `/fitness-plan`；`/testField/comfyPrompt` → 301 至 `/comfy-prompt`。
 
 ### WordPress 旁路（`/wp/*`）
 

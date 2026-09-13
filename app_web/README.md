@@ -10,6 +10,11 @@
 | `@profile/showmasterpiece` | `app_web/showmasterpiece/` | 3003 | 画集 |
 | `@profile/money-research` | `app_web/money-research/` | 3004 | 调研 Demo（暂留） |
 | `@profile/node-notes` | `app_web/node-notes/` | 3005 | 节点笔记 |
+| `@profile/idea-list` | `app_web/idea-list/` | 3006 | 想法清单 |
+| `@profile/filetransfer` | `app_web/filetransfer/` | 3007 | 文件中转站 |
+| `@profile/ticket-monitor` | `app_web/ticket-monitor/` | 3008 | 票务监控 |
+| `@profile/fitness-plan` | `app_web/fitness-plan/` | 3009 | 健身计划 |
+| `@profile/comfy-prompt` | `app_web/comfy-prompt/` | 3010 | ComfyUI 提示词 |
 
 RN：[`app_mobile/`](../app_mobile/README.md)。桌面：[`app_desktop/`](../app_desktop/README.md)。跨端 shared：[`packages/`](../packages/README.md) 内各 `*-core/shared`。
 

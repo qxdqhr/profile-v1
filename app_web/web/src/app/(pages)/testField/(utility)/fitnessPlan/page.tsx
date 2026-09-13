@@ -1,3 +1,5 @@
-import { TodayPage } from '@/modules/fitnessPlan';
+import { redirect } from 'next/navigation';
 
-export default TodayPage;
+export default function FitnessPlanLegacyRedirect() {
+  redirect('/fitness-plan');
+}

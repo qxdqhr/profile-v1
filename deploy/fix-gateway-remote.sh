@@ -152,7 +152,7 @@ if [ "${POST_DEPLOY:-}" = "1" ]; then
 else
   echo "========== 6. 重启网关栈 =========="
   # 阿里云业务镜像必须成功；DaoCloud 的 nginx/WP 失败则尽量用本地层
-  APP_SERVICES="web calendar teach_hub showmasterpiece money_research node_notes"
+  APP_SERVICES="web calendar teach_hub showmasterpiece money_research node_notes idea_list filetransfer ticket_monitor fitness_plan comfy_prompt"
   BASE_SERVICES="nginx"
   WP_SERVICES="wp_mariadb wordpress_holt"
   # shellcheck disable=SC2086

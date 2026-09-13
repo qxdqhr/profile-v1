@@ -1,3 +1,5 @@
-import { WorkoutListPage } from '@/modules/fitnessPlan';
+import { redirect } from 'next/navigation';
 
-export default WorkoutListPage;
+export default function FitnessPlanLegacyRedirect() {
+  redirect('/fitness-plan/workout');
+}

@@ -1,3 +1,5 @@
-import { SettingsPage } from '@/modules/fitnessPlan';
+import { redirect } from 'next/navigation';
 
-export default SettingsPage;
+export default function FitnessPlanLegacyRedirect() {
+  redirect('/fitness-plan/settings');
+}

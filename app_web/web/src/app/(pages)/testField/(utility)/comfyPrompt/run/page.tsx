@@ -1,3 +1,5 @@
-import { RemoteRunPage } from '@/modules/comfyPrompt';
+import { redirect } from 'next/navigation';
 
-export default RemoteRunPage;
+export default function ComfyPromptLegacyRedirect() {
+  redirect('/comfy-prompt/run');
+}

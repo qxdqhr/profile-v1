@@ -1,7 +1,5 @@
- /**
- * 文件中转站页面 - 使用新的模块化组件
- */
+import { redirect } from 'next/navigation';
 
-import { FileTransferPage } from '@/modules/filetransfer';
-
-export default FileTransferPage;
+export default function FileTransferLegacyRedirect() {
+  redirect('/filetransfer');
+}

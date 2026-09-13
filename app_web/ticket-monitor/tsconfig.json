@@ -1,0 +1,66 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@profile/auth": [
+        "../../host/auth/src/index.ts"
+      ],
+      "@profile/auth/*": [
+        "../../host/auth/src/*"
+      ],
+      "@profile/config": [
+        "../../host/config/src/index.ts"
+      ],
+      "@profile/config/*": [
+        "../../host/config/src/*"
+      ],
+      "@profile/db": [
+        "../../host/db/src/index.ts"
+      ],
+      "@profile/db/*": [
+        "../../host/db/src/*"
+      ],
+      "@profile/ui/*": [
+        "../../host/ui/*"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next-node-notes/types/**/*.ts",
+    ".next-node-notes/dev/types/**/*.ts",
+    ".next-idea-list/types/**/*.ts",
+    ".next-idea-list/dev/types/**/*.ts",
+    ".next-ticket-monitor/types/**/*.ts",
+    ".next-ticket-monitor/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

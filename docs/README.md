@@ -15,7 +15,8 @@
 | 分模块 Code Review | [`code-review/README.md`](./code-review/README.md) |
 | 2026-09-02 架构审查（已落地快照） | [`code-review/2026-09-02-审查结果.md`](./code-review/2026-09-02-审查结果.md) |
 | 待定优化（说「优化项目」接着做） | [`code-review/PENDING-OPTIMIZATION.md`](./code-review/PENDING-OPTIMIZATION.md) |
-| 多端 sa2kit 蓝图 | [`code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`](./code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md) |
+| 多端 sa2kit 蓝图（含启明星二期 §15） | [`code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`](./code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md) |
+| 主站 Web 功能清单（二期拆分输入） | [`code-review/libraries/WEB-MODULE-INVENTORY.md`](./code-review/libraries/WEB-MODULE-INVENTORY.md) |
 | 大域新域迁移（Phase F） | [`code-review/libraries/DOMAIN-MIGRATION-ROADMAP.md`](./code-review/libraries/DOMAIN-MIGRATION-ROADMAP.md) |
 | calendar / teach-hub / showmasterpiece 分域计划 | [`modules/calendar/DOMAIN-MIGRATION.md`](./modules/calendar/DOMAIN-MIGRATION.md) 等 |
 | Monorepo 迁移（已完成，归档） | [`monorepo-migration/README.md`](./monorepo-migration/README.md) |

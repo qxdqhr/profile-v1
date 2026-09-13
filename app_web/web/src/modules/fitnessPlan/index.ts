@@ -1,16 +1,20 @@
-export { FitnessPlanLayout } from './layout/FitnessPlanLayout';
+/**
+ * 薄兼容层（Phase H1c）：实现已迁至 sa2kit/business/fitnessPlan。
+ * 正式入口：/fitness-plan （@profile/fitness-plan）
+ */
 export {
+  FitnessPlanLayout,
   TodayPage,
+  PlansPage,
+  PlanDetailPage,
+  SchedulePage,
   WorkoutListPage,
   WorkoutSessionPage,
   DietPage,
   CheckinPage,
   StatsPage,
   SettingsPage,
-} from './pages';
-export { PlansPage } from './pages/PlansPage';
-export { PlanDetailPage } from './pages/PlanDetailPage';
-export { SchedulePage } from './pages/SchedulePage';
-export { useFitnessPlanStore } from './store/fitnessPlanStore';
-export { useFitnessPlanBootstrap } from './hooks/useFitnessPlanBootstrap';
-export type * from './types';
+  useFitnessPlanStore,
+  useFitnessPlanBootstrap,
+} from 'sa2kit/business/fitnessPlan/ui/web';
+export type * from 'sa2kit/business/fitnessPlan/domain';

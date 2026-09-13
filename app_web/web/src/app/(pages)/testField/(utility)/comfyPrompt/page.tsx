@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
-export default function ComfyPromptIndexPage() {
-  redirect('/testField/comfyPrompt/prompts');
+export default function ComfyPromptLegacyRedirect() {
+  redirect('/comfy-prompt/prompts');
 }

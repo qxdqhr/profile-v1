@@ -1,3 +1,5 @@
-import { DietPage } from '@/modules/fitnessPlan';
+import { redirect } from 'next/navigation';
 
-export default DietPage;
+export default function FitnessPlanLegacyRedirect() {
+  redirect('/fitness-plan/diet');
+}

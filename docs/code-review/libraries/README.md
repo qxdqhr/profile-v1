@@ -10,6 +10,8 @@
 
 **Phase G 完成**（G1–G8 ✅）：`packages/` 仅 `sa2kit` + `sa2kit-ui`。蓝图 [§14](./BLUEPRINT-multiplatform-sa2kit.md#14-phase-g--双库收敛packages-仅保留-sa2kit--sa2kit-ui) · [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)
 
+**Phase H / 启明星二期**（规划中）：蓝图 [§15](./BLUEPRINT-multiplatform-sa2kit.md#15-phase-h--启明星二期主站变薄--接单契约--包体) · 主站盘点 [WEB-MODULE-INVENTORY.md](./WEB-MODULE-INVENTORY.md)
+
 | 已完成（归档） | 文档 |
 |----------------|------|
 | UI 统一 + 门禁 | `pnpm gate:ui`；`.cursor/rules/profile-v1-sa2kit-ui.mdc` |

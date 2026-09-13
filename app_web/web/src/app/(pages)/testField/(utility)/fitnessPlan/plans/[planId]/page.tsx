@@ -1,10 +1,10 @@
-import { PlanDetailPage } from '@/modules/fitnessPlan';
+import { redirect } from 'next/navigation';
 
-interface PageProps {
+export default async function FitnessPlanPlanLegacyRedirect({
+  params,
+}: {
   params: Promise<{ planId: string }>;
-}
-
-export default async function FitnessPlanDetailRoute({ params }: PageProps) {
+}) {
   const { planId } = await params;
-  return <PlanDetailPage planId={planId} />;
+  redirect(`/fitness-plan/plans/${planId}`);
 }

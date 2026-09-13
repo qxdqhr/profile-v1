@@ -2,6 +2,7 @@
 
 > 日期：2026-09-04  
 > **状态**：Phase F **完成**。Phase G **完成**（G1–G8 ✅）。  
+> **后续**：启明星二期 = 蓝图 [§15 Phase H](./BLUEPRINT-multiplatform-sa2kit.md#15-phase-h--启明星二期主站变薄--接单契约--包体)；主站清单 [WEB-MODULE-INVENTORY.md](./WEB-MODULE-INVENTORY.md)。  
 > **模板**：festivalCard Phase C（`sa2kit/business/festivalCard/PLATFORMS.md`）  
 > **门禁**：UI 仍只经 `sa2kit/common/ui*`；`pnpm gate:ui`
 

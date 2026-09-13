@@ -67,6 +67,8 @@ app_web/web 模块
 
 **Phase G 完成**：`packages/` npm 库仅 `sa2kit` + `sa2kit-ui`；另有 **`sa2kit-skill`**（Agent skills，非 workspace）。基建在 `host/`；业务 *-core 已清零。新多端能力优先进 sa2kit（见蓝图）。
 
+**Phase H / 启明星二期**（规划已冻结，迁码按门禁）：主站工具分层迁出 + P1 接单演练 + 包体 E；清单 [`docs/code-review/libraries/WEB-MODULE-INVENTORY.md`](../docs/code-review/libraries/WEB-MODULE-INVENTORY.md)；蓝图 §15。
+
 完整蓝图与阶段计划：[`docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`](../docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md)。
 
 ---
@@ -113,7 +115,7 @@ export default function XxxRoute() {
 
 需要模块级副作用（如初始化）时，优先在 **layout** 统一 `import '@/modules/.../init'`；薄 `page.tsx` 仅 re-export 组件。
 
-**已独立为子应用**（业务在 `sa2kit/business/*`，宿主注入在 `app_web/*/lib`）：calendar、teach-hub、showmasterpiece。主站 `app_web/web/src/modules/<name>/` 仅保留 **薄 re-export 或重定向**，勿再新增大段业务逻辑。
+**已独立为子应用**（业务在 `sa2kit/business/*`，宿主注入在 `app_web/*/lib`）：calendar、teach-hub、showmasterpiece、node-notes、**idea-list**、**filetransfer**、**ticket-monitor**、**fitness-plan**、**comfy-prompt**。主站 `app_web/web/src/modules/<name>/` 仅保留 **薄 re-export 或重定向**，勿再新增大段业务逻辑。
 
 ### 2.4 API 路由与模块代码的对应关系
 

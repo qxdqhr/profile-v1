@@ -6,7 +6,8 @@
 通用能力（登录、OSS、UI/主题等）进库、宿主变薄；客户仓应能直接 `import` 库接入，而不是复制 profile 代码。  
 执行上：北极星 > Phase G（**已完成**）> 各域功能优化。详见 [DOMAIN-MIGRATION-ROADMAP.md](./code-review/libraries/DOMAIN-MIGRATION-ROADMAP.md)；门禁 `pnpm gate`（含 `gate:ui` + `gate:architecture`）。
 
-产品级鉴权余项见 [`architecture/AUTH-SURFACE-AUDIT.md`](./architecture/AUTH-SURFACE-AUDIT.md)；宿主身份见 [`architecture/CUSTOMER-VS-HOST.md`](./architecture/CUSTOMER-VS-HOST.md)。
+产品级鉴权余项见 [`architecture/AUTH-SURFACE-AUDIT.md`](./architecture/AUTH-SURFACE-AUDIT.md)；宿主身份见 [`architecture/CUSTOMER-VS-HOST.md`](./architecture/CUSTOMER-VS-HOST.md)。  
+启明星二期（Phase H）：蓝图 [§15](./code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md#15-phase-h--启明星二期主站变薄--接单契约--包体)；主站拆分清单 [`code-review/libraries/WEB-MODULE-INVENTORY.md`](./code-review/libraries/WEB-MODULE-INVENTORY.md)。
 
 ## 项目知识库（自动 + 手动）
 
@@ -24,6 +25,13 @@
 | Calendar | `@profile/calendar` | 3001 | `/calendar` |
 | TeachHub | `@profile/teach-hub` | 3002 | `/teach-hub` |
 | ShowMasterpiece | `@profile/showmasterpiece` | 3003 | `/showmasterpiece` |
+| MoneyResearch | `@profile/money-research` | 3004 | `/money-research` |
+| NodeNotes | `@profile/node-notes` | 3005 | `/node-notes` |
+| IdeaList | `@profile/idea-list` | 3006 | `/idea-list` |
+| Filetransfer | `@profile/filetransfer` | 3007 | `/filetransfer` |
+| Ticket Monitor | `@profile/ticket-monitor` | 3008 | `/ticket-monitor` |
+| Fitness Plan | `@profile/fitness-plan` | 3009 | `/fitness-plan` |
+| Comfy Prompt | `@profile/comfy-prompt` | 3010 | `/comfy-prompt` |
 | Calendar Mobile | `@profile/calendar-mobile` | Expo | — |
 | TeachHub Mobile | `@profile/teach-hub-mobile` | Expo | — |
 | WordPress（旁路） | —（非 pnpm） | 官方 PHP | `/wp/<slug>/` |
