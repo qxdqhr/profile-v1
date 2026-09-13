@@ -68,15 +68,25 @@ WORDPRESS_DB_PASSWORD="${WORDPRESS_DB_PASSWORD:-${EXISTING_WORDPRESS_DB_PASSWORD
 WORDPRESS_DB_NAME="${WORDPRESS_DB_NAME:-${EXISTING_WORDPRESS_DB_NAME:-wp_holt}}"
 WP_HOLT_PUBLIC_URL="${WP_HOLT_PUBLIC_URL:-${EXISTING_WP_HOLT_PUBLIC_URL}}"
 
+# timeout(1) 只能执行真实 argv，不能调用 shell function；先解析成数组。
+if docker compose version >/dev/null 2>&1; then
+  COMPOSE_ARGV=(docker compose)
+elif command -v docker-compose >/dev/null 2>&1; then
+  COMPOSE_ARGV=(docker-compose)
+else
+  echo "ERROR: 服务器未安装 docker compose / docker-compose，无法启动网关栈" >&2
+  exit 1
+fi
+
 compose_cmd() {
-  if docker compose version >/dev/null 2>&1; then
-    docker compose "$@"
-  elif command -v docker-compose >/dev/null 2>&1; then
-    docker-compose "$@"
-  else
-    echo "ERROR: 服务器未安装 docker compose / docker-compose，无法启动网关栈" >&2
-    exit 1
-  fi
+  "${COMPOSE_ARGV[@]}" "$@"
+}
+
+# 用法: compose_timeout 90s -f file.yml pull nginx
+compose_timeout() {
+  local secs="$1"
+  shift
+  timeout "${secs}" "${COMPOSE_ARGV[@]}" "$@"
 }
 
 {
@@ -137,8 +147,8 @@ if [ "${ROOT_USE:-0}" -ge 85 ] 2>/dev/null; then
   elif [ -f ./cleanup-server-disk.sh ]; then
     bash ./cleanup-server-disk.sh || true
   else
-    docker image prune -af || true
-    docker builder prune -af || true
+    docker image prune -f || true
+    docker builder prune -af --filter "until=72h" || true
   fi
 else
   echo "磁盘使用 ${ROOT_USE:-?}% < 85%，跳过 image prune（避免强依赖 DaoCloud 重拉 nginx/MariaDB）"
@@ -156,25 +166,39 @@ compose_cmd -f "$COMPOSE_FILE" pull $APP_SERVICES
 
 echo "=== 尝试准备 nginx 镜像（短超时；失败用本地/官方源）==="
 NGINX_IMG="docker.m.daocloud.io/library/nginx:1.27-alpine"
-if docker image inspect "$NGINX_IMG" >/dev/null 2>&1; then
-  echo "nginx 本地已有，跳过拉取"
-else
-  if ! timeout 90s compose_cmd -f "$COMPOSE_FILE" pull $BASE_SERVICES; then
-    echo "WARN: DaoCloud nginx 拉取超时/失败，尝试 docker.io"
-    if timeout 90s docker pull nginx:1.27-alpine; then
-      docker tag nginx:1.27-alpine "$NGINX_IMG"
-    else
-      echo "WARN: nginx 仍不可用，up 可能失败"
-    fi
+ensure_nginx_image() {
+  if docker image inspect "$NGINX_IMG" >/dev/null 2>&1; then
+    echo "nginx 本地已有，跳过拉取"
+    return 0
   fi
-fi
+  local attempt
+  for attempt in 1 2 3; do
+    echo "nginx 拉取尝试 ${attempt}/3（DaoCloud / compose）"
+    # shellcheck disable=SC2086
+    if compose_timeout 120s -f "$COMPOSE_FILE" pull $BASE_SERVICES; then
+      return 0
+    fi
+    if timeout 120s docker pull "$NGINX_IMG"; then
+      return 0
+    fi
+    sleep $((attempt * 5))
+  done
+  echo "WARN: DaoCloud nginx 拉取超时/失败，尝试 docker.io"
+  if timeout 120s docker pull nginx:1.27-alpine; then
+    docker tag nginx:1.27-alpine "$NGINX_IMG"
+    return 0
+  fi
+  echo "WARN: nginx 仍不可用，up 可能失败"
+  return 1
+}
+ensure_nginx_image || true
 
 echo "=== 启动网关栈（先核心；游戏静态由平台 nginx 托管，WordPress 可失败）==="
 # shellcheck disable=SC2086
 compose_cmd -f "$COMPOSE_FILE" up -d --remove-orphans $APP_SERVICES $BASE_SERVICES
 echo "=== 尝试拉取/启动 WordPress 旁路（短超时，失败不阻断）==="
 # shellcheck disable=SC2086
-if ! timeout 90s compose_cmd -f "$COMPOSE_FILE" pull $WP_SERVICES; then
+if ! compose_timeout 120s -f "$COMPOSE_FILE" pull $WP_SERVICES; then
   echo "WARN: WordPress 镜像拉取失败，继续部署主站与 /games"
 fi
 # shellcheck disable=SC2086

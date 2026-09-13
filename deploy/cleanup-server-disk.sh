@@ -8,8 +8,10 @@ docker system df 2>/dev/null || true
 
 echo "=== 停止悬空容器并 prune ==="
 docker container prune -f || true
-docker image prune -af || true
-docker builder prune -af || true
+# 只用 dangling prune，保留已打 tag 的 nginx/MariaDB/WordPress 基础镜像。
+# 此前 `image prune -af` 会在 compose down 后清掉这些层，随后 DaoCloud TLS 不稳时 redeploy 必挂。
+docker image prune -f || true
+docker builder prune -af --filter "until=72h" || true
 docker network prune -f || true
 # 不 prune volumes：避免误删 wp_mariadb_data / 业务卷
 
