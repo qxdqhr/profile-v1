@@ -56,7 +56,7 @@
 | Home | 176K | `/api/homePage`, `homeContact` | — | C | 留主站 | 品牌首页 + 配置 |
 | HomeV2 | 84K | — | — | C | 留主站 | 主题演示壳 |
 | testField | 132K | — | — | C | 留主站 | 实验田目录 |
-| exam | 薄 | `/api/exam` | sa2kit exam | L | **已确认** | 宿主仅 DI；答卷 UI 仍 `/testField/experiment`（未下沉） |
+| exam | 薄 | `/api/exam` | sa2kit exam | L | **答卷 UI 已下沉** | 宿主 DI + config 台；ExamPage/`webExamAdapter` 在 sa2kit |
 | games | 32K | — | — | C/E | 留主站 | 入口页；游戏走 Godot 旁路 |
 | mmd | 薄 | `/api/mmd` | `mmd` re-export | B 部分 | **资源 CRUD 已迁** | schema+DbService+models routes → sa2kit；播放器 UI 已在库；宿主 Three 死壳已删；solar/OPT-01 另议 |
 | solarSystem | 64K | — | — | E | 待迁 | 重 Three，后置 |
@@ -82,7 +82,7 @@
 | 路径 | 建议级 | 备注 |
 |------|--------|------|
 | `/testField` | C | 目录 |
-| `/testField/experiment` (+ config) | L | exam 答卷/配置 UI（宿主）；sa2kit `WebExamAdapter` 仍 stub |
+| `/testField/experiment` (+ config) | L | **答卷 UI 已下沉** `sa2kit/business/exam/ui/web`（ExamPage + Adapter）；**config 仍宿主** |
 | `/testField/FloatingMenuDemo` | — | **已删** 宿主 demo（库内 FloatingMenuExample 保留） |
 | `/testField/LiveActivity` | — | **已删** APNs 调试壳 + `/api/activity*` |
 | `/testField/SyncText` | — | **已删** stub 页 + `/api/syncText` |
@@ -160,3 +160,4 @@
 | 2026-09-14 | H∞：删除 FloatingMenuDemo / LiveActivity；清理实验田死链 |
 | 2026-09-14 | H∞：删除 Vocaloider / playMusic；去重 screenReceiver 宿主页 |
 | 2026-09-14 | H∞：实验田/大厅目录死链收口（mmd 路径、gameField→/games） |
+| 2026-09-14 | H∞：exam 答卷 UI 下沉 sa2kit（config 台仍宿主） |

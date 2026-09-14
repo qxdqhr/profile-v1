@@ -1,5 +1,9 @@
 import { ConfigData } from '../types';
-import { mockQuestions, mockStartScreenData, mockResultModalData } from '@/app/(pages)/testField/(utility)/experiment/_utils/mockData';
+import {
+  mockQuestions,
+  mockStartScreenData,
+  mockResultModalData,
+} from 'sa2kit/business/exam/ui/web';
 import { ExamConfigFrontendService, HttpExamClient } from 'sa2kit/business/exam/domain';
 import type { ExamConfig } from 'sa2kit/business/exam/domain';
 
@@ -14,25 +18,24 @@ export const listExamTypes = async (): Promise<string[]> => {
   }
 };
 
-// 从静态文件加载配置
 export const loadConfigurations = async (examId: string = 'default'): Promise<ConfigData> => {
   try {
     return (await examConfigService.load(examId)) as unknown as ConfigData;
   } catch (error) {
     console.error('加载配置失败:', error);
 
-    const defaultConfig = {
+    return {
       questions: mockQuestions,
       startScreen: mockStartScreenData,
       resultModal: mockResultModalData,
     };
-
-    return defaultConfig;
   }
 };
 
-// 保存配置到静态文件
-export const saveConfigurations = async (config: ConfigData, examId: string = 'default'): Promise<void> => {
+export const saveConfigurations = async (
+  config: ConfigData,
+  examId: string = 'default',
+): Promise<void> => {
   try {
     await examConfigService.save(examId, config as unknown as ExamConfig);
   } catch (error) {
@@ -41,35 +44,30 @@ export const saveConfigurations = async (config: ConfigData, examId: string = 'd
   }
 };
 
-// 导出配置为JSON文件
 export const exportConfigurations = (config: ConfigData, examId: string = 'default'): void => {
   try {
     const dataStr = JSON.stringify(config, null, 2);
     const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
-    
-    const titlePart = config.startScreen?.title 
-      ? config.startScreen.title.replace(/\s+/g, '_').slice(0, 20) 
+
+    const titlePart = config.startScreen?.title
+      ? config.startScreen.title.replace(/\s+/g, '_').slice(0, 20)
       : '';
     const exportFileName = `exam_${examId}_${titlePart}_${new Date().toISOString().slice(0, 10)}.json`;
-    
-    // 安全的DOM操作
+
     if (typeof document !== 'undefined' && document.body) {
       const linkElement = document.createElement('a');
       linkElement.setAttribute('href', dataUri);
       linkElement.setAttribute('download', exportFileName);
-      
-      // 安全地添加到DOM并点击
+
       try {
         document.body.appendChild(linkElement);
         linkElement.click();
-        
-        // 安全地移除元素
+
         if (linkElement.parentNode === document.body) {
           document.body.removeChild(linkElement);
         }
       } catch (domError) {
         console.warn('DOM操作警告:', domError);
-        // 降级处理：直接点击元素
         linkElement.click();
       }
     } else {
@@ -80,33 +78,31 @@ export const exportConfigurations = (config: ConfigData, examId: string = 'defau
   }
 };
 
-// 从文件导入配置
-export const importConfigurations = async (file: File, examId: string = 'default'): Promise<ConfigData> => {
+export const importConfigurations = async (
+  file: File,
+  examId: string = 'default',
+): Promise<ConfigData> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    
+
     reader.onload = async (event) => {
       try {
         const config = JSON.parse(event.target?.result as string);
-        
-        // 导入的同时保存到服务器，指定试卷类型
         await saveConfigurations(config, examId);
-        
         resolve(config);
       } catch (error) {
         reject(new Error('配置文件格式无效'));
       }
     };
-    
+
     reader.onerror = () => {
       reject(new Error('读取文件失败'));
     };
-    
+
     reader.readAsText(file);
   });
 };
 
-// 保存配置为静态文件
 export const saveAsStaticFile = async (config: ConfigData): Promise<void> => {
   try {
     const response = await fetch('/api/testField/experiment/config/questions', {
@@ -124,4 +120,4 @@ export const saveAsStaticFile = async (config: ConfigData): Promise<void> => {
     console.error('保存静态文件失败:', error);
     throw error;
   }
-}; 
+};

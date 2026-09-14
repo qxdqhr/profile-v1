@@ -1,15 +1,6 @@
-import { Question, StartScreenData, ResultModalData, QuestionType, SpecialEffectType, ModalPopEffect, TextShakeEffect, TextFlashEffect, SingleChoiceQuestion, MultipleChoiceQuestion, Option, SpecialEffect, UserAnswer, FillBlankQuestion, ShortAnswerQuestion, EssayQuestion } from "./_types";
-// 配置数据接口
-export interface ConfigData {
-  questions: Question[];
-  startScreen: StartScreenData;
-  resultModal: ResultModalData;
-}
-
-// 为配置组件导出所需类型
-export type { 
+import type {
   Question,
-  StartScreenData, 
+  StartScreenData,
   ResultModalData,
   ModalPopEffect,
   TextShakeEffect,
@@ -21,14 +12,40 @@ export type {
   UserAnswer,
   FillBlankQuestion,
   ShortAnswerQuestion,
-  EssayQuestion
+  EssayQuestion,
+} from 'sa2kit/business/exam/ui/web';
+import {
+  QuestionType,
+  SpecialEffectType,
+} from 'sa2kit/business/exam/ui/web';
+
+/** 配置台本地 ConfigData（答卷类型已迁 sa2kit） */
+export interface ConfigData {
+  questions: Question[];
+  startScreen: StartScreenData;
+  resultModal: ResultModalData;
+}
+
+export type {
+  Question,
+  StartScreenData,
+  ResultModalData,
+  ModalPopEffect,
+  TextShakeEffect,
+  TextFlashEffect,
+  SingleChoiceQuestion,
+  MultipleChoiceQuestion,
+  Option,
+  SpecialEffect,
+  UserAnswer,
+  FillBlankQuestion,
+  ShortAnswerQuestion,
+  EssayQuestion,
 };
 
-// 试卷类型映射
 export const EXAM_TYPE_MAP: Record<string, string> = {
-  'default': 'default',
-  'arknights': 'arknights'
+  default: 'default',
+  arknights: 'arknights',
 };
 
-// 导出类型枚举
 export { QuestionType, SpecialEffectType };
