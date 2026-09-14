@@ -63,13 +63,13 @@
 	url = https://github.com/qxdqhr/profile-v1-wordpress-holt.git
 [submodule "app_mobile/calendar-mobile"]
 	path = app_mobile/calendar-mobile
-	url = git@github.com:qxdqhr/profile-v1-calendar-mobile.git
+	url = https://github.com/qxdqhr/profile-v1-calendar-mobile.git
 [submodule "app_mobile/teach-hub-mobile"]
 	path = app_mobile/teach-hub-mobile
-	url = git@github.com:qxdqhr/profile-v1-teach-hub-mobile.git
+	url = https://github.com/qxdqhr/profile-v1-teach-hub-mobile.git
 [submodule "app_desktop/teach-hub-desktop"]
 	path = app_desktop/teach-hub-desktop
-	url = git@github.com:qxdqhr/profile-v1-teach-hub-desktop.git
+	url = https://github.com/qxdqhr/profile-v1-teach-hub-desktop.git
 [submodule "sa2kit"]
 	path = packages/sa2kit
 	url = https://github.com/qxdqhr/sa2kit.git
@@ -81,7 +81,7 @@
 	url = https://github.com/qxdqhr/profile-v1-game-9dot-music.git
 [submodule "packages/sa2kit-skill"]
 	path = packages/sa2kit-skill
-	url = git@github.com:qxdqhr/sa2kit-skill.git
+	url = https://github.com/qxdqhr/sa2kit-skill.git
 [submodule "app_desktop/lan-drop"]
 	path = app_desktop/lan-drop
-	url = git@github.com:qxdqhr/profile-v1-lan-drop.git
+	url = https://github.com/qxdqhr/profile-v1-lan-drop.git

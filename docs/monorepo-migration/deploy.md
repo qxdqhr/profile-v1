@@ -50,7 +50,7 @@ BUILD_ANDROID=0 pnpm package:teach-hub local
 pnpm package:showmasterpiece local
 ```
 
-根目录 `dockerfile` 等价于 `app_web/web/Dockerfile`。
+根目录 `dockerfile` 为指向 `app_web/web/Dockerfile` 的符号链接（`docker build -f dockerfile` 仍可用）。
 
 ## 运行示例
 
