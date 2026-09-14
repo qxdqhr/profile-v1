@@ -96,9 +96,7 @@ const nextConfig: NextConfig = {
             (process.env.NODE_ENV === 'production' ? '/filetransfer' : 'http://localhost:3007'),
     },
 
-    images: {
-        unoptimized: true
-    },
+    // next/image 主站暂无引用；需要时再配 remotePatterns，勿默认 unoptimized。
 
     serverExternalPackages: [
         'lru-cache',

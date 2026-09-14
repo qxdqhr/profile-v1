@@ -6,12 +6,9 @@ export const metadata = {
   description: 'Interactive playground with games, tools and creative modules',
 }
 
-// 添加单独的viewport导出
 export const viewport: Viewport = {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({

@@ -11,11 +11,9 @@ export const metadata: Metadata = {
   keywords: ['音乐', '互动', '游戏', '初音未来', '音效', 'Mikutap'],
 };
 
-// 添加专门的viewport导出
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
 };
 
 export default function Page() {

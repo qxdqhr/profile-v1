@@ -6,7 +6,7 @@
 
 来源：2026-09-02 架构审查里当时没排完、以及减负时明确后置的项。已完成的安全/鉴权/Dockerfile/游戏旁路见 [`2026-09-02-审查结果.md`](./2026-09-02-审查结果.md)。
 
-**下次从这里开始：** `OPT-05`
+**下次从这里开始：** `OPT-06`
 
 ---
 
@@ -44,9 +44,9 @@ middleware 只认 cookie **是否存在**。伪造 `better-auth.session_token` �
 
 ### OPT-05 主站体验债
 
-- [ ] `images.unoptimized: true` 是否还能关
-- [ ] `viewport.userScalable: false` 无障碍
-- [ ] web 上多余 `@radix-ui/*` vs sa2kit-ui；根 `components.json`
+- [x] `images.unoptimized`：主站无 `next/image` 引用 → 去掉 `images.unoptimized: true`（需要时再配 `remotePatterns`）
+- [x] viewport：根 layout / mikutap / testField head 去掉 `userScalable: false` 与 `maximumScale: 1`
+- [x] 卸 web 未使用的 13 个 `@radix-ui/*`（UI 走 `@sa2kit-ui/react`）；根 `components.json` → `app_web/web/components.json`
 
 ### OPT-06 仓库卫生
 
