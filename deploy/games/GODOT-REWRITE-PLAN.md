@@ -63,7 +63,7 @@
 | miku-talking | — | 暂缓 | MMD 3D |
 | playMusic / Vocaloider / ShareMonitor | — | 暂缓 | 播放器/工具 |
 | mmdViewer | — | 暂缓 | 3D 查看器 |
-| show-master-pieces / TicketBooking | — | 暂缓 | 展览/票务非典型小游戏 |
+| show-master-pieces / TicketBooking | — | 暂缓 / TicketBooking demo **已删**（H∞） | 展览非典型小游戏；票务 mock 已移除 |
 
 **阶段 B（2D/小游戏向）已收口**，可进入阶段 C 逐个精修。
 
