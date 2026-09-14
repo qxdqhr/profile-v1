@@ -651,7 +651,7 @@ app_web/teach-hub/
 | H1-P1 | 空目录 HOST-ONBOARDING 演练记录 | ✅ 2026-09-14：[sa2kit `HOST-ONBOARDING-DRILL-H1-P1.md`](../../../packages/sa2kit/docs/HOST-ONBOARDING-DRILL-H1-P1.md)（有条件：UI build OK；auth/OSS E2E 仍靠 profile） |
 | H1-E | E2/E3 推进或明确延期理由 | ✅ 2026-09-14：**延期** — 见 [PACKAGE-SPLIT-ROADMAP.md](../../../packages/sa2kit/docs/PACKAGE-SPLIT-ROADMAP.md) H1-E；E1/`measure:dist` 维持 |
 | H2 | 按清单下一批 A/B（下一期） | ✅ 2026-09-14：skillManager ✅ B；webTools qrCode+dateCalculator+WorkCalculate+ImageDownloader ✅；cardMaker ✅ B；SyncText 原不进 H2，后于 H∞ 删除 |
-| H∞ | modules 近清空 + webTools/utilities | 🟡 进行中（utilities ✅；vocaloidBooth/mmd 资源 B ✅；多枚 C demo 已删含 Vocaloider/playMusic；余 solar/OPT-01、exam UI） |
+| H∞ | modules 近清空 + webTools/utilities | 🟡 进行中（utilities ✅；vocaloidBooth/mmd 资源 B ✅；C demo 清理 + 目录死链收口；余 solar/OPT-01、exam UI） |
 
 ### 15.8 子仓例外 RFC（占位）
 

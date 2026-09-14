@@ -159,3 +159,4 @@
 | 2026-09-14 | H∞：mmd 资源 CRUD B 切片（schema+DbService+models routes；删宿主死 Three 壳） |
 | 2026-09-14 | H∞：删除 FloatingMenuDemo / LiveActivity；清理实验田死链 |
 | 2026-09-14 | H∞：删除 Vocaloider / playMusic；去重 screenReceiver 宿主页 |
+| 2026-09-14 | H∞：实验田/大厅目录死链收口（mmd 路径、gameField→/games） |

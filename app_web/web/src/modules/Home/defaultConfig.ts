@@ -22,7 +22,7 @@ export const DEFAULT_HOME_PAGE_CONFIG: HomePageConfig = {
       { id: 'contact', label: '联系方式', href: '#contact' },
       { id: 'blog', label: '博客', href: '//domain:8080' },
       { id: 'testField', label: '实验田', href: '/testField' },
-      { id: 'gameField', label: '休闲区', href: '/gameField' },
+      { id: 'gameField', label: '休闲区', href: '/games' },
     ],
   },
   timelineConfig: {

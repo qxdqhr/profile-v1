@@ -237,17 +237,6 @@ export const games: GameItem[] = [
     updatedAt: '2026-09-07',
   },
   {
-    id: 'miku-talking',
-    title: '米库说话',
-    description: 'MMD 互动：点击、语音变声、喂食与亲密度',
-    path: '/gameField/mikutalking',
-    tags: ['MMD', '互动', '3D', 'Web'],
-    platform: 'web',
-    isCompleted: false,
-    createdAt: '2025-11-03',
-    updatedAt: '2025-11-03',
-  },
-  {
     id: 'mikutap',
     title: 'Mikutap 音乐互动',
     description: '经典音乐互动：点击/拖拽触发音效与动画',
@@ -287,14 +276,5 @@ export const games: GameItem[] = [
     tags: ['天文', 'Three.js', '3D', 'Web'],
     platform: 'web',
     isCompleted: true,
-  },
-  {
-    id: 'mmd-viewer',
-    title: 'MMD 模型查看器',
-    description: 'PMD/PMX 模型与 VMD 动画播放',
-    path: '/testField/mmdViewer',
-    tags: ['MMD', 'Three.js', '3D', 'Web'],
-    platform: 'web',
-    isCompleted: false,
   },
 ];
