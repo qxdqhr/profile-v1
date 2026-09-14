@@ -257,15 +257,6 @@ export const games: GameItem[] = [
     isCompleted: true,
   },
   {
-    id: 'playMusic',
-    title: '音乐无料',
-    description: '赛博无料音乐播放与互动',
-    path: '/testField/playMusic',
-    tags: ['音乐', '无料', 'Web'],
-    platform: 'web',
-    isCompleted: false,
-  },
-  {
     id: 'miku-fireworks-3d',
     title: 'Miku Fireworks 3D',
     description: '3D 烟花弹幕：普通/初音/头像烟花与实时弹幕',

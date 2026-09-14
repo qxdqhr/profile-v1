@@ -90,7 +90,7 @@
 | `/testField/WorkCalculate` | B→webTools | **已薄** 302 → `/tools/work-calculate` |
 | `/tools/image-downloader` | B→webTools | sa2kit webTools 正式路径 |
 | `/tools/work-calculate` | B→webTools | sa2kit webTools 正式路径 |
-| `/testField/screenReceiver` | C/E | |
+| `/testField/screenReceiver` | — | **已删** 重复宿主 smoke；保留 `/examples/screen-receiver-test` + sa2kit 库 |
 | `/testField/festivalCard` | L | sa2kit business |
 | `/testField/mmd-test`, `mmdplaylist-test` | B/E | 随 mmd |
 | `/testField/testYourself` | L | sa2kit |
@@ -98,8 +98,9 @@
 | `/testField/musicPlayer`, `xunfeiAsr` | C/B | |
 | `/testField/ShowMasterPieces*` | S | → `/showmasterpiece` |
 | `/testField/TicketBooking` | — | **已删** demo（非 SMP） |
-| `/testField/mikutap`, `playMusic` | E | |
-| `/testField/Vocaloider*` | C/B | |
+| `/testField/mikutap` | E | |
+| `/testField/playMusic` | — | **已删** 音乐无料壳 |
+| `/testField/Vocaloider*` | — | **已删** 残缺入口壳 |
 | `/testField/nodeNotes*` | S | → `/node-notes` |
 | `/examples/*` | C | sa2kit/示例沙盒，不单拆镜像 |
 | `/games` | C | 旁路入口 |
@@ -157,3 +158,4 @@
 | 2026-09-14 | H∞：删除 SyncText stub + tailwindTest 样式壳 |
 | 2026-09-14 | H∞：mmd 资源 CRUD B 切片（schema+DbService+models routes；删宿主死 Three 壳） |
 | 2026-09-14 | H∞：删除 FloatingMenuDemo / LiveActivity；清理实验田死链 |
+| 2026-09-14 | H∞：删除 Vocaloider / playMusic；去重 screenReceiver 宿主页 |

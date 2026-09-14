@@ -174,14 +174,6 @@ export const experiments: ExperimentItem[] = [
     updatedAt: "2026-09-02"
   },
 
-  {
-    id: "vocaloider",
-    title: "术力口音乐播放器",
-    description: "术力口音乐播放器",
-    path: "/testField/Vocaloider",
-    tags: ["音乐", "播放器", "工具"],
-    category: "utility"
-  },
   // 新增模块
 
   {

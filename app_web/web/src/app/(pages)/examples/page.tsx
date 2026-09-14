@@ -58,7 +58,7 @@ export default function Home() {
               screenReceiver 测试
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              对应模块 `modules/screenReceiver`，用于验证接收端前端与信令流程。
+              使用 `sa2kit/business/screenReceiver` 的 `ScreenReceiverPanel`，验证接收端前端与信令流程。
             </p>
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-full text-sm">
