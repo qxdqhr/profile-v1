@@ -21,7 +21,7 @@
 
 ### OPT-02 裸奔写接口补 session
 
-middleware 只认 cookie **是否存在**。伪造 `better-auth.session_token` 仍可能打到未调用 `getApiSessionUser` 的旧 handler。优先写操作（exam 配置、syncText、universal-file 等）。
+middleware 只认 cookie **是否存在**。伪造 `better-auth.session_token` 仍可能打到未调用 `getApiSessionUser` 的旧 handler。优先写操作（exam 配置、universal-file 等）。
 
 - [ ] 盘点 `app/api/**/route.ts` 无 session 的写方法
 - [ ] 逐个 `requireApiSession`（公开面保持 allowlist）

@@ -564,7 +564,7 @@ app_web/teach-hub/
 ## 15. Phase H — 启明星二期（主站变薄 + 接单契约 + 包体）
 
 > **日期**：2026-09-13（grill 共识冻结）；**H1 收口** 2026-09-14；**H2 ✅**  
-> **状态**：H0–H1c / H1-P1 / H1-E ✅；**H2 ✅**；**H∞ 进行中**（utilities ✅；vocaloidBooth B ✅；notification/ticketBooking 已删；exam L 确认）  
+> **状态**：H0–H1c / H1-P1 / H1-E ✅；**H2 ✅**；**H∞ 进行中**（utilities ✅；vocaloidBooth B ✅；notification/ticketBooking/SyncText/tailwindTest 已删；exam L 确认）  
 > **清单 SSOT**：[WEB-MODULE-INVENTORY.md](./WEB-MODULE-INVENTORY.md)
 
 ### 15.1 一期回顾与二期目标
@@ -650,8 +650,8 @@ app_web/teach-hub/
 | H1c | fitnessPlan / comfyPrompt | ✅ 2026-09-14：同左 |
 | H1-P1 | 空目录 HOST-ONBOARDING 演练记录 | ✅ 2026-09-14：[sa2kit `HOST-ONBOARDING-DRILL-H1-P1.md`](../../../packages/sa2kit/docs/HOST-ONBOARDING-DRILL-H1-P1.md)（有条件：UI build OK；auth/OSS E2E 仍靠 profile） |
 | H1-E | E2/E3 推进或明确延期理由 | ✅ 2026-09-14：**延期** — 见 [PACKAGE-SPLIT-ROADMAP.md](../../../packages/sa2kit/docs/PACKAGE-SPLIT-ROADMAP.md) H1-E；E1/`measure:dist` 维持 |
-| H2 | 按清单下一批 A/B（下一期） | ✅ 2026-09-14：skillManager ✅ B；webTools qrCode+dateCalculator+WorkCalculate+ImageDownloader ✅；cardMaker ✅ B；SyncText 不进 H2（C demo stub 后置） |
-| H∞ | modules 近清空 + webTools/utilities | 🟡 进行中（utilities ✅；vocaloidBooth B ✅；notification/ticketBooking 已删；exam L 确认；余 mmd/solar/exam UI） |
+| H2 | 按清单下一批 A/B（下一期） | ✅ 2026-09-14：skillManager ✅ B；webTools qrCode+dateCalculator+WorkCalculate+ImageDownloader ✅；cardMaker ✅ B；SyncText 原不进 H2，后于 H∞ 删除 |
+| H∞ | modules 近清空 + webTools/utilities | 🟡 进行中（utilities ✅；vocaloidBooth B ✅；notification/ticketBooking/SyncText/tailwindTest 已删；exam L 确认；余 mmd/solar/exam UI） |
 
 ### 15.8 子仓例外 RFC（占位）
 

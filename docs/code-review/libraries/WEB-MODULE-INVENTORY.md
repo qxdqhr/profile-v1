@@ -70,7 +70,7 @@
 | imageDownloader | — | — | — | B→webTools | **已迁 webTools** | `sa2kit/business/webTools/imageDownloader`；`/tools/image-downloader`；代理 `/api/proxy-image` 留主站 |
 | ticketBooking | — | — | — | C | **已删** | 选座 mock demo；**非** SMP 画集预订；PRD 仍见 `docs/ticket-booking/` |
 | notification | — | — | — | C | **已删** | H∞ 清 mock 实验页 |
-| tailwindTest | 48K | 有 demo api | — | C | 留主站 | 样式实验 |
+| tailwindTest | — | — | — | C | **已删** | 样式色块 demo；H∞ 清空壳 |
 | filetransfer 等五件 | — | — | — | A | 见 §2 | |
 
 ---
@@ -85,7 +85,7 @@
 | `/testField/experiment` (+ config) | L | exam 答卷/配置 UI（宿主）；sa2kit `WebExamAdapter` 仍 stub |
 | `/testField/FloatingMenuDemo` | C | UI demo |
 | `/testField/LiveActivity` | C | |
-| `/testField/SyncText` | C | `/api/syncText`；demo stub，后置 |
+| `/testField/SyncText` | — | **已删** stub 页 + `/api/syncText` |
 | `/testField/ImageDownloader` | B→webTools | **已薄** 302 → `/tools/image-downloader` |
 | `/testField/WorkCalculate` | B→webTools | **已薄** 302 → `/tools/work-calculate` |
 | `/tools/image-downloader` | B→webTools | sa2kit webTools 正式路径 |
@@ -136,7 +136,7 @@
 
 1. ~~skillManager（API+DB）~~ ✅ H2（B）  
 2. ~~cardMaker（API+DB）~~ ✅ H2（B）  
-3. SyncText（API demo stub）— **C 后置**，不进 H2  
+3. ~~SyncText~~ ✅ H∞ 已删（原 C stub）  
 4. ~~qrCode + dateCalculator + WorkCalculate + ImageDownloader~~ ✅ `webTools`  
 5. mmd / solarSystem（独立壳或 OPT-01）  
 6. ~~vocaloidBooth~~ ✅ H∞（B 收口）
@@ -154,3 +154,4 @@
 | 2026-09-14 | H∞：vocaloidBooth B 收口（schema+DbService+routes+宿主 UI） |
 | 2026-09-14 | H∞：删除 notification mock 实验页 |
 | 2026-09-14 | H∞：exam L 确认（薄 DI + API 注释）；删除 ticketBooking 选座 mock |
+| 2026-09-14 | H∞：删除 SyncText stub + tailwindTest 样式壳 |
