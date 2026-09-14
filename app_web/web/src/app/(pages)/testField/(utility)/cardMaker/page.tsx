@@ -1,10 +1,5 @@
-import { CardMakerPage } from '@/modules/cardMaker';
+import { redirect } from 'next/navigation';
 
-export default function CardMaker() {
-  return <CardMakerPage />;
+export default function Page() {
+  redirect('/card-maker');
 }
-
-export const metadata = {
-  title: '名片制作器',
-  description: '创建和编辑个性化名片',
-};

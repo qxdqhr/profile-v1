@@ -1,15 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { CardMakerDbService } from '@/modules/cardMaker/db/cardMakerDbService';
+import { createListAssetCategoriesHandler } from 'sa2kit/business/cardMaker/routes';
+import { createCardMakerHostRouteConfig } from '@/lib/cardMaker/hostRouteConfig';
 
-export async function GET(request: NextRequest) {
-  try {
-    const categories = await CardMakerDbService.getDistinctCategories();
-    return NextResponse.json(categories);
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch categories' },
-      { status: 500 }
-    );
-  }
-}
+const config = createCardMakerHostRouteConfig();
+
+export const GET = createListAssetCategoriesHandler(config);

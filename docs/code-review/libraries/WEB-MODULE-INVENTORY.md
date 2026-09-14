@@ -61,7 +61,7 @@
 | solarSystem | 64K | — | — | E | 待迁 | 重 Three，后置 |
 | mikutap | 440K | `/api/mikutap` | `mikutap` | E | 非目标 | 互动原型；Godot/旁路优先 |
 | vocaloidBooth | 薄 | 主站 vocaloid-booth | `vocaloidBooth` | B/E | 待迁 | 下期评估 |
-| cardMaker | 80K | `/api/cardMaker` | `cardMaker` | B→webTools | 待迁 | 终态进 webTools |
+| cardMaker | 80K | `/api/cardMaker` | `cardMaker` | B | **已迁 B** | sa2kit/business/cardMaker；正式 `/card-maker` |
 | skillManager | 64K | `/api/skill-manager` | `skillManager` | B | **已迁 B** | sa2kit/business/skillManager；正式 `/skill-manager` |
 | qrCode | 40K | — | — | B→webTools | **已迁 webTools** | `sa2kit/business/webTools/qrCode`；`/tools/qr-code` |
 | dateCalculator | 36K | — | — | B→webTools | **已迁 webTools** | `sa2kit/business/webTools/dateCalculator`；`/tools/date-calculator` |
@@ -84,7 +84,7 @@
 | `/testField/experiment` (+ config) | L | exam |
 | `/testField/FloatingMenuDemo` | C | UI demo |
 | `/testField/LiveActivity` | C | |
-| `/testField/SyncText` | B | `/api/syncText`；下期候选 |
+| `/testField/SyncText` | C | `/api/syncText`；demo stub，后置 |
 | `/testField/ImageDownloader` | B→webTools | **已薄** 302 → `/tools/image-downloader` |
 | `/testField/WorkCalculate` | B→webTools | **已薄** 302 → `/tools/work-calculate` |
 | `/tools/image-downloader` | B→webTools | sa2kit webTools 正式路径 |
@@ -117,7 +117,7 @@
 | ticketMonitor.ts | ticketMonitor | H1b |
 | fitnessPlan.ts | fitnessPlan | H1c |
 | comfyPrompt.ts | comfyPrompt | H1c |
-| cardMaker.ts | cardMaker | 下期 B/webTools |
+| cardMaker.ts | cardMaker | H2（re-export sa2kit/server） |
 | skillManager.ts | skillManager | H2（re-export sa2kit/server） |
 | mikutap.ts | mikutap | E 后置 |
 | mmd.ts | mmd | OPT-01 / B |
@@ -134,10 +134,11 @@
 在 H1 完成后，按价值从清单挑（需再过 A 门槛或改 B）：
 
 1. ~~skillManager（API+DB）~~ ✅ H2（B）  
-2. SyncText（API，确认是否够 A）— 仍 stub，后置  
-3. ~~qrCode + dateCalculator + WorkCalculate + ImageDownloader~~ ✅ `webTools`；续：cardMaker（有 DB）单独评估  
-4. mmd / solarSystem（独立壳或 OPT-01）  
-5. vocaloidBooth（§15.5 非目标，评估后置）
+2. ~~cardMaker（API+DB）~~ ✅ H2（B）  
+3. SyncText（API demo stub）— **C 后置**，不进 H2  
+4. ~~qrCode + dateCalculator + WorkCalculate + ImageDownloader~~ ✅ `webTools`  
+5. mmd / solarSystem（独立壳或 OPT-01）  
+6. vocaloidBooth（§15.5 非目标，评估后置）
 
 ---
 
@@ -147,3 +148,4 @@
 |------|------|
 | 2026-09-13 | 初版：配合蓝图 §15 / grill 共识 |
 | 2026-09-14 | H2：skillManager B；webTools 起步（qrCode + dateCalculator） |
+| 2026-09-14 | H2 收口：webTools×4 + cardMaker B；SyncText 降 C 后置 |
