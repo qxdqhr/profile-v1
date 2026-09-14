@@ -31,7 +31,7 @@
 | node-notes | `/node-notes` | 3005 | `sa2kit/business/nodeNotes` | 已薄 | |
 | utilities | `/tools` | 3011 | `sa2kit/business/webTools/*` | 已薄 | H∞ 小工具壳；无 DB/API |
 
-主站 `modules/showmasterpiece`、`testField/.../nodeNotes`、`ShowMasterPieces` 等应为重定向/薄兼容。主站 `/tools/*` → 302 `/tools/*`（nginx 同域反代 utilities）。
+主站 `testField/.../ShowMasterPieces*` 等应为重定向/薄兼容（`modules/showmasterpiece` 宿主壳已于 H∞ 删除）。主站 `/tools/*` → 302 `/tools/*`（nginx 同域反代 utilities）。
 
 ---
 
@@ -164,3 +164,4 @@
 | 2026-09-14 | H∞：exam 配置台 UI 下沉 sa2kit（ExamConfigPage） |
 | 2026-09-14 | H∞：solarSystem 整页迁 sa2kit（主站 three 卸依赖仍 OPT-01） |
 | 2026-09-14 | OPT-01：lighting demo → `mmd/demos`；`@profile/web` 卸 three / three-stdlib / mmd-parser |
+| 2026-09-15 | H∞：删未用 `GenericOrderManager` + `modules/showmasterpiece` 宿主壳；标 H∞ ✅（除 mikutap E） |
