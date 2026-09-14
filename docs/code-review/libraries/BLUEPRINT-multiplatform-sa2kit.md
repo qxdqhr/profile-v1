@@ -564,7 +564,7 @@ app_web/teach-hub/
 ## 15. Phase H — 启明星二期（主站变薄 + 接单契约 + 包体）
 
 > **日期**：2026-09-13（grill 共识冻结）；**H1 收口** 2026-09-14；**H2 ✅**  
-> **状态**：H0–H1c / H1-P1 / H1-E ✅；**H2 ✅**（skillManager + webTools×4 + cardMaker；SyncText 不进 H2）；**H∞ 起步**（`app_web/utilities` 壳 ✅）  
+> **状态**：H0–H1c / H1-P1 / H1-E ✅；**H2 ✅**；**H∞ 进行中**（utilities 壳 ✅；vocaloidBooth B ✅；notification 已删）  
 > **清单 SSOT**：[WEB-MODULE-INVENTORY.md](./WEB-MODULE-INVENTORY.md)
 
 ### 15.1 一期回顾与二期目标
@@ -627,7 +627,7 @@ app_web/teach-hub/
 ### 15.5 非目标（二期不做）
 
 - 大域 **S2**（calendar / teach-hub 再为小程序重做 UI）— 等第二宿主真实出现  
-- mikutap / vocaloidBooth 本期迁代码（清单标 E/旁路优先）  
+- mikutap 本期迁代码（旁路/Godot 优先）；~~vocaloidBooth~~ → **H∞ 已 B 收口**（2026-09-14）  
 - exam：已在 sa2kit，只清主站残留，不占 H1 五席  
 - money-research / node-notes：已是子应用；只验收是否够薄  
 - WordPress / Godot 旁路迁入 sa2kit  
@@ -651,7 +651,7 @@ app_web/teach-hub/
 | H1-P1 | 空目录 HOST-ONBOARDING 演练记录 | ✅ 2026-09-14：[sa2kit `HOST-ONBOARDING-DRILL-H1-P1.md`](../../../packages/sa2kit/docs/HOST-ONBOARDING-DRILL-H1-P1.md)（有条件：UI build OK；auth/OSS E2E 仍靠 profile） |
 | H1-E | E2/E3 推进或明确延期理由 | ✅ 2026-09-14：**延期** — 见 [PACKAGE-SPLIT-ROADMAP.md](../../../packages/sa2kit/docs/PACKAGE-SPLIT-ROADMAP.md) H1-E；E1/`measure:dist` 维持 |
 | H2 | 按清单下一批 A/B（下一期） | ✅ 2026-09-14：skillManager ✅ B；webTools qrCode+dateCalculator+WorkCalculate+ImageDownloader ✅；cardMaker ✅ B；SyncText 不进 H2（C demo stub 后置） |
-| H∞ | modules 近清空 + webTools/utilities | 🟡 起步（webTools 四工具 + `app_web/utilities` 壳 ✅ 2026-09-14；镜像/网关/smoke 已登记） |
+| H∞ | modules 近清空 + webTools/utilities | 🟡 进行中（webTools 四工具 + `app_web/utilities` 壳 ✅；**vocaloidBooth B 收口** ✅ 2026-09-14） |
 
 ### 15.8 子仓例外 RFC（占位）
 

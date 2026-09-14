@@ -25,6 +25,7 @@ const sa2kitBusinessMarkers = [
   join(root, 'packages/sa2kit/dist/business/webTools/dateCalculator/index.js'),
   join(root, 'packages/sa2kit/dist/business/webTools/workCalculate/index.js'),
   join(root, 'packages/sa2kit/dist/business/webTools/imageDownloader/index.js'),
+  join(root, 'packages/sa2kit/dist/business/vocaloidBooth/routes/index.js'),
 ];
 
 function run(cmd, args, env = {}) {

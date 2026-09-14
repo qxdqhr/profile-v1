@@ -166,6 +166,15 @@ export const experiments: ExperimentItem[] = [
     isCompleted: true
   },
   {
+    id: "vocaloid-booth",
+    title: "Vocaloid Booth",
+    description: "术力口创作文件临时交换：上传生成匹配码，凭码下载（sa2kit/business/vocaloidBooth）",
+    path: "/vocaloid-booth",
+    tags: ["Vocaloid", "文件", "匹配码", "上传", "下载"],
+    category: "utility",
+    isCompleted: true
+  },
+  {
     id: "tailwind-test",
     title: "TailwindCSS 测试场",
     description: "专门用于测试和学习TailwindCSS的实验模块，包含各种样式特性的示例和测试用例",
@@ -226,15 +235,7 @@ export const experiments: ExperimentItem[] = [
   },
 
   // 新增模块
-  {
-    id: "notification",
-    title: "通知中心",
-    description: "查看和管理系统通知，支持筛选和操作",
-    path: "/testField/notification",
-    tags: ["通知", "管理", "系统"],
-    category: "utility",
-    isCompleted: true
-  },
+
   {
     id: "filetransfer", 
     title: "文件中转站",

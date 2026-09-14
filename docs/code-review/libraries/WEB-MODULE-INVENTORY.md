@@ -61,7 +61,7 @@
 | mmd | 168K | `/api/mmd` | `mmd` + sa2kit | B/E | 待迁 | 重 Three；可对 OPT-01 |
 | solarSystem | 64K | — | — | E | 待迁 | 重 Three，后置 |
 | mikutap | 440K | `/api/mikutap` | `mikutap` | E | 非目标 | 互动原型；Godot/旁路优先 |
-| vocaloidBooth | 薄 | 主站 vocaloid-booth | `vocaloidBooth` | B/E | 待迁 | 下期评估 |
+| vocaloidBooth | 薄 | 主站 vocaloid-booth | `vocaloidBooth` | B | **已迁 B** | sa2kit/business/vocaloidBooth；正式 `/vocaloid-booth` |
 | cardMaker | 80K | `/api/cardMaker` | `cardMaker` | B | **已迁 B** | sa2kit/business/cardMaker；正式 `/card-maker` |
 | skillManager | 64K | `/api/skill-manager` | `skillManager` | B | **已迁 B** | sa2kit/business/skillManager；正式 `/skill-manager` |
 | qrCode | 40K | — | — | B→webTools | **已迁 webTools** | `sa2kit/business/webTools/qrCode`；`/tools/qr-code` |
@@ -69,7 +69,7 @@
 | workCalculate | — | — | — | B→webTools | **已迁 webTools** | `sa2kit/business/webTools/workCalculate`；`/tools/work-calculate` |
 | imageDownloader | — | — | — | B→webTools | **已迁 webTools** | `sa2kit/business/webTools/imageDownloader`；`/tools/image-downloader`；代理 `/api/proxy-image` 留主站 |
 | ticketBooking | 44K | — | — | C/B | 待迁 | 与画集预订相关，核对是否已由 SMP 覆盖 |
-| notification | 12K | — | — | C | 留主站/删 | 极小 |
+| notification | — | — | — | C | **已删** | H∞ 清 mock 实验页 |
 | tailwindTest | 48K | 有 demo api | — | C | 留主站 | 样式实验 |
 | filetransfer 等五件 | — | — | — | A | 见 §2 | |
 
@@ -104,7 +104,7 @@
 | `/examples/*` | C | sa2kit/示例沙盒，不单拆镜像 |
 | `/games` | C | 旁路入口 |
 | `/homePage/config`, `/home/v2` | C | Home |
-| `/vocaloid-booth*` | B/E | |
+| `/vocaloid-booth*` | B | sa2kit vocaloidBooth；config 页已用 web |
 | `/apk`, `/timestamp`, `/test-route` | C | 运维/探针 |
 
 ---
@@ -122,7 +122,7 @@
 | skillManager.ts | skillManager | H2（re-export sa2kit/server） |
 | mikutap.ts | mikutap | E 后置 |
 | mmd.ts | mmd | OPT-01 / B |
-| vocaloidBooth.ts | vocaloidBooth | 下期 |
+| vocaloidBooth.ts | vocaloidBooth | H∞（re-export sa2kit/server） |
 | auth.ts | 全局 | 不迁出共享 |
 | purchaseGame.ts / universalExport.ts | 游戏/导出 | 旁路或后置 |
 
@@ -139,7 +139,7 @@
 3. SyncText（API demo stub）— **C 后置**，不进 H2  
 4. ~~qrCode + dateCalculator + WorkCalculate + ImageDownloader~~ ✅ `webTools`  
 5. mmd / solarSystem（独立壳或 OPT-01）  
-6. vocaloidBooth（§15.5 非目标，评估后置）
+6. ~~vocaloidBooth~~ ✅ H∞（B 收口）
 
 ---
 
@@ -151,3 +151,5 @@
 | 2026-09-14 | H2：skillManager B；webTools 起步（qrCode + dateCalculator） |
 | 2026-09-14 | H2 收口：webTools×4 + cardMaker B；SyncText 降 C 后置 |
 | 2026-09-14 | H∞ 起步：`app_web/utilities` 壳（/tools · 3011） |
+| 2026-09-14 | H∞：vocaloidBooth B 收口（schema+DbService+routes+宿主 UI） |
+| 2026-09-14 | H∞：删除 notification mock 实验页 |
