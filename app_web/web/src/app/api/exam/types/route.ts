@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { fetchExamTypes } from '@/modules/exam/server';
 
 /**
- * 获取所有考试类型
+ * GET /api/exam/types — 宿主薄转发 → `modules/exam/server` → sa2kit exam
  */
 export async function GET() {
   try {

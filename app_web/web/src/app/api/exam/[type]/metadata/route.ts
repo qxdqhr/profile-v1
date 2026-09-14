@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { fetchExamMetadata } from '@/modules/exam/server';
 
 /**
- * 获取考试元数据
+ * GET /api/exam/[type]/metadata — 宿主薄转发 → `modules/exam/server` → sa2kit exam
  */
 export async function GET(
   request: Request,

@@ -287,17 +287,7 @@ export const games: GameItem[] = [
     createdAt: '2026-03-02',
     updatedAt: '2026-03-02',
   },
-  {
-    id: 'ticket-booking-mvp',
-    title: '演出票务预定 MVP',
-    description: '选演出、平面选座、订单确认与模拟支付',
-    path: '/testField/TicketBooking',
-    tags: ['票务', '选座', '演示', 'Web'],
-    platform: 'web',
-    isCompleted: true,
-    createdAt: '2026-05-10',
-    updatedAt: '2026-05-10',
-  },
+
   {
     id: 'solar-system',
     title: '实时太阳系',

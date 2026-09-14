@@ -48,7 +48,7 @@ docs/
 │   ├── showmasterpiece/
 │   ├── skill-manager/
 │   └── ticket-monitor/
-└── ticket-booking/           # 票务 MVP 规划与设计稿
+└── ticket-booking/           # 票务 MVP 规划与设计稿（代码 demo 已删，仅文档归档）
 ```
 
 ## 子项目文档（不迁入 docs/）

@@ -56,7 +56,7 @@
 | Home | 176K | `/api/homePage`, `homeContact` | — | C | 留主站 | 品牌首页 + 配置 |
 | HomeV2 | 84K | — | — | C | 留主站 | 主题演示壳 |
 | testField | 132K | — | — | C | 留主站 | 实验田目录 |
-| exam | 薄 | `/api/exam` | sa2kit exam | L | 非目标 | 清残留即可 |
+| exam | 薄 | `/api/exam` | sa2kit exam | L | **已确认** | 宿主仅 DI；答卷 UI 仍 `/testField/experiment`（未下沉） |
 | games | 32K | — | — | C/E | 留主站 | 入口页；游戏走 Godot 旁路 |
 | mmd | 168K | `/api/mmd` | `mmd` + sa2kit | B/E | 待迁 | 重 Three；可对 OPT-01 |
 | solarSystem | 64K | — | — | E | 待迁 | 重 Three，后置 |
@@ -68,7 +68,7 @@
 | dateCalculator | 36K | — | — | B→webTools | **已迁 webTools** | `sa2kit/business/webTools/dateCalculator`；`/tools/date-calculator` |
 | workCalculate | — | — | — | B→webTools | **已迁 webTools** | `sa2kit/business/webTools/workCalculate`；`/tools/work-calculate` |
 | imageDownloader | — | — | — | B→webTools | **已迁 webTools** | `sa2kit/business/webTools/imageDownloader`；`/tools/image-downloader`；代理 `/api/proxy-image` 留主站 |
-| ticketBooking | 44K | — | — | C/B | 待迁 | 与画集预订相关，核对是否已由 SMP 覆盖 |
+| ticketBooking | — | — | — | C | **已删** | 选座 mock demo；**非** SMP 画集预订；PRD 仍见 `docs/ticket-booking/` |
 | notification | — | — | — | C | **已删** | H∞ 清 mock 实验页 |
 | tailwindTest | 48K | 有 demo api | — | C | 留主站 | 样式实验 |
 | filetransfer 等五件 | — | — | — | A | 见 §2 | |
@@ -82,7 +82,7 @@
 | 路径 | 建议级 | 备注 |
 |------|--------|------|
 | `/testField` | C | 目录 |
-| `/testField/experiment` (+ config) | L | exam |
+| `/testField/experiment` (+ config) | L | exam 答卷/配置 UI（宿主）；sa2kit `WebExamAdapter` 仍 stub |
 | `/testField/FloatingMenuDemo` | C | UI demo |
 | `/testField/LiveActivity` | C | |
 | `/testField/SyncText` | C | `/api/syncText`；demo stub，后置 |
@@ -97,7 +97,7 @@
 | `/testField/mikuContest`, `mikuFireworks3D`, AR/VN 等 | L/E | 库内或 3D 后置 |
 | `/testField/musicPlayer`, `xunfeiAsr` | C/B | |
 | `/testField/ShowMasterPieces*` | S | → `/showmasterpiece` |
-| `/testField/TicketBooking` | 核对 SMP | |
+| `/testField/TicketBooking` | — | **已删** demo（非 SMP） |
 | `/testField/mikutap`, `playMusic` | E | |
 | `/testField/Vocaloider*` | C/B | |
 | `/testField/nodeNotes*` | S | → `/node-notes` |
@@ -153,3 +153,4 @@
 | 2026-09-14 | H∞ 起步：`app_web/utilities` 壳（/tools · 3011） |
 | 2026-09-14 | H∞：vocaloidBooth B 收口（schema+DbService+routes+宿主 UI） |
 | 2026-09-14 | H∞：删除 notification mock 实验页 |
+| 2026-09-14 | H∞：exam L 确认（薄 DI + API 注释）；删除 ticketBooking 选座 mock |

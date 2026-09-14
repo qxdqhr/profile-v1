@@ -113,7 +113,8 @@
 | flappyWish / bubbleShooter 等 Phaser 页 | — | 已迁 Godot，主站已删 | ✔️ | 见 `deploy/games/` |
 | aiApi | 0.5k | AI 转发 | ⬜ | — |
 | dateCalculator / qrCode | 工具 | 工具 | ⬜ | — |
-| ticketBooking / notification / huarongdao / vocaloidBooth / exam / tailwindTest | 小 | 杂项 | ⬜ | — |
+| ticketBooking / notification | — | 杂项 demo | ✔️ 已删 | H∞ |
+| huarongdao / vocaloidBooth / exam / tailwindTest | 小 | 杂项 | vocaloidBooth ✔️ B；exam L；其余 ⬜ | — |
 | showmasterpiece | ~13 行 re-export | legacy | 见 apps 报告 | — |
 | nodeNotes | 薄壳 | 已迁 core | ⬜ | — |
 
