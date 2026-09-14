@@ -101,7 +101,7 @@
 | mikutap | 10.3k | 游戏/音游 | ⬜ | — |
 | fitnessPlan | 7.7k | DB+业务 | ⬜ | — |
 | comfyPrompt | 5.3k | 工具/API | ⬜ | — |
-| mmd | 薄 | 3D/OSS | 资源 CRUD ✔️ B；Three/solar ⬜ OPT-01 | — |
+| mmd | 薄 | 3D/OSS | 资源 CRUD ✔️ B；OPT-01 卸 three ✔️ | — |
 | filetransfer | 3.0k | 工具/API | ⬜ | — |
 | Home / HomeV2 | 2.9k / 1.0k | 首页 | ⬜ | — |
 | ticketMonitor | 2.9k | 监控 | ⬜ | — |

@@ -6,7 +6,7 @@
 
 来源：2026-09-02 架构审查里当时没排完、以及减负时明确后置的项。已完成的安全/鉴权/Dockerfile/游戏旁路见 [`2026-09-02-审查结果.md`](./2026-09-02-审查结果.md)。
 
-**下次从这里开始：** `OPT-02`（OPT-01 Three 额外搁置，除非用户点名 3D/MMD 迁出）
+**下次从这里开始：** `OPT-02`
 
 ---
 
@@ -14,10 +14,10 @@
 
 ### OPT-01 Three / MMD 3D 迁出主站
 
-主站仍依赖 `three` / `three-stdlib` / `mmd-parser`（太阳系、MMD、烟花、AR 等）。**比其它优化更后置**——说「优化项目」时跳过本项，除非用户明确要拆 3D。做的时候：按路由继续拆包或独立壳，不要把 three 打回首页。
+主站曾直依 `three` / `three-stdlib` / `mmd-parser`。评估结论：**继续 `lazyClientPage` + 减依赖，不建独立 Next 壳**。3D 实现留在 sa2kit；宿主只薄 page + Next 分包配置。
 
-- [ ] 评估：独立 Next 壳 vs 继续 `lazyClientPage` + 减依赖
-- [ ] 落地并更新本清单
+- [x] 评估：独立 Next 壳 vs 继续 `lazyClientPage` + 减依赖 → 选后者
+- [x] 落地：lighting demo → `sa2kit/business/mmd/demos`；`@profile/web` 去掉 `three` / `three-stdlib` / `mmd-parser` / `@types/three`；`next.config` 仍为传递依赖做 splitChunks
 
 ### OPT-02 裸奔写接口补 session
 

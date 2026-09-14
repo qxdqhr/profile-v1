@@ -129,7 +129,7 @@ export default function XxxRoute() {
 
 - `src/app/(pages)/examples/**`：演示、联调、PoC，**不一定**进实验田列表。
 - `src/app/(pages)/testField/**`：实验田导航展示的主阵地；**新实验功能若需入口卡片，必须注册实验数据**（见第 4 节）。
-- **3D 页**：路由 `page.tsx` 用 `lazyClientPage`（`src/lib/runtime/lazy-client-page.tsx`，`ssr: false`）再 dynamic import 实现；不要在模块 `index.ts` barrel 里 re-export three / mmd-parser。主站仍保留 `three`（MMD/太阳系等），**已去掉 Phaser**。OSS SDK 走 sa2kit 自己的依赖，主站 `package.json` 不再重复声明未引用的包。
+- **3D 页**：路由 `page.tsx` 用 `lazyClientPage`（`src/lib/runtime/lazy-client-page.tsx`，`ssr: false`）再 dynamic import 实现；不要在模块 `index.ts` barrel 里 re-export three / mmd-parser。**主站 `@profile/web` 已卸直依 `three` / `three-stdlib` / `mmd-parser`（OPT-01）**；3D 由 sa2kit 持有，Next 仍可对传递依赖做 `optimizePackageImports` / splitChunks。**已去掉 Phaser**。OSS SDK 走 sa2kit 自己的依赖，主站 `package.json` 不再重复声明未引用的包。
 
 ---
 

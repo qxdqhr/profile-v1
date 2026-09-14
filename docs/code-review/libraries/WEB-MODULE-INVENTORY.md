@@ -58,8 +58,8 @@
 | testField | 132K | — | — | C | 留主站 | 实验田目录 |
 | exam | 薄 | `/api/exam` | sa2kit exam | L | **UI 已下沉** | ExamPage + ExamConfigPage 在 sa2kit；宿主薄 page + DI/API |
 | games | 32K | — | — | C/E | 留主站 | 入口页；游戏走 Godot 旁路 |
-| mmd | 薄 | `/api/mmd` | `mmd` re-export | B 部分 | **资源 CRUD 已迁** | schema+DbService+models routes → sa2kit；播放器 UI 已在库；宿主 Three 死壳已删；solar/OPT-01 另议 |
-| solarSystem | 薄 | — | — | E→B | **已迁** | `sa2kit/business/solarSystem`；宿主薄 page；主站 three 依赖仍 OPT-01 |
+| mmd | 薄 | `/api/mmd` | `mmd` re-export | B 部分 | **资源 CRUD 已迁** | schema+DbService+models routes → sa2kit；lighting demo → `mmd/demos`；宿主无 three 直依（OPT-01） |
+| solarSystem | 薄 | — | — | E→B | **已迁** | `sa2kit/business/solarSystem`；宿主薄 page；OPT-01 已卸主站 three |
 | mikutap | 440K | `/api/mikutap` | `mikutap` | E | 非目标 | 互动原型；Godot/旁路优先 |
 | vocaloidBooth | 薄 | 主站 vocaloid-booth | `vocaloidBooth` | B | **已迁 B** | sa2kit/business/vocaloidBooth；正式 `/vocaloid-booth` |
 | cardMaker | 80K | `/api/cardMaker` | `cardMaker` | B | **已迁 B** | sa2kit/business/cardMaker；正式 `/card-maker` |
@@ -139,7 +139,7 @@
 2. ~~cardMaker（API+DB）~~ ✅ H2（B）  
 3. ~~SyncText~~ ✅ H∞ 已删（原 C stub）  
 4. ~~qrCode + dateCalculator + WorkCalculate + ImageDownloader~~ ✅ `webTools`  
-5. ~~mmd 资源 CRUD~~ ✅；~~solarSystem~~ ✅ H∞ 迁 sa2kit（Three 依赖卸主站仍 OPT-01）  
+5. ~~mmd 资源 CRUD~~ ✅；~~solarSystem~~ ✅；~~OPT-01 主站卸 three~~ ✅  
 6. ~~vocaloidBooth~~ ✅ H∞（B 收口）
 
 ---
@@ -163,3 +163,4 @@
 | 2026-09-14 | H∞：exam 答卷 UI 下沉 sa2kit（config 台仍宿主） |
 | 2026-09-14 | H∞：exam 配置台 UI 下沉 sa2kit（ExamConfigPage） |
 | 2026-09-14 | H∞：solarSystem 整页迁 sa2kit（主站 three 卸依赖仍 OPT-01） |
+| 2026-09-14 | OPT-01：lighting demo → `mmd/demos`；`@profile/web` 卸 three / three-stdlib / mmd-parser |
