@@ -22,7 +22,7 @@
 | calendar / teach-hub / showmasterpiece 分域计划 | [`modules/calendar/DOMAIN-MIGRATION.md`](./modules/calendar/DOMAIN-MIGRATION.md) 等 |
 | Monorepo 迁移（已完成，归档） | [`monorepo-migration/README.md`](./monorepo-migration/README.md) |
 | apps→web / mobile / desktop / npm 拆分计划（已完成） | [`monorepo-migration/APPS-SUBMODULE-PLAN.md`](./monorepo-migration/APPS-SUBMODULE-PLAN.md) |
-| 生产配置与部署补充 | [`infrastructure/production-deployment-guide.md`](./infrastructure/production-deployment-guide.md)、[`infrastructure/config-yaml-sops.md`](./infrastructure/config-yaml-sops.md) |
+| 生产配置与部署补充 | [`infrastructure/production-deployment-guide.md`](./infrastructure/production-deployment-guide.md)、[`infrastructure/config-yaml-sops.md`](./infrastructure/config-yaml-sops.md)、[`infrastructure/ops-ci.md`](./infrastructure/ops-ci.md) |
 | 节点笔记 | [`node-notes/README.md`](./node-notes/README.md) |
 | LanDrop 局域网互传桌面工具（需求） | [`modules/lan-drop/REQUIREMENTS.md`](./modules/lan-drop/REQUIREMENTS.md) |
 | 测试账号（脚本为准） | `pnpm devdb:createusers` / `prodb:createusers`，见 [`scripts/create-test-user-accounts.ts`](../scripts/create-test-user-accounts.ts) |

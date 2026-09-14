@@ -177,16 +177,35 @@ auth:
     # 方案 C 子域时追加 calendar.qhr062.top 等（见 ST-20）
 ```
 
-## 回滚
+## 镜像 tag 与回滚
+
+CI（`.github/workflows/docker-build-push.yml`）以 **GitHub `run_number`** 作为各应用镜像 tag（`qhr-profile-<app>:NNN`；web 另有 legacy `qhr-profile:NNN`）。  
+生产 `deploy/.env` 的 `IMAGE_TAG` 必须与本次上线的 run_number 一致。
+
+**网关栈单应用回滚**（推荐，勿整栈 down 成单体容器）：
 
 ```bash
 cd /root/profile-v1
-docker compose -f docker-compose.gateway.yml down
-docker run -d -p 3000:3000 --name my_container --restart unless-stopped \
-  -e APP_CONFIG_ENV=production \
-  -v /root/profile-v1/app.config.yaml:/app/config/app.config.production.yaml:ro \
-  crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht/qhr-profile-web:PREVIOUS_TAG
+# 例：只回滚主站到上一成功 CI run_number（按仓库实际可用 tag 填写）
+PREV=1234
+grep -q '^IMAGE_TAG=' .env && sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${PREV}/" .env \
+  || echo "IMAGE_TAG=${PREV}" >> .env
+docker compose -f docker-compose.gateway.yml pull web
+docker compose -f docker-compose.gateway.yml up -d web
+docker compose -f docker-compose.gateway.yml ps
+./check-gateway-health.sh   # 若已部署该脚本
 ```
+
+多应用同时回滚：把 `.env` 的 `IMAGE_TAG` 改回上一组合，再 `pull` + `up -d`。
+
+应急运维 workflow（手动）：
+
+| Workflow | 用途 |
+|----------|------|
+| [Gateway Diagnose and Fix](../.github/workflows/gateway-fix.yml) | 同步 fix 脚本并跑 `fix-gateway-remote.sh`（探活 + 修 DB 网桥 + pull/重启） |
+| [Remote Fix Nginx and Env](../.github/workflows/remote-fix-now.yml) | 只修 nginx 配置 / env，不走完整 gateway fix |
+
+已删除重复的 `gateway-fix-only.yml`（与上表 Diagnose and Fix 同脚本入口）。
 
 ## 本地开发（可选）
 

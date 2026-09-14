@@ -1,5 +1,6 @@
 name: Gateway Diagnose and Fix
 
+# 合并原 gateway-fix + gateway-fix-only：同一远程入口 fix-gateway-remote.sh
 on:
   workflow_dispatch:
 
@@ -21,8 +22,13 @@ jobs:
           SSH_OPTS="-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=20 -i /tmp/ssh_key"
           REMOTE="${DEPLOY_USER}@${DEPLOY_HOST}"
 
-          scp $SSH_OPTS deploy/fix-gateway-remote.sh deploy/check-gateway-health.sh deploy/deploy-profile-v1.sh \
+          scp $SSH_OPTS \
+            deploy/fix-gateway-remote.sh \
+            deploy/check-gateway-health.sh \
+            deploy/derive-database-url.sh \
+            deploy/deploy-profile-v1.sh \
             "$REMOTE:/root/profile-v1/"
-          ssh $SSH_OPTS "$REMOTE" "chmod +x /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/check-gateway-health.sh"
+          ssh $SSH_OPTS "$REMOTE" \
+            "chmod +x /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/check-gateway-health.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/deploy-profile-v1.sh"
           ssh $SSH_OPTS "$REMOTE" "/root/profile-v1/fix-gateway-remote.sh"
           rm -f /tmp/ssh_key

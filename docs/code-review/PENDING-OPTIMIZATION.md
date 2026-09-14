@@ -6,7 +6,7 @@
 
 来源：2026-09-02 架构审查里当时没排完、以及减负时明确后置的项。已完成的安全/鉴权/Dockerfile/游戏旁路见 [`2026-09-02-审查结果.md`](./2026-09-02-审查结果.md)。
 
-**下次从这里开始：** `OPT-07`
+**下次从这里开始：** （队列已空；新债另开项）
 
 ---
 
@@ -57,8 +57,8 @@ middleware 只认 cookie **是否存在**。伪造 `better-auth.session_token` �
 
 ### OPT-07 观测与 CI（低优先）
 
-- [ ] 平台 nginx `depends_on: service_healthy`（曾故意不用，避免 web 慢启动拖垮整栈）
-- [ ] 镜像 tag / 回滚策略；散落的 `gateway-fix*` workflow 是否还要
+- [x] nginx：保持 `depends_on` 默认 started（**不用** `service_healthy`）；compose 注释说明原因 → [`docs/infrastructure/ops-ci.md`](../infrastructure/ops-ci.md)
+- [x] 镜像 tag = CI `run_number`；Runbook 改为网关单服务回滚；合并 `gateway-fix.yml`、删除重复 `gateway-fix-only.yml`
 
 ---
 
