@@ -2,9 +2,8 @@ packages:
   - '.'
   - 'app_web/*'
   - 'host/*'
-  - 'app_mobile/*'
-  - 'app_desktop/*'
-  # Phase G8：packages/ npm 库仅两 submodule（勿 packages/* 通配）；sa2kit-skill 不进 workspace
+  # app_mobile/* / app_desktop/* 默认不进 workspace：非 recursive clone 也能装主站依赖。
+  # 需要 RN / Electron 时：pnpm native:enable && pnpm install
   - 'packages/sa2kit'
   - 'packages/sa2kit-ui'
   - 'packages/sa2kit-ui/packages/*'

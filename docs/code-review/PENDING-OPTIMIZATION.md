@@ -6,7 +6,7 @@
 
 来源：2026-09-02 架构审查里当时没排完、以及减负时明确后置的项。已完成的安全/鉴权/Dockerfile/游戏旁路见 [`2026-09-02-审查结果.md`](./2026-09-02-审查结果.md)。
 
-**下次从这里开始：** `OPT-06`（续：workspace 含 mobile·desktop）
+**下次从这里开始：** `OPT-07`
 
 ---
 
@@ -52,7 +52,7 @@ middleware 只认 cookie **是否存在**。伪造 `better-auth.session_token` �
 
 - [x] 根 `dockerfile` → symlink `app_web/web/Dockerfile`（旧 `-f dockerfile` 仍可用）
 - [x] `app_web/web/src/db`：删死代码 `exam-service` / 无用 `migrate` / 重复 `schema/universalExport`；保留 `@/db` 薄 re-export
-- [ ] 根 `package.json` / `tsconfig` / workspace 含 mobile·desktop submodule 导致不 recursive clone 就 install 失败
+- [x] workspace：默认去掉 `app_mobile/*` / `app_desktop/*`；`pnpm native:enable|disable`；根 native 脚本先 `require-native-package`；postinstall 校验 sa2kit/sa2kit-ui
 - [x] submodule URL 统一 HTTPS（原 `git@`：mobile / desktop / sa2kit-skill；`app_games` 已是 HTTPS）
 
 ### OPT-07 观测与 CI（低优先）

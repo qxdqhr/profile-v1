@@ -12,8 +12,13 @@
 LanDrop（局域网发现 + 互传）需求：[`docs/modules/lan-drop/REQUIREMENTS.md`](../docs/modules/lan-drop/REQUIREMENTS.md)。
 
 ```bash
-git submodule update --init --recursive
+# 1) 检出 submodule
+git submodule update --init --recursive app_desktop
+
+# 2) 把 native 写进 workspace 并装依赖（默认 workspace 不含 desktop）
+pnpm native:enable
 pnpm install
+
 pnpm dev:teach-hub-desktop
 pnpm dev:lan-drop
 ```

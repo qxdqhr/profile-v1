@@ -12,8 +12,13 @@ React Native（Expo）客户端，以 **git submodule** 挂入。
 对应 Web：`app_web/calendar`、`app_web/teach-hub`。
 
 ```bash
-git submodule update --init --recursive
+# 1) 检出 submodule
+git submodule update --init --recursive app_mobile
+
+# 2) 把 native 写进 workspace 并装依赖（默认 workspace 不含 mobile）
+pnpm native:enable
 pnpm install
+
 pnpm dev:calendar-mobile
 pnpm build:calendar-mobile:android
 ```
