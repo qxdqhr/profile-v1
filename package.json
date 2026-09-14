@@ -41,6 +41,7 @@
     "gate:ui": "node scripts/check-ui-unification-gate.mjs",
     "gate:architecture": "node scripts/check-architecture-gate.mjs",
     "test": "tsx scripts/verify-public-http-url.ts && tsx scripts/verify-auth-base-url.ts && tsx scripts/verify-examples-block.ts && tsx scripts/verify-public-api-allowlist.ts && tsx scripts/verify-is-admin-role.ts && tsx scripts/verify-write-api-session-gate.ts",
+    "test:turbo": "turbo run test --filter=profile-v1",
     "gate": "pnpm gate:ui && pnpm gate:architecture && pnpm test",
     "config:doctor": "tsx --import @profile/config/preload scripts/config-doctor.ts",
     "config:verify-business": "tsx --import @profile/config/preload scripts/verify-business-config.ts",

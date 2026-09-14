@@ -8,6 +8,19 @@
     "lint": {
       "dependsOn": ["^lint"]
     },
+    "test": {
+      "cache": true,
+      "inputs": [
+        "scripts/verify-*.ts",
+        "app_web/web/src/lib/auth/public-api.ts",
+        "app_web/web/src/lib/runtime/is-node-production.ts",
+        "app_web/web/src/lib/security/publicHttpUrl.ts",
+        "app_web/web/src/app/api/**/route.ts",
+        "host/auth/src/roles.ts",
+        "host/auth/src/resolve-auth-base-url.ts"
+      ],
+      "outputs": []
+    },
     "dev": {
       "cache": false,
       "persistent": true
