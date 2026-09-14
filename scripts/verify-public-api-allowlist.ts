@@ -25,12 +25,30 @@ function main() {
   assert(!isPublicApi('/api/xfyun/iat-url', 'GET'), 'xfyun signing is not public');
   assert(!isPublicApi('/api/exam/types', 'GET'), 'exam admin APIs are not public');
   assert(isPublicApi('/api/mmd/models/abc', 'HEAD'), 'public GET allows HEAD');
+  assert(isPublicApi('/api/mmd/models/abc/', 'GET'), 'trailing slash normalized');
+  assert(isPublicApi('/api/mikuFireworks3D/sync', 'POST'), 'fireworks sync intentionally public');
+  assert(isPublicApi('/api/homeContact', 'POST'), 'home contact intentionally public');
+  assert(!isPublicApi('/api/universal-file/files', 'POST'), 'universal-file write needs session');
+  assert(!isPublicApi('/api/universal-file/folders', 'DELETE'), 'universal-file folders write needs session');
+  assert(!isPublicApi('/api/universal-file/monitoring', 'POST'), 'monitoring write needs session');
+  assert(!isPublicApi('/api/universal-export/export', 'POST'), 'export needs session');
+  assert(!isPublicApi('/api/universal-export/configs', 'POST'), 'export config write needs session');
+  assert(
+    !isPublicApi('/api/testField/experiment/config/questions', 'POST'),
+    'exam questions write needs session',
+  );
+  assert(
+    !isPublicApi('/api/testField/experiment/config/examTypes', 'PUT'),
+    'exam types write needs session',
+  );
+  assert(!isPublicApi('/api/examples/qqbot/send', 'POST'), 'examples qqbot not public');
   assert(hasSessionCookie('better-auth.session_token=abc'), 'plain session cookie');
   assert(hasSessionCookie('foo=1; __Secure-better-auth.session_token=xyz'), 'secure session cookie');
   assert(hasSessionCookie('better-auth.session_token.0=chunk'), 'chunked session cookie');
   assert(isSessionCookieName('__Host-better-auth.session_token'), 'host-prefix cookie name');
   assert(!hasSessionCookie('theme=dark'), 'unrelated cookie');
   assert(!hasSessionCookie('Authorization=Bearer abc'), 'bearer is not a session cookie');
+  assert(!hasSessionCookie(null), 'null cookie header');
   console.log('public API allowlist checks passed');
 }
 

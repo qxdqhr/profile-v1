@@ -6,7 +6,7 @@
 
 来源：2026-09-02 架构审查里当时没排完、以及减负时明确后置的项。已完成的安全/鉴权/Dockerfile/游戏旁路见 [`2026-09-02-审查结果.md`](./2026-09-02-审查结果.md)。
 
-**下次从这里开始：** `OPT-03`
+**下次从这里开始：** `OPT-03`（续：turbo test 视情况）
 
 ---
 
@@ -32,7 +32,7 @@ middleware 只认 cookie **是否存在**。伪造 `better-auth.session_token` �
 
 现在 `pnpm test` 只有几个 tsx verify，并进 `pnpm gate`。
 
-- [ ] 再补可离线跑的纯函数/allowlist/配置校验
+- [x] 再补可离线跑的纯函数/allowlist/配置校验：`verify-is-admin-role`、`verify-write-api-session-gate`；allowlist 加 OPT-02 敏感写面断言
 - [ ] 视情况给 `turbo.json` 加 test；主站全仓 `tsc` 仍有既有错误，不要贸然进 CI
 
 ### OPT-04 按域拆 schema / 解开 core 环
