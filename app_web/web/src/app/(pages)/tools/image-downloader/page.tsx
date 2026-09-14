@@ -1,5 +1,6 @@
-import { ImageDownloaderPage } from 'sa2kit/business/webTools/imageDownloader';
+import { redirect } from 'next/navigation';
 
-export default function ImageDownloaderToolPage() {
-  return <ImageDownloaderPage backHref="/testField" />;
+/** 主站薄兼容 → utilities 子应用 /tools/image-downloader */
+export default function ImageDownloaderToolRedirectPage() {
+  redirect('/tools/image-downloader');
 }

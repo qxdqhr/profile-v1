@@ -32,6 +32,7 @@ const forbiddenMounts = [
   'app_web/ticket-monitor/app/api/auth',
   'app_web/fitness-plan/app/api/auth',
   'app_web/comfy-prompt/app/api/auth',
+  'app_web/utilities/app/api/auth',
 ];
 
 const mountHits = forbiddenMounts.filter((rel) => existsSync(resolve(root, rel)));

@@ -1,5 +1,6 @@
-import { DateCalculatorDemoPage } from 'sa2kit/business/webTools/dateCalculator';
+import { redirect } from 'next/navigation';
 
-export default function DateCalculatorToolPage() {
-  return <DateCalculatorDemoPage />;
+/** 主站薄兼容 → utilities 子应用 /tools/date-calculator */
+export default function DateCalculatorToolRedirectPage() {
+  redirect('/tools/date-calculator');
 }

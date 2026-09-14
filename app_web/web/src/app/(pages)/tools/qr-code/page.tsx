@@ -1,5 +1,6 @@
-import { QRCodeDemoPage } from 'sa2kit/business/webTools/qrCode';
+import { redirect } from 'next/navigation';
 
-export default function QrCodeToolPage() {
-  return <QRCodeDemoPage />;
+/** 主站薄兼容 → utilities 子应用 /tools/qr-code */
+export default function QrCodeToolRedirectPage() {
+  redirect('/tools/qr-code');
 }

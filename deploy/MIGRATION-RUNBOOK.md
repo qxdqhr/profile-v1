@@ -32,6 +32,7 @@
 | `/api/fitnessPlan/` | fitness_plan:3009 | API |
 | `/comfy-prompt/` | comfy_prompt:3010 | `NEXT_PUBLIC_BASE_PATH=/comfy-prompt` |
 | `/api/comfyPrompt/` | comfy_prompt:3010 | API |
+| `/tools/` | utilities:3011 | `NEXT_PUBLIC_BASE_PATH=/tools`（无业务 API） |
 | `/wp/holt/` | wordpress_holt:80 | **Holt 音乐作品集**（旁路 WordPress + `holt-portfolio` 主题） |
 | `/games/<slug>/` | 平台 nginx 静态 | **Godot Web**（`deploy/games/<slug>/www/`，无独立容器） |
 | `/api/auth/` | web:3000 | **共享 session**（Next 子应用不单独登录） |

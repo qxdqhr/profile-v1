@@ -1,4 +1,4 @@
-# 生产网关栈：nginx + web + calendar + teach-hub + showmasterpiece + money-research + node-notes + idea-list + filetransfer + ticket-monitor + fitness-plan + comfy-prompt
+# 生产网关栈：nginx + web + calendar + teach-hub + showmasterpiece + money-research + node-notes + idea-list + filetransfer + ticket-monitor + fitness-plan + comfy-prompt + utilities
 # + 旁路 WordPress（/wp/<slug>/，非 Next；见 deploy/wordpress/README.md）
 # + 旁路 Godot/静态游戏（/games/<slug>/，见 deploy/games/README.md）
 # 用法见 deploy/MIGRATION-RUNBOOK.md
@@ -29,6 +29,7 @@ services:
       NEXT_PUBLIC_TICKET_MONITOR_URL: /ticket-monitor
       NEXT_PUBLIC_FITNESS_PLAN_URL: /fitness-plan
       NEXT_PUBLIC_COMFY_PROMPT_URL: /comfy-prompt
+      NEXT_PUBLIC_UTILITIES_URL: /tools
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     volumes:
@@ -307,6 +308,25 @@ services:
     networks:
       - profile
 
+  utilities:
+    image: ${REGISTRY}/qhr-profile-utilities:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_BASE_PATH: /tools
+    expose:
+      - '3011'
+    healthcheck:
+      <<: *next-health
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3011/tools').then((r)=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))",
+        ]
+    networks:
+      - profile
+
   # --- WordPress 旁路（独立 MariaDB；与宿主机 Postgres 无关）---
   wp_mariadb:
     image: docker.m.daocloud.io/library/mariadb:11
@@ -374,6 +394,7 @@ services:
       - ticket_monitor
       - fitness_plan
       - comfy_prompt
+      - utilities
       # wordpress_holt 不作为硬依赖：MariaDB 不健康时不应拖垮整站 /games
       # Godot 静态包由本容器 alias /var/www/games/<slug>/www，不再 depends_on 独立游戏 nginx
     ports:

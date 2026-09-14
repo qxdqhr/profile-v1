@@ -115,7 +115,7 @@ export default function XxxRoute() {
 
 需要模块级副作用（如初始化）时，优先在 **layout** 统一 `import '@/modules/.../init'`；薄 `page.tsx` 仅 re-export 组件。
 
-**已独立为子应用**（业务在 `sa2kit/business/*`，宿主注入在 `app_web/*/lib`）：calendar、teach-hub、showmasterpiece、node-notes、**idea-list**、**filetransfer**、**ticket-monitor**、**fitness-plan**、**comfy-prompt**。主站 `app_web/web/src/modules/<name>/` 仅保留 **薄 re-export 或重定向**，勿再新增大段业务逻辑。
+**已独立为子应用**（业务在 `sa2kit/business/*`，宿主注入在 `app_web/*/lib`）：calendar、teach-hub、showmasterpiece、node-notes、**idea-list**、**filetransfer**、**ticket-monitor**、**fitness-plan**、**comfy-prompt**、**utilities**（小工具壳 `/tools`，无 DB/API/Auth）。主站 `app_web/web/src/modules/<name>/` 仅保留 **薄 re-export 或重定向**，勿再新增大段业务逻辑。
 
 ### 2.4 API 路由与模块代码的对应关系
 

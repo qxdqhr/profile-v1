@@ -29,8 +29,9 @@
 | showmasterpiece | `/showmasterpiece` | 3003 | `sa2kit/business/showmasterpiece` | 已薄 | miniapp 在库内 |
 | money-research | `/money-research` | 3004 | 宿主本地为主 | 已薄？ | H 期只验收厚度 |
 | node-notes | `/node-notes` | 3005 | `sa2kit/business/nodeNotes` | 已薄 | |
+| utilities | `/tools` | 3011 | `sa2kit/business/webTools/*` | 已薄 | H∞ 小工具壳；无 DB/API |
 
-主站 `modules/showmasterpiece`、`testField/.../nodeNotes`、`ShowMasterPieces` 等应为重定向/薄兼容。
+主站 `modules/showmasterpiece`、`testField/.../nodeNotes`、`ShowMasterPieces` 等应为重定向/薄兼容。主站 `/tools/*` → 302 `/tools/*`（nginx 同域反代 utilities）。
 
 ---
 
@@ -149,3 +150,4 @@
 | 2026-09-13 | 初版：配合蓝图 §15 / grill 共识 |
 | 2026-09-14 | H2：skillManager B；webTools 起步（qrCode + dateCalculator） |
 | 2026-09-14 | H2 收口：webTools×4 + cardMaker B；SyncText 降 C 后置 |
+| 2026-09-14 | H∞ 起步：`app_web/utilities` 壳（/tools · 3011） |

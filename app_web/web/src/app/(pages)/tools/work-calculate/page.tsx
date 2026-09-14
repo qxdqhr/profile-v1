@@ -1,5 +1,6 @@
-import { WorkCalculatePage } from 'sa2kit/business/webTools/workCalculate';
+import { redirect } from 'next/navigation';
 
-export default function WorkCalculateToolPage() {
-  return <WorkCalculatePage backHref="/testField" />;
+/** 主站薄兼容 → utilities 子应用 /tools/work-calculate */
+export default function WorkCalculateToolRedirectPage() {
+  redirect('/tools/work-calculate');
 }

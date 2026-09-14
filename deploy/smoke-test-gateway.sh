@@ -68,6 +68,11 @@ check_http "GET /filetransfer/" "${BASE}/filetransfer/" "200"
 check_http "GET /ticket-monitor/" "${BASE}/ticket-monitor/" "200"
 check_http "GET /fitness-plan/" "${BASE}/fitness-plan/" "200"
 check_http "GET /comfy-prompt/" "${BASE}/comfy-prompt/" "200"
+check_http "GET /tools/" "${BASE}/tools/" "200"
+check_http "GET /tools/qr-code/" "${BASE}/tools/qr-code/" "200"
+check_http "GET /tools/date-calculator/" "${BASE}/tools/date-calculator/" "200"
+check_http "GET /tools/work-calculate/" "${BASE}/tools/work-calculate/" "200"
+check_http "GET /tools/image-downloader/" "${BASE}/tools/image-downloader/" "200"
 # 未登录应 401；404 表示 nginx basePath 反代未对齐
 check_http "GET /api/calendar/events/" \
   "${BASE}/api/calendar/events/?startDate=2026-01-01&endDate=2026-12-31" "401"

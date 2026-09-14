@@ -15,6 +15,7 @@
 | `@profile/ticket-monitor` | `app_web/ticket-monitor/` | 3008 | 票务监控 |
 | `@profile/fitness-plan` | `app_web/fitness-plan/` | 3009 | 健身计划 |
 | `@profile/comfy-prompt` | `app_web/comfy-prompt/` | 3010 | ComfyUI 提示词 |
+| `@profile/utilities` | `app_web/utilities/` | 3011 | 小工具壳（webTools×4） |
 
 RN：[`app_mobile/`](../app_mobile/README.md)。桌面：[`app_desktop/`](../app_desktop/README.md)。跨端 shared：[`packages/`](../packages/README.md) 内各 `*-core/shared`。
 
