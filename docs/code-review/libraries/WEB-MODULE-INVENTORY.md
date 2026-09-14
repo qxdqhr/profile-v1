@@ -83,8 +83,8 @@
 |------|--------|------|
 | `/testField` | C | 目录 |
 | `/testField/experiment` (+ config) | L | exam 答卷/配置 UI（宿主）；sa2kit `WebExamAdapter` 仍 stub |
-| `/testField/FloatingMenuDemo` | C | UI demo |
-| `/testField/LiveActivity` | C | |
+| `/testField/FloatingMenuDemo` | — | **已删** 宿主 demo（库内 FloatingMenuExample 保留） |
+| `/testField/LiveActivity` | — | **已删** APNs 调试壳 + `/api/activity*` |
 | `/testField/SyncText` | — | **已删** stub 页 + `/api/syncText` |
 | `/testField/ImageDownloader` | B→webTools | **已薄** 302 → `/tools/image-downloader` |
 | `/testField/WorkCalculate` | B→webTools | **已薄** 302 → `/tools/work-calculate` |
@@ -156,3 +156,4 @@
 | 2026-09-14 | H∞：exam L 确认（薄 DI + API 注释）；删除 ticketBooking 选座 mock |
 | 2026-09-14 | H∞：删除 SyncText stub + tailwindTest 样式壳 |
 | 2026-09-14 | H∞：mmd 资源 CRUD B 切片（schema+DbService+models routes；删宿主死 Three 壳） |
+| 2026-09-14 | H∞：删除 FloatingMenuDemo / LiveActivity；清理实验田死链 |

@@ -17,29 +17,6 @@ export const experiments: ExperimentItem[] = [
     createdAt: '2023-01-15',
     updatedAt: '2023-06-20'
   },
-  // 新增悬浮菜单演示
-  {
-    id: 'floating-menu',
-    title: '可拖动悬浮菜单',
-    description: '一个可在页面任意位置拖动的悬浮菜单，根据位置自动调整弹出方向',
-    path: '/testField/FloatingMenuDemo',
-    tags: ['UI组件', '交互', '菜单'],
-    category: 'utility',
-    isCompleted: true,
-    createdAt: '2023-08-15',
-    updatedAt: '2023-08-15'
-  },
-  {
-    id: '2',
-    title: '实时活动',
-    description: '用于展示实时活动状态的实验性功能',
-    path: '/testField/LiveActivity',
-    tags: ['实时', '活动', '实验'],
-    category: 'utility',
-    isCompleted: false,
-    createdAt: '2023-02-10',
-    updatedAt: '2023-07-05'
-  },
   {
     id: "config-default",
     title: "通用考试配置",
@@ -205,15 +182,6 @@ export const experiments: ExperimentItem[] = [
     tags: ["音乐", "播放器", "工具"],
     category: "utility"
   },
-  {
-    id: "share-monitor",
-    title: "手机投屏",
-    description: "手机投屏",
-    path: "/testField/ShareMonitor",
-    tags: ["投屏", "工具"],
-    category: "utility"
-  },
-
   // 新增模块
 
   {
@@ -300,7 +268,7 @@ export const experiments: ExperimentItem[] = [
     id: "audio-detection-test",
     title: "SA2Kit 音频检测器",
     description: "调试 sa2kit 新增的音频检测模块，涵盖预设 UI、Hook 沙盒和参数调节器，便于验证音符与和弦识别表现",
-    path: "/testField/audio-detection-test",
+    path: "/examples/audio-detection",
     tags: ["音频", "检测", "SA2Kit", "实验"],
     category: "utility",
     isCompleted: false,
