@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponseHelper, ApiErrorFactory, ValidationHelper, FileDbService, FileQueryParams, FileUploadParams } from 'sa2kit/common/file/server';
+import { requireApiSession } from '@/lib/auth/api-guard';
 import { db } from '@/db';
 
 // 初始化服务
@@ -129,6 +130,9 @@ export async function GET(request: NextRequest) {
  * 上传文件
  */
 export async function POST(request: NextRequest) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     // TODO: 实现文件上传功能
     // 当前返回未实现错误
@@ -156,6 +160,9 @@ export async function POST(request: NextRequest) {
  * 批量更新文件
  */
 export async function PUT(request: NextRequest) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const body = await request.json();
     const { fileIds, updateData } = body;
@@ -221,6 +228,9 @@ export async function PUT(request: NextRequest) {
  * 批量删除文件
  */
 export async function DELETE(request: NextRequest) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const { searchParams } = new URL(request.url);
     const fileIdsParam = searchParams.get('fileIds');

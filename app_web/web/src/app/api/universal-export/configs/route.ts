@@ -3,6 +3,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/api-guard';
 import { exportConfigDB } from '@/services/universalExport/database';
 
 /**
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     const configs = await exportConfigDB.getConfigsByModule(moduleId, businessId || undefined);
-    
+
     return NextResponse.json({ configs });
   } catch (error) {
     console.error('获取导出配置失败:', error);
@@ -37,9 +38,12 @@ export async function GET(request: NextRequest) {
  * 创建新的导出配置
  */
 export async function POST(request: NextRequest) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const body = await request.json();
-    
+
     const config = await exportConfigDB.createConfig({
       name: body.name,
       description: body.description || null,
@@ -54,7 +58,7 @@ export async function POST(request: NextRequest) {
       grouping: body.grouping || null,
       moduleId: body.moduleId,
       businessId: body.businessId,
-      createdBy: body.createdBy || null,
+      createdBy: gated.user.id,
     });
 
     return NextResponse.json({ config });
@@ -65,4 +69,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

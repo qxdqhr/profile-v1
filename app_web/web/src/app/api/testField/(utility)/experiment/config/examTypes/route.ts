@@ -6,6 +6,7 @@ import {
   listExamTypeIds,
   updateExamType,
 } from '@/modules/exam/server';
+import { requireApiSession } from '@/lib/auth/api-guard';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,6 +29,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const { id, name, description } = await request.json();
     const type = await createExamType({ id, name, description });
@@ -61,6 +65,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id') || '';
@@ -92,6 +99,9 @@ export async function DELETE(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const { id, name, description } = await request.json();
     const type = await updateExamType({ id, name, description });

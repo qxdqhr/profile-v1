@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchFullExamConfig, findExamType, saveExamConfig } from '@/modules/exam/server';
+import { requireApiSession } from '@/lib/auth/api-guard';
 
 // 标记为动态路由，防止静态生成
 export const dynamic = 'force-dynamic';
@@ -10,20 +11,20 @@ export async function GET(request: NextRequest) {
     // 从查询字符串获取试卷类型
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'default';
-    
+
     // 先检查考试类型是否存在
     const typeExists = await findExamType(type);
-    
+
     if (typeExists.length === 0) {
       return NextResponse.json(
         { error: `试卷类型 ${type} 不存在` },
         { status: 404 }
       );
     }
-    
+
     // 获取完整配置（包括问题、启动页和结果页）
     const fullConfig = await fetchFullExamConfig(type);
-    
+
     return NextResponse.json(fullConfig);
   } catch (error) {
     console.error('获取考试配置失败:', error);
@@ -36,27 +37,30 @@ export async function GET(request: NextRequest) {
 
 // POST 请求 - 保存配置数据
 export async function POST(request: NextRequest) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const data = await request.json();
-    
+
     // 从查询字符串获取试卷类型
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'default';
-    
+
     // 检查考试类型是否存在
     const typeExists = await findExamType(type);
-    
+
     if (typeExists.length === 0) {
       return NextResponse.json(
         { error: `试卷类型 ${type} 不存在` },
         { status: 404 }
       );
     }
-    
+
     // 保存完整配置（问题、启动页和结果页）
     await saveExamConfig(type, data);
-    
-    return NextResponse.json({ 
+
+    return NextResponse.json({
       success: true,
       message: `试卷类型 ${type} 的配置已保存`,
       questionsCount: data.questions?.length || 0
@@ -68,4 +72,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

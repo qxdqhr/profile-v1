@@ -6,7 +6,7 @@
 
 来源：2026-09-02 架构审查里当时没排完、以及减负时明确后置的项。已完成的安全/鉴权/Dockerfile/游戏旁路见 [`2026-09-02-审查结果.md`](./2026-09-02-审查结果.md)。
 
-**下次从这里开始：** `OPT-02`
+**下次从这里开始：** `OPT-02`（续：examples 写面 / 其余遗漏）
 
 ---
 
@@ -23,8 +23,9 @@
 
 middleware 只认 cookie **是否存在**。伪造 `better-auth.session_token` 仍可能打到未调用 `getApiSessionUser` 的旧 handler。优先写操作（exam 配置、universal-file 等）。
 
-- [ ] 盘点 `app/api/**/route.ts` 无 session 的写方法
-- [ ] 逐个 `requireApiSession`（公开面保持 allowlist）
+- [x] 盘点 `app/api/**/route.ts` 无 session 的写方法（约 21 处；含 examples / 公开 allowlist）
+- [x] 切片：`universal-file` 写 + monitoring；exam `examTypes`/`questions` 写；`universal-export` 写 — 均 `requireApiSession`
+- [ ] 续：`/api/examples/**` 写面（生产已 404，非产仍应闸）；其余遗漏逐个补
 
 ### OPT-03 测试加厚
 

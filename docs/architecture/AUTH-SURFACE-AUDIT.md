@@ -126,6 +126,8 @@ Verified thin re-exports still hit module handlers for:
 5. **Any logged-in user** can mutate shared mikutap configs / skill markdown (except `source` admin-only) — no per-resource ACL beyond session.
 6. **Middleware 只认 cookie 是否存在**，不查 session 真伪。伪造 `better-auth.session_token` 仍可能打到未调用 `getApiSessionUser` 的旧 handler；写操作必须在路由层校验。
 
+**OPT-02 进展（2026-09-14）**：已给 `universal-file`（files/folders 写 + monitoring）、exam 配置写（`examTypes` / `questions`）、`universal-export` 写补 `requireApiSession`。余 examples 写面等。
+
 ---
 
 ## D2 follow-up (2026-09-02)

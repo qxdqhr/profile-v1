@@ -3,6 +3,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/api-guard';
 import { exportConfigDB } from '@/services/universalExport/database';
 
 /**
@@ -15,7 +16,7 @@ export async function GET(
   try {
     const { id } = await params;
     const config = await exportConfigDB.getConfigById(id);
-    
+
     if (!config) {
       return NextResponse.json(
         { error: '配置不存在' },
@@ -40,10 +41,13 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const { id } = await params;
     const body = await request.json();
-    
+
     const config = await exportConfigDB.updateConfig(id, {
       name: body.name,
       description: body.description || null,
@@ -82,10 +86,13 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const { id } = await params;
     const success = await exportConfigDB.deleteConfig(id);
-    
+
     if (!success) {
       return NextResponse.json(
         { error: '删除失败' },

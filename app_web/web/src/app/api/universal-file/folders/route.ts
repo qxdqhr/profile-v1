@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponseHelper, ApiErrorFactory, ValidationHelper, FileDbService, FolderCreateParams, FolderUpdateParams } from 'sa2kit/common/file/server';
+import { requireApiSession } from '@/lib/auth/api-guard';
 import { db } from '@/db';
 
 // 初始化服务
@@ -81,6 +82,9 @@ export async function GET(request: NextRequest) {
  * 创建文件夹
  */
 export async function POST(request: NextRequest) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const body = await request.json();
     const createParams: FolderCreateParams = body;
@@ -144,7 +148,7 @@ export async function POST(request: NextRequest) {
       sortOrder: createParams.sortOrder || 0,
       description: createParams.description,
       isSystem: false,
-      createdBy: 'system', // TODO: 从会话获取用户ID
+      createdBy: gated.user.id,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -182,6 +186,9 @@ export async function POST(request: NextRequest) {
  * 更新文件夹
  */
 export async function PUT(request: NextRequest) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const body = await request.json();
     const { folderId, updateData }: { folderId: string, updateData: FolderUpdateParams } = body;
@@ -260,6 +267,9 @@ export async function PUT(request: NextRequest) {
  * 删除文件夹
  */
 export async function DELETE(request: NextRequest) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const { searchParams } = new URL(request.url);
     const folderId = searchParams.get('folderId');

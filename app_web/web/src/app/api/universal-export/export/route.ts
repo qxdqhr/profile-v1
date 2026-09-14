@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireApiSession } from '@/lib/auth/api-guard';
 import { UniversalExportService } from '@/services/universalExport/UniversalExportService';
 import type { ExportRequest } from '@/services/universalExport/types';
 
@@ -12,6 +13,9 @@ import type { ExportRequest } from '@/services/universalExport/types';
  * 执行数据导出
  */
 export async function POST(request: NextRequest) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const body = await request.json();
     const {

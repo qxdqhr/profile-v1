@@ -5,12 +5,16 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { cacheManager, performanceMonitor, queryOptimizer, ApiResponse } from 'sa2kit/common/file/server';
+import { requireApiSession } from '@/lib/auth/api-guard';
 
 /**
  * GET /api/universal-file/monitoring
  * 获取系统监控数据
  */
 export async function GET(request: NextRequest) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'overview';
@@ -133,6 +137,9 @@ export async function GET(request: NextRequest) {
  * 执行监控操作（清理缓存、重置统计等）
  */
 export async function POST(request: NextRequest) {
+  const gated = await requireApiSession(request);
+  if (gated.error) return gated.error;
+
   try {
     const body = await request.json();
     const { action, params } = body;
