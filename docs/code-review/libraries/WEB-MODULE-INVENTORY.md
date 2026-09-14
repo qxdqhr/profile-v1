@@ -65,6 +65,8 @@
 | skillManager | 64K | `/api/skill-manager` | `skillManager` | B | **已迁 B** | sa2kit/business/skillManager；正式 `/skill-manager` |
 | qrCode | 40K | — | — | B→webTools | **已迁 webTools** | `sa2kit/business/webTools/qrCode`；`/tools/qr-code` |
 | dateCalculator | 36K | — | — | B→webTools | **已迁 webTools** | `sa2kit/business/webTools/dateCalculator`；`/tools/date-calculator` |
+| workCalculate | — | — | — | B→webTools | **已迁 webTools** | `sa2kit/business/webTools/workCalculate`；`/tools/work-calculate` |
+| imageDownloader | — | — | — | B→webTools | **已迁 webTools** | `sa2kit/business/webTools/imageDownloader`；`/tools/image-downloader`；代理 `/api/proxy-image` 留主站 |
 | ticketBooking | 44K | — | — | C/B | 待迁 | 与画集预订相关，核对是否已由 SMP 覆盖 |
 | notification | 12K | — | — | C | 留主站/删 | 极小 |
 | tailwindTest | 48K | 有 demo api | — | C | 留主站 | 样式实验 |
@@ -83,8 +85,10 @@
 | `/testField/FloatingMenuDemo` | C | UI demo |
 | `/testField/LiveActivity` | C | |
 | `/testField/SyncText` | B | `/api/syncText`；下期候选 |
-| `/testField/ImageDownloader` | B→webTools | |
-| `/testField/WorkCalculate` | B→webTools | |
+| `/testField/ImageDownloader` | B→webTools | **已薄** 302 → `/tools/image-downloader` |
+| `/testField/WorkCalculate` | B→webTools | **已薄** 302 → `/tools/work-calculate` |
+| `/tools/image-downloader` | B→webTools | sa2kit webTools 正式路径 |
+| `/tools/work-calculate` | B→webTools | sa2kit webTools 正式路径 |
 | `/testField/screenReceiver` | C/E | |
 | `/testField/festivalCard` | L | sa2kit business |
 | `/testField/mmd-test`, `mmdplaylist-test` | B/E | 随 mmd |
@@ -131,7 +135,7 @@
 
 1. ~~skillManager（API+DB）~~ ✅ H2（B）  
 2. SyncText（API，确认是否够 A）— 仍 stub，后置  
-3. ~~qrCode + dateCalculator~~ ✅ `webTools`；续：WorkCalculate + ImageDownloader；cardMaker（有 DB）单独评估  
+3. ~~qrCode + dateCalculator + WorkCalculate + ImageDownloader~~ ✅ `webTools`；续：cardMaker（有 DB）单独评估  
 4. mmd / solarSystem（独立壳或 OPT-01）  
 5. vocaloidBooth（§15.5 非目标，评估后置）
 
