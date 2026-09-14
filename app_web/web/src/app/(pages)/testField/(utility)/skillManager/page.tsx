@@ -1,7 +1,5 @@
-/**
- * Skill 管理页面
- */
+import { redirect } from 'next/navigation';
 
-import { SkillManagerPage } from '@/modules/skillManager';
-
-export default SkillManagerPage;
+export default function Page() {
+  redirect('/skill-manager');
+}

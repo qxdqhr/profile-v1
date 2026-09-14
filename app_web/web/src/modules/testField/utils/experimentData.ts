@@ -248,10 +248,10 @@ export const experiments: ExperimentItem[] = [
     id: "skillManager",
     title: "Skill 管理平台",
     description: "管理本地与在线 Skill，支持预览、编辑、上传与同步",
-    path: "/testField/skillManager",
+    path: "/skill-manager",
     tags: ["Skill", "管理", "上传", "同步"],
     category: "utility",
-    isCompleted: false
+    isCompleted: true
   },
   {
     id: "teach-hub",
@@ -385,7 +385,7 @@ export const experiments: ExperimentItem[] = [
     id: "qr-code-generator",
     title: "二维码生成器",
     description: "将任意 URL 或字符串转换为二维码图片，支持自定义尺寸、颜色、纠错级别，可下载 PNG/SVG",
-    path: "/testField/qrCode",
+    path: "/tools/qr-code",
     tags: ["工具", "二维码", "QR码", "图片"],
     category: "utility",
     isCompleted: true,
@@ -396,7 +396,7 @@ export const experiments: ExperimentItem[] = [
     id: "date-calculator",
     title: "日期计算器",
     description: "计算两个日期的自然日间隔与年月日分解，或在基准日期上加减天/周/月/年",
-    path: "/testField/dateCalculator",
+    path: "/tools/date-calculator",
     tags: ["工具", "日期", "时间", "计算器"],
     category: "utility",
     isCompleted: true,

@@ -62,9 +62,9 @@
 | mikutap | 440K | `/api/mikutap` | `mikutap` | E | 非目标 | 互动原型；Godot/旁路优先 |
 | vocaloidBooth | 薄 | 主站 vocaloid-booth | `vocaloidBooth` | B/E | 待迁 | 下期评估 |
 | cardMaker | 80K | `/api/cardMaker` | `cardMaker` | B→webTools | 待迁 | 终态进 webTools |
-| skillManager | 64K | `/api/skill-manager` | `skillManager` | B | 待迁 | 下期候选 |
-| qrCode | 40K | — | — | B→webTools | 待迁 | 纯前端工具 |
-| dateCalculator | 36K | — | — | B→webTools | 待迁 | |
+| skillManager | 64K | `/api/skill-manager` | `skillManager` | B | **已迁 B** | sa2kit/business/skillManager；正式 `/skill-manager` |
+| qrCode | 40K | — | — | B→webTools | **已迁 webTools** | `sa2kit/business/webTools/qrCode`；`/tools/qr-code` |
+| dateCalculator | 36K | — | — | B→webTools | **已迁 webTools** | `sa2kit/business/webTools/dateCalculator`；`/tools/date-calculator` |
 | ticketBooking | 44K | — | — | C/B | 待迁 | 与画集预订相关，核对是否已由 SMP 覆盖 |
 | notification | 12K | — | — | C | 留主站/删 | 极小 |
 | tailwindTest | 48K | 有 demo api | — | C | 留主站 | 样式实验 |
@@ -114,7 +114,7 @@
 | fitnessPlan.ts | fitnessPlan | H1c |
 | comfyPrompt.ts | comfyPrompt | H1c |
 | cardMaker.ts | cardMaker | 下期 B/webTools |
-| skillManager.ts | skillManager | 下期 |
+| skillManager.ts | skillManager | H2（re-export sa2kit/server） |
 | mikutap.ts | mikutap | E 后置 |
 | mmd.ts | mmd | OPT-01 / B |
 | vocaloidBooth.ts | vocaloidBooth | 下期 |
@@ -129,11 +129,11 @@
 
 在 H1 完成后，按价值从清单挑（需再过 A 门槛或改 B）：
 
-1. skillManager（API+DB）  
-2. SyncText（API，确认是否够 A）  
-3. cardMaker + qrCode + dateCalculator + WorkCalculate + ImageDownloader → **webTools** 聚合  
+1. ~~skillManager（API+DB）~~ ✅ H2（B）  
+2. SyncText（API，确认是否够 A）— 仍 stub，后置  
+3. ~~qrCode + dateCalculator~~ ✅ `webTools`；续：WorkCalculate + ImageDownloader；cardMaker（有 DB）单独评估  
 4. mmd / solarSystem（独立壳或 OPT-01）  
-5. vocaloidBooth  
+5. vocaloidBooth（§15.5 非目标，评估后置）
 
 ---
 
@@ -142,3 +142,4 @@
 | 日期 | 变更 |
 |------|------|
 | 2026-09-13 | 初版：配合蓝图 §15 / grill 共识 |
+| 2026-09-14 | H2：skillManager B；webTools 起步（qrCode + dateCalculator） |

@@ -10,7 +10,7 @@
 
 **Phase G 完成**（G1–G8 ✅）：`packages/` 仅 `sa2kit` + `sa2kit-ui`。蓝图 [§14](./BLUEPRINT-multiplatform-sa2kit.md#14-phase-g--双库收敛packages-仅保留-sa2kit--sa2kit-ui) · [DOMAIN-MIGRATION-ROADMAP.md](./DOMAIN-MIGRATION-ROADMAP.md)
 
-**Phase H / 启明星二期**（规划中）：蓝图 [§15](./BLUEPRINT-multiplatform-sa2kit.md#15-phase-h--启明星二期主站变薄--接单契约--包体) · 主站盘点 [WEB-MODULE-INVENTORY.md](./WEB-MODULE-INVENTORY.md)
+**Phase H / 启明星二期**（H1 收口；H2 进行中）：蓝图 [§15](./BLUEPRINT-multiplatform-sa2kit.md#15-phase-h--启明星二期主站变薄--接单契约--包体) · 主站盘点 [WEB-MODULE-INVENTORY.md](./WEB-MODULE-INVENTORY.md) · 演练 [sa2kit HOST-ONBOARDING-DRILL-H1-P1](../../../packages/sa2kit/docs/HOST-ONBOARDING-DRILL-H1-P1.md)
 
 | 已完成（归档） | 文档 |
 |----------------|------|

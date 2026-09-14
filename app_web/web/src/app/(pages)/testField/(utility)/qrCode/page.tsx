@@ -1,5 +1,6 @@
-import { QRCodeDemoPage } from '@/modules/qrCode'
+import { redirect } from 'next/navigation';
 
-export default function QRCodeRoute() {
-  return <QRCodeDemoPage />
+/** Legacy testField → 正式路径 /tools/qr-code */
+export default function QrCodeLegacyRedirect() {
+  redirect('/tools/qr-code');
 }

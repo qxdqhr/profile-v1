@@ -1,7 +1,7 @@
 # 蓝图：多端 sa2kit SDK（common + business 同仓多端）
 
-> 版本：v0.6 · 2026-09-13  
-> 状态：**北极星执行中**（Phase F ✅ · Phase G ✅ · **Phase H / 启明星二期 规划中**）— 见 §0 / §7 / §14 / **§15**  
+> 版本：v0.6.1 · 2026-09-14  
+> 状态：**北极星执行中**（Phase F ✅ · Phase G ✅ · **Phase H / 启明星二期：H1 迁出+ P1/E 收口中**）— 见 §0 / §7 / §14 / **§15**  
 > 主站功能盘点：[WEB-MODULE-INVENTORY.md](./WEB-MODULE-INVENTORY.md)  
 > 取代/修正：先前「business 迁回 profile-v1」方向（见文末 §11）  
 > 源码仓：独立仓库 `github.com/qxdqhr/sa2kit` · `github.com/qxdqhr/sa2kit-ui`（profile-v1 以 git submodule 挂载于 `packages/sa2kit/` · `packages/sa2kit-ui/`，仍可 npm 发布）· 消费仓 `profile-v1` 及独立 RN/Taro/Electron 宿主
@@ -563,8 +563,8 @@ app_web/teach-hub/
 
 ## 15. Phase H — 启明星二期（主站变薄 + 接单契约 + 包体）
 
-> **日期**：2026-09-13（grill 共识冻结）  
-> **状态**：规划已确认；**代码迁出按 H 门禁逐步执行**（本文先定边界）  
+> **日期**：2026-09-13（grill 共识冻结）；**H1 收口** 2026-09-14；**H2 进行中**  
+> **状态**：H0–H1c / H1-P1 / H1-E ✅；**H2 部分**（skillManager + webTools 起步）；H∞ 起步  
 > **清单 SSOT**：[WEB-MODULE-INVENTORY.md](./WEB-MODULE-INVENTORY.md)
 
 ### 15.1 一期回顾与二期目标
@@ -645,13 +645,13 @@ app_web/teach-hub/
 | Gate | 内容 | 状态 |
 |------|------|------|
 | H0 | 本文 §15 + [WEB-MODULE-INVENTORY.md](./WEB-MODULE-INVENTORY.md) | ✅ 2026-09-13 |
-| H1a | ideaList → A 类样板（含镜像/网关） | ✅ 2026-09-13（代码已落地；待镜像/现网验证） |
-| H1b | filetransfer ✅ / ticketMonitor ✅ | 部分 |
-| H1c | fitnessPlan ✅ / comfyPrompt ✅ | ✅ |
-| H1-P1 | 空目录 HOST-ONBOARDING 演练记录 | ⬜ |
-| H1-E | E2/E3 推进或明确延期理由 | ⬜ |
-| H2 | 按清单下一批 A/B（下一期） | ⬜ |
-| H∞ | modules 近清空 + webTools/utilities | ⬜ 终态 |
+| H1a | ideaList → A 类样板（含镜像/网关） | ✅ 2026-09-14：代码 + compose/nginx/`package:idea-list`/smoke 已齐；`sa2kit` business dist 含 ideaList；现网以下次 deploy smoke 为准 |
+| H1b | filetransfer / ticketMonitor | ✅ 2026-09-14：同 H1a 矩阵；dist entry 已测 |
+| H1c | fitnessPlan / comfyPrompt | ✅ 2026-09-14：同左 |
+| H1-P1 | 空目录 HOST-ONBOARDING 演练记录 | ✅ 2026-09-14：[sa2kit `HOST-ONBOARDING-DRILL-H1-P1.md`](../../../packages/sa2kit/docs/HOST-ONBOARDING-DRILL-H1-P1.md)（有条件：UI build OK；auth/OSS E2E 仍靠 profile） |
+| H1-E | E2/E3 推进或明确延期理由 | ✅ 2026-09-14：**延期** — 见 [PACKAGE-SPLIT-ROADMAP.md](../../../packages/sa2kit/docs/PACKAGE-SPLIT-ROADMAP.md) H1-E；E1/`measure:dist` 维持 |
+| H2 | 按清单下一批 A/B（下一期） | 🟡 2026-09-14：**部分** — skillManager ✅ B；webTools 起步 qrCode+dateCalculator ✅；WorkCalculate/ImageDownloader/cardMaker/SyncText 未开 |
+| H∞ | modules 近清空 + webTools/utilities | 🟡 起步（webTools 已有两工具；utilities 壳未建） |
 
 ### 15.8 子仓例外 RFC（占位）
 

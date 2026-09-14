@@ -67,7 +67,7 @@ app_web/web 模块
 
 **Phase G 完成**：`packages/` npm 库仅 `sa2kit` + `sa2kit-ui`；另有 **`sa2kit-skill`**（Agent skills，非 workspace）。基建在 `host/`；业务 *-core 已清零。新多端能力优先进 sa2kit（见蓝图）。
 
-**Phase H / 启明星二期**（规划已冻结，迁码按门禁）：主站工具分层迁出 + P1 接单演练 + 包体 E；清单 [`docs/code-review/libraries/WEB-MODULE-INVENTORY.md`](../docs/code-review/libraries/WEB-MODULE-INVENTORY.md)；蓝图 §15。
+**Phase H / 启明星二期**（H1 收口；H2 进行中）：skillManager 已 B 迁出；`webTools` 已含 qrCode/dateCalculator；清单 [`docs/code-review/libraries/WEB-MODULE-INVENTORY.md`](../docs/code-review/libraries/WEB-MODULE-INVENTORY.md)。
 
 完整蓝图与阶段计划：[`docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`](../docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md)。
 

@@ -10,8 +10,19 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const reactStyle = join(root, 'packages/sa2kit-ui/packages/react/dist/style.css');
-const sa2kitBusiness = join(root, 'packages/sa2kit/dist/business/mmd/index.js');
 const sa2kitDts = join(root, 'packages/sa2kit/dist/common/auth/server/index.d.ts');
+/** 代表性 business 产物：旧域 mmd + Phase H1 样板 ideaList（避免只建了旧 dist 就跳过） */
+const sa2kitBusinessMarkers = [
+  join(root, 'packages/sa2kit/dist/business/mmd/index.js'),
+  join(root, 'packages/sa2kit/dist/business/ideaList/index.js'),
+  join(root, 'packages/sa2kit/dist/business/filetransfer/index.js'),
+  join(root, 'packages/sa2kit/dist/business/ticketMonitor/index.js'),
+  join(root, 'packages/sa2kit/dist/business/fitnessPlan/index.js'),
+  join(root, 'packages/sa2kit/dist/business/comfyPrompt/index.js'),
+  join(root, 'packages/sa2kit/dist/business/skillManager/index.js'),
+  join(root, 'packages/sa2kit/dist/business/webTools/qrCode/index.js'),
+  join(root, 'packages/sa2kit/dist/business/webTools/dateCalculator/index.js'),
+];
 
 function run(cmd, args, env = {}) {
   const r = spawnSync(cmd, args, {
@@ -23,7 +34,8 @@ function run(cmd, args, env = {}) {
 }
 
 const needUi = !existsSync(reactStyle);
-const needSa2kit = !existsSync(sa2kitBusiness) || !existsSync(sa2kitDts);
+const needSa2kit =
+  !existsSync(sa2kitDts) || sa2kitBusinessMarkers.some((p) => !existsSync(p));
 
 if (!needUi && !needSa2kit) {
   console.log('[ensure-sa2kit-workspace-dist] OK — dist already present');

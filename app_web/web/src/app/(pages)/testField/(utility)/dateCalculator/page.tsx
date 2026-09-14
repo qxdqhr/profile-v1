@@ -1,5 +1,6 @@
-import { DateCalculatorDemoPage } from '@/modules/dateCalculator'
+import { redirect } from 'next/navigation';
 
-export default function DateCalculatorRoute() {
-  return <DateCalculatorDemoPage />
+/** Legacy testField → 正式路径 /tools/date-calculator */
+export default function DateCalculatorLegacyRedirect() {
+  redirect('/tools/date-calculator');
 }

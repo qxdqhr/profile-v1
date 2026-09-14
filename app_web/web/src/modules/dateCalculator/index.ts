@@ -1,6 +1,13 @@
-export { DateCalculatorTool } from './components'
-export type { DateCalculatorToolProps } from './components'
-export type { DateCalculatorMode, DateShiftUnit, IntervalResult, DateBreakdown } from './types'
+/**
+ * 薄兼容层（Phase H2）：实现已迁至 sa2kit/business/webTools/dateCalculator。
+ * 正式入口：/tools/date-calculator
+ */
+export {
+  DateCalculatorTool,
+  DateCalculatorDemoPage,
+  type DateCalculatorToolProps,
+} from 'sa2kit/business/webTools/dateCalculator';
+export type * from 'sa2kit/business/webTools/dateCalculator/domain';
 export {
   parseYmd,
   formatYmd,
@@ -8,5 +15,4 @@ export {
   computeInterval,
   shiftDate,
   calendarBreakdown,
-} from './utils'
-export { default as DateCalculatorDemoPage } from './pages/DateCalculatorDemoPage'
+} from 'sa2kit/business/webTools/dateCalculator/domain';

@@ -7,7 +7,7 @@
 执行上：北极星 > Phase G（**已完成**）> 各域功能优化。详见 [DOMAIN-MIGRATION-ROADMAP.md](./code-review/libraries/DOMAIN-MIGRATION-ROADMAP.md)；门禁 `pnpm gate`（含 `gate:ui` + `gate:architecture`）。
 
 产品级鉴权余项见 [`architecture/AUTH-SURFACE-AUDIT.md`](./architecture/AUTH-SURFACE-AUDIT.md)；宿主身份见 [`architecture/CUSTOMER-VS-HOST.md`](./architecture/CUSTOMER-VS-HOST.md)。  
-启明星二期（Phase H）：蓝图 [§15](./code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md#15-phase-h--启明星二期主站变薄--接单契约--包体)；主站拆分清单 [`code-review/libraries/WEB-MODULE-INVENTORY.md`](./code-review/libraries/WEB-MODULE-INVENTORY.md)。
+启明星二期（Phase H）：蓝图 [§15](./code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md#15-phase-h--启明星二期主站变薄--接单契约--包体)（H1 + P1/E 已收口；H2 待开）；主站拆分清单 [`code-review/libraries/WEB-MODULE-INVENTORY.md`](./code-review/libraries/WEB-MODULE-INVENTORY.md)；空目录演练 [`packages/sa2kit/docs/HOST-ONBOARDING-DRILL-H1-P1.md`](../packages/sa2kit/docs/HOST-ONBOARDING-DRILL-H1-P1.md)。
 
 ## 项目知识库（自动 + 手动）
 

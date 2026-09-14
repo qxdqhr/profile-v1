@@ -1,24 +1,15 @@
 /**
- * QRCode 二维码工具模块
- * 提供将字符串或 URL 转换为二维码图片的能力
+ * 薄兼容层（Phase H2）：实现已迁至 sa2kit/business/webTools/qrCode。
+ * 正式入口：/tools/qr-code
  */
-
-// 组件导出
-export { QRCodeImage, QRCodeImageWithDownload } from './components'
-
-// 类型导出
-export type {
-  QRCodeImageProps,
-  QRCodeErrorCorrectionLevel,
-  QRCodeDownloadOptions,
-} from './types'
-
-// 工具函数导出
+export {
+  QRCodeImage,
+  QRCodeImageWithDownload,
+  QRCodeDemoPage,
+} from 'sa2kit/business/webTools/qrCode';
+export type * from 'sa2kit/business/webTools/qrCode/domain';
 export {
   downloadQRCodeAsPng,
   downloadQRCodeAsSvg,
   isValidUrl,
-} from './utils'
-
-// 页面导出
-export { default as QRCodeDemoPage } from './pages/QRCodeDemoPage'
+} from 'sa2kit/business/webTools/qrCode/domain';

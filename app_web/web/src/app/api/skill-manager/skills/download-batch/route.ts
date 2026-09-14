@@ -1,32 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { requireApiSession } from '@/lib/auth/api-guard';
-import { buildBatchZip } from '../../_fileStore';
+import { createBatchDownloadHandler } from 'sa2kit/business/skillManager/routes';
+import { createSkillManagerHostRouteConfig } from '@/lib/skillManager/hostRouteConfig';
 
-function sanitizeSkillId(raw: string): string | null {
-  return /^[a-zA-Z0-9_-]+$/.test(raw) ? raw : null;
-}
+const config = createSkillManagerHostRouteConfig();
 
-export async function POST(request: NextRequest) {
-  const gated = await requireApiSession(request);
-  if (gated.error) return gated.error;
-
-  try {
-    const body = (await request.json()) as { ids?: string[] };
-    const ids = Array.isArray(body.ids) ? body.ids : [];
-    const sanitized = ids.map(sanitizeSkillId).filter(Boolean) as string[];
-
-    if (!sanitized.length) {
-      return NextResponse.json({ error: '请至少选择一个 skill' }, { status: 400 });
-    }
-
-    const stdout = await buildBatchZip(sanitized);
-
-    const headers = new Headers();
-    headers.set('Content-Type', 'application/zip');
-    headers.set('Content-Disposition', 'attachment; filename="skills-batch.zip"');
-    return new NextResponse(new Uint8Array(stdout), { status: 200, headers });
-  } catch (error) {
-    console.error('[skill-manager] batch download failed:', error);
-    return NextResponse.json({ error: '批量下载失败' }, { status: 500 });
-  }
-}
+export const POST = createBatchDownloadHandler(config);

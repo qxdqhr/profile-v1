@@ -1,38 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { requireApiSession } from '@/lib/auth/api-guard';
-import { listSkillFiles } from '../../../_fileStore';
+import { createBatchDownloadPreflightHandler } from 'sa2kit/business/skillManager/routes';
+import { createSkillManagerHostRouteConfig } from '@/lib/skillManager/hostRouteConfig';
 
-function sanitizeSkillId(raw: string): string | null {
-  return /^[a-zA-Z0-9_-]+$/.test(raw) ? raw : null;
-}
+const config = createSkillManagerHostRouteConfig();
 
-export async function POST(request: NextRequest) {
-  const gated = await requireApiSession(request);
-  if (gated.error) return gated.error;
-
-  try {
-    const body = (await request.json()) as { ids?: string[] };
-    const ids = Array.isArray(body.ids) ? body.ids : [];
-
-    const exists: string[] = [];
-    const missing: string[] = [];
-    const invalid: string[] = [];
-
-    for (const raw of ids) {
-      const id = sanitizeSkillId(raw);
-      if (!id) {
-        invalid.push(raw);
-        continue;
-      }
-
-      const files = await listSkillFiles(id);
-      if (files.length > 0) exists.push(id);
-      else missing.push(id);
-    }
-
-    return NextResponse.json({ ok: true, exists, missing, invalid });
-  } catch (error) {
-    console.error('[skill-manager] preflight failed:', error);
-    return NextResponse.json({ error: '预检失败' }, { status: 500 });
-  }
-}
+export const POST = createBatchDownloadPreflightHandler(config);
