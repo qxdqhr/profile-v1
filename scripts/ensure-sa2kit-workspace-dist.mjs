@@ -27,6 +27,7 @@ const sa2kitBusinessMarkers = [
   join(root, 'packages/sa2kit/dist/business/webTools/imageDownloader/index.js'),
   join(root, 'packages/sa2kit/dist/business/vocaloidBooth/routes/index.js'),
   join(root, 'packages/sa2kit/dist/business/mmd/routes/index.js'),
+  join(root, 'packages/sa2kit/dist/business/solarSystem/index.js'),
 ];
 
 function run(cmd, args, env = {}) {
