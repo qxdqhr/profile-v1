@@ -27,7 +27,7 @@
 | 框架 | Next.js（App Router，主站在 `app_web/web/src/app`） |
 | Monorepo | pnpm workspace：`app_web/*` + `host/*` + 显式 `packages/sa2kit` + `packages/sa2kit-ui`（及 ui 子包）+ `app_mobile/*` + `app_desktop/*`；`pnpm gate:architecture` 禁 `packages/` 第三 **npm** 共享包（允许 `sa2kit-skill` Agent skills submodule）；详见 `docs/monorepo-migration/`、`docs/README.md` |
 | 样式 | Tailwind CSS；预设 `@profile/ui/tailwind.preset`（设计令牌桥；业务组件/主题见 §1.1） |
-| 数据层 | Drizzle ORM + PostgreSQL（`@profile/db`，迁移目录 `drizzle/` 在仓库根） |
+| 数据层 | Drizzle ORM + PostgreSQL（`@profile/db` / `host/db`；schema 域桶见 `docs/code-review/packages/db-schema-domains.md`；迁移目录 `drizzle/` 在仓库根） |
 | 包管理 | **pnpm**；开发 `pnpm dev` = `pnpm --filter @profile/web dev` |
 | 通用 SDK | **`sa2kit`**（登录、OSS/文件、配置、AI、UI/主题门面）；git submodule `packages/sa2kit/`（独立仓可 npm 发布） |
 | UI 设计系统 | **`sa2kit-ui`**（`@sa2kit-ui/*`）；git submodule `packages/sa2kit-ui/`（独立仓可 npm 发布） |

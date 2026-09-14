@@ -6,6 +6,9 @@
   "exports": {
     ".": "./src/index.ts",
     "./schema": "./src/schema/index.ts",
+    "./schema/domains/platform": "./src/schema/domains/platform.ts",
+    "./schema/domains/product": "./src/schema/domains/product.ts",
+    "./schema/domains/webExperiments": "./src/schema/domains/webExperiments.ts",
     "./schema/auth": "./src/schema/auth.ts",
     "./schema/filetransfer": "./src/schema/filetransfer.ts",
     "./schema/ideaList": "./src/schema/ideaList.ts",

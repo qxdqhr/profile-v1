@@ -15,6 +15,7 @@
 | 分模块 Code Review | [`code-review/README.md`](./code-review/README.md) |
 | 2026-09-02 架构审查（已落地快照） | [`code-review/2026-09-02-审查结果.md`](./code-review/2026-09-02-审查结果.md) |
 | 待定优化（说「优化项目」接着做） | [`code-review/PENDING-OPTIMIZATION.md`](./code-review/PENDING-OPTIMIZATION.md) |
+| `@profile/db` schema 分域（OPT-04） | [`code-review/packages/db-schema-domains.md`](./code-review/packages/db-schema-domains.md) |
 | 多端 sa2kit 蓝图（含启明星二期 §15） | [`code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`](./code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md) |
 | 主站 Web 功能清单（二期拆分输入） | [`code-review/libraries/WEB-MODULE-INVENTORY.md`](./code-review/libraries/WEB-MODULE-INVENTORY.md) |
 | 大域新域迁移（Phase F） | [`code-review/libraries/DOMAIN-MIGRATION-ROADMAP.md`](./code-review/libraries/DOMAIN-MIGRATION-ROADMAP.md) |

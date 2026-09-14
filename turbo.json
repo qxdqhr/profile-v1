@@ -17,7 +17,9 @@
         "app_web/web/src/lib/security/publicHttpUrl.ts",
         "app_web/web/src/app/api/**/route.ts",
         "host/auth/src/roles.ts",
-        "host/auth/src/resolve-auth-base-url.ts"
+        "host/auth/src/resolve-auth-base-url.ts",
+        "host/db/package.json",
+        "host/db/src/**/*.ts"
       ],
       "outputs": []
     },

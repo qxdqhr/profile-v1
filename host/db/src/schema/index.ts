@@ -1,20 +1,7 @@
-export * from 'sa2kit/business/showmasterpiece/server';
-export * from './auth';
-export * from './filetransfer';
-export * from 'sa2kit/business/calendar/server';
-export * from './ideaList';
-export * from './fitnessPlan';
-export * from './mmd';
-export * from './cardMaker';
-export * from './mikutap';
-export * from './skillManager';
-export * from 'sa2kit/business/teachHub/server';
-export * from './comfyPrompt';
-export * from 'sa2kit/common/file/server';
-export * from 'sa2kit/business/festivalCard/server';
-export * from './ticketMonitor';
-export * from './purchaseGame';
-export * from './universalExport';
-export * from './vocaloidBooth';
-export * from 'sa2kit/business/nodeNotes/server';
-export * from './exam';
+/**
+ * 全站 schema 聚合（drizzle migrate / 主站 db 客户端）。
+ * 按域拆分见 `./domains/*` 与 docs/code-review/packages/db-schema-domains.md。
+ */
+export * from './domains/platform';
+export * from './domains/product';
+export * from './domains/webExperiments';

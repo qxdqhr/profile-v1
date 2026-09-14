@@ -73,7 +73,7 @@
 | 模块 | 规模（约） | 状态 | 报告 |
 |------|------------|------|------|
 | `@profile/config` | 5 文件 / ~110 行 | ✅ | [packages/config.md](./packages/config.md) |
-| `@profile/db` | 5 文件 / ~336 行 + schema 聚合 | ✅ | [packages/db.md](./packages/db.md) |
+| `@profile/db` | 5 文件 / ~336 行 + schema 聚合 | ✅ | [packages/db.md](./packages/db.md) · [分域](./packages/db-schema-domains.md) |
 | `@profile/auth` | 6 文件 / ~148 行 | ✅ | [packages/auth.md](./packages/auth.md) |
 | `@profile/ui` | preset only | ✅ | [packages/ui.md](./packages/ui.md) |
 | `calendar-core`（含 `/shared`） | ~12.8k | ✅（应用视角） | [apps/calendar.md](./apps/calendar.md) |

@@ -6,7 +6,7 @@
 
 来源：2026-09-02 架构审查里当时没排完、以及减负时明确后置的项。已完成的安全/鉴权/Dockerfile/游戏旁路见 [`2026-09-02-审查结果.md`](./2026-09-02-审查结果.md)。
 
-**下次从这里开始：** `OPT-04`
+**下次从这里开始：** `OPT-05`
 
 ---
 
@@ -39,8 +39,8 @@ middleware 只认 cookie **是否存在**。伪造 `better-auth.session_token` �
 
 `@profile/db` 仍聚合全站表。业务 core 环已随 G3–G7 清零；schema 来自 `sa2kit/business/*/server`。
 
-- [ ] 至少 calendar / teach-hub / 主站实验表分离方案
-- [ ] 禁止新的 db→auth 直接依赖
+- [x] 方案 + 域桶：`docs/code-review/packages/db-schema-domains.md`；`schema/domains/{platform,product,webExperiments}`；calendar/teach-hub 归 product
+- [x] 禁止 db→auth：`scripts/verify-db-no-auth-dep.ts` 进 `pnpm test`（现状已无该依赖）
 
 ### OPT-05 主站体验债
 
