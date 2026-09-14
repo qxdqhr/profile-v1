@@ -58,7 +58,7 @@
 | testField | 132K | — | — | C | 留主站 | 实验田目录 |
 | exam | 薄 | `/api/exam` | sa2kit exam | L | **已确认** | 宿主仅 DI；答卷 UI 仍 `/testField/experiment`（未下沉） |
 | games | 32K | — | — | C/E | 留主站 | 入口页；游戏走 Godot 旁路 |
-| mmd | 168K | `/api/mmd` | `mmd` + sa2kit | B/E | 待迁 | 重 Three；可对 OPT-01 |
+| mmd | 薄 | `/api/mmd` | `mmd` re-export | B 部分 | **资源 CRUD 已迁** | schema+DbService+models routes → sa2kit；播放器 UI 已在库；宿主 Three 死壳已删；solar/OPT-01 另议 |
 | solarSystem | 64K | — | — | E | 待迁 | 重 Three，后置 |
 | mikutap | 440K | `/api/mikutap` | `mikutap` | E | 非目标 | 互动原型；Godot/旁路优先 |
 | vocaloidBooth | 薄 | 主站 vocaloid-booth | `vocaloidBooth` | B | **已迁 B** | sa2kit/business/vocaloidBooth；正式 `/vocaloid-booth` |
@@ -121,7 +121,7 @@
 | cardMaker.ts | cardMaker | H2（re-export sa2kit/server） |
 | skillManager.ts | skillManager | H2（re-export sa2kit/server） |
 | mikutap.ts | mikutap | E 后置 |
-| mmd.ts | mmd | OPT-01 / B |
+| mmd.ts | mmd | H∞ B（re-export 资源表；playlist 表仍在 sa2kit drizzle-schema） |
 | vocaloidBooth.ts | vocaloidBooth | H∞（re-export sa2kit/server） |
 | auth.ts | 全局 | 不迁出共享 |
 | purchaseGame.ts / universalExport.ts | 游戏/导出 | 旁路或后置 |
@@ -138,7 +138,7 @@
 2. ~~cardMaker（API+DB）~~ ✅ H2（B）  
 3. ~~SyncText~~ ✅ H∞ 已删（原 C stub）  
 4. ~~qrCode + dateCalculator + WorkCalculate + ImageDownloader~~ ✅ `webTools`  
-5. mmd / solarSystem（独立壳或 OPT-01）  
+5. mmd 资源 CRUD ✅ H∞ B 切片；solarSystem / Three 依赖仍 OPT-01  
 6. ~~vocaloidBooth~~ ✅ H∞（B 收口）
 
 ---
@@ -155,3 +155,4 @@
 | 2026-09-14 | H∞：删除 notification mock 实验页 |
 | 2026-09-14 | H∞：exam L 确认（薄 DI + API 注释）；删除 ticketBooking 选座 mock |
 | 2026-09-14 | H∞：删除 SyncText stub + tailwindTest 样式壳 |
+| 2026-09-14 | H∞：mmd 资源 CRUD B 切片（schema+DbService+models routes；删宿主死 Three 壳） |

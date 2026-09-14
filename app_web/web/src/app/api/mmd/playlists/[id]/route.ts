@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { buildMmdPlaylistFromSources } from 'sa2kit/business/mmd/server';
-import { MMDModelsDbService, MMDAnimationsDbService } from '@/modules/mmd/db/mmdDbService';
+import { createMmdResourceServices } from '@/lib/mmd/hostRouteConfig';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const modelsService = new MMDModelsDbService();
-const animationsService = new MMDAnimationsDbService();
-
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
     const { id } = await params;
     const limitParam = request.nextUrl.searchParams.get('limit');
@@ -33,16 +33,23 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 async function buildPlaylistFromDatabase(playlistId: string, limit: number) {
+  const { models: modelsService, animations: animationsService } =
+    createMmdResourceServices();
+
   const models = await modelsService.getPublicModels();
   if (!models.length) {
     return null;
   }
 
-  let animations: Awaited<ReturnType<typeof animationsService.getPublicAnimations>> = [];
+  let animations: Awaited<ReturnType<typeof animationsService.getPublicAnimations>> =
+    [];
   try {
     animations = await animationsService.getPublicAnimations();
   } catch (error) {
-    console.warn('[MMD playlist] 获取动画列表失败，将继续构建无动作的播放列表示例', error);
+    console.warn(
+      '[MMD playlist] 获取动画列表失败，将继续构建无动作的播放列表示例',
+      error,
+    );
   }
 
   return buildMmdPlaylistFromSources({
