@@ -873,48 +873,67 @@ jobs:
           DEPLOY_CFG_DIR=/tmp/profile-v1-deploy
           DEPLOY_USER="${{ secrets.DEPLOY_SERVER_USERNAME }}"
           DEPLOY_HOST="${{ secrets.DEPLOY_SERVER_HOST }}"
-          SSH_OPTS="-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=20 -i /tmp/ssh_key"
+          SSH_OPTS="-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=20 -o ConnectTimeout=30 -i /tmp/ssh_key"
           REMOTE="${DEPLOY_USER}@${DEPLOY_HOST}"
 
           echo "${{ secrets.DEPLOY_SERVER_SSH_KEY }}" > /tmp/ssh_key
           chmod 600 /tmp/ssh_key
 
-          echo "=== 同步配置与 deploy 文件 ==="
-          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/nginx /root/profile-v1/wordpress/holt /root/profile-v1/deploy/wordpress /root/profile-v1/games"
-          scp $SSH_OPTS "$DEPLOY_CFG_DIR/app.config.yaml" "$REMOTE:/root/profile-v1/app.config.yaml"
-          scp $SSH_OPTS deploy/docker-compose.gateway.yml "$REMOTE:/root/profile-v1/docker-compose.gateway.yml"
-          scp $SSH_OPTS deploy/nginx/profile-platform.conf "$REMOTE:/root/profile-v1/nginx/profile-platform.conf"
-          scp $SSH_OPTS deploy/nginx/proxy-params.conf "$REMOTE:/root/profile-v1/nginx/proxy-params.conf"
-          scp $SSH_OPTS deploy/deploy-profile-v1.sh "$REMOTE:/root/profile-v1/deploy-profile-v1.sh"
-          scp $SSH_OPTS deploy/ensure-nginx-image.sh "$REMOTE:/root/profile-v1/ensure-nginx-image.sh"
-          scp $SSH_OPTS deploy/cleanup-server-disk.sh "$REMOTE:/root/profile-v1/cleanup-server-disk.sh"
-          scp $SSH_OPTS deploy/derive-database-url.sh "$REMOTE:/root/profile-v1/derive-database-url.sh"
-          scp $SSH_OPTS deploy/fix-gateway-remote.sh "$REMOTE:/root/profile-v1/fix-gateway-remote.sh"
-          scp $SSH_OPTS deploy/wait-gateway-ready.sh "$REMOTE:/root/profile-v1/wait-gateway-ready.sh"
-          scp $SSH_OPTS deploy/ensure-database-url.sh "$REMOTE:/root/profile-v1/ensure-database-url.sh"
-          scp $SSH_OPTS deploy/ensure-wordpress-env.sh "$REMOTE:/root/profile-v1/ensure-wordpress-env.sh"
-          scp $SSH_OPTS deploy/ensure-wordpress-database.sh "$REMOTE:/root/profile-v1/ensure-wordpress-database.sh"
-          scp $SSH_OPTS deploy/ensure-calendar-schema.sh "$REMOTE:/root/profile-v1/ensure-calendar-schema.sh"
-          scp $SSH_OPTS deploy/ensure-node-notes-schema.sh "$REMOTE:/root/profile-v1/ensure-node-notes-schema.sh"
-          scp $SSH_OPTS deploy/smoke-test-gateway.sh "$REMOTE:/root/profile-v1/smoke-test-gateway.sh"
-          scp $SSH_OPTS deploy/check-gateway-health.sh "$REMOTE:/root/profile-v1/check-gateway-health.sh"
-          scp $SSH_OPTS deploy/audit-outer-nginx.sh "$REMOTE:/root/profile-v1/audit-outer-nginx.sh"
-          scp $SSH_OPTS deploy/nginx/outer-ubuntu-qhr062.conf "$REMOTE:/root/profile-v1/nginx/outer-ubuntu-qhr062.conf"
-          scp $SSH_OPTS deploy/nginx/proxy-params-outer.conf "$REMOTE:/root/profile-v1/nginx/proxy-params-outer.conf"
-          scp $SSH_OPTS deploy/wordpress/README.md deploy/wordpress/ADD-SITE.md deploy/wordpress/.env.example \
-            "$REMOTE:/root/profile-v1/deploy/wordpress/"
+          # 多次短连接易触发服务端 MaxStartups / fail2ban；统一重试
+          ssh_retry() {
+            local attempt=1
+            local max=6
+            while true; do
+              if "$@"; then
+                return 0
+              fi
+              if [ "$attempt" -ge "$max" ]; then
+                echo "ERROR: ssh/scp 重试 ${max} 次仍失败: $*" >&2
+                return 1
+              fi
+              echo "WARN: 连接失败，${attempt}/${max}，sleep $((attempt * 5))s 后重试…"
+              sleep $((attempt * 5))
+              attempt=$((attempt + 1))
+            done
+          }
+
+          echo "=== 打包并同步 deploy 文件（单次 SSH，避免 Connection reset）==="
+          ssh_retry ssh $SSH_OPTS "$REMOTE" \
+            "mkdir -p /root/profile-v1/nginx /root/profile-v1/wordpress/holt /root/profile-v1/deploy/wordpress /root/profile-v1/games"
+
+          STAGE=$(mktemp -d)
+          mkdir -p "$STAGE/nginx" "$STAGE/deploy/wordpress" "$STAGE/games"
+          cp "$DEPLOY_CFG_DIR/app.config.yaml" "$STAGE/app.config.yaml"
+          cp deploy/docker-compose.gateway.yml "$STAGE/"
+          cp deploy/nginx/profile-platform.conf deploy/nginx/proxy-params.conf \
+            deploy/nginx/outer-ubuntu-qhr062.conf deploy/nginx/proxy-params-outer.conf \
+            "$STAGE/nginx/"
+          cp deploy/deploy-profile-v1.sh deploy/ensure-nginx-image.sh deploy/cleanup-server-disk.sh \
+            deploy/derive-database-url.sh deploy/fix-gateway-remote.sh deploy/wait-gateway-ready.sh \
+            deploy/ensure-database-url.sh deploy/ensure-wordpress-env.sh deploy/ensure-wordpress-database.sh \
+            deploy/ensure-calendar-schema.sh deploy/ensure-node-notes-schema.sh \
+            deploy/smoke-test-gateway.sh deploy/check-gateway-health.sh deploy/audit-outer-nginx.sh \
+            "$STAGE/"
+          cp deploy/wordpress/README.md deploy/wordpress/ADD-SITE.md deploy/wordpress/.env.example \
+            "$STAGE/deploy/wordpress/"
+          cp deploy/games/README.md deploy/games/ADD-GAME.md "$STAGE/games/"
+
+          tar -C "$STAGE" -czf /tmp/profile-v1-deploy-bundle.tgz .
+          ssh_retry scp $SSH_OPTS /tmp/profile-v1-deploy-bundle.tgz "$REMOTE:/tmp/profile-v1-deploy-bundle.tgz"
+          ssh_retry ssh $SSH_OPTS "$REMOTE" \
+            'tar -C /root/profile-v1 -xzf /tmp/profile-v1-deploy-bundle.tgz && rm -f /tmp/profile-v1-deploy-bundle.tgz && chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/*.sh'
+          rm -rf "$STAGE" /tmp/profile-v1-deploy-bundle.tgz
+
           if [ "${WORDPRESS_CHANGED}" = "true" ]; then
             echo "=== 同步 WordPress 子站 submodule: holt ==="
-            scp -r $SSH_OPTS app_wordpress/holt/* "$REMOTE:/root/profile-v1/wordpress/holt/"
+            ssh_retry scp -r $SSH_OPTS app_wordpress/holt/* "$REMOTE:/root/profile-v1/wordpress/holt/"
           fi
-          scp $SSH_OPTS deploy/games/README.md deploy/games/ADD-GAME.md \
-            "$REMOTE:/root/profile-v1/games/"
+
           bash scripts/sync-prebuilt-game-www.sh
           for game_dir in deploy/games/*/; do
             [ -d "$game_dir" ] || continue
             slug="$(basename "$game_dir")"
             [ -d "${game_dir}www" ] || continue
-            ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/games/${slug}/www"
             should_sync=0
             if [ -f "${game_dir}www/index.html" ]; then
               if [ "${GAMES_CHANGED}" = "true" ] || [ -f "app_games/${slug}/.use-prebuilt-web" ]; then
@@ -923,21 +942,22 @@ jobs:
             fi
             if [ "$should_sync" = "1" ]; then
               echo "=== 同步游戏 Web 产物: ${slug} ==="
-              scp -r $SSH_OPTS "${game_dir}www/"* "$REMOTE:/root/profile-v1/games/${slug}/www/"
+              ssh_retry ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/games/${slug}/www"
+              ssh_retry scp -r $SSH_OPTS "${game_dir}www/"* "$REMOTE:/root/profile-v1/games/${slug}/www/"
             fi
           done
           if [ "${GAMES_CHANGED}" != "true" ]; then
             echo "=== 未改 Godot 源码：保留服务器已有导出包；仍同步 .use-prebuilt-web ==="
           fi
-          ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/ensure-nginx-image.sh /root/profile-v1/cleanup-server-disk.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/wait-gateway-ready.sh /root/profile-v1/ensure-database-url.sh /root/profile-v1/ensure-wordpress-env.sh /root/profile-v1/ensure-wordpress-database.sh /root/profile-v1/ensure-calendar-schema.sh /root/profile-v1/ensure-node-notes-schema.sh /root/profile-v1/smoke-test-gateway.sh /root/profile-v1/check-gateway-health.sh /root/profile-v1/audit-outer-nginx.sh"
 
           echo "=== 服务器登录阿里云镜像仓（拉取 library-nginx / 业务镜像）==="
           REGISTRY_HOST="${REGISTRY%%/*}"
-          # 密码经 stdin，避免出现在 ssh 命令行参数里
-          printf '%s\n' "${ALIYUN_PASSWORD}" | ssh $SSH_OPTS "$REMOTE" \
-            "docker login -u '${ALIYUN_USERNAME}' --password-stdin '${REGISTRY_HOST}'"
+          remote_docker_login() {
+            printf '%s\n' "${ALIYUN_PASSWORD}" | ssh $SSH_OPTS "$REMOTE" \
+              "docker login -u '${ALIYUN_USERNAME}' --password-stdin '${REGISTRY_HOST}'"
+          }
+          ssh_retry remote_docker_login
 
-          # 通过临时 env 文件注入 WP 密钥，避免特殊字符破坏 ssh 命令行
           {
             echo "REGISTRY=${REGISTRY}"
             echo "IMAGE_TAG=${NEW_TAG}"
@@ -948,13 +968,13 @@ jobs:
             [ -n "${WP_HOLT_PUBLIC_URL:-}" ] && printf 'WP_HOLT_PUBLIC_URL=%s\n' "$WP_HOLT_PUBLIC_URL"
             [ -n "${WP_HOLT_PUBLIC_URL:-}" ] && printf 'WORDPRESS_DB_NAME=wp_holt\n'
           } > /tmp/wp-deploy.env
-          scp $SSH_OPTS /tmp/wp-deploy.env "$REMOTE:/tmp/profile-wp-deploy.env"
-          ssh $SSH_OPTS "$REMOTE" \
+          ssh_retry scp $SSH_OPTS /tmp/wp-deploy.env "$REMOTE:/tmp/profile-wp-deploy.env"
+          ssh_retry ssh $SSH_OPTS "$REMOTE" \
             'set -a; . /tmp/profile-wp-deploy.env; set +a; rm -f /tmp/profile-wp-deploy.env; /root/profile-v1/deploy-profile-v1.sh'
           rm -f /tmp/wp-deploy.env
 
           echo "=== 幂等修复 Postgres/DATABASE_URL + 冒烟测试（不再二次 down/up）==="
-          ssh $SSH_OPTS "$REMOTE" "POST_DEPLOY=1 /root/profile-v1/fix-gateway-remote.sh"
+          ssh_retry ssh $SSH_OPTS "$REMOTE" "POST_DEPLOY=1 /root/profile-v1/fix-gateway-remote.sh"
 
           rm -f /tmp/ssh_key "$DEPLOY_CFG_DIR/age-key.txt" "$DEPLOY_CFG_DIR/app.config.yaml"
 
