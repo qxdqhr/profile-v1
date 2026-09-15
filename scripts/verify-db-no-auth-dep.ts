@@ -2,9 +2,10 @@
  * OPT-04：禁止 @profile/db → @profile/auth（方向必须是 auth 读 db schema）。
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = join(import.meta.dirname, '..');
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dbRoot = join(root, 'host/db');
 
 function assert(cond: unknown, msg: string): asserts cond {

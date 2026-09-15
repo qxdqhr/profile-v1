@@ -3,9 +3,10 @@
  * 离线、无 DB。
  */
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = join(import.meta.dirname, '..');
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const SESSION_MARK =
   /getApiSessionUser|requireApiSession|requireAdminSession|requireExampleAccess|requireOssExampleAdmin/;
