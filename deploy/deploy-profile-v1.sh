@@ -167,7 +167,7 @@ fi
 # docker-compose v1 + 新版 Docker Engine 在 recreate 时会 KeyError: ContainerConfig
 # 必须先完整 teardown，再 pull + 全新 up（避免走 recreate 路径）
 echo "=== 停止并移除旧网关栈 ==="
-compose_cmd -f "$COMPOSE_FILE" down --remove-orphans 2>/dev/null || true
+compose_timeout 120s -f "$COMPOSE_FILE" down --remove-orphans 2>/dev/null || true
 if ids="$(docker ps -aq --filter 'name=profile-v1_')"; then
   # shellcheck disable=SC2086
   docker rm -f $ids 2>/dev/null || true
@@ -175,7 +175,10 @@ fi
 
 echo "=== 拉取业务镜像 tag=${IMAGE_TAG} ==="
 # shellcheck disable=SC2086
-compose_cmd -f "$COMPOSE_FILE" pull $APP_SERVICES
+if ! compose_timeout 360s -f "$COMPOSE_FILE" pull $APP_SERVICES; then
+  echo "ERROR: 业务镜像拉取超时/失败（360s）" >&2
+  exit 1
+fi
 
 echo "=== 启动网关栈（nginx 用本地层，避免再打 Docker Hub）==="
 UP_PULL_ARGS=()
@@ -183,7 +186,11 @@ if compose_cmd -f "$COMPOSE_FILE" up --help 2>&1 | grep -q -- '--pull'; then
   UP_PULL_ARGS=(--pull never)
 fi
 # shellcheck disable=SC2086
-compose_cmd -f "$COMPOSE_FILE" up -d "${UP_PULL_ARGS[@]}" --remove-orphans $APP_SERVICES $BASE_SERVICES
+if ! compose_timeout 180s -f "$COMPOSE_FILE" up -d "${UP_PULL_ARGS[@]}" --remove-orphans $APP_SERVICES $BASE_SERVICES; then
+  echo "ERROR: compose up 超时/失败" >&2
+  compose_cmd -f "$COMPOSE_FILE" ps || true
+  exit 1
+fi
 echo "=== 尝试拉取/启动 WordPress 旁路（短超时，失败不阻断）==="
 # shellcheck disable=SC2086
 if ! compose_timeout 120s -f "$COMPOSE_FILE" pull $WP_SERVICES; then

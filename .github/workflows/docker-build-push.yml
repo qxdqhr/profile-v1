@@ -757,6 +757,7 @@ jobs:
 
   deploy-web:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     needs: [changes, build-web, build-satellites, promote-images, export-godot-games]
     # 主站轨硬依赖；卫星/游戏失败不阻断（continue-on-error + 允许 failure）
     if: >-
@@ -856,6 +857,7 @@ jobs:
           REGISTRY="${{ env.REGISTRY }}" bash scripts/ci-mirror-base-images.sh
 
       - name: Deploy gateway stack to remote server
+        timeout-minutes: 25
         env:
           REGISTRY: crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht
           WP_MARIADB_ROOT_PASSWORD: ${{ secrets.WP_MARIADB_ROOT_PASSWORD }}
@@ -926,6 +928,12 @@ jobs:
             echo "=== 未改 Godot 源码：保留服务器已有导出包；仍同步 .use-prebuilt-web ==="
           fi
           ssh $SSH_OPTS "$REMOTE" "chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/ensure-nginx-image.sh /root/profile-v1/cleanup-server-disk.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/wait-gateway-ready.sh /root/profile-v1/ensure-database-url.sh /root/profile-v1/ensure-wordpress-env.sh /root/profile-v1/ensure-wordpress-database.sh /root/profile-v1/ensure-calendar-schema.sh /root/profile-v1/ensure-node-notes-schema.sh /root/profile-v1/smoke-test-gateway.sh /root/profile-v1/check-gateway-health.sh /root/profile-v1/audit-outer-nginx.sh"
+
+          echo "=== 服务器登录阿里云镜像仓（拉取 library-nginx / 业务镜像）==="
+          REGISTRY_HOST="${REGISTRY%%/*}"
+          # 密码经 stdin，避免出现在 ssh 命令行参数里
+          printf '%s\n' "${ALIYUN_PASSWORD}" | ssh $SSH_OPTS "$REMOTE" \
+            "docker login -u '${ALIYUN_USERNAME}' --password-stdin '${REGISTRY_HOST}'"
 
           # 通过临时 env 文件注入 WP 密钥，避免特殊字符破坏 ssh 命令行
           {
