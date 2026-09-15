@@ -27,8 +27,9 @@ jobs:
             deploy/check-gateway-health.sh \
             deploy/derive-database-url.sh \
             deploy/deploy-profile-v1.sh \
+            deploy/ensure-nginx-image.sh \
             "$REMOTE:/root/profile-v1/"
           ssh $SSH_OPTS "$REMOTE" \
-            "chmod +x /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/check-gateway-health.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/deploy-profile-v1.sh"
+            "chmod +x /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/check-gateway-health.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/ensure-nginx-image.sh"
           ssh $SSH_OPTS "$REMOTE" "/root/profile-v1/fix-gateway-remote.sh"
           rm -f /tmp/ssh_key

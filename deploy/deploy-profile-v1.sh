@@ -129,16 +129,23 @@ echo "=== 清理 legacy 单容器 ==="
 docker stop my_container 2>/dev/null || true
 docker rm my_container 2>/dev/null || true
 
-# docker-compose v1 + 新版 Docker Engine 在 recreate 时会 KeyError: ContainerConfig
-# 必须先完整 teardown，再 pull + 全新 up（避免走 recreate 路径）
-echo "=== 停止并移除旧网关栈 ==="
-compose_cmd -f "$COMPOSE_FILE" down --remove-orphans 2>/dev/null || true
-if ids="$(docker ps -aq --filter 'name=profile-v1_')"; then
-  # shellcheck disable=SC2086
-  docker rm -f $ids 2>/dev/null || true
+# DaoCloud / Docker Hub TLS 不稳：必须先保证 nginx 本地可用，再 teardown，否则拆栈后可能起不来
+APP_SERVICES="web calendar teach_hub showmasterpiece money_research node_notes idea_list filetransfer ticket_monitor fitness_plan comfy_prompt utilities"
+BASE_SERVICES="nginx"
+WP_SERVICES="wp_mariadb wordpress_holt"
+NGINX_IMG="${NGINX_IMG:-docker.m.daocloud.io/library/nginx:1.27-alpine}"
+
+echo "=== 确保 nginx 本地可用（失败则中止，不拆现网）==="
+if [ -x ./ensure-nginx-image.sh ]; then
+  NGINX_IMG="$NGINX_IMG" ./ensure-nginx-image.sh
+elif [ -f ./ensure-nginx-image.sh ]; then
+  NGINX_IMG="$NGINX_IMG" bash ./ensure-nginx-image.sh
+else
+  echo "ERROR: 缺少 ensure-nginx-image.sh" >&2
+  exit 1
 fi
 
-echo "=== 释放 Docker 镜像缓存（仅在磁盘紧张时）==="
+echo "=== 释放 Docker 镜像缓存（仅在磁盘紧张时；保留 nginx）==="
 ROOT_USE="$(df -P / | awk 'NR==2 {gsub(/%/,"",$5); print $5}')"
 if [ "${ROOT_USE:-0}" -ge 85 ] 2>/dev/null; then
   echo "磁盘使用 ${ROOT_USE}% ≥ 85%，执行清理"
@@ -150,52 +157,33 @@ if [ "${ROOT_USE:-0}" -ge 85 ] 2>/dev/null; then
     docker image prune -f || true
     docker builder prune -af --filter "until=72h" || true
   fi
+  # prune 可能误删 nginx，再确认一次
+  NGINX_IMG="$NGINX_IMG" bash ./ensure-nginx-image.sh
 else
-  echo "磁盘使用 ${ROOT_USE:-?}% < 85%，跳过 image prune（避免强依赖 DaoCloud 重拉 nginx/MariaDB）"
+  echo "磁盘使用 ${ROOT_USE:-?}% < 85%，跳过 image prune（避免强依赖镜像站重拉 nginx/MariaDB）"
   docker container prune -f || true
 fi
 
-# DaoCloud 公网 TLS 不稳：阿里云业务镜像必须拉成功；nginx/WP 失败则沿用本地层
-APP_SERVICES="web calendar teach_hub showmasterpiece money_research node_notes idea_list filetransfer ticket_monitor fitness_plan comfy_prompt utilities"
-BASE_SERVICES="nginx"
-WP_SERVICES="wp_mariadb wordpress_holt"
+# docker-compose v1 + 新版 Docker Engine 在 recreate 时会 KeyError: ContainerConfig
+# 必须先完整 teardown，再 pull + 全新 up（避免走 recreate 路径）
+echo "=== 停止并移除旧网关栈 ==="
+compose_cmd -f "$COMPOSE_FILE" down --remove-orphans 2>/dev/null || true
+if ids="$(docker ps -aq --filter 'name=profile-v1_')"; then
+  # shellcheck disable=SC2086
+  docker rm -f $ids 2>/dev/null || true
+fi
 
 echo "=== 拉取业务镜像 tag=${IMAGE_TAG} ==="
 # shellcheck disable=SC2086
 compose_cmd -f "$COMPOSE_FILE" pull $APP_SERVICES
 
-echo "=== 尝试准备 nginx 镜像（短超时；失败用本地/官方源）==="
-NGINX_IMG="docker.m.daocloud.io/library/nginx:1.27-alpine"
-ensure_nginx_image() {
-  if docker image inspect "$NGINX_IMG" >/dev/null 2>&1; then
-    echo "nginx 本地已有，跳过拉取"
-    return 0
-  fi
-  local attempt
-  for attempt in 1 2 3; do
-    echo "nginx 拉取尝试 ${attempt}/3（DaoCloud / compose）"
-    # shellcheck disable=SC2086
-    if compose_timeout 120s -f "$COMPOSE_FILE" pull $BASE_SERVICES; then
-      return 0
-    fi
-    if timeout 120s docker pull "$NGINX_IMG"; then
-      return 0
-    fi
-    sleep $((attempt * 5))
-  done
-  echo "WARN: DaoCloud nginx 拉取超时/失败，尝试 docker.io"
-  if timeout 120s docker pull nginx:1.27-alpine; then
-    docker tag nginx:1.27-alpine "$NGINX_IMG"
-    return 0
-  fi
-  echo "WARN: nginx 仍不可用，up 可能失败"
-  return 1
-}
-ensure_nginx_image || true
-
-echo "=== 启动网关栈（先核心；游戏静态由平台 nginx 托管，WordPress 可失败）==="
+echo "=== 启动网关栈（nginx 用本地层，避免再打 Docker Hub）==="
+UP_PULL_ARGS=()
+if compose_cmd -f "$COMPOSE_FILE" up --help 2>&1 | grep -q -- '--pull'; then
+  UP_PULL_ARGS=(--pull never)
+fi
 # shellcheck disable=SC2086
-compose_cmd -f "$COMPOSE_FILE" up -d --remove-orphans $APP_SERVICES $BASE_SERVICES
+compose_cmd -f "$COMPOSE_FILE" up -d "${UP_PULL_ARGS[@]}" --remove-orphans $APP_SERVICES $BASE_SERVICES
 echo "=== 尝试拉取/启动 WordPress 旁路（短超时，失败不阻断）==="
 # shellcheck disable=SC2086
 if ! compose_timeout 120s -f "$COMPOSE_FILE" pull $WP_SERVICES; then

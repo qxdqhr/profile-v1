@@ -16,6 +16,9 @@
 | 生产 | `deploy/.env` 的 `IMAGE_TAG=NNN` |
 | 回滚 | 改 `IMAGE_TAG` → `compose pull <svc>` → `up -d <svc>`（见 Runbook） |
 | 晋升脚本 | `scripts/ci-promote-docker-image.sh`（未变更 / 卫星构建失败回退） |
+| 基础镜像 | `deploy/ensure-nginx-image.sh`：国内镜像站优先；**先保证本地再 teardown** |
+
+部署时阿里云业务镜像必拉成功；nginx 走 DaoCloud/其它国内源，失败则复用本地层。禁止在 nginx 不可用时 `compose down`（避免 Docker Hub TLS 超时导致整站挂掉）。
 
 ## CI 三轨隔离（`docker-build-push.yml`）
 

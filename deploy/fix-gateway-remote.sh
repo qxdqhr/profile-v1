@@ -151,27 +151,26 @@ if [ "${POST_DEPLOY:-}" = "1" ]; then
   sleep 5
 else
   echo "========== 6. 重启网关栈 =========="
-  # 阿里云业务镜像必须成功；DaoCloud 的 nginx/WP 失败则尽量用本地层
+  # 阿里云业务镜像必须成功；nginx 必须先本地可用再 down
   APP_SERVICES="web calendar teach_hub showmasterpiece money_research node_notes idea_list filetransfer ticket_monitor fitness_plan comfy_prompt utilities"
   BASE_SERVICES="nginx"
   WP_SERVICES="wp_mariadb wordpress_holt"
+  NGINX_IMG="${NGINX_IMG:-docker.m.daocloud.io/library/nginx:1.27-alpine}"
+  if [ -f ./ensure-nginx-image.sh ]; then
+    NGINX_IMG="$NGINX_IMG" bash ./ensure-nginx-image.sh
+  else
+    echo "ERROR: 缺少 ensure-nginx-image.sh" >&2
+    exit 1
+  fi
   # shellcheck disable=SC2086
   compose -f "$COMPOSE_FILE" pull $APP_SERVICES
-  echo "=== 尝试准备 nginx（短超时；失败用本地/官方源）==="
-  NGINX_IMG="docker.m.daocloud.io/library/nginx:1.27-alpine"
-  if docker image inspect "$NGINX_IMG" >/dev/null 2>&1; then
-    echo "nginx 本地已有，跳过拉取"
-  elif ! timeout 90s compose -f "$COMPOSE_FILE" pull $BASE_SERVICES; then
-    echo "WARN: DaoCloud nginx 拉取失败，尝试 docker.io/nginx:1.27-alpine"
-    if timeout 90s docker pull nginx:1.27-alpine; then
-      docker tag nginx:1.27-alpine "$NGINX_IMG"
-    else
-      echo "WARN: nginx 拉取仍失败，将尝试使用本地已有层"
-    fi
-  fi
   compose -f "$COMPOSE_FILE" down --remove-orphans
+  UP_PULL_ARGS=()
+  if compose -f "$COMPOSE_FILE" up --help 2>&1 | grep -q -- '--pull'; then
+    UP_PULL_ARGS=(--pull never)
+  fi
   # shellcheck disable=SC2086
-  compose -f "$COMPOSE_FILE" up -d --remove-orphans $APP_SERVICES $BASE_SERVICES
+  compose -f "$COMPOSE_FILE" up -d "${UP_PULL_ARGS[@]}" --remove-orphans $APP_SERVICES $BASE_SERVICES
   echo "=== 尝试拉取/启动 WordPress 旁路（短超时，失败不阻断）==="
   # shellcheck disable=SC2086
   if ! timeout 90s compose -f "$COMPOSE_FILE" pull $WP_SERVICES; then
