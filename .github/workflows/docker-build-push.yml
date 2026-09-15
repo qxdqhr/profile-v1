@@ -860,6 +860,8 @@ jobs:
         timeout-minutes: 25
         env:
           REGISTRY: crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht
+          ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
+          ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
           WP_MARIADB_ROOT_PASSWORD: ${{ secrets.WP_MARIADB_ROOT_PASSWORD }}
           WP_DB_USER: ${{ secrets.WP_DB_USER }}
           WP_DB_PASSWORD: ${{ secrets.WP_DB_PASSWORD }}
