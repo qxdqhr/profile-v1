@@ -857,7 +857,7 @@ jobs:
           REGISTRY="${{ env.REGISTRY }}" bash scripts/ci-mirror-base-images.sh
 
       - name: Deploy gateway stack to remote server
-        timeout-minutes: 25
+        timeout-minutes: 40
         env:
           REGISTRY: crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht
           ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
@@ -873,16 +873,24 @@ jobs:
           DEPLOY_CFG_DIR=/tmp/profile-v1-deploy
           DEPLOY_USER="${{ secrets.DEPLOY_SERVER_USERNAME }}"
           DEPLOY_HOST="${{ secrets.DEPLOY_SERVER_HOST }}"
-          SSH_OPTS="-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=20 -o ConnectTimeout=30 -i /tmp/ssh_key"
+          CTRL_DIR=$(mktemp -d)
+          CTRL_PATH="$CTRL_DIR/ssh_mux"
+          # 单条 ControlMaster 复用，避免多次握手打爆 MaxStartups
+          SSH_OPTS="-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=20 -o ConnectTimeout=45 -o ControlMaster=auto -o ControlPath=$CTRL_PATH -o ControlPersist=10m -i /tmp/ssh_key"
           REMOTE="${DEPLOY_USER}@${DEPLOY_HOST}"
 
           echo "${{ secrets.DEPLOY_SERVER_SSH_KEY }}" > /tmp/ssh_key
           chmod 600 /tmp/ssh_key
 
-          # 多次短连接易触发服务端 MaxStartups / fail2ban；统一重试
+          cleanup_ssh() {
+            ssh -O exit $SSH_OPTS "$REMOTE" 2>/dev/null || true
+            rm -rf "$CTRL_DIR" /tmp/ssh_key
+          }
+          trap cleanup_ssh EXIT
+
           ssh_retry() {
             local attempt=1
-            local max=6
+            local max=8
             while true; do
               if "$@"; then
                 return 0
@@ -891,13 +899,16 @@ jobs:
                 echo "ERROR: ssh/scp 重试 ${max} 次仍失败: $*" >&2
                 return 1
               fi
-              echo "WARN: 连接失败，${attempt}/${max}，sleep $((attempt * 5))s 后重试…"
-              sleep $((attempt * 5))
+              echo "WARN: 连接失败，${attempt}/${max}，sleep $((attempt * 15))s 后重试…"
+              sleep $((attempt * 15))
               attempt=$((attempt + 1))
             done
           }
 
-          echo "=== 打包并同步 deploy 文件（单次 SSH，避免 Connection reset）==="
+          echo "=== 等待远端 SSH 可用（banner）==="
+          ssh_retry ssh $SSH_OPTS -o BatchMode=yes "$REMOTE" 'echo SSH_READY'
+
+          echo "=== 打包并同步 deploy 文件（复用同一 SSH）==="
           ssh_retry ssh $SSH_OPTS "$REMOTE" \
             "mkdir -p /root/profile-v1/nginx /root/profile-v1/wordpress/holt /root/profile-v1/deploy/wordpress /root/profile-v1/games"
 
@@ -918,10 +929,21 @@ jobs:
             "$STAGE/deploy/wordpress/"
           cp deploy/games/README.md deploy/games/ADD-GAME.md "$STAGE/games/"
 
+          {
+            echo "REGISTRY=${REGISTRY}"
+            echo "IMAGE_TAG=${NEW_TAG}"
+            echo "GATEWAY_PORT=3000"
+            [ -n "${WP_MARIADB_ROOT_PASSWORD:-}" ] && printf 'MARIADB_ROOT_PASSWORD=%s\n' "$WP_MARIADB_ROOT_PASSWORD"
+            [ -n "${WP_DB_USER:-}" ] && printf 'WORDPRESS_DB_USER=%s\n' "$WP_DB_USER"
+            [ -n "${WP_DB_PASSWORD:-}" ] && printf 'WORDPRESS_DB_PASSWORD=%s\n' "$WP_DB_PASSWORD"
+            [ -n "${WP_HOLT_PUBLIC_URL:-}" ] && printf 'WP_HOLT_PUBLIC_URL=%s\n' "$WP_HOLT_PUBLIC_URL"
+            [ -n "${WP_HOLT_PUBLIC_URL:-}" ] && printf 'WORDPRESS_DB_NAME=wp_holt\n'
+          } > "$STAGE/wp-deploy.env"
+
           tar -C "$STAGE" -czf /tmp/profile-v1-deploy-bundle.tgz .
           ssh_retry scp $SSH_OPTS /tmp/profile-v1-deploy-bundle.tgz "$REMOTE:/tmp/profile-v1-deploy-bundle.tgz"
           ssh_retry ssh $SSH_OPTS "$REMOTE" \
-            'tar -C /root/profile-v1 -xzf /tmp/profile-v1-deploy-bundle.tgz && rm -f /tmp/profile-v1-deploy-bundle.tgz && chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/*.sh'
+            'tar -C /root/profile-v1 -xzf /tmp/profile-v1-deploy-bundle.tgz && rm -f /tmp/profile-v1-deploy-bundle.tgz && chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/*.sh && mv -f /root/profile-v1/wp-deploy.env /tmp/profile-wp-deploy.env'
           rm -rf "$STAGE" /tmp/profile-v1-deploy-bundle.tgz
 
           if [ "${WORDPRESS_CHANGED}" = "true" ]; then
@@ -950,7 +972,7 @@ jobs:
             echo "=== 未改 Godot 源码：保留服务器已有导出包；仍同步 .use-prebuilt-web ==="
           fi
 
-          echo "=== 服务器登录阿里云镜像仓（拉取 library-nginx / 业务镜像）==="
+          echo "=== 服务器登录阿里云镜像仓 + 部署 + 冒烟（同一 SSH）==="
           REGISTRY_HOST="${REGISTRY%%/*}"
           remote_docker_login() {
             printf '%s\n' "${ALIYUN_PASSWORD}" | ssh $SSH_OPTS "$REMOTE" \
@@ -958,25 +980,10 @@ jobs:
           }
           ssh_retry remote_docker_login
 
-          {
-            echo "REGISTRY=${REGISTRY}"
-            echo "IMAGE_TAG=${NEW_TAG}"
-            echo "GATEWAY_PORT=3000"
-            [ -n "${WP_MARIADB_ROOT_PASSWORD:-}" ] && printf 'MARIADB_ROOT_PASSWORD=%s\n' "$WP_MARIADB_ROOT_PASSWORD"
-            [ -n "${WP_DB_USER:-}" ] && printf 'WORDPRESS_DB_USER=%s\n' "$WP_DB_USER"
-            [ -n "${WP_DB_PASSWORD:-}" ] && printf 'WORDPRESS_DB_PASSWORD=%s\n' "$WP_DB_PASSWORD"
-            [ -n "${WP_HOLT_PUBLIC_URL:-}" ] && printf 'WP_HOLT_PUBLIC_URL=%s\n' "$WP_HOLT_PUBLIC_URL"
-            [ -n "${WP_HOLT_PUBLIC_URL:-}" ] && printf 'WORDPRESS_DB_NAME=wp_holt\n'
-          } > /tmp/wp-deploy.env
-          ssh_retry scp $SSH_OPTS /tmp/wp-deploy.env "$REMOTE:/tmp/profile-wp-deploy.env"
           ssh_retry ssh $SSH_OPTS "$REMOTE" \
-            'set -a; . /tmp/profile-wp-deploy.env; set +a; rm -f /tmp/profile-wp-deploy.env; /root/profile-v1/deploy-profile-v1.sh'
-          rm -f /tmp/wp-deploy.env
+            'set -a; . /tmp/profile-wp-deploy.env; set +a; rm -f /tmp/profile-wp-deploy.env; /root/profile-v1/deploy-profile-v1.sh && POST_DEPLOY=1 /root/profile-v1/fix-gateway-remote.sh'
 
-          echo "=== 幂等修复 Postgres/DATABASE_URL + 冒烟测试（不再二次 down/up）==="
-          ssh_retry ssh $SSH_OPTS "$REMOTE" "POST_DEPLOY=1 /root/profile-v1/fix-gateway-remote.sh"
-
-          rm -f /tmp/ssh_key "$DEPLOY_CFG_DIR/age-key.txt" "$DEPLOY_CFG_DIR/app.config.yaml"
+          rm -f "$DEPLOY_CFG_DIR/age-key.txt" "$DEPLOY_CFG_DIR/app.config.yaml"
 
   ci-status:
     name: Resolve notify status
