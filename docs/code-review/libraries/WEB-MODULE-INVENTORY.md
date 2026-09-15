@@ -95,7 +95,7 @@
 | `/testField/mmd-test`, `mmdplaylist-test` | B/E | 随 mmd |
 | `/testField/testYourself` | L | sa2kit |
 | `/testField/mikuContest`, `mikuFireworks3D`, AR/VN 等 | L/E | 库内或 3D 后置 |
-| `/testField/musicPlayer`, `xunfeiAsr` | C/B | |
+| `/testField/musicPlayer`, `xunfeiAsr` | C→B | xunfeiAsr UI → `sa2kit/business/iflytek/ui/web`；API 仍宿主 |
 | `/testField/ShowMasterPieces*` | S | → `/showmasterpiece` |
 | `/testField/TicketBooking` | — | **已删** demo（非 SMP） |
 | `/testField/mikutap` | E | |
@@ -165,3 +165,4 @@
 | 2026-09-14 | H∞：solarSystem 整页迁 sa2kit（主站 three 卸依赖仍 OPT-01） |
 | 2026-09-14 | OPT-01：lighting demo → `mmd/demos`；`@profile/web` 卸 three / three-stdlib / mmd-parser |
 | 2026-09-15 | H∞：删未用 `GenericOrderManager` + `modules/showmasterpiece` 宿主壳；标 H∞ ✅（除 mikutap E） |
+| 2026-09-15 | H∞：xunfeiAsr 实验台 UI → `sa2kit/business/iflytek/ui/web`；宿主薄 lazy page |

@@ -651,7 +651,7 @@ app_web/teach-hub/
 | H1-P1 | 空目录 HOST-ONBOARDING 演练记录 | ✅ 2026-09-14：[sa2kit `HOST-ONBOARDING-DRILL-H1-P1.md`](../../../packages/sa2kit/docs/HOST-ONBOARDING-DRILL-H1-P1.md)（有条件：UI build OK；auth/OSS E2E 仍靠 profile） |
 | H1-E | E2/E3 推进或明确延期理由 | ✅ 2026-09-14：**延期** — 见 [PACKAGE-SPLIT-ROADMAP.md](../../../packages/sa2kit/docs/PACKAGE-SPLIT-ROADMAP.md) H1-E；E1/`measure:dist` 维持 |
 | H2 | 按清单下一批 A/B（下一期） | ✅ 2026-09-14：skillManager ✅ B；webTools qrCode+dateCalculator+WorkCalculate+ImageDownloader ✅；cardMaker ✅ B；SyncText 原不进 H2，后于 H∞ 删除 |
-| H∞ | modules 近清空 + webTools/utilities | ✅ 除 mikutap E（utilities / vocaloidBooth / mmd / solar / exam UI / OPT-01 / C 死链；2026-09-15 再清 showmasterpiece 宿主壳 + 未用 GenericOrderManager） |
+| H∞ | modules 近清空 + webTools/utilities | ✅ 除 mikutap E（+ 2026-09-15：xunfeiAsr UI → iflytek/ui/web） |
 
 ### 15.8 子仓例外 RFC（占位）
 
