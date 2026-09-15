@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { Suspense, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   BoothUploadPanel,
@@ -17,7 +17,7 @@ function toIsoString(value: string | Date) {
   return value instanceof Date ? value.toISOString() : value;
 }
 
-export default function VocaloidBoothPage() {
+function VocaloidBoothContent() {
   const searchParams = useSearchParams();
   const initialCode = searchParams.get('code') ?? '';
 
@@ -212,5 +212,13 @@ export default function VocaloidBoothPage() {
         }
       `}</style>
     </main>
+  );
+}
+
+export default function VocaloidBoothPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-pink-500">加载中...</div>}>
+      <VocaloidBoothContent />
+    </Suspense>
   );
 }
