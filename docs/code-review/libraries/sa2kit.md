@@ -3,7 +3,7 @@
 | 项 | 内容 |
 |----|------|
 | 源码 | submodule `packages/sa2kit/`（独立 git / npm；原 `~/project/sa2kit`） |
-| 版本 | **3.9.1**（与 profile-v1 pin 一致） |
+| 版本 | **3.9.4**（与 profile-v1 pin 一致） |
 | 形态 | 单包 npm；`src/common` + `src/business`；tsup 双阶段构建 |
 | 规模 | ~697 源文件 / ~92k 行；`dist/` ≈ 32MB |
 | profile 引用 | **183** 个 TS/TSX 文件 import `sa2kit/*` |
@@ -53,7 +53,8 @@ sa2kit/business/{mmd,testYourself,festivalCard,music,…}
 | `mmd` | ✅ | profile ~34 imports，优先迁出候选 |
 | `testYourself` | ✅ | admin UI 缺鉴权，见 P0 |
 | `festivalCard` / `music` / `vocaloidBooth` / … | ✅ | 按实验田使用 |
-| `ar` / `bubbleShooter` / `iflytek` / `testField` / `profile` | ❌ 或仅根 barrel | export 与源码不一致 |
+| `iflytek/ui/web` | ✅ | xunfeiAsr 实验台；`/api/xfyun` 仍宿主 |
+| `ar` / `bubbleShooter` / `testField` / `profile` | ❌ 或仅根 barrel | export 与源码不一致（非当前宿主路径） |
 
 ---
 
@@ -65,7 +66,7 @@ sa2kit/business/{mmd,testYourself,festivalCard,music,…}
 | Schema 由 `@profile/db` 聚合 sa2kit 表 | ✅ 强耦合（接受现状） |
 | browser/node 条件导出（file/auth） | ✅ |
 | common 禁止依赖 business（ESLint） | ✅（库内门禁） |
-| README / CHANGELOG 与 3.9.1 同步 | ❌ 严重滞后 |
+| README / CHANGELOG 与 3.9.x 同步 | ❌ 仍滞后（版本号见 package.json） |
 
 ---
 

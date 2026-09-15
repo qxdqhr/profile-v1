@@ -67,7 +67,7 @@ app_web/web 模块
 
 **Phase G 完成**：`packages/` npm 库仅 `sa2kit` + `sa2kit-ui`；另有 **`sa2kit-skill`**（Agent skills，非 workspace）。基建在 `host/`；业务 *-core 已清零。新多端能力优先进 sa2kit（见蓝图）。
 
-**Phase H / 启明星二期**（H1 收口；**H2 ✅**）：skillManager、cardMaker 已 B 迁出；`webTools` 含 qrCode/dateCalculator/WorkCalculate/ImageDownloader；清单 [`docs/code-review/libraries/WEB-MODULE-INVENTORY.md`](../docs/code-review/libraries/WEB-MODULE-INVENTORY.md)。
+**Phase H / 启明星二期**（**H1 ✅ · H2 ✅ · H∞ ✅（除 mikutap E）**）：skillManager、cardMaker、webTools、utilities `/tools`、vocaloidBooth/mmd/exam/solarSystem、xunfeiAsr→`iflytek/ui/web` 等已收口；清单 [`docs/code-review/libraries/WEB-MODULE-INVENTORY.md`](../docs/code-review/libraries/WEB-MODULE-INVENTORY.md)。
 
 完整蓝图与阶段计划：[`docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md`](../docs/code-review/libraries/BLUEPRINT-multiplatform-sa2kit.md)。
 

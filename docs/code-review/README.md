@@ -6,7 +6,7 @@
 > 启动轮次：2026-08-29
 
 **全仓架构审查（2026-09-02，已落地快照）**：[2026-09-02-审查结果.md](./2026-09-02-审查结果.md)  
-**待定优化（搁置；用户说「优化项目」时接着做）**：[PENDING-OPTIMIZATION.md](./PENDING-OPTIMIZATION.md)
+**待定优化（OPT-01–07 已空；用户说「优化项目」时若有新项再接着做）**：[PENDING-OPTIMIZATION.md](./PENDING-OPTIMIZATION.md)
 
 ---
 

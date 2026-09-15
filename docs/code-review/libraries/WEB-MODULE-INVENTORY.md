@@ -95,7 +95,8 @@
 | `/testField/mmd-test`, `mmdplaylist-test` | B/E | 随 mmd |
 | `/testField/testYourself` | L | sa2kit |
 | `/testField/mikuContest`, `mikuFireworks3D`, AR/VN 等 | L/E | 库内或 3D 后置 |
-| `/testField/musicPlayer`, `xunfeiAsr` | C→B | xunfeiAsr UI → `sa2kit/business/iflytek/ui/web`；API 仍宿主 |
+| `/testField/musicPlayer` | C | 实验页；未迁 |
+| `/testField/xunfeiAsr` | B | UI → `sa2kit/business/iflytek/ui/web`；`/api/xfyun` 仍宿主 |
 | `/testField/ShowMasterPieces*` | S | → `/showmasterpiece` |
 | `/testField/TicketBooking` | — | **已删** demo（非 SMP） |
 | `/testField/mikutap` | E | |
