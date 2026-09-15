@@ -152,12 +152,19 @@ if [ "${POST_DEPLOY:-}" = "1" ]; then
 else
   echo "========== 6. 重启网关栈 =========="
   # 阿里云业务镜像必须成功；nginx 必须先本地可用再 down
+  # shellcheck disable=SC1091
+  set -a
+  # 仅导出部署相关键，避免把整份 .env 的特殊字符炸掉
+  REGISTRY="$(grep -E '^REGISTRY=' .env | tail -1 | cut -d= -f2- || true)"
+  IMAGE_TAG="$(grep -E '^IMAGE_TAG=' .env | tail -1 | cut -d= -f2- || true)"
+  set +a
+  REGISTRY="${REGISTRY:?缺少 .env REGISTRY}"
   APP_SERVICES="web calendar teach_hub showmasterpiece money_research node_notes idea_list filetransfer ticket_monitor fitness_plan comfy_prompt utilities"
   BASE_SERVICES="nginx"
   WP_SERVICES="wp_mariadb wordpress_holt"
-  NGINX_IMG="${NGINX_IMG:-docker.m.daocloud.io/library/nginx:1.27-alpine}"
+  NGINX_IMG="${NGINX_IMG:-${REGISTRY}/library-nginx:1.27-alpine}"
   if [ -f ./ensure-nginx-image.sh ]; then
-    NGINX_IMG="$NGINX_IMG" bash ./ensure-nginx-image.sh
+    REGISTRY="$REGISTRY" NGINX_IMG="$NGINX_IMG" bash ./ensure-nginx-image.sh
   else
     echo "ERROR: 缺少 ensure-nginx-image.sh" >&2
     exit 1

@@ -133,13 +133,13 @@ docker rm my_container 2>/dev/null || true
 APP_SERVICES="web calendar teach_hub showmasterpiece money_research node_notes idea_list filetransfer ticket_monitor fitness_plan comfy_prompt utilities"
 BASE_SERVICES="nginx"
 WP_SERVICES="wp_mariadb wordpress_holt"
-NGINX_IMG="${NGINX_IMG:-docker.m.daocloud.io/library/nginx:1.27-alpine}"
+NGINX_IMG="${NGINX_IMG:-${REGISTRY}/library-nginx:1.27-alpine}"
 
-echo "=== 确保 nginx 本地可用（失败则中止，不拆现网）==="
+echo "=== 确保 nginx 本地可用（优先阿里云 ${NGINX_IMG}；失败则中止，不拆现网）==="
 if [ -x ./ensure-nginx-image.sh ]; then
-  NGINX_IMG="$NGINX_IMG" ./ensure-nginx-image.sh
+  REGISTRY="$REGISTRY" NGINX_IMG="$NGINX_IMG" ./ensure-nginx-image.sh
 elif [ -f ./ensure-nginx-image.sh ]; then
-  NGINX_IMG="$NGINX_IMG" bash ./ensure-nginx-image.sh
+  REGISTRY="$REGISTRY" NGINX_IMG="$NGINX_IMG" bash ./ensure-nginx-image.sh
 else
   echo "ERROR: 缺少 ensure-nginx-image.sh" >&2
   exit 1
@@ -158,7 +158,7 @@ if [ "${ROOT_USE:-0}" -ge 85 ] 2>/dev/null; then
     docker builder prune -af --filter "until=72h" || true
   fi
   # prune 可能误删 nginx，再确认一次
-  NGINX_IMG="$NGINX_IMG" bash ./ensure-nginx-image.sh
+  REGISTRY="$REGISTRY" NGINX_IMG="$NGINX_IMG" bash ./ensure-nginx-image.sh
 else
   echo "磁盘使用 ${ROOT_USE:-?}% < 85%，跳过 image prune（避免强依赖镜像站重拉 nginx/MariaDB）"
   docker container prune -f || true

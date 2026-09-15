@@ -847,6 +847,14 @@ jobs:
           SOPS_AGE_KEY_FILE="$DEPLOY_CFG_DIR/age-key.txt" \
             ./scripts/config-decrypt-production.sh "$DEPLOY_CFG_DIR/app.config.yaml"
 
+      - name: Mirror nginx to Aliyun registry
+        run: |
+          set -euo pipefail
+          echo "${{ secrets.ALIYUN_PASSWORD }}" | docker login \
+            -u "${{ secrets.ALIYUN_USERNAME }}" \
+            --password-stdin "${{ env.REGISTRY }}"
+          REGISTRY="${{ env.REGISTRY }}" bash scripts/ci-mirror-base-images.sh
+
       - name: Deploy gateway stack to remote server
         env:
           REGISTRY: crpi-pnnot5dqi45utyya.cn-beijing.personal.cr.aliyuncs.com/qhrqht

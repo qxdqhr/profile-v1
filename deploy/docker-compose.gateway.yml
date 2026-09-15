@@ -380,7 +380,7 @@ services:
       - profile
 
   nginx:
-    image: docker.m.daocloud.io/library/nginx:1.27-alpine
+    image: ${REGISTRY}/library-nginx:1.27-alpine
     restart: unless-stopped
     # 故意用默认 depends_on（service_started），不用 condition: service_healthy：
     # Next 冷启动可达数十秒，healthy 门闩会拖垮整栈拉起；探活仍靠各服务 healthcheck + nginx 自身。
