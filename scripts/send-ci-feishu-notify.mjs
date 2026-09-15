@@ -49,7 +49,9 @@ function readOptionalString(name) {
 }
 
 function readStatus() {
-  return process.env.CI_NOTIFY_STATUS === 'success' ? 'success' : 'failure';
+  const raw = process.env.CI_NOTIFY_STATUS?.trim();
+  if (raw === 'success' || raw === 'partial' || raw === 'failure') return raw;
+  return 'failure';
 }
 
 function readRequiredNumber(name, fallback = 0) {
@@ -125,10 +127,23 @@ function formatApkBuildResult(result) {
   return '❌ 失败';
 }
 
+function formatLaneResult(result) {
+  if (!result || result === 'skipped') return '⏭ 跳过';
+  if (result === 'success') return '✅ 成功';
+  if (result === 'failure') return '❌ 失败';
+  return result;
+}
+
 function buildCiFeishuMessage(context) {
-  const isSuccess = context.status === 'success';
-  const title = isSuccess ? '【CI 构建成功】' : '【CI 构建失败】';
-  const statusText = isSuccess ? '✅ 成功' : '❌ 失败';
+  const status = context.status;
+  const isSuccess = status === 'success';
+  const isPartial = status === 'partial';
+  const title = isSuccess
+    ? '【CI 构建成功】'
+    : isPartial
+      ? '【CI 部分失败】'
+      : '【CI 构建失败】';
+  const statusText = isSuccess ? '✅ 成功' : isPartial ? '⚠️ 部分失败（主站已处理）' : '❌ 失败';
   const shortSha = context.sha.slice(0, 7);
   const runUrl = `${context.serverUrl}/${context.repository}/actions/runs/${context.runId}`;
   const commitUrl = `${context.serverUrl}/${context.repository}/commit/${context.sha}`;
@@ -152,6 +167,26 @@ function buildCiFeishuMessage(context) {
 
   if (durationSeconds !== undefined) {
     lines.push(`打包耗时：${formatDuration(durationSeconds)}`);
+  }
+
+  if (context.webBuildResult) {
+    lines.push(`主站 web：${formatLaneResult(context.webBuildResult)}`);
+  }
+  if (context.satellitesBuildResult) {
+    lines.push(`卫星 Docker：${formatLaneResult(context.satellitesBuildResult)}`);
+  }
+  if (context.promoteResult) {
+    lines.push(`镜像晋升：${formatLaneResult(context.promoteResult)}`);
+  }
+  if (context.deployResult) {
+    lines.push(`网关部署：${formatLaneResult(context.deployResult)}`);
+  }
+  if (context.gamesBuildResult) {
+    lines.push(`Godot 导出：${formatLaneResult(context.gamesBuildResult)}`);
+  }
+
+  if (context.softFailSummary) {
+    lines.push(`旁路/卫星失败项：${context.softFailSummary}`);
   }
 
   if (context.imageTag) {
@@ -196,6 +231,9 @@ function buildCiFeishuMessage(context) {
 
   if (!isSuccess) {
     lines.push('', '请打开 Actions 日志查看失败步骤。');
+    if (isPartial) {
+      lines.push('主站/部署轨已通过；卫星或旁路（Mobile/Games）失败，失败项已回退旧镜像或跳过同步。');
+    }
     if (context.teachHubApkBuildResult === 'failure') {
       lines.push('TeachHub Android APK 打包失败，请检查 build-teach-hub-mobile 任务日志。');
     }
@@ -378,6 +416,12 @@ async function collectCiContext() {
     changeSummary,
     commitCount,
     imageTag: readOptionalString('CI_IMAGE_TAG'),
+    softFailSummary: readOptionalString('CI_SOFT_FAIL_SUMMARY'),
+    webBuildResult: readOptionalString('CI_WEB_BUILD_RESULT'),
+    satellitesBuildResult: readOptionalString('CI_SATELLITES_BUILD_RESULT'),
+    promoteResult: readOptionalString('CI_PROMOTE_RESULT'),
+    deployResult: readOptionalString('CI_DEPLOY_RESULT'),
+    gamesBuildResult: readOptionalString('CI_GAMES_BUILD_RESULT'),
     teachHubApkBuildResult: readApkBuildResult(),
     teachHubApkReleaseUrl: readOptionalString('CI_TEACH_HUB_APK_RELEASE_URL'),
     teachHubApkDownloadUrl: readOptionalString('CI_TEACH_HUB_APK_DOWNLOAD_URL'),

@@ -54,8 +54,8 @@ jobs:
       deploy: ${{ steps.filter.outputs.deploy }}
       games: ${{ steps.filter.outputs.games }}
       wordpress: ${{ steps.filter.outputs.wordpress }}
-      docker_apps: ${{ steps.matrix.outputs.apps }}
-      any_docker: ${{ steps.matrix.outputs.any }}
+      docker_satellites: ${{ steps.matrix.outputs.satellites }}
+      any_satellites: ${{ steps.matrix.outputs.any_satellites }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -220,10 +220,9 @@ jobs:
         id: matrix
         run: |
           set -euo pipefail
-          apps=()
-          for app in web calendar teach-hub showmasterpiece money-research node-notes idea-list filetransfer ticket-monitor fitness-plan comfy-prompt utilities; do
+          satellites=()
+          for app in calendar teach-hub showmasterpiece money-research node-notes idea-list filetransfer ticket-monitor fitness-plan comfy-prompt utilities; do
             case "$app" in
-              web) changed="${{ steps.filter.outputs.web }}" ;;
               calendar) changed="${{ steps.filter.outputs.calendar }}" ;;
               teach-hub) changed="${{ steps.filter.outputs.teach-hub }}" ;;
               showmasterpiece) changed="${{ steps.filter.outputs.showmasterpiece }}" ;;
@@ -237,34 +236,78 @@ jobs:
               utilities) changed="${{ steps.filter.outputs.utilities }}" ;;
             esac
             if [ "$changed" = "true" ]; then
-              apps+=("$app")
+              satellites+=("$app")
             fi
           done
 
-          if [ ${#apps[@]} -eq 0 ]; then
-            echo 'apps=[]' >> "$GITHUB_OUTPUT"
-            echo 'any=false' >> "$GITHUB_OUTPUT"
-            echo "No Docker apps changed — skip build, promote previous tags on main."
+          if [ ${#satellites[@]} -eq 0 ]; then
+            echo 'satellites=[]' >> "$GITHUB_OUTPUT"
+            echo 'any_satellites=false' >> "$GITHUB_OUTPUT"
+            echo "No satellite Docker apps changed."
           else
-            json="$(printf '%s\n' "${apps[@]}" | jq -R . | jq -s -c .)"
-            echo "apps=${json}" >> "$GITHUB_OUTPUT"
-            echo 'any=true' >> "$GITHUB_OUTPUT"
-            echo "Docker apps to build: ${json}"
+            json="$(printf '%s\n' "${satellites[@]}" | jq -R . | jq -s -c .)"
+            echo "satellites=${json}" >> "$GITHUB_OUTPUT"
+            echo 'any_satellites=true' >> "$GITHUB_OUTPUT"
+            echo "Satellite Docker apps to build: ${json}"
           fi
 
+          echo "web changed: ${{ steps.filter.outputs.web }}"
           echo "calendar-mobile changed: ${{ steps.filter.outputs.calendar-mobile }}"
           echo "teach-hub-mobile changed: ${{ steps.filter.outputs.teach-hub-mobile }}"
           echo "games changed: ${{ steps.filter.outputs.games }}"
           echo "wordpress changed: ${{ steps.filter.outputs.wordpress }}"
 
-  build:
+  # 主站轨：失败阻断部署
+  build-web:
+    name: Build web (main)
     needs: changes
-    if: needs.changes.outputs.any_docker == 'true'
+    if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Aliyun Registry
+        run: |
+          echo "${{ secrets.ALIYUN_PASSWORD }}" | docker login \
+            -u "${{ secrets.ALIYUN_USERNAME }}" \
+            --password-stdin ${{ env.REGISTRY }} || exit 1
+
+      - name: Build Docker image (web)
+        run: |
+          docker buildx build --platform linux/amd64 \
+            -f app_web/web/Dockerfile \
+            -t qhr-profile-web:amd64 \
+            --load .
+
+      - name: Tag and push (web)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          NEW_TAG=${{ github.run_number }}
+          IMAGE=${{ env.REGISTRY }}/qhr-profile-web:${NEW_TAG}
+          docker tag qhr-profile-web:amd64 "$IMAGE"
+          docker push "$IMAGE"
+          LEGACY=${{ env.REGISTRY }}/qhr-profile:${NEW_TAG}
+          docker tag qhr-profile-web:amd64 "$LEGACY"
+          docker push "$LEGACY"
+
+  # 卫星轨：失败报错但不阻断主站；失败时回退晋升旧镜像，避免 IMAGE_TAG 空洞
+  build-satellites:
+    name: Build satellites
+    needs: changes
+    if: needs.changes.outputs.any_satellites == 'true'
+    runs-on: ubuntu-latest
+    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
-        app: ${{ fromJSON(needs.changes.outputs.docker_apps) }}
+        app: ${{ fromJSON(needs.changes.outputs.docker_satellites) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -282,6 +325,8 @@ jobs:
             --password-stdin ${{ env.REGISTRY }} || exit 1
 
       - name: Build Docker image (${{ matrix.app }})
+        id: docker_build
+        continue-on-error: true
         run: |
           docker buildx build --platform linux/amd64 \
             -f app_web/${{ matrix.app }}/Dockerfile \
@@ -289,17 +334,44 @@ jobs:
             --load .
 
       - name: Tag and push (${{ matrix.app }})
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: >-
+          steps.docker_build.outcome == 'success' &&
+          github.event_name == 'push' &&
+          github.ref == 'refs/heads/main'
         run: |
           NEW_TAG=${{ github.run_number }}
           IMAGE=${{ env.REGISTRY }}/qhr-profile-${{ matrix.app }}:${NEW_TAG}
           docker tag qhr-profile-${{ matrix.app }}:amd64 "$IMAGE"
           docker push "$IMAGE"
-          if [ "${{ matrix.app }}" = "web" ]; then
-            LEGACY=${{ env.REGISTRY }}/qhr-profile:${NEW_TAG}
-            docker tag qhr-profile-web:amd64 "$LEGACY"
-            docker push "$LEGACY"
-          fi
+
+      - name: Fallback promote previous image (${{ matrix.app }})
+        if: >-
+          steps.docker_build.outcome == 'failure' &&
+          github.event_name == 'push' &&
+          github.ref == 'refs/heads/main'
+        env:
+          REGISTRY: ${{ env.REGISTRY }}
+        run: |
+          echo "::warning::Satellite ${{ matrix.app }} build failed — promoting previous tag to ${{ github.run_number }}"
+          bash scripts/ci-promote-docker-image.sh "${{ matrix.app }}" "${{ github.run_number }}"
+
+      - name: Upload soft-fail marker
+        if: steps.docker_build.outcome == 'failure'
+        run: echo "${{ matrix.app }}" > soft-fail.txt
+
+      - name: Persist soft-fail marker
+        if: steps.docker_build.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: soft-fail-satellite-${{ matrix.app }}
+          path: soft-fail.txt
+          retention-days: 2
+
+      - name: Mark satellite build failed
+        if: steps.docker_build.outcome == 'failure'
+        run: |
+          echo "Satellite ${{ matrix.app }} Docker build failed (fallback applied on main if possible)." >&2
+          exit 1
 
   promote-images:
     name: Promote unchanged Docker images
@@ -354,6 +426,10 @@ jobs:
             echo "${{ matrix.app }} unchanged — promote previous image tag"
           fi
 
+      - name: Checkout promote script
+        if: steps.gate.outputs.skip != 'true'
+        uses: actions/checkout@v4
+
       - name: Login to Aliyun Registry
         if: steps.gate.outputs.skip != 'true'
         run: |
@@ -363,52 +439,15 @@ jobs:
 
       - name: Promote previous tag to current run
         if: steps.gate.outputs.skip != 'true'
-        run: |
-          set -euo pipefail
-          APP="${{ matrix.app }}"
-          NEW=${{ github.run_number }}
-          DST="${{ env.REGISTRY }}/qhr-profile-${APP}:${NEW}"
-          # 空提交 / 仅改 workflow 时上一 run 可能未产出镜像，向前回溯找最近可用 tag
-          FOUND=""
-          for try in $(seq 1 50); do
-            CAND=$(( NEW - try ))
-            if [ "$CAND" -lt 1 ]; then
-              break
-            fi
-            SRC="${{ env.REGISTRY }}/qhr-profile-${APP}:${CAND}"
-            if docker pull "$SRC"; then
-              FOUND="$CAND"
-              break
-            fi
-            echo "tag ${CAND} 不存在，继续回溯…"
-          done
-
-          if [ -z "$FOUND" ]; then
-            echo "ERROR: 在近 50 个 run 内找不到 ${APP} 可用镜像，无法晋升到 ${NEW}。" >&2
-            echo "若 ${APP} 为新增子应用，请在本 run 将其加入变更路径触发一次完整构建。" >&2
-            exit 1
-          fi
-
-          docker tag "${{ env.REGISTRY }}/qhr-profile-${APP}:${FOUND}" "$DST"
-          docker push "$DST"
-          echo "Promoted ${APP}: ${FOUND} -> ${NEW}"
-
-          if [ "$APP" = "web" ]; then
-            LEGACY_SRC="${{ env.REGISTRY }}/qhr-profile:${FOUND}"
-            LEGACY_DST="${{ env.REGISTRY }}/qhr-profile:${NEW}"
-            if docker pull "$LEGACY_SRC" 2>/dev/null; then
-              docker tag "$LEGACY_SRC" "$LEGACY_DST"
-              docker push "$LEGACY_DST"
-            else
-              docker tag "$DST" "$LEGACY_DST"
-              docker push "$LEGACY_DST"
-            fi
-          fi
+        env:
+          REGISTRY: ${{ env.REGISTRY }}
+        run: bash scripts/ci-promote-docker-image.sh "${{ matrix.app }}" "${{ github.run_number }}"
 
   build-teach-hub-mobile:
     name: Build TeachHub Mobile APK
     needs: changes
     runs-on: ubuntu-latest
+    continue-on-error: true
     if: >-
       github.event_name == 'push' &&
       github.ref == 'refs/heads/main' &&
@@ -528,10 +567,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Soft-fail marker
+        if: failure()
+        run: echo teach-hub-mobile > soft-fail.txt
+
+      - name: Persist soft-fail marker
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: soft-fail-teach-hub-mobile
+          path: soft-fail.txt
+          retention-days: 2
+
   build-calendar-mobile:
     name: Build Calendar Mobile APK
     needs: changes
     runs-on: ubuntu-latest
+    continue-on-error: true
     if: >-
       github.event_name == 'push' &&
       github.ref == 'refs/heads/main' &&
@@ -648,11 +700,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Soft-fail marker
+        if: failure()
+        run: echo calendar-mobile > soft-fail.txt
+
+      - name: Persist soft-fail marker
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: soft-fail-calendar-mobile
+          path: soft-fail.txt
+          retention-days: 2
+
   export-godot-games:
     name: Export Godot Games (Web)
     needs: changes
     if: needs.changes.outputs.games == 'true'
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -678,19 +743,32 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      - name: Soft-fail marker
+        if: failure()
+        run: echo godot-games > soft-fail.txt
+
+      - name: Persist soft-fail marker
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: soft-fail-godot-games
+          path: soft-fail.txt
+          retention-days: 2
+
   deploy-web:
     runs-on: ubuntu-latest
-    needs: [changes, build, promote-images, export-godot-games]
-    # build/export 未改时会 skipped；若不加 always()/skipped 判断，整段部署会被连带跳过
+    needs: [changes, build-web, build-satellites, promote-images, export-godot-games]
+    # 主站轨硬依赖；卫星/游戏失败不阻断（continue-on-error + 允许 failure）
     if: >-
       always() &&
       github.event_name == 'push' &&
       github.ref == 'refs/heads/main' &&
       !cancelled() &&
       needs.changes.result == 'success' &&
-      (needs.build.result == 'success' || needs.build.result == 'skipped') &&
+      (needs.build-web.result == 'success' || needs.build-web.result == 'skipped') &&
       (needs.promote-images.result == 'success' || needs.promote-images.result == 'skipped') &&
-      (needs.export-godot-games.result == 'success' || needs.export-godot-games.result == 'skipped') &&
+      (needs.build-satellites.result == 'success' || needs.build-satellites.result == 'failure' || needs.build-satellites.result == 'skipped') &&
+      (needs.export-godot-games.result == 'success' || needs.export-godot-games.result == 'failure' || needs.export-godot-games.result == 'skipped') &&
       (
         needs.changes.outputs.deploy == 'true' ||
         needs.changes.outputs.games == 'true' ||
@@ -700,7 +778,13 @@ jobs:
         needs.changes.outputs.teach-hub == 'true' ||
         needs.changes.outputs.showmasterpiece == 'true' ||
         needs.changes.outputs.money-research == 'true' ||
-        needs.changes.outputs.node-notes == 'true'
+        needs.changes.outputs.node-notes == 'true' ||
+        needs.changes.outputs.idea-list == 'true' ||
+        needs.changes.outputs.filetransfer == 'true' ||
+        needs.changes.outputs.ticket-monitor == 'true' ||
+        needs.changes.outputs.fitness-plan == 'true' ||
+        needs.changes.outputs.comfy-prompt == 'true' ||
+        needs.changes.outputs.utilities == 'true'
       )
     steps:
       - name: Checkout repository
@@ -709,14 +793,14 @@ jobs:
           submodules: recursive
 
       - name: Download Godot games web artifacts
-        if: needs.changes.outputs.games == 'true'
+        if: needs.changes.outputs.games == 'true' && needs.export-godot-games.result == 'success'
         uses: actions/download-artifact@v4
         with:
           name: godot-games-www
           path: /tmp/godot-games-www
 
       - name: Place www artifacts into deploy/games
-        if: needs.changes.outputs.games == 'true'
+        if: needs.changes.outputs.games == 'true' && needs.export-godot-games.result == 'success'
         run: |
           set -euo pipefail
           # Artifact may nest as <slug>/www or deploy/games/<slug>/www
@@ -770,7 +854,7 @@ jobs:
           WP_DB_USER: ${{ secrets.WP_DB_USER }}
           WP_DB_PASSWORD: ${{ secrets.WP_DB_PASSWORD }}
           WP_HOLT_PUBLIC_URL: ${{ secrets.WP_HOLT_PUBLIC_URL }}
-          GAMES_CHANGED: ${{ needs.changes.outputs.games }}
+          GAMES_CHANGED: ${{ needs.changes.outputs.games == 'true' && needs.export-godot-games.result == 'success' && 'true' || 'false' }}
           WORDPRESS_CHANGED: ${{ needs.changes.outputs.wordpress }}
         run: |
           NEW_TAG=${{ github.run_number }}
@@ -855,10 +939,101 @@ jobs:
 
           rm -f /tmp/ssh_key "$DEPLOY_CFG_DIR/age-key.txt" "$DEPLOY_CFG_DIR/app.config.yaml"
 
+  ci-status:
+    name: Resolve notify status
+    runs-on: ubuntu-latest
+    needs:
+      [
+        changes,
+        build-web,
+        build-satellites,
+        promote-images,
+        deploy-web,
+        export-godot-games,
+        build-teach-hub-mobile,
+        build-calendar-mobile,
+      ]
+    if: always() && !cancelled()
+    outputs:
+      notify_status: ${{ steps.calc.outputs.status }}
+      soft_fail_summary: ${{ steps.calc.outputs.soft_summary }}
+    steps:
+      - name: Download soft-fail markers
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: soft-fail-*
+          merge-multiple: true
+          path: soft-fails
+
+      - name: Calculate status
+        id: calc
+        env:
+          WEB: ${{ needs.build-web.result }}
+          SAT: ${{ needs.build-satellites.result }}
+          PROMOTE: ${{ needs.promote-images.result }}
+          DEPLOY: ${{ needs.deploy-web.result }}
+          GAMES: ${{ needs.export-godot-games.result }}
+          TH: ${{ needs.build-teach-hub-mobile.result }}
+          CAL: ${{ needs.build-calendar-mobile.result }}
+        run: |
+          set -euo pipefail
+          primary_fail=0
+          for r in "$WEB" "$PROMOTE" "$DEPLOY"; do
+            case "$r" in
+              failure|cancelled) primary_fail=1 ;;
+            esac
+          done
+
+          soft_summary=""
+          if [ -d soft-fails ]; then
+            soft_summary="$(
+              find soft-fails -type f -print 2>/dev/null \
+                | while IFS= read -r f; do cat "$f"; done \
+                | sort -u \
+                | paste -sd, - \
+                || true
+            )"
+          fi
+          soft_fail=0
+          if [ -n "$soft_summary" ]; then
+            soft_fail=1
+          fi
+          for r in "$SAT" "$GAMES" "$TH" "$CAL"; do
+            case "$r" in
+              failure) soft_fail=1 ;;
+            esac
+          done
+
+          if [ "$primary_fail" = 1 ]; then
+            echo "status=failure" >> "$GITHUB_OUTPUT"
+          elif [ "$soft_fail" = 1 ]; then
+            echo "status=partial" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=success" >> "$GITHUB_OUTPUT"
+          fi
+          {
+            echo "soft_summary<<EOF"
+            echo "${soft_summary}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          echo "notify status computed: primary_fail=${primary_fail} soft_fail=${soft_fail} soft_summary=${soft_summary}"
+
   notify:
     name: Notify Feishu
     runs-on: ubuntu-latest
-    needs: [changes, build, deploy-web, promote-images, export-godot-games, build-teach-hub-mobile, build-calendar-mobile]
+    needs:
+      [
+        changes,
+        build-web,
+        build-satellites,
+        deploy-web,
+        promote-images,
+        export-godot-games,
+        build-teach-hub-mobile,
+        build-calendar-mobile,
+        ci-status,
+      ]
     if: always() && !cancelled()
     continue-on-error: true
     steps:
@@ -893,8 +1068,14 @@ jobs:
         env:
           FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
           FEISHU_SIGN_SECRET: ${{ secrets.FEISHU_SIGN_SECRET }}
-          CI_NOTIFY_STATUS: ${{ (needs.build.result == 'success' || needs.build.result == 'skipped') && (needs.promote-images.result == 'success' || needs.promote-images.result == 'skipped') && (needs.export-godot-games.result == 'success' || needs.export-godot-games.result == 'skipped') && (needs.deploy-web.result == 'success' || needs.deploy-web.result == 'skipped') && (needs.build-teach-hub-mobile.result == 'success' || needs.build-teach-hub-mobile.result == 'skipped') && (needs.build-calendar-mobile.result == 'success' || needs.build-calendar-mobile.result == 'skipped') && 'success' || 'failure' }}
-          CI_IMAGE_TAG: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && (needs.build.result == 'success' || needs.promote-images.result == 'success') && format('web:{0} calendar:{0} teach-hub:{0} showmasterpiece:{0} money-research:{0} node-notes:{0} idea-list:{0} filetransfer:{0} ticket-monitor:{0} fitness-plan:{0} comfy-prompt:{0} utilities:{0}', github.run_number) || '' }}
+          CI_NOTIFY_STATUS: ${{ needs.ci-status.outputs.notify_status }}
+          CI_SOFT_FAIL_SUMMARY: ${{ needs.ci-status.outputs.soft_fail_summary }}
+          CI_WEB_BUILD_RESULT: ${{ needs.build-web.result }}
+          CI_SATELLITES_BUILD_RESULT: ${{ needs.build-satellites.result }}
+          CI_PROMOTE_RESULT: ${{ needs.promote-images.result }}
+          CI_DEPLOY_RESULT: ${{ needs.deploy-web.result }}
+          CI_GAMES_BUILD_RESULT: ${{ needs.export-godot-games.result }}
+          CI_IMAGE_TAG: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && (needs.build-web.result == 'success' || needs.promote-images.result == 'success' || needs.build-satellites.result == 'success' || needs.build-satellites.result == 'failure') && format('web:{0} calendar:{0} teach-hub:{0} showmasterpiece:{0} money-research:{0} node-notes:{0} idea-list:{0} filetransfer:{0} ticket-monitor:{0} fitness-plan:{0} comfy-prompt:{0} utilities:{0}', github.run_number) || '' }}
           CI_TEACH_HUB_APK_BUILD_RESULT: ${{ needs.build-teach-hub-mobile.result }}
           CI_TEACH_HUB_APK_RELEASE_URL: ${{ needs.build-teach-hub-mobile.result == 'success' && needs.build-teach-hub-mobile.outputs.release_url || '' }}
           CI_TEACH_HUB_APK_DOWNLOAD_URL: ${{ needs.build-teach-hub-mobile.result == 'success' && needs.build-teach-hub-mobile.outputs.apk_download_url || '' }}
