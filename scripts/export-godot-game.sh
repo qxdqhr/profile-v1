@@ -64,6 +64,9 @@ if [[ -f "${GAME_DIR}/.use-prebuilt-web" ]]; then
   fi
   ls -lh "${OUT_DIR}"
   bash "${REPO_ROOT}/scripts/compress-godot-www.sh" "$OUT_DIR"
+  if [[ "${SKIP_SHARE_GODOT_ENGINE:-0}" != "1" ]]; then
+    bash "${REPO_ROOT}/scripts/share-godot-engine-www.sh"
+  fi
   echo "OK: ${SLUG} → ${OUT_DIR} (prebuilt)"
   exit 0
 fi
@@ -123,4 +126,7 @@ test -f "${OUT_DIR}/index.wasm"
 test -f "${OUT_DIR}/index.pck"
 ls -lh "${OUT_DIR}"
 bash "${REPO_ROOT}/scripts/compress-godot-www.sh" "$OUT_DIR"
+if [[ "${SKIP_SHARE_GODOT_ENGINE:-0}" != "1" ]]; then
+  bash "${REPO_ROOT}/scripts/share-godot-engine-www.sh"
+fi
 echo "OK: ${SLUG} → ${OUT_DIR}"

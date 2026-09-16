@@ -17,6 +17,18 @@ pretty() {
   fi
 }
 
+filesize() {
+  # Linux stat -c%s / BSD stat -f%z / wc fallback
+  local f="$1"
+  if stat -c%s "$f" >/dev/null 2>&1; then
+    stat -c%s "$f"
+  elif stat -f%z "$f" >/dev/null 2>&1; then
+    stat -f%z "$f"
+  else
+    wc -c < "$f" | tr -d ' '
+  fi
+}
+
 count=0
 for f in "$DIR"/index.wasm "$DIR"/index.pck "$DIR"/index.js \
          "$DIR"/index.audio.worklet.js "$DIR"/index.audio.position.worklet.js; do
@@ -24,8 +36,8 @@ for f in "$DIR"/index.wasm "$DIR"/index.pck "$DIR"/index.js \
   gzip -9 -kf "$f"
   # gzip_static 要求 .gz 的 mtime ≥ 原文件；gzip -k 常把 mtime 拷成相同，再 touch 一次更稳妥
   touch "$f.gz"
-  orig=$(stat -c%s "$f")
-  gz=$(stat -c%s "$f.gz")
+  orig=$(filesize "$f")
+  gz=$(filesize "$f.gz")
   echo "gzip $(basename "$f"): $(pretty "$orig") → $(pretty "$gz")"
   count=$((count + 1))
 done

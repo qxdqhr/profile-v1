@@ -22,5 +22,8 @@ fi
 
 echo "Exporting slugs: ${SLUGS[*]}"
 for slug in "${SLUGS[@]}"; do
-  bash "${REPO_ROOT}/scripts/export-godot-game.sh" "$slug"
+  SKIP_SHARE_GODOT_ENGINE=1 bash "${REPO_ROOT}/scripts/export-godot-game.sh" "$slug"
 done
+
+# 同变体引擎只留一份，浏览器跨游戏命中缓存（全部导出后再抽，避免反复 gzip 38MB）
+bash "${REPO_ROOT}/scripts/share-godot-engine-www.sh"
