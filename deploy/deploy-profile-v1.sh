@@ -218,6 +218,22 @@ else
   sleep 12
 fi
 
+echo "=== 为 Godot www 补预压缩 .gz（供 gzip_static；缺文件时不再现场压 38MB wasm）==="
+if [ -f ./compress-godot-www.sh ]; then
+  for d in games/*/www; do
+    [ -d "$d" ] || continue
+    if [ -f "$d/index.wasm" ] && [ ! -f "$d/index.wasm.gz" ]; then
+      echo "compress $d"
+      bash ./compress-godot-www.sh "$d" || echo "WARN: compress failed for $d"
+    else
+      # gzip_static 要求 .gz mtime ≥ 原文件
+      touch "$d"/index.wasm.gz "$d"/index.pck.gz "$d"/index.js.gz 2>/dev/null || true
+    fi
+  done
+else
+  echo "WARN: 缺少 compress-godot-www.sh，跳过预压缩"
+fi
+
 echo "=== 重载内层 nginx（使 CI scp 的新配置立即生效）==="
 compose_cmd -f "$COMPOSE_FILE" exec -T nginx nginx -t
 compose_cmd -f "$COMPOSE_FILE" exec -T nginx nginx -s reload

@@ -925,6 +925,7 @@ jobs:
             deploy/ensure-calendar-schema.sh deploy/ensure-node-notes-schema.sh \
             deploy/smoke-test-gateway.sh deploy/check-gateway-health.sh deploy/audit-outer-nginx.sh \
             "$STAGE/"
+          cp scripts/compress-godot-www.sh "$STAGE/"
           cp deploy/wordpress/README.md deploy/wordpress/ADD-SITE.md deploy/wordpress/.env.example \
             "$STAGE/deploy/wordpress/"
           cp deploy/games/README.md deploy/games/ADD-GAME.md "$STAGE/games/"

@@ -35,6 +35,10 @@
 3. **飞书状态**：`success` / `partial`（主站过、旁路或卫星挂）/ `failure`（web / promote / deploy 挂）。
 4. **deploy 触发**：任一 Docker 子应用、deploy、games、wordpress 变更均可触发网关部署。
 
+## Godot `/games` 与 CPU
+
+平台 nginx 对 `index.wasm` / `index.pck` **只允许 `gzip_static`**，禁止现场 gzip。缺 `.gz` 时直出未压缩文件。外层 Ubuntu nginx 的 `/games/` 关闭 gzip 与 proxy buffering，避免 38MB 包打满 CPU 后整站 502。
+
 ## 手动 fix workflows
 
 | 保留 | 说明 |
