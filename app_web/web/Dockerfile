@@ -48,8 +48,8 @@ ENV NEXT_PUBLIC_TEACH_HUB_URL=/teach-hub
 
 ENV SA2KIT_SKIP_PREPARE=1
 ENV SA2KIT_SKIP_DTS=1
-COPY scripts/docker-build-sa2kit-libs.sh ./scripts/docker-build-sa2kit-libs.sh
-RUN sh scripts/docker-build-sa2kit-libs.sh \
+COPY deploy/scripts/ci/docker-build-sa2kit-libs.sh ./deploy/scripts/ci/docker-build-sa2kit-libs.sh
+RUN sh deploy/scripts/ci/docker-build-sa2kit-libs.sh \
  && pnpm --filter @profile/web build
 
 FROM base AS runner

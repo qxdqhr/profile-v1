@@ -15,8 +15,8 @@
 | Tag | CI `github.run_number` → `qhr-profile-<app>:NNN` |
 | 生产 | `deploy/.env` 的 `IMAGE_TAG=NNN` |
 | 回滚 | 改 `IMAGE_TAG` → `compose pull <svc>` → `up -d <svc>`（见 Runbook） |
-| 晋升脚本 | `scripts/ci-promote-docker-image.sh`（未变更 / 卫星构建失败回退） |
-| 基础镜像 | CI `scripts/ci-mirror-base-images.sh` 把 `nginx` 推到 `${REGISTRY}/library-nginx:1.27-alpine`；服务器只从阿里云拉。`deploy/ensure-nginx-image.sh` 优先该 tag |
+| 晋升脚本 | `deploy/scripts/ci/ci-promote-docker-image.sh`（未变更 / 卫星构建失败回退） |
+| 基础镜像 | CI `deploy/scripts/ci/ci-mirror-base-images.sh` 把 `nginx` 推到 `${REGISTRY}/library-nginx:1.27-alpine`；服务器只从阿里云拉。`deploy/gateway/ensure-nginx-image.sh` 优先该 tag |
 
 部署时阿里云业务镜像必拉成功；nginx **不再依赖** DaoCloud/Docker Hub（CI runner 负责 mirror）。禁止在 nginx 不可用时 `compose down`。
 
@@ -39,7 +39,7 @@
 
 平台 nginx 对 `index.wasm` / `index.pck` **只允许 `gzip_static`**，禁止现场 gzip。缺 `.gz` 时直出未压缩文件。外层 Ubuntu nginx 的 `/games/` 关闭 gzip 与 proxy buffering，避免 38MB 包打满 CPU 后整站 502。
 
-标准 Godot 包共用 `/games/godot-engine/` 一份引擎（`scripts/share-godot-engine-www.sh`）；各游戏只下自己的 `.pck`。浏览器对引擎 URL 长缓存。
+标准 Godot 包共用 `/games/godot-engine/` 一份引擎（`deploy/scripts/godot/share-godot-engine-www.sh`）；各游戏只下自己的 `.pck`。浏览器对引擎 URL 长缓存。
 
 ## 手动 fix workflows
 

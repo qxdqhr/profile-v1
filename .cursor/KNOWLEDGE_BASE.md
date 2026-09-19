@@ -25,7 +25,7 @@
 | 项 | 约定 |
 |----|------|
 | 框架 | Next.js（App Router，主站在 `app_web/web/src/app`） |
-| Monorepo | pnpm workspace：`app_web/*` + `host/*` + 显式 `packages/sa2kit` + `packages/sa2kit-ui`（及 ui 子包）；**默认不含** `app_mobile/*` / `app_desktop/*`（`pnpm native:enable` 后再装）；`pnpm gate:architecture` 禁 `packages/` 第三 **npm** 共享包（允许 `sa2kit-skill` Agent skills submodule）；详见 `docs/monorepo-migration/`、`docs/README.md` |
+| Monorepo | pnpm workspace：`app_web/*` + `host/*` + 显式 `packages/sa2kit` + `packages/sa2kit-ui`（及 ui 子包）；**排除**仅挂载的 `app_web/lyric-grid`、`lyric-note`、`profile-legacy`；**默认不含** 既有 `@profile` 移动端/桌面端（`pnpm native:enable` 写入显式路径，**不用** `app_mobile/*` 通配）；`pnpm gate:architecture` 禁 `packages/` 第三 **npm** 共享包（允许 `sa2kit-skill` Agent skills submodule）；详见 `docs/monorepo-migration/`、`docs/README.md` |
 | 样式 | Tailwind CSS；预设 `@profile/ui/tailwind.preset`（设计令牌桥；业务组件/主题见 §1.1） |
 | 数据层 | Drizzle ORM + PostgreSQL（`@profile/db` / `host/db`；schema 域桶见 `docs/code-review/packages/db-schema-domains.md`；迁移目录 `drizzle/` 在仓库根） |
 | 包管理 | **pnpm**；开发 `pnpm dev` = `pnpm --filter @profile/web dev` |
@@ -33,7 +33,7 @@
 | UI 设计系统 | **`sa2kit-ui`**（`@sa2kit-ui/*`）；git submodule `packages/sa2kit-ui/`（独立仓可 npm 发布） |
 | Agent Skills | **`sa2kit-skill`**；git submodule `packages/sa2kit-skill/`（**非** npm / **不进** workspace；Cursor skills）；第三方整仓在其子仓 `third-party/<slug>` 嵌套 submodule（如 `mattpocock-skills`、`gd-agentic-skills`） |
 
-本地开发：`pnpm install` 后若缺 dist，跑 `pnpm build:libs`（`scripts/ensure-sa2kit-workspace-dist.mjs`）。宿主依赖用 `workspace:*`，**不**再 pin npm 版；对外客户仓仍可 `npm i sa2kit` / `@qhr123/sa2kit-ui-react`。
+本地开发：`pnpm install` 后若缺 dist，跑 `pnpm build:libs`（`deploy/scripts/gate/ensure-sa2kit-workspace-dist.mjs`）。宿主依赖用 `workspace:*`，**不**再 pin npm 版；对外客户仓仍可 `npm i sa2kit` / `@qhr123/sa2kit-ui-react`。
 
 ### 1.1 与 sa2kit / sa2kit-ui 的依赖方向（目标态）
 
@@ -121,7 +121,7 @@ export default function XxxRoute() {
 
 - **实现**放在模块内：`src/modules/<module>/api/**/route.ts`
 - **对外 HTTP 路径**在：`src/app/api/.../route.ts` 中 **re-export** 模块内 handlers（参考 `ideaList` → `src/app/api/ideaLists/**`）
-- **主站全局闸门**：`src/middleware.ts` 默认拒绝未带 session cookie 的 `/api/*`。公开路径（方法敏感）写在 `src/lib/auth/public-api.ts`；生产环境 `/api/examples/**` 直接 404。Edge 不查库，只看 cookie 是否存在；业务路由仍须 `getApiSessionUser` / `requireApiSession`。新增公开 API 必须改 allowlist，并补 `scripts/verify-public-api-allowlist.ts`。
+- **主站全局闸门**：`src/middleware.ts` 默认拒绝未带 session cookie 的 `/api/*`。公开路径（方法敏感）写在 `src/lib/auth/public-api.ts`；生产环境 `/api/examples/**` 直接 404。Edge 不查库，只看 cookie 是否存在；业务路由仍须 `getApiSessionUser` / `requireApiSession`。新增公开 API 必须改 allowlist，并补 `deploy/scripts/gate/verify-public-api-allowlist.ts`。
 
 这样保持「按功能模块聚合」，同时符合 Next.js 对 `app/api` 的位置要求。
 
@@ -222,10 +222,16 @@ export default function XxxRoute() {
 | **sa2kit-skill** | `packages/sa2kit-skill/` | `.cursor/skills/<name>` → 相对 symlink | Agent `@` / 自动发现；非 npm | [`packages/sa2kit-skill/README.md`](../packages/sa2kit-skill/README.md) |
 | **Godot 游戏** | `app_games/<slug>/` | `deploy/games/<slug>/www/`（CI 生成；平台 nginx alias） | `/games/<slug>/` | [`deploy/games/README.md`](../deploy/games/README.md)、[`app_games/`](../games/)（各 submodule） |
 | **WordPress 主题站** | `app_wordpress/<slug>/` | `deploy/wordpress/`（compose 模板、ADD-SITE、php 教程；**全站共享，非 submodule**） | `/wp/<slug>/` | [`app_wordpress/README.md`](../app_wordpress/README.md)、[`deploy/wordpress/ADD-SITE.md`](../deploy/wordpress/ADD-SITE.md) |
+| **浏览器扩展** | `app_browser_plugin/<slug>/` | 无网关 | — | [`app_browser_plugin/README.md`](../app_browser_plugin/README.md) |
+| **微信小程序** | `app_taro/<slug>/` | 无网关 | — | [`app_taro/README.md`](../app_taro/README.md) |
+| **原生 Android** | `app_android/<slug>/` | 无网关 | — | [`app_android/README.md`](../app_android/README.md) |
+| **Bot 插件** | `app_bot/<slug>/` | 无网关 | — | [`app_bot/README.md`](../app_bot/README.md) |
 
 - **Submodule 内**：`sa2kit` / `sa2kit-ui` 完整库源码（dist 本地/CI 构建）；`sa2kit-skill` 的 `skills/*/SKILL.md` 与 `third-party/*` 嵌套第三方 skill 仓；游戏 `project.godot` / 导出工程；WP 主题 PHP/CSS/JS + 可选 `data/` 种子 JSON。
 - **父仓内**：`deploy/docker-compose.gateway.yml`、`deploy/nginx/*`、冒烟脚本；主站 [`app_web/web/src/modules/games/`](../app_web/web/src/modules/games/) 小游戏大厅导航（**不是** Godot 源码）；`pnpm-workspace.yaml` 显式纳入 `packages/sa2kit` 与 `packages/sa2kit-ui/packages/*`（**不含** `sa2kit-skill`）。
-- **禁止**：在父仓直接长期修改 submodule 目录内容却不提交子仓；把 `deploy/wordpress/` 或 `deploy/games/<slug>/www/` 当成 submodule；把两库源码脱离独立仓/submodule、丢掉 npm 发布面；在 `packages/` 再增第三 **npm** 共享包（skill 请进 `sa2kit-skill`）。
+- **禁止**：在父仓直接长期修改 submodule 目录内容却不提交子仓；把 `deploy/wordpress/` 或 `deploy/games/<slug>/www/` 当成 submodule；把两库源码脱离独立仓/submodule、丢掉 npm 发布面；在 `packages/` 再增第三 **npm** 共享包（skill 请进 `sa2kit-skill`）；把仅挂载的历史产品写进 `pnpm-workspace` 或网关矩阵。
+
+**仅挂载（不进 workspace、不进网关）**：浏览器扩展、小程序、原生 Android、Bot，以及后补的 RN / Electron / 历史 Web。清单在各 `app_*/README.md`。`app_mobile/profile-rn`、`app_mobile/shared-file` 为私有仓；CI `submodules: recursive` 用默认 `GITHUB_TOKEN` 读不到其它私有仓，推送前需能访问它们的凭据。`shareScreenTool` 是空仓，未挂。
 
 #### 7.0.2 克隆与本地开发
 
@@ -303,7 +309,7 @@ git submodule update --init --recursive
 
 ### 7.4 打包与 CI
 
-根脚本：`pnpm package:calendar` / `package:teach-hub` / `package:showmasterpiece`（见 `scripts/*-docker-package.sh`）。
+根脚本：`pnpm package:calendar` / `package:teach-hub` / `package:showmasterpiece`（见 `deploy/scripts/docker/*-docker-package.sh`）。
 
 - Docker 镜像：`qhr-profile-{web,calendar,teach-hub,showmasterpiece}:TAG`
 - CI：`.github/workflows/docker-build-push.yml`（matrix 四应用）
@@ -325,7 +331,7 @@ git submodule update --init --recursive
 
 - **源码**：`app_games/<slug>/`（Godot 4，**git submodule**，**非** `app_web/*`）。清单见 [`deploy/games/README.md`](../deploy/games/README.md)。
 - **运行时静态包**：`deploy/games/<slug>/www/`（CI 导出，**不进 git**）；路径 `/games/<slug>/` 由**平台 nginx alias** 直接托管（不再为每游戏起 `game_*` 容器）。
-- **体积**：每游戏一份 Godot 4.7 单线程 `index.wasm`（约 38MB）+ `index.pck`（含 CJK 全量字体时可到数 MB）。导出后 `scripts/compress-godot-www.sh` 预压 `.gz`，网关 `/__games/` 用 `gzip_static` 直出，避免现场压 wasm。
+- **体积**：每游戏一份 Godot 4.7 单线程 `index.wasm`（约 38MB）+ `index.pck`（含 CJK 全量字体时可到数 MB）。导出后 `deploy/scripts/godot/compress-godot-www.sh` 预压 `.gz`，网关 `/__games/` 用 `gzip_static` 直出，避免现场压 wasm。
 - CI：改 `app_games/**` → `export-godot-games` → artifact → `deploy-web` scp（§7.0.4）。
 - 加游戏：[`deploy/games/ADD-GAME.md`](../deploy/games/ADD-GAME.md)。必须挂嵌套 submodule [`sa2kit-godot`](https://github.com/qxdqhr/sa2kit-godot)（`addons/sa2kit_godot` + `gui/theme/custom_font`），否则 Web 中文方框。`.use-prebuilt-web` 的游戏改字体后还要在能编 Spine 的机器上重导 `prebuilt-web/`。
 - **双轨迁移**（[`GODOT-REWRITE-PLAN.md`](../deploy/games/GODOT-REWRITE-PLAN.md)）：阶段 B 上线 Godot 最简时**保留** testField 原版；全部最简迁完后再逐个精修并删旧。主站 `/games` 与旁路卡片用整页跳转（`ExperimentNavCard`）。

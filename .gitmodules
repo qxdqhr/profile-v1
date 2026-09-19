@@ -85,3 +85,42 @@
 [submodule "app_desktop/lan-drop"]
 	path = app_desktop/lan-drop
 	url = https://github.com/qxdqhr/profile-v1-lan-drop.git
+[submodule "app_browser_plugin/majdata-download"]
+	path = app_browser_plugin/majdata-download
+	url = https://github.com/qxdqhr/majdata-download-extension.git
+[submodule "app_taro/cyhj"]
+	path = app_taro/cyhj
+	url = https://github.com/qxdqhr/cyhj_taro.git
+[submodule "app_android/off-work-time"]
+	path = app_android/off-work-time
+	url = https://github.com/qxdqhr/offWorkTimeApp.git
+[submodule "app_android/lyric-notebook"]
+	path = app_android/lyric-notebook
+	url = https://github.com/qxdqhr/LyricNotebook.git
+[submodule "app_bot/group-join-verify"]
+	path = app_bot/group-join-verify
+	url = https://github.com/qxdqhr/astrbot-plugin-group-join-verify.git
+[submodule "app_desktop/cursor-skills-manager"]
+	path = app_desktop/cursor-skills-manager
+	url = https://github.com/qxdqhr/cursor-skills-manager.git
+[submodule "app_desktop/talking-tool"]
+	path = app_desktop/talking-tool
+	url = https://github.com/qxdqhr/talkingTool.git
+[submodule "app_mobile/miku-to-you"]
+	path = app_mobile/miku-to-you
+	url = https://github.com/qxdqhr/MikuToYou.git
+[submodule "app_mobile/profile-rn"]
+	path = app_mobile/profile-rn
+	url = https://github.com/qxdqhr/profile_rn.git
+[submodule "app_mobile/shared-file"]
+	path = app_mobile/shared-file
+	url = https://github.com/qxdqhr/shared_file_rn.git
+[submodule "app_web/lyric-grid"]
+	path = app_web/lyric-grid
+	url = https://github.com/qxdqhr/lyric-grid-tool.git
+[submodule "app_web/lyric-note"]
+	path = app_web/lyric-note
+	url = https://github.com/qxdqhr/LyricNote.git
+[submodule "app_web/profile-legacy"]
+	path = app_web/profile-legacy
+	url = https://github.com/qxdqhr/profile.git

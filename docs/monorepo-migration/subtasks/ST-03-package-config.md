@@ -6,16 +6,16 @@
 
 ## 目标
 
-将 `scripts/preload-app-config.ts`、`sa2kit` 配置加载约定抽到 `@profile/config`，供各 app 在 `tsx --import` 或 Next instrumentation 中复用。
+将 `deploy/scripts/config/preload-app-config.ts`、`sa2kit` 配置加载约定抽到 `@profile/config`，供各 app 在 `tsx --import` 或 Next instrumentation 中复用。
 
 ## 交付物
 
 - [x] `packages/config/package.json`
-- [x] `packages/config/src/preload.ts`（自 `scripts/preload-app-config.ts` 迁移）
+- [x] `packages/config/src/preload.ts`（自 `deploy/scripts/config/preload-app-config.ts` 迁移）
 - [x] `packages/config/src/apply-ai-env.ts`（自 `src/lib/config/apply-ai-env.ts` 迁入）
 - [x] `packages/config/src/index.ts` 导出 `loadAppConfig` / `applyAiConfigFromYaml`
 - [x] 根 `package.json` 的 `devdb:*` / `prodb:*` / `config:*` 改为 `@profile/config/preload`
-- [x] `scripts/preload-app-config.ts` 保留为兼容 re-export
+- [x] `deploy/scripts/config/preload-app-config.ts` 保留为兼容 re-export
 - [x] `src/lib/config/apply-ai-env.ts` 保留为 re-export
 
 ## 验收记录（2026-06-11）

@@ -122,7 +122,7 @@ sa2kit/business/<domain>/
 | 项 | 成果 |
 |----|------|
 | 库 | `sa2kit/src/common/feishu/*` + exports `sa2kit/common/feishu` |
-| 消费者 | Home / ticketMonitor / `scripts/send-ci-feishu-notify.ts` → `sa2kit/common/feishu` |
+| 消费者 | Home / ticketMonitor / `deploy/scripts/ci/send-ci-feishu-notify.mjs` → `sa2kit/common/feishu` |
 | 删除 | `packages/sa2kit-feishu`；tsconfig `@sa2kit/feishu-bot` paths |
 
 ### G2 落地摘要（2026-09-04）
@@ -185,5 +185,5 @@ sa2kit/business/<domain>/
 | 项 | 成果 |
 |----|------|
 | workspace | `pnpm-workspace.yaml` 去掉 `packages/*`，显式 `packages/sa2kit` + `packages/sa2kit-ui` |
-| gate | `scripts/check-architecture-gate.mjs` 禁止 `packages/` 出现第三共享包 |
+| gate | `deploy/scripts/gate/check-architecture-gate.mjs` 禁止 `packages/` 出现第三共享包 |
 | 文档 | `packages/README.md` / 蓝图 / KNOWLEDGE_BASE 对齐「只剩两库」 |

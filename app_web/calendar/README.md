@@ -18,7 +18,7 @@ API：`/api/calendar/*`、`/api/auth/*`（同域 cookie）。浏览器 **`/api/a
 
 ```bash
 pnpm package:calendar              # 默认 tag: local
-bash scripts/calendar-docker-package.sh v1.2.3
+bash deploy/scripts/docker/calendar-docker-package.sh v1.2.3
 
 # 仅 Docker
 BUILD_ANDROID=0 pnpm package:calendar

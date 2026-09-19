@@ -11,7 +11,7 @@
     "test": {
       "cache": true,
       "inputs": [
-        "scripts/verify-*.ts",
+        "deploy/scripts/gate/verify-*.ts",
         "app_web/web/src/lib/auth/public-api.ts",
         "app_web/web/src/lib/runtime/is-node-production.ts",
         "app_web/web/src/lib/security/publicHttpUrl.ts",

@@ -11,6 +11,7 @@
 | 鉴权面审计 | [`architecture/AUTH-SURFACE-AUDIT.md`](./architecture/AUTH-SURFACE-AUDIT.md) |
 | 客户仓 vs 验证场 | [`architecture/CUSTOMER-VS-HOST.md`](./architecture/CUSTOMER-VS-HOST.md) |
 | Agent / 架构 SSOT | [`.cursor/KNOWLEDGE_BASE.md`](../.cursor/KNOWLEDGE_BASE.md)、[`AGENTS.md`](./AGENTS.md)（根目录 [`AGENTS.md`](../AGENTS.md) 为入口 stub） |
+| 网关与生产部署索引 | [`deploy/README.md`](../deploy/README.md) |
 | 网关与生产部署 Runbook | [`deploy/MIGRATION-RUNBOOK.md`](../deploy/MIGRATION-RUNBOOK.md) |
 | 分模块 Code Review | [`code-review/README.md`](./code-review/README.md) |
 | 2026-09-02 架构审查（已落地快照） | [`code-review/2026-09-02-审查结果.md`](./code-review/2026-09-02-审查结果.md) |
@@ -25,7 +26,7 @@
 | 生产配置与部署补充 | [`infrastructure/production-deployment-guide.md`](./infrastructure/production-deployment-guide.md)、[`infrastructure/config-yaml-sops.md`](./infrastructure/config-yaml-sops.md)、[`infrastructure/ops-ci.md`](./infrastructure/ops-ci.md) |
 | 节点笔记 | [`node-notes/README.md`](./node-notes/README.md) |
 | LanDrop 局域网互传桌面工具（需求） | [`modules/lan-drop/REQUIREMENTS.md`](./modules/lan-drop/REQUIREMENTS.md) |
-| 测试账号（脚本为准） | `pnpm devdb:createusers` / `prodb:createusers`，见 [`scripts/create-test-user-accounts.ts`](../scripts/create-test-user-accounts.ts) |
+| 测试账号（脚本为准） | `pnpm devdb:createusers` / `prodb:createusers`，见 [`deploy/scripts/db/create-test-user-accounts.ts`](../deploy/scripts/db/create-test-user-accounts.ts) |
 
 ## 目录结构
 
@@ -62,6 +63,7 @@ docs/
 | Money Research 调研 | `app_web/money-research/docs/` |
 | WordPress 旁路 | `deploy/wordpress/`、`app_wordpress/<slug>/` |
 | Godot 游戏旁路 | `deploy/games/`、`app_games/<slug>/` |
+| 浏览器扩展 / 小程序 / 原生 Android / Bot（仅 submodule） | `app_browser_plugin/`、`app_taro/`、`app_android/`、`app_bot/` |
 
 ## 新增文档约定
 

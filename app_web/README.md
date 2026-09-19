@@ -17,6 +17,14 @@
 | `@profile/comfy-prompt` | `app_web/comfy-prompt/` | 3010 | ComfyUI 提示词 |
 | `@profile/utilities` | `app_web/utilities/` | 3011 | 小工具壳（webTools×4） |
 
+下列目录是后挂的独立仓，**不是**网关矩阵，已在 `pnpm-workspace.yaml` 用 `!` 排除：
+
+| 路径 | 独立仓 | 说明 |
+|------|--------|------|
+| `lyric-grid/` | [lyric-grid-tool](https://github.com/qxdqhr/lyric-grid-tool) | Next.js 词格工具 |
+| `lyric-note/` | [LyricNote](https://github.com/qxdqhr/LyricNote) | 多端 monorepo（backend / desktop / Taro miniapp / mobile），整仓不拆 |
+| `profile-legacy/` | [profile](https://github.com/qxdqhr/profile) | 旧 Vite 站 |
+
 RN：[`app_mobile/`](../app_mobile/README.md)。桌面：[`app_desktop/`](../app_desktop/README.md)。跨端 shared：[`packages/`](../packages/README.md) 内各 `*-core/shared`。
 
 旁路：WordPress [`deploy/wordpress/`](../deploy/wordpress/)，Godot [`deploy/games/`](../deploy/games/)。

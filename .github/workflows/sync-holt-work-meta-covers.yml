@@ -37,16 +37,16 @@ jobs:
           printf '%s\n' "${{ secrets.DEPLOY_SERVER_SSH_KEY }}" > /tmp/ssh_key
           chmod 600 /tmp/ssh_key
 
-          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/wordpress/holt/data"
+          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/wordpress/holt/data /root/profile-v1/holt"
           scp $SSH_OPTS app_wordpress/holt/data/holt-bilibili-works.json \
             "$REMOTE:/root/profile-v1/wordpress/holt/data/holt-bilibili-works.json"
-          scp $SSH_OPTS deploy/sync-holt-work-meta-covers.sh \
-            "$REMOTE:/root/profile-v1/sync-holt-work-meta-covers.sh"
-          ssh $SSH_OPTS "$REMOTE" "chmod 700 /root/profile-v1/sync-holt-work-meta-covers.sh"
+          scp $SSH_OPTS deploy/holt/sync-holt-work-meta-covers.sh \
+            "$REMOTE:/root/profile-v1/holt/sync-holt-work-meta-covers.sh"
+          ssh $SSH_OPTS "$REMOTE" "chmod 700 /root/profile-v1/holt/sync-holt-work-meta-covers.sh"
 
           SKIP=0
           if [ "${{ inputs.skip_thumbnails }}" = "true" ]; then SKIP=1; fi
 
           ssh $SSH_OPTS "$REMOTE" \
-            "cd /root/profile-v1 && OFFSET='${{ inputs.offset }}' LIMIT='${{ inputs.limit }}' SKIP_THUMBNAILS=${SKIP} ./sync-holt-work-meta-covers.sh"
+            "cd /root/profile-v1 && OFFSET='${{ inputs.offset }}' LIMIT='${{ inputs.limit }}' SKIP_THUMBNAILS=${SKIP} ./holt/sync-holt-work-meta-covers.sh"
           rm -f /tmp/ssh_key

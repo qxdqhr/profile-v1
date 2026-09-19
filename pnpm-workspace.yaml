@@ -1,8 +1,13 @@
 packages:
   - '.'
   - 'app_web/*'
+  # 仅挂载的历史/旁路 Web 子仓，不是网关矩阵，禁止进 workspace
+  - '!app_web/lyric-grid'
+  - '!app_web/lyric-note'
+  - '!app_web/profile-legacy'
   - 'host/*'
-  # app_mobile/* / app_desktop/* 默认不进 workspace：非 recursive clone 也能装主站依赖。
+  # app_mobile / app_desktop 里只有既有 @profile 客户端进 workspace（见 native:enable 的显式路径）。
+  # 后挂的 profile-rn、miku-to-you、talking-tool 等不进。默认不含 native，非 recursive clone 也能装主站依赖。
   # 需要 RN / Electron 时：pnpm native:enable && pnpm install
   - 'packages/sa2kit'
   - 'packages/sa2kit-ui'

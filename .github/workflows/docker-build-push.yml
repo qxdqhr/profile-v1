@@ -202,12 +202,11 @@ jobs:
               - '.gitmodules'
             games:
               - 'app_games/**'
-              - 'scripts/export-godot-game.sh'
-              - 'scripts/export-all-godot-games.sh'
-              - 'scripts/compress-godot-www.sh'
-              - 'scripts/share-godot-engine-www.sh'
-              - 'scripts/sync-prebuilt-game-www.sh'
-              - 'scripts/export-pulse-parade-web.sh'
+              - 'deploy/scripts/godot/export-godot-game.sh'
+              - 'deploy/scripts/godot/export-all-godot-games.sh'
+              - 'deploy/scripts/godot/compress-godot-www.sh'
+              - 'deploy/scripts/godot/share-godot-engine-www.sh'
+              - 'deploy/scripts/godot/sync-prebuilt-game-www.sh'
             wordpress:
               - 'app_wordpress/**'
               - '.gitmodules'
@@ -215,7 +214,7 @@ jobs:
               - 'deploy/**'
               - 'app_wordpress/**'
               - '.github/workflows/docker-build-push.yml'
-              - 'scripts/send-ci-feishu-notify.mjs'
+              - 'deploy/scripts/ci/send-ci-feishu-notify.mjs'
 
       - name: Build Docker matrix JSON
         id: matrix
@@ -354,7 +353,7 @@ jobs:
           REGISTRY: ${{ env.REGISTRY }}
         run: |
           echo "::warning::Satellite ${{ matrix.app }} build failed — promoting previous tag to ${{ github.run_number }}"
-          bash scripts/ci-promote-docker-image.sh "${{ matrix.app }}" "${{ github.run_number }}"
+          bash deploy/scripts/ci/ci-promote-docker-image.sh "${{ matrix.app }}" "${{ github.run_number }}"
 
       - name: Upload soft-fail marker
         if: steps.docker_build.outcome == 'failure'
@@ -442,7 +441,7 @@ jobs:
         if: steps.gate.outputs.skip != 'true'
         env:
           REGISTRY: ${{ env.REGISTRY }}
-        run: bash scripts/ci-promote-docker-image.sh "${{ matrix.app }}" "${{ github.run_number }}"
+        run: bash deploy/scripts/ci/ci-promote-docker-image.sh "${{ matrix.app }}" "${{ github.run_number }}"
 
   build-teach-hub-mobile:
     name: Build TeachHub Mobile APK
@@ -483,7 +482,7 @@ jobs:
           printf '%s\n' "$SOPS_AGE_KEY" > "$DEPLOY_CFG_DIR/age-key.txt"
           chmod 600 "$DEPLOY_CFG_DIR/age-key.txt"
           SOPS_AGE_KEY_FILE="$DEPLOY_CFG_DIR/age-key.txt" \
-            ./scripts/config-decrypt-production.sh "$DEPLOY_CFG_DIR/app.config.yaml"
+            ./deploy/scripts/config/config-decrypt-production.sh "$DEPLOY_CFG_DIR/app.config.yaml"
           PUBLIC_URL="$(grep -E '^\s+publicUrl:' "$DEPLOY_CFG_DIR/app.config.yaml" | head -1 | sed -E 's/.*publicUrl:\s*"?([^"#]+)"?.*/\1/' | tr -d "'")"
           if [ -z "$PUBLIC_URL" ]; then
             echo "无法从 app.config 解析 auth.publicUrl" >&2
@@ -619,7 +618,7 @@ jobs:
           printf '%s\n' "$SOPS_AGE_KEY" > "$DEPLOY_CFG_DIR/age-key.txt"
           chmod 600 "$DEPLOY_CFG_DIR/age-key.txt"
           SOPS_AGE_KEY_FILE="$DEPLOY_CFG_DIR/age-key.txt" \
-            ./scripts/config-decrypt-production.sh "$DEPLOY_CFG_DIR/app.config.yaml"
+            ./deploy/scripts/config/config-decrypt-production.sh "$DEPLOY_CFG_DIR/app.config.yaml"
           PUBLIC_URL="$(grep -E '^\s+publicUrl:' "$DEPLOY_CFG_DIR/app.config.yaml" | head -1 | sed -E 's/.*publicUrl:\s*"?([^"#]+)"?.*/\1/' | tr -d "'")"
           if [ -z "$PUBLIC_URL" ]; then
             echo "无法从 app.config 解析 auth.publicUrl" >&2
@@ -734,7 +733,7 @@ jobs:
           key: godot-4.7.1-stable-${{ runner.os }}-v1
 
       - name: Export all Godot games (Web, single-thread)
-        run: bash scripts/export-all-godot-games.sh
+        run: bash deploy/scripts/godot/export-all-godot-games.sh
 
       - name: Upload web artifacts
         uses: actions/upload-artifact@v4
@@ -863,7 +862,7 @@ jobs:
           printf '%s\n' "$SOPS_AGE_KEY" > "$DEPLOY_CFG_DIR/age-key.txt"
           chmod 600 "$DEPLOY_CFG_DIR/age-key.txt"
           SOPS_AGE_KEY_FILE="$DEPLOY_CFG_DIR/age-key.txt" \
-            ./scripts/config-decrypt-production.sh "$DEPLOY_CFG_DIR/app.config.yaml"
+            ./deploy/scripts/config/config-decrypt-production.sh "$DEPLOY_CFG_DIR/app.config.yaml"
 
       - name: Mirror nginx to Aliyun registry
         run: |
@@ -871,7 +870,7 @@ jobs:
           echo "${{ secrets.ALIYUN_PASSWORD }}" | docker login \
             -u "${{ secrets.ALIYUN_USERNAME }}" \
             --password-stdin "${{ env.REGISTRY }}"
-          REGISTRY="${{ env.REGISTRY }}" bash scripts/ci-mirror-base-images.sh
+          REGISTRY="${{ env.REGISTRY }}" bash deploy/scripts/ci/ci-mirror-base-images.sh
 
       - name: Deploy gateway stack to remote server
         timeout-minutes: 40
@@ -927,22 +926,17 @@ jobs:
 
           echo "=== 打包并同步 deploy 文件（复用同一 SSH）==="
           ssh_retry ssh $SSH_OPTS "$REMOTE" \
-            "mkdir -p /root/profile-v1/nginx /root/profile-v1/wordpress/holt /root/profile-v1/deploy/wordpress /root/profile-v1/games"
+            "mkdir -p /root/profile-v1/nginx /root/profile-v1/gateway /root/profile-v1/wordpress/holt /root/profile-v1/deploy/wordpress /root/profile-v1/games"
 
           STAGE=$(mktemp -d)
-          mkdir -p "$STAGE/nginx" "$STAGE/deploy/wordpress" "$STAGE/games"
+          mkdir -p "$STAGE/nginx" "$STAGE/gateway" "$STAGE/deploy/wordpress" "$STAGE/games"
           cp "$DEPLOY_CFG_DIR/app.config.yaml" "$STAGE/app.config.yaml"
           cp deploy/docker-compose.gateway.yml "$STAGE/"
           cp deploy/nginx/profile-platform.conf deploy/nginx/proxy-params.conf \
             deploy/nginx/outer-ubuntu-qhr062.conf deploy/nginx/proxy-params-outer.conf \
             "$STAGE/nginx/"
-          cp deploy/deploy-profile-v1.sh deploy/ensure-nginx-image.sh deploy/cleanup-server-disk.sh \
-            deploy/derive-database-url.sh deploy/fix-gateway-remote.sh deploy/wait-gateway-ready.sh \
-            deploy/ensure-database-url.sh deploy/ensure-wordpress-env.sh deploy/ensure-wordpress-database.sh \
-            deploy/ensure-calendar-schema.sh deploy/ensure-node-notes-schema.sh \
-            deploy/smoke-test-gateway.sh deploy/check-gateway-health.sh deploy/audit-outer-nginx.sh \
-            "$STAGE/"
-          cp scripts/compress-godot-www.sh "$STAGE/"
+          cp deploy/gateway/*.sh "$STAGE/gateway/"
+          cp deploy/scripts/godot/compress-godot-www.sh "$STAGE/"
           cp deploy/wordpress/README.md deploy/wordpress/ADD-SITE.md deploy/wordpress/.env.example \
             "$STAGE/deploy/wordpress/"
           cp deploy/games/README.md deploy/games/ADD-GAME.md "$STAGE/games/"
@@ -961,7 +955,7 @@ jobs:
           tar -C "$STAGE" -czf /tmp/profile-v1-deploy-bundle.tgz .
           ssh_retry scp $SSH_OPTS /tmp/profile-v1-deploy-bundle.tgz "$REMOTE:/tmp/profile-v1-deploy-bundle.tgz"
           ssh_retry ssh $SSH_OPTS "$REMOTE" \
-            'tar -C /root/profile-v1 -xzf /tmp/profile-v1-deploy-bundle.tgz && rm -f /tmp/profile-v1-deploy-bundle.tgz && chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/*.sh && mv -f /root/profile-v1/wp-deploy.env /tmp/profile-wp-deploy.env'
+            'tar -C /root/profile-v1 -xzf /tmp/profile-v1-deploy-bundle.tgz && rm -f /tmp/profile-v1-deploy-bundle.tgz && chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/gateway/*.sh /root/profile-v1/compress-godot-www.sh && mv -f /root/profile-v1/wp-deploy.env /tmp/profile-wp-deploy.env'
           rm -rf "$STAGE" /tmp/profile-v1-deploy-bundle.tgz
 
           if [ "${WORDPRESS_CHANGED}" = "true" ]; then
@@ -969,7 +963,7 @@ jobs:
             ssh_retry scp -r $SSH_OPTS app_wordpress/holt/* "$REMOTE:/root/profile-v1/wordpress/holt/"
           fi
 
-          bash scripts/sync-prebuilt-game-www.sh
+          bash deploy/scripts/godot/sync-prebuilt-game-www.sh
           for game_dir in deploy/games/*/; do
             [ -d "$game_dir" ] || continue
             slug="$(basename "$game_dir")"
@@ -1004,7 +998,7 @@ jobs:
           ssh_retry remote_docker_login
 
           ssh_retry ssh $SSH_OPTS "$REMOTE" \
-            'set -a; . /tmp/profile-wp-deploy.env; set +a; rm -f /tmp/profile-wp-deploy.env; /root/profile-v1/deploy-profile-v1.sh && POST_DEPLOY=1 /root/profile-v1/fix-gateway-remote.sh'
+            'set -a; . /tmp/profile-wp-deploy.env; set +a; rm -f /tmp/profile-wp-deploy.env; /root/profile-v1/gateway/deploy-profile-v1.sh && POST_DEPLOY=1 /root/profile-v1/gateway/fix-gateway-remote.sh'
 
           rm -f "$DEPLOY_CFG_DIR/age-key.txt" "$DEPLOY_CFG_DIR/app.config.yaml"
 
@@ -1124,7 +1118,7 @@ jobs:
           printf '%s\n' "$SOPS_AGE_KEY" > "$DEPLOY_CFG_DIR/age-key.txt"
           chmod 600 "$DEPLOY_CFG_DIR/age-key.txt"
           SOPS_AGE_KEY_FILE="$DEPLOY_CFG_DIR/age-key.txt" \
-            ./scripts/config-decrypt-production.sh "$DEPLOY_CFG_DIR/app.config.yaml"
+            ./deploy/scripts/config/config-decrypt-production.sh "$DEPLOY_CFG_DIR/app.config.yaml"
           echo "APP_CONFIG_PATH=$DEPLOY_CFG_DIR/app.config.yaml" >> "$GITHUB_ENV"
 
       - name: Setup Node.js
@@ -1163,4 +1157,4 @@ jobs:
           GITHUB_WORKFLOW: ${{ github.workflow }}
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_API_URL: ${{ github.api_url }}
-        run: node scripts/send-ci-feishu-notify.mjs
+        run: node deploy/scripts/ci/send-ci-feishu-notify.mjs

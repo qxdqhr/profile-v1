@@ -40,7 +40,7 @@ middleware 只认 cookie **是否存在**。伪造 `better-auth.session_token` �
 `@profile/db` 仍聚合全站表。业务 core 环已随 G3–G7 清零；schema 来自 `sa2kit/business/*/server`。
 
 - [x] 方案 + 域桶：`docs/code-review/packages/db-schema-domains.md`；`schema/domains/{platform,product,webExperiments}`；calendar/teach-hub 归 product
-- [x] 禁止 db→auth：`scripts/verify-db-no-auth-dep.ts` 进 `pnpm test`（现状已无该依赖）
+- [x] 禁止 db→auth：`deploy/scripts/gate/verify-db-no-auth-dep.ts` 进 `pnpm test`（现状已无该依赖）
 
 ### OPT-05 主站体验债
 

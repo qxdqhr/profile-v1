@@ -40,8 +40,8 @@
 
 - **平台 nginx**：挂载整个 `deploy/games/`，一条正则 location 覆盖全部 slug（小写 + 连字符）
 - **`www/` 不进 git**，由 Actions `export-godot-games` 导出后 artifact → `deploy-web` scp
-- **加载**：Godot 4.7 单线程 wasm 约 38MB，**全站共用一份** `/games/godot-engine/`（`scripts/share-godot-engine-www.sh`）；各游戏 www 只留 `index.html` + `index.pck`。浏览器第二次起即可命中引擎缓存。带 GDExtension 的包（如 `diner-dash`）不参与共用。
-- **压缩**：导出脚本预压 `.gz`，平台 nginx **只** `gzip_static` 直出、**禁止**现场 gzip（现场压 wasm 会打满 CPU 导致整站 502）。见 `scripts/compress-godot-www.sh`
+- **加载**：Godot 4.7 单线程 wasm 约 38MB，**全站共用一份** `/games/godot-engine/`（`deploy/scripts/godot/share-godot-engine-www.sh`）；各游戏 www 只留 `index.html` + `index.pck`。浏览器第二次起即可命中引擎缓存。带 GDExtension 的包（如 `diner-dash`）不参与共用。
+- **压缩**：导出脚本预压 `.gz`，平台 nginx **只** `gzip_static` 直出、**禁止**现场 gzip（现场压 wasm 会打满 CPU 导致整站 502）。见 `deploy/scripts/godot/compress-godot-www.sh`
 - **不进** pnpm / Next Docker matrix；**不再**为每游戏起 `nginx:alpine` 容器
 - **阶段 B**：上线 Godot 最简时**保留** testField 原版；仅阶段 C 精修通过后才删游戏路由
 
@@ -68,7 +68,7 @@
 1. 改 `app_games/<slug>/**`，push `main`
 2. CI：安装 Godot 4.7.1 → Web 导出全部 `app_games/*/project.godot` → 旁路部署 + smoke
 3. 本地预览：`godot --path app_games/<slug>`
-4. 本地导出：`bash scripts/export-godot-game.sh <slug>` 或 `bash scripts/export-all-godot-games.sh`
+4. 本地导出：`bash deploy/scripts/godot/export-godot-game.sh <slug>` 或 `bash deploy/scripts/godot/export-all-godot-games.sh`
 
 ## 加游戏
 

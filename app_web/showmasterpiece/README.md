@@ -16,5 +16,5 @@ API：`/api/showmasterpiece/*`、`/api/auth/*`
 
 ```bash
 pnpm package:showmasterpiece
-bash scripts/showmasterpiece-docker-package.sh v1.2.3
+bash deploy/scripts/docker/showmasterpiece-docker-package.sh v1.2.3
 ```

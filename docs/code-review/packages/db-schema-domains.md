@@ -38,7 +38,7 @@
 
 - `@profile/db` **不得**依赖 `@profile/auth`（`package.json` + 源码 import）。
 - `@profile/auth` → `@profile/db`（读 schema）允许。
-- 门禁：`scripts/verify-db-no-auth-dep.ts`（进 `pnpm test`）。
+- 门禁：`deploy/scripts/gate/verify-db-no-auth-dep.ts`（进 `pnpm test`）。
 
 ## 后续切片（未做）
 

@@ -31,7 +31,7 @@
 |----|--------|------|------|------|------|
 | AUTH-001 | P2 | `exports` 未声明 `./react` | `package.json` | 补 exports | open |
 | AUTH-002 | P2 | `export const auth = getAuth()` 副作用 | `server.ts` | 文档化；评估懒导出 | open |
-| AUTH-003 | P2 | `update-admin-password.ts` 错误 import `userSessions` | `scripts/update-admin-password.ts` | 改为 `session` | open |
+| AUTH-003 | P2 | `update-admin-password.ts` 错误 import `userSessions` | `deploy/scripts/db/update-admin-password.ts` | 改为 `session` | open |
 | AUTH-004 | P3 | `isAdminRole` 可能在业务包重复 | showmasterpiece `lib/auth.ts` 等 | 统一用包内 helper | open |
 | AUTH-005 | P3 | 个别路径直调 `sa2kit/.../auth/server` | 如 phone-signup-intent | 收敛到 `@profile/auth` | open |
 

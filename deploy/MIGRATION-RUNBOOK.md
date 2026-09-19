@@ -133,7 +133,7 @@ DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@host.docker.internal:5432/exam_
 
 Docker 容器经 `host.docker.internal` 访问宿主机 Postgres 时，连接会落到 **docker 网桥 IP**（如 `172.17.0.1`），**不是** `127.0.0.1`。若 Postgres 仅监听 `127.0.0.1:5432`，容器内仍会连库失败。
 
-1. 运行诊断脚本（仓库 `deploy/check-gateway-health.sh`，同步至服务器后）：
+1. 运行诊断脚本（仓库 `deploy/gateway/check-gateway-health.sh`，同步至服务器后）：
 
 ```bash
 chmod +x /root/profile-v1/check-gateway-health.sh

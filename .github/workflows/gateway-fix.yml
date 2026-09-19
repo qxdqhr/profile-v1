@@ -1,6 +1,6 @@
 name: Gateway Diagnose and Fix
 
-# 合并原 gateway-fix + gateway-fix-only：同一远程入口 fix-gateway-remote.sh
+# 合并原 gateway-fix + gateway-fix-only：同一远程入口 gateway/fix-gateway-remote.sh
 on:
   workflow_dispatch:
 
@@ -22,14 +22,21 @@ jobs:
           SSH_OPTS="-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=20 -i /tmp/ssh_key"
           REMOTE="${DEPLOY_USER}@${DEPLOY_HOST}"
 
+          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/gateway"
           scp $SSH_OPTS \
-            deploy/fix-gateway-remote.sh \
-            deploy/check-gateway-health.sh \
-            deploy/derive-database-url.sh \
-            deploy/deploy-profile-v1.sh \
-            deploy/ensure-nginx-image.sh \
-            "$REMOTE:/root/profile-v1/"
-          ssh $SSH_OPTS "$REMOTE" \
-            "chmod +x /root/profile-v1/fix-gateway-remote.sh /root/profile-v1/check-gateway-health.sh /root/profile-v1/derive-database-url.sh /root/profile-v1/deploy-profile-v1.sh /root/profile-v1/ensure-nginx-image.sh"
-          ssh $SSH_OPTS "$REMOTE" "/root/profile-v1/fix-gateway-remote.sh"
+            deploy/gateway/fix-gateway-remote.sh \
+            deploy/gateway/check-gateway-health.sh \
+            deploy/gateway/derive-database-url.sh \
+            deploy/gateway/deploy-profile-v1.sh \
+            deploy/gateway/ensure-nginx-image.sh \
+            deploy/gateway/ensure-database-url.sh \
+            deploy/gateway/wait-gateway-ready.sh \
+            deploy/gateway/audit-outer-nginx.sh \
+            deploy/gateway/smoke-test-gateway.sh \
+            deploy/gateway/ensure-calendar-schema.sh \
+            deploy/gateway/ensure-node-notes-schema.sh \
+            deploy/gateway/_lib.sh \
+            "$REMOTE:/root/profile-v1/gateway/"
+          ssh $SSH_OPTS "$REMOTE" "chmod +x /root/profile-v1/gateway/*.sh"
+          ssh $SSH_OPTS "$REMOTE" "/root/profile-v1/gateway/fix-gateway-remote.sh"
           rm -f /tmp/ssh_key

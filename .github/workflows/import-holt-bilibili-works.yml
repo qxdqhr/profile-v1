@@ -35,12 +35,12 @@ jobs:
           printf '%s\n' "${{ secrets.DEPLOY_SERVER_SSH_KEY }}" > /tmp/ssh_key
           chmod 600 /tmp/ssh_key
 
-          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/wordpress/holt/data"
+          ssh $SSH_OPTS "$REMOTE" "mkdir -p /root/profile-v1/wordpress/holt/data /root/profile-v1/holt"
           scp $SSH_OPTS app_wordpress/holt/data/holt-bilibili-works.json \
             "$REMOTE:/root/profile-v1/wordpress/holt/data/holt-bilibili-works.json"
-          scp $SSH_OPTS deploy/import-holt-bilibili-works.sh \
-            "$REMOTE:/root/profile-v1/import-holt-bilibili-works.sh"
-          ssh $SSH_OPTS "$REMOTE" "chmod 700 /root/profile-v1/import-holt-bilibili-works.sh"
+          scp $SSH_OPTS deploy/holt/import-holt-bilibili-works.sh \
+            "$REMOTE:/root/profile-v1/holt/import-holt-bilibili-works.sh"
+          ssh $SSH_OPTS "$REMOTE" "chmod 700 /root/profile-v1/holt/import-holt-bilibili-works.sh"
 
           REPLACE_EXISTING=0
           SKIP_THUMBNAILS=0
@@ -48,6 +48,6 @@ jobs:
           if [ "${{ inputs.skip_thumbnails }}" = "true" ]; then SKIP_THUMBNAILS=1; fi
 
           ssh $SSH_OPTS "$REMOTE" \
-            "cd /root/profile-v1 && REPLACE_EXISTING=${REPLACE_EXISTING} SKIP_THUMBNAILS=${SKIP_THUMBNAILS} SPACE_URL='https://b23.tv/8r56Ehc' ./import-holt-bilibili-works.sh"
+            "cd /root/profile-v1 && REPLACE_EXISTING=${REPLACE_EXISTING} SKIP_THUMBNAILS=${SKIP_THUMBNAILS} SPACE_URL='https://b23.tv/8r56Ehc' ./holt/import-holt-bilibili-works.sh"
 
           rm -f /tmp/ssh_key

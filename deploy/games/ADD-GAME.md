@@ -11,9 +11,9 @@
 git submodule update --init --recursive
 ```
 
-**中文**：每个游戏必须挂 [`sa2kit-godot`](https://github.com/qxdqhr/sa2kit-godot)（`addons/sa2kit_godot`），否则 HTML5 默认字体不含汉字。本地可跑 `bash scripts/apply-sa2kit-godot-cjk.sh <slug>`。不要用 `SystemFont`（微软雅黑）当 Web 默认字体。
+**中文**：每个游戏必须挂 [`sa2kit-godot`](https://github.com/qxdqhr/sa2kit-godot)（`addons/sa2kit_godot`），否则 HTML5 默认字体不含汉字。本地可跑 `bash deploy/scripts/godot/apply-sa2kit-godot-cjk.sh <slug>`。不要用 `SystemFont`（微软雅黑）当 Web 默认字体。
 
-Spine 等无法在 CI 重导出的工程：在 submodule 根放置 `.use-prebuilt-web`，并把 Web 产物放在 `prebuilt-web/`（文件名 `index.html`）；`export-godot-game.sh` / `scripts/sync-prebuilt-game-www.sh` 会拷贝到 `deploy/games/<slug>/www/`。
+Spine 等无法在 CI 重导出的工程：在 submodule 根放置 `.use-prebuilt-web`，并把 Web 产物放在 `prebuilt-web/`（文件名 `index.html`）；`export-godot-game.sh` / `deploy/scripts/godot/sync-prebuilt-game-www.sh` 会拷贝到 `deploy/games/<slug>/www/`。
 
 假设 slug = `my-game`（URL：`/games/my-game/`）。slug 只能是小写字母、数字、连字符。
 
@@ -36,11 +36,11 @@ Web 导出预设须 **单线程**：`variant/thread_support=false`（Compatibili
 不必改 `docker-compose.gateway.yml`。  
 平台 nginx 把 `/games/<slug>/*` 映射到 `deploy/games/<slug>/www/`。共享引擎 slug 为 `godot-engine`（长缓存）。`/__games/` 只开 `gzip_static`，禁止现场 gzip。
 
-`deploy/smoke-test-gateway.sh`：验 `/games/godot-engine/index.wasm` + 各游戏 `index.html` / `index.pck`（diner-dash 仍验自带 wasm）。
+`deploy/gateway/smoke-test-gateway.sh`：验 `/games/godot-engine/index.wasm` + 各游戏 `index.html` / `index.pck`（diner-dash 仍验自带 wasm）。
 
 ## 3. CI
 
-`scripts/export-all-godot-games.sh` 会自动扫 `app_games/*/project.godot`。  
+`deploy/scripts/godot/export-all-godot-games.sh` 会自动扫 `app_games/*/project.godot`。  
 `export-godot-games` artifact / `deploy-web` 放置步骤会扫 `deploy/games/*/www`（有 `index.html` 的 slug）。  
 **一般不必**再改 workflow，除非改了导出脚本路径 filter。
 

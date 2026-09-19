@@ -1,1 +1,1 @@
-# shared Godot Web engine (wasm/js); filled by scripts/share-godot-engine-www.sh
+# shared Godot Web engine (wasm/js); filled by deploy/scripts/godot/share-godot-engine-www.sh

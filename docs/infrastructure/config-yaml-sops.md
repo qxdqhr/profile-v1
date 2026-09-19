@@ -39,7 +39,7 @@ pnpm dev
 ## SOPS 初始化（首次）
 
 ```bash
-./scripts/config-sops-init.sh
+./deploy/scripts/config/config-sops-init.sh
 pnpm config:encrypt-production   # 若 openSUSE 无 sops，会自动用 age 加密
 ```
 
@@ -64,7 +64,7 @@ export PATH="$HOME/.local/bin:$PATH"
 在服务器解密为运行时明文（Docker 挂载）：
 
 ```bash
-./scripts/config-decrypt-production.sh
+./deploy/scripts/config/config-decrypt-production.sh
 # 输出: config/app.config.production.yaml
 
 docker run ... \

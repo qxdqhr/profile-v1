@@ -24,7 +24,7 @@
 |----|--------|------|------|------|
 | CFG-001 | P2 | `init.ts` 与 `preload.ts` 重复 load + applyAi | 抽共享 `bootstrapOnce()` | open |
 | CFG-002 | P2 | 敏感项在 YAML，依赖 SOPS 运维纪律 | 保持；CR 时核对 example 不含真密钥 | open（流程） |
-| CFG-003 | P3 | `scripts/preload-app-config.ts` 已 deprecated | 全仓改引用后删除 | open |
+| CFG-003 | P3 | `deploy/scripts/config/preload-app-config.ts` 已 deprecated | 全仓改引用后删除 | open |
 
 ---
 

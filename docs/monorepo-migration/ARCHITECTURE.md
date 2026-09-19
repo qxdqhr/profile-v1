@@ -62,7 +62,7 @@ flowchart TB
 | `src/app/api/teach-hub/**` | `app_web/teach-hub/app/api/teach-hub/**` |
 | `src/lib/auth/**` | `packages/auth/**` |
 | `src/db/**` + 各模块 `db/schema` | `packages/db/**`（schema 按域分文件 re-export） |
-| `scripts/preload-app-config.ts` 等 | `packages/config/**` |
+| `deploy/scripts/config/preload-app-config.ts` 等 | `packages/config/**` |
 
 ## 4. 依赖规则
 

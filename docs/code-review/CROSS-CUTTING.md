@@ -65,7 +65,7 @@
 
 ## CX-008 — 运维脚本 schema 引用错误（P2）
 
-**位置**：`scripts/update-admin-password.ts` import `userSessions`，`@profile/auth/schema` 实际导出为 `session`。
+**位置**：`deploy/scripts/db/update-admin-password.ts` import `userSessions`，`@profile/auth/schema` 实际导出为 `session`。
 
 **风险**：脚本无法运行；紧急改密流程失效。
 
@@ -93,7 +93,7 @@
 - DB enum：`USER` / `ADMIN` / `SUPER_ADMIN`（`sa2kit/.../enums.ts`）  
 - `@profile/auth` `isAdminRole`：正确 `toUpperCase()`  
 - sa2kit `UserMenu`：比较 `role === 'admin'` → 管理员永远显示「普通用户」  
-- `scripts/update-admin-password.ts`：查询小写 `admin`（且错误 import `userSessions`）
+- `deploy/scripts/db/update-admin-password.ts`：查询小写 `admin`（且错误 import `userSessions`）
 
 **建议**：库侧修 UserMenu；脚本对齐 enum；全仓 grep 小写 role 字面量。
 

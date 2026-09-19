@@ -468,7 +468,7 @@ app_web/teach-hub/
 | 迁入 | `sendFeishuPostMessage`、`buildFeishuPostMessage`、contact/ci 模板、`formatDateTime`、类型 |
 | exports | `sa2kit/common/feishu`（server-safe；无 React） |
 | 兼容 | 过渡 1 个小版本可留 `packages/sa2kit-feishu` 薄 re-export，或直接改消费者后删包 |
-| 消费者 | `modules/Home`、`ticketMonitor`、`scripts/send-ci-feishu-notify.ts` |
+| 消费者 | `modules/Home`、`ticketMonitor`、`deploy/scripts/ci/send-ci-feishu-notify.mjs` |
 | 禁区 | 不把 webhook URL / sign secret 写进库；继续由宿主 env 注入 |
 
 #### G2 — Exam → `sa2kit/business/exam`

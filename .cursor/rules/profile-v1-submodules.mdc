@@ -1,12 +1,12 @@
 ---
-description: sa2kit / sa2kit-ui / sa2kit-skill / games / WordPress / mobile / desktop git submodule 约定
-globs: packages/sa2kit/**/*,packages/sa2kit-ui/**/*,packages/sa2kit-skill/**/*,app_games/**/*,app_wordpress/**/*,deploy/games/**/*,deploy/wordpress/**/*,app_mobile/**/*,app_desktop/**/*,.gitmodules
+description: sa2kit / sa2kit-ui / sa2kit-skill / games / WordPress / mobile / desktop / browser / taro / android / bot git submodule 约定
+globs: packages/sa2kit/**/*,packages/sa2kit-ui/**/*,packages/sa2kit-skill/**/*,app_games/**/*,app_wordpress/**/*,deploy/games/**/*,deploy/wordpress/**/*,app_mobile/**/*,app_desktop/**/*,app_browser_plugin/**/*,app_taro/**/*,app_android/**/*,app_bot/**/*,.gitmodules
 alwaysApply: false
 ---
 
 # Git Submodule 约定
 
-完整 SSOT：`.cursor/KNOWLEDGE_BASE.md` §7.0。编辑 `packages/sa2kit/`、`packages/sa2kit-ui/`、`packages/sa2kit-skill/`、`app_games/`、`app_wordpress/`、`app_mobile/`、`app_desktop/` 或相关 deploy 时遵守。
+完整 SSOT：`.cursor/KNOWLEDGE_BASE.md` §7.0。编辑 `packages/sa2kit/`、`packages/sa2kit-ui/`、`packages/sa2kit-skill/`、`app_games/`、`app_wordpress/`、`app_mobile/`、`app_desktop/`、`app_browser_plugin/`、`app_taro/`、`app_android/`、`app_bot/` 或相关 deploy 时遵守。
 
 ## 分层（禁止混淆）
 
@@ -14,7 +14,7 @@ alwaysApply: false
 |----|------|------|
 | **SDK submodule + workspace** | `packages/sa2kit/`、`packages/sa2kit-ui/` | 独立 Git 仓；父仓指针；`pnpm-workspace` 用 `workspace:*`；仍可各自 npm publish |
 | **Agent skills submodule** | `packages/sa2kit-skill/` | 独立 Git 仓；**非** npm；**不进** workspace；父仓 `.cursor/skills/<name>` 相对 symlink |
-| **旁路 submodule 源码** | `app_games/<slug>/`、`app_wordpress/<slug>/`、`app_mobile/<slug>/`、`app_desktop/<slug>/` | 独立 Git 仓；父仓只存指针 |
+| **旁路 submodule 源码** | `app_games/<slug>/`、`app_wordpress/<slug>/`、`app_mobile/<slug>/`、`app_desktop/<slug>/`、`app_browser_plugin/<slug>/`、`app_taro/<slug>/`、`app_android/<slug>/`、`app_bot/<slug>/` | 独立 Git 仓；父仓只存指针。后四类以及后挂的历史客户端 **不进** pnpm workspace、**不进** 网关 |
 | **父仓旁路** | `deploy/games/<slug>/`、`deploy/wordpress/` | nginx、compose 模板、ADD-* 文档、CI 生成的 `www/` |
 | **跨端 client** | `packages/*-core/src/shared`（`@profile/<domain>-core/shared`） | 供 `app_mobile` / `app_desktop` 消费；勿依赖 Next/`@profile/db` |
 | **主站导航** | `app_web/web/src/modules/games/` | 大厅卡片与筛选；**不是** Godot 源码 |
@@ -29,7 +29,7 @@ alwaysApply: false
 
 1. 改库 / 主题 / 游戏 / 客户端 / skill → 进入 submodule 目录，在 **子仓** commit/push（库可选 npm publish），再回到父仓 bump submodule 指针。
 2. 克隆父仓：`git submodule update --init --recursive`（CI 已 `submodules: recursive`）。
-3. 新增旁路 → 先建独立仓，`git submodule add …`，再改 compose/nginx/smoke/导航；见 `deploy/games/ADD-GAME.md`、`deploy/wordpress/ADD-SITE.md`。新 Godot 游戏必须挂 `addons/sa2kit_godot`（CJK）；`bash scripts/apply-sa2kit-godot-cjk.sh <slug>`。新建游戏流程 skill：`packages/sa2kit-skill/skills/add-godot-game-submodule`。
+3. 新增旁路 → 先建独立仓，`git submodule add …`，再改 compose/nginx/smoke/导航；见 `deploy/games/ADD-GAME.md`、`deploy/wordpress/ADD-SITE.md`。新 Godot 游戏必须挂 `addons/sa2kit_godot`（CJK）；`bash deploy/scripts/godot/apply-sa2kit-godot-cjk.sh <slug>`。新建游戏流程 skill：`packages/sa2kit-skill/skills/add-godot-game-submodule`。
 4. 从 Next 迁出 Godot：删 `app_web/web` 旧模块；DB schema 迁到 `packages/db/src/schema/`（若表仍保留）。
 5. 实验田/大厅链到 `/games/*`、`/wp/*` → **整页跳转**（`ExperimentNavCard`），勿用 Next 客户端路由。
 6. 宿主 **不要** 再把 `sa2kit` / `@sa2kit-ui/react` pin 成 npm 版本号；用 `workspace:*`。

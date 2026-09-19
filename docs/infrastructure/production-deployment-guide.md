@@ -24,7 +24,7 @@ git add config/production.enc.yaml config/.sops.yaml
 ## 3. 手动部署（可选）
 
 ```bash
-./scripts/config-decrypt-production.sh /root/profile-v1/app.config.yaml
+./deploy/scripts/config/config-decrypt-production.sh /root/profile-v1/app.config.yaml
 ```
 
 ## 4. Docker 部署
