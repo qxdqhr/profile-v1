@@ -61,7 +61,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
+
+      - name: Init packaging submodules
+        run: bash deploy/scripts/ci/init-packaging-submodules.sh
 
       - name: Detect path changes
         uses: dorny/paths-filter@v3
@@ -268,7 +270,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
+
+      - name: Init packaging submodules
+        run: bash deploy/scripts/ci/init-packaging-submodules.sh
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -313,7 +317,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
+
+      - name: Init packaging submodules
+        run: bash deploy/scripts/ci/init-packaging-submodules.sh
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -463,8 +469,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      - name: Init packaging submodules
+        run: bash deploy/scripts/ci/init-packaging-submodules.sh
 
       - name: Decrypt production config for API URLs
         id: cfg
@@ -599,8 +606,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      - name: Init packaging submodules
+        run: bash deploy/scripts/ci/init-packaging-submodules.sh
 
       - name: Decrypt production config for API URLs
         id: cfg
@@ -721,8 +729,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      - name: Init packaging submodules
+        run: bash deploy/scripts/ci/init-packaging-submodules.sh
 
       - name: Cache Godot editor and export templates
         uses: actions/cache@v4
@@ -790,8 +799,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      - name: Init packaging submodules
+        run: bash deploy/scripts/ci/init-packaging-submodules.sh
 
       - name: Download Godot games web artifacts
         if: needs.changes.outputs.games == 'true' && needs.export-godot-games.result == 'success'

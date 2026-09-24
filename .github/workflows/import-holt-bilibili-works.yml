@@ -21,8 +21,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      - name: Init packaging submodules
+        run: bash deploy/scripts/ci/init-packaging-submodules.sh
 
       - name: Import scraped works on deploy host
         run: |

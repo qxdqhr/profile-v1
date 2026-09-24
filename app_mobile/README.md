@@ -6,8 +6,8 @@ React Native 客户端，以 **git submodule** 挂入。只有 `calendar-mobile`
 |------|------|------|
 | `calendar-mobile/` | [profile-v1-calendar-mobile](https://github.com/qxdqhr/profile-v1-calendar-mobile) | `@profile/calendar-mobile` |
 | `teach-hub-mobile/` | [profile-v1-teach-hub-mobile](https://github.com/qxdqhr/profile-v1-teach-hub-mobile) | `@profile/teach-hub-mobile` |
-| `profile-rn/` | [profile_rn](https://github.com/qxdqhr/profile_rn)（私有） | 仅挂载，不进 workspace |
-| `shared-file/` | [shared_file_rn](https://github.com/qxdqhr/shared_file_rn)（私有） | 仅挂载，不进 workspace |
+| `profile-rn/` | [profile_rn](https://github.com/qxdqhr/profile_rn)（私有） | 仅挂载，不进 workspace；`update = none`（CI recursive 跳过） |
+| `shared-file/` | [shared_file_rn](https://github.com/qxdqhr/shared_file_rn)（私有） | 仅挂载，不进 workspace；`update = none`（CI recursive 跳过） |
 | `miku-to-you/` | [MikuToYou](https://github.com/qxdqhr/MikuToYou) | 仅挂载，不进 workspace |
 
 共享类型与 API 客户端：`sa2kit/business/calendar/domain`、`sa2kit/business/teachHub/domain`  
@@ -15,8 +15,11 @@ React Native 客户端，以 **git submodule** 挂入。只有 `calendar-mobile`
 对应 Web：`app_web/calendar`、`app_web/teach-hub`。
 
 ```bash
-# 1) 检出 submodule
+# 1) 检出 submodule（不含私有 profile-rn / shared-file）
 git submodule update --init --recursive app_mobile
+
+# 私有仓需本机已登录且有权限时单独检出：
+# git submodule update --init --checkout app_mobile/profile-rn app_mobile/shared-file
 
 # 2) 把 native 写进 workspace 并装依赖（默认 workspace 不含 mobile）
 pnpm native:enable
