@@ -109,14 +109,6 @@
 [submodule "app_mobile/miku-to-you"]
 	path = app_mobile/miku-to-you
 	url = https://github.com/qxdqhr/MikuToYou.git
-[submodule "app_mobile/profile-rn"]
-	path = app_mobile/profile-rn
-	url = https://github.com/qxdqhr/profile_rn.git
-	update = none
-[submodule "app_mobile/shared-file"]
-	path = app_mobile/shared-file
-	url = https://github.com/qxdqhr/shared_file_rn.git
-	update = none
 [submodule "app_web/lyric-grid"]
 	path = app_web/lyric-grid
 	url = https://github.com/qxdqhr/lyric-grid-tool.git
