@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# CI / 打包用：只初始化公开且部署需要的 submodule，避免 recursive 拉私有仓失败。
-# 私有挂载（app_mobile/profile-rn、shared-file）在 .gitmodules 中为 update=none。
+# CI / 打包用：只初始化公开且部署需要的 submodule，避免拉私有仓失败。
+# 切勿把 .gitmodules 全表塞进 update 参数——显式 path 会无视 update=none。
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
@@ -17,14 +17,26 @@ paths=(
   app_desktop/lan-drop
 )
 
-# 全部 app_games/* 子模块（含 prebuilt）
+# 仅 app_games/*（公开游戏旁路）
 while IFS= read -r line; do
-  [[ "$line" == app_games/* ]] || continue
-  paths+=("$line")
+  case "$line" in
+    app_games/*) paths+=("$line") ;;
+  esac
 done < <(git config -f .gitmodules --get-regexp '^submodule\..*\.path$' | awk '{print $2}')
 
 mapfile -t paths < <(printf '%s\n' "${paths[@]}" | awk 'NF && !seen[$0]++')
 
-echo "[ci] init packaging submodules (${#paths[@]} paths)…"
-git submodule update --init --recursive -- "${paths[@]}"
+# 只保留仓库里真实存在 gitlink 的路径
+existing=()
+for p in "${paths[@]}"; do
+  if git ls-files --error-unmatch "$p" >/dev/null 2>&1; then
+    existing+=("$p")
+  else
+    echo "[ci] skip missing path: $p"
+  fi
+done
+
+echo "[ci] init packaging submodules (${#existing[@]} paths)…"
+printf '  - %s\n' "${existing[@]}"
+git submodule update --init --recursive -- "${existing[@]}"
 echo "[ci] packaging submodules ready"
