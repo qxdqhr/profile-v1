@@ -26,7 +26,12 @@
 | 生产配置与部署补充 | [`infrastructure/production-deployment-guide.md`](./infrastructure/production-deployment-guide.md)、[`infrastructure/config-yaml-sops.md`](./infrastructure/config-yaml-sops.md)、[`infrastructure/ops-ci.md`](./infrastructure/ops-ci.md) |
 | 节点笔记 | [`node-notes/README.md`](./node-notes/README.md) |
 | LanDrop 局域网互传桌面工具（需求） | [`modules/lan-drop/REQUIREMENTS.md`](./modules/lan-drop/REQUIREMENTS.md) |
+<<<<<<< HEAD
 | 测试账号（脚本为准） | `pnpm devdb:createusers` / `prodb:createusers`，见 [`deploy/scripts/db/create-test-user-accounts.ts`](../deploy/scripts/db/create-test-user-accounts.ts) |
+=======
+| 初音抽卡（mikuGacha） | [`modules/mikuGacha/README.md`](./modules/mikuGacha/README.md) |
+| 测试账号（脚本为准） | `pnpm devdb:createusers` / `prodb:createusers`，见 [`scripts/create-test-user-accounts.ts`](../scripts/create-test-user-accounts.ts) |
+>>>>>>> fd5fda1a (feat(web): add mikuGacha experiment route and host assets)
 
 ## 目录结构
 
@@ -46,6 +51,7 @@ docs/
 ├── infrastructure/           # OSS / CDN / HTTPS / 生产部署
 ├── modules/                  # 主站模块运维与需求（按模块分子目录）
 │   ├── lan-drop/             # 桌面局域网互传（需求，见 REQUIREMENTS.md）
+│   ├── mikuGacha/            # 初音抽卡（索引 → sa2kit business）
 │   ├── mmd/
 │   ├── showmasterpiece/
 │   ├── skill-manager/

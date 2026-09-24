@@ -310,5 +310,16 @@ export const experiments: ExperimentItem[] = [
     isCompleted: true,
     createdAt: '2026-05-06',
     updatedAt: '2026-05-06'
+  },
+  {
+    id: "miku-gacha",
+    title: "初音抽卡",
+    description: "Three.js 简易抽卡：等概率随机 145 张卡面，卡片 Y 轴连续翻转揭晓（ease-in-out）",
+    path: "/testField/mikuGacha",
+    tags: ["初音", "抽卡", "Three.js", "3D", "游戏"],
+    category: "leisure",
+    isCompleted: true,
+    createdAt: '2026-09-24',
+    updatedAt: '2026-09-24'
   }
 ];
