@@ -34,6 +34,7 @@
 2. **统一 IMAGE_TAG**：成功构建或 promote / fallback 后，所有应用都有 `:NNN`。
 3. **飞书状态**：`success` / `partial`（主站过、旁路或卫星挂）/ `failure`（web / promote / deploy 挂）。
 4. **deploy 触发**：任一 Docker 子应用、deploy、games、wordpress 变更均可触发网关部署。
+5. **SSH 重试**：`ssh_retry` **只**对 exit `255`（连接/传输）退避重试；冒烟等业务 `exit 1` 立即失败，避免误删 CI env 后连环「缺少 REGISTRY」。部署密钥落在服务器 `/root/profile-v1/.ci-deploy.env`，成功后删除。
 
 ## Godot `/games` 与 CPU
 

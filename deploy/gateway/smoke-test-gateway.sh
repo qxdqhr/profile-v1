@@ -26,6 +26,7 @@ module_on() {
 }
 
 fail=0
+FAILED_CHECKS=()
 
 check_http() {
   local name="$1"
@@ -36,6 +37,7 @@ check_http() {
   echo "${name} => ${code} (期望 ${expect})"
   if [ "$code" != "$expect" ]; then
     fail=1
+    FAILED_CHECKS+=("${name} => ${code} (期望 ${expect})")
   fi
 }
 
@@ -171,6 +173,10 @@ fi
 
 if [ "$fail" -ne 0 ]; then
   echo "ERROR: 网关冒烟测试失败。请检查 nginx/profile-platform.conf 是否已同步并重载。" >&2
+  echo "=== 未通过项（共 ${#FAILED_CHECKS[@]}）===" >&2
+  for line in "${FAILED_CHECKS[@]}"; do
+    echo "  FAIL: ${line}" >&2
+  done
   exit 1
 fi
 

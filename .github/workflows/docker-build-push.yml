@@ -914,18 +914,24 @@ jobs:
           }
           trap cleanup_ssh EXIT
 
+          # 仅重试 SSH/SCP 连接类失败（ssh 约定：255=传输/连接错误）。
+          # 远端业务脚本 exit 1（冒烟失败等）不得重试，否则会误删 env 后连环报「缺少 REGISTRY」。
           ssh_retry() {
             local attempt=1
             local max=8
+            local rc=0
             while true; do
-              if "$@"; then
-                return 0
+              "$@" && return 0
+              rc=$?
+              if [ "$rc" -ne 255 ]; then
+                echo "ERROR: 远端命令失败（exit ${rc}），非连接错误，不重试: $*" >&2
+                return "$rc"
               fi
               if [ "$attempt" -ge "$max" ]; then
                 echo "ERROR: ssh/scp 重试 ${max} 次仍失败: $*" >&2
                 return 1
               fi
-              echo "WARN: 连接失败，${attempt}/${max}，sleep $((attempt * 15))s 后重试…"
+              echo "WARN: 连接失败（exit 255），${attempt}/${max}，sleep $((attempt * 15))s 后重试…"
               sleep $((attempt * 15))
               attempt=$((attempt + 1))
             done
@@ -952,6 +958,7 @@ jobs:
             "$STAGE/deploy/wordpress/"
           cp deploy/games/README.md deploy/games/ADD-GAME.md "$STAGE/games/"
 
+          # 文件名避免含 wp（Secrets 里 WP_* 值常为 wp，会被 Actions 脱敏成 ***）
           {
             echo "REGISTRY=${REGISTRY}"
             echo "IMAGE_TAG=${NEW_TAG}"
@@ -961,12 +968,12 @@ jobs:
             [ -n "${WP_DB_PASSWORD:-}" ] && printf 'WORDPRESS_DB_PASSWORD=%s\n' "$WP_DB_PASSWORD"
             [ -n "${WP_HOLT_PUBLIC_URL:-}" ] && printf 'WP_HOLT_PUBLIC_URL=%s\n' "$WP_HOLT_PUBLIC_URL"
             [ -n "${WP_HOLT_PUBLIC_URL:-}" ] && printf 'WORDPRESS_DB_NAME=wp_holt\n'
-          } > "$STAGE/wp-deploy.env"
+          } > "$STAGE/gateway-deploy.env"
 
           tar -C "$STAGE" -czf /tmp/profile-v1-deploy-bundle.tgz .
           ssh_retry scp $SSH_OPTS /tmp/profile-v1-deploy-bundle.tgz "$REMOTE:/tmp/profile-v1-deploy-bundle.tgz"
           ssh_retry ssh $SSH_OPTS "$REMOTE" \
-            'tar -C /root/profile-v1 -xzf /tmp/profile-v1-deploy-bundle.tgz && rm -f /tmp/profile-v1-deploy-bundle.tgz && chmod 644 /root/profile-v1/app.config.yaml /root/profile-v1/runtime-modules.json && chmod 755 /root/profile-v1/gateway/*.sh /root/profile-v1/gateway/*.py /root/profile-v1/compress-godot-www.sh && mv -f /root/profile-v1/wp-deploy.env /tmp/profile-wp-deploy.env'
+            'tar -C /root/profile-v1 -xzf /tmp/profile-v1-deploy-bundle.tgz && rm -f /tmp/profile-v1-deploy-bundle.tgz && chmod 644 /root/profile-v1/app.config.yaml /root/profile-v1/runtime-modules.json && chmod 755 /root/profile-v1/gateway/*.sh /root/profile-v1/gateway/*.py /root/profile-v1/compress-godot-www.sh && cp -f /root/profile-v1/gateway-deploy.env /root/profile-v1/.ci-deploy.env && cp -f /root/profile-v1/gateway-deploy.env /tmp/profile-gateway-deploy.env && rm -f /root/profile-v1/gateway-deploy.env /tmp/profile-wp-deploy.env'
           rm -rf "$STAGE" /tmp/profile-v1-deploy-bundle.tgz
 
           if [ "${WORDPRESS_CHANGED}" = "true" ]; then
@@ -1008,8 +1015,10 @@ jobs:
           }
           ssh_retry remote_docker_login
 
+          # 部署+冒烟：连接失败可重试；业务失败（冒烟等）由 ssh_retry 识别 exit!=255 立即退出。
+          # env 从 .ci-deploy.env 恢复到 /tmp，避免首败后文件已删导致「缺少 REGISTRY」连环重试。
           ssh_retry ssh $SSH_OPTS "$REMOTE" \
-            'set -a; . /tmp/profile-wp-deploy.env; set +a; rm -f /tmp/profile-wp-deploy.env; /root/profile-v1/gateway/deploy-profile-v1.sh && POST_DEPLOY=1 /root/profile-v1/gateway/fix-gateway-remote.sh'
+            'set -euo pipefail; ENV_SRC=/root/profile-v1/.ci-deploy.env; ENV_TMP=/tmp/profile-gateway-deploy.env; if [ ! -f "$ENV_TMP" ] && [ -f "$ENV_SRC" ]; then cp -f "$ENV_SRC" "$ENV_TMP"; fi; set -a; . "$ENV_TMP"; set +a; /root/profile-v1/gateway/deploy-profile-v1.sh && POST_DEPLOY=1 /root/profile-v1/gateway/fix-gateway-remote.sh && rm -f "$ENV_TMP" "$ENV_SRC"'
 
           rm -f "$DEPLOY_CFG_DIR/age-key.txt" "$DEPLOY_CFG_DIR/app.config.yaml"
 
