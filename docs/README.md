@@ -25,6 +25,7 @@
 | apps→web / mobile / desktop / npm 拆分计划（已完成） | [`monorepo-migration/APPS-SUBMODULE-PLAN.md`](./monorepo-migration/APPS-SUBMODULE-PLAN.md) |
 | 生产配置与部署补充 | [`infrastructure/production-deployment-guide.md`](./infrastructure/production-deployment-guide.md)、[`infrastructure/config-yaml-sops.md`](./infrastructure/config-yaml-sops.md)、[`infrastructure/ops-ci.md`](./infrastructure/ops-ci.md) |
 | 现网 1.6G OOM / CPU 卡死优化 | [`infrastructure/server-resource-optimization.md`](./infrastructure/server-resource-optimization.md) |
+| 现网子应用启停开关 | [`../deploy/runtime-modules.md`](../deploy/runtime-modules.md) |
 | 节点笔记 | [`node-notes/README.md`](./node-notes/README.md) |
 | LanDrop 局域网互传桌面工具（需求） | [`modules/lan-drop/REQUIREMENTS.md`](./modules/lan-drop/REQUIREMENTS.md) |
 | 初音抽卡（mikuGacha） | [`modules/mikuGacha/README.md`](./modules/mikuGacha/README.md) |

@@ -43,6 +43,7 @@ deploy/
 | 文件 | 用途 |
 |------|------|
 | `docker-compose.gateway.yml` | 生产栈：nginx + 各 Next 子应用 + MariaDB/WordPress |
+| `runtime-modules.json` | **手控**哪些子应用在部署时启动（见 [`runtime-modules.md`](./runtime-modules.md)） |
 | `.env.example` | 服务器 `.env` 键说明（真实密钥不进 git） |
 | `MIGRATION-RUNBOOK.md` | 单容器 → 网关迁移、回滚、探活手册 |
 

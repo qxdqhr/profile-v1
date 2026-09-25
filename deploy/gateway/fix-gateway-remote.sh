@@ -103,8 +103,16 @@ if [ -n "$FIXED_URL" ]; then
   printf 'DATABASE_URL=%s\n' "$FIXED_URL" >> .env
   echo "已写入校验后的 DATABASE_URL"
   if [ "${POST_DEPLOY:-}" = "1" ] && [ "$OLD_URL" != "$FIXED_URL" ]; then
-    echo "DATABASE_URL 已变更，重建 app_web/calendar/teach_hub"
-    compose -f "$COMPOSE_FILE" up -d --force-recreate web calendar teach_hub
+    echo "DATABASE_URL 已变更，按 runtime-modules 重建已启用的 app"
+    MODULES_JSON="${MODULES_JSON:-$DEPLOY_DIR/runtime-modules.json}"
+    if [ -f "$GATEWAY_DIR/resolve-runtime-modules.py" ] && [ -f "$MODULES_JSON" ]; then
+      # shellcheck disable=SC1091
+      eval "$(python3 "$GATEWAY_DIR/resolve-runtime-modules.py" "$MODULES_JSON")"
+      # shellcheck disable=SC2086
+      compose -f "$COMPOSE_FILE" up -d --no-deps --force-recreate $RUNTIME_APP_SERVICES
+    else
+      compose -f "$COMPOSE_FILE" up -d --no-deps --force-recreate web calendar teach_hub
+    fi
     if [ -x "$GATEWAY_DIR/wait-gateway-ready.sh" ]; then
       GATEWAY_PORT="${GATEWAY_PORT:-3000}" "$GATEWAY_DIR/wait-gateway-ready.sh"
     elif [ -f "$GATEWAY_DIR/wait-gateway-ready.sh" ]; then
@@ -162,10 +170,23 @@ else
   IMAGE_TAG="$(grep -E '^IMAGE_TAG=' .env | tail -1 | cut -d= -f2- || true)"
   set +a
   REGISTRY="${REGISTRY:?缺少 .env REGISTRY}"
-  APP_SERVICES="web calendar teach_hub showmasterpiece money_research node_notes idea_list filetransfer ticket_monitor fitness_plan comfy_prompt utilities"
+  MODULES_JSON="${MODULES_JSON:-$DEPLOY_DIR/runtime-modules.json}"
+  if [ ! -f "$MODULES_JSON" ] || [ ! -f "$GATEWAY_DIR/resolve-runtime-modules.py" ]; then
+    echo "ERROR: 缺少 runtime-modules.json 或 resolve-runtime-modules.py" >&2
+    exit 1
+  fi
+  # shellcheck disable=SC1091
+  eval "$(python3 "$GATEWAY_DIR/resolve-runtime-modules.py" "$MODULES_JSON")"
+  APP_SERVICES="${RUNTIME_APP_SERVICES:?}"
+  WP_SERVICES="${RUNTIME_WP_SERVICES:-}"
   BASE_SERVICES="nginx"
-  WP_SERVICES="wp_mariadb wordpress_holt"
   NGINX_IMG="${NGINX_IMG:-${REGISTRY}/library-nginx:1.27-alpine}"
+  if [ -f "$GATEWAY_DIR/render-runtime-nginx.py" ] && [ -f "$DEPLOY_DIR/nginx/profile-platform.conf" ]; then
+    python3 "$GATEWAY_DIR/render-runtime-nginx.py" \
+      "$MODULES_JSON" \
+      "$DEPLOY_DIR/nginx/profile-platform.conf" \
+      "$DEPLOY_DIR/nginx/profile-platform.runtime.conf"
+  fi
   if [ -f "$GATEWAY_DIR/ensure-nginx-image.sh" ]; then
     REGISTRY="$REGISTRY" NGINX_IMG="$NGINX_IMG" bash "$GATEWAY_DIR/ensure-nginx-image.sh"
   else
@@ -180,15 +201,19 @@ else
     UP_PULL_ARGS=(--pull never)
   fi
   # shellcheck disable=SC2086
-  compose -f "$COMPOSE_FILE" up -d "${UP_PULL_ARGS[@]}" --remove-orphans $APP_SERVICES $BASE_SERVICES
-  echo "=== 尝试拉取/启动 WordPress 旁路（短超时，失败不阻断）==="
-  # shellcheck disable=SC2086
-  if ! timeout 90s compose -f "$COMPOSE_FILE" pull $WP_SERVICES; then
-    echo "WARN: WordPress 镜像拉取失败，继续主站"
-  fi
-  # shellcheck disable=SC2086
-  if ! compose -f "$COMPOSE_FILE" up -d $WP_SERVICES; then
-    echo "WARN: WordPress / MariaDB 启动失败，继续主站"
+  compose -f "$COMPOSE_FILE" up -d --no-deps "${UP_PULL_ARGS[@]}" --remove-orphans $APP_SERVICES $BASE_SERVICES
+  if [ -n "${WP_SERVICES}" ]; then
+    echo "=== 尝试拉取/启动 WordPress 旁路（短超时，失败不阻断）==="
+    # shellcheck disable=SC2086
+    if ! timeout 90s compose -f "$COMPOSE_FILE" pull $WP_SERVICES; then
+      echo "WARN: WordPress 镜像拉取失败，继续主站"
+    fi
+    # shellcheck disable=SC2086
+    if ! compose -f "$COMPOSE_FILE" up -d --no-deps $WP_SERVICES; then
+      echo "WARN: WordPress / MariaDB 启动失败，继续主站"
+    fi
+  else
+    echo "=== runtime-modules: wordpress_holt=false，跳过 WordPress ==="
   fi
   sleep 20
 fi

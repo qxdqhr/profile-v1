@@ -1,0 +1,16 @@
+{
+  "_comment": "手动控制现网启动哪些子应用。改完 push main，CI 部署会读取本文件。web 必须为 true。compose 服务名见右侧注释。",
+  "web": true,
+  "calendar": true,
+  "teach_hub": true,
+  "showmasterpiece": true,
+  "money_research": false,
+  "node_notes": true,
+  "idea_list": true,
+  "filetransfer": true,
+  "ticket_monitor": false,
+  "fitness_plan": false,
+  "comfy_prompt": false,
+  "utilities": false,
+  "wordpress_holt": false
+}

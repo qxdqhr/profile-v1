@@ -945,7 +945,8 @@ jobs:
           cp deploy/nginx/profile-platform.conf deploy/nginx/proxy-params.conf \
             deploy/nginx/outer-ubuntu-qhr062.conf deploy/nginx/proxy-params-outer.conf \
             "$STAGE/nginx/"
-          cp deploy/gateway/*.sh "$STAGE/gateway/"
+          cp deploy/gateway/*.sh deploy/gateway/*.py "$STAGE/gateway/"
+          cp deploy/runtime-modules.json "$STAGE/"
           cp deploy/scripts/godot/compress-godot-www.sh "$STAGE/"
           cp deploy/wordpress/README.md deploy/wordpress/ADD-SITE.md deploy/wordpress/.env.example \
             "$STAGE/deploy/wordpress/"
@@ -965,7 +966,7 @@ jobs:
           tar -C "$STAGE" -czf /tmp/profile-v1-deploy-bundle.tgz .
           ssh_retry scp $SSH_OPTS /tmp/profile-v1-deploy-bundle.tgz "$REMOTE:/tmp/profile-v1-deploy-bundle.tgz"
           ssh_retry ssh $SSH_OPTS "$REMOTE" \
-            'tar -C /root/profile-v1 -xzf /tmp/profile-v1-deploy-bundle.tgz && rm -f /tmp/profile-v1-deploy-bundle.tgz && chmod 644 /root/profile-v1/app.config.yaml && chmod 755 /root/profile-v1/gateway/*.sh /root/profile-v1/compress-godot-www.sh && mv -f /root/profile-v1/wp-deploy.env /tmp/profile-wp-deploy.env'
+            'tar -C /root/profile-v1 -xzf /tmp/profile-v1-deploy-bundle.tgz && rm -f /tmp/profile-v1-deploy-bundle.tgz && chmod 644 /root/profile-v1/app.config.yaml /root/profile-v1/runtime-modules.json && chmod 755 /root/profile-v1/gateway/*.sh /root/profile-v1/gateway/*.py /root/profile-v1/compress-godot-www.sh && mv -f /root/profile-v1/wp-deploy.env /tmp/profile-wp-deploy.env'
           rm -rf "$STAGE" /tmp/profile-v1-deploy-bundle.tgz
 
           if [ "${WORDPRESS_CHANGED}" = "true" ]; then

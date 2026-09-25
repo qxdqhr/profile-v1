@@ -73,7 +73,7 @@ Godot 现场 gzip 是**已知次要雷点**（仓库已防内层 nginx）；现�
 | `NODE_OPTIONS=--max-old-space-size=160` | 限制 Node 堆，配合 mem_limit |
 | 错峰 `up` | `deploy-profile-v1.sh`：先 web+nginx，再分批卫星，间隔 10–20s |
 | healthcheck 放宽 | `interval: 30s`，`start_period: 120s`；失败退避，避免 12×`node -e` |
-| 可选 profile | `.env` 增加 `PROFILE=slim|full`；slim 默认不启 money/comfy/utilities/fitness/ticket |
+| 可选 profile | **已落地**：[`deploy/runtime-modules.json`](../../deploy/runtime-modules.json) 手控启停；见 [`deploy/runtime-modules.md`](../../deploy/runtime-modules.md) |
 | 服务器禁止 `gzip -9` wasm | 仅当 CI 未带 `.gz` 时才压，且串行、限 CPU（`nice`/`ionice`） |
 
 ### Phase 2 — 规格与架构

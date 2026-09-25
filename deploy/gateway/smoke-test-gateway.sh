@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # 网关栈冒烟测试：CI / 部署脚本调用，失败时 exit 1
+# 按 deploy/runtime-modules.json（或 RUNTIME_ENABLED_CSV）跳过未启用模块。
 set -euo pipefail
 
 # shellcheck source=./_lib.sh
@@ -8,6 +9,21 @@ cd "$DEPLOY_DIR"
 
 GATEWAY_PORT="${GATEWAY_PORT:-3000}"
 BASE="http://127.0.0.1:${GATEWAY_PORT}"
+MODULES_JSON="${MODULES_JSON:-$DEPLOY_DIR/runtime-modules.json}"
+
+if [ -z "${RUNTIME_ENABLED_CSV:-}" ] && [ -f "$GATEWAY_DIR/resolve-runtime-modules.py" ] && [ -f "$MODULES_JSON" ]; then
+  # shellcheck disable=SC1091
+  eval "$(python3 "$GATEWAY_DIR/resolve-runtime-modules.py" "$MODULES_JSON")"
+fi
+
+ENABLED_CSV="${RUNTIME_ENABLED_CSV:-web,calendar,teach_hub,showmasterpiece,money_research,node_notes,idea_list,filetransfer,ticket_monitor,fitness_plan,comfy_prompt,utilities,wordpress_holt}"
+
+module_on() {
+  case ",${ENABLED_CSV}," in
+    *",$1,"*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
 
 fail=0
 
@@ -20,6 +36,16 @@ check_http() {
   echo "${name} => ${code} (期望 ${expect})"
   if [ "$code" != "$expect" ]; then
     fail=1
+  fi
+}
+
+check_http_if() {
+  local mod="$1"
+  shift
+  if module_on "$mod"; then
+    check_http "$@"
+  else
+    echo "SKIP ($mod disabled): $1"
   fi
 }
 
@@ -53,7 +79,7 @@ check_http_wp_soft() {
   fi
 }
 
-echo "=== 网关冒烟测试 (${BASE}) ==="
+echo "=== 网关冒烟测试 (${BASE}) enabled=${ENABLED_CSV} ==="
 check_http "GET /" "${BASE}/" "200"
 # auth 应用层故障（如 TypeError）不阻断部署；页面与其它 API 仍硬校验
 auth_code="$(curl -sS -o /dev/null -w '%{http_code}' "${BASE}/api/auth/get-session" 2>/dev/null || echo ERR)"
@@ -62,37 +88,55 @@ if [ "$auth_code" = "200" ]; then
 else
   echo "WARN: GET /api/auth/get-session => ${auth_code} (期望 200；应用层问题，不阻断部署)"
 fi
-check_http "GET /calendar/" "${BASE}/calendar/" "200"
-check_http "GET /teach-hub/" "${BASE}/teach-hub/" "200"
-check_http "GET /showmasterpiece/" "${BASE}/showmasterpiece/" "200"
-check_http "GET /money-research/" "${BASE}/money-research/" "200"
-check_http "GET /node-notes/" "${BASE}/node-notes/" "200"
-check_http "GET /idea-list/" "${BASE}/idea-list/" "200"
-check_http "GET /filetransfer/" "${BASE}/filetransfer/" "200"
-check_http "GET /ticket-monitor/" "${BASE}/ticket-monitor/" "200"
-check_http "GET /fitness-plan/" "${BASE}/fitness-plan/" "200"
-check_http "GET /comfy-prompt/" "${BASE}/comfy-prompt/" "200"
-check_http "GET /tools/" "${BASE}/tools/" "200"
-check_http "GET /tools/qr-code/" "${BASE}/tools/qr-code/" "200"
-check_http "GET /tools/date-calculator/" "${BASE}/tools/date-calculator/" "200"
-check_http "GET /tools/work-calculate/" "${BASE}/tools/work-calculate/" "200"
-check_http "GET /tools/image-downloader/" "${BASE}/tools/image-downloader/" "200"
+
+check_http_if calendar "GET /calendar/" "${BASE}/calendar/" "200"
+check_http_if teach_hub "GET /teach-hub/" "${BASE}/teach-hub/" "200"
+check_http_if showmasterpiece "GET /showmasterpiece/" "${BASE}/showmasterpiece/" "200"
+check_http_if money_research "GET /money-research/" "${BASE}/money-research/" "200"
+check_http_if node_notes "GET /node-notes/" "${BASE}/node-notes/" "200"
+check_http_if idea_list "GET /idea-list/" "${BASE}/idea-list/" "200"
+check_http_if filetransfer "GET /filetransfer/" "${BASE}/filetransfer/" "200"
+check_http_if ticket_monitor "GET /ticket-monitor/" "${BASE}/ticket-monitor/" "200"
+check_http_if fitness_plan "GET /fitness-plan/" "${BASE}/fitness-plan/" "200"
+check_http_if comfy_prompt "GET /comfy-prompt/" "${BASE}/comfy-prompt/" "200"
+check_http_if utilities "GET /tools/" "${BASE}/tools/" "200"
+check_http_if utilities "GET /tools/qr-code/" "${BASE}/tools/qr-code/" "200"
+check_http_if utilities "GET /tools/date-calculator/" "${BASE}/tools/date-calculator/" "200"
+check_http_if utilities "GET /tools/work-calculate/" "${BASE}/tools/work-calculate/" "200"
+check_http_if utilities "GET /tools/image-downloader/" "${BASE}/tools/image-downloader/" "200"
+
 # 未登录应 401；404 表示 nginx basePath 反代未对齐
-check_http "GET /api/calendar/events/" \
-  "${BASE}/api/calendar/events/?startDate=2026-01-01&endDate=2026-12-31" "401"
-check_http "GET /api/teach-hub/workspaces/" "${BASE}/api/teach-hub/workspaces/" "401"
-# showmasterpiece 画集列表 GET 为公开接口（未登录 200）；管理接口应 401
-# 容器冷启动或 auth 服务异常时 API 可能暂返回 500，不阻断主站部署
-check_http_wp_soft "GET /api/showmasterpiece/collections/" "${BASE}/api/showmasterpiece/collections/" "200"
-check_http "GET /api/showmasterpiece/bookings/admin/" "${BASE}/api/showmasterpiece/bookings/admin/" "401"
-check_http "GET /api/node-notes/documents/" "${BASE}/api/node-notes/documents/" "401"
-check_http "GET /api/ideaLists/lists/" "${BASE}/api/ideaLists/lists/" "401"
-check_http "GET /api/filetransfer/transfers/" "${BASE}/api/filetransfer/transfers/" "401"
-# ticket-monitor 读接口公开；404 表示 nginx basePath 反代未对齐
-check_http "GET /api/ticket-monitor/events/" "${BASE}/api/ticket-monitor/events/" "200"
-check_http "GET /api/ticket-monitor/config/" "${BASE}/api/ticket-monitor/config/" "200"
-check_http "GET /api/fitnessPlan/profile/" "${BASE}/api/fitnessPlan/profile/" "401"
-check_http "GET /api/comfyPrompt/prompts/" "${BASE}/api/comfyPrompt/prompts/" "401"
+if module_on calendar; then
+  check_http "GET /api/calendar/events/" \
+    "${BASE}/api/calendar/events/?startDate=2026-01-01&endDate=2026-12-31" "401"
+fi
+if module_on teach_hub; then
+  check_http "GET /api/teach-hub/workspaces/" "${BASE}/api/teach-hub/workspaces/" "401"
+fi
+if module_on showmasterpiece; then
+  check_http_wp_soft "GET /api/showmasterpiece/collections/" "${BASE}/api/showmasterpiece/collections/" "200"
+  check_http "GET /api/showmasterpiece/bookings/admin/" "${BASE}/api/showmasterpiece/bookings/admin/" "401"
+fi
+if module_on node_notes; then
+  check_http "GET /api/node-notes/documents/" "${BASE}/api/node-notes/documents/" "401"
+fi
+if module_on idea_list; then
+  check_http "GET /api/ideaLists/lists/" "${BASE}/api/ideaLists/lists/" "401"
+fi
+if module_on filetransfer; then
+  check_http "GET /api/filetransfer/transfers/" "${BASE}/api/filetransfer/transfers/" "401"
+fi
+if module_on ticket_monitor; then
+  check_http "GET /api/ticket-monitor/events/" "${BASE}/api/ticket-monitor/events/" "200"
+  check_http "GET /api/ticket-monitor/config/" "${BASE}/api/ticket-monitor/config/" "200"
+fi
+if module_on fitness_plan; then
+  check_http "GET /api/fitnessPlan/profile/" "${BASE}/api/fitnessPlan/profile/" "401"
+fi
+if module_on comfy_prompt; then
+  check_http "GET /api/comfyPrompt/prompts/" "${BASE}/api/comfyPrompt/prompts/" "401"
+fi
+
 # 旁路 Godot / 静态游戏（标准包共用 /games/godot-engine/；各游戏只验 html+pck）
 check_http "GET /games/godot-engine/index.js" "${BASE}/games/godot-engine/index.js" "200"
 check_http "GET /games/godot-engine/index.wasm" "${BASE}/games/godot-engine/index.wasm" "200"
@@ -110,17 +154,20 @@ check_http "GET /games/diner-dash/index.js" "${BASE}/games/diner-dash/index.js" 
 check_http "GET /games/diner-dash/index.wasm" "${BASE}/games/diner-dash/index.wasm" "200"
 check_http "GET /games/diner-dash/index.pck" "${BASE}/games/diner-dash/index.pck" "200"
 
-# 旁路 WordPress（纯 PHP；未安装也可能 302）
-check_http_wp "GET /wp/holt/" "${BASE}/wp/holt/"
-check_http_wp_soft "GET /wp/holt/about/" "${BASE}/wp/holt/about/" "200"
-check_http_wp_soft "GET /wp/holt/works/" "${BASE}/wp/holt/works/" "200"
-check_http_wp_soft "GET /wp/holt theme CSS" \
-  "${BASE}/wp/holt/wp-content/themes/holt-portfolio/assets/main.css" "200"
-check_http_wp_soft "GET /wp/holt wp-includes CSS" \
-  "${BASE}/wp/holt/wp-includes/css/dashicons.min.css" "200"
-check_http_wp_soft "GET /wp/holt wp-admin CSS" \
-  "${BASE}/wp/holt/wp-admin/css/login.min.css" "200"
-check_http_wp "GET /wp/holt/wp-login.php" "${BASE}/wp/holt/wp-login.php"
+if module_on wordpress_holt; then
+  check_http_wp "GET /wp/holt/" "${BASE}/wp/holt/"
+  check_http_wp_soft "GET /wp/holt/about/" "${BASE}/wp/holt/about/" "200"
+  check_http_wp_soft "GET /wp/holt/works/" "${BASE}/wp/holt/works/" "200"
+  check_http_wp_soft "GET /wp/holt theme CSS" \
+    "${BASE}/wp/holt/wp-content/themes/holt-portfolio/assets/main.css" "200"
+  check_http_wp_soft "GET /wp/holt wp-includes CSS" \
+    "${BASE}/wp/holt/wp-includes/css/dashicons.min.css" "200"
+  check_http_wp_soft "GET /wp/holt wp-admin CSS" \
+    "${BASE}/wp/holt/wp-admin/css/login.min.css" "200"
+  check_http_wp "GET /wp/holt/wp-login.php" "${BASE}/wp/holt/wp-login.php"
+else
+  echo "SKIP (wordpress_holt disabled): /wp/holt/*"
+fi
 
 if [ "$fail" -ne 0 ]; then
   echo "ERROR: 网关冒烟测试失败。请检查 nginx/profile-platform.conf 是否已同步并重载。" >&2

@@ -116,11 +116,38 @@ compose_timeout() {
   fi
 } > .env
 
-# 补全 WordPress 非密钥键；密码缺失或弱口令时 ensure-wordpress-env.sh 会失败
-if [ -x "$GATEWAY_DIR/ensure-wordpress-env.sh" ]; then
-  "$GATEWAY_DIR/ensure-wordpress-env.sh" .env
-elif [ -f "$GATEWAY_DIR/ensure-wordpress-env.sh" ]; then
-  bash "$GATEWAY_DIR/ensure-wordpress-env.sh" .env
+# 尽早解析 runtime-modules（决定是否要求 WordPress 环境变量）
+MODULES_JSON="${MODULES_JSON:-$DEPLOY_DIR/runtime-modules.json}"
+RESOLVE_PY="$GATEWAY_DIR/resolve-runtime-modules.py"
+RENDER_PY="$GATEWAY_DIR/render-runtime-nginx.py"
+NGINX_FULL="$DEPLOY_DIR/nginx/profile-platform.conf"
+NGINX_RUNTIME="$DEPLOY_DIR/nginx/profile-platform.runtime.conf"
+
+if [ ! -f "$MODULES_JSON" ]; then
+  echo "ERROR: 缺少 runtime-modules.json: $MODULES_JSON" >&2
+  exit 1
+fi
+if [ ! -f "$RESOLVE_PY" ] || [ ! -f "$RENDER_PY" ]; then
+  echo "ERROR: 缺少 resolve/render-runtime-modules 脚本" >&2
+  exit 1
+fi
+
+# shellcheck disable=SC1091
+eval "$(python3 "$RESOLVE_PY" "$MODULES_JSON")"
+APP_SERVICES="${RUNTIME_APP_SERVICES:?}"
+WP_SERVICES="${RUNTIME_WP_SERVICES:-}"
+BASE_SERVICES="nginx"
+NGINX_IMG="${NGINX_IMG:-${REGISTRY}/library-nginx:1.27-alpine}"
+
+# 补全 WordPress 非密钥键；仅当 wordpress_holt 启用时强制校验
+if [ -n "${WP_SERVICES}" ]; then
+  if [ -x "$GATEWAY_DIR/ensure-wordpress-env.sh" ]; then
+    "$GATEWAY_DIR/ensure-wordpress-env.sh" .env
+  elif [ -f "$GATEWAY_DIR/ensure-wordpress-env.sh" ]; then
+    bash "$GATEWAY_DIR/ensure-wordpress-env.sh" .env
+  fi
+else
+  echo "=== runtime-modules: wordpress_holt=false，跳过 ensure-wordpress-env ==="
 fi
 
 echo "=== 部署前磁盘 ==="
@@ -130,11 +157,8 @@ echo "=== 清理 legacy 单容器 ==="
 docker stop my_container 2>/dev/null || true
 docker rm my_container 2>/dev/null || true
 
-# DaoCloud / Docker Hub TLS 不稳：必须先保证 nginx 本地可用，再 teardown，否则拆栈后可能起不来
-APP_SERVICES="web calendar teach_hub showmasterpiece money_research node_notes idea_list filetransfer ticket_monitor fitness_plan comfy_prompt utilities"
-BASE_SERVICES="nginx"
-WP_SERVICES="wp_mariadb wordpress_holt"
-NGINX_IMG="${NGINX_IMG:-${REGISTRY}/library-nginx:1.27-alpine}"
+echo "=== 按 runtime-modules 渲染 nginx ==="
+python3 "$RENDER_PY" "$MODULES_JSON" "$NGINX_FULL" "$NGINX_RUNTIME"
 
 echo "=== 确保 nginx 本地可用（优先阿里云 ${NGINX_IMG}；失败则中止，不拆现网）==="
 if [ -x "$GATEWAY_DIR/ensure-nginx-image.sh" ]; then
@@ -181,33 +205,38 @@ if ! compose_timeout 360s -f "$COMPOSE_FILE" pull $APP_SERVICES; then
   exit 1
 fi
 
-echo "=== 启动网关栈（nginx 用本地层，避免再打 Docker Hub）==="
+echo "=== 启动网关栈（仅 runtime-modules 启用的服务 + nginx；--no-deps 防误拉卫星）==="
 UP_PULL_ARGS=()
 if compose_cmd -f "$COMPOSE_FILE" up --help 2>&1 | grep -q -- '--pull'; then
   UP_PULL_ARGS=(--pull never)
 fi
 # shellcheck disable=SC2086
-if ! compose_timeout 180s -f "$COMPOSE_FILE" up -d "${UP_PULL_ARGS[@]}" --remove-orphans $APP_SERVICES $BASE_SERVICES; then
+if ! compose_timeout 180s -f "$COMPOSE_FILE" up -d --no-deps "${UP_PULL_ARGS[@]}" --remove-orphans $APP_SERVICES $BASE_SERVICES; then
   echo "ERROR: compose up 超时/失败" >&2
   compose_cmd -f "$COMPOSE_FILE" ps || true
   exit 1
 fi
-echo "=== 尝试拉取/启动 WordPress 旁路（短超时，失败不阻断）==="
-# shellcheck disable=SC2086
-if ! compose_timeout 120s -f "$COMPOSE_FILE" pull $WP_SERVICES; then
-  echo "WARN: WordPress 镜像拉取失败，继续部署主站与 /games"
-fi
-# shellcheck disable=SC2086
-if ! compose_cmd -f "$COMPOSE_FILE" up -d $WP_SERVICES; then
-  echo "WARN: WordPress / MariaDB 启动失败，继续部署主站与 /games"
-  compose_cmd -f "$COMPOSE_FILE" logs wp_mariadb --tail=80 2>&1 || true
-fi
 
-echo "=== 确保 WordPress 数据库存在 ==="
-if [ -x "$GATEWAY_DIR/ensure-wordpress-database.sh" ]; then
-  "$GATEWAY_DIR/ensure-wordpress-database.sh" .env "$COMPOSE_FILE" || echo "WARN: ensure-wordpress-database 跳过"
-elif [ -f "$GATEWAY_DIR/ensure-wordpress-database.sh" ]; then
-  bash "$GATEWAY_DIR/ensure-wordpress-database.sh" .env "$COMPOSE_FILE" || echo "WARN: ensure-wordpress-database 跳过"
+if [ -n "${WP_SERVICES}" ]; then
+  echo "=== 尝试拉取/启动 WordPress 旁路（短超时，失败不阻断）==="
+  # shellcheck disable=SC2086
+  if ! compose_timeout 120s -f "$COMPOSE_FILE" pull $WP_SERVICES; then
+    echo "WARN: WordPress 镜像拉取失败，继续部署主站与 /games"
+  fi
+  # shellcheck disable=SC2086
+  if ! compose_cmd -f "$COMPOSE_FILE" up -d --no-deps $WP_SERVICES; then
+    echo "WARN: WordPress / MariaDB 启动失败，继续部署主站与 /games"
+    compose_cmd -f "$COMPOSE_FILE" logs wp_mariadb --tail=80 2>&1 || true
+  fi
+
+  echo "=== 确保 WordPress 数据库存在 ==="
+  if [ -x "$GATEWAY_DIR/ensure-wordpress-database.sh" ]; then
+    "$GATEWAY_DIR/ensure-wordpress-database.sh" .env "$COMPOSE_FILE" || echo "WARN: ensure-wordpress-database 跳过"
+  elif [ -f "$GATEWAY_DIR/ensure-wordpress-database.sh" ]; then
+    bash "$GATEWAY_DIR/ensure-wordpress-database.sh" .env "$COMPOSE_FILE" || echo "WARN: ensure-wordpress-database 跳过"
+  fi
+else
+  echo "=== runtime-modules: wordpress_holt=false，跳过 WordPress / MariaDB ==="
 fi
 
 echo "=== 等待服务就绪 ==="
@@ -248,9 +277,15 @@ df -h /
 
 echo "=== 部署后冒烟测试 ==="
 if [ -x "$GATEWAY_DIR/smoke-test-gateway.sh" ]; then
-  GATEWAY_PORT="$GATEWAY_PORT" "$GATEWAY_DIR/smoke-test-gateway.sh"
+  GATEWAY_PORT="$GATEWAY_PORT" \
+    RUNTIME_ENABLED_CSV="${RUNTIME_ENABLED_CSV:-}" \
+    MODULES_JSON="$MODULES_JSON" \
+    "$GATEWAY_DIR/smoke-test-gateway.sh"
 elif [ -f "$GATEWAY_DIR/smoke-test-gateway.sh" ]; then
-  GATEWAY_PORT="$GATEWAY_PORT" bash "$GATEWAY_DIR/smoke-test-gateway.sh"
+  GATEWAY_PORT="$GATEWAY_PORT" \
+    RUNTIME_ENABLED_CSV="${RUNTIME_ENABLED_CSV:-}" \
+    MODULES_JSON="$MODULES_JSON" \
+    bash "$GATEWAY_DIR/smoke-test-gateway.sh"
 else
   echo "WARN: 缺少 smoke-test-gateway.sh，跳过冒烟测试"
 fi
