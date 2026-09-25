@@ -988,10 +988,8 @@ jobs:
             [ -d "${game_dir}www" ] || continue
             should_sync=0
             if [ "$slug" = "godot-engine" ] && [ -f "${game_dir}www/index.wasm" ]; then
-              # 共享引擎只有 wasm/js，无 index.html
-              if [ "${GAMES_CHANGED}" = "true" ]; then
-                should_sync=1
-              fi
+              # 共享引擎只有 wasm/js，无 index.html；有产物就同步（不依赖其它 slug）
+              should_sync=1
             elif [ -f "${game_dir}www/index.html" ]; then
               if [ "${GAMES_CHANGED}" = "true" ] || [ -f "app_games/${slug}/.use-prebuilt-web" ]; then
                 should_sync=1
@@ -1004,7 +1002,7 @@ jobs:
             fi
           done
           if [ "${GAMES_CHANGED}" != "true" ]; then
-            echo "=== 未改 Godot 源码：保留服务器已有导出包；仍同步 .use-prebuilt-web ==="
+            echo "=== 未改 Godot 源码：保留服务器已有导出包；仍同步 .use-prebuilt-web；缺引擎时由 ensure-godot-shared-engine 引导 ==="
           fi
 
           echo "=== 服务器登录阿里云镜像仓 + 部署 + 冒烟（同一 SSH）==="

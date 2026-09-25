@@ -5,6 +5,10 @@
 #
 # 用法: share-godot-engine-www.sh
 # 依赖: deploy/games/*/www 已由 export-godot-game.sh 写出
+#
+# 若 CI 未改 app_games（未跑本脚本），部署侧会用
+# deploy/gateway/ensure-godot-shared-engine.sh 从仍含 wasm 的包引导一次，
+# 避免冒烟 GET /games/godot-engine/index.wasm → 404。
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"

@@ -248,6 +248,15 @@ else
   sleep 12
 fi
 
+echo "=== 确保共享 Godot 引擎 /games/godot-engine/ ==="
+if [ -x "$GATEWAY_DIR/ensure-godot-shared-engine.sh" ]; then
+  "$GATEWAY_DIR/ensure-godot-shared-engine.sh"
+elif [ -f "$GATEWAY_DIR/ensure-godot-shared-engine.sh" ]; then
+  bash "$GATEWAY_DIR/ensure-godot-shared-engine.sh"
+else
+  echo "WARN: 缺少 ensure-godot-shared-engine.sh"
+fi
+
 echo "=== 为 Godot www 补预压缩 .gz（供 gzip_static；缺文件时不再现场压 38MB wasm）==="
 if [ -f "$DEPLOY_DIR/compress-godot-www.sh" ]; then
   for d in games/*/www; do

@@ -40,7 +40,7 @@
 
 平台 nginx 对 `index.wasm` / `index.pck` **只允许 `gzip_static`**，禁止现场 gzip。缺 `.gz` 时直出未压缩文件。外层 Ubuntu nginx 的 `/games/` 关闭 gzip 与 proxy buffering，避免 38MB 包打满 CPU 后整站 502。
 
-标准 Godot 包共用 `/games/godot-engine/` 一份引擎（`deploy/scripts/godot/share-godot-engine-www.sh`）；各游戏只下自己的 `.pck`。浏览器对引擎 URL 长缓存。
+标准 Godot 包共用 `/games/godot-engine/` 一份引擎（`deploy/scripts/godot/share-godot-engine-www.sh`）；各游戏只下自己的 `.pck`。浏览器对引擎 URL 长缓存。若 CI 未改 games、服务器又缺引擎，部署脚本会跑 `ensure-godot-shared-engine.sh` 从仍含 wasm 的标准包引导一次。
 
 ## 手动 fix workflows
 
